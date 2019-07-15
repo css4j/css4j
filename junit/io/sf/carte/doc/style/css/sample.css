@@ -1,0 +1,17 @@
+p.boldmargin {font-weight: bold; margin-left: 2%;}
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+ul, ol {margin-top: 1em; margin-bottom: 2em;}
+/* Comment before li */
+li {margin-top: 1em; margin-bottom: 1em; }
+/* Comment before frame */
+frame {display: block; border: none ! important; }
+/* Comment before frameset */
+frameset {display: block; border: none; }
+/* Comment before noframes */
+noframes {display: none; border: none; }
+@media print {
+    body { font-size: 10pt }
+}
+@media screen {
+    body { font-size: 12pt }
+}

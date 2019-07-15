@@ -1,0 +1,285 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMStringList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.css.DocumentCSS;
+import org.w3c.dom.stylesheets.DocumentStyle;
+
+import io.sf.carte.doc.agent.CSSCanvas;
+
+/**
+ * A CSS-enabled Document.
+ * 
+ * @author Carlos
+ *
+ */
+public interface CSSDocument extends Document, DocumentCSS, DocumentStyle, CSSNode {
+
+	/**
+	 * The style computations operate under a compliance mode. Two modes are supported:
+	 * <code>STRICT</code> and <code>QUIRKS</code>.
+	 * </p>
+	 * <p>
+	 * <code>QUIRKS</code> and <code>STRICT</code> differ in the matching of class and ID
+	 * selectors, and the default user agent sheet is slightly different.
+	 * </p>
+	 */
+	enum ComplianceMode {
+		QUIRKS, STRICT
+	}
+
+	/**
+	 * Creates an element of the type specified.
+	 * <p>
+	 * The presence of <code>IMPLIED</code> attributes is implementation-dependent.
+	 * 
+	 * @param tagName the tag name of the element to create.
+	 * @return the new <code>CSSElement</code>.
+	 * @throws DOMException INVALID_CHARACTER_ERR if the name is not an XML valid
+	 *                      name.
+	 */
+	@Override
+	public CSSElement createElement(String tagName) throws DOMException;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CSSElement createElementNS(String namespaceURI, String qualifiedName) throws DOMException;
+
+	/**
+	 * Get the compliance mode of this document.
+	 * <p>
+	 * The styling in this document operate under a compliance mode. Two modes are supported:
+	 * <code>STRICT</code> and <code>QUIRKS</code>.
+	 * </p>
+	 * <p>
+	 * <code>QUIRKS</code> and <code>STRICT</code> differ in the matching of class and ID
+	 * selectors, and the default user agent sheet is slightly different.
+	 * </p>
+	 * 
+	 * @return the compliance mode.
+	 */
+	public CSSDocument.ComplianceMode getComplianceMode();
+
+	/**
+	 * Get the child node which is the document element of this document.
+	 * 
+	 * @return the document element.
+	 */
+	@Override
+	public CSSElement getDocumentElement();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CSSElement getElementById(String elementId);
+
+	/**
+	 * A list containing all the style sheets explicitly linked into or embedded
+	 * in a document. For HTML documents, this includes external style sheets,
+	 * included via the HTML LINK element, and inline STYLE elements.
+	 */
+	@Override
+	public CSSStyleSheetList<? extends ExtendedCSSRule> getStyleSheets();
+
+	/**
+	 * Gets the list of available style set titles.
+	 * 
+	 * @return the list of available style set titles.
+	 */
+	public DOMStringList getStyleSheetSets();
+
+	/**
+	 * Gets the title of the currently selected style sheet set.
+	 * 
+	 * @return the title of the currently selected style sheet, or the empty
+	 *         string if none is selected.
+	 */
+	public String getSelectedStyleSheetSet();
+
+	/**
+	 * Selects a style sheet set, disabling the other non-persistent sheet sets.
+	 * If the name is the empty string, all non-persistent sheets will be
+	 * disabled. Otherwise, if the name does not match any of the sets, does
+	 * nothing.
+	 * 
+	 * @param name
+	 *            the case-sensitive name of the set to select.
+	 */
+	public void setSelectedStyleSheetSet(String name);
+
+	/**
+	 * Gets the style sheet set that was last selected.
+	 * 
+	 * @return the last selected style sheet set, or <code>null</code> if none.
+	 */
+	public String getLastStyleSheetSet();
+
+	/**
+	 * Enables a style sheet set. If the name does not match any of the sets,
+	 * does nothing.
+	 * 
+	 * @param name
+	 *            the case-sensitive name of the set to enable.
+	 */
+	public void enableStyleSheetsForSet(String name);
+
+	/**
+	 * Gets the override style declaration for an element and pseudo-element.
+	 * <p>
+	 * The getOverrideStyle method provides a mechanism through which a DOM author could
+	 * effect immediate change to the style of an element without modifying the explicitly
+	 * linked style sheets of a document or the inline style of elements.
+	 * </p>
+	 * <p>
+	 * The override style sheet comes after the author style sheet in the cascade algorithm.
+	 * DOM Level 2.
+	 * </p>
+	 * 
+	 * @param elt
+	 *            the element.
+	 * @param pseudoElt
+	 *            the pseudo-element, or <code>null</code> if none.
+	 * @return the override style sheet for the given element and pseudo-element.
+	 */
+	@Override
+	public ExtendedCSSStyleDeclaration getOverrideStyle(Element elt, String pseudoElt);
+
+	/**
+	 * Gets the merged style sheet that applies to this document, resulting from
+	 * the merge of the document's default style sheet, the document linked or
+	 * embedded style sheets, and the non-important part of the user style
+	 * sheet. Does not include overriden styles nor the 'important' part of the
+	 * user-defined style sheet.
+	 * 
+	 * @return the merged style sheet that applies to this document.
+	 */
+	public DocumentCSSStyleSheet getStyleSheet();
+
+	/**
+	 * Gets the style database currently used to apply specific styles to this
+	 * document.
+	 * 
+	 * @return the style database.
+	 */
+	public StyleDatabase getStyleDatabase();
+
+	/**
+	 * Set the medium that will be used to compute the styles of this document.
+	 * 
+	 * @param medium
+	 *            the target medium.
+	 * @throws CSSMediaException
+	 *             if the document is unable to target the given medium.
+	 */
+	public void setTargetMedium(String medium) throws CSSMediaException;
+
+	/**
+	 * This document's current target medium name (e.g. 'screen').
+	 * 
+	 * @return the target medium name of this document.
+	 */
+	public String getTargetMedium();
+
+	/**
+	 * Gets the document's canvas for the current target medium.
+	 * 
+	 * @return the canvas, or null if the DeviceFactory does not support canvas
+	 *         for the current medium.
+	 */
+	public CSSCanvas getCanvas();
+
+	/**
+	 * Get the referrer policy obtained through the 'Referrer-Policy' header or a meta
+	 * element.
+	 * 
+	 * @return the referrer policy, or the empty string if none was specified.
+	 */
+	public String getReferrerPolicy();
+
+	/**
+	 * Is the provided URL a safe origin to load certain external resources?
+	 * 
+	 * @param linkedURL
+	 *            the URL of the external resource.
+	 * 
+	 * @return <code>true</code> if is a safe origin, <code>false</code> otherwise.
+	 */
+	public boolean isSafeOrigin(URL linkedURL);
+
+	/**
+	 * Gets the Base URL of this Document.
+	 * 
+	 * @return the base URL, or null if no base URL could be determined.
+	 */
+	public URL getBaseURL();
+
+	/**
+	 * Gets an URL for the given URI, taking into account the Base URL if
+	 * appropriate.
+	 * 
+	 * @param uri
+	 *            the uri.
+	 * @return the absolute URL.
+	 * @throws MalformedURLException
+	 *             if the uri was wrong.
+	 */
+	public URL getURL(String uri) throws MalformedURLException;
+
+	/**
+	 * Opens a connection for the given URL.
+	 * 
+	 * @param url
+	 *            the URL to open a connection to.
+	 * @return the URL connection.
+	 * @throws IOException
+	 *             if the connection could not be opened.
+	 */
+	public URLConnection openConnection(URL url) throws IOException;
+
+	/**
+	 * Has this URI been visited by the agent ?
+	 * 
+	 * @param href
+	 *            the URI.
+	 * @return <code>true</code> if visited, <code>false</code> if not visited or the agent does not
+	 *         support history.
+	 */
+	public boolean isVisitedURI(String href);
+
+	/**
+	 * Gets the document-level error handler.
+	 * 
+	 * @return the error handler.
+	 */
+	public ErrorHandler getErrorHandler();
+
+	/**
+	 * Has any of the linked or embedded style sheets any error or warning ?
+	 * 
+	 * @return <code>true</code> if any of the linked or embedded style sheets has any SAC or rule error
+	 *         or warning, <code>false</code> otherwise.
+	 */
+	boolean hasStyleIssues();
+
+}

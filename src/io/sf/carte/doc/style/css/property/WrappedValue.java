@@ -1,0 +1,20 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.property;
+
+/**
+ * This interface is mostly for internal use by the library (cross-package, so
+ * its visibility is public).
+ */
+public interface WrappedValue {
+	public String getParentSheetHref();
+}

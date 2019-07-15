@@ -1,0 +1,219 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.om;
+
+import org.w3c.css.sac.LexicalUnit;
+import org.w3c.dom.css.CSSPrimitiveValue;
+
+import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
+import io.sf.carte.doc.style.css.property.CSSNumberValue;
+import io.sf.carte.doc.style.css.property.ValueFactory;
+
+class FlexShorthandSetter extends ShorthandSetter {
+
+	FlexShorthandSetter(BaseCSSStyleDeclaration style) {
+		super(style, "flex");
+	}
+
+	@Override
+	public boolean assignSubproperties() {
+		byte kwscan = scanForCssWideKeywords(currentValue);
+		if (kwscan == 1) {
+			return true;
+		} else if (kwscan == 2) {
+			return false;
+		}
+		setPropertyToDefault("flex-grow");
+		setPropertyToDefault("flex-shrink");
+		setPropertyToDefault("flex-basis");
+		boolean flexGrowUnset = true;
+		boolean flexBasisUnset = true;
+		byte count = 0;
+		while (currentValue != null) {
+			if (count == 2) {
+				return false;
+			}
+			short lut = currentValue.getLexicalUnitType();
+			if (flexGrowUnset) {
+				if (lut == LexicalUnit.SAC_INTEGER) {
+					int intValue = currentValue.getIntegerValue();
+					if (intValue < 0) {
+						return false;
+					}
+					setFlexGrow(intValue);
+					flexGrowUnset = false;
+					count++;
+					byte ret = checkFlexShrink();
+					if (ret == -1) {
+						return false;
+					} else {
+						continue;
+					}
+				} else if (lut == LexicalUnit.SAC_REAL) {
+					float floatValue = currentValue.getFloatValue();
+					if (floatValue < 0f) {
+						return false;
+					}
+					setFlexGrow(floatValue);
+					flexGrowUnset = false;
+					count++;
+					byte ret = checkFlexShrink();
+					if (ret == -1) {
+						return false;
+					} else {
+						continue;
+					}
+				}
+			}
+			if (flexBasisUnset && ValueFactory.isSizeSACUnit(currentValue)) {
+				AbstractCSSPrimitiveValue value = (AbstractCSSPrimitiveValue) createCSSValue("flex-basis",
+						currentValue);
+				if (value.isNumberZero()) {
+					CSSNumberValue number = new CSSNumberValue();
+					number.setSubproperty(true);
+					number.setIntegerValue(0);
+					value = number;
+				}
+				setSubpropertyValue("flex-basis", value);
+				count++;
+				flexBasisUnset = false;
+			} else if (lut == LexicalUnit.SAC_IDENT) {
+				// Only 'auto', 'content' and 'none' are acceptable
+				String ident = currentValue.getStringValue();
+				if ("none".equalsIgnoreCase(ident)) {
+					if (flexGrowUnset) {
+						setFlexGrow(0);
+						setFlexShrink(0);
+					}
+					setFlexBasisToAuto();
+					count += 2;
+					flexBasisUnset = false;
+				} else if ("auto".equalsIgnoreCase(ident)) {
+					if (flexGrowUnset) {
+						setFlexGrow(1);
+						setFlexShrink(1);
+					}
+					setFlexBasisToAuto();
+					count += 2;
+					flexBasisUnset = false;
+				} else if ("content".equalsIgnoreCase(ident)) { // flex-basis
+					setSubpropertyValue("flex-basis", createCSSValue("flex-basis", currentValue));
+					count++;
+					flexBasisUnset = false;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+			nextCurrentValue();
+		}
+		flush();
+		return true;
+	}
+
+	private void setFlexGrow(int grow) {
+		CSSNumberValue number = new CSSNumberValue();
+		number.setIntegerValue(grow);
+		number.setSubproperty(true);
+		setSubpropertyValue("flex-grow", number);
+	}
+
+	private void setFlexGrow(float grow) {
+		CSSNumberValue number = new CSSNumberValue();
+		number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, grow);
+		number.setSubproperty(true);
+		setSubpropertyValue("flex-grow", number);
+	}
+
+	private byte checkFlexShrink() {
+		nextCurrentValue();
+		if (currentValue != null) {
+			short lut = currentValue.getLexicalUnitType();
+			if (lut == LexicalUnit.SAC_INTEGER) {
+				int intValue = currentValue.getIntegerValue();
+				if (intValue >= 0) {
+					setFlexShrink(intValue);
+					nextCurrentValue();
+					return 1;
+				} else {
+					return -1;
+				}
+			} else if (lut == LexicalUnit.SAC_REAL) {
+				float floatValue = currentValue.getFloatValue();
+				if (floatValue >= 0f) {
+					setFlexShrink(floatValue);
+					nextCurrentValue();
+					return 1;
+				} else {
+					return -1;
+				}
+			}
+		}
+		return 0;
+	}
+
+	private void setFlexShrink(int shrink) {
+		CSSNumberValue number = new CSSNumberValue();
+		number.setIntegerValue(shrink);
+		number.setSubproperty(true);
+		setSubpropertyValue("flex-shrink", number);
+	}
+
+	private void setFlexShrink(float shrink) {
+		CSSNumberValue number = new CSSNumberValue();
+		number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, shrink);
+		number.setSubproperty(true);
+		setSubpropertyValue("flex-shrink", number);
+	}
+
+	private void setFlexBasisToAuto() {
+		CSSIdentifierValue ident = new CSSIdentifierValue("auto");
+		ident.setSubproperty(true);
+		setSubpropertyValue("flex-basis", ident);
+	}
+
+	/**
+	 * Adds the text representation of the current subproperty value, to be used in setting
+	 * the css text for the shorthand.
+	 */
+	@Override
+	protected void appendValueItemString() {
+		if (currentValue != null) {
+			AbstractCSSValue cssValue = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
+			if (cssValue != null) {
+				String cssText, miniCssText;
+				CSSNumberValue number;
+				if (currentValue.getNextLexicalUnit() == null && cssValue instanceof CSSNumberValue
+						&& ((number = (CSSNumberValue) cssValue).isNumberZero())) {
+					cssText = "0" + number.getDimensionUnitText();
+					miniCssText = cssText;
+				} else {
+					cssText = cssValue.getCssText();
+					miniCssText = cssValue.getMinifiedCssText(getShorthandName());
+				}
+				StringBuilder buf = getValueItemBuffer();
+				StringBuilder minibuf = getValueItemBufferMini();
+				int len = buf.length();
+				if (len != 0) {
+					minibuf.append(' ');
+					buf.append(' ');
+				}
+				buf.append(cssText);
+				minibuf.append(miniCssText);
+			}
+		}
+	}
+
+}

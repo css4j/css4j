@@ -1,0 +1,290 @@
+body
+{
+	font-family: Verdana, Arial, Helvetica;
+	margin: 0 0 0.2em 0;
+}
+
+img
+{
+	border-style: none;
+}
+
+.layout
+{
+	margin-top:0;
+	margin-right: auto;
+	padding: 0;
+	border-width: 0;
+	border-style: none;
+	background: url(imag/top_b.png) repeat-x;
+}
+
+#mylinkhome
+{
+	display: block;
+	background: url(imag/minilogo.png) no-repeat 3px 2px;
+	height: 39px;
+}
+
+#linkhome
+{
+	display: block;
+	background: url(imag/minilogo.png) no-repeat 3px 2px;
+	height: 39px;
+}
+
+#linkhome span, #mylinkhome span
+{
+	display: none;
+}
+
+.container
+{
+	padding: 0;
+	margin-top: 0;
+}
+
+html>body .container
+{
+	margin-left: 170px;
+}
+
+.menu {
+	width: 133px;
+	float: left;
+	margin-left: 2px;
+	background-color: #C1BA85;
+}
+
+html>body .menu {
+	padding-left: 6px;
+	margin-left: -170px;
+}
+
+.menulist {
+	list-style-type: none;
+	padding: 0;
+}
+
+.menulist, .menulist li {
+	margin: 0;
+}
+
+.menulist li {
+	width: inherit;
+	height: 24px;
+	font-size: 12pt;
+}
+
+.menulist li.menulvl2 {
+	width: inherit;
+	height: 20px;
+	font-size: 10pt;
+}
+
+.menulist a, .menulist div
+{
+	height: 24px;
+	padding: 1px 0 0 0.2ex;
+}
+
+li.menulvl2 a, li.menulvl2 div
+{
+	height: 20px;
+	padding: 1px 0 0 0.2ex;
+}
+
+.menulist a
+{
+	display: block;
+	background: url(imag/mnubg_a.png) no-repeat;
+}
+
+li.menulvl2 a
+{
+	display: block;
+	background: url(imag/mnubg2_a.png) no-repeat;
+}
+
+li.menulvl2 a:hover
+{
+	text-align: right;
+	background: url(imag/mnubg2_b.png) no-repeat;
+}
+
+.menulist a:hover
+{
+	text-align: right;
+	padding-right: 16px;
+	background: url(imag/mnubg_b.png) no-repeat;
+}
+
+.menulist div
+{
+	text-align: right;
+	padding-right: 16px;
+	background: url(imag/mnubg_b.png) no-repeat;
+}
+
+li.menulvl2 div
+{
+	text-align: right;
+	padding-right: 20px;
+	background: url(imag/mnubg_b.png) no-repeat;
+}
+
+.beforemain
+{
+	display: none;
+}
+
+.main
+{
+	float: left;
+	width: 90%;
+	font-family: Liberation Sans, Helvetica, Arial, sans-serif;
+}
+
+/* one comment */
+
+.textheader span
+{
+	float: right;
+	padding: 0.2em 1.2ex 1.2em 1.2ex;
+	font-weight: lighter;
+	color: #727272;
+	text-align: left;
+	letter-spacing: 0.06em;
+	background: url(imag/screen.png) no-repeat 1px 0.1em;
+}
+
+.cos
+{
+	font-family : Verdana, Liberation Sans, Arial, Helvetica, sans-serif;
+	font-size : small;
+	text-align: justify;
+	border-top: 2px dotted #B29E7C;
+	margin: 1.9em 1ex 1em 100px;
+}
+
+.cos  p
+{
+	line-height: 1.4em;
+}
+
+html>body .cos 
+{
+	margin-left: 0.2ex;
+}
+
+.cos li
+{
+	line-height: 1.5em;
+	margin: 0.5em 1.5ex 0.6em 0;
+}
+
+code
+{
+	font-size: 1.3em;
+}
+
+pre
+{
+	font-size: 1.4em;
+}
+
+pre.code
+{
+	padding: 1em; background-color: #f4eed0;
+}
+
+div.tema
+{
+	margin: 2em 0 3.3em 0;
+}
+
+div.subtema
+{
+	margin: 1em 0 2em 0;
+}
+
+div.seccion
+{
+	margin: 2em 0 3em 0;
+}
+
+.seccion ul
+{
+	margin: 1.4em 0 1.8em 0;
+}
+
+.seccion li
+{
+	list-style-type: square;
+}
+
+img.diagram
+{
+	margin: 1em 5%;
+}
+
+.urlist li
+{
+	list-style-type: square;
+}
+
+.legalremind
+{
+	font-size: smaller;
+	font-style: italic;
+}
+
+.clausulas li
+{
+	margin: 1em 0.5em 2em 0.5em;
+	line-height: 1.3em;
+}
+
+.footnote
+{
+	margin-top: 4em;
+	margin-bottom: 2em;
+	text-align: center;
+	font-size: 0.8em;
+	font-style: italic;
+	padding: 0.3em 0 0.5em 0;
+	border-top: 2px solid #171719;
+}
+
+.smallnote
+{
+	font-style: italic;
+	font-size: smaller;
+}
+
+.smpreface
+{
+	font-style: italic;
+	font-size: smaller;
+	padding: 0.3em 3em 0.4em 1.5em;
+	text-align: justify;
+}
+
+.explist li
+{
+	margin: 0.2em 0 0.3em 0;
+	line-height: 1.3em;
+}
+
+.illustration
+{
+	margin: 0.6em 2ex 1em 0;
+	float: left;
+}
+
+.imgcredit
+{
+	font-style: italic;
+	font-size: smaller;
+	display: block;
+}

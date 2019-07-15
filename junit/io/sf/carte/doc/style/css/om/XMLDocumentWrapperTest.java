@@ -1,0 +1,429 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.om;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Iterator;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMStringList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.css.CSSPrimitiveValue;
+import org.w3c.dom.css.CSSStyleDeclaration;
+import org.w3c.dom.css.CSSStyleRule;
+import org.w3c.dom.css.CSSValue;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
+import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleProcessingInstruction;
+import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
+
+/**
+ * Similar to StylableDocumentWrapperTest, but processing the XML sample instead of XHTML.
+ */
+public class XMLDocumentWrapperTest {
+	private static DocumentBuilder docb;
+	private StylableDocumentWrapper xmlDoc;
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws ParserConfigurationException {
+		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		docb = dbFac.newDocumentBuilder();
+		docb.setEntityResolver(new DefaultEntityResolver());
+	}
+
+	@Before
+	public void setUp() throws ParserConfigurationException, SAXException, IOException {
+		Reader re = DOMCSSStyleSheetFactoryTest.sampleXMLReader();
+		InputSource is = new InputSource(re);
+		Document doc = docb.parse(is);
+		re.close();
+		doc.setDocumentURI("http://www.example.com/xml/xmlsample.xml");
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		xmlDoc = cssFac.createCSSDocument(doc);
+	}
+
+	@Test
+	public void getDocumentElement() {
+		CSSElement elm = xmlDoc.getDocumentElement();
+		assertNotNull(elm);
+		assertEquals("html", elm.getTagName());
+		assertNull(elm.getNamespaceURI());
+	}
+
+	@Test
+	public void testEntities1() {
+		CSSElement elm = xmlDoc.getElementById("entity");
+		assertNotNull(elm);
+		assertEquals("span", elm.getTagName());
+		assertEquals("<>", elm.getTextContent());
+		NodeList nl = elm.getChildNodes();
+		assertNotNull(nl);
+		assertEquals(1, nl.getLength());
+		Node node0 = nl.item(0);
+		assertEquals(Node.TEXT_NODE, node0.getNodeType());
+		assertEquals("<>", node0.getNodeValue());
+		Attr classattr = elm.getAttributeNode("class");
+		assertNotNull(classattr);
+		assertEquals("ent\"ity", classattr.getValue());
+	}
+
+	@Test
+	public void testEntities2() {
+		CSSElement elm = xmlDoc.getElementById("entiacute");
+		assertNotNull(elm);
+		assertEquals("span", elm.getTagName());
+		assertEquals("ítem", elm.getTextContent());
+		NodeList nl = elm.getChildNodes();
+		assertNotNull(nl);
+		assertEquals(1, nl.getLength());
+		Node ent0 = nl.item(0);
+		assertEquals(Node.TEXT_NODE, ent0.getNodeType());
+		assertEquals("ítem", ent0.getNodeValue());
+	}
+
+	@Test
+	public void getChildNodes() {
+		NodeList list = xmlDoc.getChildNodes();
+		assertNotNull(list);
+		assertEquals(8, list.getLength());
+	}
+
+	@Test
+	public void getElementById() {
+		CSSElement elm = xmlDoc.getElementById("ul1");
+		assertNotNull(elm);
+		assertEquals("ul", elm.getTagName());
+		assertNull(xmlDoc.getElementById("xxxxxx"));
+	}
+
+	@Test
+	public void getElementsByTagName() {
+		NodeList stylelist = xmlDoc.getElementsByTagName("style");
+		assertNotNull(stylelist);
+		assertEquals(1, stylelist.getLength());
+		assertEquals("style", stylelist.item(0).getNodeName());
+		NodeList list = xmlDoc.getElementsByTagName("li");
+		assertNotNull(list);
+		assertEquals(6, list.getLength());
+		assertEquals("li", list.item(0).getNodeName());
+		list = xmlDoc.getElementsByTagName("xxxxxx");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		list = xmlDoc.getElementsByTagName("div");
+		assertEquals(1, list.getLength());
+	}
+
+	@Test
+	public void getTextContent() {
+		Element elm = (Element) xmlDoc.getElementsByTagName("style").item(0);
+		assertNotNull(elm);
+		String text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1106, text.trim().length());
+	}
+
+	@Test
+	public void getStyleSheet() {
+		DocumentCSSStyleSheet defsheet = xmlDoc.getStyleSheetFactory().getDefaultStyleSheet(xmlDoc.getComplianceMode());
+		assertNotNull(defsheet);
+		// Obtain the number of rules in the default style sheet, to use it
+		// as a baseline.
+		int defSz = defsheet.getCssRules().getLength();
+		DocumentCSSStyleSheet css = xmlDoc.getStyleSheet();
+		assertNotNull(css);
+		assertNotNull(css.getCssRules());
+		int countInternalSheets = xmlDoc.embeddedStyle.size() + xmlDoc.linkedStyle.size();
+		assertEquals(6, countInternalSheets);
+		assertEquals(6, xmlDoc.getStyleSheets().getLength());
+		assertEquals("http://www.example.com/css/common.css", xmlDoc.getStyleSheets().item(0).getHref());
+		assertEquals(3, xmlDoc.getStyleSheetSets().getLength());
+		Iterator<LinkStyleDefiner> it = xmlDoc.linkedStyle.iterator();
+		assertTrue(it.hasNext());
+		AbstractCSSStyleSheet sheet = it.next().getSheet();
+		assertNotNull(sheet);
+		assertEquals(null, sheet.getTitle());
+		assertEquals(3, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertEquals("background-color: red; ", ((CSSStyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
+		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
+		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
+		CSSValue ffval = fontface.getPropertyCSSValue("src");
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ffval.getCssValueType());
+		assertEquals(CSSPrimitiveValue.CSS_URI, ((CSSPrimitiveValue) ffval).getPrimitiveType());
+		assertTrue(((FontFeatureValuesRule) sheet.getCssRules().item(2)).getMinifiedCssText()
+				.startsWith("@font-feature-values Foo Sans,Bar"));
+		assertTrue(it.hasNext());
+		sheet = it.next().getSheet();
+		assertNotNull(sheet);
+		assertEquals("Alter 1", sheet.getTitle());
+		assertEquals(2, sheet.getCssRules().getLength());
+		assertEquals(defSz + 20, css.getCssRules().getLength());
+		assertFalse(xmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
+	}
+
+	@Test
+	public void getSelectedStyleSheetSet() {
+		DOMStringList list = xmlDoc.getStyleSheetSets();
+		assertEquals(3, list.getLength());
+		assertTrue(list.contains("Default"));
+		assertTrue(list.contains("Alter 1"));
+		assertTrue(list.contains("Alter 2"));
+		assertEquals("Default", xmlDoc.getSelectedStyleSheetSet());
+		xmlDoc.setSelectedStyleSheetSet("foo");
+		assertEquals("Default", xmlDoc.getSelectedStyleSheetSet());
+		xmlDoc.setSelectedStyleSheetSet("Alter 1");
+		assertEquals("Alter 1", xmlDoc.getSelectedStyleSheetSet());
+		xmlDoc.enableStyleSheetsForSet("Alter 1");
+		assertEquals("Alter 1", xmlDoc.getSelectedStyleSheetSet());
+		xmlDoc.setSelectedStyleSheetSet("foo");
+		assertEquals("Alter 1", xmlDoc.getSelectedStyleSheetSet());
+		xmlDoc.setSelectedStyleSheetSet("Alter 2");
+		assertEquals("Alter 2", xmlDoc.getSelectedStyleSheetSet());
+		xmlDoc.enableStyleSheetsForSet("Alter 1");
+		assertNull(xmlDoc.getSelectedStyleSheetSet());
+		xmlDoc.setSelectedStyleSheetSet("Default");
+		assertEquals("Default", xmlDoc.getSelectedStyleSheetSet());
+	}
+
+	@Test
+	public void getComputedStyle() {
+		CSSElement elm = xmlDoc.getElementById("firstH3");
+		assertNotNull(elm);
+		DocumentCSSStyleSheet sheet = xmlDoc.getStyleSheet();
+		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		assertEquals(15, styledecl.getLength());
+		assertEquals("#808000", styledecl.getPropertyValue("color"));
+		assertEquals("1.8em", styledecl.getPropertyValue("font-size"));
+		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
+	}
+
+	@Test
+	public void getOverrideStyle() {
+		CSSElement elm = xmlDoc.getElementById("tablerow1");
+		assertNotNull(elm);
+		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals("5pt", style.getPropertyValue("margin-top"));
+		assertEquals("margin-top: 5pt; margin-right: 5pt; margin-bottom: 5pt; margin-left: 5pt; ", style.getCssText());
+		xmlDoc.getOverrideStyle(elm, null).setCssText("margin: 16pt; color: red");
+		assertEquals("red", xmlDoc.getOverrideStyle(elm, null).getPropertyValue("color"));
+		assertEquals("margin: 16pt; color: red; ", xmlDoc.getOverrideStyle(elm, null).getCssText());
+		style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertNotNull(style);
+		assertEquals("16pt", style.getPropertyValue("margin-top"));
+		assertEquals("#f00", style.getPropertyValue("color"));
+		assertEquals("margin-top: 16pt; margin-right: 16pt; margin-bottom: 16pt; margin-left: 16pt; color: #f00; ",
+				style.getCssText());
+		assertEquals("margin:16pt;color:#f00;", style.getMinifiedCssText());
+	}
+
+	@Test
+	public void testGetDocumentElementGetColor() {
+		CSSElement elm = xmlDoc.getDocumentElement();
+		assertNotNull(elm);
+		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertNotNull(style);
+		AbstractCSSValue color = (AbstractCSSValue) style.getPropertyCSSValue("color");
+		assertNotNull(color);
+		assertEquals("initial", color.getCssText());
+		assertTrue(color.isSystemDefault());
+		assertEquals(0, style.getLength());
+	}
+
+	@Test
+	public void testGetDocumentElementGetColorLenient() throws SAXException, IOException {
+		Reader re = DOMCSSStyleSheetFactoryTest.sampleXMLReader();
+		InputSource is = new InputSource(re);
+		Document doc = docb.parse(is);
+		re.close();
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(true);
+		xmlDoc = cssFac.createCSSDocument(doc);
+		//
+		CSSElement elm = xmlDoc.getDocumentElement();
+		assertNotNull(elm);
+		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertNotNull(style);
+		AbstractCSSValue color = (AbstractCSSValue) style.getPropertyCSSValue("color");
+		assertNotNull(color);
+		assertEquals("#000", color.getCssText());
+		assertFalse(color.isSystemDefault());
+		assertEquals(0, style.getLength());
+	}
+
+	@Test
+	public void testEmbeddedStyle() {
+		xmlDoc.getStyleSheets();
+		LinkStyleDefiner link = xmlDoc.embeddedStyle.iterator().next();
+		AbstractCSSStyleSheet sheet = link.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertTrue(sheet.getCssRules().getLength() > 0);
+		link.setNodeValue("href=\"#style1\" media=\"screen\"");
+		AbstractCSSStyleSheet sheet2 = link.getSheet();
+		assertNotNull(sheet2);
+		assertEquals(1, sheet2.getMedia().getLength());
+		assertEquals("screen", sheet2.getMedia().item(0));
+		assertTrue(sheet2.getCssRules().getLength() > 0);
+		// Change content of the container element
+		LinkStyleProcessingInstruction pi = (LinkStyleProcessingInstruction) link;
+		String href = pi.getPseudoAttribute("href");
+		assertTrue(href.length() > 1);
+		assertEquals('#', href.charAt(0));
+		Element container = xmlDoc.getElementById(href.substring(1));
+		assertNotNull(container);
+		Node text = firstNonEmptyText(container.getChildNodes());
+		assertNotNull(text);
+		text.setNodeValue("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
+		sheet = link.getSheet();
+		assertNotNull(sheet);
+		assertEquals(2, sheet.getCssRules().getLength());
+	}
+
+	@Test
+	public void testEmbeddedStyle2() {
+		xmlDoc.getStyleSheets();
+		LinkStyleDefiner link = xmlDoc.embeddedStyle.iterator().next();
+		AbstractCSSStyleSheet sheet = link.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertTrue(sheet.getCssRules().getLength() > 0);
+		// Change text child of the container element
+		LinkStyleProcessingInstruction pi = (LinkStyleProcessingInstruction) link;
+		String href = pi.getPseudoAttribute("href");
+		assertTrue(href.length() > 1);
+		assertEquals('#', href.charAt(0));
+		Element container = xmlDoc.getElementById(href.substring(1));
+		assertNotNull(container);
+		Node text = firstNonEmptyText(container.getChildNodes());
+		assertNotNull(text);
+		text.setNodeValue("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
+		AbstractCSSStyleSheet sheet2 = link.getSheet();
+		assertNotNull(sheet2);
+		assertEquals(2, sheet2.getCssRules().getLength());
+	}
+
+	private static Node firstNonEmptyText(NodeList list) {
+		Node text = null;
+		for (int i = 0; i < list.getLength(); i++) {
+			Node node = list.item(i);
+			if (node.getNodeType() == Node.TEXT_NODE && node.getNodeValue().trim().length() > 2) {
+				text = node;
+				break;
+			}
+		}
+		return text;
+	}
+
+	@Test
+	public void testStyleElement() {
+		xmlDoc.getStyleSheets();
+		LinkStyleDefiner link = xmlDoc.embeddedStyle.iterator().next();
+		AbstractCSSStyleSheet sheet = link.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertTrue(sheet.getCssRules().getLength() != 0);
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(sheet.getOwnerNode() == link);
+		//
+		CSSElement style = (CSSElement) xmlDoc.getElementsByTagName("style").item(0);
+		assertEquals(1, style.getChildNodes().getLength());
+		Node node = style.getFirstChild();
+		node.setNodeValue("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
+		//
+		link.setNodeValue("href=\"#doesnotexist\" type=\"text/css\"");
+		assertNull(link.getSheet());
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		xmlDoc.getErrorHandler().reset();
+		//
+		link.setNodeValue("href=\"#style1\" type=\"foo\"");
+		assertNull(link.getSheet());
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testLinkElement() {
+		xmlDoc.getStyleSheets();
+		LinkStyleDefiner link = xmlDoc.linkedStyle.iterator().next();
+		AbstractCSSStyleSheet sheet = link.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertTrue(sheet.getCssRules().getLength() != 0);
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+		//
+		link.setNodeValue("href=\"/css/common.css\" media=\"screen\"");
+		AbstractCSSStyleSheet sheet2 = link.getSheet();
+		assertNotNull(sheet2);
+		assertEquals(1, sheet2.getMedia().getLength());
+		assertEquals("screen", sheet2.getMedia().item(0));
+		assertEquals(sheet.getCssRules().getLength(), sheet2.getCssRules().getLength());
+		//
+		link.setNodeValue("href=\"http://www.example.com/css/alter1.css\" media=\"screen\"");
+		sheet = link.getSheet();
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+		//
+		link.setNodeValue("href=\"http://www.example.com/css/alter1.css\" media=\"screen and only\"");
+		assertNull(link.getSheet());
+		xmlDoc.getErrorHandler().reset();
+		//
+		link.setNodeValue("href=\"http://www.example.com/css/example.css\" media=\"screen\"");
+		sheet = link.getSheet();
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testBaseAttribute() {
+		assertEquals("http://www.example.com/xml/xmlsample.xml", xmlDoc.getDocumentURI());
+		assertEquals("http://www.example.com/", xmlDoc.getBaseURI());
+		Attr base = xmlDoc.getDocumentElement().getAttributeNode("xml:base");
+		assertEquals("http://www.example.com/", base.getNodeValue());
+	}
+
+	@Test
+	public void testCascade() throws IOException {
+		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader();
+		xmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
+		re.close();
+		CSSElement elm = xmlDoc.getElementById("para1");
+		assertNotNull(elm);
+		CSSStyleDeclaration style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals("#cd853f", style.getPropertyValue("background-color"));
+		assertEquals("#8a2be2", style.getPropertyValue("color"));
+		xmlDoc.getOverrideStyle(elm, null).setCssText("color: darkmagenta ! important;");
+		style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertNotNull(style);
+		assertEquals("#8a2be2", style.getPropertyValue("color"));
+	}
+}

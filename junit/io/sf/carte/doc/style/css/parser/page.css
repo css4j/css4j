@@ -1,0 +1,14 @@
+body {
+	background-color: red;
+}
+@page :first {
+	margin-top: 20%;
+}
+@page foo :left {
+	@top-center { content: none }
+	margin-left: 10%;
+	@bottom-center { content: counter(page) }
+}
+@page bar :right, :blank {
+	margin-right: 2em;
+}

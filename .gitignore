@@ -1,0 +1,21 @@
+# Eclipse
+/.project
+/.classpath
+/.settings/
+/bin/
+/testbin/
+/javadoc.xml
+*.class
+/*.jardesc
+*.jar
+*.war
+*.ear
+/local.properties
+
+# Intellij IDEA
+.idea/
+*.iml
+*.iws
+
+# Maven
+/build/

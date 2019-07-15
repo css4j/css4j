@@ -1,0 +1,23 @@
+@namespace svg url("http://www.w3.org/2000/svg") ;
+@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}
+p.boldmargin {font-weight: bold; margin-left: 2%;}
+<!-- CDO-CDC comment here -->
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+ul, ol {margin-top: 1em; margin-bottom: 2em;}
+/* Comment before li */
+li {margin-top: 1em; margin-bottom: 1em; }
+/* Comment before frame */
+frame {display: block; border: none ! important; }
+/* Comment before frameset */
+frameset {display: block; border: none; }
+/* Comment before noframes */
+noframes {display: none;/*hi!;*/border: none; }
+@media print {
+    body { font-size: 10pt}
+}
+[foo]{float:left}
+@media screen {
+    body { font-size: 12pt }
+}
+p.someclass {border: solid orange; }
+@import "tv.css" tv, screen and (orientation:landscape);

@@ -1,0 +1,63 @@
+<html>
+<head>
+<title>CSS4J Overview</title>
+</head>
+<body>
+CSS4J implements the W3C's 
+<a href="http://www.w3.org/TR/DOM-Level-2-Style/css.html" target="_blank">CSS
+ Object Model API</a>.
+<h2>Requirements</h2>
+<p>
+Parsing requires a
+<a href="http://www.w3.org/TR/SAC/" target="_blank">SAC</a> parser
+implementation, and this library by default uses its own SAC implementation.
+Alternatively, you can use the System property <code>org.w3c.css.sac.parser</code>
+to specify a different parser.
+<p>
+The org.w3c.dom.css classes are already included in version 5 and later of
+the J2SE, so you do not need to put the CSS-DOM jarfile in the classpath.
+Read the release notes for more information about the package dependencies.
+</p>
+<h2>Usage Overview</h2>
+<p>
+This CSS implementation can be used in several ways: with stand-alone style sheets, with its
+own DOM implementation, combined with DOM4J, or by wrapping an already existing DOM document.
+</p>
+<p>You can play with independent style sheets created with the 
+<code>createStyleSheet("title", "media")</code> method of the 
+<code>DOMCSSStyleSheetFactory</code> class, or the <code>DOM4JCSSStyleSheetFactory</code> 
+if you use DOM4J. The resulting style sheets are empty, but you can load a style sheet 
+with the <code>AbstractCSSStyleSheet.parseCSSStyleSheet(source)</code> method.
+</p>
+<h3>Computed properties for elements in the document tree</h3>
+<p>The usage with the native DOM implementation is recommended, and is described in more detail in the 
+<a href="https://carte.sourceforge.io/css4j/usage.html">usage guide</a> available at the project's website.</p>
+<p>If you choose to build your own DOM Document instead of using DOM4J or the native DOM, you can use the
+<code>DOMCSSStyleSheetFactory.createCSSDocument</code> method to wrap a pre-existing DOM
+<code>Document</code>.</p>
+<h3>Media handling</h3>
+<p>By default, computed styles only take into account generic styles that are 
+common to all media. If you want to target a specific medium, you have to use 
+the <code>setTargetMedium()</code> method of the document, which in DOM4J can 
+be done with the <code>XHTMLDocument.setTargetMedium()</code> method.</p>
+<h3>Rendering with the help of CSS4J</h3>
+<p>
+CSS4J offers you more than an implementation of the W3C CSS OM 
+API, as it brings you closer to the actual style formatting for a 
+particular device, through the use of concepts like the style 
+database. With the information provided by the style database, the 
+CSS4J-specific interfaces automatically let you take into account 
+the particular formatting for the target device, including the 
+page size or the available fonts.</p>
+<p>
+For example, if your style declaration for the font family of 
+an element reads <i>"Helvetica, Arial"</i>, and you happen to have only 
+the second one available, on retrieving the font with the enhanced 
+interface you will get the correct result, <i>"Arial"</i>.
+</p>
+<p>You can read the descriptions of the individual packages for more information 
+on the use of CSS4J, although it is a good idea to read first the usage guide at
+the project's website. The package also has a number of unit tests that may also be 
+useful as examples.</p>
+</body>
+</html>

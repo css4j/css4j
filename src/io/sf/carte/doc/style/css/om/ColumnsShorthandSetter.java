@@ -1,0 +1,74 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.om;
+
+import org.w3c.css.sac.LexicalUnit;
+
+import io.sf.carte.doc.style.css.property.CSSNumberValue;
+import io.sf.carte.doc.style.css.property.ValueFactory;
+
+class ColumnsShorthandSetter extends ShorthandSetter {
+
+	ColumnsShorthandSetter(BaseCSSStyleDeclaration style) {
+			super(style, "columns");
+		}
+		
+		@Override
+		public boolean assignSubproperties() {
+			byte kwscan = scanForCssWideKeywords(currentValue);
+			if (kwscan == 1) {
+				return true;
+			} else if (kwscan == 2) {
+				return false;
+			}
+			setPropertyToDefault("column-width");
+			setPropertyToDefault("column-count");
+			boolean columnWidthUnset = true;
+			boolean columnCountUnset = true;
+			byte count = 0;
+			while (currentValue != null) {
+				if (count == 2) {
+					return false;
+				}
+				short lut = currentValue.getLexicalUnitType();
+				if (columnCountUnset && lut == LexicalUnit.SAC_INTEGER) {
+					int intValue = currentValue.getIntegerValue();
+					if (intValue < 1) {
+						return false;
+					}
+					CSSNumberValue number = new CSSNumberValue();
+					number.setIntegerValue(intValue);
+					number.setSubproperty(true);
+					setSubpropertyValue("column-count", number);
+					count++;
+					columnCountUnset = false;
+				} else if (columnWidthUnset && ValueFactory.isPositiveSizeSACUnit(currentValue)) {
+					setSubpropertyValue("column-width", createCSSValue("column-width", currentValue));
+					count++;
+					columnWidthUnset = false;
+				} else if (lut == LexicalUnit.SAC_IDENT) {
+					// Only 'auto' is acceptable
+					String ident = currentValue.getStringValue();
+					if (!"auto".equalsIgnoreCase(ident)) {
+						return false;
+					}
+					count++;
+				} else {
+					return false;
+				}
+				nextCurrentValue();
+			}
+			flush();
+			return true;
+		}
+
+}

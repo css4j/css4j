@@ -1,0 +1,127 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.agent;
+
+import org.w3c.dom.css.CSSFontFaceRule;
+import org.w3c.dom.css.CSSValue;
+
+import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.StyleDatabase;
+
+/**
+ * CSS canvas interface.
+ */
+public interface CSSCanvas {
+
+	/**
+	 * Gets the style database for this canvas.
+	 * 
+	 * @return the StyleDatabase.
+	 */
+	public StyleDatabase getStyleDatabase();
+
+	/**
+	 * Try to load the font family according to the given font face rule.
+	 * 
+	 * @param rule
+	 *            the font face rule.
+	 */
+	public void loadFontFace(CSSFontFaceRule rule);
+
+	/**
+	 * Is <code>requestedFamily</code> an available font family loaded by a font
+	 * face rule?
+	 * 
+	 * @param requestedFamily
+	 *            the font family name.
+	 * @return <code>true</code> if is an available font family, <code>false</code> otherwise.
+	 */
+	public boolean isFontFaceName(String requestedFamily);
+
+	/**
+	 * Is the provided pseudo-class active in this canvas?
+	 * 
+	 * @param element
+	 *            the element to which the pseudo-class applies.
+	 * @param pseudoclassName
+	 *            the pseudo-class name.
+	 * @return <code>true</code> id the pseudo-class is active, <code>false</code> otherwise.
+	 */
+	public boolean isActivePseudoClass(CSSElement element, String pseudoclassName);
+
+	/**
+	 * Does this canvas support the given feature?
+	 * 
+	 * @param featureName
+	 *            the feature name.
+	 * @param value
+	 *            the optional feature value to be tested against.
+	 * @return <code>true</code> if the feature (with the given value, if any) is supported,
+	 *         <code>false</code> otherwise.
+	 */
+	public boolean supports(String featureName, CSSValue value);
+
+	/**
+	 * Provide the value of the requested media feature.
+	 * 
+	 * @param feature
+	 *            the media feature.
+	 * @return the value of the requested media feature, or null if the feature is not known
+	 *         or not supported.
+	 */
+	public CSSValue getFeatureValue(String feature);
+
+	/**
+	 * Reload any possible style state/caching that this canvas may have.
+	 */
+	public void reloadStyleState();
+
+	/**
+	 * Gets the viewport of this canvas.
+	 * 
+	 * @return the viewport, or null if this canvas does not have a viewport.
+	 */
+	public Viewport getViewport();
+
+	/**
+	 * Gives the width, in typographic points, for showing the given text with
+	 * the given style.
+	 * 
+	 * @param text
+	 *            the text to measure.
+	 * @param style
+	 *            the style that applies.
+	 * @return the advance width for showing the text with the given font.
+	 */
+	public int stringWidth(String text, CSSComputedProperties style);
+
+	/**
+	 * Get the cap-height of the first available font, in typographic points.
+	 * <p>
+	 * If the cap-height is not available, the font's ascent must be used.
+	 * 
+	 * @param style
+	 *            the style that applies.
+	 * @return the cap-height of the first available font.
+	 */
+	public float getCapHeight(CSSComputedProperties style);
+
+	/**
+	 * Gets the document to which this canvas applies.
+	 * 
+	 * @return the document.
+	 */
+	public CSSDocument getDocument();
+
+}

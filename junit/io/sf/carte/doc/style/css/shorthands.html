@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Shorthand test generator</title>
+<style type="text/css">
+body {
+font: normal 12pt/1.2em Arial, Helvetica;
+margin: 0;
+padding: 1pt;
+background: url(a.png) top left no-repeat,
+            url(b.png) center / 100% 100% no-repeat,
+            url(c.png) white;
+width: 600pt;
+}
+h1 {
+  font-size: 3em;
+  margin: .67em 0;
+}
+h2 {
+  font-size: 24pt;
+  margin: .83em 0;
+}
+h3 {
+  font-size: 16pt;
+  font-weight: bold;
+  margin: 1em 0;
+  border-color: inherit inherit yellow;
+  transition: opacity cubic-bezier(0.15, 0, 0.5, 1.0) 0.15s;
+}
+p {margin: 5% 10%; padding: 2pt 6pt}
+p.boldmargin {font-weight: bold; margin-left: 2%; border: 1pt solid blue; }
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+#tablepara {color: green; margin: 1em 2em 3em;}
+table {border-width: 2pt;
+  font-weight: initial;
+  font-style: initial;
+  font-variant: initial;
+  font-size: initial;
+  line-height: initial;
+  white-space: initial;
+  text-align: initial;
+  background:0 0,url(../img/foo.png) no-repeat;
+}
+tr {padding: 4pt; border-width: 0 2px;}
+#tablehdr1 {margin: 5pt; }
+td {padding: 6pt 12pt;}
+#listpara {line-height: 16pt;}
+ul, ol {margin: 1em 2em 2em 3em; padding: 0.5em 0.8em; }
+#ul1 {border: 2pt solid blue; }
+li {margin: 1.2em 2.4em; padding: 3pt 5pt;}
+div.test1 {margin-top: 2em; margin-bottom: 3em; background-position: 20% 0%}
+.impossible {font-variant: normal}
+.impossible-grid {grid: "a a a" "b b b" max-content; flex: 2 2 0}
+.impossible-grid-template {grid-template: "a a a" "b b b" / 50% auto; }
+</style>
+<script>
+//<![CDATA[
+function backgroundTest(selector, style){
+	var shvalue = style.getPropertyValue("background");
+	var buffer = '// Background (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("' + 'background: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("background-image") + '", emptyStyleDecl.getPropertyValue("background-image"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("background-position") + '", emptyStyleDecl.getPropertyValue("background-position"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("background-repeat") + '", emptyStyleDecl.getPropertyValue("background-repeat"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("background-clip") + '", emptyStyleDecl.getPropertyValue("background-clip"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("background-origin") + '", emptyStyleDecl.getPropertyValue("background-origin"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("background-size") + '", emptyStyleDecl.getPropertyValue("background-size"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("background-attachment") + '", emptyStyleDecl.getPropertyValue("background-attachment"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("background-color") + '", emptyStyleDecl.getPropertyValue("background-color"));\n';
+	return buffer;
+}
+function borderTest(selector, style){
+	var shvalue = style.getPropertyValue("border");
+	var buffer = '// Border (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("' + 'border: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-top-width") + '", emptyStyleDecl.getPropertyValue("border-top-width"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-top-style") + '", emptyStyleDecl.getPropertyValue("border-top-style"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-top-color") + '", emptyStyleDecl.getPropertyValue("border-top-color"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-right-width") + '", emptyStyleDecl.getPropertyValue("border-right-width"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-right-style") + '", emptyStyleDecl.getPropertyValue("border-right-style"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-right-color") + '", emptyStyleDecl.getPropertyValue("border-right-color"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-left-width") + '", emptyStyleDecl.getPropertyValue("border-left-width"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-left-style") + '", emptyStyleDecl.getPropertyValue("border-left-style"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-left-color") + '", emptyStyleDecl.getPropertyValue("border-left-color"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-bottom-width") + '", emptyStyleDecl.getPropertyValue("border-bottom-width"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-bottom-style") + '", emptyStyleDecl.getPropertyValue("border-bottom-style"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-bottom-color") + '", emptyStyleDecl.getPropertyValue("border-bottom-color"));\n';
+	return buffer;
+}
+function borderColorTest(selector, style){
+	var shvalue = style.getPropertyValue("border-color");
+	var buffer = '// Border color (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("' + 'border-color: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-top-color") + '", emptyStyleDecl.getPropertyValue("border-top-color"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-right-color") + '", emptyStyleDecl.getPropertyValue("border-right-color"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-left-color") + '", emptyStyleDecl.getPropertyValue("border-left-color"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("border-bottom-color") + '", emptyStyleDecl.getPropertyValue("border-bottom-color"));\n';
+	return buffer;
+}
+function marginTest(selector, style){
+	var shvalue = style.getPropertyValue("margin");
+	var buffer = '// Margin (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("' + 'margin: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("margin-top") + '", emptyStyleDecl.getPropertyValue("margin-top"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("margin-right") + '", emptyStyleDecl.getPropertyValue("margin-right"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("margin-left") + '", emptyStyleDecl.getPropertyValue("margin-left"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("margin-bottom") + '", emptyStyleDecl.getPropertyValue("margin-bottom"));\n';
+	return buffer;
+}
+function fontTest(style){
+	var shvalue = style.getPropertyValue("font");
+	var buffer = '// Font\nemptyStyleDecl.setCssText("' + 'font: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-weight") + '", emptyStyleDecl.getPropertyValue("font-weight"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-stretch") + '", emptyStyleDecl.getPropertyValue("font-stretch"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-style") + '", emptyStyleDecl.getPropertyValue("font-style"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-variant") + '", emptyStyleDecl.getPropertyValue("font-variant"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-size") + '", emptyStyleDecl.getPropertyValue("font-size"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("line-height") + '", emptyStyleDecl.getPropertyValue("line-height"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-family") + '", emptyStyleDecl.getPropertyValue("font-family"));\n';
+	return buffer;
+}
+function fontVariantTest(selector, style){
+	var shvalue = style.getPropertyValue("font-variant");
+	var buffer = '// font-variant (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("font-variant: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-variant-caps") + '", emptyStyleDecl.getPropertyValue("font-variant-caps"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-variant-ligatures") + '", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-variant-position") + '", emptyStyleDecl.getPropertyValue("font-variant-position"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-variant-numeric") + '", emptyStyleDecl.getPropertyValue("font-variant-numeric"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-variant-alternates") + '", emptyStyleDecl.getPropertyValue("font-variant-alternates"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("font-variant-east-asian") + '", emptyStyleDecl.getPropertyValue("font-variant-east-asian"));\n';
+	return buffer;
+}
+function gridTest(selector, style){
+	var shvalue = style.getPropertyValue("grid");
+	var buffer = '// Grid (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("grid: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-template-areas") + '", emptyStyleDecl.getPropertyValue("grid-template-areas"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-template-rows") + '", emptyStyleDecl.getPropertyValue("grid-template-rows"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-template-columns") + '", emptyStyleDecl.getPropertyValue("grid-template-columns"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-auto-rows") + '", emptyStyleDecl.getPropertyValue("grid-auto-rows"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-auto-columns") + '", emptyStyleDecl.getPropertyValue("grid-auto-columns"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-auto-flow") + '", emptyStyleDecl.getPropertyValue("grid-auto-flow"));\n';
+	buffer += 'assertEquals("grid: ' + shvalue + '; ", emptyStyleDecl.getCssText());\n';
+	return buffer;
+}
+function gridTemplateTest(selector, style){
+	var shvalue = style.getPropertyValue("grid-template");
+	var buffer = '// Grid template (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("grid-template: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-template-areas") + '", emptyStyleDecl.getPropertyValue("grid-template-areas"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-template-rows") + '", emptyStyleDecl.getPropertyValue("grid-template-rows"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("grid-template-columns") + '", emptyStyleDecl.getPropertyValue("grid-template-columns"));\n';
+	buffer += 'assertEquals("grid-template: ' + shvalue + '; ", emptyStyleDecl.getCssText());\n';
+	return buffer;
+}
+function transitionTest(selector, style){
+	var shvalue = style.getPropertyValue("transition");
+	var buffer = '// Transition (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("transition: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("transition-property") + '", emptyStyleDecl.getPropertyValue("transition-property"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("transition-delay") + '", emptyStyleDecl.getPropertyValue("transition-delay"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("transition-duration") + '", emptyStyleDecl.getPropertyValue("transition-duration"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("transition-timing-function") + '", emptyStyleDecl.getPropertyValue("transition-timing-function"));\n';
+	return buffer;
+}
+function flexTest(selector, style){
+	var shvalue = style.getPropertyValue("flex");
+	var buffer = '// Flex (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("flex: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("flex-grow") + '", emptyStyleDecl.getPropertyValue("flex-grow"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("flex-shrink") + '", emptyStyleDecl.getPropertyValue("flex-shrink"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("flex-basis") + '", emptyStyleDecl.getPropertyValue("flex-basis"));\n';
+	return buffer;
+}
+function generateTest(){
+	var sheet = document.styleSheets[0];
+	var style0 = sheet.cssRules[0].style;
+	var buffer = '// This test is automatically generated\n'
+	buffer += backgroundTest(sheet.cssRules[0].selectorText, style0);
+	buffer += backgroundTest(sheet.cssRules[8].selectorText, sheet.cssRules[8].style);
+	buffer += borderColorTest(sheet.cssRules[3].selectorText, sheet.cssRules[3].style);
+	buffer += marginTest(sheet.cssRules[3].selectorText, sheet.cssRules[3].style);
+	buffer += transitionTest(sheet.cssRules[3].selectorText, sheet.cssRules[3].style);
+	buffer += fontTest(style0);
+	buffer += fontVariantTest(sheet.cssRules[sheet.cssRules.length - 3].selectorText, sheet.cssRules[sheet.cssRules.length - 3].style);
+	buffer += gridTest(sheet.cssRules[sheet.cssRules.length - 2].selectorText, sheet.cssRules[sheet.cssRules.length - 2].style);
+	buffer += gridTemplateTest(sheet.cssRules[sheet.cssRules.length - 1].selectorText, sheet.cssRules[sheet.cssRules.length - 1].style);
+	buffer += flexTest(sheet.cssRules[sheet.cssRules.length - 2].selectorText, sheet.cssRules[sheet.cssRules.length - 2].style);
+	console.log(buffer);
+}
+window.addEventListener("load", generateTest);
+//]]>
+</script>
+</head>
+<body>
+<h1 id="h1">Header 1</h1>
+<p id="para1" class="boldmargin">Paragraph</p><p id="para2">Paragraph 2 with a <span id="span1">span</span>.</p>
+<h2 id="h2">Header 2</h2>
+<p id="smip" class="smallitalic">New paragraph</p>
+<p id="tablepara">Then, one <span style="font-size: 150%">table</span>:</p>
+<table>
+<tr id="tablehdr1"><th>Header 1</th><th>Header 2</th><th>Header 3</th></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Long Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Longer Cell</td></tr>
+</table>
+<h3 id="firstH3">Header 3</h3>
+<div id="div1" class="test1">
+<p id="listpara">Now, a list:</p>
+<ul id="ul1">
+<li id="ul1li1">List item 1</li>
+<li>List item 2</li>
+<li>List item 3</li>
+<li>List item 4</li>
+</ul>
+</div>
+</body>
+</html>

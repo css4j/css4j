@@ -1,0 +1,67 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.property;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.w3c.dom.css.CSSValue;
+
+public class PropertyDatabaseTest {
+	private static PropertyDatabase pdb;
+
+	@BeforeClass
+	public static void setUpBeforeClass() {
+		pdb = PropertyDatabase.getInstance();
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		pdb = null;
+	}
+
+	@Test
+	public void getInstance() {
+		assertNotNull(pdb);
+	}
+
+	@Test
+	public void getInitialValue() {
+		CSSValue value = pdb.getInitialValue("width");
+		assertNotNull(value);
+		assertEquals("auto", value.getCssText());
+	}
+
+	@Test
+	public void isIdentifierValue() {
+		assertTrue(pdb.isIdentifierValue("border-color", "gray"));
+	}
+
+	@Test
+	public void isShorthandSubpropertyString() {
+		assertTrue(pdb.isShorthandSubproperty("border-right-style"));
+	}
+
+	@Test
+	public void isShorthandSubpropertyOfStringString() {
+		assertTrue(pdb.isShorthandSubpropertyOf("border-style", "border-right-style"));
+		assertTrue(pdb.isShorthandSubpropertyOf("border-right", "border-right-style"));
+		assertTrue(pdb.isShorthandSubpropertyOf("border", "border-right-style"));
+		assertFalse(pdb.isShorthandSubpropertyOf("border", "font-family"));
+	}
+
+}

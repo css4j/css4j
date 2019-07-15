@@ -1,0 +1,2 @@
+@namespace svg url("http://www.w3.org/2000/svg");
+@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }

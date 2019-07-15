@@ -1,0 +1,167 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.property;
+
+import java.io.IOException;
+
+import org.w3c.css.sac.LexicalUnit;
+import org.w3c.dom.DOMException;
+
+import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.util.SimpleWriter;
+
+/**
+ * Unknown CSS primitive value.
+ * 
+ * @author Carlos Amengual
+ *
+ */
+public class CSSUnknownValue extends AbstractCSSPrimitiveValue {
+
+	private boolean priorityCompat = false;
+
+	public CSSUnknownValue() {
+		super();
+		setCSSUnitType(CSS_UNKNOWN);
+	}
+
+	protected CSSUnknownValue(CSSUnknownValue copied) {
+		super(copied);
+		setCssText(copied.getCssText());
+	}
+
+	@Override
+	public void writeCssText(SimpleWriter wri) throws IOException {
+		wri.write(getCssText());
+	}
+
+	public boolean isPriorityCompat() {
+		return priorityCompat;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		CSSUnknownValue other = (CSSUnknownValue) obj;
+		if (!getCssText().equals(other.getCssText())) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + getCssText().hashCode();
+		return result;
+	}
+
+	@Override
+	LexicalSetter newLexicalSetter() {
+		return new MyLexicalSetter();
+	}
+
+	class MyLexicalSetter extends LexicalSetter {
+
+		@Override
+		void setLexicalUnit(LexicalUnit lunit) {
+			nextLexicalUnit = lunit.getNextLexicalUnit();
+			String text;
+			switch (lunit.getLexicalUnitType()) {
+			case LexicalUnit.SAC_OPERATOR_EXP:
+				text = "^";
+				break;
+			case LexicalUnit.SAC_OPERATOR_GE:
+				text = ">=";
+				break;
+			case LexicalUnit.SAC_OPERATOR_GT:
+				text = ">";
+				break;
+			case LexicalUnit.SAC_OPERATOR_LE:
+				text = "<=";
+				break;
+			case LexicalUnit.SAC_OPERATOR_LT:
+				text = "<";
+				break;
+			case LexicalUnit.SAC_OPERATOR_MINUS:
+				text = "-";
+				break;
+			case LexicalUnit.SAC_OPERATOR_MOD:
+				text = "%";
+				break;
+			case LexicalUnit.SAC_OPERATOR_MULTIPLY:
+				text = "*";
+				break;
+			case LexicalUnit.SAC_OPERATOR_PLUS:
+				text = "+";
+				break;
+			case LexicalUnit.SAC_OPERATOR_TILDE:
+				text = "~";
+				break;
+			case LexicalUnit2.SAC_COMPAT_PRIO:
+				priorityCompat = true;
+			case LexicalUnit2.SAC_COMPAT_IDENT:
+				text = lunit.toString();
+				nextLexicalUnit = null;
+				break;
+			default:
+				text = guessCssText(lunit);
+				if (text.length() == 0) {
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Unsuitable value: " + lunit.toString());
+				}
+			}
+			setPlainCssText(text);
+		}
+	}
+
+	private String guessCssText(LexicalUnit lunit) {
+		try {
+			return lunit.getStringValue();
+		} catch (DOMException e) {
+		}
+		String text = "";
+		try {
+			float fv = lunit.getFloatValue();
+			text = Float.toString(fv);
+		} catch (DOMException e1) {
+			try {
+				int iv = lunit.getIntegerValue();
+				text = Integer.toString(iv);
+			} catch (DOMException e2) {
+			}
+		}
+		try {
+			String unittext = lunit.getDimensionUnitText();
+			if (unittext.length() != 0) {
+				text += unittext;
+			}
+		} catch (DOMException e) {
+		}
+		return text;
+	}
+
+	@Override
+	public CSSUnknownValue clone() {
+		return new CSSUnknownValue(this);
+	}
+
+}

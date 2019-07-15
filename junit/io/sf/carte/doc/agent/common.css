@@ -1,0 +1,11 @@
+body {
+	background-color: red;
+}
+@font-face {
+	font-family: 'Mechanical Bold'; src: url('font/MechanicalBd.otf');
+}
+@font-feature-values Foo Sans, Bar {
+ 	@styleset {
+		my-style: 2;
+	}
+}

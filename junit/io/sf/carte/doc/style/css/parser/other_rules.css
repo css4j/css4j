@@ -1,0 +1,32 @@
+@viewport {
+  width: device-width;
+}
+
+@keyframes slide-right {
+from {margin-left: 0px;}
+50% {margin-left: 110px; opacity: 1;}
+50% {opacity: 0.9;}
+to {margin-left: 200px;}
+}
+
+@keyframes important1 {
+  from { margin-top: 50px; }
+  50%  { margin-top: 150px !important; } /* ignored */
+  to   { margin-top: 100px; }
+}
+
+@counter-style foo {
+	symbols: \1F44D;
+	suffix: " ";
+}
+
+@font-feature-values Some Font {
+  @swash {
+    swishy: 1; flowing: 2;
+  }
+  @styleset { double-W: 14; sharp-terminals: 16 1; }
+}
+
+body {
+	background-color: red;
+}

@@ -1,0 +1,70 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://carte.sourceforge.io/css4j/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.om;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Iterator;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import io.sf.carte.doc.dom.CSSDOMImplementation;
+import io.sf.carte.doc.dom.DOMBridge;
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
+
+public class CascadeTest {
+
+	private Cascade cascade;
+
+	@Before
+	public void setUp() {
+		CSSDOMImplementation impl = new CSSDOMImplementation();
+		BaseDocumentCSSStyleSheet sheet = DOMBridge.createDocumentStyleSheet(impl, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		cascade = sheet.new Cascade();
+		StyleRule rule = new StyleRule();
+		rule.setCssText("p.foo {font-size: 3em}");
+		cascade.add(rule.getSpecifity(0));
+		rule = new StyleRule();
+		rule.setCssText("#myid {font-size: 4em}");
+		cascade.add(rule.getSpecifity(0));
+		rule = new StyleRule();
+		rule.setCssText("p {font-size: 1.2em}");
+		cascade.add(rule.getSpecifity(0));
+		rule = new StyleRule();
+		rule.setCssText("div > p {font-size: 2.5em}");
+		cascade.add(rule.getSpecifity(0));
+		rule = new StyleRule();
+		rule.setCssText("p.bar {font-size: 2em}");
+		cascade.add(rule.getSpecifity(0));
+	}
+
+	@Test
+	public void testIterator() {
+		Iterator<StyleRule> it = cascade.iterator();
+		assertTrue(it.hasNext());
+		assertEquals("p", it.next().getSelectorText());
+		assertTrue(it.hasNext());
+		assertEquals("div>p", it.next().getSelectorText());
+		assertTrue(it.hasNext());
+		assertEquals("p.foo", it.next().getSelectorText());
+		assertTrue(it.hasNext());
+		assertEquals("p.bar", it.next().getSelectorText());
+		assertTrue(it.hasNext());
+		assertEquals("#myid", it.next().getSelectorText());
+		assertFalse(it.hasNext());
+	}
+
+}

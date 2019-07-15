@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>Simple Box Model Test</title>
+<style type="text/css">
+body {
+font-family: Arial, Helvetica;
+font-size: 12pt;
+line-height: 1.2em;
+margin: 0;
+padding: 1pt;
+background-color: white;
+width: 600pt;
+}
+h1 {
+  font-size: 3em;
+  margin: .67em 0;
+}
+h2 {
+  font-size: 24pt;
+  margin: .83em 0;
+}
+h3 {
+  font-size: 16pt;
+  font-weight: bold;
+  margin: 1em 0;
+}
+p {margin: 5% 10%; padding: 2pt 6pt}
+p.boldmargin {font-weight: bold; margin-left: 2%; border: 1pt solid blue; }
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+#tablepara {color: green; margin: 1em 2em 3em;}
+table {border-width: 2pt;
+  font-weight: initial;
+  font-style: initial;
+  font-variant: initial;
+  font-size: initial;
+  line-height: initial;
+  white-space: initial;
+  text-align: initial;
+}
+tr {padding: 4pt; border-width: 0 2px;}
+#tablehdr1 {margin: 5pt; }
+td {padding: 6pt 12pt;}
+#listpara {line-height: 16pt;}
+ul, ol {margin: 1em 2em 2em 3em; padding: 0.5em 0.8em; }
+#ul1 {border: 2pt solid blue; }
+li {margin: 1.2em 2.4em; padding: 3pt 5pt;}
+div.test1 {margin-top: 2em; margin-bottom: 3em; background-position: 20% 0%}
+</style>
+<script>
+//<![CDATA[
+var show_tbody = false;
+function fmtNumber(str) {
+	var num;
+	if (str === '0') {
+		num = '0';
+	} else {
+		num = Number.parseFloat(str).toFixed(2);
+		if(num.endsWith("00")) {
+			num = num.slice(0, num.length - 3);
+		}
+	}
+	return num;
+}
+function addPropertyValue(style, propertyName, boxvar, methodSuffix, accu) {
+	accu = typeof accu !== 'undefined' ?  accu : '0.03';
+	buffer = 'assertEquals(';
+	if (style.getPropertyCSSValue) {
+		var pv = style.getPropertyCSSValue(propertyName).getFloatValue(CSSPrimitiveValue.CSS_PX);
+		buffer += fmtNumber(pv);
+		buffer += ', ' + boxvar + '.get' + methodSuffix + '(), ' + accu + 'f);\n';
+	} else {
+		var pv = style.getPropertyValue(propertyName);
+		var pvlen = pv.length;
+		if(pvlen > 2) {
+			pv = pv.slice(0, pvlen - 2);
+		}
+		buffer += fmtNumber(pv) + ', ' + boxvar + '.get' + methodSuffix + '(), ' + accu + 'f);\n';
+	}
+	return buffer;
+}
+function boxValues(elm, index) {
+	var buffer = '// Element: ' + elm.localName;
+	if (elm.id) {
+		buffer += ' id = ' + elm.id + '\nassertEquals("' + elm.id + '", elm.getAttribute("id"));'
+	} else if (elm.localName == 'td' || elm.localName == 'th') {
+		var textcont = elm.textContent.substring(0, 50).replace(/[\n\r\t]/g, ' ');
+		if (textcont.length != 0) {
+			buffer += ' "' + textcont + '"';
+		}
+	}
+	var style = window.getComputedStyle(elm);
+	var display = style.getPropertyValue("display");
+	buffer += '\nstyle = sheet.getComputedStyle(elm, null);\n'
+	var boxvar;
+	if (display == 'table') {
+		boxvar = 'tablebox';
+		buffer += boxvar;
+		buffer += ' = (TableBoxValues)style.getBoxValues(CSSPrimitiveValue.CSS_PX);\n';
+	} else {
+		boxvar = 'box';
+		buffer += boxvar;
+		buffer += ' = style.getBoxValues(CSSPrimitiveValue.CSS_PX);\n';
+	}
+	buffer += addPropertyValue(style, 'margin-top', boxvar, 'MarginTop');
+	buffer += addPropertyValue(style, 'margin-right', boxvar, 'MarginRight');
+	buffer += addPropertyValue(style, 'margin-bottom', boxvar, 'MarginBottom');
+	buffer += addPropertyValue(style, 'margin-left', boxvar, 'MarginLeft');
+	buffer += addPropertyValue(style, 'padding-top', boxvar, 'PaddingTop');
+	buffer += addPropertyValue(style, 'padding-right', boxvar, 'PaddingRight');
+	buffer += addPropertyValue(style, 'padding-bottom', boxvar, 'PaddingBottom');
+	buffer += addPropertyValue(style, 'padding-left', boxvar, 'PaddingLeft');
+	buffer += addPropertyValue(style, 'border-top-width', boxvar, 'BorderTopWidth');
+	buffer += addPropertyValue(style, 'border-right-width', boxvar, 'BorderRightWidth');
+	buffer += addPropertyValue(style, 'border-bottom-width', boxvar, 'BorderBottomWidth');
+	buffer += addPropertyValue(style, 'border-left-width', boxvar, 'BorderLeftWidth');
+	if (display == 'table-cell') {
+		var pv = style.getPropertyValue('width');
+		var pvlen = pv.length;
+		pv = pv.slice(0, pvlen - 2);
+		buffer += '// width: ' + fmtNumber(pv) + '\n';
+	}
+	// Do not print width tests for elements with inline or table-* display types
+	if (display !== 'inline' && !display.startsWith('table')) {
+		buffer += addPropertyValue(style, 'width', boxvar, 'Width', '0.1');
+	}
+	// Line height
+	var pv = style.getPropertyValue('line-height');
+	if (pv != 'normal') {
+		buffer += 'assertEquals(';
+		var pvlen = pv.length;
+		pv = pv.slice(0, pvlen - 2);
+		buffer += fmtNumber(pv) + ', CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);\n';
+	}
+	return buffer;
+}
+function loopChild(parentElm, level, index, prefix){
+	var buffer;
+	if (show_tbody || parentElm.localName != 'tbody') {
+		buffer = boxValues(parentElm, index);
+	} else {
+		buffer = '';
+	}
+	var tbodytag = false;
+	var ndList = parentElm.childNodes;
+	var ndlen = ndList.length;
+	for (var i=0; i<ndlen; i++){
+		var node = ndList.item(i);
+		if(node.nodeType == Node.ELEMENT_NODE){
+			if(node.localName == 'tbody') {
+				tbodytag = true;
+			}
+		}
+	}
+	var nlistNotPrinted = true;
+	if (show_tbody || !tbodytag) {
+		buffer += 'delta = 0;\n';
+	}
+	for (var i=0; i<ndlen; i++){
+		var node = ndList.item(i);
+		if (node.nodeType == Node.ELEMENT_NODE){
+			if (show_tbody || !tbodytag) {
+				if (nlistNotPrinted && node.hasChildNodes()) {
+					nlistNotPrinted = false;
+					buffer += '// Evaluating child nodes:\nNodeList ndList' + prefix + '_' + level.toString()
+						+ '_' + index.toString() + ' = elm.getChildNodes();\n';
+				}
+				buffer += 'node = ndList' + prefix + '_' + level.toString() + '_' + index.toString()
+							+ '.item(' + i.toString() + ' + delta);\n';
+				buffer += 'while(node.getNodeType() != Node.ELEMENT_NODE';
+				if(level === 0) {
+					buffer += ' || !"' + node.tagName +
+						'".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))';
+				}
+				buffer += ') {\n  delta++;\n  node = ndList' + prefix + '_' + level.toString() + '_'
+							+ index.toString() + '.item(' + i.toString() + ' + delta);\n}\n';
+				buffer += 'assertEquals(Node.ELEMENT_NODE, node.getNodeType());\n'
+				buffer += 'elm = (CSSElement)node;\n';
+			}
+			buffer += loopChild(node, level + 1, i, prefix + i);
+		}	
+	}
+	if (!nlistNotPrinted) {
+		buffer += '// Return to parent level (' + parentElm.parentNode.localName + ')\n';
+	}
+	return buffer;
+}
+function generateTest(){
+	document.normalize();
+	var buffer = '// This test is automatically generated, DO NOT EDIT MANUALLY !\nNode node;\nint delta;\nCSSElement elm = (CSSElement) document.getElementsByTagName("body").item(0);\nDocumentCSSStyleSheet sheet = document.getStyleSheet();\nCSSComputedProperties style;\nBoxValues box;\n';
+	if (document.getElementsByTagName('table').length > 0) {
+		buffer += 'TableBoxValues tablebox;\n';
+	}
+	buffer += loopChild(document.getElementsByTagName('body').item(0), 0, 0, 0);
+	console.log(buffer);
+}
+window.addEventListener("load", generateTest);
+//]]>
+</script>
+</head>
+<body>
+<h1 id="h1">Header 1</h1>
+<p id="para1" class="boldmargin">Paragraph</p><p id="para2">Paragraph 2 with a <span id="span1">span</span>.</p>
+<h2 id="h2">Header 2</h2>
+<p id="smip" class="smallitalic">New paragraph</p>
+<p id="tablepara">Then, one <span style="font-size: 150%">table</span>:</p>
+<table id="table1">
+<tr id="tablehdr1" style="margin: 12pt 16pt"><th>Header 1</th><th>Header 2</th><th>Header 3</th></tr>
+<tr><td id="cell00">Cell</td><td id="cell01">Cell</td><td id="cell02">Cell</td></tr>
+<tr><td id="cell10">Cell</td><td id="cell11">Cell</td><td id="cell12">Cell</td></tr>
+<tr><td id="cell20">Long Cell</td><td id="cell21">Cell</td><td id="cell22">Cell</td></tr>
+<tr><td id="cell30">Cell</td><td id="cell31">Cell</td><td id="cell32">Cell</td></tr>
+<tr><td id="cell40">Cell</td><td id="cell41">Cell</td><td id="cell42">Longer Cell</td></tr>
+<tr><td id="cell50">Cell</td><td id="cell51">Cell</td><td id="cell52">Cell</td></tr>
+<tr><td id="cell60">Cell</td><td id="cell61">Cell</td><td id="cell62">Cell</td></tr>
+</table>
+<p>Another table</p>
+<table id="table2" style="width: 400pt">
+<tr id="tablehdr2" style="margin: 12pt 16pt"><th>Header 1</th><th>Header 2</th><th>Header 3</th><th>Header 4</th></tr>
+<tr><td id="cell00">Long&nbsp;Cell</td><td id="cell01">Cell</td><td id="cell02">Cell</td><td id="cell03">Cell</td></tr>
+<tr><td id="cell10">Cell</td><td>Cell</td><td>Cell with more content</td><td>Cell</td></tr>
+<tr><td id="cell20">Cell</td><td id="cell21">Cell</td><td id="cell22">Longer Cell</td><td id="cell23">Yet longer cell</td></tr>
+</table>
+<h3 id="firstH3">Header 3</h3>
+<div id="div1" class="test1">
+<p id="listpara">Now, a list:</p>
+<ul id="ul1">
+<li id="ul1li1">List item 1</li>
+<li>List item 2</li>
+<li>List item 3</li>
+<li>List item 4</li>
+<li>List item 5</li>
+<li>List item 6</li>
+</ul>
+</div>
+</body>
+</html>

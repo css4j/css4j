@@ -1,0 +1,25 @@
+@namespace svg url("http://www.w3.org/2000/svg") ;
+@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}
+@media {
+    body { font-size: 10pt }
+}
+p.boldmargin {font-weight: bold; margin-left: 2%;}
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+ul, ol {margin-top: 1em; margin-bottom: 2em;}
+/* Comment before li */
+li {margin-top: 1em; margin-bottom: 1em; }
+/* Comment before frame */
+frame {display: block; border: none ! important; }
+@media (max-aspect-ratio: 160/100 and (min-width: 300px) {
+    ul > li { color: yellow }
+}
+/* Comment before frameset */
+frameset {display: block; border: none; }
+/* Comment before noframes */
+noframes {display: none; border: none; }
+[foo]{float:left}
+@media screen {
+    body { font-size: 12pt }
+}
+p.someclass {border: solid orange; }
+@import "tv.css" tv, screen and (orientation:landscape);
