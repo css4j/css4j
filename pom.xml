@@ -171,7 +171,7 @@
 	</plugins>
   </reporting>
   <scm>
-  	<connection>scm:git:git://git.code.sf.net/p/carte/css4j</connection>
-	<url>https://sourceforge.net/p/carte/css4j/ci/master/tree/</url>
+	<connection>scm:git:https://github.com/css4j/css4j.git</connection>
+	<url>https://github.com/css4j/css4j</url>
   </scm>
 </project>
