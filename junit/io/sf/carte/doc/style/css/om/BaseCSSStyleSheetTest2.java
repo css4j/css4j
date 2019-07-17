@@ -80,8 +80,8 @@ public class BaseCSSStyleSheetTest2 {
 		StyleRule stylerule = (StyleRule) rules.item(0);
 		AbstractCSSStyleDeclaration style = stylerule.getStyle();
 		assertEquals(1, style.getLength());
-		assertFalse(css.getErrorHandler().hasSacErrors());
-		assertTrue(css.hasRuleErrorsOrWarnings());
+		assertTrue(css.getErrorHandler().hasSacErrors());
+		assertTrue(css.hasRuleErrorsOrWarnings()); // Accounts for SAC errors
 		assertEquals("li.foo {\n    display: block;\n}\n", css.toString());
 	}
 

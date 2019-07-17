@@ -98,10 +98,10 @@ public class ValueListTest {
 	@Test
 	public void testGetCssText() {
 		ValueList ws = ValueList.createWSValueList();
-		ws.add(factory.parseProperty("rgba(120, 47, 253 / 0.9)"));
+		ws.add(factory.parseProperty("rgba(120, 47, 253, 0.9)"));
 		ws.add(factory.parseProperty("rgb(10, 4, 2)"));
-		assertEquals("rgb(120, 47, 253 / 0.9) #0a0402", ws.getCssText());
-		assertEquals("rgb(120,47,253/0.9) #0a0402", ws.getMinifiedCssText(""));
+		assertEquals("rgba(120, 47, 253, 0.9) #0a0402", ws.getCssText());
+		assertEquals("rgba(120,47,253,0.9) #0a0402", ws.getMinifiedCssText(""));
 	}
 
 }

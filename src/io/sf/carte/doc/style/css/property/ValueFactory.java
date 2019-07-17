@@ -431,8 +431,9 @@ public class ValueFactory {
 
 	private static boolean isColorFunction(LexicalUnit lunit) {
 		String name = lunit.getFunctionName().toLowerCase(Locale.US);
-		if ("rgba".equals(name) || "hsl".equals(name) || "hsla".equals(name) || "hwb".equals(name)
-				|| name.endsWith("-gradient")) {
+		// We may be using a parser that does not map "rgba" to RGBCOLOR.
+		if ("hsl".equals(name) || "hsla".equals(name) || "hwb".equals(name) || name.endsWith("-gradient")
+				|| "rgba".equals(name)) {
 			return true;
 		}
 		return false;

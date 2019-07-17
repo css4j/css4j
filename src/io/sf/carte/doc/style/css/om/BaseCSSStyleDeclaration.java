@@ -2020,8 +2020,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		} else if (LexicalUnit.SAC_FUNCTION == utype) {
 			String func = lunit.getFunctionName().toLowerCase(Locale.US);
 			// Assume the SAC parser is old and knows about 'rgb' but not 'rgba'
-			if (func.length() <= 5 && ("rgba".equals(func) || "hsla".equals(func) || "hsl".equals(func)
-					|| "hwb".equals(func) || "color".equals(func))) {
+			if (func.length() <= 5 && ("hsla".equals(func) || "hsl".equals(func)
+					|| "hwb".equals(func) || "color".equals(func) || "rgba".equals(func))) {
 				return true;
 			}
 			if ("var".equals(func)) {

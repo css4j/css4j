@@ -43,6 +43,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 
 	private boolean systemDefault = false;
 
+	private boolean commaSyntax = false;
+
 	ColorValue() {
 		super(CSSPrimitiveValue.CSS_RGBCOLOR);
 		color = new CSSRGBColor();
@@ -170,7 +172,6 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 					color.setRed(basiccolor);
 					// comma ?
 					lu = lu.getNextLexicalUnit();
-					boolean commaSyntax;
 					if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
 						// green
 						lu = lu.getNextLexicalUnit();
@@ -200,7 +201,6 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 					float hue = basiccolor.getFloatValue(CSSPrimitiveValue.CSS_DEG) / 360f;
 					// comma
 					lu = lu.getNextLexicalUnit();
-					boolean commaSyntax;
 					if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
 						// saturation
 						lu = lu.getNextLexicalUnit();
@@ -475,31 +475,21 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			} else {
 				b = Math.round(blue.getFloatValue(CSS_NUMBER));
 			}
-			boolean nonOpaque = getAlpha().getFloatValue(CSS_NUMBER) != 1f;
+			boolean nonOpaque = getFloatAlpha() != 1f;
 			if (nonOpaque || r > 255 || g > 255 || b > 255) {
-				StringBuilder buf;
 				if (minify) {
-					buf = new StringBuilder(21);
-					buf.append("rgb(");
-					appendComponentCssText(buf, red, true).append(',');
-					appendComponentCssText(buf, green, true).append(',');
-					appendComponentCssText(buf, blue, true);
-					if (nonOpaque) {
-						buf.append('/').append(getAlpha().getCssText());
+					if (commaSyntax) {
+						return minifiedOldFunctionalString(nonOpaque);
+					} else {
+						return minifiedFunctionalString(nonOpaque);
 					}
-					buf.append(')');
 				} else {
-					buf = new StringBuilder(23);
-					buf.append("rgb(");
-					appendComponentCssText(buf, red, false).append(',').append(' ');
-					appendComponentCssText(buf, green, false).append(',').append(' ');
-					appendComponentCssText(buf, blue, false);
-					if (nonOpaque) {
-						buf.append(" / ").append(getAlpha().getCssText());
+					if (commaSyntax) {
+						return oldFunctionalString(nonOpaque);
+					} else {
+						return functionalString(nonOpaque);
 					}
-					buf.append(')');
 				}
-				return buf.toString();
 			}
 			// Use hexadecimal notation
 			String hexr = Integer.toHexString(r);
@@ -531,13 +521,73 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			return buf.toString();
 		}
 
+		private String minifiedFunctionalString(boolean nonOpaque) {
+			StringBuilder buf = new StringBuilder(21);
+			buf.append("rgb(");
+			appendComponentCssText(buf, red, true).append(' ');
+			appendComponentCssText(buf, green, true).append(' ');
+			appendComponentCssText(buf, blue, true);
+			if (nonOpaque) {
+				buf.append('/').append(getAlpha().getCssText());
+			}
+			buf.append(')');
+			return buf.toString();
+		}
+
+		private String minifiedOldFunctionalString(boolean nonOpaque) {
+			StringBuilder buf = new StringBuilder(24);
+			if (nonOpaque) {
+				buf.append("rgba(");
+			} else {
+				buf.append("rgb(");
+			}
+			appendComponentCssText(buf, red, true).append(',');
+			appendComponentCssText(buf, green, true).append(',');
+			appendComponentCssText(buf, blue, true);
+			if (nonOpaque) {
+				buf.append(',').append(getAlpha().getCssText());
+			}
+			buf.append(')');
+			return buf.toString();
+		}
+
+		private String functionalString(boolean nonOpaque) {
+			StringBuilder buf = new StringBuilder(23);
+			buf.append("rgb(");
+			appendComponentCssText(buf, red, false).append(' ');
+			appendComponentCssText(buf, green, false).append(' ');
+			appendComponentCssText(buf, blue, false);
+			if (nonOpaque) {
+				buf.append(" / ").append(getAlpha().getCssText());
+			}
+			buf.append(')');
+			return buf.toString();
+		}
+
+		private String oldFunctionalString(boolean nonOpaque) {
+			StringBuilder buf = new StringBuilder(25);
+			if (nonOpaque) {
+				buf.append("rgba(");
+			} else {
+				buf.append("rgb(");
+			}
+			appendComponentCssText(buf, red, false).append(", ");
+			appendComponentCssText(buf, green, false).append(", ");
+			appendComponentCssText(buf, blue, false);
+			if (nonOpaque) {
+				buf.append(", ").append(getAlpha().getCssText());
+			}
+			buf.append(')');
+			return buf.toString();
+		}
+
 		private StringBuilder appendComponentCssText(StringBuilder buf, AbstractCSSPrimitiveValue component, boolean minify) {
 			if (colorSpace == RGBAColor.ColorSpace.RGB
 					|| component.getPrimitiveType() != CSSPrimitiveValue.CSS_PERCENTAGE) {
 				return buf.append(component.getCssText());
 			}
 			float val = component.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE);
-			float rval = (float) (Math.rint(val * 1e5) * 1e-5);
+			float rval = (float) (Math.rint(val * 10f) * 0.1f);
 			if (rval == 0f && minify) {
 				return buf.append('0');
 			}
@@ -638,10 +688,35 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			if (hsl == null) {
 				return null;
 			}
+			boolean nonOpaque = getFloatAlpha() != 1f;
+			if (commaSyntax) {
+				return oldHSLString(hsl, nonOpaque);
+			} else {
+				return hslString(hsl, nonOpaque);
+			}
+		}
+
+		private String oldHSLString(Hsl hsl, boolean nonOpaque) {
+			StringBuilder buf = new StringBuilder(22);
+			if (nonOpaque) {
+				buf.append("hsla(");
+			} else {
+				buf.append("hsl(");
+			}
+			buf.append(Integer.toString(hsl.h)).append(", ").append(Integer.toString(hsl.s))
+					.append('%').append(", ").append(Integer.toString(hsl.l)).append('%');
+			if (nonOpaque) {
+				buf.append(", ").append(getAlpha().getCssText());
+			}
+			buf.append(')');
+			return buf.toString();
+		}
+
+		private String hslString(Hsl hsl, boolean nonOpaque) {
 			StringBuilder buf = new StringBuilder(20);
-			buf.append("hsl(").append(Integer.toString(hsl.h)).append(',').append(' ').append(Integer.toString(hsl.s))
-					.append('%').append(',').append(' ').append(Integer.toString(hsl.l)).append('%');
-			if (getFloatAlpha() != 1f) {
+			buf.append("hsl(").append(Integer.toString(hsl.h)).append(' ').append(Integer.toString(hsl.s))
+					.append('%').append(' ').append(Integer.toString(hsl.l)).append('%');
+			if (nonOpaque) {
 				buf.append(" / ").append(getAlpha().getCssText());
 			}
 			buf.append(')');
@@ -653,10 +728,35 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			if (hsl == null) {
 				return null;
 			}
-			StringBuilder buf = new StringBuilder(20);
-			buf.append("hsl(").append(Integer.toString(hsl.h)).append(',').append(Integer.toString(hsl.s))
+			boolean nonOpaque = getFloatAlpha() != 1f;
+			if (commaSyntax) {
+				return oldHSLMinifiedString(hsl, nonOpaque);
+			} else {
+				return hslMinifiedString(hsl, nonOpaque);
+			}
+		}
+
+		private String oldHSLMinifiedString(Hsl hsl, boolean nonOpaque) {
+			StringBuilder buf = new StringBuilder(21);
+			if (nonOpaque) {
+				buf.append("hsla(");
+			} else {
+				buf.append("hsl(");
+			}
+			buf.append(Integer.toString(hsl.h)).append(',').append(Integer.toString(hsl.s))
 					.append('%').append(',').append(Integer.toString(hsl.l)).append('%');
-			if (getFloatAlpha() != 1f) {
+			if (nonOpaque) {
+				buf.append(',').append(getAlpha().getMinifiedCssText(""));
+			}
+			buf.append(')');
+			return buf.toString();
+		}
+
+		private String hslMinifiedString(Hsl hsl, boolean nonOpaque) {
+			StringBuilder buf = new StringBuilder(20);
+			buf.append("hsl(").append(Integer.toString(hsl.h)).append(' ').append(Integer.toString(hsl.s))
+					.append('%').append(' ').append(Integer.toString(hsl.l)).append('%');
+			if (nonOpaque) {
 				buf.append('/').append(getAlpha().getMinifiedCssText(""));
 			}
 			buf.append(')');

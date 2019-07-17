@@ -233,34 +233,34 @@ public class SupportsRuleTest {
 	@Test
 	public void testParseSupportsRule8() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
-				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgba(255,255,255,0.7)}}"));
+				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/0.7)}}"));
 		sheet.parseCSSStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(-webkit-backdrop-filter: initial) or (backdrop-filter: initial)", rule.getConditionText());
 		assertEquals(
-				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    #fooid.fooclass .barclass {\n        -webkit-backdrop-filter: saturate(180%) blur(20px);\n        backdrop-filter: saturate(180%) blur(20px);\n        background-color: rgb(255, 255, 255 / 0.7);\n    }\n}\n",
+				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    #fooid.fooclass .barclass {\n        -webkit-backdrop-filter: saturate(180%) blur(20px);\n        backdrop-filter: saturate(180%) blur(20px);\n        background-color: rgb(255 255 255 / 0.7);\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255,255,255/0.7)}}",
+				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/0.7)}}",
 				rule.getMinifiedCssText());
 	}
 
 	@Test
 	public void testParseSupportsRule9() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
-				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgba(11,11,11,0.7)}}"));
+				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/0.7)}}"));
 		sheet.parseCSSStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(-webkit-backdrop-filter: initial) or (backdrop-filter: initial)", rule.getConditionText());
 		assertEquals(
-				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    .fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass {\n        background-color: rgb(11, 11, 11 / 0.7);\n    }\n}\n",
+				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    .fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass {\n        background-color: rgb(11 11 11 / 0.7);\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11,11,11/0.7)}}",
+				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/0.7)}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -401,13 +401,13 @@ public class SupportsRuleTest {
 	public void testSetCssTextString3() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText(
-				"@supports (background: radial-gradient(closest-side,#ff0000,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgba(32,45,46,0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}");
+				"@supports (background: radial-gradient(closest-side,#ff0000,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}");
 		assertEquals(
-				"@supports(background:radial-gradient(closest-side,#f00,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32,45,46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}",
+				"@supports(background:radial-gradient(closest-side,#f00,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}",
 				rule.getMinifiedCssText());
 		SupportsRule rule2 = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule2.setCssText(
-				"@supports (background: radial-gradient(closest-side, #f00, #a2f3a1)) {.foo .bar:first-child {background: radial-gradient(closest-side, rgb(32, 45, 46 / 0), #da212e), url('//example.com/img/image.jpg');background-size: 600px 600px;}}");
+				"@supports (background: radial-gradient(closest-side, #f00, #a2f3a1)) {.foo .bar:first-child {background: radial-gradient(closest-side, rgb(32 45 46 / 0), #da212e), url('//example.com/img/image.jpg');background-size: 600px 600px;}}");
 		assertTrue(rule.equals(rule2));
 		assertEquals(rule.hashCode(), rule2.hashCode());
 	}

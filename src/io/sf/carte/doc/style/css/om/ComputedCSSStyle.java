@@ -188,7 +188,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					} else {
 						String spec;
 						if ("transparent".equals(s)) {
-							spec = "rgba(0,0,0/0)";
+							spec = "rgba(0 0 0/0)";
 						} else {
 							spec = ColorIdentifiers.getInstance().getColor(s);
 						}

@@ -157,7 +157,7 @@ public class IEDocumentTest {
 		parent.setAttribute("bgcolor", "#90fz77");
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(11, styledecl.getLength());
-		assertEquals("rgb(0, 0, 0 / 0)", styledecl.getPropertyValue("background-color"));
+		assertEquals("rgb(0 0 0 / 0)", styledecl.getPropertyValue("background-color"));
 		assertTrue(sheet.getErrorHandler().hasOMErrors());
 		sheet.getErrorHandler().resetComputedStyleErrors();
 		parent.setAttribute("bgcolor", "#90ff77");

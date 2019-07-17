@@ -42,8 +42,10 @@ public class CSSPercentageValue extends CSSNumberValue {
 	 */
 	@Override
 	public float getFloatValue(short unitType) throws DOMException {
-		if (unitType == getPrimitiveType() || unitType == CSSPrimitiveValue.CSS_NUMBER) {
+		if (unitType == CSSPrimitiveValue.CSS_PERCENTAGE) {
 			return realvalue;
+		} else if (unitType == CSSPrimitiveValue.CSS_NUMBER) {
+			return realvalue * 0.01f;
 		} else {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Cannot convert a percentage at this level");
 		}

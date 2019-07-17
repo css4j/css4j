@@ -564,7 +564,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 	private boolean appendBackgroundColor(StringBuilder buf, AbstractCSSValue value) {
 		if (!isUnsetValue(value) && isValidColor(value)) {
 			String text = value.getMinifiedCssText("background-color").toLowerCase(Locale.US);
-			if (!"transparent".equals(text) && !"rgba(0,0,0,0)".equals(text) && !"rgb(0,0,0,0)".equals(text)
+			if (!"transparent".equals(text) && !"rgba(0,0,0,0)".equals(text) && !"rgb(0 0 0/0)".equals(text)
 					&& !"initial".equals(text)) {
 				appendText(buf, text);
 			}

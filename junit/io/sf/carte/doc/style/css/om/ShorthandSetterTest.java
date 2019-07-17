@@ -187,6 +187,17 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testBorder4() {
+		emptyStyleDecl.setCssText("border: solid 1px rgba(251, 190, 0, 78%)");
+		assertEquals("1px", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-top-style"));
+		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-right-style"));
+		assertEquals("rgba(251, 190, 0, 78%)", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("border: solid 1px rgba(251, 190, 0, 78%); ", emptyStyleDecl.getCssText());
+		assertEquals("border:solid 1px rgba(251,190,0,78%);", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
 	public void testBorderZero() {
 		emptyStyleDecl.setCssText("border: 0");
 		assertEquals("none", emptyStyleDecl.getPropertyValue("border-top-style"));
@@ -199,28 +210,28 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testBorderTransparent() {
-		emptyStyleDecl.setCssText("border: solid rgb(0, 0, 0 / 0)");
+		emptyStyleDecl.setCssText("border: solid rgb(0 0 0 / 0)");
 		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-top-style"));
 		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-right-style"));
-		assertEquals("rgb(0, 0, 0 / 0)", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("rgb(0, 0, 0 / 0)", emptyStyleDecl.getPropertyValue("border-right-color"));
+		assertEquals("rgb(0 0 0 / 0)", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("rgb(0 0 0 / 0)", emptyStyleDecl.getPropertyValue("border-right-color"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("border-right-width"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("border-bottom-width"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("border-left-width"));
-		assertEquals("border: solid rgb(0, 0, 0 / 0); ", emptyStyleDecl.getCssText());
-		assertEquals("border:solid rgb(0,0,0/0);", emptyStyleDecl.getMinifiedCssText());
-		emptyStyleDecl.setCssText("border: rgb(0, 0, 0 / 0) solid");
+		assertEquals("border: solid rgb(0 0 0 / 0); ", emptyStyleDecl.getCssText());
+		assertEquals("border:solid rgb(0 0 0/0);", emptyStyleDecl.getMinifiedCssText());
+		emptyStyleDecl.setCssText("border: rgb(0 0 0 / 0) solid");
 		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-top-style"));
 		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-right-style"));
-		assertEquals("rgb(0, 0, 0 / 0)", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("rgb(0, 0, 0 / 0)", emptyStyleDecl.getPropertyValue("border-right-color"));
+		assertEquals("rgb(0 0 0 / 0)", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("rgb(0 0 0 / 0)", emptyStyleDecl.getPropertyValue("border-right-color"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("border-right-width"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("border-bottom-width"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("border-left-width"));
-		assertEquals("border: rgb(0, 0, 0 / 0) solid; ", emptyStyleDecl.getCssText());
-		assertEquals("border:rgb(0,0,0/0) solid;", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border: rgb(0 0 0 / 0) solid; ", emptyStyleDecl.getCssText());
+		assertEquals("border:rgb(0 0 0/0) solid;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -435,13 +446,13 @@ public class ShorthandSetterTest {
 		assertEquals("#11bbfc", emptyStyleDecl.getPropertyValue("border-left-color"));
 		assertEquals("border-color: blue #11bbfc green; ", emptyStyleDecl.getCssText());
 		assertEquals("border-color:blue #11bbfc green;", emptyStyleDecl.getMinifiedCssText());
-		emptyStyleDecl.setCssText("border-color: #ef7 rgb(255, 255, 255 / 0) rgb(255, 255, 255 / 0); ");
+		emptyStyleDecl.setCssText("border-color: #ef7 rgb(255 255 255 / 0) rgba(255, 255, 255, 0); ");
 		assertEquals("#ef7", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("rgb(255, 255, 255 / 0)", emptyStyleDecl.getPropertyValue("border-right-color"));
-		assertEquals("rgb(255, 255, 255 / 0)", emptyStyleDecl.getPropertyValue("border-bottom-color"));
-		assertEquals("rgb(255, 255, 255 / 0)", emptyStyleDecl.getPropertyValue("border-left-color"));
-		assertEquals("border-color: #ef7 rgb(255, 255, 255 / 0) rgb(255, 255, 255 / 0); ", emptyStyleDecl.getCssText());
-		assertEquals("border-color:#ef7 rgb(255,255,255/0) rgb(255,255,255/0);", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("rgb(255 255 255 / 0)", emptyStyleDecl.getPropertyValue("border-right-color"));
+		assertEquals("rgba(255, 255, 255, 0)", emptyStyleDecl.getPropertyValue("border-bottom-color"));
+		assertEquals("rgb(255 255 255 / 0)", emptyStyleDecl.getPropertyValue("border-left-color"));
+		assertEquals("border-color: #ef7 rgb(255 255 255 / 0) rgba(255, 255, 255, 0); ", emptyStyleDecl.getCssText());
+		assertEquals("border-color:#ef7 rgb(255 255 255/0) rgba(255,255,255,0);", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("border-color: blue navy green transparent; ");
 		assertEquals("blue", emptyStyleDecl.getPropertyValue("border-top-color"));
 		assertEquals("navy", emptyStyleDecl.getPropertyValue("border-right-color"));
@@ -1795,16 +1806,16 @@ public class ShorthandSetterTest {
 	@Test
 	public void testBackground4() {
 		emptyStyleDecl.setCssText(
-				"background:radial-gradient(    closest-side,   rgb(32, 45, 46 / 0),  #da212e)  , url('//example.com/img/image.jpg');");
-		assertEquals("radial-gradient(closest-side, rgb(32, 45, 46 / 0), #da212e), url('//example.com/img/image.jpg')",
+				"background:radial-gradient(    closest-side,   rgba(32, 45, 46, 0),  #da212e)  , url('//example.com/img/image.jpg');");
+		assertEquals("radial-gradient(closest-side, rgba(32, 45, 46, 0), #da212e), url('//example.com/img/image.jpg')",
 				emptyStyleDecl.getPropertyValue("background-image"));
-		assertEquals("radial-gradient(closest-side,rgb(32,45,46/0),#da212e),url('//example.com/img/image.jpg')",
+		assertEquals("radial-gradient(closest-side,rgba(32,45,46,0),#da212e),url('//example.com/img/image.jpg')",
 				emptyStyleDecl.getPropertyCSSValue("background-image").getMinifiedCssText("background-image"));
 		assertEquals(
-				"background: radial-gradient(closest-side, rgb(32, 45, 46 / 0), #da212e), url('//example.com/img/image.jpg'); ",
+				"background: radial-gradient(closest-side, rgba(32, 45, 46, 0), #da212e), url('//example.com/img/image.jpg'); ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:radial-gradient(closest-side,rgb(32,45,46/0),#da212e),url('//example.com/img/image.jpg');",
+				"background:radial-gradient(closest-side,rgba(32,45,46,0),#da212e),url('//example.com/img/image.jpg');",
 				emptyStyleDecl.getMinifiedCssText());
 		assertEquals("0% 0%, 0% 0%", emptyStyleDecl.getPropertyValue("background-position"));
 		assertEquals("auto auto, auto auto", emptyStyleDecl.getPropertyValue("background-size"));
@@ -1923,9 +1934,9 @@ public class ShorthandSetterTest {
 	@Test
 	public void testBackgroundImage3() {
 		emptyStyleDecl.setCssText(
-				"background: #fff; background-image: linear-gradient(45deg, rgb(150, 50, 50 / 0) 50%, #fc2f2f 50%), linear-gradient(135deg, #fecf05 50%, rgb(0, 0, 0 / 0) 50%); background-size: 5px 5px, 5px 5px;");
+				"background: #fff; background-image: linear-gradient(45deg, rgb(150 50 50 / 0) 50%, #fc2f2f 50%), linear-gradient(135deg, #fecf05 50%, rgb(0 0 0 / 0) 50%); background-size: 5px 5px, 5px 5px;");
 		assertEquals(
-				"linear-gradient(45deg, rgb(150, 50, 50 / 0) 50%, #fc2f2f 50%), linear-gradient(135deg, #fecf05 50%, rgb(0, 0, 0 / 0) 50%)",
+				"linear-gradient(45deg, rgb(150 50 50 / 0) 50%, #fc2f2f 50%), linear-gradient(135deg, #fecf05 50%, rgb(0 0 0 / 0) 50%)",
 				emptyStyleDecl.getPropertyValue("background-image"));
 		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("background-position"));
 		assertEquals("5px 5px, 5px 5px", emptyStyleDecl.getPropertyValue("background-size"));
@@ -1935,10 +1946,10 @@ public class ShorthandSetterTest {
 		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("#fff", emptyStyleDecl.getPropertyValue("background-color"));
 		assertEquals(
-				"background: #fff; background-image: linear-gradient(45deg, rgb(150, 50, 50 / 0) 50%, #fc2f2f 50%), linear-gradient(135deg, #fecf05 50%, rgb(0, 0, 0 / 0) 50%); background-size: 5px 5px, 5px 5px; ",
+				"background: #fff; background-image: linear-gradient(45deg, rgb(150 50 50 / 0) 50%, #fc2f2f 50%), linear-gradient(135deg, #fecf05 50%, rgb(0 0 0 / 0) 50%); background-size: 5px 5px, 5px 5px; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:#fff;background-image:linear-gradient(45deg,rgb(150,50,50/0) 50%,#fc2f2f 50%),linear-gradient(135deg,#fecf05 50%,rgb(0,0,0/0) 50%);background-size:5px 5px,5px 5px",
+				"background:#fff;background-image:linear-gradient(45deg,rgb(150 50 50/0) 50%,#fc2f2f 50%),linear-gradient(135deg,#fecf05 50%,rgb(0 0 0/0) 50%);background-size:5px 5px,5px 5px",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -1971,25 +1982,25 @@ public class ShorthandSetterTest {
 	@Test
 	public void testBackgroundImageGradient2() {
 		emptyStyleDecl.setCssText(
-				"background:linear-gradient(to right,rgb(66,103,178/0),#577fbc,rgb(66,103,178/0)) 0% 0%/1016px auto;");
-		assertEquals("linear-gradient(to right, rgb(66, 103, 178 / 0), #577fbc, rgb(66, 103, 178 / 0))",
+				"background:linear-gradient(to right,rgb(66 103 178/0),#577fbc,rgb(66 103 178/0)) 0% 0%/1016px auto;");
+		assertEquals("linear-gradient(to right, rgb(66 103 178 / 0), #577fbc, rgb(66 103 178 / 0))",
 				emptyStyleDecl.getPropertyValue("background-image"));
 		assertEquals(
-				"background: linear-gradient(to right, rgb(66, 103, 178 / 0), #577fbc, rgb(66, 103, 178 / 0)) 0% 0% / 1016px auto; ",
+				"background: linear-gradient(to right, rgb(66 103 178 / 0), #577fbc, rgb(66 103 178 / 0)) 0% 0% / 1016px auto; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:linear-gradient(to right,rgb(66,103,178/0),#577fbc,rgb(66,103,178/0)) 0% 0%/1016px auto;",
+				"background:linear-gradient(to right,rgb(66 103 178/0),#577fbc,rgb(66 103 178/0)) 0% 0%/1016px auto;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
 	public void testBackgroundImageGradient3() {
-		emptyStyleDecl.setCssText("background: linear-gradient(to bottom, rgba(255,255,255/0) 0%, #fff 100%);");
-		assertEquals("linear-gradient(to bottom, rgb(255, 255, 255 / 0) 0%, #fff 100%)",
+		emptyStyleDecl.setCssText("background: linear-gradient(to bottom, rgb(255 255 255/0) 0%, #fff 100%);");
+		assertEquals("linear-gradient(to bottom, rgb(255 255 255 / 0) 0%, #fff 100%)",
 				emptyStyleDecl.getPropertyValue("background-image"));
-		assertEquals("background: linear-gradient(to bottom, rgb(255, 255, 255 / 0) 0%, #fff 100%); ",
+		assertEquals("background: linear-gradient(to bottom, rgb(255 255 255 / 0) 0%, #fff 100%); ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:linear-gradient(to bottom,rgb(255,255,255/0) 0%,#fff 100%);",
+		assertEquals("background:linear-gradient(to bottom,rgb(255 255 255/0) 0%,#fff 100%);",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 

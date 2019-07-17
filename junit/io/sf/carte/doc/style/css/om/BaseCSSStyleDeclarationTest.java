@@ -807,7 +807,7 @@ public class BaseCSSStyleDeclarationTest {
 		CSSParser parser = new CSSParser();
 		InputSource source = new InputSource(new StringReader("#0f8 blue initial #45b6a0"));
 		LexicalUnit value = parser.parsePropertyValue(source);
-		assertEquals("rgb(0, 255, 136) blue initial rgb(69, 182, 160)",
+		assertEquals("rgb(0 255 136) blue initial rgb(69 182 160)",
 				BaseCSSStyleDeclaration.lexicalUnitToString(value));
 	}
 
