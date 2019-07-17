@@ -700,14 +700,8 @@ public class PropertyParserTest {
 		assertEquals(167, param.getIntegerValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(243, param.getIntegerValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
@@ -1857,12 +1851,8 @@ public class PropertyParserTest {
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(255, param.getIntegerValue());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(255, param.getIntegerValue());
-		param = param.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(255, param.getIntegerValue());
@@ -1900,7 +1890,383 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBZero() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 0 0)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(0 0 0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBZeroSlash() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 0 0 / 0)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(0 0 0/0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAZeroAlpha() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(0,0,0,0)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(0, 0, 0, 0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAPcntAlpha() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(1,2,3,45%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(2, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(3, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(45f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(1, 2, 3, 45%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAPcnt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(1%,2%,3%,0)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(1f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(2f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(3f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(1%, 2%, 3%, 0)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueRGB() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 127 48)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(48, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12 127 48)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBPcnt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12% 27% 48%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12% 27% 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBPcnt2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 27% 48%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(0 27% 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBSlash() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 127 48 / 0.1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(48, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12 127 48/0.1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBSlashMini() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 127 48/.1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(48, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12 127 48/0.1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBSlashMini2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 127 48/ .1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(48, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12 127 48/0.1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBSlashPcnt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 127 48 / 82%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(48, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(82f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12 127 48/82%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBSlashIntAlpha() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 127 48 / 1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(48, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12 127 48/1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBSlashIntAlpha2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 127 48 / 0)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(48, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12 127 48/0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBPcntSlash() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12% 27% 48%/0)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12% 27% 48%/0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBPcntSlashPcnt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12% 27% 48%/8%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(8f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12% 27% 48%/8%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBComma() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("rgb(12, 127, 48)"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
@@ -1917,8 +2283,706 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(48, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
 		assertEquals("rgb(12, 127, 48)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBCommaPcnt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12%,27%,48%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12%, 27%, 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBCommaPcnt2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0,27%,48%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(0, 27%, 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAPcntAlphaPcnt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(12%, 27%, 48%, 8%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(8f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(12%, 27%, 48%, 8%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAPcntAlphaInt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(12%, 27%, 48%, 0)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(12%, 27%, 48%, 0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAPcntAlphaInt2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(12%, 27%, 48%, 1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(12%, 27%, 48%, 1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAPcntAlphaInt3() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(12%, 0, 48%, 1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(12%, 0, 48%, 1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBCommaBad() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12,, 48)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBCommaBad2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12,13,)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBCommaBad3() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(,13,14,15)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 48 0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 48/0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad3() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 48,127,0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad4() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12,48 127,0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad5() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12,48,127/0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad6() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(0, 0, 0 / 0)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad7() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(0, 0, 0, 0, 0)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad8() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 0 0 0/0)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad9() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 0 0/0 0)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad10() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 0 0/0/0)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad11() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 0 0//0)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad12() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 0 0/0/)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBad13() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(0 2% 10)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBCommaBadAlpha() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(12,48,127,2)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBCommaBadAlpha2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgba(12,48,127,-1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadAlpha() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 48 127/2)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadAlpha2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("rgb(12 48 127/-1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSL() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12 25% 48%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLComma() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12, 25%, 48%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12, 25%, 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLA() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsla(12, 25%, 48%,.2)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.2f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsla", lu.getFunctionName());
+		assertEquals("hsla(12, 25%, 48%, 0.2)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLSlash() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12 25% 48% / 0.1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% 48%/0.1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLSlashPcnt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12 25% 48% / 24%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(24f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% 48%/24%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLSlashIntegerAlpha() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12 25% 48% / 1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% 48%/1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLSlashIntegerAlpha2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12 25% 48% / 0)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% 48%/0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLDeg() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12deg 25% 48%)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_DEGREE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12deg 25% 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLDegAlpha() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12deg 25% 48%/0.1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_DEGREE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.1, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12deg 25% 48%/0.1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLCommaBad() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12,, 48%)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLCommaBad2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12,13%,)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLCommaBad3() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(,13,14%,15%)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12 48% 0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12 48%/0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad3() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12 48%,93%,0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad4() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12,48% 94%,0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad5() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12deg,48% 94%,0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad6() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12,48%,91%/0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad7() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12em 48% 91%/0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad8() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12deg 48% 91%//0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad9() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12deg 48% 91%/2%/0.1)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueHSLBad10() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("hsl(12deg 48% 91%/0.1/)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
 	}
 
 	@Test
@@ -1935,18 +2999,13 @@ public class PropertyParserTest {
 		assertEquals(255, lu.getIntegerValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
 		assertEquals(221, lu.getIntegerValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
 		assertEquals(51, lu.getIntegerValue());
+		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test
@@ -1961,25 +3020,20 @@ public class PropertyParserTest {
 		assertEquals(255, lu.getIntegerValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
 		assertEquals(221, lu.getIntegerValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
 		assertEquals(51, lu.getIntegerValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
-		assertEquals(187, lu.getIntegerValue());
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(0.7333f, lu.getFloatValue(), 0.0001f);
+		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test
@@ -1994,18 +3048,13 @@ public class PropertyParserTest {
 		assertEquals(167, lu.getIntegerValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
 		assertEquals(243, lu.getIntegerValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
 		assertEquals(26, lu.getIntegerValue());
+		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test
@@ -2020,25 +3069,20 @@ public class PropertyParserTest {
 		assertEquals(167, lu.getIntegerValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
 		assertEquals(243, lu.getIntegerValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
 		assertEquals(26, lu.getIntegerValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
-		assertEquals(240, lu.getIntegerValue());
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(0.9412f, lu.getFloatValue(), 0.0001f);
+		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test
@@ -2267,14 +3311,8 @@ public class PropertyParserTest {
 		assertEquals(189, params.getIntegerValue());
 		params = params.getNextLexicalUnit();
 		assertNotNull(params);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, params.getLexicalUnitType());
-		params = params.getNextLexicalUnit();
-		assertNotNull(params);
 		assertEquals(LexicalUnit.SAC_INTEGER, params.getLexicalUnitType());
 		assertEquals(10, params.getIntegerValue());
-		params = params.getNextLexicalUnit();
-		assertNotNull(params);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, params.getLexicalUnitType());
 		params = params.getNextLexicalUnit();
 		assertNotNull(params);
 		assertEquals(LexicalUnit.SAC_INTEGER, params.getLexicalUnitType());
@@ -2297,14 +3335,8 @@ public class PropertyParserTest {
 		assertEquals(208, params.getIntegerValue());
 		params = params.getNextLexicalUnit();
 		assertNotNull(params);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, params.getLexicalUnitType());
-		params = params.getNextLexicalUnit();
-		assertNotNull(params);
 		assertEquals(LexicalUnit.SAC_INTEGER, params.getLexicalUnitType());
 		assertEquals(223, params.getIntegerValue());
-		params = params.getNextLexicalUnit();
-		assertNotNull(params);
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, params.getLexicalUnitType());
 		params = params.getNextLexicalUnit();
 		assertNotNull(params);
 		assertEquals(LexicalUnit.SAC_INTEGER, params.getLexicalUnitType());

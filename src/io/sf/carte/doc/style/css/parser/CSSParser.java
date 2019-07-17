@@ -3617,7 +3617,7 @@ public class CSSParser implements Parser2 {
 			String name = unescapeBuffer(index);
 			if ("url".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_URI);
-			} else if ("rgb".equalsIgnoreCase(name)) {
+			} else if ("rgb".equalsIgnoreCase(name) || "rgba".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
 			} else if ("attr".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_ATTR);
@@ -3709,9 +3709,15 @@ public class CSSParser implements Parser2 {
 		}
 
 		private void checkFunction(int index) {
+			String name;
 			short type = currentlu.getLexicalUnitType();
 			if (type != LexicalUnit.SAC_URI && type != LexicalUnit2.SAC_ELEMENT_REFERENCE
-					&& (currentlu.parameters == null || !lastParamIsOperand())) {
+					&& (currentlu.parameters == null || !lastParamIsOperand()
+							|| (type == LexicalUnit.SAC_RGBCOLOR && !isValidRGBColor())
+							|| (type == LexicalUnit.SAC_FUNCTION
+									&& ("hsl".equalsIgnoreCase((name = currentlu.getFunctionName()))
+											|| "hsla".equalsIgnoreCase(name))
+									&& !isValidHSLColor()))) {
 				unexpectedCharError(index, ')');
 			}
 		}
@@ -3729,6 +3735,143 @@ public class CSSParser implements Parser2 {
 		private boolean typeIsAlgebraicOperator(short type) {
 			return type == LexicalUnit.SAC_OPERATOR_PLUS || type == LexicalUnit.SAC_OPERATOR_MINUS
 					|| type == LexicalUnit.SAC_OPERATOR_MULTIPLY || type == LexicalUnit.SAC_OPERATOR_SLASH;
+		}
+
+		private boolean isValidRGBColor() {
+			LexicalUnitImpl lu = currentlu.parameters;
+			short valCount = 0;
+			short lastType = -1;
+			boolean hasCommas = false;
+			boolean hasNoCommas = false;
+			do {
+				short type = lu.getLexicalUnitType();
+				if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (lastType == LexicalUnit.SAC_OPERATOR_COMMA || lastType == -1 || hasNoCommas) {
+						return false;
+					}
+					hasCommas = true;
+				} else if (type == LexicalUnit.SAC_INTEGER || type == LexicalUnit.SAC_PERCENTAGE) {
+					if (hasCommas) {
+						if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
+							return false;
+						}
+						if (valCount == 3) {
+							int value = lu.getIntegerValue();
+							if (value < 0 || value > 1) {
+								return false;
+							}
+						}
+					} else if (lastType != type) {
+						if (lastType != -1) {
+							if (valCount == 3) {
+								if (lastType != LexicalUnit.SAC_OPERATOR_SLASH) {
+									return false;
+								}
+								if (type == LexicalUnit.SAC_INTEGER) {
+									int value = lu.getIntegerValue();
+									if (value < 0 || value > 1) {
+										return false;
+									}
+								} else { // %
+									float value = lu.getFloatValue();
+									if (value < 0 || value > 100f) {
+										return false;
+									}
+								}
+							} else if (lastType == LexicalUnit.SAC_PERCENTAGE) {
+								// We tolerate zeroes mixed with percentages
+								if (lu.getIntegerValue() != 0) {
+									return false;
+								}
+							} else if (lastType == LexicalUnit.SAC_INTEGER) {
+								if (lu.getPreviousLexicalUnit().getIntegerValue() != 0) {
+									return false;
+								}
+							}
+						}
+					} else {
+						hasNoCommas = true;
+					}
+					valCount++;
+				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+					if (valCount != 3 || (lastType != LexicalUnit.SAC_INTEGER && lastType != LexicalUnit.SAC_PERCENTAGE)
+							|| hasCommas) {
+						return false;
+					}
+				} else if (type == LexicalUnit.SAC_REAL) {
+					if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
+							|| valCount != 3) {
+						return false;
+					}
+					valCount = 4;
+				} else {
+					return false;
+				}
+				lastType = type;
+				lu = lu.nextLexicalUnit;
+			} while (lu != null);
+			return valCount == 3 || valCount == 4;
+		}
+
+		private boolean isValidHSLColor() {
+			LexicalUnitImpl lu = currentlu.parameters;
+			short pcntCount = 0;
+			short lastType = -1;
+			boolean hasCommas = false;
+			boolean hasNoCommas = false;
+			do {
+				short type = lu.getLexicalUnitType();
+				if (type == LexicalUnit.SAC_PERCENTAGE) {
+					if (lastType == -1) {
+						return false;
+					}
+					if (hasCommas) {
+						if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
+							return false;
+						}
+					} else if (lastType == LexicalUnit.SAC_INTEGER || isAngleType(lastType)) {
+						hasNoCommas = true;
+					}
+					pcntCount++;
+				} else if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (lastType == LexicalUnit.SAC_OPERATOR_COMMA || lastType == -1 || hasNoCommas) {
+						return false;
+					}
+					hasCommas = true;
+				} else if (type == LexicalUnit.SAC_INTEGER) {
+					if (lastType != -1) {
+						int value;
+						if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
+								|| pcntCount < 2 || (value = lu.getIntegerValue()) < 0 || value > 1) {
+							return false;
+						}
+					}
+				} else if (isAngleType(type)) {
+					if (lastType != -1) {
+						return false;
+					}
+				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+					if (pcntCount != 2 || lastType != LexicalUnit.SAC_PERCENTAGE || hasCommas) {
+						return false;
+					}
+				} else if (type == LexicalUnit.SAC_REAL) {
+					if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
+							|| pcntCount != 2) {
+						return false;
+					}
+					pcntCount = 3;
+				} else {
+					return false;
+				}
+				lastType = type;
+				lu = lu.nextLexicalUnit;
+			} while (lu != null);
+			return pcntCount >= 2;
+		}
+
+		private boolean isAngleType(short type) {
+			return type == LexicalUnit.SAC_DEGREE || type == LexicalUnit.SAC_RADIAN || type == LexicalUnit.SAC_GRADIAN
+					|| type == LexicalUnit2.SAC_TURN;
 		}
 
 		protected void handleRightCurlyBracket(int index) {
@@ -4374,9 +4517,7 @@ public class CSSParser implements Parser2 {
 					boolean prevft = functionToken;
 					functionToken = true;
 					parseHexComponent(0, 1, true);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
 					parseHexComponent(1, 2, true);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
 					parseHexComponent(2, 3, true);
 					recoverOwnerUnit();
 					functionToken = prevft;
@@ -4386,38 +4527,34 @@ public class CSSParser implements Parser2 {
 					boolean prevft = functionToken;
 					functionToken = true;
 					parseHexComponent(0, 2, false);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
 					parseHexComponent(2, 4, false);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
 					parseHexComponent(4, 6, false);
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 8) {
 					newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
-					currentlu.value = "rgba";
+					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
 					parseHexComponent(0, 2, false);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
 					parseHexComponent(2, 4, false);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
 					parseHexComponent(4, 6, false);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
-					parseHexComponent(6, 8, false);
+					int comp = hexComponent(6, 8, false);
+					newLexicalUnit(LexicalUnit.SAC_OPERATOR_SLASH);
+					newLexicalUnit(LexicalUnit.SAC_REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 4) {
 					newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
-					currentlu.value = "rgba";
+					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
 					parseHexComponent(0, 1, true);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
 					parseHexComponent(1, 2, true);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
 					parseHexComponent(2, 3, true);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
-					parseHexComponent(3, 4, true);
+					int comp = hexComponent(3, 4, true);
+					newLexicalUnit(LexicalUnit.SAC_OPERATOR_SLASH);
+					newLexicalUnit(LexicalUnit.SAC_REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else {
@@ -4430,6 +4567,11 @@ public class CSSParser implements Parser2 {
 		}
 
 		private void parseHexComponent(int start, int end, boolean doubleDigit) {
+			int comp = hexComponent(start, end, doubleDigit);
+			newLexicalUnit(LexicalUnit.SAC_INTEGER).intValue = comp;
+		}
+
+		private int hexComponent(int start, int end, boolean doubleDigit) {
 			String s;
 			if (doubleDigit) {
 				CharSequence seq = buffer.subSequence(start, end);
@@ -4437,8 +4579,7 @@ public class CSSParser implements Parser2 {
 			} else {
 				s = buffer.substring(start, end);
 			}
-			int comp = Integer.parseInt(s, 16);
-			newLexicalUnit(LexicalUnit.SAC_INTEGER).intValue = comp;
+			return Integer.parseInt(s, 16);
 		}
 
 		private void recoverOwnerUnit() {
