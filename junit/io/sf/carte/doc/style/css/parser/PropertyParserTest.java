@@ -41,7 +41,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor2() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor2() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#"));
 		try {
 			parser.parsePropertyValue(source);
@@ -51,7 +51,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor3() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor3() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#x"));
 		try {
 			parser.parsePropertyValue(source);
@@ -62,7 +62,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor4() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor4() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#,"));
 		try {
 			parser.parsePropertyValue(source);
@@ -73,7 +73,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor5() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor5() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#:"));
 		try {
 			parser.parsePropertyValue(source);
@@ -84,7 +84,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor6() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor6() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#@charset"));
 		try {
 			parser.parsePropertyValue(source);
@@ -95,7 +95,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor7() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor7() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(" #-"));
 		try {
 			parser.parsePropertyValue(source);
@@ -106,7 +106,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor8() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor8() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#_"));
 		try {
 			parser.parsePropertyValue(source);
@@ -117,7 +117,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor9() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor9() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#."));
 		try {
 			parser.parsePropertyValue(source);
@@ -128,7 +128,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor10() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor10() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("##"));
 		try {
 			parser.parsePropertyValue(source);
@@ -139,7 +139,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor11() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor11() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#fff(e)"));
 		try {
 			parser.parsePropertyValue(source);
@@ -150,7 +150,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor12() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor12() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#(e)"));
 		try {
 			parser.parsePropertyValue(source);
@@ -161,7 +161,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor13() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor13() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#:fff"));
 		try {
 			parser.parsePropertyValue(source);
@@ -172,7 +172,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor14() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor14() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#fff(e)"));
 		try {
 			parser.parsePropertyValue(source);
@@ -183,8 +183,8 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor15() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo #"));
+	public void testParsePropertyBadHexColor15() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("#foo "));
 		try {
 			parser.parsePropertyValue(source);
 			fail("Must throw exception");
@@ -193,8 +193,8 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadColor16() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("fee #"));
+	public void testParsePropertyBadHexColor16() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("#"));
 		try {
 			parser.parsePropertyValue(source);
 			fail("Must throw exception");

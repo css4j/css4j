@@ -3712,13 +3712,19 @@ public class CSSParser implements Parser2 {
 			String name;
 			short type = currentlu.getLexicalUnitType();
 			if (type != LexicalUnit.SAC_URI && type != LexicalUnit2.SAC_ELEMENT_REFERENCE
-					&& (currentlu.parameters == null || !lastParamIsOperand()
-							|| (type == LexicalUnit.SAC_RGBCOLOR && !isValidRGBColor())
-							|| (type == LexicalUnit.SAC_FUNCTION
-									&& ("hsl".equalsIgnoreCase((name = currentlu.getFunctionName()))
-											|| "hsla".equalsIgnoreCase(name))
-									&& !isValidHSLColor()))) {
+					&& (currentlu.parameters == null || !lastParamIsOperand())) {
 				unexpectedCharError(index, ')');
+			}
+			if ((type == LexicalUnit.SAC_RGBCOLOR && !isValidRGBColor()) || (type == LexicalUnit.SAC_FUNCTION
+					&& ("hsl".equalsIgnoreCase((name = currentlu.getFunctionName())) || "hsla".equalsIgnoreCase(name))
+					&& !isValidHSLColor())) {
+				String s;
+				try {
+					s = "Wrong color: " + currentlu.toString();
+				} catch (Exception e) {
+					s = "Wrong color.";
+				}
+				handleError(index, ParseHelper.ERR_WRONG_VALUE, s);
 			}
 		}
 
