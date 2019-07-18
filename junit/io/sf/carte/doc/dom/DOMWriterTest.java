@@ -25,6 +25,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -35,6 +36,34 @@ import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 import io.sf.carte.util.BufferSimpleWriter;
 
 public class DOMWriterTest {
+
+	@Test
+	public void testSerializeToString() throws IOException, SAXException {
+		TestDOMImplementation domImpl = new TestDOMImplementation();
+		DocumentType doctype = domImpl.createDocumentType("html", "-//W3C//DTD XHTML 1.0 Strict//EN",
+				"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+		DOMDocument document = domImpl.createDocument(null, "html", doctype);
+		DOMElement html = document.getDocumentElement();
+		html.setAttribute("lang", "en");
+		DOMElement head = document.createElement("head");
+		DOMElement title = document.createElement("title");
+		title.appendChild(document.createTextNode("Title"));
+		head.appendChild(title);
+		html.appendChild(head);
+		DOMElement body = document.createElement("body");
+		DOMElement div = document.createElement("div");
+		div.appendChild(document.createTextNode("This document is not \u221e"));
+		body.appendChild(document.createComment(" Comment before DIV "));
+		body.appendChild(div);
+		html.appendChild(body);
+		DOMWriter domWriter = new DOMWriter();
+		int[] entities = { 0x221e };
+		domWriter.setEntityCodepoints(doctype, entities);
+		domWriter.setIndentingUnit(1);
+		assertEquals(
+				"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html lang=\"en\">\n <head><title>Title</title></head>\n <body>\n  <!-- Comment before DIV -->\n  <div>This document is not &infin;</div>\n </body>\n</html>\n",
+				domWriter.serializeToString(document));
+	}
 
 	@Test
 	public void testSerializeDocument() throws IOException {

@@ -40,6 +40,7 @@ import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 import io.sf.carte.doc.xml.dtd.EntityFinder;
+import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -179,13 +180,32 @@ public class DOMWriter {
 	 * System.out.println(writer.toString());
 	 * </pre>
 	 * 
-	 * @param node   the root node.
+	 * @param root   the root node.
 	 * @param writer the writer.
 	 * @throws IOException if an I/O problem occurred while writing.
 	 */
-	public static void writeTree(Node node, SimpleWriter writer) throws IOException {
+	public static void writeTree(Node root, SimpleWriter writer) throws IOException {
 		DOMWriter domWriter = new DOMWriter();
-		domWriter.writeNode(node, writer);
+		domWriter.writeNode(root, writer);
+	}
+
+	/**
+	 * Serializes <code>root</code> into a <code>String</code> using the
+	 * configurable serialization provided by this class.
+	 * <p>
+	 * Named for similarity with W3C's <code>XMLSerializer</code> interface.
+	 * 
+	 * @param root the root node.
+	 * @return the serialization.
+	 */
+	public String serializeToString(Node root) {
+		BufferSimpleWriter writer = new BufferSimpleWriter(512);
+		try {
+			writeNode(root, writer);
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+		return writer.toString();
 	}
 
 	/**
@@ -201,18 +221,18 @@ public class DOMWriter {
 	 * System.out.println(writer.toString());
 	 * </pre>
 	 * 
-	 * @param node   the node.
+	 * @param root   the node.
 	 * @param writer the writer.
 	 * @throws IOException if an I/O problem occurred while writing.
 	 */
-	public void writeNode(Node node, SimpleWriter writer) throws IOException {
-		this.rootNode = node;
+	public void writeNode(Node root, SimpleWriter writer) throws IOException {
+		this.rootNode = root;
 		ExtendedCSSStyleSheet<?> oldUaSheet = uaSheet;
 		if (oldUaSheet == null) {
 			DOMDocument doc = (DOMDocument) getOwnerDocument();
 			uaSheet = doc.getImplementation().getUserAgentStyleSheet(doc.getComplianceMode());
 		}
-		writeNode(node, writer, true);
+		writeNode(root, writer, true);
 		uaSheet = oldUaSheet;
 		this.rootNode = null;
 	}
