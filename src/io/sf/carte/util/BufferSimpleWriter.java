@@ -20,11 +20,21 @@ public class BufferSimpleWriter implements SimpleWriter {
 
 	private StringBuilder buffer;
 
+	/**
+	 * Initializes a <code>BufferSimpleWriter</code> with an initial buffer capacity
+	 * of 128 characters.
+	 */
 	public BufferSimpleWriter() {
 		super();
-		buffer = new StringBuilder();
+		buffer = new StringBuilder(128);
 	}
 
+	/**
+	 * Initializes a <code>BufferSimpleWriter</code> with an initial buffer capacity
+	 * of <code>initialCapacity</code> characters.
+	 * 
+	 * @param initialCapacity the buffer initial capacity.
+	 */
 	public BufferSimpleWriter(int initialCapacity) {
 		super();
 		buffer = new StringBuilder(initialCapacity);
