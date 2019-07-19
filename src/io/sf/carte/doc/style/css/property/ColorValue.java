@@ -12,6 +12,9 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
@@ -528,7 +531,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			appendComponentCssText(buf, green, true).append(' ');
 			appendComponentCssText(buf, blue, true);
 			if (nonOpaque) {
-				buf.append('/').append(getAlpha().getCssText());
+				buf.append('/');
+				appendAlphaChannelMinified(buf);
 			}
 			buf.append(')');
 			return buf.toString();
@@ -545,7 +549,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			appendComponentCssText(buf, green, true).append(',');
 			appendComponentCssText(buf, blue, true);
 			if (nonOpaque) {
-				buf.append(',').append(getAlpha().getCssText());
+				buf.append(',');
+				appendAlphaChannelMinified(buf);
 			}
 			buf.append(')');
 			return buf.toString();
@@ -558,7 +563,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			appendComponentCssText(buf, green, false).append(' ');
 			appendComponentCssText(buf, blue, false);
 			if (nonOpaque) {
-				buf.append(" / ").append(getAlpha().getCssText());
+				buf.append(" / ");
+				appendAlphaChannel(buf);
 			}
 			buf.append(')');
 			return buf.toString();
@@ -575,7 +581,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			appendComponentCssText(buf, green, false).append(", ");
 			appendComponentCssText(buf, blue, false);
 			if (nonOpaque) {
-				buf.append(", ").append(getAlpha().getCssText());
+				buf.append(", ");
+				appendAlphaChannel(buf);
 			}
 			buf.append(')');
 			return buf.toString();
@@ -599,6 +606,43 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 				strVal = Float.toString(rval);
 			}
 			return buf.append(strVal).append('%');
+		}
+
+		private StringBuilder appendAlphaChannel(StringBuilder buf) {
+			String text;
+			if (alpha.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
+				float f = alpha.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+				text = formattedNumber(f);
+			} else {
+				text = alpha.getCssText();
+			}
+			return buf.append(text);
+		}
+
+		private StringBuilder appendAlphaChannelMinified(StringBuilder buf) {
+			String text;
+			if (alpha.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
+				float f = alpha.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+				text = formattedNumberMinified(f);
+			} else {
+				text = alpha.getMinifiedCssText("");
+			}
+			return buf.append(text);
+		}
+
+		private String formattedNumber(float f) {
+			NumberFormat format = DecimalFormat.getNumberInstance(Locale.US);
+			format.setMaximumFractionDigits(3);
+			format.setMinimumFractionDigits(0);
+			return format.format(f);
+		}
+
+		private String formattedNumberMinified(float f) {
+			NumberFormat format = DecimalFormat.getNumberInstance(Locale.US);
+			format.setMaximumFractionDigits(3);
+			format.setMinimumFractionDigits(0);
+			format.setMinimumIntegerDigits(0);
+			return format.format(f);
 		}
 
 		private boolean notSameChar(String hexr) {
@@ -706,7 +750,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			buf.append(Integer.toString(hsl.h)).append(", ").append(Integer.toString(hsl.s))
 					.append('%').append(", ").append(Integer.toString(hsl.l)).append('%');
 			if (nonOpaque) {
-				buf.append(", ").append(getAlpha().getCssText());
+				buf.append(", ");
+				appendAlphaChannel(buf);
 			}
 			buf.append(')');
 			return buf.toString();
@@ -717,7 +762,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			buf.append("hsl(").append(Integer.toString(hsl.h)).append(' ').append(Integer.toString(hsl.s))
 					.append('%').append(' ').append(Integer.toString(hsl.l)).append('%');
 			if (nonOpaque) {
-				buf.append(" / ").append(getAlpha().getCssText());
+				buf.append(" / ");
+				appendAlphaChannel(buf);
 			}
 			buf.append(')');
 			return buf.toString();
@@ -746,7 +792,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			buf.append(Integer.toString(hsl.h)).append(',').append(Integer.toString(hsl.s))
 					.append('%').append(',').append(Integer.toString(hsl.l)).append('%');
 			if (nonOpaque) {
-				buf.append(',').append(getAlpha().getMinifiedCssText(""));
+				buf.append(',');
+				appendAlphaChannelMinified(buf);
 			}
 			buf.append(')');
 			return buf.toString();
@@ -757,7 +804,8 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			buf.append("hsl(").append(Integer.toString(hsl.h)).append(' ').append(Integer.toString(hsl.s))
 					.append('%').append(' ').append(Integer.toString(hsl.l)).append('%');
 			if (nonOpaque) {
-				buf.append('/').append(getAlpha().getMinifiedCssText(""));
+				buf.append('/');
+				appendAlphaChannelMinified(buf);
 			}
 			buf.append(')');
 			return buf.toString();

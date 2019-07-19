@@ -246,7 +246,7 @@ public class GradientValueTest {
 		assertEquals(4, val.getArguments().size());
 		assertEquals("radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%); ", style.getCssText());
-		assertEquals("background-image:radial-gradient(center,ellipse cover,rgb(0 0 0/0.4) 0,rgb(0 0 0/0.9) 100%)", style.getMinifiedCssText());
+		assertEquals("background-image:radial-gradient(center,ellipse cover,rgb(0 0 0/.4) 0,rgb(0 0 0/.9) 100%)", style.getMinifiedCssText());
 	}
 
 	@Test
@@ -259,7 +259,7 @@ public class GradientValueTest {
 		assertEquals(4, val.getArguments().size());
 		assertEquals("radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.8), rgb(255 200 200 / 0.6), #111 60%)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.8), rgb(255 200 200 / 0.6), #111 60%); ", style.getCssText());
-		assertEquals("background-image:radial-gradient(circle at 40% 40%,rgb(255 255 255/0.8),rgb(255 200 200/0.6),#111 60%)", style.getMinifiedCssText());
+		assertEquals("background-image:radial-gradient(circle at 40% 40%,rgb(255 255 255/.8),rgb(255 200 200/.6),#111 60%)", style.getMinifiedCssText());
 	}
 
 	@Test
@@ -272,7 +272,7 @@ public class GradientValueTest {
 		assertEquals(3, val.getArguments().size());
 		assertEquals("radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%); ", style.getCssText());
-		assertEquals("background-image:radial-gradient(circle,#e6e7e0 40%,rgb(43 42 161/0.6) 110%)", style.getMinifiedCssText());
+		assertEquals("background-image:radial-gradient(circle,#e6e7e0 40%,rgb(43 42 161/.6) 110%)", style.getMinifiedCssText());
 	}
 
 	@Test

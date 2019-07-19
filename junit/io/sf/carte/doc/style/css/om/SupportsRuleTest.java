@@ -243,7 +243,7 @@ public class SupportsRuleTest {
 				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    #fooid.fooclass .barclass {\n        -webkit-backdrop-filter: saturate(180%) blur(20px);\n        backdrop-filter: saturate(180%) blur(20px);\n        background-color: rgb(255 255 255 / 0.7);\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/0.7)}}",
+				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/.7)}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -260,7 +260,7 @@ public class SupportsRuleTest {
 				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    .fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass {\n        background-color: rgb(11 11 11 / 0.7);\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/0.7)}}",
+				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/.7)}}",
 				rule.getMinifiedCssText());
 	}
 
