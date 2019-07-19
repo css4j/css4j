@@ -38,21 +38,21 @@ import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.property.AbstractCSSExpression;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
-import io.sf.carte.doc.style.css.property.CSSInheritValue;
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
-import io.sf.carte.doc.style.css.property.CSSURIValue;
-import io.sf.carte.doc.style.css.property.CSSURIValueWrapper;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.ExpressionContainerValue;
-import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
 import io.sf.carte.doc.style.css.property.FunctionValue;
-import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
+import io.sf.carte.doc.style.css.property.InheritValue;
+import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
+import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.OperandExpression;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
+import io.sf.carte.doc.style.css.property.URIValue;
+import io.sf.carte.doc.style.css.property.URIValueWrapper;
 import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.doc.style.css.property.WrappedValue;
 import io.sf.carte.util.SimpleWriter;
 
@@ -99,7 +99,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			} else if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 					&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
 				if (hrefcontext != null) {
-					value = new CSSURIValueWrapper((CSSURIValue) value, hrefcontext,
+					value = new URIValueWrapper((URIValue) value, hrefcontext,
 							getOwnerNode().getOwnerDocument().getBaseURI());
 				}
 			}
@@ -136,7 +136,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			 * property is inherited or not.
 			 */
 			if (inherited) {
-				value = CSSInheritValue.getValue();
+				value = InheritValue.getValue();
 			} else {
 				value = defaultPropertyValue(property, propertydb);
 			}
@@ -236,7 +236,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private AbstractCSSPrimitiveValue absolutePrimitiveValue(AbstractCSSPrimitiveValue pri) {
 		if (isRelativeUnit(pri)) {
-			pri = absoluteNumberValue((CSSNumberValue) pri);
+			pri = absoluteNumberValue((NumberValue) pri);
 		} else {
 			short type = pri.getPrimitiveType();
 			if (type == CSSPrimitiveValue2.CSS_EXPRESSION) {
@@ -265,16 +265,16 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		case CSSPrimitiveValue2.CSS_LH:
 		case CSSPrimitiveValue2.CSS_REM:
 		case CSSPrimitiveValue2.CSS_RLH:
-			return pri instanceof CSSNumberValue;
+			return pri instanceof NumberValue;
 		}
 		return false;
 	}
 
-	private CSSNumberValue absoluteNumberValue(CSSNumberValue value) {
+	private NumberValue absoluteNumberValue(NumberValue value) {
 		short unit = value.getPrimitiveType();
 		float fv = value.getFloatValue(unit);
 		if (unit == CSSPrimitiveValue.CSS_EMS) {
-			value = new CSSNumberValue();
+			value = new NumberValue();
 			value.setFloatValuePt(fv * getComputedFontSize());
 		} else if (unit == CSSPrimitiveValue.CSS_EXS) {
 			if (getStyleDatabase() != null) {
@@ -282,21 +282,21 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			} else {
 				fv *= getComputedFontSize() * 0.5f;
 			}
-			value = new CSSNumberValue();
+			value = new NumberValue();
 			value.setFloatValuePt(fv);
 		} else if (unit == CSSPrimitiveValue2.CSS_REM) {
 			CSSDocument doc = (CSSDocument) getOwnerNode().getOwnerDocument();
 			fv *= doc.getStyleSheet().getComputedStyle(doc.getDocumentElement(), null).getComputedFontSize();
-			value = new CSSNumberValue();
+			value = new NumberValue();
 			value.setFloatValuePt(fv);
 		} else if (unit == CSSPrimitiveValue2.CSS_LH) {
 			fv *= getComputedLineHeight();
-			value = new CSSNumberValue();
+			value = new NumberValue();
 			value.setFloatValuePt(fv);
 		} else if (unit == CSSPrimitiveValue2.CSS_RLH) {
 			CSSDocument doc = (CSSDocument) getOwnerNode().getOwnerDocument();
 			fv *= doc.getStyleSheet().getComputedStyle(doc.getDocumentElement(), null).getComputedLineHeight();
-			value = new CSSNumberValue();
+			value = new NumberValue();
 			value.setFloatValuePt(fv);
 		} else {
 			CSSCanvas canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
@@ -319,7 +319,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					fv *= getComputedFontSize();
 				}
 			}
-			value = new CSSNumberValue();
+			value = new NumberValue();
 			value.setFloatValuePt(fv);
 		}
 		return value;
@@ -379,13 +379,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	private AbstractCSSValue computeConstrainedDisplay(AbstractCSSValue value) {
 		String display = ((CSSPrimitiveValue) value).getStringValue();
 		if ("inline-table".equals(display)) {
-			return new CSSIdentifierValue("table");
+			return new IdentifierValue("table");
 		} else if ("inline".equals(display) || "run-in".equals(display) || "table-row-group".equals(display)
 				|| "table-column".equals(display) || "table-column-group".equals(display)
 				|| "table-header-group".equals(display) || "table-footer-group".equals(display)
 				|| "table-row".equals(display) || "table-cell".equals(display) || "table-caption".equals(display)
 				|| "inline-block".equals(display)) {
-			return new CSSIdentifierValue("block");
+			return new IdentifierValue("block");
 		}
 		return value;
 	}
@@ -429,23 +429,23 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		ValueList list = ValueList.createWSValueList();
 		String s = value.getCssText();
 		if (s.equals("repeat-y")) {
-			list.add(new CSSIdentifierValue("no-repeat"));
-			list.add(new CSSIdentifierValue("repeat"));
+			list.add(new IdentifierValue("no-repeat"));
+			list.add(new IdentifierValue("repeat"));
 		} else if (s.equals("repeat-x")) {
-			list.add(new CSSIdentifierValue("repeat"));
-			list.add(new CSSIdentifierValue("no-repeat"));
+			list.add(new IdentifierValue("repeat"));
+			list.add(new IdentifierValue("no-repeat"));
 		} else if (s.equals("repeat")) {
-			list.add(new CSSIdentifierValue("repeat"));
-			list.add(new CSSIdentifierValue("repeat"));
+			list.add(new IdentifierValue("repeat"));
+			list.add(new IdentifierValue("repeat"));
 		} else if (s.equals("no-repeat")) {
-			list.add(new CSSIdentifierValue("no-repeat"));
-			list.add(new CSSIdentifierValue("no-repeat"));
+			list.add(new IdentifierValue("no-repeat"));
+			list.add(new IdentifierValue("no-repeat"));
 		} else if (s.equals("space")) {
-			list.add(new CSSIdentifierValue("space"));
-			list.add(new CSSIdentifierValue("space"));
+			list.add(new IdentifierValue("space"));
+			list.add(new IdentifierValue("space"));
 		} else if (s.equals("round")) {
-			list.add(new CSSIdentifierValue("round"));
-			list.add(new CSSIdentifierValue("round"));
+			list.add(new IdentifierValue("round"));
+			list.add(new IdentifierValue("round"));
 		} else {
 			return value;
 		}
@@ -868,10 +868,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 			}
 			height = defval * getComputedFontSize();
-		} else if (cssval instanceof CSSNumberValue) {
+		} else if (cssval instanceof NumberValue) {
 			height = cssval.getFloatValue(declType);
 			if (declType != CSSPrimitiveValue.CSS_PT) {
-				height = CSSNumberValue.floatValueConversion(height, declType, CSSPrimitiveValue.CSS_PT);
+				height = NumberValue.floatValueConversion(height, declType, CSSPrimitiveValue.CSS_PT);
 			}
 		} else {
 			if (getParentRule() != null) {

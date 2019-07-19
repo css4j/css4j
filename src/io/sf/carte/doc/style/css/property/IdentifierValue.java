@@ -31,11 +31,11 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class CSSIdentifierValue extends AbstractCSSPrimitiveValue {
+public class IdentifierValue extends AbstractCSSPrimitiveValue {
 
 	private String stringValue = null;
 
-	public CSSIdentifierValue() {
+	public IdentifierValue() {
 		super();
 		setCSSUnitType(CSS_IDENT);
 	}
@@ -48,14 +48,14 @@ public class CSSIdentifierValue extends AbstractCSSPrimitiveValue {
 	 * @param plainIdentifier
 	 *            the identifier.
 	 */
-	public CSSIdentifierValue(String plainIdentifier) {
+	public IdentifierValue(String plainIdentifier) {
 		super();
 		setCSSUnitType(CSS_IDENT);
 		setStringValue(plainIdentifier);
 		setPlainCssText(plainIdentifier);
 	}
 
-	protected CSSIdentifierValue(CSSIdentifierValue copied) {
+	protected IdentifierValue(IdentifierValue copied) {
 		super(copied);
 		this.stringValue = copied.stringValue;
 		setPlainCssText(copied.getCssText());
@@ -162,7 +162,7 @@ public class CSSIdentifierValue extends AbstractCSSPrimitiveValue {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		CSSIdentifierValue other = (CSSIdentifierValue) obj;
+		IdentifierValue other = (IdentifierValue) obj;
 		String sv = getStringValue();
 		String osv = other.getStringValue();
 		if (sv == null) {
@@ -176,8 +176,8 @@ public class CSSIdentifierValue extends AbstractCSSPrimitiveValue {
 	}
 
 	@Override
-	public CSSIdentifierValue clone() {
-		return new CSSIdentifierValue(this);
+	public IdentifierValue clone() {
+		return new IdentifierValue(this);
 	}
 
 }

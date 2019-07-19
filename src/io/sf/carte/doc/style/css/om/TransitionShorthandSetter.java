@@ -18,10 +18,10 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSInheritValue;
-import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Shorthand setter for the <code>transition</code> property.
@@ -150,7 +150,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 					i++;
 					// First, clear any values set at this layer
 					clearLayer(i);
-					CSSInheritValue inherit = CSSInheritValue.getValue().asSubproperty();
+					InheritValue inherit = InheritValue.getValue().asSubproperty();
 					addSingleValueLayer(inherit);
 					appendValueItemString(inherit);
 					continue toploop;

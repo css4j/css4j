@@ -29,12 +29,12 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
-import io.sf.carte.doc.style.css.property.CSSInheritValue;
-import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
+import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Generic class that attempts to set the subproperties of shorthand properties.
@@ -200,7 +200,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 				reportMixedKeywords("inherit");
 				return 2;
 			}
-			CSSInheritValue inherit = CSSInheritValue.getValue().asSubproperty();
+			InheritValue inherit = InheritValue.getValue().asSubproperty();
 			setSubpropertiesInherit(inherit);
 			initValueString();
 			appendValueItemString(inherit);
@@ -230,7 +230,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		}
 	}
 
-	protected void setSubpropertiesInherit(CSSInheritValue inherit) {
+	protected void setSubpropertiesInherit(InheritValue inherit) {
 		String[] subparray = getShorthandSubproperties();
 		for (String subp : subparray) {
 			if (!getPropertyDatabase().isShorthand(subp)) {
@@ -337,7 +337,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 				((ValueList) cssVal).setSubproperty(true);
 			}
 		} else {
-			CSSIdentifierValue ident = new CSSIdentifierValue();
+			IdentifierValue ident = new IdentifierValue();
 			ident.setStringValue(CSSPrimitiveValue.CSS_IDENT, "initial");
 			ident.setSubproperty(true);
 			cssVal = ident;

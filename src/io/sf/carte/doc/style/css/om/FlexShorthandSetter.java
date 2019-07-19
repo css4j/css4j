@@ -16,8 +16,8 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 class FlexShorthandSetter extends ShorthandSetter {
@@ -80,7 +80,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 				AbstractCSSPrimitiveValue value = (AbstractCSSPrimitiveValue) createCSSValue("flex-basis",
 						currentValue);
 				if (value.isNumberZero()) {
-					CSSNumberValue number = new CSSNumberValue();
+					NumberValue number = new NumberValue();
 					number.setSubproperty(true);
 					number.setIntegerValue(0);
 					value = number;
@@ -124,14 +124,14 @@ class FlexShorthandSetter extends ShorthandSetter {
 	}
 
 	private void setFlexGrow(int grow) {
-		CSSNumberValue number = new CSSNumberValue();
+		NumberValue number = new NumberValue();
 		number.setIntegerValue(grow);
 		number.setSubproperty(true);
 		setSubpropertyValue("flex-grow", number);
 	}
 
 	private void setFlexGrow(float grow) {
-		CSSNumberValue number = new CSSNumberValue();
+		NumberValue number = new NumberValue();
 		number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, grow);
 		number.setSubproperty(true);
 		setSubpropertyValue("flex-grow", number);
@@ -165,21 +165,21 @@ class FlexShorthandSetter extends ShorthandSetter {
 	}
 
 	private void setFlexShrink(int shrink) {
-		CSSNumberValue number = new CSSNumberValue();
+		NumberValue number = new NumberValue();
 		number.setIntegerValue(shrink);
 		number.setSubproperty(true);
 		setSubpropertyValue("flex-shrink", number);
 	}
 
 	private void setFlexShrink(float shrink) {
-		CSSNumberValue number = new CSSNumberValue();
+		NumberValue number = new NumberValue();
 		number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, shrink);
 		number.setSubproperty(true);
 		setSubpropertyValue("flex-shrink", number);
 	}
 
 	private void setFlexBasisToAuto() {
-		CSSIdentifierValue ident = new CSSIdentifierValue("auto");
+		IdentifierValue ident = new IdentifierValue("auto");
 		ident.setSubproperty(true);
 		setSubpropertyValue("flex-basis", ident);
 	}
@@ -194,9 +194,9 @@ class FlexShorthandSetter extends ShorthandSetter {
 			AbstractCSSValue cssValue = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 			if (cssValue != null) {
 				String cssText, miniCssText;
-				CSSNumberValue number;
-				if (currentValue.getNextLexicalUnit() == null && cssValue instanceof CSSNumberValue
-						&& ((number = (CSSNumberValue) cssValue).isNumberZero())) {
+				NumberValue number;
+				if (currentValue.getNextLexicalUnit() == null && cssValue instanceof NumberValue
+						&& ((number = (NumberValue) cssValue).isNumberZero())) {
 					cssText = "0" + number.getDimensionUnitText();
 					miniCssText = cssText;
 				} else {

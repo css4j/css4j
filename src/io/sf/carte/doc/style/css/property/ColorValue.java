@@ -32,10 +32,10 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class ColorValue extends AbstractCSSPrimitiveValue {
 
-	public static final CSSNumberValue opaqueAlpha;
+	public static final NumberValue opaqueAlpha;
 
 	static {
-		CSSNumberValue alpha = new CSSNumberValue();
+		NumberValue alpha = new NumberValue();
 		alpha.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, 1f);
 		opaqueAlpha = alpha.immutable();
 	}
@@ -278,11 +278,11 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			m2 = light + sat - light * sat;
 		}
 		float m1 = light * 2f - m2;
-		CSSNumberValue red = new CSSNumberValue();
+		NumberValue red = new NumberValue();
 		red.setFloatValue(CSS_PERCENTAGE, hueToRgb(m1, m2, hue + 1f / 3f));
-		CSSNumberValue green = new CSSNumberValue();
+		NumberValue green = new NumberValue();
 		green.setFloatValue(CSS_PERCENTAGE, hueToRgb(m1, m2, hue));
-		CSSNumberValue blue = new CSSNumberValue();
+		NumberValue blue = new NumberValue();
 		blue.setFloatValue(CSS_PERCENTAGE, hueToRgb(m1, m2, hue - 1f / 3f));
 		color.red = red;
 		color.green = green;
@@ -354,11 +354,11 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			g = wv;
 			b = whiteness;
 		}
-		CSSNumberValue red = new CSSNumberValue();
+		NumberValue red = new NumberValue();
 		red.setFloatValue(CSS_NUMBER, Math.round(r * 255f));
-		CSSNumberValue green = new CSSNumberValue();
+		NumberValue green = new NumberValue();
 		green.setFloatValue(CSS_NUMBER, Math.round(g * 255f));
-		CSSNumberValue blue = new CSSNumberValue();
+		NumberValue blue = new NumberValue();
 		blue.setFloatValue(CSS_NUMBER, Math.round(b * 255f));
 		color.red = red;
 		color.green = green;

@@ -487,7 +487,7 @@ public class ValueFactory {
 		return css;
 	}
 
-	private CSSUnknownValue createUnknownValue(String value, LexicalUnit lunit) {
+	private UnknownValue createUnknownValue(String value, LexicalUnit lunit) {
 		switch (lunit.getLexicalUnitType()) {
 		case LexicalUnit.SAC_OPERATOR_COMMA:
 		case LexicalUnit.SAC_OPERATOR_EXP:
@@ -502,7 +502,7 @@ public class ValueFactory {
 		case LexicalUnit.SAC_OPERATOR_TILDE:
 			return null;
 		default:
-			CSSUnknownValue css = new CSSUnknownValue();
+			UnknownValue css = new UnknownValue();
 			css.setCssText(value);
 			((AbstractCSSPrimitiveValue) css).newLexicalSetter().setLexicalUnit(lunit);
 			return css;
@@ -776,7 +776,7 @@ public class ValueFactory {
 	public ValueItem createCSSValueItem(LexicalUnit lunit, boolean subproperty) throws DOMException {
 		switch (lunit.getLexicalUnitType()) {
 		case LexicalUnit.SAC_INHERIT:
-			CSSInheritValue value = CSSInheritValue.getValue();
+			InheritValue value = InheritValue.getValue();
 			if (subproperty)
 				value = value.asSubproperty();
 			return value;
@@ -825,7 +825,7 @@ public class ValueFactory {
 		try {
 			switch (unitType) {
 			case LexicalUnit.SAC_IDENT:
-				primi = new CSSIdentifierValue();
+				primi = new IdentifierValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_ATTR:
@@ -833,15 +833,15 @@ public class ValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_STRING_VALUE:
-				primi = new CSSStringValue(flags);
+				primi = new StringValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_URI:
-				primi = new CSSURIValue(flags);
+				primi = new URIValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_PERCENTAGE:
-				primi = new CSSPercentageValue();
+				primi = new PercentageValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_CENTIMETER:
@@ -866,9 +866,9 @@ public class ValueFactory {
 			case LexicalUnit2.SAC_VMAX:
 			case LexicalUnit2.SAC_VMIN:
 			case LexicalUnit2.SAC_VW:
-				primi = new CSSNumberValue();
+				primi = new NumberValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				((CSSNumberValue) primi).lengthUnitType = true;
+				((NumberValue) primi).lengthUnitType = true;
 				break;
 			case LexicalUnit.SAC_REAL:
 			case LexicalUnit.SAC_DEGREE:
@@ -883,12 +883,12 @@ public class ValueFactory {
 			case LexicalUnit2.SAC_DOTS_PER_INCH:
 			case LexicalUnit2.SAC_DOTS_PER_PIXEL:
 			case LexicalUnit2.SAC_FR:
-				primi = new CSSNumberValue();
+				primi = new NumberValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_INTEGER:
-				primi = new CSSNumberValue();
-				((CSSNumberValue) primi).setIntegerValue(lunit.getIntegerValue());
+				primi = new NumberValue();
+				((NumberValue) primi).setIntegerValue(lunit.getIntegerValue());
 				(setter = primi.newLexicalSetter()).nextLexicalUnit = lunit.getNextLexicalUnit();
 				break;
 			case LexicalUnit.SAC_RGBCOLOR:
@@ -952,7 +952,7 @@ public class ValueFactory {
 				throw new DOMException(DOMException.SYNTAX_ERR, "A comma is not a valid primitive");
 			default:
 				// Unknown value
-				primi = new CSSUnknownValue();
+				primi = new UnknownValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 			}
 		} catch (DOMException e) {

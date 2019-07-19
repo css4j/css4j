@@ -31,7 +31,7 @@ import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue.LexicalSetter;
 
-public class CSSStringValueSQTest {
+public class StringValueSQTest {
 
 	static {
 		TestCSSStyleSheetFactory.setTestSACParser();
@@ -39,7 +39,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testSetStringValueShortString() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "Some text in \"double quotes\"");
 		assertEquals("Some text in \"double quotes\"", value.getStringValue());
 		assertEquals("'Some text in \"double quotes\"'", value.getCssText());
@@ -68,7 +68,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testSetCssTextString() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("\"foo\"");
 		assertEquals("foo", value.getStringValue());
 		assertEquals("'foo'", value.getCssText());
@@ -81,7 +81,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testSetCssTextStringEscaped() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("\"â†\u0090\"");
 		assertEquals("â†\u0090", value.getStringValue());
 		assertEquals("'â†\\90 '", value.getCssText());
@@ -90,7 +90,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testSetCssTextStringEscaped2() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("\"\\f107\"");
 		assertEquals("\\f107", value.getStringValue());
 		assertEquals("'\\f107'", value.getCssText());
@@ -99,7 +99,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testSetCssTextStringEscaped3() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("\"\u5b8b\u4f53\"");
 		assertEquals("\u5b8b\u4f53", value.getStringValue());
 		assertEquals("'\u5b8b\u4f53'", value.getCssText());
@@ -112,7 +112,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testSetCssTextStringEscaped4() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("\"\\\\5FAE\\8F6F\"");
 		assertEquals("\\5FAE\u8F6F", value.getStringValue());
 		assertEquals("'\\\\5FAE\u8F6F'", value.getCssText());
@@ -129,7 +129,7 @@ public class CSSStringValueSQTest {
 		InputSource source = new InputSource(new StringReader("\"\\\\5FAE\\8F6F\""));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertNotNull(lu);
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		LexicalSetter setter = value.newLexicalSetter();
 		setter.setLexicalUnit(lu);
 		assertNull(setter.getNextLexicalUnit());
@@ -140,7 +140,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testSetCssTextStringProgId() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");
 		assertEquals("progid:DXImageTransform.Microsoft.gradient(enabled=false)", value.getStringValue());
 		assertEquals("'progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)'", value.getCssText());
@@ -148,7 +148,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testSetCssTextStringISO10646() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("\\26");
 		assertEquals("&", value.getStringValue());
 		assertEquals("'\\26'", value.getCssText());
@@ -165,7 +165,7 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testGetCssText() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("'foo'");
 		assertEquals("foo", value.getStringValue());
 		assertEquals("'foo'", value.getCssText());
@@ -176,9 +176,9 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testEquals() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setCssText("\\26");
-		CSSStringValue other = createCSSStringValue();
+		StringValue other = createCSSStringValue();
 		other.setCssText("\\26");
 		assertTrue(value.equals(other));
 		assertTrue(value.hashCode() == other.hashCode());
@@ -189,9 +189,9 @@ public class CSSStringValueSQTest {
 
 	@Test
 	public void testClone() {
-		CSSStringValue value = createCSSStringValue();
+		StringValue value = createCSSStringValue();
 		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "Some text in \"double quotes\"");
-		CSSStringValue clon = value.clone();
+		StringValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getStringValue(), clon.getStringValue());
@@ -199,8 +199,8 @@ public class CSSStringValueSQTest {
 		assertEquals(value.getMinifiedCssText(""), clon.getMinifiedCssText(""));
 	}
 
-	private CSSStringValue createCSSStringValue() {
+	private StringValue createCSSStringValue() {
 		byte flags = AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE;
-		return new CSSStringValue(flags);
+		return new StringValue(flags);
 	}
 }

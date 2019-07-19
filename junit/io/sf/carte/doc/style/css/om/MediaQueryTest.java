@@ -19,7 +19,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.om.MediaQueryFactory;
 
 public class MediaQueryTest {
 

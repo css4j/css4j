@@ -104,7 +104,7 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 					ValueFactory.BasicValueItem vbi = new ValueFactory.BasicValueItem();
 					vbi.nextLexicalUnit = lu.getNextLexicalUnit();
 					item = vbi;
-					newval = new CSSUnknownValue();
+					newval = new UnknownValue();
 					newval.setPlainCssText("/");
 				} else {
 					item = factory.createCSSPrimitiveValueItem(lu, false);

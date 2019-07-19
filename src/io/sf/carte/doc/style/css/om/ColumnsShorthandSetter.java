@@ -13,7 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 class ColumnsShorthandSetter extends ShorthandSetter {
@@ -45,7 +45,7 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 					if (intValue < 1) {
 						return false;
 					}
-					CSSNumberValue number = new CSSNumberValue();
+					NumberValue number = new NumberValue();
 					number.setIntegerValue(intValue);
 					number.setSubproperty(true);
 					setSubpropertyValue("column-count", number);

@@ -22,7 +22,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-public class CSSAttrValueTest {
+public class AttrValueTest {
 
 	@Test
 	public void testSetStringValueShortString() {

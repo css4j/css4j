@@ -25,16 +25,16 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class CSSUnknownValue extends AbstractCSSPrimitiveValue {
+public class UnknownValue extends AbstractCSSPrimitiveValue {
 
 	private boolean priorityCompat = false;
 
-	public CSSUnknownValue() {
+	public UnknownValue() {
 		super();
 		setCSSUnitType(CSS_UNKNOWN);
 	}
 
-	protected CSSUnknownValue(CSSUnknownValue copied) {
+	protected UnknownValue(UnknownValue copied) {
 		super(copied);
 		setCssText(copied.getCssText());
 	}
@@ -59,7 +59,7 @@ public class CSSUnknownValue extends AbstractCSSPrimitiveValue {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		CSSUnknownValue other = (CSSUnknownValue) obj;
+		UnknownValue other = (UnknownValue) obj;
 		if (!getCssText().equals(other.getCssText())) {
 			return false;
 		}
@@ -160,8 +160,8 @@ public class CSSUnknownValue extends AbstractCSSPrimitiveValue {
 	}
 
 	@Override
-	public CSSUnknownValue clone() {
-		return new CSSUnknownValue(this);
+	public UnknownValue clone() {
+		return new UnknownValue(this);
 	}
 
 }

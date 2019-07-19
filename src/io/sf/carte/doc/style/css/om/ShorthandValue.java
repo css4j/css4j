@@ -30,7 +30,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-class CSSShorthandValue extends AbstractCSSValue implements io.sf.carte.doc.style.css.CSSShorthandValue {
+class ShorthandValue extends AbstractCSSValue implements io.sf.carte.doc.style.css.CSSShorthandValue {
 
 	private final LexicalUnit lexicalUnit;
 
@@ -42,11 +42,11 @@ class CSSShorthandValue extends AbstractCSSValue implements io.sf.carte.doc.styl
 
 	private String miniCssText = "";
 
-	CSSShorthandValue(LexicalUnit lexicalUnit, boolean important) {
+	ShorthandValue(LexicalUnit lexicalUnit, boolean important) {
 		this(lexicalUnit, important, new String[0]);
 	}
 
-	private CSSShorthandValue(LexicalUnit lexicalUnit, boolean important, String[] longhands) {
+	private ShorthandValue(LexicalUnit lexicalUnit, boolean important, String[] longhands) {
 		super(CSSValue.CSS_CUSTOM);
 		this.lexicalUnit = lexicalUnit;
 		this.important = important;
@@ -54,7 +54,7 @@ class CSSShorthandValue extends AbstractCSSValue implements io.sf.carte.doc.styl
 		this.longhands = new HashSet<String>(Arrays.asList(longhands));
 	}
 
-	private CSSShorthandValue(CSSShorthandValue copied) {
+	private ShorthandValue(ShorthandValue copied) {
 		super(copied);
 		this.lexicalUnit = copied.lexicalUnit;
 		this.important = copied.important;
@@ -107,7 +107,7 @@ class CSSShorthandValue extends AbstractCSSValue implements io.sf.carte.doc.styl
 		return longhands.contains(ptyname);
 	}
 
-	boolean overrideBy(CSSShorthandValue shorthand) {
+	boolean overrideBy(ShorthandValue shorthand) {
 		this.longhands.removeAll(shorthand.longhands);
 		return this.longhands.isEmpty();
 	}
@@ -126,13 +126,13 @@ class CSSShorthandValue extends AbstractCSSValue implements io.sf.carte.doc.styl
 	}
 
 	@Override
-	public CSSShorthandValue clone() {
-		return new CSSShorthandValue(this);
+	public ShorthandValue clone() {
+		return new ShorthandValue(this);
 	}
 
-	static CSSShorthandValue createCSSShorthandValue(PropertyDatabase pdb, String shorthandName, LexicalUnit value,
+	static ShorthandValue createCSSShorthandValue(PropertyDatabase pdb, String shorthandName, LexicalUnit value,
 			boolean important) {
-		CSSShorthandValue shval = new CSSShorthandValue(value, important, pdb.getLonghandProperties(shorthandName));
+		ShorthandValue shval = new ShorthandValue(value, important, pdb.getLonghandProperties(shorthandName));
 		if ("border".equals(shorthandName)) {
 			shval.longhands.add("border-image-source");
 			shval.longhands.add("border-image-slice");

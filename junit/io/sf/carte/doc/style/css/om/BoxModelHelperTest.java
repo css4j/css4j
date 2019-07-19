@@ -15,7 +15,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.sf.carte.doc.style.css.om.BoxModelHelper;
 import io.sf.carte.doc.style.css.om.SimpleBoxModel.MyTableBoxValues;
 
 public class BoxModelHelperTest {

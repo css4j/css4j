@@ -32,14 +32,14 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
  * @author Carlos Amengual
  *
  */
-public class CSSURIValue extends CSSStringValue {
+public class URIValue extends StringValue {
 
-	public CSSURIValue(byte flags) {
+	public URIValue(byte flags) {
 		super(flags);
 		setCSSUnitType(CSS_URI);
 	}
 
-	protected CSSURIValue(CSSURIValue copied) {
+	protected URIValue(URIValue copied) {
 		super(copied);
 	}
 
@@ -147,10 +147,10 @@ public class CSSURIValue extends CSSStringValue {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof CSSURIValue)) {
+		if (!(obj instanceof URIValue)) {
 			return false;
 		}
-		CSSURIValue other = (CSSURIValue) obj;
+		URIValue other = (URIValue) obj;
 		String sv = getStringValue();
 		if (sv == null) {
 			if (other.getStringValue() != null) {
@@ -162,7 +162,7 @@ public class CSSURIValue extends CSSStringValue {
 		return true;
 	}
 
-	public boolean isEquivalent(CSSURIValue other) {
+	public boolean isEquivalent(URIValue other) {
 		if (getMinifiedCssText(null).equals(other.getMinifiedCssText(null))) {
 			return true;
 		}
@@ -178,8 +178,8 @@ public class CSSURIValue extends CSSStringValue {
 	}
 
 	@Override
-	public CSSURIValue clone() {
-		return new CSSURIValue(this);
+	public URIValue clone() {
+		return new URIValue(this);
 	}
 
 }

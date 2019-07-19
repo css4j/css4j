@@ -15,7 +15,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
@@ -108,8 +108,8 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 				&& ((CSSPrimitiveValue) cssval).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT;
 	}
 
-	static CSSIdentifierValue createAutoValue() {
-		CSSIdentifierValue ident = new CSSIdentifierValue("auto");
+	static IdentifierValue createAutoValue() {
+		IdentifierValue ident = new IdentifierValue("auto");
 		ident.setSubproperty(true);
 		return ident;
 	}

@@ -15,9 +15,9 @@ import org.w3c.css.sac.LexicalUnit;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
-import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.ValueFactory.ListValueItem;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 class GridShorthandSetter extends BaseGridShorthandSetter {
 
@@ -202,7 +202,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 				setSubpropertyValue("grid-template-rows", gridTemplateRows.item(0));
 			}
 		} else if (setTemplateAreas) {
-			CSSIdentifierValue auto = new CSSIdentifierValue("auto");
+			IdentifierValue auto = new IdentifierValue("auto");
 			auto.setSubproperty(true);
 			setSubpropertyValue("grid-template-rows", auto);
 		}
@@ -220,12 +220,12 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 
 	private void setGridAutoFlow(String ident, boolean dense) {
 		AbstractCSSValue value;
-		CSSIdentifierValue cssident = new CSSIdentifierValue(ident);
+		IdentifierValue cssident = new IdentifierValue(ident);
 		cssident.setSubproperty(true);
 		if (!dense) {
 			value = cssident;
 		} else {
-			CSSIdentifierValue cssdense = new CSSIdentifierValue("dense");
+			IdentifierValue cssdense = new IdentifierValue("dense");
 			cssdense.setSubproperty(true);
 			ValueList list = ValueList.createWSValueList();
 			list.add(cssident);

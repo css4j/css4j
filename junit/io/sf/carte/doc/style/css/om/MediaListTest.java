@@ -19,8 +19,6 @@ import org.junit.Test;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.om.MediaList;
-
 public class MediaListTest {
 
 	@Test

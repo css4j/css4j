@@ -198,7 +198,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 				if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 					((AbstractCSSPrimitiveValue) val).setSubproperty(true);
 				} else if (val.getCssValueType() == CSSValue.CSS_INHERIT) {
-					set(i, ((CSSInheritValue) val).asSubproperty());
+					set(i, ((InheritValue) val).asSubproperty());
 				} else if (val.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 					((ValueList) val).setSubproperty(true);
 				}
@@ -328,7 +328,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 				AbstractCSSValue val = super.item(index);
 				if (val != null && val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 						&& ((CSSPrimitiveValue) val).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
-					return new CSSURIValueWrapper((CSSURIValue) val, oldHrefContext, this.parentSheetHref);
+					return new URIValueWrapper((URIValue) val, oldHrefContext, this.parentSheetHref);
 				} else {
 					return val;
 				}
@@ -429,7 +429,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 				AbstractCSSValue val = super.item(index);
 				if (val != null && val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 						&& ((CSSPrimitiveValue) val).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
-					return new CSSURIValueWrapper((CSSURIValue) val, oldHrefContext, this.parentSheetHref);
+					return new URIValueWrapper((URIValue) val, oldHrefContext, this.parentSheetHref);
 				} else {
 					return val;
 				}

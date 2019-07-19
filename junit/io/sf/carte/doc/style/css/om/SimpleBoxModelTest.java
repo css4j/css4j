@@ -30,7 +30,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
 
 public class SimpleBoxModelTest {
 
@@ -68,7 +68,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList0_0_0 = elm.getChildNodes();
@@ -96,7 +96,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(3 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
@@ -122,7 +122,7 @@ public class SimpleBoxModelTest {
 		assertEquals(1.33, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(1.33, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(685.34, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(4 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
@@ -148,7 +148,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(624, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList4_1_4 = elm.getChildNodes();
@@ -175,7 +175,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderRightWidth(), 0.03f);
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		// Return to parent level (body)
 		node = ndList0_0_0.item(6 + delta);
@@ -202,7 +202,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(8 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
@@ -228,7 +228,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(688, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(10 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
@@ -254,7 +254,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(720, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList10_1_10 = elm.getChildNodes();
@@ -280,7 +280,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderRightWidth(), 0.03f);
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		// Return to parent level (body)
 		node = ndList0_0_0.item(12 + delta);
@@ -1139,7 +1139,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(624, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(16 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"TABLE".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
@@ -1690,7 +1690,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(20 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"DIV".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
@@ -1716,7 +1716,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList20_1_20 = elm.getChildNodes();
@@ -1744,7 +1744,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(624, box.getWidth(), 0.1f);
-		assertEquals(21.33, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(21.33, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList20_1_20.item(3 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1770,7 +1770,7 @@ public class SimpleBoxModelTest {
 		assertEquals(2.66, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(2.66, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(689.09, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList23_2_3 = elm.getChildNodes();
@@ -1798,7 +1798,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(3 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1823,7 +1823,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(5 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1848,7 +1848,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(7 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1873,7 +1873,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(9 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1898,7 +1898,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(11 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1923,7 +1923,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		// Return to parent level (div)
 		// Return to parent level (body)

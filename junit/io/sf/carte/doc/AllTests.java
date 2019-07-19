@@ -48,39 +48,39 @@ import io.sf.carte.doc.style.css.om.CascadeTest;
 import io.sf.carte.doc.style.css.om.CompatInlineDeclarationTest;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyleTest;
 import io.sf.carte.doc.style.css.om.ContribSheetTest;
+import io.sf.carte.doc.style.css.om.CounterStyleRuleTest;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetTest;
 import io.sf.carte.doc.style.css.om.FlexShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.FontBuilderTest;
+import io.sf.carte.doc.style.css.om.FontFaceRuleTest;
+import io.sf.carte.doc.style.css.om.FontFeatureValuesRuleTest;
 import io.sf.carte.doc.style.css.om.FontVariantBuilderTest;
 import io.sf.carte.doc.style.css.om.GenericShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.GridAreaShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.GridPlacementShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.GridShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.GridTemplateShorthandBuilderTest;
+import io.sf.carte.doc.style.css.om.KeyframesRuleTest;
 import io.sf.carte.doc.style.css.om.ListStyleShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.MarginBuilderTest;
+import io.sf.carte.doc.style.css.om.MediaListTest;
 import io.sf.carte.doc.style.css.om.MediaQueryTest;
-import io.sf.carte.doc.style.css.om.CounterStyleRuleTest;
-import io.sf.carte.doc.style.css.om.FontFaceRuleTest;
-import io.sf.carte.doc.style.css.om.FontFeatureValuesRuleTest;
-import io.sf.carte.doc.style.css.om.KeyframesRuleTest;
 import io.sf.carte.doc.style.css.om.MediaRuleTest;
 import io.sf.carte.doc.style.css.om.NamespaceRuleTest;
-import io.sf.carte.doc.style.css.om.PageRuleTest;
-import io.sf.carte.doc.style.css.om.StyleRuleTest;
-import io.sf.carte.doc.style.css.om.StyleRuleTest2;
-import io.sf.carte.doc.style.css.om.SupportsRuleTest;
-import io.sf.carte.doc.style.css.om.UnknownRuleTest;
-import io.sf.carte.doc.style.css.om.ViewportRuleTest;
-import io.sf.carte.doc.style.css.om.MediaListTest;
 import io.sf.carte.doc.style.css.om.OrderedTwoValueShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.PaddingBuilderTest;
+import io.sf.carte.doc.style.css.om.PageRuleTest;
 import io.sf.carte.doc.style.css.om.SelectorMatcherTest;
 import io.sf.carte.doc.style.css.om.SequenceShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.ShorthandSetterTest;
 import io.sf.carte.doc.style.css.om.SimpleBoxModelTest;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapperTest;
+import io.sf.carte.doc.style.css.om.StyleRuleTest;
+import io.sf.carte.doc.style.css.om.StyleRuleTest2;
+import io.sf.carte.doc.style.css.om.SupportsRuleTest;
+import io.sf.carte.doc.style.css.om.UnknownRuleTest;
+import io.sf.carte.doc.style.css.om.ViewportRuleTest;
 import io.sf.carte.doc.style.css.om.XMLDocumentWrapperTest;
 import io.sf.carte.doc.style.css.parser.AnBExpressionTest;
 import io.sf.carte.doc.style.css.parser.CSSParserTest;
@@ -95,15 +95,7 @@ import io.sf.carte.doc.style.css.parser.SelectorParserTest;
 import io.sf.carte.doc.style.css.parser.SheetParserTest;
 import io.sf.carte.doc.style.css.parser.SupportsConditionImplTest;
 import io.sf.carte.doc.style.css.property.AbstractCSSValueTest;
-import io.sf.carte.doc.style.css.property.CSSAttrValueTest;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValueTest;
-import io.sf.carte.doc.style.css.property.CSSInheritValueTest;
-import io.sf.carte.doc.style.css.property.CSSNumberValueTest;
-import io.sf.carte.doc.style.css.property.CSSStringValueDQTest;
-import io.sf.carte.doc.style.css.property.CSSStringValueSQTest;
-import io.sf.carte.doc.style.css.property.CSSStringValueTest;
-import io.sf.carte.doc.style.css.property.CSSURIValueTest;
-import io.sf.carte.doc.style.css.property.CSSUnknownValueTest;
+import io.sf.carte.doc.style.css.property.AttrValueTest;
 import io.sf.carte.doc.style.css.property.CalcValueTest;
 import io.sf.carte.doc.style.css.property.ColorValueTest;
 import io.sf.carte.doc.style.css.property.CounterValueTest;
@@ -112,12 +104,20 @@ import io.sf.carte.doc.style.css.property.ElementReferenceValueTest;
 import io.sf.carte.doc.style.css.property.EnvVariableValueTest;
 import io.sf.carte.doc.style.css.property.FunctionValueTest;
 import io.sf.carte.doc.style.css.property.GradientValueTest;
-import io.sf.carte.doc.style.css.property.RatioValueTest;
+import io.sf.carte.doc.style.css.property.IdentifierValueTest;
+import io.sf.carte.doc.style.css.property.InheritValueTest;
+import io.sf.carte.doc.style.css.property.NumberValueTest;
 import io.sf.carte.doc.style.css.property.OMCSSRectValueTest;
-import io.sf.carte.doc.style.css.property.UnicodeRangeValueTest;
-import io.sf.carte.doc.style.css.property.ValueListTest;
 import io.sf.carte.doc.style.css.property.PropertyDatabaseTest;
+import io.sf.carte.doc.style.css.property.RatioValueTest;
+import io.sf.carte.doc.style.css.property.StringValueDQTest;
+import io.sf.carte.doc.style.css.property.StringValueSQTest;
+import io.sf.carte.doc.style.css.property.StringValueTest;
+import io.sf.carte.doc.style.css.property.URIValueTest;
+import io.sf.carte.doc.style.css.property.UnicodeRangeValueTest;
+import io.sf.carte.doc.style.css.property.UnknownValueTest;
 import io.sf.carte.doc.style.css.property.ValueFactoryTest;
+import io.sf.carte.doc.style.css.property.ValueListTest;
 import io.sf.carte.doc.xml.dtd.ContentModelTest;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolverTest;
 import io.sf.carte.doc.xml.dtd.DocumentTypeDeclarationTest;
@@ -210,15 +210,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		SheetParserTest.class,
 		SupportsConditionImplTest.class,
  		AbstractCSSValueTest.class,
- 		CSSAttrValueTest.class,
-		CSSIdentifierValueTest.class,
-		CSSInheritValueTest.class,
-		CSSNumberValueTest.class,
-		CSSStringValueTest.class,
-		CSSStringValueDQTest.class,
-		CSSStringValueSQTest.class,
-		CSSUnknownValueTest.class,
-		CSSURIValueTest.class,
+ 		AttrValueTest.class,
 		CalcValueTest.class,
 		ColorValueTest.class,
 		CounterValueTest.class,
@@ -226,12 +218,20 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		ElementReferenceValueTest.class,
 		EnvVariableValueTest.class,
 		FunctionValueTest.class,
-		RatioValueTest.class,
-		OMCSSRectValueTest.class,
-		UnicodeRangeValueTest.class,
-		ValueListTest.class,
+		IdentifierValueTest.class,
+		InheritValueTest.class,
 		GradientValueTest.class,
+		NumberValueTest.class,
+		OMCSSRectValueTest.class,
 		PropertyDatabaseTest.class,
+		RatioValueTest.class,
+		StringValueTest.class,
+		StringValueDQTest.class,
+		StringValueSQTest.class,
+		UnknownValueTest.class,
+		UnicodeRangeValueTest.class,
+		URIValueTest.class,
+		ValueListTest.class,
 		ValueFactoryTest.class,
 		ContentModelTest.class,
 		DefaultEntityResolverTest.class,

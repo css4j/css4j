@@ -28,7 +28,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class CSSStringValue extends AbstractCSSPrimitiveValue {
+public class StringValue extends AbstractCSSPrimitiveValue {
 
 	private String stringValue = null;
 
@@ -36,18 +36,18 @@ public class CSSStringValue extends AbstractCSSPrimitiveValue {
 
 	char quote;
 
-	public CSSStringValue() {
+	public StringValue() {
 		this((byte) 0);
 	}
 
-	CSSStringValue(byte flags) {
+	StringValue(byte flags) {
 		super();
 		this.flags = flags;
 		quote = '\'';
 		setQuote();
 	}
 
-	protected CSSStringValue(CSSStringValue copied) {
+	protected StringValue(StringValue copied) {
 		super(copied);
 		this.stringValue = copied.stringValue;
 		this.flags = copied.flags;
@@ -239,10 +239,10 @@ public class CSSStringValue extends AbstractCSSPrimitiveValue {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (!(obj instanceof CSSStringValue)) {
+		if (!(obj instanceof StringValue)) {
 			return false;
 		}
-		CSSStringValue other = (CSSStringValue) obj;
+		StringValue other = (StringValue) obj;
 		if (stringValue == null) {
 			if (other.stringValue != null) {
 				return false;
@@ -254,7 +254,7 @@ public class CSSStringValue extends AbstractCSSPrimitiveValue {
 	}
 
 	@Override
-	public CSSStringValue clone() {
-		return new CSSStringValue(this);
+	public StringValue clone() {
+		return new StringValue(this);
 	}
 }

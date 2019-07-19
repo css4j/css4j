@@ -20,8 +20,8 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSURIValue;
-import io.sf.carte.doc.style.css.property.CSSURIValueWrapper;
+import io.sf.carte.doc.style.css.property.URIValue;
+import io.sf.carte.doc.style.css.property.URIValueWrapper;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
@@ -105,7 +105,7 @@ class WrappedCSSStyleDeclaration extends BaseCSSStyleDeclaration {
 		} else if (type == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
 			if (hrefcontext != null) {
-				value = new CSSURIValueWrapper((CSSURIValue) value, oldHrefContext, hrefcontext);
+				value = new URIValueWrapper((URIValue) value, oldHrefContext, hrefcontext);
 			}
 		}
 		return value;

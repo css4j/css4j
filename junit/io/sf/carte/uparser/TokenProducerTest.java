@@ -19,8 +19,6 @@ import java.util.LinkedList;
 
 import org.junit.Test;
 
-import io.sf.carte.uparser.TokenProducer;
-
 public class TokenProducerTest {
 
 	@Test

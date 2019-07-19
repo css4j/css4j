@@ -19,9 +19,9 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
-import io.sf.carte.doc.style.css.property.CSSInheritValue;
-import io.sf.carte.doc.style.css.property.CSSStringValue;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
+import io.sf.carte.doc.style.css.property.InheritValue;
+import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -168,9 +168,9 @@ class FontShorthandSetter extends ShorthandSetter {
 		}
 		AbstractCSSPrimitiveValue value;
 		if (stringType == CSSPrimitiveValue.CSS_STRING) {
-			value = new CSSStringValue();
+			value = new StringValue();
 		} else {
-			value = new CSSIdentifierValue();
+			value = new IdentifierValue();
 		}
 		value.setStringValue(stringType, str);
 		value.setSubproperty(true);
@@ -215,7 +215,7 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	protected void setSubpropertiesInherit(CSSInheritValue inherit) {
+	protected void setSubpropertiesInherit(InheritValue inherit) {
 		super.setSubpropertiesInherit(inherit);
 		lineHeightSet = true;
 		resetSubproperties();

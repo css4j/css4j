@@ -26,7 +26,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class CSSNumberValue extends AbstractCSSPrimitiveValue {
+public class NumberValue extends AbstractCSSPrimitiveValue {
 
 	protected float realvalue = 0;
 
@@ -36,11 +36,11 @@ public class CSSNumberValue extends AbstractCSSPrimitiveValue {
 
 	boolean lengthUnitType = false;
 
-	public CSSNumberValue() {
+	public NumberValue() {
 		super();
 	}
 
-	protected CSSNumberValue(CSSNumberValue copied) {
+	protected NumberValue(NumberValue copied) {
 		super(copied);
 		this.realvalue = copied.realvalue;
 		this.asInteger = copied.asInteger;
@@ -469,10 +469,10 @@ public class CSSNumberValue extends AbstractCSSPrimitiveValue {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof CSSNumberValue)) {
+		if (!(obj instanceof NumberValue)) {
 			return false;
 		}
-		CSSNumberValue other = (CSSNumberValue) obj;
+		NumberValue other = (NumberValue) obj;
 		if (Float.floatToIntBits(realvalue) != Float.floatToIntBits(other.realvalue)) {
 			return false;
 		}
@@ -483,17 +483,17 @@ public class CSSNumberValue extends AbstractCSSPrimitiveValue {
 	}
 
 	@Override
-	public CSSNumberValue clone() {
-		return new CSSNumberValue(this);
+	public NumberValue clone() {
+		return new NumberValue(this);
 	}
 
-	CSSNumberValue immutable() {
+	NumberValue immutable() {
 		return new ImmutableCSSNumberValue(this);
 	}
 
-	private static class ImmutableCSSNumberValue extends CSSNumberValue {
+	private static class ImmutableCSSNumberValue extends NumberValue {
 
-		ImmutableCSSNumberValue(CSSNumberValue value) {
+		ImmutableCSSNumberValue(NumberValue value) {
 			super(value);
 		}
 
@@ -595,8 +595,8 @@ public class CSSNumberValue extends AbstractCSSPrimitiveValue {
 		}
 	}
 
-	public static CSSNumberValue createCSSNumberValue(float floatValue, short unit) {
-		CSSNumberValue num = new CSSNumberValue();
+	public static NumberValue createCSSNumberValue(float floatValue, short unit) {
+		NumberValue num = new NumberValue();
 		num.setFloatValue(unit, floatValue);
 		return num;
 	}

@@ -17,13 +17,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class CSSInheritValueTest {
+public class InheritValueTest {
 
 	@Test
 	public void testEquals() {
 		ValueFactory factory = new ValueFactory();
 		AbstractCSSValue value = factory.parseProperty("scroll");
-		CSSInheritValue inherit = CSSInheritValue.getValue();
+		InheritValue inherit = InheritValue.getValue();
 		assertFalse(inherit.equals(value));
 		assertTrue(inherit.equals(inherit));
 		assertTrue(inherit.hashCode() != value.hashCode());
@@ -33,14 +33,14 @@ public class CSSInheritValueTest {
 
 	@Test
 	public void testGetCssText() {
-		CSSInheritValue inherit = CSSInheritValue.getValue();
+		InheritValue inherit = InheritValue.getValue();
 		assertEquals("inherit", inherit.getCssText());
 	}
 
 	@Test
 	public void testClone() {
-		CSSInheritValue value = CSSInheritValue.getValue();
-		CSSInheritValue clon = value.clone();
+		InheritValue value = InheritValue.getValue();
+		InheritValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getCssText(), clon.getCssText());
 	}

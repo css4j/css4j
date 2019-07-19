@@ -29,13 +29,13 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValueList;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
-import io.sf.carte.doc.style.css.property.CSSURIValue;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
-import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
+import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Base class for shorthand builders, that try to build shorthands from a set of
@@ -94,15 +94,15 @@ abstract class ShorthandBuilder {
 			} else if (propertyName.equals("text-align")) {
 				String directionValue = parentStyle.getPropertyValue("direction");
 				if (directionValue.equals("rtl")) {
-					defval = new CSSIdentifierValue("right");
+					defval = new IdentifierValue("right");
 				} else {
-					defval = new CSSIdentifierValue("left");
+					defval = new IdentifierValue("left");
 				}
 			} else if (propertyName.equals("background-color")) {
-				defval = new CSSIdentifierValue("transparent");
+				defval = new IdentifierValue("transparent");
 			} else if (propertyName.endsWith("-color")) {
 				// Do not put getCSSColor() here, to avoid races with 'color'
-				defval = new CSSIdentifierValue("currentcolor");
+				defval = new IdentifierValue("currentcolor");
 			} else if (propertyName.equals("quotes")) {
 				defval = parentStyle.getValueFactory().parseProperty("\" \"");
 			}
@@ -559,7 +559,7 @@ abstract class ShorthandBuilder {
 			CSSPrimitiveValue pvalue = (CSSPrimitiveValue) value;
 			short type = pvalue.getPrimitiveType();
 			if (type == CSSPrimitiveValue.CSS_URI) {
-				URL url = ((CSSURIValue) pvalue).getURLValue();
+				URL url = ((URIValue) pvalue).getURLValue();
 				if (url != null) {
 					String baseuri;
 					if ((baseuri = getBaseURI()) != null) {

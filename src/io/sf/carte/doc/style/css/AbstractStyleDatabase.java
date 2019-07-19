@@ -15,8 +15,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
 import io.sf.carte.doc.style.css.property.ColorValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -51,12 +51,12 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	@Override
 	public float floatValueConversion(float initialValue, short initialUnitType, short destUnitType)
 			throws DOMException {
-		return CSSNumberValue.floatValueConversion(initialValue, initialUnitType, destUnitType);
+		return NumberValue.floatValueConversion(initialValue, initialUnitType, destUnitType);
 	}
 
 	@Override
 	public float floatValueConversion(float initialValue, short initialUnitType) throws DOMException {
-		return CSSNumberValue.floatValueConversion(initialValue, initialUnitType, getNaturalUnit());
+		return NumberValue.floatValueConversion(initialValue, initialUnitType, getNaturalUnit());
 	}
 
 	/*

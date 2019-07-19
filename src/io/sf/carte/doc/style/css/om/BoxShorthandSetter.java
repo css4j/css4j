@@ -18,7 +18,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSInheritValue;
+import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -43,7 +43,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 			}
 			lunit = lunit.getNextLexicalUnit();
 		}
-		CSSInheritValue inherit = CSSInheritValue.getValue().asSubproperty();
+		InheritValue inherit = InheritValue.getValue().asSubproperty();
 		setSubpropertiesInherit(inherit);
 		initValueString();
 		appendValueItemString(inherit);

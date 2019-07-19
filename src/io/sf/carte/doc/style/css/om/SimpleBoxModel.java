@@ -26,8 +26,8 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
+import io.sf.carte.doc.style.css.property.NumberValue;
 
 /**
  * Simple CSS Box Model.
@@ -299,7 +299,7 @@ abstract class SimpleBoxModel {
 					;
 				}
 				if (unitType != CSSPrimitiveValue.CSS_PX) {
-					box.width = CSSNumberValue.floatValueConversion(box.width, CSSPrimitiveValue.CSS_PX, unitType);
+					box.width = NumberValue.floatValueConversion(box.width, CSSPrimitiveValue.CSS_PX, unitType);
 				}
 			}
 		}
@@ -688,7 +688,7 @@ abstract class SimpleBoxModel {
 				if (text != null) {
 					text = BoxModelHelper.contractSpaces(text.trim());
 					if (canvas != null) {
-						minw = CSSNumberValue.floatValueConversion(canvas.stringWidth(text, style),
+						minw = NumberValue.floatValueConversion(canvas.stringWidth(text, style),
 								CSSPrimitiveValue.CSS_PT, unitType);
 					} else {
 						minw = BoxModelHelper.computeNodeMinimumWidth(text, style, unitType);
@@ -729,7 +729,7 @@ abstract class SimpleBoxModel {
 		text = BoxModelHelper.contractSpaces(text.trim());
 		CSSCanvas canvas = ((CSSDocument) getComputedStyle().getOwnerNode().getOwnerDocument()).getCanvas();
 		if (canvas != null) {
-			contw[0] = CSSNumberValue.floatValueConversion(canvas.stringWidth(text, style), CSSPrimitiveValue.CSS_PT,
+			contw[0] = NumberValue.floatValueConversion(canvas.stringWidth(text, style), CSSPrimitiveValue.CSS_PT,
 					unitType);
 		} else {
 			contw[0] = BoxModelHelper.computeTextWidth(text, style, unitType);
@@ -791,7 +791,7 @@ abstract class SimpleBoxModel {
 		float margin;
 		if (unitType == declType) {
 			margin = cssval.getFloatValue(unitType);
-		} else if (cssval instanceof CSSNumberValue) {
+		} else if (cssval instanceof NumberValue) {
 			if (unitType < 0) {
 				if (getStyleDatabase() == null) {
 					StyleDatabaseRequiredException sdex = new StyleDatabaseRequiredException(
@@ -803,7 +803,7 @@ abstract class SimpleBoxModel {
 			}
 			margin = cssval.getFloatValue(declType);
 			if (declType != unitType) {
-				margin = CSSNumberValue.floatValueConversion(margin, declType, unitType);
+				margin = NumberValue.floatValueConversion(margin, declType, unitType);
 			}
 		} else {
 			CSSPropertyValueException e = new CSSPropertyValueException(
@@ -927,7 +927,7 @@ abstract class SimpleBoxModel {
 			unitType = getStyleDatabase().getNaturalUnit();
 		}
 		if (unitType != declType) {
-			width = CSSNumberValue.floatValueConversion(width, declType, unitType);
+			width = NumberValue.floatValueConversion(width, declType, unitType);
 		}
 		return width;
 	}
@@ -996,7 +996,7 @@ abstract class SimpleBoxModel {
 					if (declType == unitType) {
 						return fval;
 					} else {
-						return CSSNumberValue.floatValueConversion(fval, declType, unitType);
+						return NumberValue.floatValueConversion(fval, declType, unitType);
 					}
 				} else {
 					return findNumericBoxProperty(styledecl, propertyName, cssprim, unitType);
@@ -1039,7 +1039,7 @@ abstract class SimpleBoxModel {
 				}
 				unitType = getStyleDatabase().getNaturalUnit();
 			}
-			fv = CSSNumberValue.floatValueConversion(fv, declType, unitType);
+			fv = NumberValue.floatValueConversion(fv, declType, unitType);
 		}
 		return fv;
 	}
@@ -1100,7 +1100,7 @@ abstract class SimpleBoxModel {
 			// Compute width for ancestor
 			float parentWidth = computeWidth(styledecl, unitType);
 			return parentWidth * csspri.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) / 100f;
-		} else if (csspri instanceof CSSNumberValue) {
+		} else if (csspri instanceof NumberValue) {
 			padding = csspri.getFloatValue(declType);
 		} else {
 			CSSPropertyValueException e = new CSSPropertyValueException(
@@ -1118,7 +1118,7 @@ abstract class SimpleBoxModel {
 				}
 				unitType = getStyleDatabase().getNaturalUnit();
 			}
-			padding = CSSNumberValue.floatValueConversion(padding, declType, unitType);
+			padding = NumberValue.floatValueConversion(padding, declType, unitType);
 		}
 		return padding;
 	}

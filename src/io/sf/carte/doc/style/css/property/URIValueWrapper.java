@@ -27,11 +27,11 @@ import io.sf.carte.util.SimpleWriter;
  * This class is mostly for internal use by the library (cross-package, so its
  * visibility is public).
  */
-public class CSSURIValueWrapper extends CSSURIValue implements WrappedValue {
+public class URIValueWrapper extends URIValue implements WrappedValue {
 
 	private final String parentSheetHref;
 
-	public CSSURIValueWrapper(CSSURIValue wrapped, String oldHrefContext, String parentSheetHref) {
+	public URIValueWrapper(URIValue wrapped, String oldHrefContext, String parentSheetHref) {
 		super(wrapped);
 		this.parentSheetHref = parentSheetHref;
 		if (oldHrefContext != parentSheetHref) {
@@ -154,8 +154,8 @@ public class CSSURIValueWrapper extends CSSURIValue implements WrappedValue {
 	}
 
 	@Override
-	public CSSURIValue clone() {
-		return new CSSURIValueWrapper(super.clone(), this.parentSheetHref, this.parentSheetHref);
+	public URIValue clone() {
+		return new URIValueWrapper(super.clone(), this.parentSheetHref, this.parentSheetHref);
 	}
 
 }

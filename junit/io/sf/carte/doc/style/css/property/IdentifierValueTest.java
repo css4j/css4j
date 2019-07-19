@@ -27,18 +27,18 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
-public class CSSIdentifierValueTest {
+public class IdentifierValueTest {
 
 	@Test
 	public void testFastPathConstructorString() {
-		CSSIdentifierValue value = new CSSIdentifierValue("scroll");
+		IdentifierValue value = new IdentifierValue("scroll");
 		assertEquals("scroll", value.getStringValue());
 		assertEquals("scroll", value.getCssText());
 	}
 
 	@Test
 	public void testSetStringValueShortString() {
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "scroll");
 		assertEquals("scroll", value.getStringValue());
 		assertEquals("scroll", value.getCssText());
@@ -49,7 +49,7 @@ public class CSSIdentifierValueTest {
 
 	@Test
 	public void testSetCssText() {
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.setCssText("\\\\5b8b\\4f53");
 		assertEquals("\\5b8b\u4f53", value.getStringValue());
 		assertEquals("\\\\5b8b\\4f53", value.getCssText());
@@ -58,7 +58,7 @@ public class CSSIdentifierValueTest {
 
 	@Test
 	public void testSetCssText2() {
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.setCssText("foo\\4f53");
 		assertEquals("foo\u4f53", value.getStringValue());
 		assertEquals("foo\\4f53", value.getCssText());
@@ -67,7 +67,7 @@ public class CSSIdentifierValueTest {
 
 	@Test
 	public void testSetCssTextPrivateUse() {
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.setCssText("foo\\f435");
 		assertEquals("foo\\f435", value.getStringValue());
 		assertEquals("foo\\f435", value.getCssText());
@@ -77,7 +77,7 @@ public class CSSIdentifierValueTest {
 	@Test
 	public void testSetCssTextUnassigned() {
 		// This test may fail in the future...
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.setCssText("foo\\e0999");
 		assertEquals("foo\\e0999", value.getStringValue());
 		assertEquals("foo\\e0999", value.getCssText());
@@ -86,7 +86,7 @@ public class CSSIdentifierValueTest {
 
 	@Test
 	public void testSetStringValueShortStringEscaped() {
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "\t");
 		assertEquals("\t", value.getStringValue());
 		assertEquals("\\9", value.getCssText());
@@ -98,7 +98,7 @@ public class CSSIdentifierValueTest {
 		InputSource source = new InputSource(new StringReader("\\1F44D"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		assertEquals(CSSPrimitiveValue.CSS_IDENT, value.getPrimitiveType());
 		value.newLexicalSetter().setLexicalUnit(lu);
 		assertEquals("\\1F44D", value.getCssText());
@@ -112,7 +112,7 @@ public class CSSIdentifierValueTest {
 		InputSource source = new InputSource(new StringReader("a\\3d b"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertEquals("a=b", lu.getStringValue());
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.newLexicalSetter().setLexicalUnit(lu);
 		assertEquals("a\\3d b", value.getCssText());
 		assertEquals("a\\=b", value.getMinifiedCssText(""));
@@ -125,7 +125,7 @@ public class CSSIdentifierValueTest {
 		InputSource source = new InputSource(new StringReader("\\4f530"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertEquals("\\4f530", lu.getStringValue());
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.newLexicalSetter().setLexicalUnit(lu);
 		assertEquals("\\4f530", value.getCssText());
 		assertEquals("\\4f530", value.getMinifiedCssText(""));
@@ -138,7 +138,7 @@ public class CSSIdentifierValueTest {
 		InputSource source = new InputSource(new StringReader("screen\\0"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertEquals("screen\ufffd", lu.getStringValue());
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.newLexicalSetter().setLexicalUnit(lu);
 		assertEquals("screen\\0", value.getCssText());
 		assertEquals("screen\\fffd ", value.getMinifiedCssText(""));
@@ -158,9 +158,9 @@ public class CSSIdentifierValueTest {
 
 	@Test
 	public void testClone() {
-		CSSIdentifierValue value = new CSSIdentifierValue();
+		IdentifierValue value = new IdentifierValue();
 		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "scroll");
-		CSSIdentifierValue clon = value.clone();
+		IdentifierValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getStringValue(), clon.getStringValue());

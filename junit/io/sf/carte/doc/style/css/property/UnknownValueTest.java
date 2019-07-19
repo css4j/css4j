@@ -26,14 +26,14 @@ import org.w3c.css.sac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
-public class CSSUnknownValueTest {
+public class UnknownValueTest {
 
 	@Test
 	public void testEquals() {
-		CSSUnknownValue value = new CSSUnknownValue();
+		UnknownValue value = new UnknownValue();
 		value.setPlainCssText("*");
 		assertTrue(value.equals(value));
-		CSSUnknownValue value2 = new CSSUnknownValue();
+		UnknownValue value2 = new UnknownValue();
 		value2.setPlainCssText("*");
 		assertTrue(value.equals(value2));
 		assertEquals(value.hashCode(), value2.hashCode());
@@ -44,7 +44,7 @@ public class CSSUnknownValueTest {
 
 	@Test
 	public void testGetCssText() {
-		CSSUnknownValue value = new CSSUnknownValue();
+		UnknownValue value = new UnknownValue();
 		value.setPlainCssText("*");
 		assertEquals("*", value.getCssText());
 	}
@@ -56,7 +56,7 @@ public class CSSUnknownValueTest {
 		InputSource source = new InputSource(new StringReader("screen\\0"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertEquals("screen\\0", lu.getStringValue());
-		CSSUnknownValue value = new CSSUnknownValue();
+		UnknownValue value = new UnknownValue();
 		value.newLexicalSetter().setLexicalUnit(lu);
 		assertEquals("screen\\0", value.getCssText());
 		assertEquals("screen\\0", value.getMinifiedCssText(""));
@@ -64,9 +64,9 @@ public class CSSUnknownValueTest {
 
 	@Test
 	public void testClone() {
-		CSSUnknownValue value = new CSSUnknownValue();
+		UnknownValue value = new UnknownValue();
 		value.setPlainCssText("*");
-		CSSUnknownValue clon = value.clone();
+		UnknownValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getCssText(), clon.getCssText());
 	}

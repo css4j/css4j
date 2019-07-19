@@ -21,23 +21,23 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * An inherited value.
+ * An <code>inherit</code> value.
  * 
  * @author Carlos Amengual
  *
  */
-public class CSSInheritValue extends AbstractCSSValue implements ValueItem {
-	private static CSSInheritValue singleton = new CSSInheritValue();
+public class InheritValue extends AbstractCSSValue implements ValueItem {
+	private static InheritValue singleton = new InheritValue();
 
 	/**
 	 * Must access instance through static method.
 	 *
 	 */
-	protected CSSInheritValue() {
+	protected InheritValue() {
 		super(CSSValue.CSS_INHERIT);
 	}
 
-	public static CSSInheritValue getValue() {
+	public static InheritValue getValue() {
 		return singleton;
 	}
 
@@ -83,28 +83,28 @@ public class CSSInheritValue extends AbstractCSSValue implements ValueItem {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj || obj instanceof CSSInheritValue) {
+		if (this == obj || obj instanceof InheritValue) {
 			return true;
 		}
 		return false;
 	}
 
-	public CSSInheritValue asSubproperty() {
+	public InheritValue asSubproperty() {
 		return new SubpropertyInheritedValue();
 	}
 
 	@Override
-	public CSSInheritValue clone() {
+	public InheritValue clone() {
 		return this;
 	}
 
-	private static class SubpropertyInheritedValue extends CSSInheritValue {
+	private static class SubpropertyInheritedValue extends InheritValue {
 		SubpropertyInheritedValue() {
 			super();
 		}
 
 		@Override
-		public CSSInheritValue asSubproperty() {
+		public InheritValue asSubproperty() {
 			return this;
 		}
 
@@ -119,7 +119,7 @@ public class CSSInheritValue extends AbstractCSSValue implements ValueItem {
 		}
 
 		@Override
-		public CSSInheritValue clone() {
+		public InheritValue clone() {
 			return this;
 		}
 	}

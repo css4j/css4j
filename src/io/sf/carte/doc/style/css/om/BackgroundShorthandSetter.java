@@ -26,10 +26,10 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSInheritValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
-import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Shorthand setter for the <code>background</code> property.
@@ -136,7 +136,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					i++;
 					// First, clear any values set at this layer
 					clearLayer(subp, i);
-					CSSInheritValue inherit = CSSInheritValue.getValue().asSubproperty();
+					InheritValue inherit = InheritValue.getValue().asSubproperty();
 					addSingleValueLayer(inherit);
 					// Reset layer buffer to initial state, eventually with comma
 					layerBuffer.setLength(0);
@@ -425,7 +425,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 				((AbstractCSSPrimitiveValue) val).setSubproperty(true);
 			} else if (val.getCssValueType() == CSSValue.CSS_INHERIT) {
-				val = ((CSSInheritValue) val).asSubproperty();
+				val = ((InheritValue) val).asSubproperty();
 			} else if (val.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 				((ValueList) val).setSubproperty(true);
 			}

@@ -15,7 +15,7 @@ import org.w3c.css.sac.LexicalUnit;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
 
 /**
  * Shorthand setter for the <code>font-variant</code> shorthand property.
@@ -34,14 +34,14 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 			boolean isNone = false;
 			if (text.equalsIgnoreCase("normal") || (isNone = text.equalsIgnoreCase("none"))) {
 				if (currentValue.getNextLexicalUnit() == null) {
-					CSSIdentifierValue normal = new CSSIdentifierValue("normal");
+					IdentifierValue normal = new IdentifierValue("normal");
 					normal.setSubproperty(true);
 					String[] sh = getShorthandSubproperties();
 					for (String s : sh) {
 						styleDeclaration.setProperty(s, normal, getPriority());
 					}
 					if (isNone) {
-						CSSIdentifierValue none = new CSSIdentifierValue("none");
+						IdentifierValue none = new IdentifierValue("none");
 						none.setSubproperty(true);
 						styleDeclaration.setProperty("font-variant-ligatures", none, getPriority());
 					}

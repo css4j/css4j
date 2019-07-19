@@ -11,7 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.w3c.dom.css.CSSPrimitiveValue;
@@ -20,11 +22,11 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.StyleRule;
 
-public class CSSNumberValueTest {
+public class NumberValueTest {
 
 	@Test
 	public void testGetCssText() {
-		CSSNumberValue val = new CSSNumberValue();
+		NumberValue val = new NumberValue();
 		val.setFloatValue(CSSPrimitiveValue.CSS_PX, 5f);
 		assertEquals("5px", val.getCssText());
 		val.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, 5f);
@@ -35,7 +37,7 @@ public class CSSNumberValueTest {
 
 	@Test
 	public void testGetMinifiedCssText() {
-		CSSNumberValue val = new CSSNumberValue();
+		NumberValue val = new NumberValue();
 		val.setFloatValue(CSSPrimitiveValue.CSS_PX, 5f);
 		assertEquals("5px", val.getMinifiedCssText(null));
 		val.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, 5f);
@@ -54,7 +56,7 @@ public class CSSNumberValueTest {
 
 	@Test
 	public void testGetCssTextPercentage() {
-		CSSNumberValue val = new CSSNumberValue();
+		NumberValue val = new NumberValue();
 		val.setFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE, 35f);
 		assertEquals("35%", val.getCssText());
 		val.setFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE, 5f);
@@ -67,7 +69,7 @@ public class CSSNumberValueTest {
 
 	@Test
 	public void testGetMinifiedCssTextPercentage() {
-		CSSNumberValue val = new CSSNumberValue();
+		NumberValue val = new NumberValue();
 		val.setFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE, 35f);
 		assertEquals("35%", val.getMinifiedCssText(null));
 		val.setFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE, 5f);
@@ -88,7 +90,7 @@ public class CSSNumberValueTest {
 
 	@Test
 	public void testSetFloatValuePt() {
-		CSSNumberValue val = new CSSNumberValue();
+		NumberValue val = new NumberValue();
 		val.setFloatValue(CSSPrimitiveValue.CSS_EMS, 2f);
 		assertEquals("2em", val.getCssText());
 		val.setFloatValuePt(5f);
@@ -97,9 +99,9 @@ public class CSSNumberValueTest {
 
 	@Test
 	public void testEquals() {
-		CSSNumberValue value = new CSSNumberValue();
+		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSPrimitiveValue.CSS_PX, 5f);
-		CSSNumberValue other = new CSSNumberValue();
+		NumberValue other = new NumberValue();
 		other.setFloatValue(CSSPrimitiveValue.CSS_PX, 5.2f);
 		assertFalse(value.equals(other));
 		assertFalse(value.hashCode() == other.hashCode());
@@ -195,9 +197,9 @@ public class CSSNumberValueTest {
 
 	@Test
 	public void testClone() {
-		CSSNumberValue value = new CSSNumberValue();
+		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSPrimitiveValue.CSS_PX, 5f);
-		CSSNumberValue clon = value.clone();
+		NumberValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getFloatValue(CSSPrimitiveValue.CSS_PX), clon.getFloatValue(CSSPrimitiveValue.CSS_PX), 1e-8);
@@ -207,21 +209,21 @@ public class CSSNumberValueTest {
 
 	@Test
 	public void testFloatValueConversion() {
-		assertEquals(75, CSSNumberValue.floatValueConversion(100f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_PT),
+		assertEquals(75, NumberValue.floatValueConversion(100f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_PT),
 				0.02f);
-		assertEquals(1, CSSNumberValue.floatValueConversion(16f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_PC),
+		assertEquals(1, NumberValue.floatValueConversion(16f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_PC),
 				0.02f);
-		assertEquals(1, CSSNumberValue.floatValueConversion(96f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_IN),
+		assertEquals(1, NumberValue.floatValueConversion(96f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_IN),
 				0.02f);
-		assertEquals(1, CSSNumberValue.floatValueConversion(37.8f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_CM),
+		assertEquals(1, NumberValue.floatValueConversion(37.8f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_CM),
 				0.2f);
-		assertEquals(1, CSSNumberValue.floatValueConversion(3.78f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_MM),
+		assertEquals(1, NumberValue.floatValueConversion(3.78f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_MM),
 				0.02f);
-		assertEquals(100, CSSNumberValue.floatValueConversion(75f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX),
+		assertEquals(100, NumberValue.floatValueConversion(75f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX),
 				0.02f);
-		assertEquals(1, CSSNumberValue.floatValueConversion(12f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PC),
+		assertEquals(1, NumberValue.floatValueConversion(12f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PC),
 				0.02f);
-		assertEquals(1, CSSNumberValue.floatValueConversion(72f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_IN),
+		assertEquals(1, NumberValue.floatValueConversion(72f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_IN),
 				0.02f);
 	}
 }

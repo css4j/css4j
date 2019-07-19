@@ -14,8 +14,8 @@ package io.sf.carte.doc.style.css.om;
 import org.w3c.css.sac.LexicalUnit;
 
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 

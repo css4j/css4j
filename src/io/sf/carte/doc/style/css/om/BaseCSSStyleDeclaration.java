@@ -51,14 +51,14 @@ import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
-import io.sf.carte.doc.style.css.property.CSSStringValue;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
-import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.Diff;
 import io.sf.carte.util.SimpleWriter;
@@ -165,7 +165,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					Iterator<String> it = unusedShorthands.iterator();
 					while (it.hasNext()) {
 						String sh = it.next();
-						CSSShorthandValue shval = (CSSShorthandValue) propValue.get(sh);
+						ShorthandValue shval = (ShorthandValue) propValue.get(sh);
 						if (shval.isSetSubproperty(ptyname)) {
 							if (important == shval.isImportant()) {
 								it.remove();
@@ -186,7 +186,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return sb.toString();
 	}
 
-	protected void appendShorthandMinifiedCssText(StringBuilder sb, String shorthandName, CSSShorthandValue shval) {
+	protected void appendShorthandMinifiedCssText(StringBuilder sb, String shorthandName, ShorthandValue shval) {
 		sb.append(shorthandName).append(':').append(shval.getMinifiedCssText(shorthandName));
 		if (shval.isImportant()) {
 			sb.append("!important");
@@ -251,7 +251,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					Iterator<String> it = unusedShorthands.iterator();
 					while (it.hasNext()) {
 						String sh = it.next();
-						CSSShorthandValue shval = (CSSShorthandValue) propValue.get(sh);
+						ShorthandValue shval = (ShorthandValue) propValue.get(sh);
 						if (shval.isSetSubproperty(ptyname)) {
 							if (important == shval.isImportant()) {
 								it.remove();
@@ -269,7 +269,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	protected void writeShorthandCssText(SimpleWriter wri, StyleFormattingContext context, String shorthandName,
-			CSSShorthandValue shval) throws IOException {
+			ShorthandValue shval) throws IOException {
 		context.startPropertyDeclaration(wri);
 		wri.write(shorthandName);
 		context.writeColon(wri);
@@ -701,7 +701,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 			return oldcsstext;
 		} else if (shorthandSet.contains(propertyName)) {
-			CSSShorthandValue shval = (CSSShorthandValue) propValue.get(propertyName);
+			ShorthandValue shval = (ShorthandValue) propValue.get(propertyName);
 			propValue.remove(propertyName);
 			shorthandSet.remove(propertyName);
 			String text = shval.getCssText();
@@ -723,7 +723,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		while (it.hasNext()) {
 			String shname = it.next();
 			if (pdb.isShorthandSubpropertyOf(shname, propertyName)) {
-				CSSShorthandValue shval = (CSSShorthandValue) propValue.get(shname);
+				ShorthandValue shval = (ShorthandValue) propValue.get(shname);
 				String pty = shval.getLonghands().iterator().next();
 				int i = propertyList.indexOf(pty);
 				if (i > shidx) {
@@ -733,7 +733,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 		}
 		if (shidx != -1) {
-			CSSShorthandValue shval = (CSSShorthandValue) propValue.get(shorthand);
+			ShorthandValue shval = (ShorthandValue) propValue.get(shorthand);
 			// Reset sub-property
 			shval.getLonghands().add(propertyName);
 			BaseCSSStyleDeclaration copy = new BaseCSSStyleDeclaration();
@@ -746,7 +746,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return false;
 	}
 
-	private void removeSubproperties(CSSShorthandValue shval, PropertyDatabase pdb) {
+	private void removeSubproperties(ShorthandValue shval, PropertyDatabase pdb) {
 		HashSet<String> longhands = shval.getLonghands();
 		Iterator<String> it = longhands.iterator();
 		while (it.hasNext()) {
@@ -775,7 +775,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		int idx = propertyList.indexOf(propertyName);
 		if (idx < 0) {
 			if (shorthandSet.contains(propertyName)
-					&& ((CSSShorthandValue) propValue.get(propertyName)).isImportant()) {
+					&& ((ShorthandValue) propValue.get(propertyName)).isImportant()) {
 				return "important";
 			}
 			return "";
@@ -812,7 +812,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			throws DOMException {
 		// Check whether an ordinary shorthand tries to replace an
 		// important one.
-		CSSShorthandValue overriddenVal = (CSSShorthandValue) propValue.get(propertyName);
+		ShorthandValue overriddenVal = (ShorthandValue) propValue.get(propertyName);
 		if (overriddenVal == null || important || !overriddenVal.isImportant()) {
 			LinkedList<String> shadowedShorthands = null;
 			if (!shorthandSet.isEmpty()) {
@@ -828,7 +828,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					String sh = it.next();
 					if (pdb.isShorthandSubpropertyOf(propertyName, sh)) {
 						// Found a set shorthand that is a subproperty of propertyName
-						if (important || !((CSSShorthandValue) propValue.get(sh)).isImportant()) {
+						if (important || !((ShorthandValue) propValue.get(sh)).isImportant()) {
 							// It is replaceable, add to shadowedShorthands
 							if (shadowedShorthands == null) {
 								shadowedShorthands = new LinkedList<String>();
@@ -836,7 +836,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 							shadowedShorthands.add(sh);
 						}
 					} else if (pdb.isShorthandSubpropertyOf(sh, propertyName) && !important
-							&& ((CSSShorthandValue) propValue.get(sh)).isImportant()) {
+							&& ((ShorthandValue) propValue.get(sh)).isImportant()) {
 						return; // ignore non-important subproperty of
 								// previously set important shorthand
 					}
@@ -846,7 +846,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				SubpropertySetter shorthandSetter = setSubproperties(propertyName, value, important);
 				String shorthandText = shorthandSetter.getCssText();
 				if (shorthandText.length() != 0) {
-					CSSShorthandValue shVal = CSSShorthandValue.createCSSShorthandValue(pdb, propertyName, value,
+					ShorthandValue shVal = ShorthandValue.createCSSShorthandValue(pdb, propertyName, value,
 							important);
 					shVal.setShorthandText(shorthandText, shorthandSetter.getMinifiedCssText());
 					if (shadowedShorthands != null) {
@@ -986,7 +986,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			for (int i = 1; i < len; i++) {
 				buf.append(' ').append(list.item(i).getCssText());
 			}
-			CSSStringValue csstr = new CSSStringValue();
+			StringValue csstr = new StringValue();
 			csstr.setStringValue(CSSPrimitiveValue.CSS_STRING, buf.toString());
 			return csstr;
 		} else {
@@ -1167,7 +1167,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		Iterator<String> it = shorthandSet.iterator();
 		while (it.hasNext()) {
 			String shName = it.next();
-			CSSShorthandValue shval = (CSSShorthandValue) propValue.get(shName);
+			ShorthandValue shval = (ShorthandValue) propValue.get(shName);
 			if (!shval.isImportant() || "important".equals(priority)) {
 				if (shval.overrideByLonghand(longhandName)) {
 					it.remove();
@@ -1452,7 +1452,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 		// Shorthands
 		for (String sh : shorthandSet) {
-			CSSShorthandValue value = (CSSShorthandValue) propValue.get(sh);
+			ShorthandValue value = (ShorthandValue) propValue.get(sh);
 			if (value.isImportant()) {
 				importantDecl.addProperty(sh, value, "important");
 			} else {
@@ -1501,9 +1501,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			} else if (propertyName.equals("text-align")) {
 				String directionValue = getPropertyValue("direction");
 				if (directionValue.equals("rtl")) {
-					defval = new CSSIdentifierValue("right");
+					defval = new IdentifierValue("right");
 				} else {
-					defval = new CSSIdentifierValue("left");
+					defval = new IdentifierValue("left");
 				}
 			} else if (propertyName.endsWith("-color")) {
 				// background-color does not reach here
@@ -1551,7 +1551,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	protected AbstractCSSPrimitiveValue getCurrentColor() {
-		return new CSSIdentifierValue("currentcolor");
+		return new IdentifierValue("currentcolor");
 	}
 
 	public AbstractCSSPrimitiveValue getCSSColor() {

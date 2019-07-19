@@ -41,7 +41,7 @@ public class CalcValue extends ExpressionContainerValue {
 
 	@Override
 	protected boolean isInvalidOperand(AbstractCSSPrimitiveValue primi, short lastlutype) {
-		return !(primi instanceof CSSNumberValue)
+		return !(primi instanceof NumberValue)
 				|| ((lastlutype != -1 && lastlutype != LexicalUnit.SAC_SUB_EXPRESSION)
 						&& primi.isNegativeNumber());
 	}

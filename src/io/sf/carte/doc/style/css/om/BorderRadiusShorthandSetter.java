@@ -15,8 +15,8 @@ import org.w3c.css.sac.LexicalUnit;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Shorthand setter for 'border-radius'.

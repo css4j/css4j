@@ -14,8 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.ValueList;
 
 import java.util.Collection;
 import java.util.LinkedList;

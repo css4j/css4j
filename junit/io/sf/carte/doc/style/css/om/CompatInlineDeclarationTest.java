@@ -38,7 +38,7 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 public class CompatInlineDeclarationTest {
@@ -102,7 +102,7 @@ public class CompatInlineDeclarationTest {
 	public void getCssTextForRem() {
 		emptyStyleDecl.setCssText("line-height: 1.2rem; ");
 		assertEquals("1.2rem", emptyStyleDecl.getPropertyValue("line-height"));
-		CSSNumberValue val = (CSSNumberValue) emptyStyleDecl.getPropertyCSSValue("line-height");
+		NumberValue val = (NumberValue) emptyStyleDecl.getPropertyCSSValue("line-height");
 		assertEquals("rem", val.getDimensionUnitText());
 		assertEquals("line-height: 1.2rem; ", emptyStyleDecl.getCssText());
 		assertEquals(1.2f, val.getFloatValue(CSSPrimitiveValue.CSS_DIMENSION), 1e-9);

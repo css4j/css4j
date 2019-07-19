@@ -16,7 +16,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 class GridPlacementShorthandSetter extends ShorthandSetter {
@@ -69,7 +69,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 			String sv = currentValue.getStringValue();
 			if ("auto".equalsIgnoreCase(sv)) {
 				nextCurrentValue();
-				CSSIdentifierValue ident = new CSSIdentifierValue("auto");
+				IdentifierValue ident = new IdentifierValue("auto");
 				ident.setSubproperty(true);
 				if (isFinalCurrentValue()) {
 					return ident;

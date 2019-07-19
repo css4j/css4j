@@ -40,8 +40,8 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
+import io.sf.carte.doc.style.css.property.NumberValue;
 
 public class ComputedCSSStyleTest {
 
@@ -107,7 +107,7 @@ public class ComputedCSSStyleTest {
 		assertNotNull(style);
 		CSSStyleRule rule = defaultStyleRule("h3", "font-size");
 		assertNotNull(rule);
-		CSSNumberValue val = (CSSNumberValue) rule.getStyle().getPropertyCSSValue("font-size");
+		NumberValue val = (NumberValue) rule.getStyle().getPropertyCSSValue("font-size");
 		assertNotNull(val);
 		assertEquals(Math.round(12 * val.getFloatValue(CSSPrimitiveValue.CSS_EMS)), style.getComputedFontSize());
 	}

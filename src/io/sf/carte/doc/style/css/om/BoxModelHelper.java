@@ -16,7 +16,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.om.SimpleBoxModel.MyTableBoxValues;
-import io.sf.carte.doc.style.css.property.CSSNumberValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
 
 /**
  * Box model helper class.
@@ -89,7 +89,7 @@ public class BoxModelHelper {
 		} else {
 			maxsz = canvas.stringWidth(text, style);
 		}
-		return CSSNumberValue.floatValueConversion(maxsz, CSSPrimitiveValue.CSS_PT, unitType);
+		return NumberValue.floatValueConversion(maxsz, CSSPrimitiveValue.CSS_PT, unitType);
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class BoxModelHelper {
 			maxsz *= styledecl.getStyleDatabase().getExSizeInPt(styledecl.getUsedFontFamily(),
 					styledecl.getComputedFontSize());
 		}
-		return CSSNumberValue.floatValueConversion(maxsz, CSSPrimitiveValue.CSS_PT, unitType);
+		return NumberValue.floatValueConversion(maxsz, CSSPrimitiveValue.CSS_PT, unitType);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class BoxModelHelper {
 			maxsz *= styledecl.getStyleDatabase().getExSizeInPt(styledecl.getUsedFontFamily(),
 					styledecl.getComputedFontSize());
 		}
-		return CSSNumberValue.floatValueConversion(maxsz, CSSPrimitiveValue.CSS_PT, unitType);
+		return NumberValue.floatValueConversion(maxsz, CSSPrimitiveValue.CSS_PT, unitType);
 	}
 
 	/**

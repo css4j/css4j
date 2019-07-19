@@ -66,8 +66,8 @@ import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.DOMUtil;
 import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
-import io.sf.carte.doc.style.css.om.MediaQueryFactory;
 import io.sf.carte.doc.style.css.om.MediaList;
+import io.sf.carte.doc.style.css.om.MediaQueryFactory;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
 import io.sf.carte.doc.xml.dtd.ContentModel;
 

@@ -20,8 +20,8 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Build a simple shorthand from individual properties.

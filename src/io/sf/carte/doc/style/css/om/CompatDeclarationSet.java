@@ -22,7 +22,7 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSUnknownValue;
+import io.sf.carte.doc.style.css.property.UnknownValue;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -34,8 +34,8 @@ class CompatDeclarationSet {
 	private final HashMap<String, AbstractCSSValue> overrideMap = new HashMap<String, AbstractCSSValue>();
 	private final HashMap<String, Boolean> overridePrio = new HashMap<String, Boolean>();
 	private final HashMap<String, AbstractCSSValue> nonOverrideMap = new HashMap<String, AbstractCSSValue>();
-	private final HashMap<String, CSSShorthandValue> compatShorthandMap = new HashMap<String, CSSShorthandValue>();
-	private final HashMap<String, CSSShorthandValue> nonOvShorthandMap = new HashMap<String, CSSShorthandValue>();
+	private final HashMap<String, ShorthandValue> compatShorthandMap = new HashMap<String, ShorthandValue>();
+	private final HashMap<String, ShorthandValue> nonOvShorthandMap = new HashMap<String, ShorthandValue>();
 
 	CompatDeclarationSet() {
 		super();
@@ -65,7 +65,7 @@ class CompatDeclarationSet {
 			LinkedList<String> shadowedShorthands) {
 		if (containsIdentCompat(value)) {
 			String cssText = value.toString();
-			CSSShorthandValue shorthand = new CSSShorthandValue(value, important);
+			ShorthandValue shorthand = new ShorthandValue(value, important);
 			shorthand.setShorthandText(cssText, cssText);
 			if (shadowedShorthands != null && shadowedShorthands.contains(propertyName)) {
 				compatShorthandMap.put(propertyName, shorthand);
@@ -96,17 +96,17 @@ class CompatDeclarationSet {
 	static boolean isPriorityCompat(AbstractCSSValue compatvalue) {
 		return compatvalue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) compatvalue).getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN
-				&& ((CSSUnknownValue) compatvalue).isPriorityCompat();
+				&& ((UnknownValue) compatvalue).isPriorityCompat();
 	}
 
 	static void appendIEPrioCharShorthandMinifiedCssText(StringBuilder sb, String shorthandName,
-			CSSShorthandValue compatvalue) {
+			ShorthandValue compatvalue) {
 		sb.append(shorthandName).append(':').append(compatvalue.getMinifiedCssText(shorthandName));
 		sb.append("!important!;");
 	}
 
 	static void writeIEPrioCharShorthandCssText(SimpleWriter wri, StyleFormattingContext context, String shorthandName,
-			CSSShorthandValue compatvalue) throws IOException {
+			ShorthandValue compatvalue) throws IOException {
 		context.startPropertyDeclaration(wri);
 		wri.write(shorthandName);
 		context.writeColon(wri);
@@ -127,7 +127,7 @@ class CompatDeclarationSet {
 		context.endPropertyDeclaration(wri);
 	}
 
-	CSSShorthandValue getCompatShorthand(String shorthandName) {
+	ShorthandValue getCompatShorthand(String shorthandName) {
 		return compatShorthandMap.get(shorthandName);
 	}
 
@@ -147,7 +147,7 @@ class CompatDeclarationSet {
 		return overridePrio.get(ptyname);
 	}
 
-	CSSShorthandValue getNonOvCompatShorthand(String shorthandName) {
+	ShorthandValue getNonOvCompatShorthand(String shorthandName) {
 		return nonOvShorthandMap.get(shorthandName);
 	}
 

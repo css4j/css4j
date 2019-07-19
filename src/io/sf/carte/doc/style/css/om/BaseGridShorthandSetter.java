@@ -19,10 +19,10 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.CSSIdentifierValue;
-import io.sf.carte.doc.style.css.property.CSSInheritValue;
-import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
+import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueFactory.ListValueItem;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 abstract class BaseGridShorthandSetter extends ShorthandSetter {
 
@@ -169,7 +169,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 				setSubpropertyValue("grid-template-rows", gridTemplateRows.item(0));
 			}
 		} else if (setTemplateAreas) {
-			CSSIdentifierValue auto = new CSSIdentifierValue("auto");
+			IdentifierValue auto = new IdentifierValue("auto");
 			auto.setSubproperty(true);
 			setSubpropertyValue("grid-template-rows", auto);
 		}
@@ -194,7 +194,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			((ValueList) value).setSubproperty(true);
 			break;
 		case CSSValue.CSS_INHERIT:
-			value = ((CSSInheritValue) value).asSubproperty();
+			value = ((InheritValue) value).asSubproperty();
 		}
 		return value;
 	}

@@ -20,7 +20,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 
-public class CSSURIValueTest {
+public class URIValueTest {
 
 	static {
 		TestCSSStyleSheetFactory.setTestSACParser();
@@ -28,7 +28,7 @@ public class CSSURIValueTest {
 
 	@Test
 	public void testSetStringValueShortString() {
-		CSSURIValue value = new CSSURIValue((byte) 0);
+		URIValue value = new URIValue((byte) 0);
 		value.setStringValue(CSSPrimitiveValue.CSS_URI, "http://www.example.com");
 		assertEquals("http://www.example.com", value.getStringValue());
 		assertEquals("url('http://www.example.com')", value.getCssText());
@@ -39,7 +39,7 @@ public class CSSURIValueTest {
 
 	@Test
 	public void testSetCssTextString() {
-		CSSURIValue value = new CSSURIValue((byte) 0);
+		URIValue value = new URIValue((byte) 0);
 		value.setCssText("http://www.example.com");
 		assertEquals("http://www.example.com", value.getStringValue());
 		assertEquals("url('http://www.example.com')", value.getCssText());
@@ -50,7 +50,7 @@ public class CSSURIValueTest {
 
 	@Test
 	public void testSetCssTextStringDQ() {
-		CSSURIValue value = new CSSURIValue((byte) 0);
+		URIValue value = new URIValue((byte) 0);
 		value.setCssText("url(\"http://www.example.com\")");
 		assertEquals("http://www.example.com", value.getStringValue());
 		assertEquals("url(\"http://www.example.com\")", value.getCssText());
@@ -59,7 +59,7 @@ public class CSSURIValueTest {
 
 	@Test
 	public void testSetCssTextStringEscapeQuotes() {
-		CSSURIValue value = new CSSURIValue((byte) 0);
+		URIValue value = new URIValue((byte) 0);
 		value.setCssText("url('http://www.example.com/app?param=\\\'foo\\\'')");
 		assertEquals("http://www.example.com/app?param='foo'", value.getStringValue());
 		assertEquals("url('http://www.example.com/app?param=\\\'foo\\\'')", value.getCssText());
@@ -68,21 +68,21 @@ public class CSSURIValueTest {
 
 	@Test
 	public void testSetCssTextStringEscapeQuotes2() {
-		CSSURIValue value = new CSSURIValue((byte) 0);
+		URIValue value = new URIValue((byte) 0);
 		value.setCssText("url('http://www.example.com/app?param=\\\'foo\\\'&param2=\"bar\"')");
 		assertEquals("http://www.example.com/app?param='foo'&param2=\"bar\"", value.getStringValue());
 		assertEquals("url('http://www.example.com/app?param=\\\'foo\\\'&param2=\"bar\"')", value.getCssText());
 		assertEquals("url('http://www.example.com/app?param=\\\'foo\\\'&param2=\"bar\"')", value.getMinifiedCssText(""));
-		CSSURIValue wrapped = new CSSURIValueWrapper(value, null, "http://www.example.com/");
+		URIValue wrapped = new URIValueWrapper(value, null, "http://www.example.com/");
 		assertEquals(value.getCssText(), wrapped.getCssText());
 		assertEquals(value.getMinifiedCssText(""), wrapped.getMinifiedCssText(""));
 	}
 
 	@Test
 	public void testEquals() {
-		CSSURIValue value = new CSSURIValue((byte) 0);
+		URIValue value = new URIValue((byte) 0);
 		value.setCssText("url('http://www.example.com/foo')");
-		CSSURIValue other = new CSSURIValue((byte) 0);
+		URIValue other = new URIValue((byte) 0);
 		other.setCssText("url('http://www.example.com/foo')");
 		assertTrue(value.equals(other));
 		assertTrue(value.hashCode() == other.hashCode());
@@ -92,40 +92,40 @@ public class CSSURIValueTest {
 		// Wrapper (I)
 		value.setCssText("url('http://www.example.com/dir/file.txt')");
 		other.setCssText("url('../dir/file.txt')");
-		CSSURIValue wrapped = new CSSURIValueWrapper(other, null, "http://www.example.com/foo/");
+		URIValue wrapped = new URIValueWrapper(other, null, "http://www.example.com/foo/");
 		assertEquals(value.getCssText(), wrapped.getCssText());
 		assertTrue(value.equals(wrapped));
 		assertEquals(value.hashCode(), wrapped.hashCode());
 		// Wrapper (II)
 		value.setCssText("url('http://www.example.com/dir/file.txt')");
 		other.setCssText("url('/dir/file.txt')");
-		wrapped = new CSSURIValueWrapper(other, null, "http://www.example.com/foo/");
+		wrapped = new URIValueWrapper(other, null, "http://www.example.com/foo/");
 		assertEquals(value.getCssText(), wrapped.getCssText());
 		assertTrue(value.equals(wrapped));
 		assertEquals(value.hashCode(), wrapped.hashCode());
 		// Wrapper (III)
 		value.setCssText("url('http://www.example.com/dir/file.txt')");
 		other.setCssText("url('file.txt')");
-		wrapped = new CSSURIValueWrapper(other, null, "http://www.example.com/dir/");
+		wrapped = new URIValueWrapper(other, null, "http://www.example.com/dir/");
 		assertEquals(value.getCssText(), wrapped.getCssText());
 		assertTrue(value.equals(wrapped));
 		assertEquals(value.hashCode(), wrapped.hashCode());
 		// Wrapper (IV)
 		value.setCssText("url('http://www.example.com/dir/file.txt')");
 		other.setCssText("url('dir/file.txt')");
-		wrapped = new CSSURIValueWrapper(other, null, "http://www.example.com/");
+		wrapped = new URIValueWrapper(other, null, "http://www.example.com/");
 		assertEquals(value.getCssText(), wrapped.getCssText());
 		assertTrue(value.equals(wrapped));
 		assertEquals(value.hashCode(), wrapped.hashCode());
 		// Wrapper (V)
 		value.setCssText("url('http://www.example.com/dir/file.txt')");
 		other.setCssText("url('foo/file.txt')");
-		wrapped = new CSSURIValueWrapper(other, null, "http://www.example.com/");
+		wrapped = new URIValueWrapper(other, null, "http://www.example.com/");
 		assertFalse(value.equals(wrapped));
 		// Wrapper (VI)
 		value.setCssText("url('http://www.example.com/dir/file.txt')");
 		other.setCssText("url('../dir/file.txt')");
-		wrapped = new CSSURIValueWrapper(other, null, "http://www.example.com/foo/");
+		wrapped = new URIValueWrapper(other, null, "http://www.example.com/foo/");
 		assertEquals(value.getCssText(), wrapped.getCssText());
 		assertTrue(value.equals(wrapped));
 		assertEquals(value.hashCode(), wrapped.hashCode());
@@ -133,8 +133,8 @@ public class CSSURIValueTest {
 
 	@Test
 	public void testIsEquivalent() {
-		CSSURIValue value = new CSSURIValue((byte) 0);
-		CSSURIValue other = new CSSURIValue((byte) 0);
+		URIValue value = new URIValue((byte) 0);
+		URIValue other = new URIValue((byte) 0);
 		value.setCssText("url('http://www.example.com/foo')");
 		other.setCssText("url('http://www.example.com/foo')");
 		assertTrue(value.isEquivalent(other));
@@ -143,15 +143,15 @@ public class CSSURIValueTest {
 		// Wrapper
 		value.setCssText("url('dir/file.txt')");
 		other.setCssText("url('dir/file.txt')");
-		CSSURIValue wrapped = new CSSURIValueWrapper(other, null, "http://www.example.com/");
+		URIValue wrapped = new URIValueWrapper(other, null, "http://www.example.com/");
 		assertTrue(value.isEquivalent(wrapped));
 	}
 
 	@Test
 	public void testClone() {
-		CSSURIValue value = new CSSURIValue((byte) 0);
+		URIValue value = new URIValue((byte) 0);
 		value.setStringValue(CSSPrimitiveValue.CSS_URI, "http://www.example.com");
-		CSSURIValue clon = value.clone();
+		URIValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getStringValue(), clon.getStringValue());

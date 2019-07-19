@@ -88,9 +88,9 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 	}
 
 	@Override
-	protected void appendShorthandMinifiedCssText(StringBuilder sb, String shorthandName, CSSShorthandValue shval) {
+	protected void appendShorthandMinifiedCssText(StringBuilder sb, String shorthandName, ShorthandValue shval) {
 		boolean isCompatOv = compatSet.isCompatShorthand(shorthandName);
-		CSSShorthandValue compatvalue;
+		ShorthandValue compatvalue;
 		if (!isCompatOv && !shval.isImportant()
 				&& (compatvalue = compatSet.getNonOvCompatShorthand(shorthandName)) != null) {
 			CompatDeclarationSet.appendIEPrioCharShorthandMinifiedCssText(sb, shorthandName, compatvalue);
@@ -128,9 +128,9 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 
 	@Override
 	protected void writeShorthandCssText(SimpleWriter wri, StyleFormattingContext context, String shorthandName,
-			CSSShorthandValue shval) throws IOException {
+			ShorthandValue shval) throws IOException {
 		boolean isCompatOv = compatSet.isCompatShorthand(shorthandName);
-		CSSShorthandValue compatvalue;
+		ShorthandValue compatvalue;
 		if (!isCompatOv && !shval.isImportant()
 				&& (compatvalue = compatSet.getNonOvCompatShorthand(shorthandName)) != null) {
 			CompatDeclarationSet.writeIEPrioCharShorthandCssText(wri, context, shorthandName, compatvalue);

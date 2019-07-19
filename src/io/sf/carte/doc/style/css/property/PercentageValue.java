@@ -20,9 +20,9 @@ import org.w3c.dom.css.CSSPrimitiveValue;
  * @author Carlos Amengual
  *
  */
-public class CSSPercentageValue extends CSSNumberValue {
+public class PercentageValue extends NumberValue {
 
-	CSSPercentageValue() {
+	PercentageValue() {
 		super();
 	}
 
