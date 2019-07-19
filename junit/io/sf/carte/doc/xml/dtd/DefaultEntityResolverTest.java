@@ -5,7 +5,7 @@
  SPDX-License-Identifier: BSD-3-Clause
 
  Licensed under a BSD-style License. You can find the license here:
- https://carte.sourceforge.io/css4j/LICENSE.txt
+ https://css4j.github.io/LICENSE.txt
 
  */
 
@@ -133,11 +133,11 @@ public class DefaultEntityResolverTest {
 			assertNotNull(re);
 			re.close();
 			//
-			resolver.addHostToWhiteList("carte.sourceforge.io");
-			assertNull(resolver.resolveEntity(null, "https://carte.sourceforge.io/"));
-			assertNull(resolver.resolveEntity(null, "https://carte.sourceforge.io/css4j/"));
-			assertNull(resolver.resolveEntity(null, "https://carte.sourceforge.io/foo/badurl"));
-			assertNull(resolver.resolveEntity(null, "https://carte.sourceforge.io/foo/badurl.dtd"));
+			resolver.addHostToWhiteList("css4j.github.io");
+			assertNull(resolver.resolveEntity(null, "https://css4j.github.io/"));
+			assertNull(resolver.resolveEntity(null, "https://css4j.github.io/faq.html"));
+			assertNull(resolver.resolveEntity(null, "https://css4j.github.io/foo/badurl"));
+			assertNull(resolver.resolveEntity(null, "https://css4j.github.io/foo/badurl.dtd"));
 		}
 	}
 
