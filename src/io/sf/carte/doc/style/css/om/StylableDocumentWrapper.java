@@ -1979,7 +1979,8 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			while (it.hasNext()) {
 				AbstractCSSStyleSheet sheet = it.next();
 				SheetErrorHandler eh = sheet.getErrorHandler();
-				if (sheet.hasRuleErrorsOrWarnings() || eh.hasSacErrors() || eh.hasSacWarnings() || eh.hasOMErrors()) {
+				if (sheet.hasRuleErrorsOrWarnings() || eh.hasSacErrors() || eh.hasSacWarnings() || eh.hasOMErrors()
+						|| eh.hasOMWarnings()) {
 					hasRuleErrors = true;
 					break;
 				}

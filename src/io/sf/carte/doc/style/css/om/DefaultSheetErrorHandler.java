@@ -57,6 +57,8 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 
 	private boolean sacErrorMergedState = false;
 
+	private boolean omWarningMergedState = false;
+
 	private boolean omErrorMergedState = false;
 
 	public DefaultSheetErrorHandler(ExtendedCSSStyleSheet<? extends ExtendedCSSRule> sheet) {
@@ -201,6 +203,11 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	}
 
 	@Override
+	public boolean hasOMWarnings() {
+		return omWarningMergedState || emptyRules != null;
+	}
+
+	@Override
 	public boolean hasSacErrors() {
 		return sacErrorMergedState || sacErrors != null;
 	}
@@ -272,6 +279,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		sacWarningMergedState = sacWarningMergedState || other.hasSacWarnings();
 		sacErrorMergedState = sacErrorMergedState || other.hasSacErrors();
 		omErrorMergedState = omErrorMergedState || other.hasOMErrors();
+		omWarningMergedState = omWarningMergedState || other.hasOMWarnings();
 	}
 
 	@Override

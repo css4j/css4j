@@ -151,6 +151,13 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	boolean hasOMErrors();
 
 	/**
+	 * Check whether this object has handled higher-level object model warnings.
+	 * 
+	 * @return <code>true</code> if this object has handled higher-level object model warnings.
+	 */
+	boolean hasOMWarnings();
+
+	/**
 	 * Merge the error state from the error handler of another sheet.
 	 * <p>
 	 * Implementations are only required to merge boolean state of SAC errors and warnings.
