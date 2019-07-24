@@ -268,7 +268,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 					if (value.trim().length() != 0) {
 						return false;
 					}
-				} else if (type == Node.ENTITY_REFERENCE_NODE && node.hasChildNodes()) {
+				} else if (type == Node.ENTITY_REFERENCE_NODE) {
 					return false;
 				}
 			}
