@@ -291,7 +291,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 					if (value != null && !((Text) node).isElementContentWhitespace()) {
 						return false;
 					}
-				} else if (type == Node.ENTITY_REFERENCE_NODE && node.hasChildNodes()) {
+				} else if (type == Node.ENTITY_REFERENCE_NODE) {
 					return false;
 				}
 			}
