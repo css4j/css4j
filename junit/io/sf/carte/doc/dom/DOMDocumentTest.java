@@ -335,6 +335,18 @@ public class DOMDocumentTest {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
 		try {
+			document.createElement("-p");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		try {
+			document.createElement(".p");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		try {
 			document.createElement(":");
 			fail("Must throw exception");
 		} catch (DOMException e) {

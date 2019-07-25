@@ -964,29 +964,69 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument, 
 		return null;
 	}
 
+	/**
+	 * Determine whether the given name is a valid XML name, excluding the colon
+	 * (':').
+	 * 
+	 * @param name the name to check.
+	 * @return <code>true</code> if the name is valid.
+	 */
 	static boolean isValidName(String name) {
 		int len = name.length();
 		if (len == 0) {
 			return false;
 		}
-		for (int i = 0; i < len; i++) {
-			if (!isValidCharacter(name.charAt(i))) {
+		if (!isValidStartCharacter(name.codePointAt(0))) {
+			return false;
+		}
+		int i = name.offsetByCodePoints(0, 1);
+		for (; i < len; i = name.offsetByCodePoints(i, 1)) {
+			if (!isValidCharacter(name.codePointAt(i))) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	private static boolean isValidCharacter(char cp) {
-		return cp >= 0x2d && cp != 0x3a && // ':'
-				cp != 0x3c && // '<'
-				cp != 0x3d && // '='
-				cp != 0x3e && // '>'
-				cp != 0x3f && // '?'
-				cp != 0x5c && // '\'
-				cp != 0x22 && // '"'
-				cp != 0x27 && // '''
-				cp != 0x2f; // '/'
+	private static boolean isValidCharacter(int cp) {
+		return (cp >= 0x61 && cp <= 0x7A) // a-z
+				|| (cp >= 0x41 && cp <= 0x5A) // A-Z
+				|| (cp >= 0x30 && cp <= 0x39) // 0-9
+				|| cp == 0x2d // -
+				|| cp == 0x5f // _
+				|| cp == 0x2e // .
+				|| cp == 0xB7 // Middle dot
+				|| (cp >= 0xC0 && cp <= 0xD6) // #xC0-#xD6
+				|| (cp >= 0xD8 && cp <= 0xF6) // #xD8-#xF6
+				|| (cp >= 0xF8 && cp <= 0x2FF) // #xF8-#x2FF
+				|| (cp >= 0x300 && cp <= 0x37D) // #x300-#x37D
+				|| (cp >= 0x37F && cp <= 0x1FFF) // #x37F-#x1FFF
+				|| (cp >= 0x200C && cp <= 0x200D) // #x200C-#x200D
+				|| (cp >= 0x203F && cp <= 0x2040) // #x203F-#x2040
+				|| (cp >= 0x2070 && cp <= 0x218F) // #x2070-#x218F
+				|| (cp >= 0x2C00 && cp <= 0x2FEF) // #x2C00-#x2FEF
+				|| (cp >= 0x3001 && cp <= 0xD7FF) // #x3001-#xD7FF
+				|| (cp >= 0xF900 && cp <= 0xFDCF) // #xF900-#xFDCF
+				|| (cp >= 0xFDF0 && cp <= 0xFFFD) // #xFDF0-#xFFFD
+				|| (cp >= 0x10000 && cp <= 0xEFFFF);// #x10000-#xEFFFF
+	}
+
+	private static boolean isValidStartCharacter(int cp) {
+		return (cp >= 0x61 && cp <= 0x7A) // a-z
+				|| (cp >= 0x41 && cp <= 0x5A) // A-Z
+				|| cp == 0x5f // _
+				|| (cp >= 0xC0 && cp <= 0xD6) // #xC0-#xD6
+				|| (cp >= 0xD8 && cp <= 0xF6) // #xD8-#xF6
+				|| (cp >= 0xF8 && cp <= 0x2FF) // #xF8-#x2FF
+				|| (cp >= 0x370 && cp <= 0x37D) // #x370-#x37D
+				|| (cp >= 0x37F && cp <= 0x1FFF) // #x37F-#x1FFF
+				|| (cp >= 0x200C && cp <= 0x200D) // #x200C-#x200D
+				|| (cp >= 0x2070 && cp <= 0x218F) // #x2070-#x218F
+				|| (cp >= 0x2C00 && cp <= 0x2FEF) // #x2C00-#x2FEF
+				|| (cp >= 0x3001 && cp <= 0xD7FF) // #x3001-#xD7FF
+				|| (cp >= 0xF900 && cp <= 0xFDCF) // #xF900-#xFDCF
+				|| (cp >= 0xFDF0 && cp <= 0xFFFD) // #xFDF0-#xFFFD
+				|| (cp >= 0x10000 && cp <= 0xEFFFF);// #x10000-#xEFFFF
 	}
 
 	static String escapeCloseTag(String tagname, String data) {
