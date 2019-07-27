@@ -663,6 +663,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
 							.computedStyleError(getOwnerNode(), "font-size", sizeIdentifier, "Unknown identifier");
 				}
+				sz = getFontSizeFromIdentifier(familyName, "medium");
 			}
 			break;
 		case CSSPrimitiveValue.CSS_PERCENTAGE:
@@ -675,6 +676,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				sz = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PT);
 			} catch (DOMException e) {
 				reportFontSizeError(cssSize, e);
+				sz = getFontSizeFromIdentifier(familyName, "medium");
 			}
 			break;
 		}
