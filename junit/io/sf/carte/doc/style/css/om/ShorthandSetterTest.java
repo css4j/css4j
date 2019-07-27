@@ -2375,7 +2375,7 @@ public class ShorthandSetterTest {
 		assertEquals("cubic-bezier(0.15, 0, 0.5, 1.0)", emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("transition: background-color 1s cubic-bezier(0.15, 0, 0.5, 1.0) 2s; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("transition:background-color 1s cubic-bezier(.15,0,.5,1.0) 2s;",
+		assertEquals("transition:background-color 1s cubic-bezier(.15,0,.5,1) 2s;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2475,7 +2475,7 @@ public class ShorthandSetterTest {
 		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-delay"));
 		assertEquals("cubic-bezier(0.15, 0, 0.5, 1.0)", emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("transition: opacity cubic-bezier(0.15, 0, 0.5, 1.0) 0.15s; ", emptyStyleDecl.getCssText());
-		assertEquals("transition:opacity cubic-bezier(.15,0,.5,1.0) .15s;", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("transition:opacity cubic-bezier(.15,0,.5,1) .15s;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test

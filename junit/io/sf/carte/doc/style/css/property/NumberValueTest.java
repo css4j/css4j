@@ -86,6 +86,31 @@ public class NumberValueTest {
 		style.setCssText("height: 10vh");
 		assertEquals("10vh", style.getPropertyCSSValue("height").getCssText());
 		assertEquals("10vh", style.getPropertyValue("height"));
+		//
+		style.setCssText("height: 5px");
+		assertEquals("5px", style.getPropertyValue("height"));
+		assertEquals("5px", style.getPropertyCSSValue("height").getMinifiedCssText(""));
+		style.setCssText("height: 5.666667px");
+		assertEquals("5.666667px", style.getPropertyValue("height"));
+		assertEquals("5.666667px", style.getPropertyCSSValue("height").getMinifiedCssText(""));
+		style.setCssText("margin-left: -5px");
+		assertEquals("-5px", style.getPropertyValue("margin-left"));
+		assertEquals("-5px", style.getPropertyCSSValue("margin-left").getMinifiedCssText(""));
+		style.setCssText("line-height: 5");
+		assertEquals("5", style.getPropertyValue("line-height"));
+		assertEquals("5", style.getPropertyCSSValue("line-height").getMinifiedCssText(""));
+		style.setCssText("line-height: -5");
+		assertEquals("-5", style.getPropertyValue("line-height"));
+		assertEquals("-5", style.getPropertyCSSValue("line-height").getMinifiedCssText(""));
+		style.setCssText("height: 0px");
+		assertEquals("0px", style.getPropertyValue("height"));
+		assertEquals("0", style.getPropertyCSSValue("height").getMinifiedCssText(""));
+		style.setCssText("height: 0%");
+		assertEquals("0%", style.getPropertyValue("height"));
+		assertEquals("0%", style.getPropertyCSSValue("height").getMinifiedCssText(""));
+		style.setCssText("height: 10%");
+		assertEquals("10%", style.getPropertyValue("height"));
+		assertEquals("10%", style.getPropertyCSSValue("height").getMinifiedCssText(""));
 	}
 
 	@Test

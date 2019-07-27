@@ -21,7 +21,7 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Float-specific CSSPrimitiveValue.
+ * Number-specific CSSPrimitiveValue.
  * 
  * @author Carlos Amengual
  *
@@ -62,7 +62,11 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 				return Integer.toString((int) rintValue) + dimensionUnitText;
 			}
 		}
-		return Float.toString(realvalue) + dimensionUnitText;
+		String s = Float.toString(realvalue);
+		StringBuilder buf = new StringBuilder(s.length() + dimensionUnitText.length());
+		buf.append(s);
+		buf.append(dimensionUnitText);
+		return buf.toString();
 	}
 
 	@Override
@@ -98,8 +102,11 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 		if (asInteger) {
 			return Integer.toString((int) rintValue);
 		} else if (realvalue == rintValue) {
+			String s = Integer.toString((int) rintValue);
 			if (notaNumber) {
-				return Integer.toString((int) rintValue) + dimensionUnitText;
+				return s + dimensionUnitText;
+			} else {
+				return s;
 			}
 		}
 		String s = Float.toString(realvalue);
@@ -151,6 +158,11 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 		setCSSUnitType(CSSPrimitiveValue.CSS_NUMBER);
 		asInteger = true;
 		lengthUnitType = false;
+	}
+
+	@Override
+	public void setCssText(String cssText) throws DOMException {
+		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "Cannot use setCssText here");
 	}
 
 	@Override
