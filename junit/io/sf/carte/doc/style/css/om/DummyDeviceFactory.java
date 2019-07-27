@@ -82,14 +82,14 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		@Override
 		public int getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException {
 			float sz;
-			if (fontSizeIdentifier.equals("xx-small")) {
-				sz = 8f;
-			} else if (fontSizeIdentifier.equals("x-small")) {
-				sz = 9f;
+			if (fontSizeIdentifier.equals("medium")) {
+				sz = 12f;
 			} else if (fontSizeIdentifier.equals("small")) {
 				sz = 10f;
-			} else if (fontSizeIdentifier.equals("medium")) {
-				sz = 12f;
+			} else if (fontSizeIdentifier.equals("x-small")) {
+				sz = 9f;
+			} else if (fontSizeIdentifier.equals("xx-small")) {
+				sz = 8f;
 			} else if (fontSizeIdentifier.equals("large")) {
 				sz = 14f;
 			} else if (fontSizeIdentifier.equals("x-large")) {
@@ -109,7 +109,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		public float getWidthSize(String widthIdentifier, int fontSize) throws DOMException {
+		public float getWidthSize(String widthIdentifier, float fontSize) throws DOMException {
 			if ("thin".equals(widthIdentifier)) {
 				return 0.5f;
 			} else if ("thick".equals(widthIdentifier)) {
@@ -213,7 +213,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		 */
 		@Override
 		public int stringWidth(String text, CSSComputedProperties style) {
-			return text.length() * style.getComputedFontSize() / 2;
+			return Math.round(text.length() * style.getComputedFontSize() / 2f);
 		}
 
 		@Override

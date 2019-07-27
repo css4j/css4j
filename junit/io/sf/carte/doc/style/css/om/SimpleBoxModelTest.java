@@ -83,9 +83,9 @@ public class SimpleBoxModelTest {
 		assertEquals("h1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
-		assertEquals(32.16, box.getMarginTop(), 0.03f);
+		assertEquals(36.45, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
-		assertEquals(32.16, box.getMarginBottom(), 0.03f);
+		assertEquals(36.45, box.getMarginBottom(), 0.03f);
 		assertEquals(0, box.getMarginLeft(), 0.03f);
 		assertEquals(0, box.getPaddingTop(), 0.03f);
 		assertEquals(0, box.getPaddingRight(), 0.03f);

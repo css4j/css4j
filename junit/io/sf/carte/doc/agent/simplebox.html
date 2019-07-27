@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
+<meta charset="UTF-8"/>
 <title>Simple Box Model Test</title>
 <style type="text/css">
 body {
@@ -13,7 +14,7 @@ background-color: white;
 width: 600pt;
 }
 h1 {
-  font-size: 3em;
+  font-size: 3.4em;
   margin: .67em 0;
 }
 h2 {
@@ -130,7 +131,7 @@ function boxValues(elm, index) {
 		buffer += 'assertEquals(';
 		var pvlen = pv.length;
 		pv = pv.slice(0, pvlen - 2);
-		buffer += fmtNumber(pv) + ', CSSNumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);\n';
+		buffer += fmtNumber(pv) + ', NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);\n';
 	}
 	return buffer;
 }

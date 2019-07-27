@@ -109,7 +109,7 @@ public class ComputedCSSStyleTest {
 		assertNotNull(rule);
 		NumberValue val = (NumberValue) rule.getStyle().getPropertyCSSValue("font-size");
 		assertNotNull(val);
-		assertEquals(Math.round(12 * val.getFloatValue(CSSPrimitiveValue.CSS_EMS)), style.getComputedFontSize());
+		assertEquals(12f * val.getFloatValue(CSSPrimitiveValue.CSS_EMS), style.getComputedFontSize(), 0.05);
 	}
 
 	@Test
@@ -118,7 +118,7 @@ public class ComputedCSSStyleTest {
 		elm = (CSSElement) elm.getElementsByTagName("span").item(0);
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
-		assertEquals(Math.round(1.5f * 12f), style.getComputedFontSize());
+		assertEquals(1.5f * 12f, style.getComputedFontSize(), 0.001);
 	}
 
 	@Test
@@ -126,18 +126,18 @@ public class ComputedCSSStyleTest {
 		CSSElement elm = xhtmlDoc.getElementById("span1");
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
-		assertEquals(12, style.getComputedFontSize());
+		assertEquals(12f, style.getComputedFontSize(), 0.001);
 		CSSElement para = xhtmlDoc.getElementById("para2");
 		CSSComputedProperties stylePara = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(stylePara);
-		assertEquals(12, stylePara.getComputedFontSize());
+		assertEquals(12f, stylePara.getComputedFontSize(), 0.001);
 		xhtmlDoc.setTargetMedium("screen");
 		assertEquals("screen", xhtmlDoc.getStyleSheet().getTargetMedium());
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
-		assertEquals(20, style.getComputedFontSize());
+		assertEquals(20f, style.getComputedFontSize(), 0.001);
 		stylePara = xhtmlDoc.getStyleSheet().getComputedStyle(para, null);
-		assertEquals(16, stylePara.getComputedFontSize());
+		assertEquals(16f, stylePara.getComputedFontSize(), 0.001);
 		xhtmlDoc.setTargetMedium("all");
 	}
 
@@ -147,7 +147,7 @@ public class ComputedCSSStyleTest {
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("#000080", style.getCSSColor().getStringValue());
-		assertEquals(128, style.getCSSColor().getRGBColorValue().getBlue().getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+		assertEquals(128f, style.getCSSColor().getRGBColorValue().getBlue().getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
 				0.001f);
 		assertEquals(0, style.getCSSColor().getRGBColorValue().getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
 				0.001f);
@@ -182,7 +182,7 @@ public class ComputedCSSStyleTest {
 		elm = (CSSElement) elm.getElementsByTagName("nonexistenttag").item(0);
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
-		assertEquals(12, style.getComputedFontSize());
+		assertEquals(12f, style.getComputedFontSize(), 0.001);
 	}
 
 	@Test
@@ -225,10 +225,10 @@ public class ComputedCSSStyleTest {
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(
-				"margin-top: 28pt; margin-bottom: 42pt; background-position: 20% 0%; padding-left: calc(50% - 42pt - max(6px, 14pt)); font-size: 120%; font-style: normal; font-weight: normal; font-stretch: normal; font-family: initial; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
+				"margin-top: 28.8pt; margin-bottom: 43.2pt; background-position: 20% 0%; padding-left: calc(50% - 43.2pt - max(6px, 14.4pt)); font-size: 120%; font-style: normal; font-weight: normal; font-stretch: normal; font-family: initial; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
 				style.getCssText());
 		assertEquals(
-				"margin-bottom:42pt;margin-top:28pt;background-position:20% 0%;padding-left:calc(50% - 42pt - max(6px,14pt));font:120%;",
+				"margin-bottom:43.2pt;margin-top:28.8pt;background-position:20% 0%;padding-left:calc(50% - 43.2pt - max(6px,14.4pt));font:120%;",
 				style.getMinifiedCssText());
 	}
 

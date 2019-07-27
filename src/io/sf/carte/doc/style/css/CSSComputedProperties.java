@@ -91,12 +91,12 @@ public interface CSSComputedProperties extends CSS2Properties, NodeStyleDeclarat
 	/**
 	 * Gets the computed value of the font-size property.
 	 * <p>
-	 * May require a style database to work.
+	 * May require a style database to give accurate results.
 	 * </p>
 	 * 
 	 * @return the value of the font-size property, in typographic points.
 	 */
-	public int getComputedFontSize();
+	public float getComputedFontSize();
 
 	/**
 	 * Gets the computed line height with the default 'normal' value of 1.16em.

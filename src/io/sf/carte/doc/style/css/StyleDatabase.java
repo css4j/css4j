@@ -140,23 +140,21 @@ public interface StyleDatabase {
 	 * @param familyName
 	 *            the font family name.
 	 * @param size
-	 *            the font size.
+	 *            the font size in 'pt' units.
 	 * @return the size of the 'ex' unit, in units of 'pt'.
 	 */
-	public int getExSizeInPt(String familyName, int size);
+	public float getExSizeInPt(String familyName, float size);
 
 	/**
-	 * Gets the size corresponding to the given identifier (thin, thick, medium).
+	 * Gets the size corresponding to the given identifier (thin, thick, medium), in
+	 * typographic points.
 	 * 
-	 * @param widthIdentifier
-	 *            the CSS width identifier.
-	 * @param fontSize
-	 *            the font size used by the box.
+	 * @param widthIdentifier the CSS width identifier.
+	 * @param fontSize        the font size used by the box, in typographic points.
 	 * @return the size.
-	 * @throws DOMException
-	 *             if the identifier is unknown.
+	 * @throws DOMException if the identifier is unknown.
 	 */
-	public float getWidthSize(String widthIdentifier, int fontSize) throws DOMException;
+	public float getWidthSize(String widthIdentifier, float fontSize) throws DOMException;
 
 	/**
 	 * Gives the number of bits allocated to colors (excluding the alpha channel) in the
@@ -194,4 +192,5 @@ public interface StyleDatabase {
 	 * @return the width of the rendering device.
 	 */
 	public float getDeviceWidth();
+
 }

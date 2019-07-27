@@ -44,7 +44,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	}
 
 	@Override
-	public int getExSizeInPt(String familyName, int size) {
+	public float getExSizeInPt(String familyName, float size) {
 		return Math.round(0.5f * size);
 	}
 

@@ -274,30 +274,21 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		short unit = value.getPrimitiveType();
 		float fv = value.getFloatValue(unit);
 		if (unit == CSSPrimitiveValue.CSS_EMS) {
-			value = new NumberValue();
-			value.setFloatValuePt(fv * getComputedFontSize());
+			fv *= getComputedFontSize();
 		} else if (unit == CSSPrimitiveValue.CSS_EXS) {
 			if (getStyleDatabase() != null) {
 				fv *= getStyleDatabase().getExSizeInPt(getUsedFontFamily(), getComputedFontSize());
 			} else {
 				fv *= getComputedFontSize() * 0.5f;
 			}
-			value = new NumberValue();
-			value.setFloatValuePt(fv);
 		} else if (unit == CSSPrimitiveValue2.CSS_REM) {
 			CSSDocument doc = (CSSDocument) getOwnerNode().getOwnerDocument();
 			fv *= doc.getStyleSheet().getComputedStyle(doc.getDocumentElement(), null).getComputedFontSize();
-			value = new NumberValue();
-			value.setFloatValuePt(fv);
 		} else if (unit == CSSPrimitiveValue2.CSS_LH) {
 			fv *= getComputedLineHeight();
-			value = new NumberValue();
-			value.setFloatValuePt(fv);
 		} else if (unit == CSSPrimitiveValue2.CSS_RLH) {
 			CSSDocument doc = (CSSDocument) getOwnerNode().getOwnerDocument();
 			fv *= doc.getStyleSheet().getComputedStyle(doc.getDocumentElement(), null).getComputedLineHeight();
-			value = new NumberValue();
-			value.setFloatValuePt(fv);
 		} else {
 			CSSCanvas canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
 			if (unit == CSSPrimitiveValue2.CSS_CAP) {
@@ -319,9 +310,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					fv *= getComputedFontSize();
 				}
 			}
-			value = new NumberValue();
-			value.setFloatValuePt(fv);
 		}
+		fv = Math.round(fv * 100f) * 0.01f;
+		value = new NumberValue();
+		value.setFloatValuePt(fv);
 		return value;
 	}
 
@@ -618,41 +610,37 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	/**
 	 * Gets the computed value of the font-size property.
 	 * <p>
-	 * May require a style database to work.
+	 * May require a style database to give accurate results.
 	 * </p>
 	 * 
 	 * @return the value of the font-size property, in typographic points.
 	 */
 	@Override
-	public int getComputedFontSize() {
+	public float getComputedFontSize() {
 		CSSPrimitiveValue cssSize = (CSSPrimitiveValue) getCSSValue("font-size");
-		int sz;
-		if (getStyleDatabase() != null) {
-			sz = getFontSizeFromIdentifier(null, "medium");
-		} else {
-			sz = 3;
-		}
+		String familyName = getUsedFontFamily();
 		if (cssSize == null) {
-			return sz;
+			return getFontSizeFromIdentifier(familyName, "medium");
 		}
+		float sz;
 		switch (cssSize.getPrimitiveType()) {
 		case CSSPrimitiveValue.CSS_EMS:
 			float factor = cssSize.getFloatValue(CSSPrimitiveValue.CSS_EMS);
 			// Use parent element's size.
-			sz = Math.round(getParentElementFontSize() * factor);
+			sz = getParentElementFontSize() * factor;
 			break;
 		case CSSPrimitiveValue.CSS_EXS:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue.CSS_EXS);
 			// Use parent element's size.
 			CSSComputedProperties parentStyle = getParentComputedStyle();
 			if (parentStyle == null) {
-				sz = Math.round(getFontSizeFromIdentifier(null, "medium") * 0.5f * factor);
+				sz = getFontSizeFromIdentifier(familyName, "medium") * 0.5f * factor;
 			} else {
 				if (getStyleDatabase() != null) {
-					sz = Math.round(getStyleDatabase().getExSizeInPt(parentStyle.getUsedFontFamily(),
-							parentStyle.getComputedFontSize()) * factor);
+					sz = getStyleDatabase().getExSizeInPt(parentStyle.getUsedFontFamily(),
+							parentStyle.getComputedFontSize()) * factor;
 				} else {
-					sz = Math.round(parentStyle.getComputedFontSize() * 0.5f * factor);
+					sz = parentStyle.getComputedFontSize() * 0.5f * factor;
 				}
 			}
 			break;
@@ -662,11 +650,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			try {
 				// relative size: larger, smaller.
 				if ("larger".equals(sizeIdentifier)) {
-					sz = getLargerFontSize(sz);
+					sz = getLargerFontSize(familyName);
 				} else if ("smaller".equals(sizeIdentifier)) {
-					sz = getSmallerFontSize(sz);
+					sz = getSmallerFontSize(familyName);
 				} else {
-					sz = getFontSizeFromIdentifier(null, sizeIdentifier);
+					sz = getFontSizeFromIdentifier(familyName, sizeIdentifier);
 				}
 			} catch (DOMException e) {
 				if (getParentRule() != null) {
@@ -680,43 +668,59 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		case CSSPrimitiveValue.CSS_PERCENTAGE:
 			float pcnt = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE);
 			// Use parent element's size.
-			sz = Math.round(getParentElementFontSize() * pcnt / 100f);
+			sz = getParentElementFontSize() * pcnt * 0.01f;
 			break;
-		case CSSPrimitiveValue.CSS_PT:
-			sz = (int) cssSize.getFloatValue(CSSPrimitiveValue.CSS_PT);
+		default:
+			try {
+				sz = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PT);
+			} catch (DOMException e) {
+				reportFontSizeError(cssSize, e);
+			}
 			break;
 		}
-		return sz;
+		return Math.round(sz * 100f) * 0.01f;
 	}
 
-	private int getFontSizeFromIdentifier(String familyName, String sizeIdentifier) {
+	private void reportFontSizeError(CSSPrimitiveValue cssSize, DOMException e) {
+		String cssText = cssSize.getCssText();
+		if (getParentRule() != null) {
+			CSSPropertyValueException ex = new CSSPropertyValueException("Error converting to points", e);
+			ex.setValueText(cssText);
+			getParentRule().getStyleDeclarationErrorHandler().wrongValue("font-size", ex);
+		} else {
+			((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
+					.computedStyleError(getOwnerNode(), "font-size", cssText, "Error converting to points");
+		}
+	}
+
+	private float getFontSizeFromIdentifier(String familyName, String sizeIdentifier) {
 		if (getStyleDatabase() != null) {
 			return getStyleDatabase().getFontSizeFromIdentifier(familyName, sizeIdentifier);
 		} else {
-			int sz;
-			if ("medium".equals(sizeIdentifier)) {
-				sz = 3;
-			} else if ("large".equals(sizeIdentifier)) {
-				sz = 4;
-			} else if ("small".equals(sizeIdentifier)) {
-				sz = 2;
-			} else if ("x-large".equals(sizeIdentifier)) {
-				sz = 5;
-			} else if ("x-small".equals(sizeIdentifier)) {
-				sz = 2;
-			} else if ("xx-small".equals(sizeIdentifier)) {
-				sz = 1;
-			} else if ("xx-large".equals(sizeIdentifier)) {
-				sz = 6;
+			float sz;
+			if (sizeIdentifier.equals("medium")) {
+				sz = 12f;
+			} else if (sizeIdentifier.equals("x-small")) {
+				sz = 9f;
+			} else if (sizeIdentifier.equals("small")) {
+				sz = 10f;
+			} else if (sizeIdentifier.equals("xx-small")) {
+				sz = 8f;
+			} else if (sizeIdentifier.equals("large")) {
+				sz = 14f;
+			} else if (sizeIdentifier.equals("x-large")) {
+				sz = 16f;
+			} else if (sizeIdentifier.equals("xx-large")) {
+				sz = 18f;
 			} else {
-				sz = 3; // default
+				sz = 12f; // default
 			}
 			return sz;
 		}
 	}
 
-	protected int getLargerFontSize(int defaultSize) {
-		float sz = defaultSize * 1.2f;
+	private float getLargerFontSize(String familyName) {
+		float sz;
 		ComputedCSSStyle parentCss = (ComputedCSSStyle) getParentComputedStyle();
 		if (parentCss != null) {
 			CSSPrimitiveValue csssize = (CSSPrimitiveValue) parentCss.getCSSValue("font-size");
@@ -725,20 +729,20 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				case CSSPrimitiveValue.CSS_IDENT:
 					String baseFontSize = csssize.getStringValue();
 					if (baseFontSize.equals("xx-small")) {
-						sz = getFontSizeFromIdentifier(null, "x-small");
+						sz = getFontSizeFromIdentifier(familyName, "x-small");
 					} else if (baseFontSize.equals("x-small")) {
-						sz = getFontSizeFromIdentifier(null, "small");
+						sz = getFontSizeFromIdentifier(familyName, "small");
 					} else if (baseFontSize.equals("small")) {
-						sz = getFontSizeFromIdentifier(null, "medium");
+						sz = getFontSizeFromIdentifier(familyName, "medium");
 					} else if (baseFontSize.equals("medium")) {
-						sz = getFontSizeFromIdentifier(null, "large");
+						sz = getFontSizeFromIdentifier(familyName, "large");
 					} else if (baseFontSize.equals("large")) {
-						sz = getFontSizeFromIdentifier(null, "x-large");
+						sz = getFontSizeFromIdentifier(familyName, "x-large");
 					} else if (baseFontSize.equals("x-large")) {
-						sz = getFontSizeFromIdentifier(null, "xx-large");
+						sz = getFontSizeFromIdentifier(familyName, "xx-large");
 					} else if (baseFontSize.equals("xx-large")) {
-						sz = 2f * getFontSizeFromIdentifier(null, "xx-large")
-								- getFontSizeFromIdentifier(null, "x-large");
+						sz = 2f * getFontSizeFromIdentifier(familyName, "xx-large")
+								- getFontSizeFromIdentifier(familyName, "x-large");
 					} else {
 						if (getParentRule() != null) {
 							getParentRule().getStyleDeclarationErrorHandler().unknownIdentifier("font-size",
@@ -747,18 +751,20 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 							((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
 									.computedStyleError(getOwnerNode(), "font-size", baseFontSize, "Unknown identifier");
 						}
+						sz = getFontSizeFromIdentifier(familyName, "medium") * 1.2f;
 					}
 					break;
 				default:
 					sz = parentCss.getComputedFontSize() * 1.2f;
 				}
+				return sz;
 			}
 		}
-		return Math.round(sz);
+		return getFontSizeFromIdentifier(familyName, "medium") * 1.2f;
 	}
 
-	protected int getSmallerFontSize(int defaultSize) {
-		float sz = defaultSize * 0.82f;
+	private float getSmallerFontSize(String familyName) {
+		float sz;
 		ComputedCSSStyle parentCss = (ComputedCSSStyle) getParentComputedStyle();
 		if (parentCss != null) {
 			CSSPrimitiveValue csssize = (CSSPrimitiveValue) parentCss.getCSSValue("font-size");
@@ -767,24 +773,24 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				case CSSPrimitiveValue.CSS_IDENT:
 					String baseFontSize = csssize.getStringValue();
 					if (baseFontSize.equals("xx-small")) {
-						sz = 2f * getFontSizeFromIdentifier(null, "xx-small")
-								- getFontSizeFromIdentifier(null, "x-small");
+						sz = 2f * getFontSizeFromIdentifier(familyName, "xx-small")
+								- getFontSizeFromIdentifier(familyName, "x-small");
 						// Safety check
 						if (sz < 0.1f) {
-							sz = getFontSizeFromIdentifier(null, "xx-small");
+							sz = getFontSizeFromIdentifier(familyName, "xx-small");
 						}
 					} else if (baseFontSize.equals("x-small")) {
-						sz = getFontSizeFromIdentifier(null, "xx-small");
+						sz = getFontSizeFromIdentifier(familyName, "xx-small");
 					} else if (baseFontSize.equals("small")) {
-						sz = getFontSizeFromIdentifier(null, "x-small");
+						sz = getFontSizeFromIdentifier(familyName, "x-small");
 					} else if (baseFontSize.equals("medium")) {
-						sz = getFontSizeFromIdentifier(null, "small");
+						sz = getFontSizeFromIdentifier(familyName, "small");
 					} else if (baseFontSize.equals("large")) {
-						sz = getFontSizeFromIdentifier(null, "medium");
+						sz = getFontSizeFromIdentifier(familyName, "medium");
 					} else if (baseFontSize.equals("x-large")) {
-						sz = getFontSizeFromIdentifier(null, "large");
+						sz = getFontSizeFromIdentifier(familyName, "large");
 					} else if (baseFontSize.equals("xx-large")) {
-						sz = getFontSizeFromIdentifier(null, "x-large");
+						sz = getFontSizeFromIdentifier(familyName, "x-large");
 					} else {
 						if (getParentRule() != null) {
 							getParentRule().getStyleDeclarationErrorHandler().unknownIdentifier("font-size",
@@ -793,18 +799,20 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 							((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
 									.computedStyleError(getOwnerNode(), "font-size", baseFontSize, "Unknown identifier");
 						}
+						sz = getFontSizeFromIdentifier(familyName, "medium") * 0.82f;
 					}
 					break;
 				default:
 					sz = parentCss.getComputedFontSize() * 0.82f;
 				}
+				return sz;
 			}
 		}
-		return Math.round(sz);
+		return getFontSizeFromIdentifier(familyName, "medium") * 0.82f;
 	}
 
-	private int getParentElementFontSize() {
-		int sz;
+	private float getParentElementFontSize() {
+		float sz;
 		CSSComputedProperties parentCss = getParentComputedStyle();
 		if (parentCss != null) {
 			sz = parentCss.getComputedFontSize();
@@ -814,7 +822,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return sz;
 	}
 
-	protected boolean isFontFamilyAvailable(String requestedFamily) {
+	private boolean isFontFamilyAvailable(String requestedFamily) {
 		StyleDatabase sdb = getStyleDatabase();
 		if (sdb == null || sdb.isFontFamilyAvailable(requestedFamily)) {
 			return true;

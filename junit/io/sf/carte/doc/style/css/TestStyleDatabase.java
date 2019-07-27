@@ -74,14 +74,14 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	public int getFontSizeFromIdentifier(String familyName,
 			String fontSizeIdentifier) throws DOMException {
 		float sz;
-		if (fontSizeIdentifier.equals("xx-small")) {
-			sz = 8f;
-		} else if (fontSizeIdentifier.equals("x-small")) {
-			sz = 9f;
+		if (fontSizeIdentifier.equals("medium")) {
+			sz = 12f;
 		} else if (fontSizeIdentifier.equals("small")) {
 			sz = 10f;
-		} else if (fontSizeIdentifier.equals("medium")) {
-			sz = 12f;
+		} else if (fontSizeIdentifier.equals("x-small")) {
+			sz = 9f;
+		} else if (fontSizeIdentifier.equals("xx-small")) {
+			sz = 8f;
 		} else if (fontSizeIdentifier.equals("large")) {
 			sz = 14f;
 		} else if (fontSizeIdentifier.equals("x-large")) {
@@ -114,7 +114,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	}
 
 	@Override
-	public float getWidthSize(String widthIdentifier, int fontSize)
+	public float getWidthSize(String widthIdentifier, float fontSize)
 			throws DOMException {
 		float factor = 0.62f;
 		if ("thin".equals(widthIdentifier)) {

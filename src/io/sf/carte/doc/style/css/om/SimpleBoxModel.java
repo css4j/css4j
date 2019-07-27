@@ -976,7 +976,7 @@ abstract class SimpleBoxModel {
 							pve.setValueText(cssval.getCssText());
 							throw pve;
 						} else {
-							int sz = getComputedStyle().getComputedFontSize();
+							float sz = getComputedStyle().getComputedFontSize();
 							String sv = cssprim.getStringValue();
 							if (sv.equals("thin")) {
 								fval = (float) Math.floor(1d + sz * 0.05d);
