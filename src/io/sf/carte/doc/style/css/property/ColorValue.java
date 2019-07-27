@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -631,14 +630,16 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 		}
 
 		private String formattedNumber(float f) {
-			NumberFormat format = DecimalFormat.getNumberInstance(Locale.US);
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+			format.setGroupingUsed(false);
 			format.setMaximumFractionDigits(3);
 			format.setMinimumFractionDigits(0);
 			return format.format(f);
 		}
 
 		private String formattedNumberMinified(float f) {
-			NumberFormat format = DecimalFormat.getNumberInstance(Locale.US);
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+			format.setGroupingUsed(false);
 			format.setMaximumFractionDigits(3);
 			format.setMinimumFractionDigits(0);
 			format.setMinimumIntegerDigits(0);
