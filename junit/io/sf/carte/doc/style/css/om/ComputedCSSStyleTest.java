@@ -34,6 +34,7 @@ import org.w3c.dom.css.CSSValueList;
 
 import io.sf.carte.doc.DocumentException;
 import io.sf.carte.doc.dom.TestDOMImplementation;
+import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -215,20 +216,22 @@ public class ComputedCSSStyleTest {
 		assertNotNull(elm);
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
-		assertEquals("calc(50% - 36pt - max(6px, 12pt))", style.getPropertyValue("padding-left"));
+		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
+		BoxValues box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(19.5f, box.getPaddingLeft(), 0.01f);
 		assertEquals(
-				"margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(50% - 36pt - max(6px, 12pt)); ",
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); ",
 				style.getCssText());
 		assertEquals(
-				"margin-bottom:36pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(50% - 36pt - max(6px,12pt));",
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(
-				"margin-top: 28.8pt; margin-bottom: 43.2pt; background-position: 20% 0%; padding-left: calc(50% - 43.2pt - max(6px, 14.4pt)); font-size: 120%; font-style: normal; font-weight: normal; font-stretch: normal; font-family: initial; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
+				"display: block; unicode-bidi: embed; margin-top: 28.8pt; margin-bottom: 43.2pt; background-position: 20% 0%; padding-left: calc(10% - 43.2pt - 14.4pt); font-size: 120%; font-style: normal; font-weight: normal; font-stretch: normal; font-family: initial; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
 				style.getCssText());
 		assertEquals(
-				"margin-bottom:43.2pt;margin-top:28.8pt;background-position:20% 0%;padding-left:calc(50% - 43.2pt - max(6px,14.4pt));font:120%;",
+				"display:block;unicode-bidi:embed;margin-bottom:43.2pt;margin-top:28.8pt;background-position:20% 0%;padding-left:calc(10% - 43.2pt - 14.4pt);font:120%;",
 				style.getMinifiedCssText());
 	}
 
@@ -239,20 +242,22 @@ public class ComputedCSSStyleTest {
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals(
-				"margin-right: 1%; font-family: 'Does Not Exist', Neither, Helvetica; padding-left: calc(50% - 36pt - max(6px, 12pt)); ",
+				"display: block; margin-top: 12pt; margin-bottom: 12pt; unicode-bidi: embed; margin-right: 1%; font-family: 'Does Not Exist', Neither, Helvetica; padding-left: calc(10% - 36pt - 12pt); ",
 				style.getCssText());
 		assertEquals(
-				"margin-right:1%;font-family:'Does Not Exist',Neither,Helvetica;padding-left:calc(50% - 36pt - max(6px,12pt));",
+				"display:block;margin-bottom:12pt;margin-right:1%;margin-top:12pt;unicode-bidi:embed;font-family:'Does Not Exist',Neither,Helvetica;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
-		assertEquals("calc(50% - 36pt - max(6px, 12pt))", style.getPropertyValue("padding-left"));
+		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
+		BoxValues box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(17.55f, box.getPaddingLeft(), 0.01f);
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(
-				"margin-right: 1%; font-family: initial; padding-left: calc(50% - 36pt - max(6px, 12pt)); font-size: 120%; font-style: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
+				"display: block; margin-top: 14.4pt; margin-bottom: 14.4pt; unicode-bidi: embed; margin-right: 1%; font-family: initial; padding-left: calc(10% - 36pt - 12pt); font-size: 120%; font-style: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
 				style.getCssText());
-		assertEquals("margin-right:1%;font:120%;padding-left:calc(50% - 36pt - max(6px,12pt));",
+		assertEquals("display:block;margin-bottom:14.4pt;margin-right:1%;margin-top:14.4pt;unicode-bidi:embed;font:120%;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
-		assertEquals("calc(50% - 36pt - max(6px, 12pt))", style.getPropertyValue("padding-left"));
+		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
 	}
 
 	@Test
@@ -288,10 +293,10 @@ public class ComputedCSSStyleTest {
 		assertEquals("http://www.example.com/css/background.png", ((CSSPrimitiveValue) val).getStringValue());
 		assertEquals("url('css/background.png')", val.getMinifiedCssText("background-image"));
 		assertEquals(
-				"background-color: #fff; background-image: url('http://www.example.com/css/background.png'); background-position: 0% 0%; background-size: auto auto; background-origin: padding-box; background-clip: border-box; background-repeat: repeat repeat; background-attachment: scroll; color: #808000; font-family: Arial, Helvetica; font-size: 12pt; margin-left: 5%; margin-right: 5%; margin-top: 36pt; margin-bottom: 48pt; width: 900px; ",
+				"display: block; margin-top: 36pt; margin-right: 5%; margin-bottom: 48pt; margin-left: 5%; unicode-bidi: embed; background-color: #fff; background-image: url('http://www.example.com/css/background.png'); background-position: 0% 0%; background-size: auto auto; background-origin: padding-box; background-clip: border-box; background-repeat: repeat repeat; background-attachment: scroll; color: #808000; font-family: Arial, Helvetica; font-size: 12pt; width: 900px; ",
 				style.getCssText());
 		assertEquals(
-				"background:url('css/background.png') #fff;color:#808000;font-family:Arial,Helvetica;font-size:12pt;margin:36pt 5% 48pt;width:900px;",
+				"display:block;margin:36pt 5% 48pt;unicode-bidi:embed;background:url('css/background.png') #fff;color:#808000;font-family:Arial,Helvetica;font-size:12pt;width:900px;",
 				style.getMinifiedCssText());
 		try {
 			xhtmlDoc.setTargetMedium("print");

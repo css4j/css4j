@@ -23,10 +23,15 @@ import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSFunctionValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
+import io.sf.carte.doc.style.css.property.ExpressionContainerValue;
+import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.NumberValue;
 
 /**
@@ -773,45 +778,59 @@ abstract class SimpleBoxModel {
 
 	private float computeMarginNumberValue(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue cssval,
 			short unitType) throws StyleDatabaseRequiredException {
-		short declType = cssval.getPrimitiveType();
-		float fv = cssval.getFloatValue(declType);
-		if (fv == 0f) {
-			return 0f;
+		float fv;
+		try {
+			fv = floatValue(styledecl, cssval, unitType, true);
+		} catch (DOMException e) {
+			CSSPropertyValueException ex = new CSSPropertyValueException(
+					"Expected number, found " + cssval.getCssText());
+			styledecl.getStyleDeclarationErrorHandler().wrongValue(propertyName, ex);
+			fv = 0;
 		}
+		return fv;
+	}
+
+	private float floatValue(ComputedCSSStyle styledecl, CSSPrimitiveValue cssval, short unitType,
+			boolean useDeviceDocumentWidth) throws DOMException {
+		if (unitType < 0) {
+			if (getStyleDatabase() == null) {
+				StyleDatabaseRequiredException sdex = new StyleDatabaseRequiredException(
+						"Requested natural unit, but no style database was set.");
+				sdex.setValueText(cssval.getCssText());
+				throw sdex;
+			}
+			unitType = getStyleDatabase().getNaturalUnit();
+		}
+		short declType = cssval.getPrimitiveType();
+		float fv;
 		if (declType == CSSPrimitiveValue.CSS_PERCENTAGE) {
-			// Get the width of the containing block.
-			styledecl = findContainingBlockStyle(styledecl);
-			if (styledecl == null) {
+			fv = percentageValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
+		} else if (declType == CSSPrimitiveValue2.CSS_EXPRESSION) {
+			fv = calcValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
+		} else if (declType == CSSPrimitiveValue2.CSS_FUNCTION) {
+			fv = functionValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
+		} else {
+			fv = cssval.getFloatValue(unitType);
+		}
+		return fv;
+	}
+
+	private float percentageValue(ComputedCSSStyle styledecl, CSSPrimitiveValue cssval, short unitType,
+			boolean useDeviceDocumentWidth) {
+		// Get the width of the containing block.
+		styledecl = findContainingBlockStyle(styledecl);
+		if (styledecl == null) {
+			if (useDeviceDocumentWidth) {
 				return deviceDocumentWidth("no enclosing block, and value is percentage.", cssval.getCssText())
 						* cssval.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) / 100f;
+			} else {
+				getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock(getComputedStyle().getDisplay(),
+						getComputedStyle().getOwnerNode());
+				return 0f;
 			}
-			// We got the enclosing block: let's figure out the width
-			return computeWidth(styledecl, unitType) * cssval.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) / 100f;
 		}
-		float margin;
-		if (unitType == declType) {
-			margin = cssval.getFloatValue(unitType);
-		} else if (cssval instanceof NumberValue) {
-			if (unitType < 0) {
-				if (getStyleDatabase() == null) {
-					StyleDatabaseRequiredException sdex = new StyleDatabaseRequiredException(
-							"Requested natural unit, but no style database was set.");
-					sdex.setValueText(cssval.getCssText());
-					throw sdex;
-				}
-				unitType = getStyleDatabase().getNaturalUnit();
-			}
-			margin = cssval.getFloatValue(declType);
-			if (declType != unitType) {
-				margin = NumberValue.floatValueConversion(margin, declType, unitType);
-			}
-		} else {
-			CSSPropertyValueException e = new CSSPropertyValueException(
-					"Expected number, found " + cssval.getCssText());
-			styledecl.getStyleDeclarationErrorHandler().wrongValue(propertyName, e);
-			margin = 0;
-		}
-		return margin;
+		// We got the enclosing block: let's figure out the width
+		return computeWidth(styledecl, unitType) * cssval.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) / 100f;
 	}
 
 	private ComputedCSSStyle findContainingBlockStyle(ComputedCSSStyle styledecl) {
@@ -844,6 +863,19 @@ abstract class SimpleBoxModel {
 					&& !display.startsWith("table-"));
 		}
 		return styledecl;
+	}
+
+	private float calcValue(ComputedCSSStyle styledecl, CSSPrimitiveValue cssCalc, short unitType,
+			boolean useDeviceDocumentWidth) {
+		BoxEvaluator ev = new BoxEvaluator(styledecl, useDeviceDocumentWidth);
+		return ev.evaluateExpression(((ExpressionContainerValue) cssCalc).getExpression(), unitType)
+				.getFloatValue(unitType);
+	}
+
+	private float functionValue(ComputedCSSStyle styledecl, CSSPrimitiveValue function, short unitType,
+			boolean useDeviceDocumentWidth) {
+		BoxEvaluator ev = new BoxEvaluator(styledecl, useDeviceDocumentWidth);
+		return ev.evaluateFunction((CSSFunctionValue) function, unitType).getFloatValue(unitType);
 	}
 
 	private float computeWidth(ComputedCSSStyle styledecl, short unitType) throws StyleDatabaseRequiredException {
@@ -889,7 +921,7 @@ abstract class SimpleBoxModel {
 	}
 
 	private float computeNonAutoWidth(ComputedCSSStyle styledecl, CSSValue cssval, short unitType)
-			throws StyleDatabaseRequiredException {
+			throws DOMException, StyleDatabaseRequiredException {
 		short type = cssval.getCssValueType();
 		if (type == CSSValue.CSS_INHERIT) {
 			// inherit: we probably won't find this here
@@ -899,37 +931,21 @@ abstract class SimpleBoxModel {
 			} else {
 				return computeWidth(styledecl, unitType);
 			}
+		} else if (type != CSSValue.CSS_PRIMITIVE_VALUE) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected width value: " + cssval.getCssText());
 		}
 		// width is not 'auto' nor 'inherit'.
+		float fv;
 		CSSPrimitiveValue cssWidth = (CSSPrimitiveValue) cssval;
-		short declType = cssWidth.getPrimitiveType();
-		float width = cssWidth.getFloatValue(type);
-		if (declType == CSSPrimitiveValue.CSS_PERCENTAGE) {
-			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
-			if (styledecl == null) {
-				width = width
-						* deviceDocumentWidth("width is a percentage, and enclosing block width could not be found.",
-								cssval.getCssText())
-						/ 100f;
-				declType = getStyleDatabase().getNaturalUnit();
-			} else {
-				return computeWidth(styledecl, unitType) * cssWidth.getFloatValue(type) / 100f;
-			}
+		try {
+			fv = floatValue(styledecl, cssWidth, unitType, true);
+		} catch (DOMException e) {
+			CSSPropertyValueException ex = new CSSPropertyValueException(
+					"Expected number, found " + cssval.getCssText());
+			styledecl.getStyleDeclarationErrorHandler().wrongValue("width", ex);
+			fv = 0;
 		}
-		// Unit conversions
-		if (unitType < 0) {
-			if (getStyleDatabase() == null) {
-				StyleDatabaseRequiredException pve = new StyleDatabaseRequiredException(
-						"No style database, and requested natural unit type for 'width'.");
-				pve.setValueText(cssval.getCssText());
-				throw pve;
-			}
-			unitType = getStyleDatabase().getNaturalUnit();
-		}
-		if (unitType != declType) {
-			width = NumberValue.floatValueConversion(width, declType, unitType);
-		}
-		return width;
+		return fv;
 	}
 
 	private float findWidthautoBoxProperty(ComputedCSSStyle styledecl, String propertyName, CSSValue cssval,
@@ -944,8 +960,11 @@ abstract class SimpleBoxModel {
 					break;
 				}
 			}
-			CSSPrimitiveValue cssprim = (CSSPrimitiveValue) cssval;
-			if (cssprim != null) {
+			if (cssval != null) {
+				if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+					throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected width value: " + cssval.getCssText());
+				}
+				CSSPrimitiveValue cssprim = (CSSPrimitiveValue) cssval;
 				return findNumericBoxProperty(styledecl, propertyName, cssprim, unitType);
 			}
 		}
@@ -964,10 +983,13 @@ abstract class SimpleBoxModel {
 					break;
 				}
 			}
-			CSSPrimitiveValue cssprim = (CSSPrimitiveValue) cssval;
-			if (cssprim != null) {
+			if (cssval != null) {
+				if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+					throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected border-width value: " + cssval.getCssText());
+				}
+				float fval;
+				CSSPrimitiveValue cssprim = (CSSPrimitiveValue) cssval;
 				if (cssprim.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-					float fval;
 					short declType;
 					if (getStyleDatabase() == null) {
 						if (getComplianceMode() != CSSDocument.ComplianceMode.QUIRKS) {
@@ -993,14 +1015,13 @@ abstract class SimpleBoxModel {
 						fval = getStyleDatabase().getWidthSize(cssprim.getStringValue(),
 								styledecl.getComputedFontSize());
 					}
-					if (declType == unitType) {
-						return fval;
-					} else {
-						return NumberValue.floatValueConversion(fval, declType, unitType);
+					if (unitType != declType) {
+						fval = NumberValue.floatValueConversion(fval, declType, unitType);
 					}
 				} else {
-					return findNumericBoxProperty(styledecl, propertyName, cssprim, unitType);
+					fval = findNumericBoxProperty(styledecl, propertyName, cssprim, unitType);
 				}
+				return fval;
 			}
 		}
 		return 0;
@@ -1019,108 +1040,66 @@ abstract class SimpleBoxModel {
 
 	private float findNumericBoxProperty(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue cssprim,
 			short unitType) throws StyleDatabaseRequiredException {
-		short declType = cssprim.getPrimitiveType();
-		float fv = cssprim.getFloatValue(declType);
-		if (fv == 0f) {
-			return 0f;
-		}
-		if (declType == CSSPrimitiveValue.CSS_PERCENTAGE) {
-			ComputedCSSStyle contblockStyledecl = findContainingBlockStyle(styledecl);
-			return computeWidth(contblockStyledecl, unitType) * cssprim.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE)
-					/ 100f;
-		}
-		if (unitType != declType) {
-			if (unitType < 0) {
-				if (getStyleDatabase() == null) {
-					StyleDatabaseRequiredException pve = new StyleDatabaseRequiredException(
-							"No style database, and requested natural unit type for " + propertyName + '.');
-					pve.setValueText(cssprim.getCssText());
-					throw pve;
-				}
-				unitType = getStyleDatabase().getNaturalUnit();
-			}
-			fv = NumberValue.floatValueConversion(fv, declType, unitType);
+		float fv;
+		try {
+			fv = floatValue(styledecl, cssprim, unitType, true);
+		} catch (DOMException e) {
+			CSSPropertyValueException ex = new CSSPropertyValueException(
+					"Expected number, found " + cssprim.getCssText());
+			styledecl.getStyleDeclarationErrorHandler().wrongValue(propertyName, ex);
+			fv = 0;
 		}
 		return fv;
 	}
 
-	private float computePaddingSubproperty(ComputedCSSStyle styledecl, String subpropertyName, short unitType)
+	private float computePaddingSubproperty(ComputedCSSStyle styledecl, String propertyName, short unitType)
 			throws StyleDatabaseRequiredException {
-		CSSValue cssval = styledecl.getCSSValue(subpropertyName);
+		CSSValue cssval = styledecl.getCSSValue(propertyName);
 		while (cssval != null && cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
 			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
 			if (styledecl != null) {
-				cssval = styledecl.getCSSValue(subpropertyName);
+				cssval = styledecl.getCSSValue(propertyName);
 			} else {
 				getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock(getComputedStyle().getDisplay(),
 						getComputedStyle().getOwnerNode());
-				return 0;
+				return 0f;
 			}
 		}
 		if (cssval == null) {
-			return 0;
-		}
-		CSSPrimitiveValue csspri = (CSSPrimitiveValue) cssval;
-		float padding;
-		short declType = csspri.getPrimitiveType();
-		float fv = csspri.getFloatValue(declType);
-		if (fv == 0f) {
 			return 0f;
 		}
-		if (declType == CSSPrimitiveValue.CSS_PERCENTAGE) {
-			String display = styledecl.getPropertyValue("display");
-			// check for table cell
-			if ("table-cell".equals(display)) {
-				// loop until display: table
-				do {
-					styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
-					if (styledecl == null) {
-						// Unable to find table ancestor for cell
-						getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock("table-cell",
-								getComputedStyle().getOwnerNode());
-						padding = 0;
-					} else {
-						display = styledecl.getPropertyValue("display");
-					}
-				} while (!"table".equals(display));
-			} else {
-				// loop until display: block or list-item
-				do {
-					styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
-					if (styledecl == null) {
-						// Unable to find containing block.
-						getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock(display,
-								getComputedStyle().getOwnerNode());
-						padding = 0;
-					} else {
-						display = styledecl.getPropertyValue("display");
-					}
-				} while (!"block".equals(display) && !"list-item".equals(display));
-			}
-			// Compute width for ancestor
-			float parentWidth = computeWidth(styledecl, unitType);
-			return parentWidth * csspri.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) / 100f;
-		} else if (csspri instanceof NumberValue) {
-			padding = csspri.getFloatValue(declType);
-		} else {
-			CSSPropertyValueException e = new CSSPropertyValueException(
+		if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected padding value: " + cssval.getCssText());
+		}
+		CSSPrimitiveValue csspri = (CSSPrimitiveValue) cssval;
+		float fv;
+		try {
+			fv = floatValue(styledecl, csspri, unitType, false);
+		} catch (DOMException e) {
+			CSSPropertyValueException ex = new CSSPropertyValueException(
 					"Expected number, found " + csspri.getCssText());
-			styledecl.getStyleDeclarationErrorHandler().wrongValue(subpropertyName, e);
-			return 0;
+			styledecl.getStyleDeclarationErrorHandler().wrongValue(propertyName, ex);
+			fv = 0;
 		}
-		if (padding != 0 && declType != unitType) {
-			if (unitType < 0) {
-				if (getStyleDatabase() == null) {
-					StyleDatabaseRequiredException sdex = new StyleDatabaseRequiredException(
-							"Requested natural unit, but no style database was set.");
-					sdex.setValueText(csspri.getCssText());
-					throw sdex;
-				}
-				unitType = getStyleDatabase().getNaturalUnit();
-			}
-			padding = NumberValue.floatValueConversion(padding, declType, unitType);
+		return fv;
+	}
+
+	private class BoxEvaluator extends Evaluator {
+
+		private ComputedCSSStyle styledecl;
+		private boolean useDeviceDocumentWidth;
+
+		private BoxEvaluator(ComputedCSSStyle styledecl, boolean useDeviceDocumentWidth) {
+			super();
+			this.styledecl = styledecl;
+			this.useDeviceDocumentWidth = useDeviceDocumentWidth;
 		}
-		return padding;
+
+		@Override
+		protected float percentage(ExtendedCSSPrimitiveValue value, short unitType) throws DOMException {
+			return percentageValue(styledecl, value, unitType, useDeviceDocumentWidth);
+		}
+
 	}
 
 }

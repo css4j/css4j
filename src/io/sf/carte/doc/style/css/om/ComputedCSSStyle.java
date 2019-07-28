@@ -29,17 +29,20 @@ import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
+import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.property.AbstractCSSExpression;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
+import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionContainerValue;
 import io.sf.carte.doc.style.css.property.FunctionValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
@@ -86,6 +89,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	@Override
 	public Node getOwnerNode() {
 		return node;
+	}
+
+	@Override
+	public StyleDeclarationErrorHandler getStyleDeclarationErrorHandler() {
+		if (node != null && node.getNodeType() == Node.ELEMENT_NODE) {
+			return ((CSSDocument) node.getOwnerDocument()).getErrorHandler()
+					.getInlineStyleErrorHandler((CSSElement) node);
+		}
+		return null;
 	}
 
 	@Override
@@ -243,12 +255,23 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				pri = pri.clone();
 				AbstractCSSExpression expr = ((ExpressionContainerValue) pri).getExpression();
 				absoluteExpressionValue(expr);
+				Evaluator ev = new Evaluator();
+				try {
+					pri = (AbstractCSSPrimitiveValue) ev.evaluateExpression(expr, CSSPrimitiveValue.CSS_PT);
+				} catch (DOMException e) {
+				}
 			} else if (type == CSSPrimitiveValue2.CSS_FUNCTION) {
-				pri = pri.clone();
-				LinkedCSSValueList args = ((FunctionValue) pri).getArguments();
+				FunctionValue function = (FunctionValue) pri;
+				function = function.clone();
+				LinkedCSSValueList args = function.getArguments();
 				int sz = args.size();
 				for (int i = 0; i < sz; i++) {
 					args.set(i, absoluteValue(args.get(i)));
+				}
+				Evaluator ev = new Evaluator();
+				try {
+					pri = (AbstractCSSPrimitiveValue) ev.evaluateFunction(function, CSSPrimitiveValue.CSS_PT);
+				} catch (DOMException e) {
 				}
 			}
 		}
