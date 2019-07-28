@@ -75,7 +75,7 @@ public interface CSSExpression {
 	/**
 	 * Sub-interface to be implemented by operations like sum or product.
 	 */
-	public interface AlgebraicExpression {
+	public interface AlgebraicExpression extends CSSExpression {
 		/**
 		 * Retrieve the operands.
 		 * 
@@ -87,7 +87,7 @@ public interface CSSExpression {
 	/**
 	 * Sub-interface to be implemented by individual operands.
 	 */
-	public interface CSSOperandExpression {
+	public interface CSSOperandExpression extends CSSExpression {
 		/**
 		 * Retrieve the operand.
 		 * 
