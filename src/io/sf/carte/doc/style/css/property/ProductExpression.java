@@ -11,11 +11,14 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.util.BufferSimpleWriter;
+import io.sf.carte.util.SimpleWriter;
 
 /**
  * A product expression.
@@ -91,40 +94,24 @@ public class ProductExpression extends AbstractCSSExpression implements Abstract
 
 	@Override
 	public String getCssText() {
-		StringBuilder buf = new StringBuilder();
-		Iterator<AbstractCSSExpression> it = operands.iterator();
-		if (!it.hasNext()) {
+		if (operands.isEmpty()) {
 			return "";
 		}
-		CSSExpression expr = it.next();
-		if (expr.getPartType() == AlgebraicPart.SUM) {
-			buf.append('(').append(expr.getCssText()).append(')');
-		} else {
-			buf.append(expr.getCssText());
+		BufferSimpleWriter wri = new BufferSimpleWriter(32 + operands.size() * 16);
+		try {
+			writeCssText(wri);
+		} catch (IOException e) {
 		}
-		while (it.hasNext()) {
-			expr = it.next();
-			if (expr.isInverseOperation()) {
-				buf.append('/');
-			} else {
-				buf.append('*');
-			}
-			if (expr.getPartType() == AlgebraicPart.SUM) {
-				buf.append('(').append(expr.getCssText()).append(')');
-			} else {
-				buf.append(expr.getCssText());
-			}
-		}
-		return buf.toString();
+		return wri.toString();
 	}
 
 	@Override
 	public String getMinifiedCssText() {
-		StringBuilder buf = new StringBuilder();
-		Iterator<AbstractCSSExpression> it = operands.iterator();
-		if (!it.hasNext()) {
+		if (operands.isEmpty()) {
 			return "";
 		}
+		StringBuilder buf = new StringBuilder(32);
+		Iterator<AbstractCSSExpression> it = operands.iterator();
 		CSSExpression expr = it.next();
 		if (expr.getPartType() == AlgebraicPart.SUM) {
 			buf.append('(').append(expr.getMinifiedCssText()).append(')');
@@ -146,4 +133,36 @@ public class ProductExpression extends AbstractCSSExpression implements Abstract
 		}
 		return buf.toString();
 	}
+
+	@Override
+	public void writeCssText(SimpleWriter wri) throws IOException {
+		Iterator<AbstractCSSExpression> it = operands.iterator();
+		if (!it.hasNext()) {
+			return;
+		}
+		AbstractCSSExpression expr = it.next();
+		if (expr.getPartType() == AlgebraicPart.SUM) {
+			wri.write('(');
+			expr.writeCssText(wri);
+			wri.write(')');
+		} else {
+			expr.writeCssText(wri);
+		}
+		while (it.hasNext()) {
+			expr = it.next();
+			if (expr.isInverseOperation()) {
+				wri.write('/');
+			} else {
+				wri.write('*');
+			}
+			if (expr.getPartType() == AlgebraicPart.SUM) {
+				wri.write('(');
+				expr.writeCssText(wri);
+				wri.write(')');
+			} else {
+				expr.writeCssText(wri);
+			}
+		}
+	}
+
 }

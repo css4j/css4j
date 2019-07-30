@@ -226,6 +226,9 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 	@Override
 	public String getCssText() {
 		String s = expression.getCssText();
+		if (expression.getPartType() != CSSExpression.AlgebraicPart.OPERAND) {
+			return s;
+		}
 		StringBuilder buf = new StringBuilder(s.length() + 2);
 		buf.append('(').append(s).append(')');
 		return buf.toString();
@@ -234,6 +237,9 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 	@Override
 	public String getMinifiedCssText(String propertyName) {
 		String s = expression.getMinifiedCssText();
+		if (expression.getPartType() != CSSExpression.AlgebraicPart.OPERAND) {
+			return s;
+		}
 		StringBuilder buf = new StringBuilder(s.length() + 2);
 		buf.append('(').append(s).append(')');
 		return buf.toString();
@@ -241,9 +247,13 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
-		wri.write('(');
-		wri.write(expression.getCssText());
-		wri.write(')');
+		if (expression.getPartType() != CSSExpression.AlgebraicPart.OPERAND) {
+			expression.writeCssText(wri);
+		} else {
+			wri.write('(');
+			expression.writeCssText(wri);
+			wri.write(')');
+		}
 	}
 
 	@Override

@@ -11,11 +11,14 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.util.BufferSimpleWriter;
+import io.sf.carte.util.SimpleWriter;
 
 /**
  * A sum expression.
@@ -94,66 +97,106 @@ public class SumExpression extends AbstractCSSExpression implements AbstractCSSE
 
 	@Override
 	public String getCssText() {
-		StringBuilder buf = new StringBuilder();
-		Iterator<AbstractCSSExpression> it = operands.iterator();
-		if (!it.hasNext()) {
+		if (operands.isEmpty()) {
 			return "";
 		}
-		CSSExpression expr = it.next();
-		// 8.1.1. "white space is required on both sides of the + and - operators."
-		if (expr.getPartType() != AlgebraicPart.SUM && expr.isInverseOperation()) {
-			buf.append(' ').append('-').append(' ');
+		BufferSimpleWriter wri = new BufferSimpleWriter(32 + operands.size() * 16);
+		try {
+			writeCssText(wri);
+		} catch (IOException e) {
 		}
-		buf.append(expr.getCssText());
-		while (it.hasNext()) {
-			boolean parens = false;
-			expr = it.next();
-			if (expr.getPartType() == AlgebraicPart.SUM && expr.isInverseOperation()) {
-				buf.append(' ').append('-').append(' ').append('(');
-				parens = true;
-			} else if (expr.getPartType() != AlgebraicPart.SUM && expr.isInverseOperation()) {
-				buf.append(' ').append('-').append(' ');
-			} else {
-				buf.append(' ').append('+').append(' ');
-			}
-			buf.append(expr.getCssText());
-			if (parens) {
-				buf.append(')');
-			}
-		}
-		return buf.toString();
+		return wri.toString();
 	}
 
 	@Override
 	public String getMinifiedCssText() {
-		StringBuilder buf = new StringBuilder();
-		Iterator<AbstractCSSExpression> it = operands.iterator();
-		if (!it.hasNext()) {
+		if (operands.isEmpty()) {
 			return "";
 		}
+		boolean parens = false;
+		StringBuilder buf = new StringBuilder(32);
+		Iterator<AbstractCSSExpression> it = operands.iterator();
 		CSSExpression expr = it.next();
-		// 8.1.1. "white space is required on both sides of the + and - operators."
-		if (expr.getPartType() != AlgebraicPart.SUM && expr.isInverseOperation()) {
-			buf.append(' ').append('-').append(' ');
+		if (expr.isInverseOperation()) {
+			if (expr.getPartType() == AlgebraicPart.SUM) {
+				buf.append(" - (");
+				parens = true;
+			} else {
+				buf.append(" - ");
+			}
 		}
 		buf.append(expr.getMinifiedCssText());
+		if (parens) {
+			buf.append(')');
+		}
 		while (it.hasNext()) {
-			boolean parens = false;
 			expr = it.next();
-			if (expr.getPartType() == AlgebraicPart.SUM && expr.isInverseOperation()) {
-				buf.append(' ').append('-').append(' ').append('(');
-				parens = true;
-			} else if (expr.getPartType() != AlgebraicPart.SUM && expr.isInverseOperation()) {
-				buf.append(' ').append('-').append(' ');
-			} else {
-				buf.append(' ').append('+').append(' ');
-			}
-			buf.append(expr.getMinifiedCssText());
-			if (parens) {
-				buf.append(')');
-			}
+			appendMinifiedExpression(expr, buf);
 		}
 		return buf.toString();
+	}
+
+	private void appendMinifiedExpression(CSSExpression expr, StringBuilder buf) {
+		boolean parens = false;
+		// 8.1.1. "white space is required on both sides of the + and - operators."
+		if (expr.isInverseOperation()) {
+			if (expr.getPartType() == AlgebraicPart.SUM) {
+				buf.append(" - (");
+				parens = true;
+			} else {
+				buf.append(" - ");
+			}
+		} else {
+			buf.append(" + ");
+		}
+		buf.append(expr.getMinifiedCssText());
+		if (parens) {
+			buf.append(')');
+		}
+	}
+
+	@Override
+	public void writeCssText(SimpleWriter wri) throws IOException {
+		if (!operands.isEmpty()) {
+			boolean parens = false;
+			Iterator<AbstractCSSExpression> it = operands.iterator();
+			AbstractCSSExpression expr = it.next();
+			if (expr.isInverseOperation()) {
+				if (expr.getPartType() == AlgebraicPart.SUM) {
+					wri.write(" - (");
+					parens = true;
+				} else {
+					wri.write(" - ");
+				}
+			}
+			expr.writeCssText(wri);
+			if (parens) {
+				wri.write(')');
+			}
+			while (it.hasNext()) {
+				expr = it.next();
+				writeExpression(expr, wri);
+			}
+		}
+	}
+
+	private void writeExpression(AbstractCSSExpression expr, SimpleWriter wri) throws IOException {
+		boolean parens = false;
+		// 8.1.1. "white space is required on both sides of the + and - operators."
+		if (expr.isInverseOperation()) {
+			if (expr.getPartType() == AlgebraicPart.SUM) {
+				wri.write(" - (");
+				parens = true;
+			} else {
+				wri.write(" - ");
+			}
+		} else {
+			wri.write(" + ");
+		}
+		expr.writeCssText(wri);
+		if (parens) {
+			wri.write(')');
+		}
 	}
 
 	@Override

@@ -11,8 +11,11 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import java.io.IOException;
+
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.util.SimpleWriter;
 
 /**
  * An operand expression.
@@ -79,6 +82,13 @@ public class OperandExpression extends AbstractCSSExpression implements CSSExpre
 	@Override
 	public String getMinifiedCssText() {
 		return operand == null ? "" : operand.getMinifiedCssText("");
+	}
+
+	@Override
+	public void writeCssText(SimpleWriter wri) throws IOException {
+		if (operand != null) {
+			operand.writeCssText(wri);
+		}
 	}
 
 	@Override

@@ -8,7 +8,10 @@
 
 package io.sf.carte.doc.style.css;
 
+import java.io.IOException;
 import java.util.List;
+
+import io.sf.carte.util.SimpleWriter;
 
 /**
  * Implemented by CSS expressions. See
@@ -37,6 +40,16 @@ public interface CSSExpression {
 	 * @return a minified string representation of the expression.
 	 */
 	String getMinifiedCssText();
+
+	/**
+	 * Serialize this expression to a {@link SimpleWriter}.
+	 * 
+	 * @param wri
+	 *            the SimpleWriter.
+	 * @throws IOException
+	 *            if an error happened while writing.
+	 */
+	void writeCssText(SimpleWriter wri) throws IOException;
 
 	/**
 	 * <p>

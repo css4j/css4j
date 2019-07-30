@@ -11,7 +11,10 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import java.io.IOException;
+
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.util.SimpleWriter;
 
 /**
  * Abstract base class for CSS expressions.
@@ -95,6 +98,17 @@ abstract public class AbstractCSSExpression implements CSSExpression {
 
 	@Override
 	abstract public String getMinifiedCssText();
+
+	/**
+	 * Serialize this expression to a {@link SimpleWriter}.
+	 * 
+	 * @param wri
+	 *            the SimpleWriter.
+	 * @throws IOException
+	 *            if an error happened while writing.
+	 */
+	@Override
+	abstract public void writeCssText(SimpleWriter wri) throws IOException;
 
 	@Override
 	abstract public AlgebraicPart getPartType();
