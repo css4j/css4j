@@ -16,6 +16,7 @@ import java.util.Iterator;
 
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSCalcValue;
@@ -80,32 +81,31 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 				AbstractCSSValue newval;
 				short type = lu.getLexicalUnitType();
 				if (type == LexicalUnit.SAC_SUB_EXPRESSION) {
-					ExpressionContainerValue expr = new ExpressionContainerValue();
-					ExpressionContainerValue.ExpressionLexicalSetter setter = expr.newLexicalSetter();
-					setter.setLexicalUnitFromSubValues(lu.getSubValues());
-					LexicalUnit nextlex = lu.getNextLexicalUnit();
-					if (nextlex != null) {
-						type = nextlex.getLexicalUnitType();
-						if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
-							// slash exception
-							setter.setLexicalUnitFromSubValues(lu);
-						} else {
-							setter.setLexicalUnitFromSubValues(lu.getSubValues());
-							setter.nextLexicalUnit = nextlex;
-						}
-					}
-					newval = expr;
-					item = setter;
+					item = subExpression(lu);
+					newval = item.getCSSValue();
 				} else if (type == LexicalUnit2.SAC_LEFT_BRACKET) {
 					item = factory.parseBracketList(lu.getNextLexicalUnit(), null, false);
 					newval = item.getCSSValue();
 				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
-					// Do not handle the slash through ValueFactory
-					ValueFactory.BasicValueItem vbi = new ValueFactory.BasicValueItem();
-					vbi.nextLexicalUnit = lu.getNextLexicalUnit();
-					item = vbi;
-					newval = new UnknownValue();
-					newval.setPlainCssText("/");
+					if (list != null && list.getLength() == 1 && isOperand(list.item(0))) {
+						list = null;
+						item = expressionItem(lu);
+						newval = item.getCSSValue();
+					} else {
+						// Do not handle the slash through ValueFactory
+						ValueFactory.BasicValueItem vbi = new ValueFactory.BasicValueItem();
+						vbi.nextLexicalUnit = lu.getNextLexicalUnit();
+						item = vbi;
+						newval = new UnknownValue();
+						newval.setPlainCssText("/");
+					}
+				} else if (list != null
+						&& (type == LexicalUnit.SAC_OPERATOR_PLUS || type == LexicalUnit.SAC_OPERATOR_MINUS
+								|| type == LexicalUnit.SAC_OPERATOR_MULTIPLY)
+						&& list.getLength() == 1 && isOperand(list.item(0))) {
+					list = null;
+					item = expressionItem(lu);
+					newval = item.getCSSValue();
 				} else {
 					item = factory.createCSSPrimitiveValueItem(lu, false);
 					newval = item.getCSSValue();
@@ -146,11 +146,69 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
+
+		private boolean isOperand(AbstractCSSValue value) {
+			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+				short pType = ((CSSPrimitiveValue) value).getPrimitiveType();
+				switch (pType) {
+				case CSSPrimitiveValue.CSS_STRING:
+				case CSSPrimitiveValue.CSS_IDENT:
+				case CSSPrimitiveValue.CSS_RGBCOLOR:
+				case CSSPrimitiveValue.CSS_URI:
+				case CSSPrimitiveValue.CSS_ATTR:
+				case CSSPrimitiveValue.CSS_COUNTER:
+				case CSSPrimitiveValue.CSS_RECT:
+				case CSSPrimitiveValue.CSS_UNKNOWN:
+				case CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE:
+				case CSSPrimitiveValue2.CSS_GRADIENT:
+				case CSSPrimitiveValue2.CSS_UNICODE_CHARACTER:
+				case CSSPrimitiveValue2.CSS_UNICODE_RANGE:
+				case CSSPrimitiveValue2.CSS_UNICODE_WILDCARD:
+					break;
+				default:
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private ValueItem subExpression(LexicalUnit lu) {
+			ExpressionContainerValue expr = new ExpressionContainerValue();
+			ExpressionContainerValue.ExpressionLexicalSetter setter = expr.newLexicalSetter();
+			setter.setLexicalUnitFromSubValues(lu.getSubValues());
+			LexicalUnit nextlex = lu.getNextLexicalUnit();
+			if (nextlex != null) {
+				short type = nextlex.getLexicalUnitType();
+				if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+					// slash exception
+					setter.setLexicalUnitFromSubValues(lu);
+				} else {
+					setter.setLexicalUnitFromSubValues(lu.getSubValues());
+					setter.nextLexicalUnit = nextlex;
+				}
+			}
+			return setter;
+		}
+
+		private ValueItem expressionItem(LexicalUnit lu) {
+			arguments.removeLast();
+			LexicalUnit firstOpLu = lu.getPreviousLexicalUnit();
+			LexicalUnit delimLu = firstOpLu.getPreviousLexicalUnit();
+			if (delimLu == null || delimLu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				ExpressionContainerValue expr = new ExpressionContainerValue();
+				ExpressionContainerValue.ExpressionLexicalSetter setter = expr.newLexicalSetter();
+				setter.setLexicalUnitFromSubValues(firstOpLu);
+				return setter;
+			} else {
+				throw new IllegalStateException();
+			}
+		}
+
 	}
 
 	@Override
 	public String getCssText() {
-		BufferSimpleWriter sw = new BufferSimpleWriter(functionName.length() + arguments.size() * 6 + 8);
+		BufferSimpleWriter sw = new BufferSimpleWriter(functionName.length() + arguments.size() * 8 + 12);
 		try {
 			writeCssText(sw);
 		} catch (IOException e) {
@@ -160,7 +218,7 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 
 	@Override
 	public String getMinifiedCssText(String pname) {
-		StringBuilder buf = new StringBuilder(functionName.length() + arguments.size() * 6 + 8);
+		StringBuilder buf = new StringBuilder(functionName.length() + arguments.size() * 8 + 12);
 		buf.append(functionName).append('(');
 		int sz = arguments.size();
 		if (sz > 0) {

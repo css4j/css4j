@@ -17,12 +17,13 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSCalcValue;
+import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Expression container base class for related CSSPrimitiveValue classes.
+ * Expression container base class.
  * 
  * @author Carlos Amengual
  *
@@ -49,8 +50,8 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) throws DOMException {
-			setLexicalUnitFromSubValues(lunit.getParameters());
 			nextLexicalUnit = lunit.getNextLexicalUnit();
+			setLexicalUnitFromSubValues(lunit.getParameters());
 		}
 
 		void setLexicalUnitFromSubValues(LexicalUnit lunit) throws DOMException {
@@ -73,8 +74,8 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 				case LexicalUnit.SAC_OPERATOR_PLUS:
 					if (expression == null) {
 						if (inverse) {
-							operation = new SumExpression();
-							operation.nextOperandInverse = true;
+							expression = new SumExpression();
+							expression.nextOperandInverse = true;
 						} else {
 							throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Missing operand");
 						}
@@ -129,7 +130,6 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 					}
 					AbstractCSSExpression subexpr = fillExpressionLevel(subval, factory);
 					if (subexpr != null) {
-						subexpr.setInverseOperation(inverse);
 						if (expression != null) {
 							expression.addExpression(subexpr);
 							if (expression.getPartType() == AlgebraicPart.SUM) {
@@ -173,6 +173,12 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 								"Bad sub-" + getStringValue() + "()");
 					}
 					break;
+				case LexicalUnit.SAC_OPERATOR_COMMA: // We are probably in function context
+					if (nextLexicalUnit != null || expression.getParentExpression() != null) {
+						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operand: ','");
+					}
+					nextLexicalUnit = lu;
+					return expression;
 				default:
 					AbstractCSSPrimitiveValue primi;
 					LexicalSetter item = factory.createCSSPrimitiveValueItem(lu, false);

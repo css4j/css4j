@@ -421,8 +421,12 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 				return fvalue;
 			}
 		}
+		String unit = dimensionUnitString(declType);
+		if (unit.length() == 0) {
+			unit = Integer.toString(declType);
+		}
 		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-				"Cannot transform unit " + dimensionUnitString(declType) + " to " + dimensionUnitString(unitType));
+				"Cannot transform unit " + unit + " to " + dimensionUnitString(unitType));
 	}
 
 	/**

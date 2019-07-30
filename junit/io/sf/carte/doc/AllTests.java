@@ -102,6 +102,7 @@ import io.sf.carte.doc.style.css.property.CounterValueTest;
 import io.sf.carte.doc.style.css.property.CustomPropertyValueTest;
 import io.sf.carte.doc.style.css.property.ElementReferenceValueTest;
 import io.sf.carte.doc.style.css.property.EnvVariableValueTest;
+import io.sf.carte.doc.style.css.property.EvaluatorTest;
 import io.sf.carte.doc.style.css.property.FunctionValueTest;
 import io.sf.carte.doc.style.css.property.GradientValueTest;
 import io.sf.carte.doc.style.css.property.IdentifierValueTest;
@@ -217,6 +218,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		CustomPropertyValueTest.class,
 		ElementReferenceValueTest.class,
 		EnvVariableValueTest.class,
+		EvaluatorTest.class,
 		FunctionValueTest.class,
 		IdentifierValueTest.class,
 		InheritValueTest.class,

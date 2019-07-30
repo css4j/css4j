@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -497,6 +498,28 @@ public class CalcValueTest {
 		assertEquals("(-3em + 5%)*2", expr.toString());
 		assertEquals("calc((-3em + 5%)*2)", val.getCssText());
 		assertEquals("calc((-3em + 5%)*2)", val.getMinifiedCssText("width"));
+	}
+
+	@Test
+	public void testSetCssTextError() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("width: calc(*(-3em + 5%)); ");
+		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		assertNull(val);
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testSetCssTextError2() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("width: calc(/(-3em + 5%)); ");
+		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		assertNull(val);
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test

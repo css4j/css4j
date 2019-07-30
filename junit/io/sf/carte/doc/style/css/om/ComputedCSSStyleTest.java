@@ -258,6 +258,14 @@ public class ComputedCSSStyleTest {
 		assertEquals("display:block;margin-bottom:14.4pt;margin-right:1%;margin-top:14.4pt;unicode-bidi:embed;font:120%;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
 		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("foo:sin(90deg/2);bar:sin(30deg)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals("0.5", style.getPropertyValue("bar"));
+		ExtendedCSSValue val = style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
+		assertEquals(0.70710677f, ((CSSPrimitiveValue) val).getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-5);
 	}
 
 	@Test

@@ -149,7 +149,7 @@ public class Evaluator {
 		ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, 0);
 		float result = (float) Math.sin(floatValue(arg, CSSPrimitiveValue.CSS_RAD));
 		NumberValue value = new NumberValue();
-		value.setFloatValue(resultType, result);
+		value.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, result);
 		return value;
 	}
 
@@ -161,7 +161,7 @@ public class Evaluator {
 		ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, 0);
 		float result = (float) Math.cos(floatValue(arg, CSSPrimitiveValue.CSS_RAD));
 		NumberValue value = new NumberValue();
-		value.setFloatValue(resultType, result);
+		value.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, result);
 		return value;
 	}
 
@@ -173,7 +173,7 @@ public class Evaluator {
 		ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, 0);
 		float result = (float) Math.tan(floatValue(arg, CSSPrimitiveValue.CSS_RAD));
 		NumberValue value = new NumberValue();
-		value.setFloatValue(resultType, result);
+		value.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, result);
 		return value;
 	}
 
@@ -254,7 +254,7 @@ public class Evaluator {
 
 	private ExtendedCSSPrimitiveValue primitiveArgument(ExtendedCSSValueList<? extends ExtendedCSSValue> arguments,
 			int index) {
-		ExtendedCSSValue arg = arguments.item(0);
+		ExtendedCSSValue arg = arguments.item(index);
 		if (arg.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected value: " + arg.getCssText());
 		}
@@ -268,12 +268,12 @@ public class Evaluator {
 		} catch (DOMException e) {
 			short pType = arg.getPrimitiveType();
 			if (pType == CSSPrimitiveValue2.CSS_FUNCTION) {
-				result = evaluateFunction((CSSFunctionValue) arg, resultType).getFloatValue(resultType);
+				result = evaluateFloat(evaluateFunction((CSSFunctionValue) arg, resultType), resultType);
 			} else if (pType == CSSPrimitiveValue2.CSS_EXPRESSION) {
-				result = evaluateExpression(((ExpressionContainerValue) arg).getExpression(), resultType)
-						.getFloatValue(resultType);
+				AbstractCSSExpression expr = ((ExpressionContainerValue) arg).getExpression();
+				result = evaluateFloat(evaluateExpression(expr, resultType), resultType);
 			} else {
-				result = evaluate(arg, resultType);
+				result = evaluateFloat(arg, resultType);
 			}
 		}
 		return result;
@@ -294,16 +294,13 @@ public class Evaluator {
 		case SUM:
 			AlgebraicExpression sum = (CSSExpression.AlgebraicExpression) expression;
 			result = sum(sum.getOperands(), resultType);
-			if (sum.isInverseOperation()) {
+			if (expression.getParentExpression() == null && expression.isInverseOperation()) {
 				result = -result;
 			}
 			break;
 		case PRODUCT:
 			AlgebraicExpression prod = (CSSExpression.AlgebraicExpression) expression;
 			result = multiply(prod.getOperands(), resultType);
-			if (prod.isInverseOperation()) {
-				result = 1f / result;
-			}
 			break;
 		default:
 			return ((CSSExpression.CSSOperandExpression) expression).getOperand();
@@ -318,7 +315,7 @@ public class Evaluator {
 		Iterator<? extends CSSExpression> it = operands.iterator();
 		while (it.hasNext()) {
 			CSSExpression op = it.next();
-			float partial = evaluate(evaluateExpression(op, resultType), resultType);
+			float partial = floatValue(evaluateExpression(op, resultType), resultType);
 			if (op.isInverseOperation()) {
 				result -= partial;
 			} else {
@@ -333,7 +330,7 @@ public class Evaluator {
 		Iterator<? extends CSSExpression> it = operands.iterator();
 		while (it.hasNext()) {
 			CSSExpression op = it.next();
-			float partial = evaluate(evaluateExpression(op, resultType), resultType);
+			float partial = floatValue(evaluateExpression(op, resultType), resultType);
 			if (op.isInverseOperation()) {
 				result /= partial;
 			} else {
@@ -343,10 +340,12 @@ public class Evaluator {
 		return result;
 	}
 
-	protected float evaluate(ExtendedCSSPrimitiveValue value, short resultType) throws DOMException {
+	protected float evaluateFloat(ExtendedCSSPrimitiveValue value, short resultType) throws DOMException {
 		float result;
 		short type = value.getPrimitiveType();
-		if (type != CSSPrimitiveValue.CSS_PERCENTAGE) {
+		if (type == CSSPrimitiveValue.CSS_NUMBER) {
+			result = value.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+		} else if (type != CSSPrimitiveValue.CSS_PERCENTAGE) {
 			result = value.getFloatValue(resultType);
 		} else {
 			result = percentage(value, resultType);
