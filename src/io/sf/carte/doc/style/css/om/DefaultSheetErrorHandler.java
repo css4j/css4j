@@ -198,8 +198,8 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	@Override
 	public boolean hasOMErrors() {
 		return omErrorMergedState || unknownRules != null || ignoredImports != null || ruleParseErrors != null
-				|| emptyRules != null || badMediaLists != null || badAtRules != null || badInlineStyles != null
-				|| computedStyleErrors != null || hintErrors != null;
+				|| badMediaLists != null || badAtRules != null || badInlineStyles != null || computedStyleErrors != null
+				|| hintErrors != null;
 	}
 
 	@Override
