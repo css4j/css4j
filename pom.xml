@@ -83,7 +83,7 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-javadoc-plugin</artifactId>
-			<version>3.1.1</version>
+			<version>3.1.0</version>
 			<configuration>
 				<source>7</source>
 				<overview>${project.basedir}/src/overview.html</overview>
@@ -153,7 +153,7 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-javadoc-plugin</artifactId>
-			<version>3.1.1</version>
+			<version>3.1.0</version>
 			<configuration>
 			  <reportOutputDirectory>${project.build.directory}/doc</reportOutputDirectory>
 			  <destDir>api</destDir>
