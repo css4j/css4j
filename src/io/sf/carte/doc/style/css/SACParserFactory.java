@@ -11,15 +11,10 @@
 
 package io.sf.carte.doc.style.css;
 
-import java.util.Iterator;
-import java.util.ServiceLoader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
-
-import io.sf.carte.doc.style.css.nsac.Parser2;
 
 /**
  * SAC Parser Factory used by static methods.
@@ -67,18 +62,10 @@ public class SACParserFactory {
 				return instantiateParser(parserClass);
 			} catch (Exception e) {
 				log.error("Could not instantiate system SAC parser", e);
-				log.trace("Instantiating default SAC parser" + DEFAULT_PARSER);
+				log.trace("Instantiating default SAC parser " + DEFAULT_PARSER);
 			}
 		}
-		ServiceLoader<Parser2> loader = ServiceLoader.load(Parser2.class);
-		Iterator<Parser2> it = loader.iterator();
-		Parser parser;
-		if (it.hasNext()) {
-			parser = it.next();
-		} else {
-			parser = instantiateParser(DEFAULT_PARSER);
-		}
-		return parser;
+		return instantiateParser(DEFAULT_PARSER);
 	}
 
 	/**

@@ -136,7 +136,6 @@
 			<includes>
 				<include>LICENSE.txt</include>
 				<include>LICENSES.txt</include>
-				<include>META-INF/**</include>
 			</includes>
 		</resource>
 	</resources>

@@ -26,9 +26,4 @@ module io.sf.carte.css4j {
 	requires org.apache.commons.codec;
 	requires transitive sac;
 	requires transitive slf4j.api;
-
-	provides io.sf.carte.doc.style.css.nsac.Parser2
-	with io.sf.carte.doc.style.css.parser.CSSParser;
-
-	uses io.sf.carte.doc.style.css.nsac.Parser2;
 }
