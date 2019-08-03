@@ -76,6 +76,8 @@ public class Evaluator {
 			return functionPow(function.getArguments(), resultType);
 		} else if ("sqrt".equalsIgnoreCase(name)) {
 			return functionSqrt(function.getArguments(), resultType);
+		} else if ("hypot".equalsIgnoreCase(name)) {
+			return functionHypot(function.getArguments(), resultType);
 		} else {
 			return function;
 		}
@@ -252,6 +254,33 @@ public class Evaluator {
 		return value;
 	}
 
+	private ExtendedCSSPrimitiveValue functionHypot(ExtendedCSSValueList<? extends ExtendedCSSValue> arguments,
+			short resultType) throws DOMException {
+		if (arguments.getLength() == 2) {
+			return functionHypot2(arguments, resultType);
+		}
+		double result = 0d;
+		int len = arguments.getLength();
+		for (int i = 0; i < len; i++) {
+			ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, i);
+			result += Math.pow(floatValue(arg, resultType), 2d);
+		}
+		result = Math.sqrt(result);
+		NumberValue value = new NumberValue();
+		value.setFloatValue(resultType, (float) result);
+		return value;
+	}
+
+	private ExtendedCSSPrimitiveValue functionHypot2(ExtendedCSSValueList<? extends ExtendedCSSValue> arguments,
+			short resultType) throws DOMException {
+		ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, 0);
+		ExtendedCSSPrimitiveValue arg2 = primitiveArgument(arguments, 1);
+		float result = (float) Math.hypot(floatValue(arg, resultType), floatValue(arg2, resultType));
+		NumberValue value = new NumberValue();
+		value.setFloatValue(resultType, result);
+		return value;
+	}
+
 	private ExtendedCSSPrimitiveValue primitiveArgument(ExtendedCSSValueList<? extends ExtendedCSSValue> arguments,
 			int index) {
 		ExtendedCSSValue arg = arguments.item(index);
@@ -327,17 +356,60 @@ public class Evaluator {
 
 	private float multiply(List<? extends CSSExpression> operands, short resultType) throws DOMException {
 		float result = 1f;
+		short firstUnit = CSSPrimitiveValue.CSS_NUMBER;
+		short unitExp = 0;
 		Iterator<? extends CSSExpression> it = operands.iterator();
 		while (it.hasNext()) {
 			CSSExpression op = it.next();
-			float partial = floatValue(evaluateExpression(op, resultType), resultType);
+			ExtendedCSSPrimitiveValue partialValue = evaluateExpression(op, resultType);
+			partialValue = evaluate(partialValue, resultType);
+			short partialUnit = partialValue.getPrimitiveType();
+			if (partialUnit != CSSPrimitiveValue.CSS_NUMBER) {
+				if (firstUnit == CSSPrimitiveValue.CSS_NUMBER) {
+					firstUnit = partialUnit;
+				} else {
+					partialUnit = firstUnit;
+				}
+			}
+			float partial = partialValue.getFloatValue(partialUnit);
 			if (op.isInverseOperation()) {
+				if (partialUnit != CSSPrimitiveValue.CSS_NUMBER) {
+					unitExp--;
+					if (unitExp != 0) {
+						firstUnit = partialUnit;
+					} else {
+						firstUnit = CSSPrimitiveValue.CSS_NUMBER;
+					}
+				}
 				result /= partial;
 			} else {
+				if (partialUnit != CSSPrimitiveValue.CSS_NUMBER) {
+					unitExp++;
+					if (unitExp != 0) {
+						firstUnit = partialUnit;
+					} else {
+						firstUnit = CSSPrimitiveValue.CSS_NUMBER;
+					}
+				}
 				result *= partial;
 			}
 		}
+		if (unitExp != 0 && firstUnit != resultType) {
+			float factor = (float) Math.pow(NumberValue.floatValueConversion(1f, firstUnit, resultType), unitExp);
+			result *= factor;
+		}
 		return result;
+	}
+
+	private ExtendedCSSPrimitiveValue evaluate(ExtendedCSSPrimitiveValue partialValue, short resultType) {
+		short pType = partialValue.getPrimitiveType();
+		if (pType == CSSPrimitiveValue2.CSS_FUNCTION) {
+			partialValue = evaluateFunction((CSSFunctionValue) partialValue, resultType);
+		} else if (pType == CSSPrimitiveValue2.CSS_EXPRESSION) {
+			AbstractCSSExpression expr = ((ExpressionContainerValue) partialValue).getExpression();
+			partialValue = evaluateExpression(expr, resultType);
+		}
+		return partialValue;
 	}
 
 	protected float evaluateFloat(ExtendedCSSPrimitiveValue value, short resultType) throws DOMException {
