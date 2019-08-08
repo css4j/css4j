@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.StyleRule;
 
@@ -244,11 +245,106 @@ public class NumberValueTest {
 				0.2f);
 		assertEquals(1, NumberValue.floatValueConversion(3.78f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue.CSS_MM),
 				0.02f);
+		assertEquals(4, NumberValue.floatValueConversion(3.78f, CSSPrimitiveValue.CSS_PX, CSSPrimitiveValue2.CSS_QUARTER_MM),
+				0.02f);
 		assertEquals(100, NumberValue.floatValueConversion(75f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX),
 				0.02f);
 		assertEquals(1, NumberValue.floatValueConversion(12f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PC),
 				0.02f);
 		assertEquals(1, NumberValue.floatValueConversion(72f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_IN),
 				0.02f);
+		assertEquals(2.54f, NumberValue.floatValueConversion(72f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_CM),
+				0.02f);
+		assertEquals(25.4f, NumberValue.floatValueConversion(72f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_MM),
+				0.02f);
+		assertEquals(101.6f, NumberValue.floatValueConversion(72f, CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue2.CSS_QUARTER_MM),
+				0.02f);
+		assertEquals(72f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_IN, CSSPrimitiveValue.CSS_PT),
+				0.02f);
+		assertEquals(6f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_IN, CSSPrimitiveValue.CSS_PC),
+				0.02f);
+		assertEquals(96f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_IN, CSSPrimitiveValue.CSS_PX),
+				0.02f);
+		assertEquals(2.54f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_IN, CSSPrimitiveValue.CSS_CM),
+				0.2f);
+		assertEquals(25.4f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_IN, CSSPrimitiveValue.CSS_MM),
+				0.02f);
+		assertEquals(101.6f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_IN, CSSPrimitiveValue2.CSS_QUARTER_MM),
+				0.02f);
+		assertEquals(72f, NumberValue.floatValueConversion(6f, CSSPrimitiveValue.CSS_PC, CSSPrimitiveValue.CSS_PT),
+				0.02f);
+		assertEquals(1f, NumberValue.floatValueConversion(6f, CSSPrimitiveValue.CSS_PC, CSSPrimitiveValue.CSS_IN),
+				0.02f);
+		assertEquals(96f, NumberValue.floatValueConversion(6f, CSSPrimitiveValue.CSS_PC, CSSPrimitiveValue.CSS_PX),
+				0.02f);
+		assertEquals(2.54f, NumberValue.floatValueConversion(6f, CSSPrimitiveValue.CSS_PC, CSSPrimitiveValue.CSS_CM),
+				0.2f);
+		assertEquals(25.4f, NumberValue.floatValueConversion(6f, CSSPrimitiveValue.CSS_PC, CSSPrimitiveValue.CSS_MM),
+				0.02f);
+		assertEquals(101.6f, NumberValue.floatValueConversion(6f, CSSPrimitiveValue.CSS_PC, CSSPrimitiveValue2.CSS_QUARTER_MM),
+				0.02f);
+		assertEquals(72f, NumberValue.floatValueConversion(2.54f, CSSPrimitiveValue.CSS_CM, CSSPrimitiveValue.CSS_PT),
+				0.02f);
+		assertEquals(1f, NumberValue.floatValueConversion(2.54f, CSSPrimitiveValue.CSS_CM, CSSPrimitiveValue.CSS_IN),
+				0.02f);
+		assertEquals(96f, NumberValue.floatValueConversion(2.54f, CSSPrimitiveValue.CSS_CM, CSSPrimitiveValue.CSS_PX),
+				0.02f);
+		assertEquals(6f, NumberValue.floatValueConversion(2.54f, CSSPrimitiveValue.CSS_CM, CSSPrimitiveValue.CSS_PC),
+				0.2f);
+		assertEquals(10f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_CM, CSSPrimitiveValue.CSS_MM),
+				0.02f);
+		assertEquals(4f, NumberValue.floatValueConversion(0.1f, CSSPrimitiveValue.CSS_CM, CSSPrimitiveValue2.CSS_QUARTER_MM),
+				0.02f);
+		assertEquals(72f, NumberValue.floatValueConversion(25.4f, CSSPrimitiveValue.CSS_MM, CSSPrimitiveValue.CSS_PT),
+				0.02f);
+		assertEquals(1f, NumberValue.floatValueConversion(25.4f, CSSPrimitiveValue.CSS_MM, CSSPrimitiveValue.CSS_IN),
+				0.02f);
+		assertEquals(96f, NumberValue.floatValueConversion(25.4f, CSSPrimitiveValue.CSS_MM, CSSPrimitiveValue.CSS_PX),
+				0.02f);
+		assertEquals(6f, NumberValue.floatValueConversion(25.4f, CSSPrimitiveValue.CSS_MM, CSSPrimitiveValue.CSS_PC),
+				0.2f);
+		assertEquals(1f, NumberValue.floatValueConversion(10f, CSSPrimitiveValue.CSS_MM, CSSPrimitiveValue.CSS_CM),
+				0.02f);
+		assertEquals(4f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_MM, CSSPrimitiveValue2.CSS_QUARTER_MM),
+				0.02f);
+		assertEquals(72f, NumberValue.floatValueConversion(101.6f, CSSPrimitiveValue2.CSS_QUARTER_MM, CSSPrimitiveValue.CSS_PT),
+				0.02f);
+		assertEquals(1f, NumberValue.floatValueConversion(101.6f, CSSPrimitiveValue2.CSS_QUARTER_MM, CSSPrimitiveValue.CSS_IN),
+				0.02f);
+		assertEquals(96f, NumberValue.floatValueConversion(101.6f, CSSPrimitiveValue2.CSS_QUARTER_MM, CSSPrimitiveValue.CSS_PX),
+				0.02f);
+		assertEquals(6f, NumberValue.floatValueConversion(101.6f, CSSPrimitiveValue2.CSS_QUARTER_MM, CSSPrimitiveValue.CSS_PC),
+				0.2f);
+		assertEquals(1f, NumberValue.floatValueConversion(40f, CSSPrimitiveValue2.CSS_QUARTER_MM, CSSPrimitiveValue.CSS_CM),
+				0.02f);
+		assertEquals(1f, NumberValue.floatValueConversion(4f, CSSPrimitiveValue2.CSS_QUARTER_MM, CSSPrimitiveValue.CSS_MM),
+				0.02f);
+		//
+		assertEquals(1000f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_S, CSSPrimitiveValue.CSS_MS),
+				0.01f);
+		assertEquals(1f, NumberValue.floatValueConversion(1000f, CSSPrimitiveValue.CSS_MS, CSSPrimitiveValue.CSS_S),
+				0.01f);
+		//
+		assertEquals(57.29f, NumberValue.floatValueConversion(1f, CSSPrimitiveValue.CSS_RAD, CSSPrimitiveValue.CSS_DEG),
+				0.01f);
+		assertEquals(200f, NumberValue.floatValueConversion(3.141593f, CSSPrimitiveValue.CSS_RAD, CSSPrimitiveValue.CSS_GRAD),
+				0.01f);
+		assertEquals(0.5f, NumberValue.floatValueConversion(3.141593f, CSSPrimitiveValue.CSS_RAD, CSSPrimitiveValue2.CSS_TURN),
+				0.01f);
+		//
+		assertEquals(1f, NumberValue.floatValueConversion(57.29f, CSSPrimitiveValue.CSS_DEG, CSSPrimitiveValue.CSS_RAD),
+				0.01f);
+		assertEquals(200f, NumberValue.floatValueConversion(180f, CSSPrimitiveValue.CSS_DEG, CSSPrimitiveValue.CSS_GRAD),
+				0.01f);
+		assertEquals(0.5f, NumberValue.floatValueConversion(180f, CSSPrimitiveValue.CSS_DEG, CSSPrimitiveValue2.CSS_TURN),
+				0.01f);
+		//
+		assertEquals(3.14159f, NumberValue.floatValueConversion(0.5f, CSSPrimitiveValue2.CSS_TURN, CSSPrimitiveValue.CSS_RAD),
+				0.01f);
+		assertEquals(180f, NumberValue.floatValueConversion(0.5f, CSSPrimitiveValue2.CSS_TURN, CSSPrimitiveValue.CSS_DEG),
+				0.01f);
+		assertEquals(200f, NumberValue.floatValueConversion(0.5f, CSSPrimitiveValue2.CSS_TURN, CSSPrimitiveValue.CSS_GRAD),
+				0.01f);
 	}
+
 }
