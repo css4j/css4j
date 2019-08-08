@@ -120,7 +120,7 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText("content: \"â†\u0090\";");
 		assertEquals("\"â†\\90 \"", emptyStyleDecl.getPropertyCSSValue("content").getCssText());
 		assertEquals("â†\u0090", emptyStyleDecl.getPropertyValue("content"));
-		assertEquals("content: \"â†\\90 \"; ", emptyStyleDecl.getCssText());
+		assertEquals("content: 'â†\\90 '; ", emptyStyleDecl.getCssText());
 	}
 
 	@Test
@@ -492,7 +492,7 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText("content: '\\A'");
 		assertEquals("'\\A'", emptyStyleDecl.getPropertyCSSValue("content").getCssText());
 		assertEquals("\n", emptyStyleDecl.getPropertyValue("content"));
-		assertEquals("content: '\\A'; ", emptyStyleDecl.getCssText());
+		assertEquals("content: '\\a '; ", emptyStyleDecl.getCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
