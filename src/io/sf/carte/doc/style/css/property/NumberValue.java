@@ -349,6 +349,22 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 				return fvalue * 4f;
 			}
 			break;
+		case CSSPrimitiveValue2.CSS_QUARTER_MM:
+			if (unitType == CSSPrimitiveValue.CSS_PT) {
+				return fvalue * 0.7086614f;
+			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
+				return fvalue / 101.6f;
+			} else if (unitType == CSSPrimitiveValue.CSS_PX) {
+				return fvalue * 0.944876f;
+			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
+				return fvalue / 16.93333f;
+			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
+				return fvalue * 0.25f;
+			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
+				// 1cm = 40q
+				return fvalue * 0.025f;
+			}
+			break;
 		case CSSPrimitiveValue.CSS_MS:
 			if (unitType == CSSPrimitiveValue.CSS_S) {
 				return fvalue * 0.001f;
@@ -395,26 +411,20 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 				return fvalue * 0.0025f;
 			}
 			break;
-		case CSSPrimitiveValue2.CSS_QUARTER_MM:
-			if (unitType == CSSPrimitiveValue.CSS_PT) {
-				return fvalue * 0.7086614f;
-			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
-				return fvalue / 101.6f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PX) {
-				return fvalue * 0.944876f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
-				return fvalue / 16.93333f;
-			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
-				return fvalue * 0.25f;
-			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
-				// 1cm = 40q
-				return fvalue * 0.025f;
-			}
-			break;
 		case CSSPrimitiveValue.CSS_NUMBER:
 			if (unitType == CSSPrimitiveValue.CSS_DEG) { // Assume degrees
 				return fvalue;
 			}
+		case CSSPrimitiveValue.CSS_HZ:
+			if (unitType == CSSPrimitiveValue.CSS_KHZ) {
+				return fvalue * 0.001f;
+			}
+			break;
+		case CSSPrimitiveValue.CSS_KHZ:
+			if (unitType == CSSPrimitiveValue.CSS_HZ) {
+				return fvalue * 1000f;
+			}
+			break;
 		default:
 			if (CSSPrimitiveValue.CSS_DIMENSION == unitType) {
 				// Unknown dimension, return as is.

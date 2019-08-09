@@ -257,7 +257,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				absoluteExpressionValue(expr);
 				Evaluator ev = new Evaluator();
 				try {
-					pri = (AbstractCSSPrimitiveValue) ev.evaluateExpression(expr, CSSPrimitiveValue.CSS_PT);
+					pri = (AbstractCSSPrimitiveValue) ev.evaluateExpression(expr);
 				} catch (DOMException e) {
 				}
 			} else if (type == CSSPrimitiveValue2.CSS_FUNCTION) {
@@ -270,7 +270,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 				Evaluator ev = new Evaluator();
 				try {
-					pri = (AbstractCSSPrimitiveValue) ev.evaluateFunction(function, CSSPrimitiveValue.CSS_PT);
+					pri = (AbstractCSSPrimitiveValue) ev.evaluateFunction(function);
 				} catch (DOMException e) {
 				}
 			}
