@@ -30,4 +30,8 @@ public interface CSSEnvVariableValue extends ExtendedCSSPrimitiveValue {
 	 * @return the fallback value, or null if there is no fallback value.
 	 */
 	ExtendedCSSValue getFallback();
+
+	@Override
+	CSSEnvVariableValue clone();
+
 }

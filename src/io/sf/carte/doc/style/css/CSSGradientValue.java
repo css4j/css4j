@@ -35,4 +35,7 @@ public interface CSSGradientValue extends CSSFunctionValue {
 	 */
 	GradientType getGradientType();
 
+	@Override
+	CSSGradientValue clone();
+
 }

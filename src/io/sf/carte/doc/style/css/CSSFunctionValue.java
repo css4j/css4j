@@ -31,4 +31,7 @@ public interface CSSFunctionValue extends ExtendedCSSPrimitiveValue {
 	 */
 	String getFunctionName();
 
+	@Override
+	CSSFunctionValue clone();
+
 }

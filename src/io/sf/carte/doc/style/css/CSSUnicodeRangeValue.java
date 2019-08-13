@@ -33,6 +33,9 @@ public interface CSSUnicodeRangeValue extends ExtendedCSSPrimitiveValue {
 	 */
 	CSSPrimitiveValue2 getEndValue();
 
+	@Override
+	CSSUnicodeRangeValue clone();
+
 	/**
 	 * A CSS unicode character value.
 	 */

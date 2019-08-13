@@ -33,4 +33,7 @@ public interface CSSRatioValue extends ExtendedCSSPrimitiveValue {
 	 */
 	int getConsequentValue();
 
+	@Override
+	CSSRatioValue clone();
+
 }

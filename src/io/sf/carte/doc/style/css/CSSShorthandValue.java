@@ -34,4 +34,7 @@ public interface CSSShorthandValue extends ExtendedCSSValue {
 	 */
 	Set<String> getLonghands();
 
+	@Override
+	CSSShorthandValue clone();
+
 }
