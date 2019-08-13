@@ -24,7 +24,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class CalcValue extends ExpressionContainerValue {
+public class CalcValue extends ExpressionValue {
 
 	public CalcValue() {
 		super();

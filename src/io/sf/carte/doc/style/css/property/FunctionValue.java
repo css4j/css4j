@@ -19,7 +19,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.CSSCalcValue;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
@@ -173,8 +173,8 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 		}
 
 		private ValueItem subExpression(LexicalUnit lu) {
-			ExpressionContainerValue expr = new ExpressionContainerValue();
-			ExpressionContainerValue.ExpressionLexicalSetter setter = expr.newLexicalSetter();
+			ExpressionValue expr = new ExpressionValue();
+			ExpressionValue.ExpressionLexicalSetter setter = expr.newLexicalSetter();
 			setter.setLexicalUnitFromSubValues(lu.getSubValues());
 			LexicalUnit nextlex = lu.getNextLexicalUnit();
 			if (nextlex != null) {
@@ -195,8 +195,8 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 			LexicalUnit firstOpLu = lu.getPreviousLexicalUnit();
 			LexicalUnit delimLu = firstOpLu.getPreviousLexicalUnit();
 			if (delimLu == null || delimLu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-				ExpressionContainerValue expr = new ExpressionContainerValue();
-				ExpressionContainerValue.ExpressionLexicalSetter setter = expr.newLexicalSetter();
+				ExpressionValue expr = new ExpressionValue();
+				ExpressionValue.ExpressionLexicalSetter setter = expr.newLexicalSetter();
 				setter.setLexicalUnitFromSubValues(firstOpLu);
 				return setter;
 			} else {
@@ -243,7 +243,7 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 			if (first.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 					&& ((CSSPrimitiveValue2) first).getPrimitiveType() == CSSPrimitiveValue2.CSS_EXPRESSION
 					&& ((CSSPrimitiveValue2) first).getStringValue().length() == 0) {
-				wri.write(((CSSCalcValue) first).getExpression().getCssText());
+				wri.write(((CSSExpressionValue) first).getExpression().getCssText());
 			} else {
 				first.writeCssText(wri);
 			}

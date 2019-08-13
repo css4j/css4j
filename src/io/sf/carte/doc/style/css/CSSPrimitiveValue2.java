@@ -131,7 +131,7 @@ public interface CSSPrimitiveValue2 extends CSSPrimitiveValue {
 	/**
 	 * An expression with algebraic syntax (i.e. <code>calc()</code>).
 	 * <p>
-	 * See {@link CSSCalcValue}.
+	 * See {@link CSSExpressionValue}.
 	 */
 	final short CSS_EXPRESSION = 101;
 

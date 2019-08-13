@@ -551,7 +551,7 @@ public class Evaluator {
 		if (pType == CSSPrimitiveValue2.CSS_FUNCTION) {
 			partialValue = evaluateFunction((CSSFunctionValue) partialValue, resultUnit);
 		} else if (pType == CSSPrimitiveValue2.CSS_EXPRESSION) {
-			AbstractCSSExpression expr = ((ExpressionContainerValue) partialValue).getExpression();
+			AbstractCSSExpression expr = ((ExpressionValue) partialValue).getExpression();
 			partialValue = evaluateExpression(expr, resultUnit);
 		} else {
 			resultUnit.setUnitType(pType);

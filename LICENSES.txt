@@ -81,9 +81,9 @@ Title to copyright in this work will at all times remain with copyright holders.
 ================================================================================
  Files: src/io/sf/carte/doc/style/css/nsac/*.java
  File: src/io/sf/carte/doc/style/css/CSSAttrValue.java
- File: src/io/sf/carte/doc/style/css/CSSCalcValue.java
  File: src/io/sf/carte/doc/style/css/CSSCustomPropertyValue.java
  File: src/io/sf/carte/doc/style/css/CSSEnvVariableValue.java
+ File: src/io/sf/carte/doc/style/css/CSSExpressionValue.java
  File: src/io/sf/carte/doc/style/css/CSSFunctionValue.java
  File: src/io/sf/carte/doc/style/css/CSSGradientValue.java
  File: src/io/sf/carte/doc/style/css/CSSPrimitiveValue2.java

@@ -256,7 +256,7 @@ public class FunctionValueTest {
 		AbstractCSSValue arg = val.getArguments().get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
-		ExpressionContainerValue calc = (ExpressionContainerValue) arg;
+		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("3% - 1.2*5px", calc.getExpression().getCssText());
 		assertEquals("calc(3% - 1.2*5px)", calc.getCssText());
 		assertEquals("translateY(calc(3% - 1.2*5px))", val.getCssText());
@@ -275,7 +275,7 @@ public class FunctionValueTest {
 		AbstractCSSValue arg = val.getArguments().get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
-		ExpressionContainerValue calc = (ExpressionContainerValue) arg;
+		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*5deg", calc.getExpression().getCssText());
 	}
 
@@ -294,7 +294,7 @@ public class FunctionValueTest {
 		arg = val.getArguments().get(1);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
-		ExpressionContainerValue calc = (ExpressionContainerValue) arg;
+		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("0.2*2", calc.getExpression().getCssText());
 	}
 
@@ -309,7 +309,7 @@ public class FunctionValueTest {
 		AbstractCSSValue arg = val.getArguments().get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
-		ExpressionContainerValue calc = (ExpressionContainerValue) arg;
+		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("0.2*2", calc.getExpression().getCssText());
 		arg = val.getArguments().get(1);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());

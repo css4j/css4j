@@ -42,7 +42,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc() {
 		style.setCssText("foo: calc(min(1.2 * 3, 3) * 8)");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(24f,
@@ -55,7 +55,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc2() {
 		style.setCssText("foo: calc(2 - min(1.2 * 3, 3) * 8)");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(-22f,
@@ -68,7 +68,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc3() {
 		style.setCssText("foo: calc(64 / (max(1.2 * 3, 4) * 8))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(2f,
@@ -81,7 +81,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc4() {
 		style.setCssText("foo: calc(30 - (max(1.2 * 3, 4) * 8))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(-2f,
@@ -94,7 +94,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc5() {
 		style.setCssText("foo: calc(2 - (max(1.2 * 3, 4) - 8))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(6f,
@@ -107,7 +107,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc6() {
 		style.setCssText("foo: calc(14 - (max(1.2 * 3, 4) + 8))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(2f,
@@ -120,7 +120,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc7() {
 		style.setCssText("foo: calc(0 - (max(1.2 * 3, 4) + 8))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals("calc(0 - (max(1.2*3, 4) + 8))", val.getCssText());
 		assertEquals("calc(0 - (max(1.2*3,4) + 8))", val.getMinifiedCssText(""));
@@ -135,7 +135,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc8() {
 		style.setCssText("foo: calc(-(max(1.2 * 3, 4) + 8))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals("calc( - (max(1.2*3, 4) + 8))", val.getCssText());
 		assertEquals("calc( - (max(1.2*3,4) + 8))", val.getMinifiedCssText(""));
@@ -150,7 +150,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc9() {
 		style.setCssText("foo: calc(-(1.2*8))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals("calc( - 1.2*8)", val.getCssText());
 		assertEquals("calc( - 1.2*8)", val.getMinifiedCssText(""));
@@ -165,7 +165,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc10() {
 		style.setCssText("foo: calc(sqrt(1.2pt * 3.6pt * 8.1))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(7.8872f,
@@ -177,7 +177,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalc11() {
 		style.setCssText("foo: calc(1.2pt / 3.6pt / 8.1)");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.04115f,
@@ -190,7 +190,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalcStoHz() {
 		style.setCssText("foo: calc(1.2 / 3.6s)");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.33333f,
@@ -202,7 +202,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalcStoHz2() {
 		style.setCssText("foo: calc(sqrt(1.2 / 3.6s / 2.1s))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.39840954f,
@@ -214,7 +214,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalcMStoKHz() {
 		style.setCssText("foo: calc(1.2 / 3.6ms)");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(333.33333f,
@@ -226,7 +226,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalcHzToS() {
 		style.setCssText("foo: calc(1.2 / 3.6Hz)");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.33333f,
@@ -238,7 +238,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalcHzToS2() {
 		style.setCssText("foo: calc(sqrt(1.2 / 3.6Hz / 2.1Hz))");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.39840954f,
@@ -250,7 +250,7 @@ public class EvaluatorTest {
 	@Test
 	public void testCalcKHzToMS() {
 		style.setCssText("foo: calc(1.2 / 3.6kHz)");
-		ExpressionContainerValue val = (ExpressionContainerValue) style.getPropertyCSSValue("foo");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(3.33333e-4,

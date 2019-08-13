@@ -35,7 +35,7 @@ import org.w3c.dom.css.CSS2Properties;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.CSSCalcValue;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
@@ -1214,7 +1214,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					}
 				}
 			} else if (ptype == CSSPrimitiveValue2.CSS_EXPRESSION) {
-				CSSCalcValue calc = (CSSCalcValue) cssValue;
+				CSSExpressionValue calc = (CSSExpressionValue) cssValue;
 				return hasUnknown(calc.getExpression());
 			}
 		} else if (type == CSSValue.CSS_VALUE_LIST) {

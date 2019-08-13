@@ -16,7 +16,7 @@ import java.io.IOException;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSCalcValue;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
@@ -28,15 +28,15 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implements CSSCalcValue {
+public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExpressionValue {
 
 	private AbstractCSSExpression expression = null;
 
-	public ExpressionContainerValue() {
+	public ExpressionValue() {
 		super(CSSPrimitiveValue2.CSS_EXPRESSION);
 	}
 
-	protected ExpressionContainerValue(ExpressionContainerValue copied) {
+	protected ExpressionValue(ExpressionValue copied) {
 		super(copied);
 		this.expression = copied.expression.clone();
 	}
@@ -278,7 +278,7 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ExpressionContainerValue other = (ExpressionContainerValue) obj;
+		ExpressionValue other = (ExpressionValue) obj;
 		if (expression == null) {
 			if (other.expression != null)
 				return false;
@@ -288,8 +288,8 @@ public class ExpressionContainerValue extends AbstractCSSPrimitiveValue implemen
 	}
 
 	@Override
-	public ExpressionContainerValue clone() {
-		return new ExpressionContainerValue(this);
+	public ExpressionValue clone() {
+		return new ExpressionValue(this);
 	}
 
 }

@@ -43,7 +43,7 @@ import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.Evaluator;
-import io.sf.carte.doc.style.css.property.ExpressionContainerValue;
+import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.FunctionValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
@@ -253,7 +253,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			short type = pri.getPrimitiveType();
 			if (type == CSSPrimitiveValue2.CSS_EXPRESSION) {
 				pri = pri.clone();
-				AbstractCSSExpression expr = ((ExpressionContainerValue) pri).getExpression();
+				AbstractCSSExpression expr = ((ExpressionValue) pri).getExpression();
 				absoluteExpressionValue(expr);
 				Evaluator ev = new Evaluator();
 				try {

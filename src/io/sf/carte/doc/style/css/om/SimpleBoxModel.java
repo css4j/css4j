@@ -31,7 +31,7 @@ import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.Evaluator;
-import io.sf.carte.doc.style.css.property.ExpressionContainerValue;
+import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 
 /**
@@ -868,7 +868,7 @@ abstract class SimpleBoxModel {
 	private float calcValue(ComputedCSSStyle styledecl, CSSPrimitiveValue cssCalc, short unitType,
 			boolean useDeviceDocumentWidth) {
 		BoxEvaluator ev = new BoxEvaluator(styledecl, useDeviceDocumentWidth);
-		ExtendedCSSPrimitiveValue result = ev.evaluateExpression(((ExpressionContainerValue) cssCalc).getExpression());
+		ExtendedCSSPrimitiveValue result = ev.evaluateExpression(((ExpressionValue) cssCalc).getExpression());
 		return result.getFloatValue(unitType);
 	}
 
