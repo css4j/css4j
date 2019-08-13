@@ -212,7 +212,7 @@ public class StylableDocumentWrapperTest {
 		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(17, styledecl.getLength());
 		assertEquals("#000080", styledecl.getPropertyValue("color"));
-		assertEquals("1.8em", styledecl.getPropertyValue("font-size"));
+		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
 		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
 		assertEquals("  foo  bar  ", styledecl.getPropertyValue("content"));
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());

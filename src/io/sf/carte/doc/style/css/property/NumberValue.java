@@ -150,6 +150,7 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 		setCSSUnitType(CSSPrimitiveValue.CSS_PT);
 		realvalue = floatValue;
 		dimensionUnitText = "pt";
+		asInteger = false;
 		lengthUnitType = true;
 	}
 

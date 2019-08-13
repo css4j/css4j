@@ -28,6 +28,7 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
+import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.Evaluator;
@@ -1093,6 +1094,11 @@ abstract class SimpleBoxModel {
 			super();
 			this.styledecl = styledecl;
 			this.useDeviceDocumentWidth = useDeviceDocumentWidth;
+		}
+
+		@Override
+		protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
+			return styledecl.absolutePrimitiveValue((AbstractCSSPrimitiveValue) partialValue);
 		}
 
 		@Override

@@ -190,35 +190,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				value = computeBackgroundRepeat(value);
 			} else if (property.endsWith("color") && value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 				// If color is an identifier, try to give a computed color value
-				CSSPrimitiveValue prival = (CSSPrimitiveValue) value;
-				if (prival.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-					String s = prival.getStringValue().toLowerCase(Locale.US);
-					if ("currentcolor".equals(s)) {
-						if(!"color".equals(property)) {
-							value = getCSSColor();
-						}
-					} else {
-						String spec;
-						if ("transparent".equals(s)) {
-							spec = "rgba(0 0 0/0)";
-						} else {
-							spec = ColorIdentifiers.getInstance().getColor(s);
-						}
-						if (spec != null) {
-							try {
-								value = getValueFactory().parseProperty(spec);
-							} catch (DOMException e) {
-							}
-						}
-					}
-				}
-				return value;
+				return colorValue(property, value);
 			}
 			// Check for custom properties ('variables')
 			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY) {
 				value = getCSSValue(((CSSPrimitiveValue) value).getStringValue());
-			} else if (!property.equals("font-size")) {
+			} else if (property.equals("font-size")) {
+				value = absoluteFontSizeValue(value);
+			} else {
 				// Convert to absolute units
 				value = absoluteValue(value);
 			}
@@ -230,6 +210,32 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
 				&& ident.equalsIgnoreCase(value.getCssText());
+	}
+
+	private AbstractCSSValue colorValue(String propertyName, AbstractCSSValue value) {
+		CSSPrimitiveValue primi = (CSSPrimitiveValue) value;
+		if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
+			String s = primi.getStringValue().toLowerCase(Locale.US);
+			if ("currentcolor".equals(s)) {
+				if(!"color".equals(propertyName)) {
+					value = getCSSColor();
+				}
+			} else {
+				String spec;
+				if ("transparent".equals(s)) {
+					spec = "rgba(0 0 0/0)";
+				} else {
+					spec = ColorIdentifiers.getInstance().getColor(s);
+				}
+				if (spec != null) {
+					try {
+						value = getValueFactory().parseProperty(spec);
+					} catch (DOMException e) {
+					}
+				}
+			}
+		}
+		return value;
 	}
 
 	private AbstractCSSValue absoluteValue(AbstractCSSValue value) {
@@ -246,7 +252,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return value;
 	}
 
-	private AbstractCSSPrimitiveValue absolutePrimitiveValue(AbstractCSSPrimitiveValue pri) {
+	AbstractCSSPrimitiveValue absolutePrimitiveValue(AbstractCSSPrimitiveValue pri) {
 		if (isRelativeUnit(pri)) {
 			pri = absoluteNumberValue((NumberValue) pri);
 		} else {
@@ -254,24 +260,26 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (type == CSSPrimitiveValue2.CSS_EXPRESSION) {
 				pri = pri.clone();
 				AbstractCSSExpression expr = ((ExpressionValue) pri).getExpression();
-				absoluteExpressionValue(expr);
-				Evaluator ev = new Evaluator();
+				Evaluator ev = new MyEvaluator();
 				try {
 					pri = (AbstractCSSPrimitiveValue) ev.evaluateExpression(expr);
 				} catch (DOMException e) {
+					// Evaluation failed, convert expressions to absolute anyway.
+					absoluteExpressionValue(expr);
 				}
 			} else if (type == CSSPrimitiveValue2.CSS_FUNCTION) {
 				FunctionValue function = (FunctionValue) pri;
 				function = function.clone();
-				LinkedCSSValueList args = function.getArguments();
-				int sz = args.size();
-				for (int i = 0; i < sz; i++) {
-					args.set(i, absoluteValue(args.get(i)));
-				}
-				Evaluator ev = new Evaluator();
+				Evaluator ev = new MyEvaluator();
 				try {
 					pri = (AbstractCSSPrimitiveValue) ev.evaluateFunction(function);
 				} catch (DOMException e) {
+					// Evaluation failed, convert arguments to absolute anyway.
+					LinkedCSSValueList args = function.getArguments();
+					int sz = args.size();
+					for (int i = 0; i < sz; i++) {
+						args.set(i, absoluteValue(args.get(i)));
+					}
 				}
 			}
 		}
@@ -288,7 +296,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		case CSSPrimitiveValue2.CSS_LH:
 		case CSSPrimitiveValue2.CSS_REM:
 		case CSSPrimitiveValue2.CSS_RLH:
-			return pri instanceof NumberValue;
+			return true;
 		}
 		return false;
 	}
@@ -355,6 +363,206 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			AbstractCSSPrimitiveValue primi = (AbstractCSSPrimitiveValue) operand.getOperand();
 			operand.setOperand(absolutePrimitiveValue(primi));
 		}
+	}
+
+	private AbstractCSSPrimitiveValue absoluteFontSizeValue(AbstractCSSValue value) {
+		AbstractCSSPrimitiveValue primi;
+		short type = value.getCssValueType();
+		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+			primi = absoluteFontSizePrimitive((AbstractCSSPrimitiveValue) value);
+		} else {
+			computedStyleError("font-size", value.getCssText(), "font-size is not a primitive value");
+			float sz = getInitialFontSize();
+			NumberValue number = new NumberValue();
+			number.setFloatValuePt(sz);
+			number.setSubproperty(value.isSubproperty());
+			primi = number;
+		}
+		return primi;
+	}
+
+	private AbstractCSSPrimitiveValue absoluteFontSizePrimitive(AbstractCSSPrimitiveValue cssSize) {
+		float sz;
+		switch (cssSize.getPrimitiveType()) {
+		case CSSPrimitiveValue.CSS_EMS:
+			float factor = cssSize.getFloatValue(CSSPrimitiveValue.CSS_EMS);
+			// Use parent element's size.
+			sz = getParentElementFontSize() * factor;
+			break;
+		case CSSPrimitiveValue.CSS_EXS:
+			factor = cssSize.getFloatValue(CSSPrimitiveValue.CSS_EXS);
+			// Use parent element's size.
+			CSSComputedProperties parentStyle = getParentComputedStyle();
+			if (parentStyle == null) {
+				sz = getInitialFontSize() * 0.5f * factor;
+			} else {
+				if (getStyleDatabase() != null) {
+					sz = getStyleDatabase().getExSizeInPt(parentStyle.getUsedFontFamily(),
+							parentStyle.getComputedFontSize()) * factor;
+				} else {
+					sz = parentStyle.getComputedFontSize() * 0.5f * factor;
+				}
+			}
+			break;
+		case CSSPrimitiveValue2.CSS_REM:
+			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_REM);
+			Node owner = getOwnerNode();
+			CSSDocument doc = (CSSDocument) owner.getOwnerDocument();
+			CSSElement docElm = doc.getDocumentElement();
+			if (owner != docElm) {
+				sz = docElm.getComputedStyle(null).getComputedFontSize() * factor;
+			} else {
+				sz = getInitialFontSize();
+			}
+			break;
+		case CSSPrimitiveValue2.CSS_LH:
+			parentStyle = getParentComputedStyle();
+			if (parentStyle != null) {
+				factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_LH);
+				sz = parentStyle.getComputedLineHeight() * factor;
+			} else {
+				sz = getInitialFontSize();
+			}
+			break;
+		case CSSPrimitiveValue2.CSS_RLH:
+			doc = (CSSDocument) getOwnerNode().getOwnerDocument();
+			owner = getOwnerNode();
+			doc = (CSSDocument) owner.getOwnerDocument();
+			docElm = doc.getDocumentElement();
+			if (owner != docElm) {
+				factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_RLH);
+				sz = docElm.getComputedStyle(null).getComputedLineHeight() * factor;
+			} else {
+				sz = getInitialFontSize();
+			}
+			break;
+		case CSSPrimitiveValue2.CSS_CAP:
+			CSSCanvas canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			if (canvas != null) {
+				parentStyle = getParentComputedStyle();
+				if (parentStyle != null) {
+					factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_CAP);
+					sz = canvas.getCapHeight(parentStyle) * factor;
+					break;
+				}
+			}
+			sz = getInitialFontSize();
+			break;
+		case CSSPrimitiveValue2.CSS_CH:
+			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_CH);
+			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			if (canvas != null) {
+				parentStyle = getParentComputedStyle();
+				if (parentStyle != null) {
+					sz = canvas.stringWidth("0", parentStyle) * factor;
+					break;
+				}
+			}
+			sz = getParentElementFontSize() * 0.25f * factor;
+			break;
+		case CSSPrimitiveValue2.CSS_IC:
+			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_IC);
+			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			if (canvas != null) {
+				parentStyle = getParentComputedStyle();
+				if (parentStyle != null) {
+					sz = canvas.stringWidth("\u6C34", parentStyle) * factor;
+					break;
+				}
+			}
+			sz = getParentElementFontSize() * factor;
+			break;
+		case CSSPrimitiveValue.CSS_IDENT:
+			// Conversion to lower case is probably not needed
+			String sizeIdentifier = cssSize.getStringValue().toLowerCase(Locale.US);
+			try {
+				// relative size: larger, smaller.
+				String familyName = getUsedFontFamily();
+				if ("larger".equals(sizeIdentifier)) {
+					sz = getLargerFontSize(familyName);
+				} else if ("smaller".equals(sizeIdentifier)) {
+					sz = getSmallerFontSize(familyName);
+				} else {
+					sz = getFontSizeFromIdentifier(familyName, sizeIdentifier);
+				}
+			} catch (DOMException e) {
+				if (getParentRule() != null) {
+					getParentRule().getStyleDeclarationErrorHandler().unknownIdentifier("font-size", sizeIdentifier);
+				} else {
+					computedStyleError("font-size", sizeIdentifier, "Unknown identifier");
+				}
+				sz = getInitialFontSize();
+			}
+			break;
+		case CSSPrimitiveValue.CSS_PERCENTAGE:
+			float pcnt = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE);
+			// Use parent element's size.
+			sz = getParentElementFontSize() * pcnt * 0.01f;
+			break;
+		case CSSPrimitiveValue2.CSS_EXPRESSION:
+			cssSize = cssSize.clone();
+			AbstractCSSExpression expr = ((ExpressionValue) cssSize).getExpression();
+			absoluteExpressionValue(expr);
+			Evaluator ev = new FontEvaluator();
+			try {
+				cssSize = (AbstractCSSPrimitiveValue) ev.evaluateExpression(expr);
+			} catch (DOMException e) {
+			}
+			return cssSize;
+		case CSSPrimitiveValue2.CSS_FUNCTION:
+			FunctionValue function = (FunctionValue) cssSize;
+			function = function.clone();
+			LinkedCSSValueList args = function.getArguments();
+			int siz = args.size();
+			for (int i = 0; i < siz; i++) {
+				args.set(i, absoluteValue(args.get(i)));
+			}
+			ev = new FontEvaluator();
+			try {
+				cssSize = (AbstractCSSPrimitiveValue) ev.evaluateFunction(function);
+			} catch (DOMException e) {
+			}
+			return cssSize;
+		default:
+			try {
+				cssSize.getFloatValue(CSSPrimitiveValue.CSS_PT);
+			} catch (DOMException e) {
+				reportFontSizeError(cssSize, e);
+				sz = getInitialFontSize();
+				break;
+			}
+			return cssSize;
+		}
+		sz = Math.round(sz * 100f) * 0.01f;
+		NumberValue number = new NumberValue();
+		number.setFloatValuePt(sz);
+		number.setSubproperty(cssSize.isSubproperty());
+		return number;
+	}
+
+	private float getInitialFontSize() {
+		String familyName = getUsedFontFamily();
+		return getFontSizeFromIdentifier(familyName, "medium");
+	}
+
+	private class MyEvaluator extends Evaluator {
+
+		@Override
+		protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
+			return absolutePrimitiveValue((AbstractCSSPrimitiveValue) partialValue);
+		}
+
+	}
+
+	private class FontEvaluator extends MyEvaluator {
+
+		@Override
+		protected float percentage(ExtendedCSSPrimitiveValue value, short resultType) throws DOMException {
+			float pcnt = value.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE);
+			// Use parent element's size.
+			return getParentElementFontSize() * pcnt * 0.01f;
+		}
+
 	}
 
 	private AbstractCSSValue applyDisplayConstrains(AbstractCSSValue value) {
@@ -640,70 +848,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 */
 	@Override
 	public float getComputedFontSize() {
+		// font-size is guaranteed to be a numeric primitive here
 		CSSPrimitiveValue cssSize = (CSSPrimitiveValue) getCSSValue("font-size");
-		String familyName = getUsedFontFamily();
-		if (cssSize == null) {
-			return getFontSizeFromIdentifier(familyName, "medium");
-		}
-		float sz;
-		switch (cssSize.getPrimitiveType()) {
-		case CSSPrimitiveValue.CSS_EMS:
-			float factor = cssSize.getFloatValue(CSSPrimitiveValue.CSS_EMS);
-			// Use parent element's size.
-			sz = getParentElementFontSize() * factor;
-			break;
-		case CSSPrimitiveValue.CSS_EXS:
-			factor = cssSize.getFloatValue(CSSPrimitiveValue.CSS_EXS);
-			// Use parent element's size.
-			CSSComputedProperties parentStyle = getParentComputedStyle();
-			if (parentStyle == null) {
-				sz = getFontSizeFromIdentifier(familyName, "medium") * 0.5f * factor;
-			} else {
-				if (getStyleDatabase() != null) {
-					sz = getStyleDatabase().getExSizeInPt(parentStyle.getUsedFontFamily(),
-							parentStyle.getComputedFontSize()) * factor;
-				} else {
-					sz = parentStyle.getComputedFontSize() * 0.5f * factor;
-				}
-			}
-			break;
-		case CSSPrimitiveValue.CSS_IDENT:
-			// Conversion to lower case is probably not needed
-			String sizeIdentifier = cssSize.getStringValue().toLowerCase(Locale.US);
-			try {
-				// relative size: larger, smaller.
-				if ("larger".equals(sizeIdentifier)) {
-					sz = getLargerFontSize(familyName);
-				} else if ("smaller".equals(sizeIdentifier)) {
-					sz = getSmallerFontSize(familyName);
-				} else {
-					sz = getFontSizeFromIdentifier(familyName, sizeIdentifier);
-				}
-			} catch (DOMException e) {
-				if (getParentRule() != null) {
-					getParentRule().getStyleDeclarationErrorHandler().unknownIdentifier("font-size", sizeIdentifier);
-				} else {
-					((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
-							.computedStyleError(getOwnerNode(), "font-size", sizeIdentifier, "Unknown identifier");
-				}
-				sz = getFontSizeFromIdentifier(familyName, "medium");
-			}
-			break;
-		case CSSPrimitiveValue.CSS_PERCENTAGE:
-			float pcnt = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE);
-			// Use parent element's size.
-			sz = getParentElementFontSize() * pcnt * 0.01f;
-			break;
-		default:
-			try {
-				sz = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PT);
-			} catch (DOMException e) {
-				reportFontSizeError(cssSize, e);
-				sz = getFontSizeFromIdentifier(familyName, "medium");
-			}
-			break;
-		}
-		return Math.round(sz * 100f) * 0.01f;
+		float sz = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PT);
+		return sz;
+	}
+
+	private void computedStyleError(String propertyName, String propertyValue, String message) {
+		((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
+				.computedStyleError(getOwnerNode(), propertyName, propertyValue, message);
 	}
 
 	private void reportFontSizeError(CSSPrimitiveValue cssSize, DOMException e) {
@@ -713,8 +866,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			ex.setValueText(cssText);
 			getParentRule().getStyleDeclarationErrorHandler().wrongValue("font-size", ex);
 		} else {
-			((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
-					.computedStyleError(getOwnerNode(), "font-size", cssText, "Error converting to points");
+			computedStyleError("font-size", cssText, "Error converting to points");
 		}
 	}
 
@@ -773,8 +925,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 							getParentRule().getStyleDeclarationErrorHandler().unknownIdentifier("font-size",
 									baseFontSize);
 						} else {
-							((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
-									.computedStyleError(getOwnerNode(), "font-size", baseFontSize, "Unknown identifier");
+							computedStyleError("font-size", baseFontSize, "Unknown identifier");
 						}
 						sz = getFontSizeFromIdentifier(familyName, "medium") * 1.2f;
 					}
@@ -821,8 +972,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 							getParentRule().getStyleDeclarationErrorHandler().unknownIdentifier("font-size",
 									baseFontSize);
 						} else {
-							((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
-									.computedStyleError(getOwnerNode(), "font-size", baseFontSize, "Unknown identifier");
+							computedStyleError("font-size", baseFontSize, "Unknown identifier");
 						}
 						sz = getFontSizeFromIdentifier(familyName, "medium") * 0.82f;
 					}
@@ -842,7 +992,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (parentCss != null) {
 			sz = parentCss.getComputedFontSize();
 		} else {
-			sz = getFontSizeFromIdentifier(null, "medium");
+			sz = getInitialFontSize();
 		}
 		return sz;
 	}
@@ -895,9 +1045,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 							"Expected 'normal', found " + cssval.getStringValue());
 					getParentRule().getStyleDeclarationErrorHandler().wrongValue("line-height", e);
 				} else {
-					((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
-							.computedStyleError(getOwnerNode(), "line-height", cssval.getStringValue(),
-									"Wrong value: expected 'normal'");
+					computedStyleError("line-height", cssval.getStringValue(), "Wrong value: expected 'normal'");
 				}
 			}
 			height = defval * getComputedFontSize();
@@ -910,10 +1058,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (getParentRule() != null) {
 				CSSPropertyValueException e = new CSSPropertyValueException(
 						"Expected number or identifier, found " + cssval.getCssText());
-				getParentRule().getStyleDeclarationErrorHandler().wrongValue("line-height", e);
+				getStyleDeclarationErrorHandler().wrongValue("line-height", e);
 			} else {
-				((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler().computedStyleError(
-						getOwnerNode(), "line-height", cssval.getStringValue(), "Wrong value: expected number or identifier");
+				computedStyleError("line-height", cssval.getStringValue(),
+						"Wrong value: expected number or identifier");
 			}
 			height = defval * getComputedFontSize();
 		}

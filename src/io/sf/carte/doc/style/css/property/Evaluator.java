@@ -102,6 +102,16 @@ public class Evaluator {
 		} else if ("hypot".equalsIgnoreCase(name)) {
 			return functionHypot(function.getArguments(), resultUnit);
 		} else {
+			// Do not know how to evaluate, convert arguments to absolute anyway.
+			function = function.clone();
+			LinkedCSSValueList args = function.getArguments();
+			int sz = args.getLength();
+			for (int i = 0; i < sz; i++) {
+				ExtendedCSSValue value = args.item(i);
+				if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+					args.set(i, (AbstractCSSValue) absoluteValue((ExtendedCSSPrimitiveValue) value));
+				}
+			}
 			return function;
 		}
 	}
@@ -554,8 +564,22 @@ public class Evaluator {
 			AbstractCSSExpression expr = ((ExpressionValue) partialValue).getExpression();
 			partialValue = evaluateExpression(expr, resultUnit);
 		} else {
-			resultUnit.setUnitType(pType);
+			partialValue = absoluteValue(partialValue);
+			resultUnit.setUnitType(partialValue.getPrimitiveType());
 		}
+		return partialValue;
+	}
+
+	/**
+	 * Obtain an absolute (numeric) value, starting from a primitive value.
+	 * <p>
+	 * If the supplied value is already absolute, or it is not known how to express
+	 * it in absolute units, return it.
+	 * 
+	 * @param partialValue the value that has to be expressed in absolute units.
+	 * @return the value in absolute units.
+	 */
+	protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
 		return partialValue;
 	}
 

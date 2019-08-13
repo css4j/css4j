@@ -591,7 +591,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	/*
 	 * If it is not a custom property, convert to ASCII lower case.
 	 */
-	private String getCanonicalPropertyName(String propertyName) {
+	String getCanonicalPropertyName(String propertyName) {
 		if (propertyName.length() > 2 && (propertyName.charAt(0) != '-' || propertyName.charAt(1) != '-')) {
 			propertyName = propertyName.toLowerCase(Locale.US);
 		}
