@@ -115,6 +115,9 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 	 *            the index of the value to be replaced.
 	 * @param value
 	 *            the value to replace the item at <code>index</code>.
+	 * @return the item previously at the specified position.
+	 * @throws IndexOutOfBoundsException if the index is invalid.
+	 * @throws NullPointerException if the value is <code>null</code>.
 	 */
 	@Override
 	public AbstractCSSValue set(int index, AbstractCSSValue value) {

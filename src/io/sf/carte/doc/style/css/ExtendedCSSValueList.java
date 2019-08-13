@@ -59,6 +59,7 @@ public interface ExtendedCSSValueList<E extends ExtendedCSSValue> extends CSSVal
 	 * @param index
 	 *            the index of the value to be removed.
 	 * @return the list item that was removed.
+	 * @throws IndexOutOfBoundsException if the index is invalid.
 	 */
 	E remove(int index);
 
@@ -70,6 +71,8 @@ public interface ExtendedCSSValueList<E extends ExtendedCSSValue> extends CSSVal
 	 * @param value
 	 *            the value to replace the item at <code>index</code>.
 	 * @return the item previously at the specified position.
+	 * @throws IndexOutOfBoundsException if the index is invalid.
+	 * @throws NullPointerException if the value is <code>null</code>.
 	 */
 	E set(int index, E value);
 
