@@ -38,12 +38,12 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 
 	@Override
 	public float getDeviceHeight() {
-		return 768f;
+		return 842f;
 	}
 
 	@Override
 	public float getDeviceWidth() {
-		return 1024f;
+		return 595f;
 	}
 
 	@Override
