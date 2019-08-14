@@ -156,7 +156,7 @@ abstract class SimpleBoxModel {
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCSSValue("margin-top");
 		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
-			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
@@ -184,7 +184,7 @@ abstract class SimpleBoxModel {
 		styledecl = getComputedStyle();
 		cssval = styledecl.getCSSValue("margin-bottom");
 		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
-			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
@@ -243,7 +243,7 @@ abstract class SimpleBoxModel {
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCSSValue("margin-right");
 		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
-			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
@@ -269,7 +269,7 @@ abstract class SimpleBoxModel {
 		styledecl = getComputedStyle();
 		cssval = styledecl.getCSSValue("margin-left");
 		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
-			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
@@ -361,7 +361,7 @@ abstract class SimpleBoxModel {
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCSSValue("margin-right");
 		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
-			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
@@ -385,7 +385,7 @@ abstract class SimpleBoxModel {
 		boolean margin_left_auto = false;
 		cssval = styledecl.getCSSValue("margin-left");
 		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
-			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
@@ -845,7 +845,7 @@ abstract class SimpleBoxModel {
 		String display = styledecl.getPropertyValue("display");
 		if ("table-cell".equals(display)) {
 			do {
-				styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+				styledecl = styledecl.getParentComputedStyle();
 				if (styledecl == null) {
 					break;
 				} else {
@@ -854,7 +854,7 @@ abstract class SimpleBoxModel {
 			} while (!"table".equals(display));
 		} else {
 			do {
-				styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+				styledecl = styledecl.getParentComputedStyle();
 				if (styledecl == null) {
 					break;
 				} else {
@@ -1057,7 +1057,7 @@ abstract class SimpleBoxModel {
 			throws StyleDatabaseRequiredException {
 		CSSValue cssval = styledecl.getCSSValue(propertyName);
 		while (cssval != null && cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
-			styledecl = (ComputedCSSStyle) styledecl.getParentComputedStyle();
+			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl != null) {
 				cssval = styledecl.getCSSValue(propertyName);
 			} else {

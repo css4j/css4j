@@ -153,7 +153,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				value = defaultPropertyValue(property, propertydb);
 			}
 		}
-		CSSComputedProperties ancStyle = this;
+		ComputedCSSStyle ancStyle = this;
 		/*
 		 * We compute inherited value, if appropriate.
 		 */
@@ -162,7 +162,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (ancStyle == null) {
 				break;
 			}
-			value = (AbstractCSSValue) ancStyle.getPropertyCSSValue(property);
+			if (ancStyle.isPropertySet(property)) {
+				value = ancStyle.getCSSValue(property);
+			}
 		}
 		// Still inheriting ?
 		if (value != null && value.getCssValueType() == CSSValue.CSS_INHERIT) {
@@ -898,7 +900,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private float getLargerFontSize(String familyName) {
 		float sz;
-		ComputedCSSStyle parentCss = (ComputedCSSStyle) getParentComputedStyle();
+		ComputedCSSStyle parentCss = getParentComputedStyle();
 		if (parentCss != null) {
 			CSSPrimitiveValue csssize = (CSSPrimitiveValue) parentCss.getCSSValue("font-size");
 			if (csssize != null) {
@@ -941,7 +943,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private float getSmallerFontSize(String familyName) {
 		float sz;
-		ComputedCSSStyle parentCss = (ComputedCSSStyle) getParentComputedStyle();
+		ComputedCSSStyle parentCss = getParentComputedStyle();
 		if (parentCss != null) {
 			CSSPrimitiveValue csssize = (CSSPrimitiveValue) parentCss.getCSSValue("font-size");
 			if (csssize != null) {
@@ -1108,7 +1110,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 *         parent element, or has no style associated.
 	 */
 	@Override
-	abstract public CSSComputedProperties getParentComputedStyle();
+	abstract public ComputedCSSStyle getParentComputedStyle();
 
 	/**
 	 * Gets the (whitespace-trimmed) text content of the node associated to this
