@@ -162,9 +162,11 @@ class LexicalUnitImpl implements LexicalUnit2 {
 			case LexicalUnit.SAC_OPERATOR_SLASH:
 			case LexicalUnit.SAC_OPERATOR_TILDE:
 			case LexicalUnit2.SAC_LEFT_BRACKET:
-			case LexicalUnit2.SAC_RIGHT_BRACKET:
 				needSpaces = false;
 			case LexicalUnit.SAC_OPERATOR_COMMA:
+				break;
+			case LexicalUnit2.SAC_RIGHT_BRACKET:
+				needSpaces = true;
 				break;
 			default:
 				if (needSpaces) {

@@ -1912,7 +1912,7 @@ public class DeclarationParserTest {
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("zoom", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals("expression(this\\.runtimeStyle['zoom']= '1', this.innerHTML= '&#xe03a;')", lu.toString());
+		assertEquals("expression(this\\.runtimeStyle['zoom'] = '1', this.innerHTML= '&#xe03a;')", lu.toString());
 		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("expression", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
@@ -1963,7 +1963,7 @@ public class DeclarationParserTest {
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("zoom", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals("expression(this\\.runtimeStyle['zoom']= '1', this.innerHTML= '&#xe03a;')", lu.toString());
+		assertEquals("expression(this\\.runtimeStyle['zoom'] = '1', this.innerHTML= '&#xe03a;')", lu.toString());
 		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("expression", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
@@ -2044,6 +2044,7 @@ public class DeclarationParserTest {
 		InputSource source = new InputSource(new StringReader("grid-template-rows: [header-top]"));
 		parser.parseStyleDeclaration(source);
 		assertEquals("grid-template-rows", handler.propertyNames.getFirst());
+		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit2.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
 		assertEquals("[header-top]", lu.toString());
@@ -2054,6 +2055,37 @@ public class DeclarationParserTest {
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit2.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationSquareBrackets2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("grid-template-rows: repeat(1, [] 10px)"));
+		parser.parseStyleDeclaration(source);
+		assertEquals("grid-template-rows", handler.propertyNames.getFirst());
+		assertEquals(1, handler.lexicalValues.size());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("repeat(1,[] 10px)", lu.toString());
+		lu = lu.getParameters();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(1, lu.getIntegerValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit2.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit2.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_PIXEL, lu.getLexicalUnitType());
+		assertEquals(10f, lu.getFloatValue(), 0.001f);
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
 	}
