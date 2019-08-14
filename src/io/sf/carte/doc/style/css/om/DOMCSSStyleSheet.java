@@ -50,10 +50,6 @@ abstract public class DOMCSSStyleSheet extends BaseCSSStyleSheet implements Clon
 		return href;
 	}
 
-	abstract public DOMCSSStyleDeclaration createComputedCSSStyle();
-
-	abstract public DOMCSSStyleDeclaration createComputedCSSStyle(BaseCSSStyleSheet parentSheet);
-
 	abstract protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
 			CSSRule ownerRule, byte origin);
 

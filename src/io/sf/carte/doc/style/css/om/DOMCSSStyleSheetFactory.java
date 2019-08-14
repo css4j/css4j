@@ -197,8 +197,7 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	@Override
 	public AbstractCSSStyleDeclaration createAnonymousStyleDeclaration(Node node) {
-		DOMCSSStyleDeclaration style = new MyDOMCSSStyleDeclaration();
-		style.setOwnerNode(node);
+		DOMCSSStyleDeclaration style = new MyDOMCSSStyleDeclaration(node);
 		// Set the style database
 		style.setStyleDatabase(((CSSDocument) node.getParentNode().getOwnerDocument()).getStyleDatabase());
 		return style;
@@ -265,11 +264,11 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 	}
 
 	class MyDOMCSSStyleDeclaration extends DOMCSSStyleDeclaration {
-		MyDOMCSSStyleDeclaration() {
-			super();
+		MyDOMCSSStyleDeclaration(Node ownerNode) {
+			super(ownerNode);
 		}
 
-		MyDOMCSSStyleDeclaration(BaseCSSStyleSheet parentSheet) {
+		MyDOMCSSStyleDeclaration(BaseDocumentCSSStyleSheet parentSheet) {
 			super(parentSheet);
 		}
 
@@ -301,7 +300,7 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 		}
 
 		@Override
-		public DOMCSSStyleDeclaration createComputedCSSStyle(BaseCSSStyleSheet parentSheet) {
+		protected DOMCSSStyleDeclaration createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet) {
 			return new MyDOMCSSStyleDeclaration(parentSheet);
 		}
 
@@ -322,16 +321,6 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
 				CSSRule ownerRule, byte origin) {
 			return new MyDOMCSSStyleSheet(title, ownerNode, media, ownerRule, origin);
-		}
-
-		@Override
-		public DOMCSSStyleDeclaration createComputedCSSStyle() {
-			return new MyDOMCSSStyleDeclaration();
-		}
-
-		@Override
-		public DOMCSSStyleDeclaration createComputedCSSStyle(BaseCSSStyleSheet parentSheet) {
-			return new MyDOMCSSStyleDeclaration(parentSheet);
 		}
 
 		@Override

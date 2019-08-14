@@ -18,20 +18,24 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.StyleDatabase;
 
 /**
- * Style declaration for DOM.
+ * Style declaration associated to a DOM node (either a computed style or an
+ * anonymous declaration).
  * 
  * @author Carlos Amengual
  * 
  */
 abstract public class DOMCSSStyleDeclaration extends ComputedCSSStyle {
 
-	private BaseCSSStyleSheet parentSheet = null;
+	private BaseDocumentCSSStyleSheet parentSheet = null;
 
-	public DOMCSSStyleDeclaration() {
+	private transient ComputedCSSStyle parentStyle = null;
+
+	protected DOMCSSStyleDeclaration(Node ownerNode) {
 		super();
+		setOwnerNode(ownerNode);
 	}
 
-	public DOMCSSStyleDeclaration(BaseCSSStyleSheet parentSheet) {
+	protected DOMCSSStyleDeclaration(BaseDocumentCSSStyleSheet parentSheet) {
 		super();
 		this.parentSheet = parentSheet;
 	}
@@ -41,24 +45,21 @@ abstract public class DOMCSSStyleDeclaration extends ComputedCSSStyle {
 	}
 
 	@Override
-	public DOMCSSStyleDeclaration getParentComputedStyle() {
-		DOMCSSStyleDeclaration parentCss = null;
-		if (parentSheet == null) {
-			return null;
-		}
-		Node node = getOwnerNode();
-		while (node != null) {
-			node = node.getParentNode();
-			if (node == null) {
-				break;
-			}
-			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				parentCss = (DOMCSSStyleDeclaration) ((BaseDocumentCSSStyleSheet) parentSheet)
-						.getComputedStyle((CSSElement) node, null);
-				break;
+	public ComputedCSSStyle getParentComputedStyle() {
+		if (parentStyle == null && parentSheet != null) {
+			Node node = getOwnerNode();
+			while (node != null) {
+				node = node.getParentNode();
+				if (node == null) {
+					break;
+				}
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					parentStyle = parentSheet.getComputedStyle((CSSElement) node, null);
+					break;
+				}
 			}
 		}
-		return parentCss;
+		return parentStyle;
 	}
 
 	/**

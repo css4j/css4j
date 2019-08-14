@@ -185,8 +185,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	@Override
 	public AbstractCSSStyleDeclaration createAnonymousStyleDeclaration(Node node) {
-		MyDOMCSSStyleDeclaration style = new MyDOMCSSStyleDeclaration();
-		style.setOwnerNode(node);
+		MyDOMCSSStyleDeclaration style = new MyDOMCSSStyleDeclaration(node);
 		return style;
 	}
 
@@ -259,16 +258,6 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 		}
 
 		@Override
-		public DOMCSSStyleDeclaration createComputedCSSStyle() {
-			return new MyDOMCSSStyleDeclaration();
-		}
-
-		@Override
-		public DOMCSSStyleDeclaration createComputedCSSStyle(BaseCSSStyleSheet parentSheet) {
-			return new MyDOMCSSStyleDeclaration(parentSheet);
-		}
-
-		@Override
 		public BaseCSSStyleSheetFactory getStyleSheetFactory() {
 			return CSSDOMImplementation.this;
 		}
@@ -285,7 +274,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	}
 
-	class MyDocumentCSSStyleSheet extends DOMDocumentCSSStyleSheet {
+	private class MyDocumentCSSStyleSheet extends DOMDocumentCSSStyleSheet {
 
 		MyDocumentCSSStyleSheet(String medium, byte origin) {
 			super(medium, origin);
@@ -297,7 +286,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 		}
 
 		@Override
-		public DOMCSSStyleDeclaration createComputedCSSStyle(BaseCSSStyleSheet parentSheet) {
+		protected ComputedCSSStyle createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet) {
 			return new MyDOMCSSStyleDeclaration(parentSheet);
 		}
 
@@ -366,11 +355,11 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	}
 
 	class MyDOMCSSStyleDeclaration extends DOMCSSStyleDeclaration {
-		public MyDOMCSSStyleDeclaration() {
-			super();
+		MyDOMCSSStyleDeclaration(Node ownerNode) {
+			super(ownerNode);
 		}
 
-		public MyDOMCSSStyleDeclaration(BaseCSSStyleSheet parentSheet) {
+		MyDOMCSSStyleDeclaration(BaseDocumentCSSStyleSheet parentSheet) {
 			super(parentSheet);
 		}
 

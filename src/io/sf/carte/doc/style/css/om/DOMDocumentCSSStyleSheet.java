@@ -24,7 +24,7 @@ abstract public class DOMDocumentCSSStyleSheet extends BaseDocumentCSSStyleSheet
 
 	private CSSDocument ownerNode = null;
 
-	public DOMDocumentCSSStyleSheet(byte origin) {
+	protected DOMDocumentCSSStyleSheet(byte origin) {
 		super(null, origin);
 	}
 
@@ -54,12 +54,12 @@ abstract public class DOMDocumentCSSStyleSheet extends BaseDocumentCSSStyleSheet
 	@Override
 	public ComputedCSSStyle getComputedStyle(CSSElement elm, String pseudoElt) {
 		InlineStyle inline = (InlineStyle) elm.getStyle();
-		DOMCSSStyleDeclaration style = createComputedCSSStyle(this);
+		ComputedCSSStyle style = createComputedCSSStyle(this);
 		style.setOwnerNode(elm);
 		return computeStyle(style, elm.getSelectorMatcher(), pseudoElt, inline);
 	}
 
-	abstract public DOMCSSStyleDeclaration createComputedCSSStyle(BaseCSSStyleSheet parentSheet);
+	abstract protected ComputedCSSStyle createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet);
 
 	abstract protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(String medium, byte origin);
 
