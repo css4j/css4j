@@ -285,6 +285,7 @@ public final class PropertyDatabase {
 				{"pitch", "medium"},
 				{"play-during", "auto"},
 				{"position", "static"},
+				{"quotes", "auto"},
 				{"resize", "none"},
 				{"rest-after", "0"},
 				{"rest-before", "0"},
