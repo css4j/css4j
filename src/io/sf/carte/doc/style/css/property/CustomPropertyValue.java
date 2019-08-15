@@ -20,7 +20,6 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSCustomPropertyValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -52,7 +51,7 @@ public class CustomPropertyValue extends AbstractCSSPrimitiveValue implements CS
 	}
 
 	@Override
-	public ExtendedCSSValue getFallback() {
+	public AbstractCSSValue getFallback() {
 		return fallback;
 	}
 
