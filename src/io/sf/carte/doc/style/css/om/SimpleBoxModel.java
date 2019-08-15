@@ -1098,7 +1098,7 @@ abstract class SimpleBoxModel {
 
 		@Override
 		protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
-			return styledecl.absolutePrimitiveValue((AbstractCSSPrimitiveValue) partialValue);
+			return styledecl.absolutePrimitiveValue((AbstractCSSPrimitiveValue) partialValue, false);
 		}
 
 		@Override
