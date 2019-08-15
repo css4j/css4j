@@ -42,6 +42,7 @@ import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
+import io.sf.carte.doc.style.css.property.CustomPropertyValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.FunctionValue;
@@ -197,8 +198,17 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			// Check for custom properties ('variables')
 			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY) {
-				value = getCSSValue(((CSSPrimitiveValue) value).getStringValue());
-			} else if (property.equals("font-size")) {
+				AbstractCSSValue custom = getCSSValue(((CSSPrimitiveValue) value).getStringValue());
+				if (custom == null) {
+					custom = ((CustomPropertyValue) value).getFallback();
+					if (custom != null) {
+						value = custom;
+					}
+				} else {
+					value = custom;
+				}
+			}
+			if (property.equals("font-size")) {
 				value = absoluteFontSizeValue(value);
 			} else {
 				// Convert to absolute units
