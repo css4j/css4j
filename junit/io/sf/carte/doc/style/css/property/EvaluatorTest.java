@@ -260,6 +260,32 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testCalcHzS() {
+		style.setCssText("foo: calc(sqrt(1.2Hz * 3.6s))");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(2.078461f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcKHzMs() {
+		style.setCssText("foo: calc(sqrt(1.2kHz * 3.6ms))");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(2.078461f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
 	public void testMin1() {
 		style.setCssText("foo: min(1.2 * 3)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");

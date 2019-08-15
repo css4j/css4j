@@ -510,7 +510,12 @@ public class Evaluator {
 				if (firstUnit == CSSPrimitiveValue.CSS_NUMBER) {
 					firstUnit = partialUnit;
 				} else {
-					partial = NumberValue.floatValueConversion(partial, partialUnit, firstUnit);
+					try {
+						partial = NumberValue.floatValueConversion(partial, partialUnit, firstUnit);
+					} catch (DOMException e) {
+						partial = unitCancellation(partial, partialUnit, firstUnit, op.isInverseOperation(), e);
+						firstUnit = CSSPrimitiveValue.CSS_NUMBER;
+					}
 					partialUnit = firstUnit;
 				}
 			}
@@ -554,6 +559,26 @@ public class Evaluator {
 		resultUnit.setUnitType(firstUnit);
 		resultUnit.setExponent(unitExp);
 		return result;
+	}
+
+	private float unitCancellation(float partial, short partialUnit, short firstUnit, boolean inverseOperation,
+			DOMException exception) throws DOMException {
+		if (!inverseOperation) {
+			if (partialUnit == CSSPrimitiveValue.CSS_S || partialUnit == CSSPrimitiveValue.CSS_MS) {
+				if (firstUnit == CSSPrimitiveValue.CSS_HZ) {
+					return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_S);
+				} else if (firstUnit == CSSPrimitiveValue.CSS_KHZ) {
+					return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_MS);
+				}
+			} else if (partialUnit == CSSPrimitiveValue.CSS_HZ || partialUnit == CSSPrimitiveValue.CSS_KHZ) {
+				if (firstUnit == CSSPrimitiveValue.CSS_S) {
+					return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_HZ);
+				} else if (firstUnit == CSSPrimitiveValue.CSS_MS) {
+					return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_KHZ);
+				}
+			}
+		}
+		throw exception;
 	}
 
 	private ExtendedCSSPrimitiveValue evaluate(ExtendedCSSPrimitiveValue partialValue, Unit resultUnit) {
