@@ -754,10 +754,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				String floatProp = ((CSSPrimitiveValue) getCSSValue("float")).getStringValue();
 				Node node;
 				/*
-				 * If float is 'none' or the owner node is the root element (here checked as
-				 * "parent node is null"), then constrain 'display'
+				 * If float is not 'none' or the owner node is the root element (here checked as
+				 * "parent node is document"), then constrain 'display'
 				 */
-				if (!"none".equals(floatProp) || ((node = getOwnerNode()) != null && node.getParentNode() == null)) {
+				if (!"none".equals(floatProp)
+						|| ((node = getOwnerNode()).getParentNode() == node.getOwnerDocument())) {
 					computedValue = computeConstrainedDisplay(value);
 				}
 			}
