@@ -1013,6 +1013,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 * <p>
 	 * If the computed value is a list, it returns the first item. If a style
 	 * database is available, it returns the 'used' value.
+	 * <p>
+	 * If no font family is set, a default value of <code>Serif</code> is used.
 	 * 
 	 * @return the value of the font-family property.
 	 */
@@ -1020,7 +1022,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	public String getUsedFontFamily() {
 		String requestedFamily = scanFontFamilyValue(getCSSValue("font-family"), this);
 		if (requestedFamily == null) {
-			requestedFamily = getStyleDatabase().getDefaultGenericFontFamily();
+			StyleDatabase sdb = getStyleDatabase();
+			if (sdb != null) {
+				requestedFamily = sdb.getDefaultGenericFontFamily();
+			} else {
+				requestedFamily = "Serif";
+			}
 		}
 		return requestedFamily;
 	}
