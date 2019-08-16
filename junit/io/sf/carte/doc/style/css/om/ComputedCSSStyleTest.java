@@ -211,7 +211,7 @@ public class ComputedCSSStyleTest {
 	}
 
 	@Test
-	public void getComputedStyle() {
+	public void getComputedStyle() throws CSSMediaException {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
@@ -225,6 +225,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
+		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(
@@ -233,6 +234,254 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:43.2pt;margin-top:28.8pt;background-position:20% 0%;padding-left:calc(10% - 43.2pt - 14.4pt);font:14.4pt;",
 				style.getMinifiedCssText());
+		//
+		xhtmlDoc.setTargetMedium("screen");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0.3f, box.getPaddingLeft(), 0.01f);
+		assertEquals(33.6f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(50.4f, box.getMarginBottom(), 0.01f);
+		assertEquals(0f, box.getMarginLeft(), 0.01f);
+		assertEquals(674.7f, box.getWidth(), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2ex; margin-left:1ex");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(14f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(11.5f, box.getPaddingLeft(), 0.01f);
+		assertEquals(28f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(42f, box.getMarginBottom(), 0.01f);
+		assertEquals(7f, box.getMarginLeft(), 0.01f);
+		assertEquals(656.5f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 28pt; margin-bottom: 42pt; background-position: 20% 0%; padding-left: calc(10% - 42pt - 14pt); font-size: 14pt; margin-left: 7pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:42pt;margin-left:7pt;margin-top:28pt;background-position:20% 0%;padding-left:calc(10% - 42pt - 14pt);font-size:14pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2rem; margin-left:1rem");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(24f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0f, box.getPaddingLeft(), 0.01f);
+		assertEquals(48f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(72f, box.getMarginBottom(), 0.01f);
+		assertEquals(12f, box.getMarginLeft(), 0.01f);
+		assertEquals(663f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 48pt; margin-bottom: 72pt; background-position: 20% 0%; padding-left: calc(10% - 72pt - 24pt); font-size: 24pt; margin-left: 12pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:72pt;margin-left:12pt;margin-top:48pt;background-position:20% 0%;padding-left:calc(10% - 72pt - 24pt);font-size:24pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 0.8lh; margin-left:0.6lh");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(12.99f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(15.54f, box.getPaddingLeft(), 0.01f);
+		assertEquals(25.98f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(38.97f, box.getMarginBottom(), 0.01f);
+		assertEquals(9.04f, box.getMarginLeft(), 0.01f);
+		assertEquals(650.42f, box.getWidth(), 0.01f);
+		assertEquals("25.98pt", style.getMarginTop());
+		assertEquals("auto", style.getWidth());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 1.08rlh; margin-left:0.6rlh");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(15.03f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(7.38f, box.getPaddingLeft(), 0.01f);
+		assertEquals(30.06f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(45.09f, box.getMarginBottom(), 0.01f);
+		assertEquals(8.35f, box.getMarginLeft(), 0.01f);
+		assertEquals(659.27f, box.getWidth(), 0.01f);
+		assertEquals("30.06pt", style.getMarginTop());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vw; margin-left:1vw");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(11.9f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(19.9f, box.getPaddingLeft(), 0.01f);
+		assertEquals(23.8f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(35.7f, box.getMarginBottom(), 0.01f);
+		assertEquals(5.95f, box.getMarginLeft(), 0.01f);
+		assertEquals(649.15f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 23.8pt; margin-bottom: 35.7pt; background-position: 20% 0%; padding-left: calc(10% - 35.7pt - 11.9pt); font-size: 11.9pt; margin-left: 5.95pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vh;margin-left:1vh");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0.14f, box.getPaddingLeft(), 0.01f);
+		assertEquals(33.68f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(50.52f, box.getMarginBottom(), 0.01f);
+		assertEquals(8.42f, box.getMarginLeft(), 0.01f);
+		assertEquals(666.44f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 33.68pt; margin-bottom: 50.52pt; background-position: 20% 0%; padding-left: calc(10% - 50.52pt - 16.84pt); font-size: 16.84pt; margin-left: 8.42pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vi;margin-left:1vi");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(11.9f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(19.9f, box.getPaddingLeft(), 0.01f);
+		assertEquals(23.8f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(35.7f, box.getMarginBottom(), 0.01f);
+		assertEquals(5.95f, box.getMarginLeft(), 0.01f);
+		assertEquals(649.15f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 23.8pt; margin-bottom: 35.7pt; background-position: 20% 0%; padding-left: calc(10% - 35.7pt - 11.9pt); font-size: 11.9pt; margin-left: 5.95pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vb;margin-left:1vb");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0.14f, box.getPaddingLeft(), 0.01f);
+		assertEquals(33.68f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(50.52f, box.getMarginBottom(), 0.01f);
+		assertEquals(8.42f, box.getMarginLeft(), 0.01f);
+		assertEquals(666.44f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 33.68pt; margin-bottom: 50.52pt; background-position: 20% 0%; padding-left: calc(10% - 50.52pt - 16.84pt); font-size: 16.84pt; margin-left: 8.42pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vmin;margin-left:1vmin");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(11.9f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(19.9f, box.getPaddingLeft(), 0.01f);
+		assertEquals(23.8f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(35.7f, box.getMarginBottom(), 0.01f);
+		assertEquals(5.95f, box.getMarginLeft(), 0.01f);
+		assertEquals(649.15f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 23.8pt; margin-bottom: 35.7pt; background-position: 20% 0%; padding-left: calc(10% - 35.7pt - 11.9pt); font-size: 11.9pt; margin-left: 5.95pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vmax;margin-left:1vmax");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0.14f, box.getPaddingLeft(), 0.01f);
+		assertEquals(33.68f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(50.52f, box.getMarginBottom(), 0.01f);
+		assertEquals(8.42f, box.getMarginLeft(), 0.01f);
+		assertEquals(666.44f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 33.68pt; margin-bottom: 50.52pt; background-position: 20% 0%; padding-left: calc(10% - 50.52pt - 16.84pt); font-size: 16.84pt; margin-left: 8.42pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: calc(110% - 0.1vw);margin-left:max(1em,1rem)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(14.81f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(8.26f, box.getPaddingLeft(), 0.01f);
+		assertEquals(29.62f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(44.43f, box.getMarginBottom(), 0.01f);
+		assertEquals(14.81f, box.getMarginLeft(), 0.01f);
+		assertEquals(651.93f, box.getWidth(), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: max(110%,1.4rem);margin-left:calc(1em - 0.3rem)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0.3f, box.getPaddingLeft(), 0.01f);
+		assertEquals(33.6f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(50.4f, box.getMarginBottom(), 0.01f);
+		assertEquals(13.2f, box.getMarginLeft(), 0.01f);
+		assertEquals(661.5f, box.getWidth(), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null)
+				.setCssText("font-size: max(110%,var(--foo,1.4rem));margin-left:calc(1em - var(--bar,0.3rem))");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0.3f, box.getPaddingLeft(), 0.01f);
+		assertEquals(33.6f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(50.4f, box.getMarginBottom(), 0.01f);
+		assertEquals(13.2f, box.getMarginLeft(), 0.01f);
+		assertEquals(661.5f, box.getWidth(), 0.01f);
 	}
 
 	@Test

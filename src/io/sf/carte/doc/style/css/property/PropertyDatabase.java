@@ -128,7 +128,7 @@ public final class PropertyDatabase {
 				"text-align", "text-emphasis-color", "text-emphasis-position", "text-emphasis-style",
 				"text-indent", "text-shadow", "text-transform", "text-underline-position", "visibility",
 				"voice-balance", "voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
-				"voice-volume", "volume", "white-space", "widows", "word-spacing" };
+				"voice-volume", "volume", "white-space", "widows", "word-spacing", "writing-mode" };
 		return new HashSet<String>(Arrays.asList(inherit));
 	}
 
@@ -331,6 +331,7 @@ public final class PropertyDatabase {
 				{"width", "auto"},
 				{"will-change", "auto"},
 				{"word-spacing", "normal"},
+				{"writing-mode", "horizontal-tb"},
 				{"z-index", "auto"}
 			};
 		Map<String, AbstractCSSValue> initialValueMap =

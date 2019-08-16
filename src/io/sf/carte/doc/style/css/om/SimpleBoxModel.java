@@ -181,7 +181,6 @@ abstract class SimpleBoxModel {
 				box.marginTop = 0f;
 			}
 		}
-		styledecl = getComputedStyle();
 		cssval = styledecl.getCSSValue("margin-bottom");
 		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
@@ -782,6 +781,9 @@ abstract class SimpleBoxModel {
 		float fv;
 		try {
 			fv = floatValue(styledecl, cssval, unitType, true);
+			if (fv < 0f) {
+				fv = 0f;
+			}
 		} catch (DOMException e) {
 			CSSPropertyValueException ex = new CSSPropertyValueException(
 					"Expected number, found " + cssval.getCssText());
@@ -1076,6 +1078,9 @@ abstract class SimpleBoxModel {
 		float fv;
 		try {
 			fv = floatValue(styledecl, csspri, unitType, false);
+			if (fv < 0f) {
+				fv = 0f;
+			}
 		} catch (DOMException e) {
 			CSSPropertyValueException ex = new CSSPropertyValueException(
 					"Expected number, found " + csspri.getCssText());
