@@ -25,6 +25,7 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.StyleRule;
@@ -269,6 +270,30 @@ public class CalcValueTest {
 		assertEquals("calc(20px + 2*(8.1% - 2.1vw))", val.getCssText());
 		assertEquals("calc(20px + 2*(8.1% - 2.1vw))", val.getMinifiedCssText("left"));
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
+	}
+
+	@Test
+	public void testSetCssTextCustomProperty() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("margin-left:calc(1em - var(--bar,0.3rem))");
+		AbstractCSSValue val = style.getPropertyCSSValue("margin-left");
+		assertNotNull(val);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
+		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		AbstractCSSExpression expr = calc.getExpression();
+		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
+		List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
+		assertEquals(2, operands.size());
+		CSSExpression op2 = operands.get(1);
+		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op2.getPartType());
+		ExtendedCSSPrimitiveValue varop = ((CSSExpression.CSSOperandExpression) op2).getOperand();
+		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, varop.getPrimitiveType());
+		assertEquals("1em - var(--bar, 0.3rem)", expr.toString());
+		assertEquals("calc(1em - var(--bar, 0.3rem))", val.getCssText());
+		assertEquals("calc(1em - var(--bar,.3rem))", val.getMinifiedCssText("margin-left"));
 	}
 
 	@Test
@@ -517,6 +542,17 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(/(-3em + 5%)); ");
+		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		assertNull(val);
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testSetCssTextError3() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("width: calc(3em 5%); ");
 		AbstractCSSValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
 		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());

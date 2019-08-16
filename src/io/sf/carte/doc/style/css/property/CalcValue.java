@@ -40,10 +40,14 @@ public class CalcValue extends ExpressionValue {
 	}
 
 	@Override
-	protected boolean isInvalidOperand(AbstractCSSPrimitiveValue primi, short lastlutype) {
-		return !(primi instanceof NumberValue)
-				|| ((lastlutype != -1 && lastlutype != LexicalUnit.SAC_SUB_EXPRESSION)
-						&& primi.isNegativeNumber());
+	protected boolean isInvalidOperand(AbstractCSSPrimitiveValue primi, short lutype, short lastlutype) {
+		if (super.isInvalidOperand(primi, lutype, lastlutype)) {
+			return true;
+		}
+		if (primi instanceof NumberValue) {
+			return (lastlutype != -1 && lastlutype != LexicalUnit.SAC_SUB_EXPRESSION && primi.isNegativeNumber());
+		}
+		return lutype != LexicalUnit.SAC_FUNCTION;
 	}
 
 	@Override

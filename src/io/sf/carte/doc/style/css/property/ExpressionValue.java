@@ -142,47 +142,39 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad subexpression");
 					}
 					break;
-				case LexicalUnit.SAC_FUNCTION:
-					String funcname = lu.getFunctionName();
-					if (!funcname.equals(getStringValue())) {
-						lastlutype = lutype;
-						FunctionValue function = new FunctionValue();
-						LexicalSetter setter = function.newLexicalSetter();
-						setter.setLexicalUnit(lu);
-						lu = setter.getNextLexicalUnit();
-						OperandExpression operand = new OperandExpression();
-						operand.setOperand(function);
-						expression = addOperand(expression, operand);
-						continue;
-					}
-					lutype = LexicalUnit.SAC_SUB_EXPRESSION;
-					subval = lu.getParameters();
-					if (subval == null) {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Empty sub-" + getStringValue() + "()");
-					}
-					subexpr = fillExpressionLevel(subval, factory);
-					if (subexpr != null) {
-						subexpr.setInverseOperation(inverse);
-						if (expression != null) {
-							expression.addExpression(subexpr);
-						} else {
-							expression = subexpr;
-						}
-					} else {
-						throw new DOMException(DOMException.INVALID_CHARACTER_ERR,
-								"Bad sub-" + getStringValue() + "()");
-					}
-					break;
 				case LexicalUnit.SAC_OPERATOR_COMMA: // We are probably in function context
 					if (nextLexicalUnit != null || expression.getParentExpression() != null) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operand: ','");
 					}
 					nextLexicalUnit = lu;
 					return expression;
+				case LexicalUnit.SAC_FUNCTION:
+					String funcname = lu.getFunctionName();
+					if (funcname.equals(getStringValue())) {
+						// Handle as a subexpression
+						lutype = LexicalUnit.SAC_SUB_EXPRESSION;
+						subval = lu.getParameters();
+						if (subval == null) {
+							throw new DOMException(DOMException.SYNTAX_ERR, "Empty sub-" + getStringValue() + "()");
+						}
+						subexpr = fillExpressionLevel(subval, factory);
+						if (subexpr != null) {
+							subexpr.setInverseOperation(inverse);
+							if (expression != null) {
+								expression.addExpression(subexpr);
+							} else {
+								expression = subexpr;
+							}
+						} else {
+							throw new DOMException(DOMException.INVALID_CHARACTER_ERR,
+									"Bad sub-" + getStringValue() + "()");
+						}
+						break;
+					}
 				default:
 					AbstractCSSPrimitiveValue primi;
 					LexicalSetter item = factory.createCSSPrimitiveValueItem(lu, false);
-					if (item == null || isInvalidOperand(primi = item.getCSSValue(), lastlutype)) {
+					if (item == null || isInvalidOperand(primi = item.getCSSValue(), lutype, lastlutype)) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
 					}
 					OperandExpression operand = new OperandExpression();
@@ -215,7 +207,21 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 		return expression;
 	}
 
-	protected boolean isInvalidOperand(AbstractCSSPrimitiveValue primi, short lastlutype) {
+	protected boolean isInvalidOperand(AbstractCSSPrimitiveValue primi, short lutype, short lastlutype) {
+		if (isOperatorType(lutype)) {
+			return isOperatorType(lastlutype);
+		}
+		return !isOperatorType(lastlutype) && lastlutype != -1 && lutype != LexicalUnit.SAC_OPERATOR_COMMA;
+	}
+
+	private boolean isOperatorType(short lutype) {
+		switch (lutype) {
+		case LexicalUnit.SAC_OPERATOR_PLUS:
+		case LexicalUnit.SAC_OPERATOR_MINUS:
+		case LexicalUnit.SAC_OPERATOR_MULTIPLY:
+		case LexicalUnit.SAC_OPERATOR_SLASH:
+			return true;
+		}
 		return false;
 	}
 

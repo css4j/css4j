@@ -1469,6 +1469,42 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueCalcCustom() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("calc(var(--foo, 1%) * 3)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("var", param.getFunctionName());
+		LexicalUnit subparams = param.getParameters();
+		// Subexpression
+		assertNotNull(subparams);
+		assertEquals(LexicalUnit.SAC_IDENT, subparams.getLexicalUnitType());
+		assertEquals("--foo", subparams.getStringValue());
+		subparams = subparams.getNextLexicalUnit();
+		assertNotNull(subparams);
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, subparams.getLexicalUnitType());
+		subparams = subparams.getNextLexicalUnit();
+		assertNotNull(subparams);
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, subparams.getLexicalUnitType());
+		assertEquals(1f, subparams.getFloatValue(), 0.01);
+		assertNull(subparams.getNextLexicalUnit());
+		// End of subvalue checking
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_MULTIPLY, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(3, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(var(--foo, 1%)*3)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyBadCalc() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("calc(100% - 3em"));
 		try {
