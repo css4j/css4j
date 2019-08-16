@@ -234,8 +234,51 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:43.2pt;margin-top:28.8pt;background-position:20% 0%;padding-left:calc(10% - 43.2pt - 14.4pt);font:14.4pt;",
 				style.getMinifiedCssText());
-		//
+		// Set explicit document width
+		CSSElement docelm = xhtmlDoc.getDocumentElement();
+		xhtmlDoc.getOverrideStyle(docelm, null).setCssText("width:675pt");
+		CSSElement body = (CSSElement) docelm.getElementsByTagName("body").item(0);
+		style = body.getComputedStyle(null);
+		assertEquals(12f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0f, box.getPaddingLeft(), 0.01f);
+		assertEquals(36f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(48f, box.getMarginBottom(), 0.01f);
+		assertEquals(33.75f, box.getMarginLeft(), 0.01f);
+		assertEquals(675f, box.getWidth(), 0.01f);
+	}
+
+	@Test
+	public void getComputedStyleMediumScreen() throws CSSMediaException {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertNotNull(style);
+		// medium 'screen'
 		xhtmlDoc.setTargetMedium("screen");
+		/*
+		 * Now the library uses a style database. Beware that the correct handling of
+		 * the document overflowing the viewport (e.g. viewport smaller than the
+		 * explicit value of the 'width' property) is not yet implemented.
+		 */
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(14f, style.getComputedFontSize(), 0.01f);
+		BoxValues box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(11.5f, box.getPaddingLeft(), 0.01f);
+		assertEquals(28f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(42f, box.getMarginBottom(), 0.01f);
+		assertEquals(0f, box.getMarginLeft(), 0.01f);
+		assertEquals(663.5f, box.getWidth(), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);

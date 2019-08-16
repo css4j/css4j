@@ -461,16 +461,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 			}
 		}
-		ComputedCSSStyle style = getInitialContainingBlockStyle();
-		if (style != null) {
-			BoxValues box;
-			try {
-				box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
-			} catch (DOMException e) {
-				throw new StyleDatabaseRequiredException(e);
-			}
-			return box.getWidth();
-		}
 		throw new StyleDatabaseRequiredException();
 	}
 
@@ -490,49 +480,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 			}
 		}
-		ComputedCSSStyle style = getInitialContainingBlockStyle();
-		if (style != null) {
-			AbstractCSSValue height = style.getPropertyCSSValue("height");
-			if (height != null && height.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				try {
-					return ((CSSPrimitiveValue) height).getFloatValue(CSSPrimitiveValue.CSS_PT);
-				} catch (DOMException e) {
-					throw new StyleDatabaseRequiredException(e);
-				}
-			}
-		}
 		throw new StyleDatabaseRequiredException();
-	}
-
-	private ComputedCSSStyle getInitialContainingBlockStyle() {
-		ComputedCSSStyle styledecl = this;
-		String position = styledecl.getPropertyValue("position");
-		if ("fixed".equalsIgnoreCase(position) || "absolute".equalsIgnoreCase(position)) {
-			return null;
-		}
-		// loop until display is block-level
-		String display = styledecl.getPropertyValue("display");
-		if ("table-cell".equals(display)) {
-			do {
-				styledecl = styledecl.getParentComputedStyle();
-				if (styledecl == null) {
-					break;
-				} else {
-					display = styledecl.getPropertyValue("display");
-				}
-			} while (!"table".equals(display));
-		} else {
-			do {
-				styledecl = styledecl.getParentComputedStyle();
-				if (styledecl == null) {
-					break;
-				} else {
-					display = styledecl.getPropertyValue("display");
-				}
-			} while (!"block".equals(display) && !"list-item".equals(display) && !"table".equals(display)
-					&& !display.startsWith("table-"));
-		}
-		return styledecl;
 	}
 
 	private void absoluteExpressionValue(CSSExpression expr, boolean useParentStyle) {
