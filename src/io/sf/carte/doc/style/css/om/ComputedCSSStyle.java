@@ -355,7 +355,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				fv *= 0.5f;
 			}
 		} else if (unit == CSSPrimitiveValue2.CSS_REM) {
-			CSSElement root = getRootElement();
+			CSSElement root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				fv *= root.getComputedStyle(null).getComputedFontSize();
 			} else {
@@ -368,7 +368,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				fv *= getComputedLineHeight();
 			}
 		} else if (unit == CSSPrimitiveValue2.CSS_RLH) {
-			CSSElement root = getRootElement();
+			CSSElement root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				fv *= root.getComputedStyle(null).getComputedLineHeight();
 			} else {
@@ -430,19 +430,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		value = new NumberValue();
 		value.setFloatValuePt(fv);
 		return value;
-	}
-
-	private CSSElement getRootElement() {
-		ComputedCSSStyle style = this;
-		CSSElement root = null;
-		do {
-			Node node = style.getOwnerNode();
-			if (node.getNodeType() == Node.ELEMENT_NODE && !"none".equalsIgnoreCase(style.getDisplay())) {
-				root = (CSSElement) node;
-			}
-			style = style.getParentComputedStyle();
-		} while (style != null);
-		return root;
 	}
 
 	private float getInitialContainingBlockWidthPt(CSSCanvas canvas) throws StyleDatabaseRequiredException {
@@ -541,7 +528,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_REM:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_REM);
-			CSSElement root = getRootElement();
+			CSSElement root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedFontSize() * factor;
 			} else {
@@ -558,7 +545,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			break;
 		case CSSPrimitiveValue2.CSS_RLH:
-			root = getRootElement();
+			root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_RLH);
 				sz = root.getComputedStyle(null).getComputedLineHeight() * factor;
