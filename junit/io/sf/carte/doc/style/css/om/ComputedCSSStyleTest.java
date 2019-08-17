@@ -39,6 +39,7 @@ import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
@@ -234,8 +235,9 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:43.2pt;margin-top:28.8pt;background-position:20% 0%;padding-left:calc(10% - 43.2pt - 14.4pt);font:14.4pt;",
 				style.getMinifiedCssText());
-		// Set explicit document width
+		//
 		CSSElement docelm = xhtmlDoc.getDocumentElement();
+		// Set explicit document width
 		xhtmlDoc.getOverrideStyle(docelm, null).setCssText("width:675pt");
 		CSSElement body = (CSSElement) docelm.getElementsByTagName("body").item(0);
 		style = body.getComputedStyle(null);
@@ -250,6 +252,239 @@ public class ComputedCSSStyleTest {
 		assertEquals(48f, box.getMarginBottom(), 0.01f);
 		assertEquals(33.75f, box.getMarginLeft(), 0.01f);
 		assertEquals(675f, box.getWidth(), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(14.4f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(9.9f, box.getPaddingLeft(), 0.01f);
+		assertEquals(28.8f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(43.2f, box.getMarginBottom(), 0.01f);
+		assertEquals(0f, box.getMarginLeft(), 0.01f);
+		assertEquals(665.1f, box.getWidth(), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 1.8ex; margin-left:1ex");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(10.8f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(24.3f, box.getPaddingLeft(), 0.01f);
+		assertEquals(21.6f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(32.4f, box.getMarginBottom(), 0.01f);
+		assertEquals(5.4f, box.getMarginLeft(), 0.01f);
+		assertEquals(645.3f, box.getWidth(), 0.01f);
+		CSSPrimitiveValue marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(5.4f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2rem; margin-left:1rem");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(24f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0f, box.getPaddingLeft(), 0.01f);
+		assertEquals(48f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(72f, box.getMarginBottom(), 0.01f);
+		assertEquals(12f, box.getMarginLeft(), 0.01f);
+		assertEquals(663f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 48pt; margin-bottom: 72pt; background-position: 20% 0%; padding-left: calc(10% - 72pt - 24pt); font-size: 24pt; margin-left: 12pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:72pt;margin-left:12pt;margin-top:48pt;background-position:20% 0%;padding-left:calc(10% - 72pt - 24pt);font-size:24pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 0.8lh; margin-left:0.6lh");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(11.14f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(22.94f, box.getPaddingLeft(), 0.01f);
+		assertEquals(22.28f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(33.42f, box.getMarginBottom(), 0.01f);
+		assertEquals(7.75f, box.getMarginLeft(), 0.01f);
+		assertEquals(644.31f, box.getWidth(), 0.01f);
+		assertEquals("auto", style.getWidth());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 1.08rlh; margin-left:0.6rlh");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(15.03f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(7.38f, box.getPaddingLeft(), 0.01f);
+		assertEquals(30.06f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(45.09f, box.getMarginBottom(), 0.01f);
+		assertEquals(8.35f, box.getMarginLeft(), 0.01f);
+		assertEquals(659.27f, box.getWidth(), 0.01f);
+		assertEquals("30.06pt", style.getMarginTop());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:1vw");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VW), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 1vw; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:1vw;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:0.8cap;margin-left:1vw");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		CSSPrimitiveValue fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(9.6f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		CSSElement listpara = xhtmlDoc.getElementById("listpara");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(9.6f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:3ch;margin-left:1vw");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(9f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		listpara = xhtmlDoc.getElementById("listpara");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(9f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:0.8ic;margin-left:1vw");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(9.6f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		listpara = xhtmlDoc.getElementById("listpara");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(9.6f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:1vh");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VH), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 1vh; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:1vh;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:1vi");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VI), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 1vi; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:1vi;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:1vb");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VB), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 1vb; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:1vb;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo,1vb)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VB), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 1vb; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:1vb;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo,1vb);--foo:8pt");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(8f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 8pt; --foo: 8pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:8pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);--foo:8pt;",
+				style.getMinifiedCssText());
+		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:var(--foo,1vb)");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(8f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo,9pt);--foo:var(--foo)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(9f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:calc(2*var(--foo,5pt));--foo:var(--foo)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(10f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo);--foo:var(--foo)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertNull(marginLeft);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:calc(2*var(--foo));--foo:var(--foo)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertNull(marginLeft);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:var(--foo,9pt);--foo:var(--foo)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(9f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:var(--foo);--foo:var(--foo)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(12f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:smaller");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(9.84f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:larger");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals(14.4f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:small");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals("small", fontSize.getStringValue());
+		assertEquals(10f, style.getComputedFontSize(), 0.01f);
+		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:smaller");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals("x-small", fontSize.getStringValue());
+		assertEquals(9f, style.getComputedFontSize(), 0.01f);
+		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:larger");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		assertEquals("medium", fontSize.getStringValue());
+		assertEquals(12f, style.getComputedFontSize(), 0.01f);
 	}
 
 	@Test
@@ -261,9 +496,7 @@ public class ComputedCSSStyleTest {
 		// medium 'screen'
 		xhtmlDoc.setTargetMedium("screen");
 		/*
-		 * Now the library uses a style database. Beware that the correct handling of
-		 * the document overflowing the viewport (e.g. viewport smaller than the
-		 * explicit value of the 'width' property) is not yet implemented.
+		 * Now the library uses a style database.
 		 */
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(14f, style.getComputedFontSize(), 0.01f);
@@ -423,6 +656,26 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;",
 				style.getMinifiedCssText());
 		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:2vi;margin-left:1vi;writing-mode:vertical-lr");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0.14f, box.getPaddingLeft(), 0.01f);
+		assertEquals(33.68f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(50.52f, box.getMarginBottom(), 0.01f);
+		assertEquals(8.42f, box.getMarginLeft(), 0.01f);
+		assertEquals(666.44f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 33.68pt; margin-bottom: 50.52pt; background-position: 20% 0%; padding-left: calc(10% - 50.52pt - 16.84pt); font-size: 16.84pt; margin-left: 8.42pt; writing-mode: vertical-lr; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;writing-mode:vertical-lr;",
+				style.getMinifiedCssText());
+		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vb;margin-left:1vb");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
@@ -441,6 +694,26 @@ public class ComputedCSSStyleTest {
 				style.getCssText());
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;",
+				style.getMinifiedCssText());
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vb;margin-left:1vb;writing-mode:vertical-lr");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(11.9f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(19.9f, box.getPaddingLeft(), 0.01f);
+		assertEquals(23.8f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(35.7f, box.getMarginBottom(), 0.01f);
+		assertEquals(5.95f, box.getMarginLeft(), 0.01f);
+		assertEquals(649.15f, box.getWidth(), 0.01f);
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 23.8pt; margin-bottom: 35.7pt; background-position: 20% 0%; padding-left: calc(10% - 35.7pt - 11.9pt); font-size: 11.9pt; margin-left: 5.95pt; writing-mode: vertical-lr; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;writing-mode:vertical-lr;",
 				style.getMinifiedCssText());
 		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vmin;margin-left:1vmin");
@@ -510,6 +783,21 @@ public class ComputedCSSStyleTest {
 		assertEquals(50.4f, box.getMarginBottom(), 0.01f);
 		assertEquals(13.2f, box.getMarginLeft(), 0.01f);
 		assertEquals(661.5f, box.getWidth(), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null)
+				.setCssText("font-size: var(--foo,1.4rem);margin-left:var(--bar,0.9rem)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0.3f, box.getPaddingLeft(), 0.01f);
+		assertEquals(33.6f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(50.4f, box.getMarginBottom(), 0.01f);
+		assertEquals(10.8f, box.getMarginLeft(), 0.01f);
+		assertEquals(663.9f, box.getWidth(), 0.01f);
 		//
 		xhtmlDoc.getOverrideStyle(elm, null)
 				.setCssText("font-size: max(110%,var(--foo,1.4rem));margin-left:calc(1em - var(--bar,0.3rem))");
