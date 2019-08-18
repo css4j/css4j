@@ -306,8 +306,8 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			Element element;
 			if (document == null) {
 				// This is the first element in the document. Are we in XHTML?
-				if (!"html".equalsIgnoreCase(localName) && (HTMLDocument.HTML_NAMESPACE_URI.equals(uri)
-						|| (documentType != null && "html".equals(documentType.getName())))) {
+				if (!"html".equals(localName) && (HTMLDocument.HTML_NAMESPACE_URI.equals(uri)
+						|| (documentType != null && "html".equalsIgnoreCase(documentType.getName())))) {
 					// Document is HTML but first element is not <html>:
 					String deQname = "html";
 					if (!qName.equalsIgnoreCase(localName)) {
@@ -343,7 +343,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 				Attributes2 atts2 = (Attributes2) atts;
 				if (!atts2.isSpecified(i)) {
 					if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
-							&& "preserve".equals(atts.getValue(i)) && isNativeDOM) {
+							&& "preserve".equalsIgnoreCase(atts.getValue(i)) && isNativeDOM) {
 						((DOMElement) element).setRawText();
 					}
 					continue;
@@ -568,7 +568,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			for (int i = 0; i < len; i++) {
 				Attributes2 atts2 = (Attributes2) atts;
 				if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
-						&& "preserve".equals(atts.getValue(i)) && element instanceof DOMElement) {
+						&& "preserve".equalsIgnoreCase(atts.getValue(i)) && element instanceof DOMElement) {
 					((DOMElement) element).setRawText();
 				}
 				String attrQName = atts2.getQName(i);
@@ -577,7 +577,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 				if (isNativeDOM) {
 					((DOMAttr) attr).specified = atts2.isSpecified(i);
 					if (DOMDocument.XML_NAMESPACE_URI.equals(atts2.getURI(i)) && "space".equals(atts2.getLocalName(i))
-							&& "preserve".equals(atts2.getValue(i))) {
+							&& "preserve".equalsIgnoreCase(atts2.getValue(i))) {
 						((DOMElement) element).setRawText();
 					}
 				}
