@@ -60,6 +60,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 
 	/**
 	 * Gets the local name of the element to which this selector matcher applies.
+	 * <p>
+	 * It is guaranteed to be lowercase.
 	 * 
 	 * @return the local name.
 	 */
@@ -67,6 +69,11 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		return localName;
 	}
 
+	/**
+	 * Set the local name of the element that this matcher belongs to.
+	 * 
+	 * @param localname the lowercase local name.
+	 */
 	protected void setLocalName(String localname) {
 		this.localName = localname;
 	}

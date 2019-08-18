@@ -896,7 +896,7 @@ public class ValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_FUNCTION:
-				String func = lunit.getFunctionName();
+				String func = lunit.getFunctionName().toLowerCase(Locale.US);
 				if ("rgb".equals(func) || "rgba".equals(func) || "hsl".equals(func) || "hsla".equals(func)
 						|| "hwb".equals(func)) {
 					primi = new ColorValue();

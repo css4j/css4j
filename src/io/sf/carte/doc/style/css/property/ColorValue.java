@@ -75,7 +75,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 			short ptype = ((CSSPrimitiveValue) value).getPrimitiveType();
 			if (ptype == CSSPrimitiveValue.CSS_IDENT) {
-				String ident = ((CSSPrimitiveValue) value).getStringValue();
+				String ident = ((CSSPrimitiveValue) value).getStringValue().toLowerCase(Locale.US);
 				String colorspec = ColorIdentifiers.getInstance().getColor(ident);
 				if (colorspec != null) {
 					value = factory.parseProperty(colorspec);
@@ -168,7 +168,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			LexicalUnit lu = lunit.getParameters();
 			String func = lunit.getFunctionName();
 			try {
-				if ("rgb".equals(func) || "rgba".equals(func)) {
+				if ("rgb".equalsIgnoreCase(func) || "rgba".equalsIgnoreCase(func)) {
 					// red
 					AbstractCSSPrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, false);
 					color.setRed(basiccolor);
@@ -197,7 +197,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 						lu = lu.getNextLexicalUnit();
 					}
 					colorSpace = RGBAColor.ColorSpace.RGB;
-				} else if ("hsl".equals(func) || "hsla".equals(func)) {
+				} else if ("hsl".equalsIgnoreCase(func) || "hsla".equalsIgnoreCase(func)) {
 					// hue
 					CSSPrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, false);
 					float hue = basiccolor.getFloatValue(CSSPrimitiveValue.CSS_DEG) / 360f;
@@ -226,7 +226,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 					}
 					translateHSL(hue, sat, light);
 					colorSpace = RGBAColor.ColorSpace.HSL;
-				} else if ("hwb".equals(func)) {
+				} else if ("hwb".equalsIgnoreCase(func)) {
 					// hue
 					CSSPrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, false);
 					float hue = basiccolor.getFloatValue(CSSPrimitiveValue.CSS_DEG) / 360f;

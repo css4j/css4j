@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
@@ -111,7 +112,7 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 	@Override
 	public RGBAColor getRGBColorValue() throws DOMException {
 		if (getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-			String ident = getStringValue();
+			String ident = getStringValue().toLowerCase(Locale.US);
 			String spec;
 			if ("transparent".equals(ident)) {
 				spec = "rgba(0,0,0,0)";

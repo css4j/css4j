@@ -41,6 +41,7 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.NumberValue;
@@ -460,6 +461,11 @@ public class ComputedCSSStyleTest {
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(12f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-right:calc(1.5*var(--foo));--foo:var(FONT-SIZE)");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		CSSPrimitiveValue marginRight = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-right");
+		assertEquals(18f, marginRight.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:smaller");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
@@ -485,6 +491,13 @@ public class ComputedCSSStyleTest {
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals("medium", fontSize.getStringValue());
 		assertEquals(12f, style.getComputedFontSize(), 0.01f);
+		//
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("color:BLUE");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		CSSPrimitiveValue2 color = (CSSPrimitiveValue2) style.getPropertyCSSValue("color");
+		assertEquals(CSSPrimitiveValue.CSS_RGBCOLOR, color.getPrimitiveType());
+		RGBAColor rgb = color.getRGBColorValue();
+		assertEquals("#00f", rgb.toString());
 	}
 
 	@Test

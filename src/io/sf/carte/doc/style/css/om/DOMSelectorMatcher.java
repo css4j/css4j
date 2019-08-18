@@ -43,9 +43,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 		if (name == null) {
 			name = elm.getTagName();
 		}
-		if (name != null) {
-			name = name.toLowerCase(Locale.US).intern();
-		}
+		name = name.toLowerCase(Locale.US).intern();
 		setLocalName(name);
 	}
 
@@ -326,7 +324,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 			return false;
 		}
 		while (parent != null && parent.getNodeType() == Node.ELEMENT_NODE) {
-			if ("form".equals(((CSSElement) parent).getTagName())) {
+			if ("form".equalsIgnoreCase(((CSSElement) parent).getTagName())) {
 				break;
 			}
 			parent = parent.getParentNode();
@@ -369,11 +367,11 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 				String tagname = element.getTagName().toLowerCase(Locale.US);
 				if (tagname.equals("input")) {
 					String type = element.getAttribute("type");
-					if ("submit".equals(type) || "image".equals(type)) {
+					if ("submit".equalsIgnoreCase(type) || "image".equalsIgnoreCase(type)) {
 						return false;
 					}
 				} else if (tagname.equals("button")) {
-					if ("submit".equals(element.getAttribute("type"))) {
+					if ("submit".equalsIgnoreCase(element.getAttribute("type"))) {
 						return false;
 					}
 				}

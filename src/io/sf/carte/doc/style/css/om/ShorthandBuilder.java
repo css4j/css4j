@@ -486,15 +486,15 @@ abstract class ShorthandBuilder {
 		if (value2.isSystemDefault() != value1.isSystemDefault()) {
 			return false;
 		}
-		if (value1.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE &&
-				value2.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+		if (value1.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
+				&& value2.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 			AbstractCSSPrimitiveValue pvalue1 = (AbstractCSSPrimitiveValue) value1;
 			short type1 = pvalue1.getPrimitiveType();
 			AbstractCSSPrimitiveValue pvalue2 = (AbstractCSSPrimitiveValue) value2;
 			short type2 = pvalue2.getPrimitiveType();
 			if (type1 == CSSPrimitiveValue.CSS_IDENT) {
 				if (type2 == CSSPrimitiveValue.CSS_RGBCOLOR) {
-					return testColorIdentifier(pvalue2, pvalue1.getStringValue());
+					return testColorIdentifier(pvalue2, pvalue1.getStringValue().toLowerCase(Locale.US));
 				} else if (type2 == CSSPrimitiveValue.CSS_IDENT) {
 					return pvalue1.getStringValue().equalsIgnoreCase(pvalue2.getStringValue());
 				}

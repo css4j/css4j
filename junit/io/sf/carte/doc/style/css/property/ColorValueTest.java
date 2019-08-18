@@ -48,9 +48,9 @@ public class ColorValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_RGBCOLOR, ((CSSPrimitiveValue) value).getPrimitiveType());
 		ColorValue val = (ColorValue) value;
-		RGBColor rgb = val.getRGBColorValue();
+		RGBAColor rgb = val.getRGBColorValue();
 		assertEquals(8, rgb.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
-		assertEquals(0.5f, ((RGBAColor) rgb).getAlpha().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(0.5f, rgb.getAlpha().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
 		//
 		style.setCssText("color: rgb(8 63 255); ");
 		assertEquals("#083fff", style.getPropertyValue("color"));
@@ -64,12 +64,36 @@ public class ColorValueTest {
 		assertEquals(CSSPrimitiveValue.CSS_RGBCOLOR, ((CSSPrimitiveValue) value).getPrimitiveType());
 		val = (ColorValue) value;
 		rgb = val.getRGBColorValue();
-		assertEquals(8, rgb.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
-		assertEquals(0.5f, ((RGBAColor) rgb).getAlpha().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(8f, rgb.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(0.5f, rgb.getAlpha().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
 		//
 		val = new ColorValue();
 		val.setCssText("rgb(8, 63, 255)");
 		assertEquals(1f, val.getRGBColorValue().getAlpha().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		//
+		val.setCssText("magenta");
+		rgb = val.getRGBColorValue();
+		assertEquals(1f, rgb.getAlpha().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(255f, rgb.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(0f, rgb.getGreen().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(255f, rgb.getBlue().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		//
+		val.setCssText("BLUE");
+		rgb = val.getRGBColorValue();
+		assertEquals(1f, rgb.getAlpha().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(0f, rgb.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(0f, rgb.getGreen().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(255f, rgb.getBlue().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		//
+		style.setCssText("color: RGBA(8, 63, 255, 0);");
+		val = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		rgb = val.getRGBColorValue();
+		assertEquals(0f, rgb.getAlpha().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(8f, rgb.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(63f, rgb.getGreen().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		assertEquals(255f, rgb.getBlue().getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.001);
+		//
 		style.setCssText("color: rgba(8, 63, 255, 0); ");
 		assertEquals("rgba(8, 63, 255, 0)", style.getPropertyValue("color"));
 		assertEquals("color: rgba(8, 63, 255, 0); ", style.getCssText());

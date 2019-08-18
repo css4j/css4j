@@ -483,7 +483,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private AbstractCSSValue evaluateCustomProperty(CustomPropertyValue value, boolean useParentStyle) {
-		String propertyName = value.getStringValue();
+		String propertyName = getCanonicalPropertyName(value.getStringValue());
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
 		} else if (customPropertyStack.contains(propertyName)) {
@@ -622,22 +622,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			sz = getParentElementFontSize() * factor;
 			break;
 		case CSSPrimitiveValue.CSS_IDENT:
-			// Conversion to lower case is probably not needed
-			String sizeIdentifier = cssSize.getStringValue().toLowerCase(Locale.US);
-			try {
-				// relative size: larger, smaller.
-				String familyName = getUsedFontFamily();
-				if ("larger".equals(sizeIdentifier)) {
-					cssSize = getLargerFontSize(familyName);
-				} else if ("smaller".equals(sizeIdentifier)) {
-					cssSize = getSmallerFontSize(familyName);
-				}
-				return cssSize;
-			} catch (DOMException e) {
-				computedStyleError("font-size", sizeIdentifier, "Unknown identifier");
-				sz = getInitialFontSize();
+			String sizeIdentifier = cssSize.getStringValue();
+			// relative size: larger, smaller.
+			String familyName = getUsedFontFamily();
+			if ("larger".equalsIgnoreCase(sizeIdentifier)) {
+				cssSize = getLargerFontSize(familyName);
+			} else if ("smaller".equalsIgnoreCase(sizeIdentifier)) {
+				cssSize = getSmallerFontSize(familyName);
 			}
-			break;
+			return cssSize;
 		case CSSPrimitiveValue.CSS_PERCENTAGE:
 			float pcnt = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE);
 			// Use parent element's size.
@@ -752,7 +745,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private AbstractCSSValue evaluateFontCustomProperty(CustomPropertyValue cssSize) {
-		String propertyName = cssSize.getStringValue();
+		String propertyName = getCanonicalPropertyName(cssSize.getStringValue());
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
 		} else if (customPropertyStack.contains(propertyName)) {
@@ -822,9 +815,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		// CSS spec, sect. 9.7
 		String strVal = ((CSSPrimitiveValue) value).getStringValue();
-		if (!"none".equals(strVal)) {
+		if (!"none".equalsIgnoreCase(strVal)) {
 			String position = ((CSSPrimitiveValue) getCSSValue("position")).getStringValue();
-			if ("absolute".equals(position) || "fixed".equals(position)) {
+			if ("absolute".equalsIgnoreCase(position) || "fixed".equalsIgnoreCase(position)) {
 				computedValue = computeConstrainedDisplay(value);
 			} else {
 				String floatProp = ((CSSPrimitiveValue) getCSSValue("float")).getStringValue();
@@ -833,7 +826,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				 * If float is not 'none' or the owner node is the root element (here checked as
 				 * "parent node is document"), then constrain 'display'
 				 */
-				if (!"none".equals(floatProp)
+				if (!"none".equalsIgnoreCase(floatProp)
 						|| ((node = getOwnerNode()).getParentNode() == node.getOwnerDocument())) {
 					computedValue = computeConstrainedDisplay(value);
 				}
@@ -851,7 +844,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 * @return the constrained value.
 	 */
 	private AbstractCSSValue computeConstrainedDisplay(AbstractCSSValue value) {
-		String display = ((CSSPrimitiveValue) value).getStringValue();
+		String display = ((CSSPrimitiveValue) value).getStringValue().toLowerCase(Locale.US);
 		if ("inline-table".equals(display)) {
 			return new IdentifierValue("table");
 		} else if ("inline".equals(display) || "run-in".equals(display) || "table-row-group".equals(display)
@@ -1291,7 +1284,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			height = getComputedFontSize() * cssval.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) / 100f;
 		} else if (declType == CSSPrimitiveValue.CSS_IDENT) {
 			// expect "normal"
-			if (!"normal".equals(cssval.getStringValue())) {
+			if (!"normal".equalsIgnoreCase(cssval.getStringValue())) {
 				computedStyleError("line-height", cssval.getStringValue(), "Wrong value: expected 'normal'");
 			}
 			height = defval * getComputedFontSize();
