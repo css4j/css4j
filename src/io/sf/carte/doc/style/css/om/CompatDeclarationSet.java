@@ -107,24 +107,20 @@ class CompatDeclarationSet {
 
 	static void writeIEPrioCharShorthandCssText(SimpleWriter wri, StyleFormattingContext context, String shorthandName,
 			ShorthandValue compatvalue) throws IOException {
-		context.startPropertyDeclaration(wri);
 		wri.write(shorthandName);
 		context.writeColon(wri);
 		wri.write(compatvalue.getCssText());
 		wri.write("!important!");
 		context.writeSemiColon(wri);
-		context.endPropertyDeclaration(wri);
 	}
 
 	static void writeIEPrioCharLonghandCssText(SimpleWriter wri, StyleFormattingContext context, String ptyname,
 			AbstractCSSValue compatvalue) throws IOException {
-		context.startPropertyDeclaration(wri);
 		wri.write(ptyname);
 		context.writeColon(wri);
 		compatvalue.writeCssText(wri);
 		wri.write("!important!");
 		context.writeSemiColon(wri);
-		context.endPropertyDeclaration(wri);
 	}
 
 	ShorthandValue getCompatShorthand(String shorthandName) {

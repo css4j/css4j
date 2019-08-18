@@ -45,6 +45,11 @@ public class DefaultStyleFormattingContext implements StyleFormattingContext {
 	}
 
 	@Override
+	public void endInlinePropertyDeclaration(SimpleWriter wri) throws IOException {
+		wri.write(' ');
+	}
+
+	@Override
 	public void endRule(SimpleWriter wri) throws IOException {
 		wri.newLine();
 	}

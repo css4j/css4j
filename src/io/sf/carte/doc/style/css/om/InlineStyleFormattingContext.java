@@ -13,12 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -32,6 +28,10 @@ public class InlineStyleFormattingContext extends DefaultStyleFormattingContext 
 
 	@Override
 	public void endPropertyDeclaration(SimpleWriter wri) throws IOException {
+	}
+
+	@Override
+	public void endInlinePropertyDeclaration(SimpleWriter wri) throws IOException {
 	}
 
 	@Override
@@ -60,19 +60,6 @@ public class InlineStyleFormattingContext extends DefaultStyleFormattingContext 
 	public void writeSemiColon(SimpleWriter wri) throws IOException {
 		wri.write(';');
 		wri.write(' ');
-	}
-
-	@Override
-	public void writeValue(SimpleWriter wri, String propertyName, ExtendedCSSValue value) throws IOException {
-		CSSPrimitiveValue primi;
-		if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE || (primi = (CSSPrimitiveValue) value).getPrimitiveType() != CSSPrimitiveValue.CSS_STRING) {
-			value.writeCssText(wri);
-		} else {
-			String s = primi.getStringValue();
-			s = ParseHelper.escapeControl(s);
-			s = ParseHelper.quote(s, '\'');
-			wri.write(s);
-		}
 	}
 
 }

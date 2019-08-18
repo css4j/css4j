@@ -14,13 +14,17 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 
 import org.w3c.dom.Attr;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
+import org.w3c.dom.css.CSSPrimitiveValue;
+import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.util.BufferSimpleWriter;
+import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.parser.ParseHelper;
+import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.util.SimpleWriter;
 
 /**
  * CSS Inline style declaration.
@@ -40,15 +44,42 @@ abstract public class InlineStyle extends BaseCSSStyleDeclaration implements Nod
 	}
 
 	@Override
-	public String getCssText() {
-		InlineStyleFormattingContext context = new InlineStyleFormattingContext();
-		BufferSimpleWriter sw = new BufferSimpleWriter(50 + getLength() * 16);
-		try {
-			writeCssText(sw, context);
-		} catch (IOException e) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+	protected void writeShorthandCssText(SimpleWriter wri, StyleFormattingContext context, String shorthandName,
+			ShorthandValue shval) throws IOException {
+		wri.write(shorthandName);
+		context.writeColon(wri);
+		context.writeShorthandValue(wri, shorthandName, shval);
+		if (shval.isImportant()) {
+			context.writeImportantPriority(wri);
 		}
-		return sw.toString();
+		context.writeSemiColon(wri);
+		context.endInlinePropertyDeclaration(wri);
+	}
+
+	@Override
+	protected void writeLonghandCssText(SimpleWriter wri, StyleFormattingContext context, String ptyname,
+			AbstractCSSValue ptyvalue, boolean important) throws IOException {
+		wri.write(ptyname);
+		context.writeColon(wri);
+		writeValue(wri, ptyname, ptyvalue);
+		if (important) {
+			context.writeImportantPriority(wri);
+		}
+		context.writeSemiColon(wri);
+		context.endInlinePropertyDeclaration(wri);
+	}
+
+	private void writeValue(SimpleWriter wri, String propertyName, AbstractCSSValue value) throws IOException {
+		CSSPrimitiveValue primi;
+		if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
+				|| (primi = (CSSPrimitiveValue) value).getPrimitiveType() != CSSPrimitiveValue.CSS_STRING) {
+			value.writeCssText(wri);
+		} else {
+			String s = primi.getStringValue();
+			s = ParseHelper.escapeControl(s);
+			s = ParseHelper.quote(s, '\'');
+			wri.write(s);
+		}
 	}
 
 	@Override

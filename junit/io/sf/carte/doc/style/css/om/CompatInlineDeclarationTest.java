@@ -55,6 +55,7 @@ public class CompatInlineDeclarationTest {
 	@BeforeClass
 	public static void setUpBeforeClass() {
 		factory = new DOMCSSStyleSheetFactory();
+		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
 		factory.getParserFlags().add(Parser2.Flag.IEPRIO);
 		factory.getParserFlags().add(Parser2.Flag.IEPRIOCHAR);

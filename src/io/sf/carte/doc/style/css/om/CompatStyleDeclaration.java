@@ -133,7 +133,9 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 		ShorthandValue compatvalue;
 		if (!isCompatOv && !shval.isImportant()
 				&& (compatvalue = compatSet.getNonOvCompatShorthand(shorthandName)) != null) {
+			context.startPropertyDeclaration(wri);
 			CompatDeclarationSet.writeIEPrioCharShorthandCssText(wri, context, shorthandName, compatvalue);
+			context.endPropertyDeclaration(wri);
 		}
 		super.writeShorthandCssText(wri, context, shorthandName, shval);
 		if (isCompatOv) {
@@ -141,7 +143,9 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 			if (!compatvalue.isPriorityCompat()) {
 				super.writeShorthandCssText(wri, context, shorthandName, compatvalue);
 			} else {
+				context.startPropertyDeclaration(wri);
 				CompatDeclarationSet.writeIEPrioCharShorthandCssText(wri, context, shorthandName, compatvalue);
+				context.endPropertyDeclaration(wri);
 			}
 		}
 	}
@@ -152,7 +156,9 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 		boolean isCompatOv = compatSet.isCompatLonghand(ptyname);
 		AbstractCSSValue compatvalue;
 		if (!isCompatOv && !important && (compatvalue = compatSet.getNonOvCompatLonghand(ptyname)) != null) {
+			context.startPropertyDeclaration(wri);
 			CompatDeclarationSet.writeIEPrioCharLonghandCssText(wri, context, ptyname, compatvalue);
+			context.endPropertyDeclaration(wri);
 		}
 		super.writeLonghandCssText(wri, context, ptyname, ptyvalue, important);
 		if (isCompatOv) {
@@ -161,7 +167,9 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 				super.writeLonghandCssText(wri, context, ptyname, compatvalue,
 						compatSet.isImportantCompatLonghand(ptyname));
 			} else {
+				context.startPropertyDeclaration(wri);
 				CompatDeclarationSet.writeIEPrioCharLonghandCssText(wri, context, ptyname, compatvalue);
+				context.endPropertyDeclaration(wri);
 			}
 		}
 	}

@@ -978,6 +978,7 @@ public class HTMLDocumentTest {
 		CSSStyleDeclaration style = elm.getStyle();
 		assertEquals("font-family: 'Does Not Exist', Neither; color: navy; ", style.getCssText());
 		assertEquals(2, style.getLength());
+		assertEquals("'Does Not Exist', Neither", style.getPropertyValue("font-family"));
 		DocumentCSSStyleSheet sheet = xhtmlDoc.getStyleSheet();
 		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(19, styledecl.getLength());

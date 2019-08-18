@@ -34,6 +34,8 @@ public interface StyleFormattingContext {
 
 	void endPropertyDeclaration(SimpleWriter wri) throws IOException;
 
+	void endInlinePropertyDeclaration(SimpleWriter wri) throws IOException;
+
 	void endRule(SimpleWriter wri) throws IOException;
 
 	void endRuleList(SimpleWriter wri) throws IOException;
