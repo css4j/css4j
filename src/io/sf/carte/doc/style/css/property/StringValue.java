@@ -247,7 +247,7 @@ public class StringValue extends AbstractCSSPrimitiveValue {
 			if (other.stringValue != null) {
 				return false;
 			}
-		} else if (!getCssText().equals(other.getCssText())) {
+		} else if (!stringValue.equals(other.stringValue)) {
 			return false;
 		}
 		return true;

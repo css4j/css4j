@@ -184,6 +184,14 @@ public class StringValueTest {
 		other.setCssText("foo");
 		assertFalse(value.equals(other));
 		assertFalse(value.hashCode() == other.hashCode());
+		//
+		value.setCssText("\"foo\"");
+		other.setCssText("'foo'");
+		assertTrue(value.equals(other));
+		assertTrue(value.hashCode() == other.hashCode());
+		other.setCssText("foo");
+		assertTrue(value.equals(other));
+		assertTrue(value.hashCode() == other.hashCode());
 	}
 
 	@Test
