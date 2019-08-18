@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
@@ -20,11 +21,16 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 
 class StandAloneErrorHandler implements ErrorHandler {
 
-	private boolean errors = false, warnings = false;
+	private boolean cserrors = false, errors = false, warnings = false;
+
+	@Override
+	public boolean hasComputedStyleErrors() {
+		return cserrors;
+	}
 
 	@Override
 	public boolean hasErrors() {
-		return errors;
+		return errors || cserrors;
 	}
 
 	@Override
@@ -67,9 +73,25 @@ class StandAloneErrorHandler implements ErrorHandler {
 	}
 
 	@Override
+	public void computedStyleError(Node node, String propertyName, String propertyValue, String message) {
+		cserrors = true;
+	}
+
+	@Override
+	public void presentationalHintError(CSSElement elm, DOMException e) {
+		errors = true;
+	}
+
+	@Override
+	public void resetComputedStyleErrors() {
+		cserrors = false;
+	}
+
+	@Override
 	public void reset() {
 		errors = true;
 		warnings = false;
+		resetComputedStyleErrors();
 	}
 
 }

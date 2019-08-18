@@ -167,7 +167,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 			try {
 				elt.exportHintsToStyle(style);
 			} catch (DOMException e) {
-				getErrorHandler().presentationalHintError(elt, e);
+				elt.getOwnerDocument().getErrorHandler().presentationalHintError(elt, e);
 			}
 		}
 		/*

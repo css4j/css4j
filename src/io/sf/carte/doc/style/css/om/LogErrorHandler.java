@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
@@ -25,11 +26,16 @@ abstract public class LogErrorHandler extends AbstractErrorHandler {
 
 	static Logger log = LoggerFactory.getLogger(LogErrorHandler.class.getName());
 
-	private boolean errors = false, warnings = false;
+	private boolean cserrors = false, errors = false, warnings = false;
+
+	@Override
+	public boolean hasComputedStyleErrors() {
+		return cserrors;
+	}
 
 	@Override
 	public boolean hasErrors() {
-		return errors || hasInlineErrors();
+		return errors || hasInlineErrors() || hasComputedStyleErrors();
 	}
 
 	@Override
@@ -69,6 +75,31 @@ abstract public class LogErrorHandler extends AbstractErrorHandler {
 	public void inlineStyleError(CSSElement owner, Exception e, String context) {
 		log.error(context, e);
 		errors = true;
+	}
+
+	@Override
+	public void computedStyleError(Node node, String propertyName, String propertyValue, String message) {
+		log.error("Computed style error [" + propertyName + "]: " + message);
+		cserrors = true;
+	}
+
+	@Override
+	public void presentationalHintError(CSSElement elm, DOMException e) {
+		log.error("Presentational hint error (element " + elm.getTagName() + ")", e);
+		errors = true;
+	}
+
+	@Override
+	public void resetComputedStyleErrors() {
+		cserrors = false;
+	}
+
+	@Override
+	public void reset() {
+		errors = true;
+		warnings = false;
+		resetComputedStyleErrors();
+		super.reset();
 	}
 
 }

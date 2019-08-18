@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
@@ -20,6 +21,13 @@ import org.w3c.dom.css.CSSStyleSheet;
  * @see CSSDocument#getErrorHandler()
  */
 public interface ErrorHandler {
+
+	/**
+	 * Check whether this handler has processed computed style errors.
+	 * 
+	 * @return <code>true</code> if this handler processed computed style errors.
+	 */
+	boolean hasComputedStyleErrors();
 
 	/**
 	 * Check whether this handler has processed any errors.
@@ -70,6 +78,39 @@ public interface ErrorHandler {
 	StyleDeclarationErrorHandler getInlineStyleErrorHandler(CSSElement owner);
 
 	void inlineStyleError(CSSElement owner, Exception e, String inlineStyle);
+
+	/**
+	 * Error found in computed style declaration.
+	 * <p>
+	 * This means that an error could only be found when processing the values for computing
+	 * the style.
+	 * 
+	 * @param node
+	 *            the node for which the style was computed.
+	 * @param propertyName
+	 *            the name of the property involved in error.
+	 * @param propertyValue
+	 *            the value of the property involved in the error.
+	 * @param message
+	 *            description of the error.
+	 */
+	void computedStyleError(Node node, String propertyName, String propertyValue, String message);
+
+	/**
+	 * While computing a style, an error was found when processing the presentational hints of
+	 * an element.
+	 * 
+	 * @param elm
+	 *            the element.
+	 * @param e
+	 *            the exception describing the error found.
+	 */
+	void presentationalHintError(CSSElement elm, DOMException e);
+
+	/**
+	 * Reset the error state about computed styles and presentational hints.
+	 */
+	void resetComputedStyleErrors();
 
 	/**
 	 * Reset the error handler.

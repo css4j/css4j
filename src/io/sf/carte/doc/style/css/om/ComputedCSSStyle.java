@@ -1154,7 +1154,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private void computedStyleError(String propertyName, String propertyValue, String message) {
-		((CSSDocument) getOwnerNode().getOwnerDocument()).getStyleSheet().getErrorHandler()
+		((CSSDocument) getOwnerNode().getOwnerDocument()).getErrorHandler()
 				.computedStyleError(getOwnerNode(), propertyName, propertyValue, message);
 	}
 

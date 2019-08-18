@@ -15,7 +15,6 @@ import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSRule;
 
 /**
@@ -40,34 +39,6 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 *            the media list.
 	 */
 	void badMediaList(SACMediaList media);
-
-	/**
-	 * Error found in computed style declaration.
-	 * <p>
-	 * This means that an error could only be found when processing the values for computing
-	 * the style.
-	 * 
-	 * @param node
-	 *            the node for which the style was computed.
-	 * @param propertyName
-	 *            the name of the property involved in error.
-	 * @param propertyValue
-	 *            the value of the property involved in the error.
-	 * @param message
-	 *            description of the error.
-	 */
-	void computedStyleError(Node node, String propertyName, String propertyValue, String message);
-
-	/**
-	 * While computing a style, an error was found when processing the presentational hints of
-	 * an element.
-	 * 
-	 * @param elm
-	 *            the element.
-	 * @param e
-	 *            the exception describing the error found.
-	 */
-	void presentationalHintError(CSSElement elm, DOMException e);
 
 	/**
 	 * Notify this handler that an empty style rule (a style rule without property value
@@ -172,10 +143,5 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 * Reset the error handler, getting it ready for a new run.
 	 */
 	void reset();
-
-	/**
-	 * Reset the error state about computed styles and presentational hints.
-	 */
-	void resetComputedStyleErrors();
 
 }

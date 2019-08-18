@@ -300,7 +300,7 @@ abstract class SimpleBoxModel {
 				try {
 					box.width = Float.parseFloat(elm.getAttribute("width"));
 				} catch (NumberFormatException e) {
-					elm.getOwnerDocument().getStyleSheet().getErrorHandler().computedStyleError(elm, "width",
+					elm.getOwnerDocument().getErrorHandler().computedStyleError(elm, "width",
 							elm.getAttribute("width"), "Could not parse value of 'width' attribute for img element");
 					;
 				}

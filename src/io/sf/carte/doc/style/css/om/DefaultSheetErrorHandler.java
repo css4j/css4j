@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -45,8 +44,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	private LinkedList<SACMediaList> badMediaLists = null;
 	private LinkedList<String> badAtRules = null;
 	private LinkedList<String> badInlineStyles = null;
-	private LinkedList<ComputedStyleError> computedStyleErrors = null;
-	private LinkedHashMap<CSSElement, DOMException> hintErrors;
 	private List<AbstractCSSRule> ruleList = null;
 
 	private List<CSSParseException> sacWarnings = null;
@@ -80,27 +77,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 			badMediaLists = new LinkedList<SACMediaList>();
 		}
 		badMediaLists.add(media);
-	}
-
-	@Override
-	public void computedStyleError(Node node, String propertyName, String propertyValue, String message) {
-		if (computedStyleErrors == null) {
-			computedStyleErrors = new LinkedList<ComputedStyleError>();
-		}
-		MyComputedStyleError cse = new MyComputedStyleError();
-		cse.node = node;
-		cse.propertyName = propertyName;
-		cse.propertyValue = propertyValue;
-		cse.message = message;
-		computedStyleErrors.add(cse);
-	}
-
-	@Override
-	public void presentationalHintError(CSSElement elm, DOMException e) {
-		if (hintErrors == null) {
-			hintErrors = new LinkedHashMap<CSSElement, DOMException>();
-		}
-		hintErrors.put(elm, e);
 	}
 
 	private void logSheetInfo() {
@@ -139,14 +115,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 
 	public LinkedList<SACMediaList> getBadMediaLists() {
 		return badMediaLists;
-	}
-
-	public LinkedList<ComputedStyleError> getComputedStyleErrors() {
-		return computedStyleErrors;
-	}
-
-	public LinkedHashMap<CSSElement, DOMException> getHintErrors() {
-		return hintErrors;
 	}
 
 	public LinkedList<String> getEmptyStyleRules() {
@@ -198,8 +166,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	@Override
 	public boolean hasOMErrors() {
 		return omErrorMergedState || unknownRules != null || ignoredImports != null || ruleParseErrors != null
-				|| badMediaLists != null || badAtRules != null || badInlineStyles != null || computedStyleErrors != null
-				|| hintErrors != null;
+				|| badMediaLists != null || badAtRules != null || badInlineStyles != null;
 	}
 
 	@Override
@@ -298,13 +265,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		badMediaLists = null;
 		badAtRules = null;
 		badInlineStyles = null;
-		resetComputedStyleErrors();
-	}
-
-	@Override
-	public void resetComputedStyleErrors() {
-		computedStyleErrors = null;
-		hintErrors = null;
 	}
 
 	@Override
@@ -371,54 +331,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		unknownRules.add(rule);
 	}
 
-	public interface ComputedStyleError {
-
-		String getMessage();
-
-		Node getNode();
-
-		String getPropertyName();
-
-		String getPropertyValue();
-
-	}
-
-	class MyComputedStyleError implements ComputedStyleError {
-		private Node node;
-		private String propertyName;
-		private String propertyValue;
-		private String message;
-
-		@Override
-		public String getMessage() {
-			return message;
-		}
-
-		@Override
-		public Node getNode() {
-			return node;
-		}
-
-		@Override
-		public String getPropertyName() {
-			return propertyName;
-		}
-
-		@Override
-		public String getPropertyValue() {
-			return propertyValue;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			buf.append("Node: <").append(node.getNodeName()).append(">, ").append(propertyName).append(':').append(' ')
-					.append(propertyValue).append(" Message: ").append(message);
-			return buf.toString();
-		}
-
-	}
-
 	public interface RuleParseError {
 
 		CSSParseException getException();
@@ -427,7 +339,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 
 	}
 
-	class MyRuleParseError implements RuleParseError {
+	private class MyRuleParseError implements RuleParseError {
 		CSSRule rule;
 		CSSParseException ex;
 

@@ -1024,13 +1024,13 @@ public class HTMLDocumentTest {
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(11, styledecl.getLength());
 		assertEquals("rgb(0 0 0 / 0)", styledecl.getPropertyValue("background-color"));
-		assertTrue(sheet.getErrorHandler().hasOMErrors());
-		sheet.getErrorHandler().resetComputedStyleErrors();
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		xhtmlDoc.getErrorHandler().reset();
 		parent.setAttribute("bgcolor", "#90ff77");
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(12, styledecl.getLength());
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
-		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
 	@Test
