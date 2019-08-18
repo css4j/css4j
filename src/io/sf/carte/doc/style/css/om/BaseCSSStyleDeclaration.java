@@ -1761,7 +1761,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				diff.leftSide.add(property);
 			} else {
 				AbstractCSSValue value = getCSSValue(property);
-				if (value.equals(other.getCSSValue(property))) {
+				AbstractCSSValue otherValue = other.getCSSValue(property);
+				if (value.equals(otherValue)) {
 					int idx = propertyList.indexOf(property);
 					int idxo = other.propertyList.indexOf(property);
 					String prio = priorities.get(idx);
