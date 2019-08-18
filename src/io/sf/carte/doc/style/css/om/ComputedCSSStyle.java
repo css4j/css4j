@@ -157,23 +157,39 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				value = defaultPropertyValue(property, propertydb);
 			}
 		}
-		ComputedCSSStyle ancStyle = this;
 		/*
 		 * We compute inherited value, if appropriate.
 		 */
+		value = inheritValue(this, property, value, inherited);
+		// Still inheriting ?
+		if (value != null && value.getCssValueType() == CSSValue.CSS_INHERIT) {
+			value = null;
+		}
+		value = computeValue(property, value, inherited, propertydb);
+		return value;
+	}
+
+	private boolean isCSSIdentifier(CSSValue value, String ident) {
+		return value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
+				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+				&& ident.equalsIgnoreCase(value.getCssText());
+	}
+
+	private AbstractCSSValue inheritValue(ComputedCSSStyle ancStyle, String propertyName, AbstractCSSValue value,
+			boolean inherited) {
 		while (value == null ? inherited : value.getCssValueType() == CSSValue.CSS_INHERIT) {
 			ancStyle = ancStyle.getParentComputedStyle();
 			if (ancStyle == null) {
 				break;
 			}
-			if (ancStyle.isPropertySet(property)) {
-				value = ancStyle.getCSSValue(property);
+			if (ancStyle.isPropertySet(propertyName)) {
+				value = ancStyle.getCSSValue(propertyName);
 			}
 		}
-		// Still inheriting ?
-		if (value != null && value.getCssValueType() == CSSValue.CSS_INHERIT) {
-			value = null;
-		}
+		return value;
+	}
+
+	private AbstractCSSValue computeValue(String property, AbstractCSSValue value, boolean inherited, PropertyDatabase propertydb) {
 		// Check for null, and apply initial values if appropriate
 		if (value == null || (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
@@ -208,15 +224,25 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					computedStyleError(property, value.getCssText(), e.getMessage());
 					value = null;
 				}
+				if (value == null) {
+					if (inherited) {
+						ComputedCSSStyle ancStyle = this;
+						do {
+							value = inheritValue(ancStyle, property, value, true);
+							value = computeValue(property, value, inherited, propertydb);
+							if (value != null) {
+								break;
+							}
+							ancStyle = ancStyle.getParentComputedStyle();
+						} while (ancStyle != null);
+					}
+					if (value == null || value.getCssValueType() == CSSValue.CSS_INHERIT) {
+						value = defaultPropertyValue(property, propertydb);
+					}
+				}
 			}
 		}
 		return value;
-	}
-
-	private boolean isCSSIdentifier(CSSValue value, String ident) {
-		return value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& ident.equalsIgnoreCase(value.getCssText());
 	}
 
 	private AbstractCSSValue colorValue(String propertyName, AbstractCSSValue value) {
@@ -523,13 +549,27 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		short type = value.getCssValueType();
 		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
 			primi = absoluteFontSizePrimitive((AbstractCSSPrimitiveValue) value);
-		} else {
-			reportFontSizeError(value, "font-size is not a primitive value");
-			NumberValue number = getInitialFontSizeValue();
-			number.setSubproperty(value.isSubproperty());
-			primi = number;
+			if (primi == null) {
+				ComputedCSSStyle ancStyle = this;
+				do {
+					AbstractCSSValue inheritedValue = inheritValue(ancStyle, "font-size", primi, true);
+					primi = absoluteFontSizeValue(inheritedValue);
+					if (primi != null) {
+						break;
+					}
+					ancStyle = ancStyle.getParentComputedStyle();
+				} while (ancStyle != null);
+				if (primi != null) {
+					return primi;
+				}
+			} else {
+				return primi;
+			}
 		}
-		return primi;
+		reportFontSizeError(value, "Could not compute font-size from " + value.getCssText());
+		NumberValue number = getInitialFontSizeValue();
+		number.setSubproperty(value.isSubproperty());
+		return number;
 	}
 
 	private AbstractCSSPrimitiveValue absoluteFontSizePrimitive(AbstractCSSPrimitiveValue cssSize) {
@@ -707,8 +747,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		// Check for custom properties ('variables')
 		case CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY:
 			AbstractCSSValue custom = evaluateFontCustomProperty((CustomPropertyValue) cssSize);
-			if (custom.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+			if (custom != null && custom.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 				cssSize = (AbstractCSSPrimitiveValue) custom;
+			} else {
+				cssSize = null;
 			}
 			return cssSize;
 		default:
@@ -754,9 +796,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				return absoluteFontSizeValue(custom);
 			} else {
 				reportFontSizeError(cssSize, "Dependency loop in " + propertyName);
-				NumberValue number = getInitialFontSizeValue();
-				number.setSubproperty(cssSize.isSubproperty());
-				return number;
+				return null;
 			}
 		}
 		customPropertyStack.add(propertyName);
@@ -768,9 +808,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if (custom != null) {
 					custom = absoluteFontSizeValue(custom);
 				} else {
-					NumberValue number = getInitialFontSizeValue();
-					number.setSubproperty(cssSize.isSubproperty());
-					custom = number;
+					custom = null;
 				}
 			} else {
 				custom = absoluteFontSizeValue(custom);
