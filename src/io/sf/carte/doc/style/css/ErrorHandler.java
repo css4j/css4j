@@ -15,6 +15,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
+import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
+
 /**
  * Handle CSS errors at the CSSDocument.
  * 
@@ -24,10 +26,25 @@ public interface ErrorHandler {
 
 	/**
 	 * Check whether this handler has processed computed style errors.
+	 * <p>
+	 * Presentational hint errors are included in this category, as they are found
+	 * during style computation.
 	 * 
 	 * @return <code>true</code> if this handler processed computed style errors.
 	 */
 	boolean hasComputedStyleErrors();
+
+	/**
+	 * Check whether this handler has processed computed style errors for the given
+	 * element.
+	 * <p>
+	 * Presentational hint errors are included in this category, as they are found
+	 * during style computation.
+	 * 
+	 * @param element the element.
+	 * @return <code>true</code> if this handler processed computed style errors.
+	 */
+	boolean hasComputedStyleErrors(CSSElement element);
 
 	/**
 	 * Check whether this handler has processed any errors.
@@ -85,16 +102,14 @@ public interface ErrorHandler {
 	 * This means that an error could only be found when processing the values for computing
 	 * the style.
 	 * 
-	 * @param node
-	 *            the node for which the style was computed.
+	 * @param element
+	 *            the element for which the style was computed.
 	 * @param propertyName
 	 *            the name of the property involved in error.
-	 * @param propertyValue
-	 *            the value of the property involved in the error.
-	 * @param message
-	 *            description of the error.
+	 * @param exception
+	 *            the exception describing the error.
 	 */
-	void computedStyleError(Node node, String propertyName, String propertyValue, String message);
+	void computedStyleError(CSSElement element, String propertyName, CSSPropertyValueException exception);
 
 	/**
 	 * While computing a style, an error was found when processing the presentational hints of
@@ -102,10 +117,16 @@ public interface ErrorHandler {
 	 * 
 	 * @param elm
 	 *            the element.
-	 * @param e
+	 * @param exception
 	 *            the exception describing the error found.
 	 */
-	void presentationalHintError(CSSElement elm, DOMException e);
+	void presentationalHintError(CSSElement elm, DOMException exception);
+
+	/**
+	 * Reset the error state about computed styles and presentational hints for the
+	 * given element.
+	 */
+	void resetComputedStyleErrors(CSSElement elm);
 
 	/**
 	 * Reset the error state about computed styles and presentational hints.

@@ -621,6 +621,9 @@ public class XHTMLDocumentTest {
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
 		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
 		assertEquals("  foo  bar  ", styledecl.getPropertyValue("content"));
+		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 		// Error in inline style
 		style.setCssText("width:calc(80%-)");
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
@@ -656,11 +659,14 @@ public class XHTMLDocumentTest {
 		assertEquals(11, styledecl.getLength());
 		assertEquals("rgb(0 0 0 / 0)", styledecl.getPropertyValue("background-color"));
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasComputedStyleErrors(parent));
 		xmlDoc.getErrorHandler().reset();
 		parent.setAttribute("bgcolor", "#90ff77");
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(12, styledecl.getLength());
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
+		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 	}
 

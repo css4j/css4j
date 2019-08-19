@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -219,6 +220,8 @@ public class ComputedCSSStyleTest {
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		BoxValues box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
 		assertEquals(19.5f, box.getPaddingLeft(), 0.01f);
 		assertEquals(
@@ -338,6 +341,7 @@ public class ComputedCSSStyleTest {
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VW), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertEquals(
 				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 1vw; ",
 				style.getCssText());
@@ -420,6 +424,8 @@ public class ComputedCSSStyleTest {
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(8f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertEquals(
 				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 8pt; --foo: 8pt; ",
 				style.getCssText());
@@ -430,26 +436,37 @@ public class ComputedCSSStyleTest {
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(8f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo,9pt);--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(9f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:calc(2*var(--foo,5pt));--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(10f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo);--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:calc(2*var(--foo));--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("text-indent:1pt");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
@@ -478,8 +495,10 @@ public class ComputedCSSStyleTest {
 		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:var(--foo);--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(12f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		//
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-right:calc(1.5*var(--foo));--foo:var(FONT-SIZE)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);

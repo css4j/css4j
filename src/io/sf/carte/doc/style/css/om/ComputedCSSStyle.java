@@ -42,6 +42,7 @@ import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.property.AbstractCSSExpression;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.CustomPropertyValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
@@ -1154,8 +1155,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private void computedStyleError(String propertyName, String propertyValue, String message) {
+		CSSPropertyValueException ex = new CSSPropertyValueException(message);
+		ex.setValueText(propertyValue);
 		((CSSDocument) getOwnerNode().getOwnerDocument()).getErrorHandler()
-				.computedStyleError(getOwnerNode(), propertyName, propertyValue, message);
+				.computedStyleError((CSSElement) getOwnerNode(), propertyName, ex);
 	}
 
 	private void reportFontSizeError(CSSValue cssSize, String message) {

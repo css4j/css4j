@@ -296,13 +296,15 @@ abstract class SimpleBoxModel {
 		if (node != null && node.getNodeType() == Node.ELEMENT_NODE) {
 			CSSElement elm = (CSSElement) node;
 			if ("img".equals(elm.getTagName()) && elm.hasAttribute("width")) {
+				String strWidth = elm.getAttribute("width");
 				// Replaced element
 				try {
-					box.width = Float.parseFloat(elm.getAttribute("width"));
+					box.width = Float.parseFloat(strWidth);
 				} catch (NumberFormatException e) {
-					elm.getOwnerDocument().getErrorHandler().computedStyleError(elm, "width",
-							elm.getAttribute("width"), "Could not parse value of 'width' attribute for img element");
-					;
+					String message = "Could not parse value of 'width' attribute for img element";
+					CSSPropertyValueException ex = new CSSPropertyValueException(message, e);
+					ex.setValueText(strWidth);
+					elm.getOwnerDocument().getErrorHandler().computedStyleError(elm, "width", ex);
 				}
 				if (unitType != CSSPrimitiveValue.CSS_PX) {
 					box.width = NumberValue.floatValueConversion(box.width, CSSPrimitiveValue.CSS_PX, unitType);

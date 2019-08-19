@@ -18,6 +18,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
 /**
  * A sample <code>ErrorHandler</code> that uses SLF4J logging.
@@ -78,8 +79,8 @@ abstract public class LogErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void computedStyleError(Node node, String propertyName, String propertyValue, String message) {
-		log.error("Computed style error [" + propertyName + "]: " + message);
+	public void computedStyleError(CSSElement element, String propertyName, CSSPropertyValueException exception) {
+		log.error("Computed style error [" + propertyName + "]: " + exception.getMessage());
 		cserrors = true;
 	}
 

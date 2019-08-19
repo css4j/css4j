@@ -216,6 +216,8 @@ public class StylableDocumentWrapperTest {
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
 		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
 		assertEquals("  foo  bar  ", styledecl.getPropertyValue("content"));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		// Check for non-existing property
 		assertNull(styledecl.getPropertyCSSValue("does-not-exist"));

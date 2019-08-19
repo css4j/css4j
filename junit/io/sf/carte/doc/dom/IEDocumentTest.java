@@ -159,11 +159,14 @@ public class IEDocumentTest {
 		assertEquals(11, styledecl.getLength());
 		assertEquals("rgb(0 0 0 / 0)", styledecl.getPropertyValue("background-color"));
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(parent));
 		xhtmlDoc.getErrorHandler().reset();
 		parent.setAttribute("bgcolor", "#90ff77");
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(12, styledecl.getLength());
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 

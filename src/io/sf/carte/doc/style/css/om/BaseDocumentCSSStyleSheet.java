@@ -27,6 +27,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSRuleListener;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
@@ -163,11 +164,13 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 		matcher.setPseudoElement(pseudoElt);
 		// Obtain the owner element and look for non-CSS presentational hints.
 		CSSElement elt = (CSSElement) style.getOwnerNode();
+		ErrorHandler errHandler = elt.getOwnerDocument().getErrorHandler();
+		errHandler.resetComputedStyleErrors(elt);
 		if (elt.hasPresentationalHints()) {
 			try {
 				elt.exportHintsToStyle(style);
 			} catch (DOMException e) {
-				elt.getOwnerDocument().getErrorHandler().presentationalHintError(elt, e);
+				errHandler.presentationalHintError(elt, e);
 			}
 		}
 		/*

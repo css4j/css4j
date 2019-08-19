@@ -986,6 +986,8 @@ public class HTMLDocumentTest {
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
 		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
 		assertEquals("  foo  bar  ", styledecl.getPropertyValue("content"));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		// Check for non-existing property
 		assertNull(styledecl.getPropertyCSSValue("does-not-exist"));
@@ -1024,12 +1026,15 @@ public class HTMLDocumentTest {
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(11, styledecl.getLength());
 		assertEquals("rgb(0 0 0 / 0)", styledecl.getPropertyValue("background-color"));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(parent));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		xhtmlDoc.getErrorHandler().reset();
 		parent.setAttribute("bgcolor", "#90ff77");
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(12, styledecl.getLength());
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 

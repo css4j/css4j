@@ -11,26 +11,24 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 
-class StandAloneErrorHandler implements ErrorHandler {
+class StandAloneErrorHandler extends AbstractErrorHandler {
 
-	private boolean cserrors = false, errors = false, warnings = false;
+	private boolean errors = false, warnings = false;
 
 	@Override
-	public boolean hasComputedStyleErrors() {
-		return cserrors;
+	public boolean hasComputedStyleErrors(CSSElement element) {
+		return false;
 	}
 
 	@Override
 	public boolean hasErrors() {
-		return errors || cserrors;
+		return errors || hasComputedStyleErrors();
 	}
 
 	@Override
@@ -73,25 +71,15 @@ class StandAloneErrorHandler implements ErrorHandler {
 	}
 
 	@Override
-	public void computedStyleError(Node node, String propertyName, String propertyValue, String message) {
-		cserrors = true;
-	}
-
-	@Override
-	public void presentationalHintError(CSSElement elm, DOMException e) {
-		errors = true;
-	}
-
-	@Override
-	public void resetComputedStyleErrors() {
-		cserrors = false;
-	}
-
-	@Override
 	public void reset() {
 		errors = true;
 		warnings = false;
-		resetComputedStyleErrors();
+		super.reset();
+	}
+
+	@Override
+	protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {
+		return null;
 	}
 
 }
