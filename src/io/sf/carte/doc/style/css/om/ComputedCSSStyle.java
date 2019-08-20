@@ -152,11 +152,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			 * The 'unset' keyword acts as either inherit or initial, depending on whether the
 			 * property is inherited or not.
 			 */
-			if (inherited) {
-				value = InheritValue.getValue();
-			} else {
-				value = defaultPropertyValue(property, propertydb);
-			}
+			value = null;
 		}
 		/*
 		 * We compute inherited value, if appropriate.
@@ -171,9 +167,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private boolean isCSSIdentifier(CSSValue value, String ident) {
+		CSSPrimitiveValue primi;
 		return value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& ident.equalsIgnoreCase(value.getCssText());
+				&& (primi = (CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+				&& ident.equalsIgnoreCase(primi.getStringValue());
 	}
 
 	private AbstractCSSValue inheritValue(ComputedCSSStyle ancStyle, String propertyName, AbstractCSSValue value,
@@ -185,6 +182,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			if (ancStyle.isPropertySet(propertyName)) {
 				value = ancStyle.getCSSValue(propertyName);
+				if (value != null && isCSSIdentifier(value, "unset")) {
+					value = null;
+				}
 			}
 		}
 		return value;
@@ -192,9 +192,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private AbstractCSSValue computeValue(String property, AbstractCSSValue value, boolean inherited, PropertyDatabase propertydb) {
 		// Check for null, and apply initial values if appropriate
-		if (value == null || (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& value.getCssText().equalsIgnoreCase("initial"))) {
+		if (value == null || isCSSIdentifier(value, "initial")) {
 			value = defaultPropertyValue(property, propertydb);
 		}
 		// If value is null now, we have no idea about this property's value

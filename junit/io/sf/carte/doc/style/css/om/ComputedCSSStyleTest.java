@@ -531,6 +531,30 @@ public class ComputedCSSStyleTest {
 		assertEquals("medium", fontSize.getStringValue());
 		assertEquals(12f, style.getComputedFontSize(), 0.01f);
 		//
+		/*
+		 * property: unset
+		 */
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:unset;margin-left:unset");
+		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(12f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:unset;margin-left:unset");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(12f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:16pt;margin-left:8pt");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(16f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		/*
+		 * property: uppercase color identifier
+		 */
 		xhtmlDoc.getOverrideStyle(elm, null).setCssText("color:BLUE");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		CSSPrimitiveValue2 color = (CSSPrimitiveValue2) style.getPropertyCSSValue("color");
