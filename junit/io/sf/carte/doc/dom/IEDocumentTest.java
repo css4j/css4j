@@ -179,9 +179,9 @@ public class IEDocumentTest {
 		assertEquals(
 				"display: table-row; vertical-align: middle; border-top-color: #808080; border-right-color: #808080; border-bottom-color: #808080; border-left-color: #808080; unicode-bidi: embed; margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px; ",
 				style.getCssText());
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin: 16pt; color: red");
-		assertEquals("red", xhtmlDoc.getOverrideStyle(elm, null).getPropertyValue("color"));
-		assertEquals("margin: 16pt; color: red; ", xhtmlDoc.getOverrideStyle(elm, null).getCssText());
+		elm.getOverrideStyle(null).setCssText("margin: 16pt; color: red");
+		assertEquals("red", elm.getOverrideStyle(null).getPropertyValue("color"));
+		assertEquals("margin: 16pt; color: red; ", elm.getOverrideStyle(null).getCssText());
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("16pt", style.getPropertyValue("margin-top"));
@@ -193,10 +193,9 @@ public class IEDocumentTest {
 				"display:table-row;vertical-align:middle;border-color:#808080;unicode-bidi:embed;margin:16pt;color:#f00;",
 				style.getMinifiedCssText());
 		// Inject backslash hack values
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin: 16pt 14pt; color: red; margin: 12pt 10pt\\9;");
-		assertEquals("red", xhtmlDoc.getOverrideStyle(elm, null).getPropertyValue("color"));
-		assertEquals("margin: 16pt 14pt; margin: 12pt 10pt\\9; color: red; ",
-				xhtmlDoc.getOverrideStyle(elm, null).getCssText());
+		elm.getOverrideStyle(null).setCssText("margin: 16pt 14pt; color: red; margin: 12pt 10pt\\9;");
+		assertEquals("red", elm.getOverrideStyle(null).getPropertyValue("color"));
+		assertEquals("margin: 16pt 14pt; margin: 12pt 10pt\\9; color: red; ", elm.getOverrideStyle(null).getCssText());
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("16pt", style.getPropertyValue("margin-top"));

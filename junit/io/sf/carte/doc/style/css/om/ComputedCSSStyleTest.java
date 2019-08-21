@@ -235,7 +235,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
+		elm.getOverrideStyle(null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(
 				"display: block; unicode-bidi: embed; margin-top: 28.8pt; margin-bottom: 43.2pt; background-position: 20% 0%; padding-left: calc(10% - 43.2pt - 14.4pt); font-size: 14.4pt; font-style: normal; font-weight: normal; font-stretch: normal; font-family: initial; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
@@ -246,7 +246,7 @@ public class ComputedCSSStyleTest {
 		//
 		CSSElement docelm = xhtmlDoc.getDocumentElement();
 		// Set explicit document width for box model
-		xhtmlDoc.getOverrideStyle(docelm, null).setCssText("width:675pt");
+		docelm.getOverrideStyle(null).setCssText("width:675pt");
 		CSSElement body = (CSSElement) docelm.getElementsByTagName("body").item(0);
 		style = body.getComputedStyle(null);
 		assertEquals(12f, style.getComputedFontSize(), 0.01f);
@@ -263,7 +263,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative % font, box model.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
+		elm.getOverrideStyle(null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(14.4f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -279,7 +279,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative 'ex' unit, box model.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 1.8ex; margin-left:1ex");
+		elm.getOverrideStyle(null).setCssText("font-size: 1.8ex; margin-left:1ex");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(10.8f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -297,7 +297,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative 'rem' unit, box model.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2rem; margin-left:1rem");
+		elm.getOverrideStyle(null).setCssText("font-size: 2rem; margin-left:1rem");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(24f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -319,7 +319,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative 'lh' unit, box model.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 0.8lh; margin-left:0.6lh");
+		elm.getOverrideStyle(null).setCssText("font-size: 0.8lh; margin-left:0.6lh");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(11.14f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -336,7 +336,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative 'rlh' unit, box model.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 1.08rlh; margin-left:0.6rlh");
+		elm.getOverrideStyle(null).setCssText("font-size: 1.08rlh; margin-left:0.6rlh");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(15.03f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -353,7 +353,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * 'vw' unit.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:1vw");
+		elm.getOverrideStyle(null).setCssText("margin-left:1vw");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VW), 0.01f);
@@ -367,7 +367,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative 'cap' unit.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:0.8cap;margin-left:1vw");
+		elm.getOverrideStyle(null).setCssText("font-size:0.8cap;margin-left:1vw");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		CSSPrimitiveValue fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(9.6f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
@@ -378,7 +378,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative 'ch' unit.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:3ch;margin-left:1vw");
+		elm.getOverrideStyle(null).setCssText("font-size:3ch;margin-left:1vw");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(9f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
@@ -389,7 +389,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative 'ic' unit.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:0.8ic;margin-left:1vw");
+		elm.getOverrideStyle(null).setCssText("font-size:0.8ic;margin-left:1vw");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(9.6f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
@@ -400,7 +400,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * 'vh' unit.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:1vh");
+		elm.getOverrideStyle(null).setCssText("margin-left:1vh");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VH), 0.01f);
@@ -413,7 +413,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * 'vi' unit.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:1vi");
+		elm.getOverrideStyle(null).setCssText("margin-left:1vi");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VI), 0.01f);
@@ -426,7 +426,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * 'vb' unit.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:1vb");
+		elm.getOverrideStyle(null).setCssText("margin-left:1vb");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VB), 0.01f);
@@ -439,7 +439,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * 'vb' unit, custom property fallback.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo,1vb)");
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,1vb)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(1f, marginLeft.getFloatValue(CSSPrimitiveValue2.CSS_VB), 0.01f);
@@ -452,7 +452,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * custom property substitution.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo,1vb);--foo:8pt");
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,1vb);--foo:8pt");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(8f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
@@ -464,7 +464,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:8pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);--foo:8pt;",
 				style.getMinifiedCssText());
-		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:var(--foo,1vb)");
+		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,1vb)");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(8f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
@@ -473,7 +473,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * custom property circular dependency, fallback used.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo,9pt);--foo:var(--foo)");
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,9pt);--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(9f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
@@ -481,7 +481,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * custom property inside calc(), circular dependency.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:calc(2*var(--foo,5pt));--foo:var(--foo)");
+		elm.getOverrideStyle(null).setCssText("margin-left:calc(2*var(--foo,5pt));--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
@@ -491,7 +491,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * custom property circular dependency, no fallback.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:var(--foo);--foo:var(--foo)");
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo);--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
@@ -501,7 +501,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * custom property inside calc(), circular dependency, no fallback.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-left:calc(2*var(--foo));--foo:var(--foo)");
+		elm.getOverrideStyle(null).setCssText("margin-left:calc(2*var(--foo));--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
@@ -510,11 +510,11 @@ public class ComputedCSSStyleTest {
 		/*
 		 * custom property circular dependency, no fallback, inherited value used.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("text-indent:1pt");
+		elm.getOverrideStyle(null).setCssText("text-indent:1pt");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		CSSPrimitiveValue textIndent = (CSSPrimitiveValue) style.getPropertyCSSValue("text-indent");
 		assertEquals(1f, textIndent.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
-		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("text-indent:var(--foo);--foo:var(--foo)");
+		listpara.getOverrideStyle(null).setCssText("text-indent:var(--foo);--foo:var(--foo)");
 		style = listpara.getComputedStyle(null);
 		textIndent = (CSSPrimitiveValue) style.getPropertyCSSValue("text-indent");
 		assertNotNull(textIndent);
@@ -523,11 +523,11 @@ public class ComputedCSSStyleTest {
 		 * font-size custom property circular dependency, no fallback, inherited value
 		 * used.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:21pt");
+		elm.getOverrideStyle(null).setCssText("font-size:21pt");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(21f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
-		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:var(--foo);--foo:var(--foo)");
+		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:var(--foo)");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertNotNull(fontSize);
@@ -535,7 +535,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * font-size custom property circular dependency, fallback used.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:var(--foo,9pt);--foo:var(--foo)");
+		elm.getOverrideStyle(null).setCssText("font-size:var(--foo,9pt);--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(9f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
@@ -543,7 +543,7 @@ public class ComputedCSSStyleTest {
 		 * font-size custom property circular dependency, no fallback, inherited value
 		 * used (II).
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:var(--foo);--foo:var(--foo)");
+		elm.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:var(--foo)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
@@ -552,38 +552,38 @@ public class ComputedCSSStyleTest {
 		/*
 		 * custom property inside calc(), uppercase property name.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin-right:calc(1.5*var(--foo));--foo:var(FONT-SIZE)");
+		elm.getOverrideStyle(null).setCssText("margin-right:calc(1.5*var(--foo));--foo:var(FONT-SIZE)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		CSSPrimitiveValue marginRight = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-right");
 		assertEquals(18f, marginRight.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 		/*
 		 * font-size: smaller
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:smaller");
+		elm.getOverrideStyle(null).setCssText("font-size:smaller");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(9.84f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 		/*
 		 * font-size: larger
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:larger");
+		elm.getOverrideStyle(null).setCssText("font-size:larger");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(14.4f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 		/*
 		 * font-size: small, x-small, etc.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:small");
+		elm.getOverrideStyle(null).setCssText("font-size:small");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals("small", fontSize.getStringValue());
 		assertEquals(10f, style.getComputedFontSize(), 0.01f);
-		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:smaller");
+		listpara.getOverrideStyle(null).setCssText("font-size:smaller");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals("x-small", fontSize.getStringValue());
 		assertEquals(9f, style.getComputedFontSize(), 0.01f);
-		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:larger");
+		listpara.getOverrideStyle(null).setCssText("font-size:larger");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals("medium", fontSize.getStringValue());
@@ -591,7 +591,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * font-size: identifier inheritance.
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:large");
+		elm.getOverrideStyle(null).setCssText("font-size:large");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertEquals(CSSPrimitiveValue.CSS_IDENT, fontSize.getPrimitiveType());
@@ -599,7 +599,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:42pt;margin-top:28pt;background-position:20% 0%;padding-left:calc(10% - 42pt - 14pt);font-size:large;",
 				style.getMinifiedCssText());
-		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:66%");
+		listpara.getOverrideStyle(null).setCssText("font-size:66%");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertNotNull(fontSize);
@@ -613,7 +613,7 @@ public class ComputedCSSStyleTest {
 		 * font-size: 3-level identifier inheritance. Requires state from previous test!
 		 */
 		CSSElement nonextag = (CSSElement) elm.getElementsByTagName("nonexistenttag").item(0);
-		xhtmlDoc.getOverrideStyle(nonextag, null).setCssText("font-size:0.85em");
+		nonextag.getOverrideStyle(null).setCssText("font-size:0.85em");
 		style = nonextag.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertNotNull(fontSize);
@@ -624,7 +624,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * property: initial
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:initial;margin-left:initial");
+		elm.getOverrideStyle(null).setCssText("font-size:initial;margin-left:initial");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
@@ -637,7 +637,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * property: unset
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:unset;margin-left:unset");
+		elm.getOverrideStyle(null).setCssText("font-size:unset;margin-left:unset");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
@@ -646,13 +646,13 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:0;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);font-size:12pt;",
 				style.getMinifiedCssText());
-		xhtmlDoc.getOverrideStyle(listpara, null).setCssText("font-size:unset;margin-left:unset");
+		listpara.getOverrideStyle(null).setCssText("font-size:unset;margin-left:unset");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(12f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:16pt;margin-left:8pt");
+		elm.getOverrideStyle(null).setCssText("font-size:16pt;margin-left:8pt");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
@@ -664,7 +664,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * property: uppercase color identifier
 		 */
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("color:BLUE");
+		elm.getOverrideStyle(null).setCssText("color:BLUE");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		CSSPrimitiveValue2 color = (CSSPrimitiveValue2) style.getPropertyCSSValue("color");
 		assertEquals(CSSPrimitiveValue.CSS_RGBCOLOR, color.getPrimitiveType());
@@ -696,7 +696,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(0f, box.getMarginLeft(), 0.01f);
 		assertEquals(663.5f, box.getWidth(), 0.01f);
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
+		elm.getOverrideStyle(null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -710,7 +710,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(0f, box.getMarginLeft(), 0.01f);
 		assertEquals(674.7f, box.getWidth(), 0.01f);
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2ex; margin-left:1ex");
+		elm.getOverrideStyle(null).setCssText("font-size: 2ex; margin-left:1ex");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(14f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -730,7 +730,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:42pt;margin-left:7pt;margin-top:28pt;background-position:20% 0%;padding-left:calc(10% - 42pt - 14pt);font-size:14pt;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2rem; margin-left:1rem");
+		elm.getOverrideStyle(null).setCssText("font-size: 2rem; margin-left:1rem");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(24f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -750,7 +750,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:72pt;margin-left:12pt;margin-top:48pt;background-position:20% 0%;padding-left:calc(10% - 72pt - 24pt);font-size:24pt;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 0.8lh; margin-left:0.6lh");
+		elm.getOverrideStyle(null).setCssText("font-size: 0.8lh; margin-left:0.6lh");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(12.99f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -766,7 +766,7 @@ public class ComputedCSSStyleTest {
 		assertEquals("25.98pt", style.getMarginTop());
 		assertEquals("auto", style.getWidth());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 1.08rlh; margin-left:0.6rlh");
+		elm.getOverrideStyle(null).setCssText("font-size: 1.08rlh; margin-left:0.6rlh");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(15.03f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -781,7 +781,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(659.27f, box.getWidth(), 0.01f);
 		assertEquals("30.06pt", style.getMarginTop());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vw; margin-left:1vw");
+		elm.getOverrideStyle(null).setCssText("font-size: 2vw; margin-left:1vw");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(11.9f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -801,7 +801,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vh;margin-left:1vh");
+		elm.getOverrideStyle(null).setCssText("font-size: 2vh;margin-left:1vh");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -821,7 +821,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vi;margin-left:1vi");
+		elm.getOverrideStyle(null).setCssText("font-size: 2vi;margin-left:1vi");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(11.9f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -841,7 +841,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size:2vi;margin-left:1vi;writing-mode:vertical-lr");
+		elm.getOverrideStyle(null).setCssText("font-size:2vi;margin-left:1vi;writing-mode:vertical-lr");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -861,7 +861,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;writing-mode:vertical-lr;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vb;margin-left:1vb");
+		elm.getOverrideStyle(null).setCssText("font-size: 2vb;margin-left:1vb");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -881,7 +881,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vb;margin-left:1vb;writing-mode:vertical-lr");
+		elm.getOverrideStyle(null).setCssText("font-size: 2vb;margin-left:1vb;writing-mode:vertical-lr");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(11.9f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -901,7 +901,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;writing-mode:vertical-lr;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vmin;margin-left:1vmin");
+		elm.getOverrideStyle(null).setCssText("font-size: 2vmin;margin-left:1vmin");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(11.9f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -921,7 +921,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:35.7pt;margin-left:5.95pt;margin-top:23.8pt;background-position:20% 0%;padding-left:calc(10% - 35.7pt - 11.9pt);font-size:11.9pt;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: 2vmax;margin-left:1vmax");
+		elm.getOverrideStyle(null).setCssText("font-size: 2vmax;margin-left:1vmax");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.84f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -941,7 +941,7 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:50.52pt;margin-left:8.42pt;margin-top:33.68pt;background-position:20% 0%;padding-left:calc(10% - 50.52pt - 16.84pt);font-size:16.84pt;",
 				style.getMinifiedCssText());
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: calc(110% - 0.1vw);margin-left:max(1em,1rem)");
+		elm.getOverrideStyle(null).setCssText("font-size: calc(110% - 0.1vw);margin-left:max(1em,1rem)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(14.81f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -955,7 +955,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(14.81f, box.getMarginLeft(), 0.01f);
 		assertEquals(651.93f, box.getWidth(), 0.01f);
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: max(110%,1.4rem);margin-left:calc(1em - 0.3rem)");
+		elm.getOverrideStyle(null).setCssText("font-size: max(110%,1.4rem);margin-left:calc(1em - 0.3rem)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -969,7 +969,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(13.2f, box.getMarginLeft(), 0.01f);
 		assertEquals(661.5f, box.getWidth(), 0.01f);
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font-size: var(--foo,1.4rem);margin-left:var(--bar,0.9rem)");
+		elm.getOverrideStyle(null).setCssText("font-size: var(--foo,1.4rem);margin-left:var(--bar,0.9rem)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
@@ -983,7 +983,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(10.8f, box.getMarginLeft(), 0.01f);
 		assertEquals(663.9f, box.getWidth(), 0.01f);
 		//
-		xhtmlDoc.getOverrideStyle(elm, null)
+		elm.getOverrideStyle(null)
 				.setCssText("font-size: max(110%,var(--foo,1.4rem));margin-left:calc(1em - var(--bar,0.3rem))");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
@@ -1014,7 +1014,7 @@ public class ComputedCSSStyleTest {
 		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
 		BoxValues box = style.getBoxValues(CSSPrimitiveValue.CSS_PT);
 		assertEquals(17.55f, box.getPaddingLeft(), 0.01f);
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("font: 120%");
+		elm.getOverrideStyle(null).setCssText("font: 120%");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals(
 				"display: block; margin-top: 14.4pt; margin-bottom: 14.4pt; unicode-bidi: embed; margin-right: 1%; font-family: initial; padding-left: calc(10% - 36pt - 12pt); font-size: 14.4pt; font-style: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
@@ -1024,7 +1024,7 @@ public class ComputedCSSStyleTest {
 				style.getMinifiedCssText());
 		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
 		//
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("foo:sin(90deg/2);bar:sin(30deg)");
+		elm.getOverrideStyle(null).setCssText("foo:sin(90deg/2);bar:sin(30deg)");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("0.5", style.getPropertyValue("bar"));
 		ExtendedCSSValue val = style.getPropertyCSSValue("foo");
@@ -1044,7 +1044,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals("36pt", val.getCssText());
 		// Check 'unset'
-		xhtmlDoc.getOverrideStyle(elm, null).setProperty("font-size", "unset", "");
+		elm.getOverrideStyle(null).setProperty("font-size", "unset", "");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		val = style.getPropertyCSSValue("font-size");
@@ -1102,7 +1102,7 @@ public class ComputedCSSStyleTest {
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals("url('http://www.example.com/headerbg.png')", val.getCssText());
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("background: url('override.png')");
+		elm.getOverrideStyle(null).setCssText("background: url('override.png')");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		val = style.getPropertyCSSValue("background-image");
@@ -1110,7 +1110,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals("url('http://www.example.com/override.png')", val.getCssText());
 		// Check 'unset'
-		xhtmlDoc.getOverrideStyle(elm, null).setProperty("background-image", "unset", "");
+		elm.getOverrideStyle(null).setProperty("background-image", "unset", "");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		val = style.getPropertyCSSValue("background-image");
@@ -1139,7 +1139,7 @@ public class ComputedCSSStyleTest {
 	public void getComputedStyleForBackgroundProperties() {
 		CSSElement elm = (CSSElement) xhtmlDoc.getElementsByTagName("body").item(0);
 		assertNotNull(elm);
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText(
+		elm.getOverrideStyle(null).setCssText(
 				"background-image: url('img1.png'), url('img2.png'); background-repeat: repeat no-repeat, round, space; background-position: left center, 10% 5%; background-clip: padding-box; background-attachment: fixed, local, local, scroll");
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
@@ -1193,7 +1193,7 @@ public class ComputedCSSStyleTest {
 	public void getComputedStyleForTransitionProperties() {
 		CSSElement elm = (CSSElement) xhtmlDoc.getElementsByTagName("body").item(0);
 		assertNotNull(elm);
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText(
+		elm.getOverrideStyle(null).setCssText(
 				"transition-property: background-color, opacity, width, height; transition-duration: 1s, 10s, 3s; transition-timing-function: ease, linear, cubic-bezier(0.33, 0.1, 0.5, 1); transition-delay: 2s, 1s");
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);

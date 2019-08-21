@@ -48,6 +48,7 @@ import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
+import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
@@ -55,7 +56,7 @@ import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class StylableDocumentWrapperTest {
-	StylableDocumentWrapper xhtmlDoc;
+	private StylableDocumentWrapper xhtmlDoc;
 
 	@Before
 	public void setUp() throws IOException, SAXException, ParserConfigurationException {
@@ -251,9 +252,9 @@ public class StylableDocumentWrapperTest {
 		assertEquals("margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px; ",
 				style.getCssText());
 		assertEquals(4, style.getLength());
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("margin: 16pt; color: red");
-		assertEquals("red", xhtmlDoc.getOverrideStyle(elm, null).getPropertyValue("color"));
-		assertEquals("margin: 16pt; color: red; ", xhtmlDoc.getOverrideStyle(elm, null).getCssText());
+		elm.getOverrideStyle(null).setCssText("margin: 16pt; color: red");
+		assertEquals("red", elm.getOverrideStyle(null).getPropertyValue("color"));
+		assertEquals("margin: 16pt; color: red; ", elm.getOverrideStyle(null).getCssText());
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("16pt", style.getPropertyValue("margin-top"));
@@ -265,14 +266,21 @@ public class StylableDocumentWrapperTest {
 	}
 
 	@Test
-	public void testGetDocumentElementGetColor() {
+	public void testGetDocumentElementGetColor() throws CSSMediaException {
 		CSSElement elm = xhtmlDoc.getDocumentElement();
 		assertNotNull(elm);
-		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
-		assertNotNull(style);
+		CSSComputedProperties style = elm.getComputedStyle(null);
 		AbstractCSSValue color = (AbstractCSSValue) style.getPropertyCSSValue("color");
 		assertNotNull(color);
 		assertEquals("initial", color.getCssText());
+		assertTrue(color.isSystemDefault());
+		assertEquals(0, style.getLength());
+		// style database
+		xhtmlDoc.setTargetMedium("print");
+		style = elm.getComputedStyle(null);
+		color = (AbstractCSSValue) style.getPropertyCSSValue("color");
+		assertNotNull(color);
+		assertEquals("#000", color.getCssText());
 		assertTrue(color.isSystemDefault());
 		assertEquals(0, style.getLength());
 	}
@@ -342,7 +350,7 @@ public class StylableDocumentWrapperTest {
 		CSSStyleDeclaration style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("#cd853f", style.getPropertyValue("background-color"));
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
-		xhtmlDoc.getOverrideStyle(elm, null).setCssText("color: darkmagenta ! important;");
+		elm.getOverrideStyle(null).setCssText("color: darkmagenta ! important;");
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
