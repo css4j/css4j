@@ -79,20 +79,24 @@ public class ComputedCSSStyleTest {
 
 	@Test
 	public void getUsedFontFamily1() throws CSSMediaException {
-		xhtmlDoc.setTargetMedium("screen");
 		CSSElement elm = xhtmlDoc.getElementById("firstH3");
-		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
-		assertNotNull(style);
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("Does Not Exist", style.getUsedFontFamily());
+		// Now we use a style database
+		xhtmlDoc.setTargetMedium("screen");
+		style = elm.getComputedStyle(null);
 		assertEquals("Helvetica", style.getUsedFontFamily());
 	}
 
 	@Test
 	public void getUsedFontFamily2() throws CSSMediaException {
-		xhtmlDoc.setTargetMedium("screen");
 		CSSElement elm = xhtmlDoc.getElementById("listpara");
 		assertNotNull(elm);
-		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
-		assertNotNull(style);
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("Does Not Exist", style.getUsedFontFamily());
+		// Now we use a style database
+		xhtmlDoc.setTargetMedium("screen");
+		style = elm.getComputedStyle(null);
 		assertEquals("Helvetica", style.getUsedFontFamily());
 	}
 

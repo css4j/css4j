@@ -1128,58 +1128,32 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 */
 	@Override
 	public String getUsedFontFamily() {
-		String requestedFamily = scanFontFamilyValue(getCSSValue("font-family"), this);
-		if (requestedFamily == null) {
-			StyleDatabase sdb = getStyleDatabase();
-			if (sdb != null) {
-				requestedFamily = sdb.getDefaultGenericFontFamily();
-			} else {
-				requestedFamily = "Serif";
-			}
-		}
-		return requestedFamily;
-	}
-
-	private String scanFontFamilyValue(AbstractCSSValue value, CSSComputedProperties style) {
-		String requestedFamily = null;
-		if (value != null) {
-			if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
-				ValueList fontList = (ValueList) value;
-				Iterator<AbstractCSSValue> it = fontList.iterator();
-				while (it.hasNext()) {
-					AbstractCSSValue item = it.next();
-					requestedFamily = stringValueOrNull(item);
-					if (requestedFamily != null && isFontFamilyAvailable(requestedFamily)) {
-						return requestedFamily;
+		StyleDatabase sdb = getStyleDatabase();
+		if (sdb != null) {
+			return sdb.getUsedFontFamily(this);
+		} else {
+			AbstractCSSValue fontFamily = getCSSValue("font-family");
+			if (fontFamily != null) {
+				if (fontFamily.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+					CSSPrimitiveValue primi = (CSSPrimitiveValue) fontFamily;
+					try {
+						return primi.getStringValue();
+					} catch (DOMException e) {
+					}
+				} else {
+					ValueList list = (ValueList) fontFamily;
+					fontFamily = list.item(0);
+					if (fontFamily.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+						CSSPrimitiveValue primi = (CSSPrimitiveValue) fontFamily;
+						try {
+							return primi.getStringValue();
+						} catch (DOMException e) {
+						}
 					}
 				}
-			} else {
-				requestedFamily = stringValueOrNull(value);
-				if (requestedFamily != null && isFontFamilyAvailable(requestedFamily)) {
-					return requestedFamily;
-				}
 			}
 		}
-		CSSComputedProperties ancStyle = style.getParentComputedStyle();
-		if (ancStyle != null) {
-			value = ((BaseCSSStyleDeclaration) ancStyle).getDeclaredCSSValue("font-family");
-			requestedFamily = scanFontFamilyValue(value, ancStyle);
-		}
-		return requestedFamily;
-	}
-
-	private String stringValueOrNull(AbstractCSSValue value) {
-		CSSPrimitiveValue primi;
-		short ptype;
-		String s;
-		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((ptype = (primi = (CSSPrimitiveValue) value).getPrimitiveType()) == CSSPrimitiveValue.CSS_STRING
-						|| ptype == CSSPrimitiveValue.CSS_IDENT)) {
-			s = primi.getStringValue();
-		} else {
-			s = null;
-		}
-		return s;
+		return "Serif";
 	}
 
 	/**
@@ -1367,18 +1341,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			sz = getInitialFontSize();
 		}
 		return sz;
-	}
-
-	private boolean isFontFamilyAvailable(String requestedFamily) {
-		StyleDatabase sdb = getStyleDatabase();
-		if (sdb == null || sdb.isFontFamilyAvailable(requestedFamily)) {
-			return true;
-		}
-		CSSCanvas canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
-		if (canvas != null) {
-			return canvas.isFontFaceName(requestedFamily);
-		}
-		return false;
 	}
 
 	/**

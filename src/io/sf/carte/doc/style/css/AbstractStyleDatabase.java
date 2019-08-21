@@ -11,13 +11,19 @@
 
 package io.sf.carte.doc.style.css;
 
+import java.util.Iterator;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
+import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Abstract base class for CSS Style databases.
@@ -31,8 +37,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	private static final AbstractCSSPrimitiveValue DEFAULT_INITIAL_COLOR;
 
 	static {
-		DEFAULT_INITIAL_COLOR = (AbstractCSSPrimitiveValue) new ValueFactory()
-				.parseProperty("#000000");
+		DEFAULT_INITIAL_COLOR = (AbstractCSSPrimitiveValue) new ValueFactory().parseProperty("#000000");
 		((ColorValue) DEFAULT_INITIAL_COLOR).setSystemDefault();
 	}
 
@@ -59,21 +64,11 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		return NumberValue.floatValueConversion(initialValue, initialUnitType, getNaturalUnit());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.sf.carte.doc.style.css.StyleDatabase#getInitialColor()
-	 */
 	@Override
 	public CSSPrimitiveValue getInitialColor() {
 		return initialColor;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.sf.carte.doc.style.css.StyleDatabase#setInitialColor(String)
-	 */
 	@Override
 	public void setInitialColor(String initialColor) {
 		this.initialColor = (AbstractCSSPrimitiveValue) new ValueFactory().parseProperty(initialColor);
@@ -89,5 +84,69 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	public String getSystemFontDeclaration(String systemFontName) {
 		return null;
 	}
+
+	@Override
+	public String getUsedFontFamily(CSSComputedProperties computedStyle) {
+		String requestedFamily = scanFontFamilyValue(computedStyle);
+		if (requestedFamily == null) {
+			requestedFamily = getDefaultGenericFontFamily();
+		}
+		return requestedFamily;
+	}
+
+	private String scanFontFamilyValue(CSSComputedProperties style) {
+		ExtendedCSSValue value = style.getPropertyCSSValue("font-family");
+		String requestedFamily = null;
+		if (value != null) {
+			if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+				ValueList fontList = (ValueList) value;
+				Iterator<AbstractCSSValue> it = fontList.iterator();
+				while (it.hasNext()) {
+					AbstractCSSValue item = it.next();
+					requestedFamily = stringValueOrNull(item);
+					if (requestedFamily != null && isFontFamilyAvailable(requestedFamily, style)) {
+						return requestedFamily;
+					}
+				}
+			} else {
+				requestedFamily = stringValueOrNull(value);
+				if (requestedFamily != null && isFontFamilyAvailable(requestedFamily, style)) {
+					return requestedFamily;
+				}
+			}
+		}
+		CSSComputedProperties ancStyle = style.getParentComputedStyle();
+		if (ancStyle != null) {
+			requestedFamily = scanFontFamilyValue(ancStyle);
+		}
+		return requestedFamily;
+	}
+
+	private String stringValueOrNull(ExtendedCSSValue value) {
+		CSSPrimitiveValue primi;
+		short ptype;
+		String s;
+		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
+				&& ((ptype = (primi = (CSSPrimitiveValue) value).getPrimitiveType()) == CSSPrimitiveValue.CSS_STRING
+						|| ptype == CSSPrimitiveValue.CSS_IDENT)) {
+			s = primi.getStringValue();
+		} else {
+			s = null;
+		}
+		return s;
+	}
+
+	protected boolean isFontFamilyAvailable(String requestedFamily, CSSComputedProperties style) {
+		if (isFontFamilyAvailable(requestedFamily)) {
+			return true;
+		}
+		CSSCanvas canvas = ((CSSDocument) style.getOwnerNode().getOwnerDocument()).getCanvas();
+		if (canvas != null) {
+			return canvas.isFontFaceName(requestedFamily);
+		}
+		return false;
+	}
+
+	abstract protected boolean isFontFamilyAvailable(String fontFamily);
 
 }

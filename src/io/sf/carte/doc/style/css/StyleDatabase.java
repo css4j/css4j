@@ -63,13 +63,12 @@ public interface StyleDatabase {
 	public String getDefaultGenericFontFamily();
 
 	/**
-	 * Checks if a font family is available.
+	 * Gets the used font family name according to the given style.
 	 * 
-	 * @param fontFamily
-	 *            the font family name.
-	 * @return <code>true</code> if the font is available, <code>false</code> otherwise.
+	 * @param computedStyle the computed style.
+	 * @return the name of the used font family.
 	 */
-	public boolean isFontFamilyAvailable(String fontFamily);
+	public String getUsedFontFamily(CSSComputedProperties computedStyle);
 
 	/**
 	 * Gets the font size from the given size identifier (small, medium, etc.), expressed in

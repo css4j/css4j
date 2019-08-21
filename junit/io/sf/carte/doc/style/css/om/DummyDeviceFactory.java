@@ -75,7 +75,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		public boolean isFontFamilyAvailable(String fontFamily) {
+		protected boolean isFontFamilyAvailable(String fontFamily) {
 			return true;
 		}
 

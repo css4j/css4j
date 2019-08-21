@@ -60,7 +60,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	}
 
 	@Override
-	public boolean isFontFamilyAvailable(String fontFamily) {
+	protected boolean isFontFamilyAvailable(String fontFamily) {
 		if(fontFamily.equalsIgnoreCase("Courier") || fontFamily.equalsIgnoreCase("Helvetica")
 				|| fontFamily.equalsIgnoreCase("Times New Roman") ||
 				fontFamily.equalsIgnoreCase("Lucida Typewriter")) {

@@ -23,11 +23,9 @@ import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.agent.AbstractDeviceFactory;
-import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.DeviceFactory;
+import io.sf.carte.doc.agent.HeadlessDeviceFactory;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
-import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
@@ -87,7 +85,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		this.parserFlags = parserFlags;
 		// An empty device factory is default
 		// You should provide a real one.
-		setDeviceFactory(new EmptyDeviceFactory());
+		setDeviceFactory(new HeadlessDeviceFactory());
 		setStyleFormattingFactory(createDefaultStyleFormattingFactory());
 	}
 
@@ -516,12 +514,4 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		this.deviceFactory = deviceFactory;
 	}
 
-	private static class EmptyDeviceFactory extends AbstractDeviceFactory {
-
-		@Override
-		public CSSCanvas createCanvas(String medium, CSSDocument doc) {
-			return null;
-		}
-		
-	}
 }
