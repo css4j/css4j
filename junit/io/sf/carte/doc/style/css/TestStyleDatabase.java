@@ -85,9 +85,9 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 		} else if (fontSizeIdentifier.equals("large")) {
 			sz = 14f;
 		} else if (fontSizeIdentifier.equals("x-large")) {
-			sz = 16f;
-		} else if (fontSizeIdentifier.equals("xx-large")) {
 			sz = 18f;
+		} else if (fontSizeIdentifier.equals("xx-large")) {
+			sz = 24f;
 		} else {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 					"Unknown size identifier: " + fontSizeIdentifier);

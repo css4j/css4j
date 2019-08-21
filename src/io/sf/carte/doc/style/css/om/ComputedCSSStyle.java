@@ -1241,9 +1241,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			} else if (sizeIdentifier.equals("large")) {
 				sz = 14f;
 			} else if (sizeIdentifier.equals("x-large")) {
-				sz = 16f;
-			} else if (sizeIdentifier.equals("xx-large")) {
 				sz = 18f;
+			} else if (sizeIdentifier.equals("xx-large")) {
+				sz = 24f;
 			} else {
 				sz = 12f; // default
 			}
