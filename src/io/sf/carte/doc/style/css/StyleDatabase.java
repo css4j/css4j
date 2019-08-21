@@ -101,35 +101,6 @@ public interface StyleDatabase {
 	public short getNaturalUnit();
 
 	/**
-	 * Makes an unit conversion (for the units known to this device).
-	 * 
-	 * @param initialValue
-	 *            the value to be converted, expressed in the initial unit.
-	 * @param initialUnitType
-	 *            the initial unit type.
-	 * @param destUnitType
-	 *            the destination unit type.
-	 * @return the value, expressed in units of destUnitType.
-	 * @throws DOMException
-	 *             if the conversion cannot be done.
-	 */
-	public float floatValueConversion(float initialValue, short initialUnitType, short destUnitType)
-			throws DOMException;
-
-	/**
-	 * Makes an unit conversion to the natural unit of this device.
-	 * 
-	 * @param initialValue
-	 *            the value to be converted, expressed in the initial unit.
-	 * @param initialUnitType
-	 *            the initial unit type.
-	 * @return the value, expressed in units of destUnitType.
-	 * @throws DOMException
-	 *             if the conversion cannot be done.
-	 */
-	public float floatValueConversion(float initialValue, short initialUnitType) throws DOMException;
-
-	/**
 	 * Gives the size of the 'ex' unit, expressed in 'pt' (typographic points) unit.
 	 * <p>
 	 * Although this type of information really belongs to <code>CSSCanvas</code>, having even

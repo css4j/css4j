@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css;
 
 import java.util.Iterator;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
@@ -21,7 +20,6 @@ import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.ColorValue;
-import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -51,17 +49,6 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	@Override
 	public float getExSizeInPt(String familyName, float size) {
 		return Math.round(0.5f * size);
-	}
-
-	@Override
-	public float floatValueConversion(float initialValue, short initialUnitType, short destUnitType)
-			throws DOMException {
-		return NumberValue.floatValueConversion(initialValue, initialUnitType, destUnitType);
-	}
-
-	@Override
-	public float floatValueConversion(float initialValue, short initialUnitType) throws DOMException {
-		return NumberValue.floatValueConversion(initialValue, initialUnitType, getNaturalUnit());
 	}
 
 	@Override
