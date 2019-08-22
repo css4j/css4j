@@ -54,6 +54,7 @@ import org.w3c.dom.css.ElementCSSInlineStyle;
 import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
@@ -1717,7 +1718,10 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	public StyleDatabase getStyleDatabase() {
 		StyleDatabase sdb = null;
 		if (targetMedium != null) {
-			sdb = getStyleSheetFactory().getDeviceFactory().getStyleDatabase(targetMedium);
+			DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
+			if (df != null) {
+				sdb = df.getStyleDatabase(targetMedium);
+			}
 		}
 		return sdb;
 	}
@@ -1765,8 +1769,14 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		if (canvases.containsKey(targetMedium)) {
 			return canvases.get(targetMedium);
 		}
-		CSSCanvas canvas = getStyleSheetFactory().getDeviceFactory().createCanvas(targetMedium, this);
-		canvases.put(targetMedium, canvas);
+		CSSCanvas canvas;
+		DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
+		if (df != null) {
+			canvas = df.createCanvas(targetMedium, this);
+			canvases.put(targetMedium, canvas);
+		} else {
+			canvas = null;
+		}
 		return canvas;
 	}
 
