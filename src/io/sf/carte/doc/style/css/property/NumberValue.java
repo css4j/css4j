@@ -585,7 +585,7 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 		case CSSPrimitiveValue2.CSS_CAP:
 			return "cap";
 		case CSSPrimitiveValue2.CSS_CH:
-			return "cap";
+			return "ch";
 		case CSSPrimitiveValue2.CSS_FR:
 			return "fr";
 		case CSSPrimitiveValue2.CSS_IC:
