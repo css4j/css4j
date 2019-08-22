@@ -20,6 +20,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.agent.Viewport;
 import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -767,20 +768,24 @@ abstract class SimpleBoxModel {
 	 * Obtain a width from the viewport or the style database, if available.
 	 */
 	private float deviceDocumentWidth(String failureReason, String value) throws StyleDatabaseRequiredException {
+		StyleDatabase sdb = getStyleDatabase();
 		CSSDocument doc = (CSSDocument) getComputedStyle().getOwnerNode().getOwnerDocument();
 		if (doc != null) {
 			CSSCanvas canvas = doc.getCanvas();
-			if (canvas != null && canvas.getViewport() != null) {
-				return canvas.getViewport().getViewportWidth();
+			Viewport viewport;
+			if (canvas != null && (viewport = canvas.getViewport()) != null) {
+				float fv = viewport.getViewportWidth();
+				return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(),
+						CSSPrimitiveValue.CSS_PT);
 			}
 		}
-		if (getStyleDatabase() == null) {
+		if (sdb == null) {
 			StyleDatabaseRequiredException pve = new StyleDatabaseRequiredException(
 					"No style database, " + failureReason);
 			pve.setValueText(value);
 			throw pve;
 		}
-		return getStyleDatabase().getDeviceWidth();
+		return NumberValue.floatValueConversion(sdb.getDeviceWidth(), sdb.getNaturalUnit(), CSSPrimitiveValue.CSS_PT);
 	}
 
 	private float computeMarginNumberValue(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue cssval,
