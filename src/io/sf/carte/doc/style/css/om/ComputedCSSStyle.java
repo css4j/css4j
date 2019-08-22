@@ -414,32 +414,32 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					fv *= getComputedFontSize();
 				}
 			} else if (unit == CSSPrimitiveValue2.CSS_VW) {
-				fv *= getInitialContainingBlockWidthPt(canvas) * 0.01f;
+				fv *= getInitialContainingBlockWidthPt(canvas, true) * 0.01f;
 			} else if (unit == CSSPrimitiveValue2.CSS_VH) {
-				fv *= getInitialContainingBlockHeightPt(canvas) * 0.01f;
+				fv *= getInitialContainingBlockHeightPt(canvas, true) * 0.01f;
 			} else if (unit == CSSPrimitiveValue2.CSS_VI) {
 				String writingMode = getCSSValue("writing-mode").getCssText();
 				if ("horizontal-tb".equalsIgnoreCase(writingMode)) {
-					fv *= getInitialContainingBlockWidthPt(canvas);
+					fv *= getInitialContainingBlockWidthPt(canvas, true);
 				} else {
-					fv *= getInitialContainingBlockHeightPt(canvas);
+					fv *= getInitialContainingBlockHeightPt(canvas, true);
 				}
 				fv *= 0.01f;
 			} else if (unit == CSSPrimitiveValue2.CSS_VB) {
 				String writingMode = getCSSValue("writing-mode").getCssText();
 				if ("horizontal-tb".equalsIgnoreCase(writingMode)) {
-					fv *= getInitialContainingBlockHeightPt(canvas);
+					fv *= getInitialContainingBlockHeightPt(canvas, true);
 				} else {
-					fv *= getInitialContainingBlockWidthPt(canvas);
+					fv *= getInitialContainingBlockWidthPt(canvas, true);
 				}
 				fv *= 0.01f;
 			} else if (unit == CSSPrimitiveValue2.CSS_VMIN) {
-				float size = Math.min(getInitialContainingBlockWidthPt(canvas),
-						getInitialContainingBlockHeightPt(canvas));
+				float size = Math.min(getInitialContainingBlockWidthPt(canvas, true),
+						getInitialContainingBlockHeightPt(canvas, true));
 				fv *= size * 0.01f;
 			} else if (unit == CSSPrimitiveValue2.CSS_VMAX) {
-				float size = Math.max(getInitialContainingBlockWidthPt(canvas),
-						getInitialContainingBlockHeightPt(canvas));
+				float size = Math.max(getInitialContainingBlockWidthPt(canvas, true),
+						getInitialContainingBlockHeightPt(canvas, true));
 				fv *= size * 0.01f;
 			} else {
 				fv = NumberValue.floatValueConversion(fv, unit, CSSPrimitiveValue.CSS_PT);
@@ -451,7 +451,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return value;
 	}
 
-	private float getInitialContainingBlockWidthPt(CSSCanvas canvas) throws StyleDatabaseRequiredException {
+	private float getInitialContainingBlockWidthPt(CSSCanvas canvas, boolean force)
+			throws StyleDatabaseRequiredException {
 		float fv;
 		if (canvas != null) {
 			Viewport viewport = canvas.getViewport();
@@ -459,18 +460,27 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				fv = viewport.getViewportWidth();
 				return NumberValue.floatValueConversion(fv, getStyleDatabase().getNaturalUnit(),
 						CSSPrimitiveValue.CSS_PT);
-			} else {
-				StyleDatabase sdb = getStyleDatabase();
-				if (sdb != null) {
-					fv = sdb.getDeviceWidth();
-					return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(), CSSPrimitiveValue.CSS_PT);
-				}
 			}
 		}
-		throw new StyleDatabaseRequiredException();
+		StyleDatabase sdb = getStyleDatabase();
+		if (sdb != null) {
+			fv = sdb.getDeviceWidth();
+			return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(), CSSPrimitiveValue.CSS_PT);
+		}
+		String medium;
+		if (force && (medium = ((CSSDocument) getOwnerNode().getOwnerDocument()).getTargetMedium()) != null) {
+			if ("print".equals(medium)) {
+				return 595f; // A4
+			} else if ("screen".equals(medium)) {
+				return 1440f;
+			} else if ("handheld".equals(medium)) {
+				return 270f;
+			}
+		}
+		throw new StyleDatabaseRequiredException("Unit conversion failed.");
 	}
 
-	private float getInitialContainingBlockHeightPt(CSSCanvas canvas) throws StyleDatabaseRequiredException {
+	private float getInitialContainingBlockHeightPt(CSSCanvas canvas, boolean force) throws StyleDatabaseRequiredException {
 		float fv;
 		if (canvas != null) {
 			Viewport viewport = canvas.getViewport();
@@ -478,15 +488,24 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				fv = viewport.getViewportHeight();
 				return NumberValue.floatValueConversion(fv, getStyleDatabase().getNaturalUnit(),
 						CSSPrimitiveValue.CSS_PT);
-			} else {
-				StyleDatabase sdb = getStyleDatabase();
-				if (sdb != null) {
-					fv = sdb.getDeviceHeight();
-					return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(), CSSPrimitiveValue.CSS_PT);
-				}
 			}
 		}
-		throw new StyleDatabaseRequiredException();
+		StyleDatabase sdb = getStyleDatabase();
+		if (sdb != null) {
+			fv = sdb.getDeviceHeight();
+			return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(), CSSPrimitiveValue.CSS_PT);
+		}
+		String medium;
+		if (force && (medium = ((CSSDocument) getOwnerNode().getOwnerDocument()).getTargetMedium()) != null) {
+			if ("print".equals(medium)) {
+				return 842f; // A4
+			} else if ("screen".equals(medium)) {
+				return 810f;
+			} else if ("handheld".equals(medium)) {
+				return 480f;
+			}
+		}
+		throw new StyleDatabaseRequiredException("Unit conversion failed.");
 	}
 
 	private void absoluteExpressionValue(CSSExpression expr, boolean useParentStyle) {
@@ -614,9 +633,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if (getStyleDatabase() != null) {
 					sz = getStyleDatabase().getExSizeInPt(parentStyle.getUsedFontFamily(),
 							parentStyle.getComputedFontSize()) * factor;
-				} else {
+				} else if (force) {
 					factor = 0.5f * factor;
 					return getRelativeFontSize(cssSize, factor, force);
+				} else {
+					return cssSize;
 				}
 			}
 			break;
@@ -625,8 +646,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			CSSElement root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedFontSize();
-			} else {
+			} else if (force) {
 				sz = getInitialFontSize();
+			} else {
+				return cssSize;
 			}
 			sz *= factor;
 			break;
@@ -635,8 +658,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			parentStyle = getParentComputedStyle();
 			if (parentStyle != null) {
 				sz = parentStyle.getComputedLineHeight();
-			} else {
+			} else if (force) {
 				sz = getInitialFontSize();
+			} else {
+				return cssSize;
 			}
 			sz *= factor;
 			break;
@@ -645,8 +670,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedLineHeight();
-			} else {
+			} else if (force) {
 				sz = getInitialFontSize();
+			} else {
+				return cssSize;
 			}
 			sz *= factor;
 			break;
@@ -660,7 +687,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					break;
 				}
 			}
-			sz = getInitialFontSize() * factor;
+			if (force) {
+				sz = getInitialFontSize() * factor;
+			} else {
+				return cssSize;
+			}
 			break;
 		case CSSPrimitiveValue2.CSS_CH:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_CH);
@@ -672,7 +703,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					break;
 				}
 			}
-			sz = getParentElementFontSize() * 0.25f * factor;
+			if (force) {
+				sz = getParentElementFontSize() * 0.25f * factor;
+			} else {
+				return cssSize;
+			}
 			break;
 		case CSSPrimitiveValue2.CSS_IC:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_IC);
@@ -684,7 +719,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					break;
 				}
 			}
-			sz = getParentElementFontSize() * factor;
+			if (force) {
+				sz = getParentElementFontSize() * factor;
+			} else {
+				return cssSize;
+			}
 			break;
 		case CSSPrimitiveValue.CSS_IDENT:
 			String sizeIdentifier = cssSize.getStringValue();
@@ -703,21 +742,42 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		case CSSPrimitiveValue2.CSS_VW:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VW);
 			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
-			sz = getInitialContainingBlockWidthPt(canvas) * factor * 0.01f;
+			try {
+				sz = getInitialContainingBlockWidthPt(canvas, force) * factor * 0.01f;
+			} catch (StyleDatabaseRequiredException e) {
+				if (force) {
+					throw e;
+				}
+				return cssSize;
+			}
 			break;
 		case CSSPrimitiveValue2.CSS_VH:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VH);
 			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
-			sz = getInitialContainingBlockHeightPt(canvas) * factor * 0.01f;
+			try {
+				sz = getInitialContainingBlockHeightPt(canvas, force) * factor * 0.01f;
+			} catch (StyleDatabaseRequiredException e) {
+				if (force) {
+					throw e;
+				}
+				return cssSize;
+			}
 			break;
 		case CSSPrimitiveValue2.CSS_VI:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VI);
 			String writingMode = getCSSValue("writing-mode").getCssText();
 			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
-			if ("horizontal-tb".equalsIgnoreCase(writingMode)) {
-				sz = getInitialContainingBlockWidthPt(canvas);
-			} else {
-				sz = getInitialContainingBlockHeightPt(canvas);
+			try {
+				if ("horizontal-tb".equalsIgnoreCase(writingMode)) {
+					sz = getInitialContainingBlockWidthPt(canvas, force);
+				} else {
+					sz = getInitialContainingBlockHeightPt(canvas, force);
+				}
+			} catch (StyleDatabaseRequiredException e) {
+				if (force) {
+					throw e;
+				}
+				return cssSize;
 			}
 			sz *= factor * 0.01f;
 			break;
@@ -725,23 +785,46 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VB);
 			writingMode = getCSSValue("writing-mode").getCssText();
 			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
-			if ("horizontal-tb".equalsIgnoreCase(writingMode)) {
-				sz = getInitialContainingBlockHeightPt(canvas);
-			} else {
-				sz = getInitialContainingBlockWidthPt(canvas);
+			try {
+				if ("horizontal-tb".equalsIgnoreCase(writingMode)) {
+					sz = getInitialContainingBlockHeightPt(canvas, force);
+				} else {
+					sz = getInitialContainingBlockWidthPt(canvas, force);
+				}
+			} catch (StyleDatabaseRequiredException e) {
+				if (force) {
+					throw e;
+				}
+				return cssSize;
 			}
 			sz *= factor * 0.01f;
 			break;
 		case CSSPrimitiveValue2.CSS_VMIN:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VMIN);
 			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
-			sz = Math.min(getInitialContainingBlockWidthPt(canvas), getInitialContainingBlockHeightPt(canvas));
+			try {
+				sz = Math.min(getInitialContainingBlockWidthPt(canvas, force),
+						getInitialContainingBlockHeightPt(canvas, force));
+			} catch (StyleDatabaseRequiredException e) {
+				if (force) {
+					throw e;
+				}
+				return cssSize;
+			}
 			sz *= factor * 0.01f;
 			break;
 		case CSSPrimitiveValue2.CSS_VMAX:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VMAX);
 			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
-			sz = Math.max(getInitialContainingBlockWidthPt(canvas), getInitialContainingBlockHeightPt(canvas));
+			try {
+				sz = Math.max(getInitialContainingBlockWidthPt(canvas, force),
+						getInitialContainingBlockHeightPt(canvas, force));
+			} catch (StyleDatabaseRequiredException e) {
+				if (force) {
+					throw e;
+				}
+				return cssSize;
+			}
 			sz *= factor * 0.01f;
 			break;
 		case CSSPrimitiveValue2.CSS_EXPRESSION:

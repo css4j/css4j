@@ -160,7 +160,11 @@ public class DOMCSSStyleSheetFactoryTest {
 	}
 
 	public static CSSDocument sampleXHTML() throws IOException, DocumentException {
-		return wrapStreamDefaultSheet(sampleHTMLStream(), null, MockURLFactory.SAMPLE_URL);
+		return sampleXHTML(factoryDef);
+	}
+
+	public static CSSDocument sampleXHTML(DOMCSSStyleSheetFactory factory) throws IOException, DocumentException {
+		return wrapStreamForFactory(sampleHTMLStream(), null, MockURLFactory.SAMPLE_URL, factory);
 	}
 
 	public static CSSDocument simpleBoxHTML() throws IOException, DocumentException {

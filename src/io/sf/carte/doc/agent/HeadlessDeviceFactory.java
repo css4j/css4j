@@ -24,5 +24,5 @@ public class HeadlessDeviceFactory extends AbstractDeviceFactory {
 	public CSSCanvas createCanvas(String medium, CSSDocument doc) {
 		return null;
 	}
-	
+
 }
