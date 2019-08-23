@@ -1231,6 +1231,15 @@ public class ValueFactory {
 		case LexicalUnit2.SAC_FR:
 			primiType = CSSPrimitiveValue2.CSS_FR;
 			break;
+		case LexicalUnit.SAC_UNICODERANGE:
+			primiType = CSSPrimitiveValue2.CSS_UNICODE_RANGE;
+			break;
+		case LexicalUnit2.SAC_UNICODE_WILDCARD:
+			primiType = CSSPrimitiveValue2.CSS_UNICODE_WILDCARD;
+			break;
+		case LexicalUnit2.SAC_ELEMENT_REFERENCE:
+			primiType = CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE;
+			break;
 		case LexicalUnit.SAC_RECT_FUNCTION:
 			primiType = CSSPrimitiveValue.CSS_RECT;
 			break;
