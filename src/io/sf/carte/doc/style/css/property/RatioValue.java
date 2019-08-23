@@ -16,6 +16,7 @@ import java.io.IOException;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSRatioValue;
 import io.sf.carte.util.SimpleWriter;
 
@@ -32,6 +33,7 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 
 	RatioValue() {
 		super();
+		setCSSUnitType(CSSPrimitiveValue2.CSS_RATIO);
 	}
 
 	protected RatioValue(RatioValue copied) {
@@ -66,7 +68,6 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			super.setLexicalUnit(lunit);
 			setAntecedentValue(lunit.getIntegerValue());
 			LexicalUnit nlu = lunit.getNextLexicalUnit(); // '/'
 			nlu = nlu.getNextLexicalUnit();

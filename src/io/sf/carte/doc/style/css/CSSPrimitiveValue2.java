@@ -184,6 +184,11 @@ public interface CSSPrimitiveValue2 extends CSSPrimitiveValue {
 	final short CSS_ELEMENT_REFERENCE = 133;
 
 	/**
+	 * CSS ratio value (media queries).
+	 */
+	final short CSS_RATIO = 135;
+
+	/**
 	 * Get the RGBA color. If this CSS value doesn't contain a RGB color value, a
 	 * <code>DOMException</code> is raised.
 	 * 
