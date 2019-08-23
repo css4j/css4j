@@ -21,7 +21,6 @@ import java.util.Locale;
 
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
@@ -337,8 +336,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 				((ValueList) cssVal).setSubproperty(true);
 			}
 		} else {
-			IdentifierValue ident = new IdentifierValue();
-			ident.setStringValue(CSSPrimitiveValue.CSS_IDENT, "initial");
+			IdentifierValue ident = new IdentifierValue("initial");
 			ident.setSubproperty(true);
 			cssVal = ident;
 		}
