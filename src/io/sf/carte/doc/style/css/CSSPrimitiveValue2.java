@@ -184,6 +184,13 @@ public interface CSSPrimitiveValue2 extends CSSPrimitiveValue {
 	final short CSS_ELEMENT_REFERENCE = 133;
 
 	/**
+	 * CSS <code>counters()</code> function.
+	 * <p>
+	 * @see {@link CSSCountersValue}.
+	 */
+	final short CSS_COUNTERS = 134;
+
+	/**
 	 * CSS ratio value (media queries).
 	 */
 	final short CSS_RATIO = 135;

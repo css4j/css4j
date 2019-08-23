@@ -944,6 +944,10 @@ public class ValueFactory {
 				primi = new CounterValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case LexicalUnit.SAC_COUNTERS_FUNCTION:
+				primi = new CountersValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case LexicalUnit2.SAC_ELEMENT_REFERENCE:
 				primi = new ElementReferenceValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
@@ -1182,8 +1186,10 @@ public class ValueFactory {
 			primiType = CSSPrimitiveValue.CSS_RECT;
 			break;
 		case LexicalUnit.SAC_COUNTER_FUNCTION:
-		case LexicalUnit.SAC_COUNTERS_FUNCTION:
 			primiType = CSSPrimitiveValue.CSS_COUNTER;
+			break;
+		case LexicalUnit.SAC_COUNTERS_FUNCTION:
+			primiType = CSSPrimitiveValue2.CSS_COUNTERS;
 			break;
 		case LexicalUnit.SAC_FUNCTION:
 			LexicalUnit lu = lunit.getParameters();

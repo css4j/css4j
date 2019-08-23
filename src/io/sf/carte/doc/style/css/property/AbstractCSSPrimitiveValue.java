@@ -161,6 +161,11 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 		return false;
 	}
 
+	static boolean isCSSIdentifier(CSSPrimitiveValue value, String ident) {
+		return value.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+				&& ident.equalsIgnoreCase(value.getStringValue());
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

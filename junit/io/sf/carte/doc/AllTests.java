@@ -99,6 +99,7 @@ import io.sf.carte.doc.style.css.property.AttrValueTest;
 import io.sf.carte.doc.style.css.property.CalcValueTest;
 import io.sf.carte.doc.style.css.property.ColorValueTest;
 import io.sf.carte.doc.style.css.property.CounterValueTest;
+import io.sf.carte.doc.style.css.property.CountersValueTest;
 import io.sf.carte.doc.style.css.property.CustomPropertyValueTest;
 import io.sf.carte.doc.style.css.property.ElementReferenceValueTest;
 import io.sf.carte.doc.style.css.property.EnvVariableValueTest;
@@ -215,6 +216,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		CalcValueTest.class,
 		ColorValueTest.class,
 		CounterValueTest.class,
+		CountersValueTest.class,
 		CustomPropertyValueTest.class,
 		ElementReferenceValueTest.class,
 		EnvVariableValueTest.class,
