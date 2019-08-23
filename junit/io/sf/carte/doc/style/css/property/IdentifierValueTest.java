@@ -147,13 +147,15 @@ public class IdentifierValueTest {
 
 	@Test
 	public void testEquals() {
+		CSSParser parser = new CSSParser();
 		ValueFactory factory = new ValueFactory();
-		AbstractCSSValue value = factory.parseProperty("scroll");
+		AbstractCSSValue value = factory.parseProperty("scroll", parser);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_IDENT, ((CSSPrimitiveValue) value).getPrimitiveType());
-		assertTrue(value.equals(factory.parseProperty("scroll")));
-		assertFalse(value.equals(factory.parseProperty("medium")));
-		assertTrue(value.equals(factory.parseProperty("SCROLL")));
+		assertTrue(value.equals(factory.parseProperty("scroll", parser)));
+		assertFalse(value.equals(factory.parseProperty("medium", parser)));
+		assertFalse(value.equals(factory.parseProperty("SCROLL", parser)));
+		assertTrue(value.equals(factory.parseProperty("background-attachment", "SCROLL", parser)));
 	}
 
 	@Test

@@ -29,6 +29,7 @@ import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue.LexicalSetter;
 
 /**
@@ -445,7 +446,7 @@ public class ValueFactory {
 	 * <p>
 	 * 
 	 * @param value
-	 *            the string containing the property value
+	 *            the string containing the property value.
 	 * @return the CSSValue object containing the parsed value.
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
@@ -458,7 +459,7 @@ public class ValueFactory {
 	 * Parses a property value with the supplied parser.
 	 * 
 	 * @param value
-	 *            the string containing the property value
+	 *            the string containing the property value.
 	 * @param parser
 	 *            the SAC parser.
 	 * @return the CSSValue object containing the parsed value.
@@ -466,6 +467,54 @@ public class ValueFactory {
 	 *             if a problem was found parsing the property.
 	 */
 	public AbstractCSSValue parseProperty(String value, Parser parser) throws DOMException {
+		return parseProperty("", value, parser);
+	}
+
+	/**
+	 * Parses a property value with the supplied parser.
+	 * 
+	 * @param propertyName
+	 *            the string containing the property name.
+	 * @param value
+	 *            the string containing the property value.
+	 * @param parser
+	 *            the SAC parser.
+	 * @return the CSSValue object containing the parsed value.
+	 * @throws DOMException
+	 *             if a problem was found parsing the property.
+	 */
+	public AbstractCSSValue parseProperty(String propertyName, String value, CSSParser parser) throws DOMException {
+		Reader re = new StringReader(value);
+		LexicalUnit lunit = null;
+		try {
+			lunit = parser.parsePropertyValue(propertyName, re);
+		} catch (CSSException e) {
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (IOException e) {
+			// This should never happen!
+			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+		}
+		AbstractCSSValue css = createCSSValue(lunit);
+		if (css == null) {
+			css = createUnknownValue(value, lunit);
+		}
+		return css;
+	}
+
+	/**
+	 * Parses a property value with the supplied parser.
+	 * 
+	 * @param value
+	 *            the string containing the property value.
+	 * @param parser
+	 *            the SAC parser.
+	 * @return the CSSValue object containing the parsed value.
+	 * @throws DOMException
+	 *             if a problem was found parsing the property.
+	 */
+	public AbstractCSSValue parseProperty(String propertyName, String value, Parser parser) throws DOMException {
 		InputSource source = new InputSource();
 		Reader re = new StringReader(value);
 		source.setCharacterStream(re);

@@ -658,6 +658,14 @@ public class CSSParser implements Parser2 {
 		return handler.getLexicalUnit();
 	}
 
+	public LexicalUnit2 parsePropertyValue(String propertyName, Reader reader) throws CSSException, IOException {
+		int[] allowInWords = { 45, 95 }; // -_
+		PropertyTokenHandler handler = new PropertyTokenHandler(propertyName);
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(reader, "/*", "*/");
+		return handler.getLexicalUnit();
+	}
+
 	@Override
 	public boolean parsePriority(InputSource source) throws CSSException, IOException {
 		Reader re = source.getCharacterStream();
@@ -3480,6 +3488,11 @@ public class CSSParser implements Parser2 {
 		PropertyTokenHandler(InputSource source) {
 			super(source);
 			this.propertyName = "";
+		}
+
+		PropertyTokenHandler(String propertyName) {
+			super(null);
+			this.propertyName = propertyName;
 		}
 
 		@Override
