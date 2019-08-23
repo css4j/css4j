@@ -97,7 +97,7 @@ public final class PropertyDatabase {
 	/**
 	 * Gets an instance of this class.
 	 * 
-	 * @return an instance of PropertyNameFactory.
+	 * @return an instance of PropertyDatabase.
 	 */
 	public static PropertyDatabase getInstance() {
 		return singleton;
@@ -516,7 +516,7 @@ public final class PropertyDatabase {
 		if (csl == null) {
 			// Could not find identifiers for propertyName
 			if (propertyName.endsWith("-color")) {
-				value = value.toLowerCase(Locale.US);
+				value = value.toLowerCase(Locale.ROOT);
 				return ColorIdentifiers.getInstance().isColorIdentifier(value) || "transparent".equals(value);
 			}
 			return false;

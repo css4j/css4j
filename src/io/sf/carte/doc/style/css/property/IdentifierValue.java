@@ -51,7 +51,7 @@ public class IdentifierValue extends AbstractCSSPrimitiveValue {
 	public IdentifierValue(String plainIdentifier) {
 		super();
 		setCSSUnitType(CSS_IDENT);
-		setStringValue(plainIdentifier);
+		this.stringValue = plainIdentifier;
 		setPlainCssText(plainIdentifier);
 	}
 
@@ -108,7 +108,7 @@ public class IdentifierValue extends AbstractCSSPrimitiveValue {
 		}
 		setCSSUnitType(stringType);
 		setStringValue(stringValue);
-		setPlainCssText(escape(stringValue));
+		setPlainCssText(escape(this.stringValue));
 	}
 
 	private void setStringValue(String value) {
@@ -129,12 +129,12 @@ public class IdentifierValue extends AbstractCSSPrimitiveValue {
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			String strval = lunit.getStringValue();
+			setStringValue(strval);
 			if (lunit instanceof LexicalUnit2) {
 				setPlainCssText(((LexicalUnit2) lunit).getCssText());
 			} else {
-				setPlainCssText(escape(strval));
+				setPlainCssText(escape(stringValue));
 			}
-			setStringValue(strval);
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 	}
@@ -158,6 +158,9 @@ public class IdentifierValue extends AbstractCSSPrimitiveValue {
 		if (this == obj) {
 			return true;
 		}
+		if (obj == null) {
+			return false;
+		}
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
@@ -168,7 +171,7 @@ public class IdentifierValue extends AbstractCSSPrimitiveValue {
 			if (osv != null) {
 				return false;
 			}
-		} else if (!sv.equalsIgnoreCase(osv)) {
+		} else if (!sv.equals(osv)) {
 			return false;
 		}
 		return true;

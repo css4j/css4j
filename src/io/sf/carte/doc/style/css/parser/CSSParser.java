@@ -61,6 +61,7 @@ import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SelectorArgumentCond
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SiblingSelectorImpl;
 import io.sf.carte.doc.style.css.parser.SupportsConditionImpl.MyDeclarationCondition;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.uparser.TokenControl;
 import io.sf.carte.uparser.TokenHandler;
@@ -3518,6 +3519,7 @@ public class CSSParser implements Parser2 {
 		private LexicalUnitImpl lunit = null;
 		private LexicalUnitImpl currentlu = null;
 		String propertyName = null;
+		private final PropertyDatabase propertyDatabase = PropertyDatabase.getInstance();
 		private boolean hexColor = false;
 		private boolean unicodeRange = false;
 		private boolean readPriority = false;
@@ -4598,11 +4600,28 @@ public class CSSParser implements Parser2 {
 		private boolean newIdentifier(String raw, String ident, String cssText) {
 			if (isValidIdentifier(raw)) {
 				LexicalUnitImpl lu = newLexicalUnit(LexicalUnit.SAC_IDENT);
+				String lcident = ident.toLowerCase(Locale.ROOT);
+				if (lcident != ident) {
+					if (propertyDatabase.isShorthand(propertyName)) {
+						String[] longhands = propertyDatabase.getLonghandProperties(propertyName);
+						for (int i = 0; i < longhands.length; i++) {
+							if (isIdentifierValueOf(longhands[i], lcident)) {
+								ident = lcident;
+							}
+						}
+					} else if (isIdentifierValueOf(propertyName, lcident)) {
+						ident = lcident;
+					}
+				}
 				lu.value = ident;
 				lu.identCssText = cssText;
 				return true;
 			}
 			return false;
+		}
+
+		private boolean isIdentifierValueOf(String propertyName, String lcident) {
+			return propertyDatabase.isIdentifierValue(propertyName, lcident) || "none".equals(lcident);
 		}
 
 		@Override

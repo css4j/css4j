@@ -1421,6 +1421,66 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationBackgroundImageNone() throws CSSException, IOException {
+		InputSource source = new InputSource(
+				new StringReader("background-image: NONE;"));
+		parser.parseStyleDeclaration(source);
+		assertEquals("background-image", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("none", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
+	public void testParseStyleDeclarationBackgroundClipIdent() throws CSSException, IOException {
+		InputSource source = new InputSource(
+				new StringReader("background-clip: Content-Box;"));
+		parser.parseStyleDeclaration(source);
+		assertEquals("background-clip", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("content-box", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
+	public void testParseStyleDeclarationListStyleTypeCustomIdent() throws CSSException, IOException {
+		InputSource source = new InputSource(
+				new StringReader("list-style-type: MyStyle;"));
+		parser.parseStyleDeclaration(source);
+		assertEquals("list-style-type", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("MyStyle", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
+	public void testParseStyleDeclarationListStyleCustomIdent() throws CSSException, IOException {
+		InputSource source = new InputSource(
+				new StringReader("list-style: MyStyle;"));
+		parser.parseStyleDeclaration(source);
+		assertEquals("list-style", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("MyStyle", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
+	public void testParseStyleDeclarationListStyleIdent() throws CSSException, IOException {
+		InputSource source = new InputSource(
+				new StringReader("list-style: Upper-Roman;"));
+		parser.parseStyleDeclaration(source);
+		assertEquals("list-style", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("upper-roman", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
 	public void testParseStyleDeclarationContent() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("content: \\f435;"));
 		parser.parseStyleDeclaration(source);

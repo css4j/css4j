@@ -4507,9 +4507,9 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testFont7() {
-		emptyStyleDecl.setCssText("font: 14pt Font Normal;");
+		emptyStyleDecl.setCssText("font: 14pt Font Foo;");
 		assertEquals(14, emptyStyleDecl.getLength());
-		assertEquals("Font Normal", emptyStyleDecl.getPropertyValue("font-family"));
+		assertEquals("Font Foo", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
@@ -4520,15 +4520,15 @@ public class ShorthandSetterTest {
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-position"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-numeric"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-alternates"));
-		assertEquals("font: 14pt Font Normal; ", emptyStyleDecl.getCssText());
-		assertEquals("font:14pt Font Normal;", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("font: 14pt Font Foo; ", emptyStyleDecl.getCssText());
+		assertEquals("font:14pt Font Foo;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
 	public void testFont8() {
-		emptyStyleDecl.setCssText("font: 14pt Font Normal; font-size: inherit;");
+		emptyStyleDecl.setCssText("font: 14pt Font Foo; font-size: inherit;");
 		assertEquals(14, emptyStyleDecl.getLength());
-		assertEquals("Font Normal", emptyStyleDecl.getPropertyValue("font-family"));
+		assertEquals("Font Foo", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
@@ -4540,14 +4540,14 @@ public class ShorthandSetterTest {
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-numeric"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-alternates"));
 		assertFalse(emptyStyleDecl.getPropertyCSSValue("font-size").isSubproperty());
-		assertEquals("font: 14pt Font Normal; font-size: inherit; ", emptyStyleDecl.getCssText());
-		assertEquals("font:14pt Font Normal;font-size:inherit", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("font: 14pt Font Foo; font-size: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("font:14pt Font Foo;font-size:inherit", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
 	public void testFontOverride() {
 		emptyStyleDecl.setCssText(
-				"font:14pt Font Normal;font-size:12pt;font-size-adjust:0.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal;");
+				"font:14pt Font Foo;font-size:12pt;font-size-adjust:0.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal;");
 		assertEquals(14, emptyStyleDecl.getLength());
 		assertEquals("Arial", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("bolder", emptyStyleDecl.getPropertyValue("font-weight"));
@@ -4565,10 +4565,10 @@ public class ShorthandSetterTest {
 		assertFalse(emptyStyleDecl.getPropertyCSSValue("font-size").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("font-variant-caps").isSubproperty());
 		assertEquals(
-				"font: 14pt Font Normal; font-size: 12pt; font-size-adjust: 0.5; font-family: Arial; font-weight: bolder; font-style: italic; line-height: 1.5em; font-stretch: ultra-condensed; font-kerning: normal; ",
+				"font: 14pt Font Foo; font-size: 12pt; font-size-adjust: 0.5; font-family: Arial; font-weight: bolder; font-style: italic; line-height: 1.5em; font-stretch: ultra-condensed; font-kerning: normal; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"font:14pt Font Normal;font-size:12pt;font-size-adjust:.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal",
+				"font:14pt Font Foo;font-size:12pt;font-size-adjust:.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
