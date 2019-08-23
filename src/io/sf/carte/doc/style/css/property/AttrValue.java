@@ -110,7 +110,6 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			super.setLexicalUnit(lunit);
 			String strval = lunit.getStringValue();
 			setPlainCssText("attr(" + strval + ')');
 			parseAttrValues(strval);

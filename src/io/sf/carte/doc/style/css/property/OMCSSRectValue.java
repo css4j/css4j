@@ -56,7 +56,6 @@ class OMCSSRectValue extends AbstractCSSPrimitiveValue {
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			ValueFactory factory = new ValueFactory();
-			super.setLexicalUnit(lunit);
 			boolean commaFound = false;
 			LexicalUnit lu = lunit.getParameters();
 			// top

@@ -128,7 +128,6 @@ public class IdentifierValue extends AbstractCSSPrimitiveValue {
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			super.setLexicalUnit(lunit);
 			String strval = lunit.getStringValue();
 			if (lunit instanceof LexicalUnit2) {
 				setPlainCssText(((LexicalUnit2) lunit).getCssText());

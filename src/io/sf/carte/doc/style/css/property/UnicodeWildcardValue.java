@@ -112,7 +112,6 @@ public class UnicodeWildcardValue extends AbstractCSSPrimitiveValue {
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			super.setLexicalUnit(lunit);
 			wildcard = lunit.getStringValue();
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}

@@ -105,7 +105,6 @@ public class UnicodeValue extends AbstractCSSPrimitiveValue implements CSSUnicod
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			super.setLexicalUnit(lunit);
 			codePoint = lunit.getIntegerValue();
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
