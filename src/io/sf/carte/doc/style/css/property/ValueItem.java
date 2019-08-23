@@ -33,8 +33,8 @@ public interface ValueItem {
 	/**
 	 * Get the next lexical unit after processing this item.
 	 * <p>
-	 * This method is useful as some primitive values (counter(), ratio) may take
-	 * more than one unit.
+	 * This method is useful as some primitive values (ratio) may take more than one
+	 * unit.
 	 * 
 	 * @return the next lexical unit after this item was processed.
 	 */
