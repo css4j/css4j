@@ -171,7 +171,7 @@ function loopChild(parentElm, level, index, prefix){
 				buffer += 'while(node.getNodeType() != Node.ELEMENT_NODE';
 				if(level === 0) {
 					buffer += ' || !"' + node.tagName +
-						'".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))';
+						'".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))';
 				}
 				buffer += ') {\n  delta++;\n  node = ndList' + prefix + '_' + level.toString() + '_'
 							+ index.toString() + '.item(' + i.toString() + ' + delta);\n}\n';

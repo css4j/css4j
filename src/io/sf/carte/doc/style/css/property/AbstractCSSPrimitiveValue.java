@@ -112,7 +112,7 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 	@Override
 	public RGBAColor getRGBColorValue() throws DOMException {
 		if (getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-			String ident = getStringValue().toLowerCase(Locale.US);
+			String ident = getStringValue().toLowerCase(Locale.ROOT);
 			String spec;
 			if ("transparent".equals(ident)) {
 				spec = "rgba(0,0,0,0)";

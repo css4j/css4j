@@ -246,7 +246,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private AbstractCSSPrimitiveValue colorValue(String propertyName, AbstractCSSPrimitiveValue primi) {
 		if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-			String s = primi.getStringValue().toLowerCase(Locale.US);
+			String s = primi.getStringValue().toLowerCase(Locale.ROOT);
 			if ("currentcolor".equals(s)) {
 				if (!"color".equals(propertyName)) {
 					primi = getCSSColor();
@@ -1030,7 +1030,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 * @return the constrained value.
 	 */
 	private AbstractCSSValue computeConstrainedDisplay(AbstractCSSValue value) {
-		String display = ((CSSPrimitiveValue) value).getStringValue().toLowerCase(Locale.US);
+		String display = ((CSSPrimitiveValue) value).getStringValue().toLowerCase(Locale.ROOT);
 		if ("inline-table".equals(display)) {
 			return new IdentifierValue("table");
 		} else if ("inline".equals(display) || "run-in".equals(display) || "table-row-group".equals(display)
@@ -1276,7 +1276,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		float sz;
 		switch (cssSize.getPrimitiveType()) {
 		case CSSPrimitiveValue.CSS_IDENT:
-			String sizeIdentifier = cssSize.getStringValue().toLowerCase(Locale.US);
+			String sizeIdentifier = cssSize.getStringValue().toLowerCase(Locale.ROOT);
 			try {
 				String familyName = getUsedFontFamily();
 				sz = getFontSizeFromIdentifier(familyName, sizeIdentifier);

@@ -414,7 +414,7 @@ abstract class ShorthandBuilder {
 	static boolean isInitialIdentifier(AbstractCSSValue cssVal) {
 		return cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) cssVal).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& ((CSSPrimitiveValue) cssVal).getStringValue().toLowerCase(Locale.US).equals("initial");
+				&& ((CSSPrimitiveValue) cssVal).getStringValue().toLowerCase(Locale.ROOT).equals("initial");
 	}
 
 	boolean isInitialValue(String propertyName) {
@@ -494,7 +494,7 @@ abstract class ShorthandBuilder {
 			short type2 = pvalue2.getPrimitiveType();
 			if (type1 == CSSPrimitiveValue.CSS_IDENT) {
 				if (type2 == CSSPrimitiveValue.CSS_RGBCOLOR) {
-					return testColorIdentifier(pvalue2, pvalue1.getStringValue().toLowerCase(Locale.US));
+					return testColorIdentifier(pvalue2, pvalue1.getStringValue().toLowerCase(Locale.ROOT));
 				} else if (type2 == CSSPrimitiveValue.CSS_IDENT) {
 					return pvalue1.getStringValue().equalsIgnoreCase(pvalue2.getStringValue());
 				}

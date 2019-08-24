@@ -204,7 +204,7 @@ public class DefaultEntityResolver implements EntityResolver2 {
 			if (whitelist == null) {
 				whitelist = new HashSet<String>(4);
 			}
-			whitelist.add(fqdn.toLowerCase(Locale.US));
+			whitelist.add(fqdn.toLowerCase(Locale.ROOT));
 		}
 	}
 
@@ -337,7 +337,7 @@ public class DefaultEntityResolver implements EntityResolver2 {
 	 * @return <code>true</code> if the given host is whitelisted.
 	 */
 	protected boolean isWhitelistedHost(String host) {
-		return whitelist.contains(host.toLowerCase(Locale.US));
+		return whitelist.contains(host.toLowerCase(Locale.ROOT));
 	}
 
 	/**

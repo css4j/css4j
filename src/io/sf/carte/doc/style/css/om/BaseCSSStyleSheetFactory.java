@@ -370,7 +370,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	public AbstractCSSPrimitiveValue getSystemDefaultValue(String propertyName) {
 		if (lenientSystemValues) {
 			CSSPrimitiveValue2 value = null;
-			propertyName = propertyName.toLowerCase(Locale.US);
+			propertyName = propertyName.toLowerCase(Locale.ROOT);
 			if ("color".equals(propertyName) || propertyName.endsWith("-color")) {
 				value = (CSSPrimitiveValue2) new ValueFactory().parseProperty("#000000");
 				((ColorValue) value).setSystemDefault();

@@ -228,7 +228,7 @@ class BorderImageBuilder extends ShorthandBuilder {
 			AbstractCSSValue lastval = list.item(sides - 1);
 			if (lastval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 					&& ((CSSPrimitiveValue) lastval).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-				if ("fill".equals(((CSSPrimitiveValue) lastval).getStringValue().toLowerCase(Locale.US))) {
+				if ("fill".equals(((CSSPrimitiveValue) lastval).getStringValue().toLowerCase(Locale.ROOT))) {
 					sides--;
 					fill = true;
 				} else {

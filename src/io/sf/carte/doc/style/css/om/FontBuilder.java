@@ -275,12 +275,12 @@ class FontBuilder extends ShorthandBuilder {
 	}
 
 	private boolean isFontVariantCss21(AbstractCSSValue vFontVariant) {
-		String text = vFontVariant.getCssText().toLowerCase(Locale.US);
+		String text = vFontVariant.getCssText().toLowerCase(Locale.ROOT);
 		return text.equals("normal") || text.equals("small-caps") || text.equals("initial");
 	}
 
 	private boolean isFontStretchCss3(AbstractCSSValue vFontStretch) {
-		String text = vFontStretch.getCssText().toLowerCase(Locale.US);
+		String text = vFontStretch.getCssText().toLowerCase(Locale.ROOT);
 		return text.equals("normal") || text.equals("ultra-condensed") || text.equals("extra-condensed")
 				|| text.equals("condensed") || text.equals("semi-condensed") || text.equals("semi-expanded")
 				|| text.equals("expanded") || text.equals("extra-expanded") || text.equals("ultra-expanded")

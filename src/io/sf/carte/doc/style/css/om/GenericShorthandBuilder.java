@@ -119,7 +119,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 	}
 
 	boolean invalidIdentValueClash(Set<String> declaredSet, String propertyName, AbstractCSSPrimitiveValue primi) {
-		String ident = primi.getStringValue().toLowerCase(Locale.US);
+		String ident = primi.getStringValue().toLowerCase(Locale.ROOT);
 		if (!pdb.isIdentifierValue(propertyName, ident) && !ident.equals(initialvalue) && !ident.equals("initial")) {
 			if (identifierValuesAreKnown(propertyName) || containsControl(ident)) {
 				return true; // Invalid value

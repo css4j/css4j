@@ -157,7 +157,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					continue topLoop;
 				}
 				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-					String sv = currentValue.getStringValue().toLowerCase(Locale.US);
+					String sv = currentValue.getStringValue().toLowerCase(Locale.ROOT);
 					if ("initial".equals(sv) || "unset".equals(sv)) {
 						AbstractCSSValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 						// Full layer is 'keyword'

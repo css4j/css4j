@@ -439,7 +439,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		boolean appended = false;
 		if (posvalue != null) {
 			short type = posvalue.getCssValueType();
-			String text = posvalue.getCssText().toLowerCase(Locale.US);
+			String text = posvalue.getCssText().toLowerCase(Locale.ROOT);
 			if (isUnsetValue(posvalue)) {
 				return false;
 			} else if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
@@ -465,7 +465,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		// Background-size
 		if (sizevalue != null) {
 			if (!isUnsetValue(sizevalue) && !isUnknownIdentifier("background-size", sizevalue)) {
-				String text = sizevalue.getMinifiedCssText("background-size").toLowerCase(Locale.US);
+				String text = sizevalue.getMinifiedCssText("background-size").toLowerCase(Locale.ROOT);
 				if (!"auto".equals(text) && !"auto auto".equals(text) && !"initial".equals(text)) {
 					if (!appended) {
 						if (posvalue == null) {
@@ -488,7 +488,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private boolean appendBackgroundRepeat(StringBuilder buf, AbstractCSSValue value) {
 		short type = value.getCssValueType();
-		String text = value.getCssText().toLowerCase(Locale.US);
+		String text = value.getCssText().toLowerCase(Locale.ROOT);
 		if (isUnsetValue(value) || text.indexOf('\\') != -1) {
 			// Either 'unset' or contains a hack
 			return false;
@@ -522,7 +522,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private boolean appendBackgroundAttachment(StringBuilder buf, AbstractCSSValue value) {
 		if (!isUnsetValue(value) && !isUnknownIdentifier("background-attachment", value)) {
-			String text = value.getMinifiedCssText("background-attachment").toLowerCase(Locale.US);
+			String text = value.getMinifiedCssText("background-attachment").toLowerCase(Locale.ROOT);
 			if (!"scroll".equals(text) && !"initial".equals(text)) {
 				appendText(buf, text);
 			}
@@ -539,12 +539,12 @@ class BackgroundBuilder extends ShorthandBuilder {
 		 * the first sets background-origin and the second background-clip."
 		 */
 		boolean clipIsInitial = false;
-		String cliptext = clip.getMinifiedCssText("background-clip").toLowerCase(Locale.US);
+		String cliptext = clip.getMinifiedCssText("background-clip").toLowerCase(Locale.ROOT);
 		if ("border-box".equals(cliptext) || "initial".equals(cliptext)) {
 			clipIsInitial = true;
 		}
 		if (!isUnsetValue(origin) && !isUnknownIdentifier("background-origin", origin)) {
-			String text = origin.getCssText().toLowerCase(Locale.US);
+			String text = origin.getCssText().toLowerCase(Locale.ROOT);
 			if ((clip != null && !clipIsInitial) || (!"padding-box".equals(text) && !"initial".equals(text))) {
 				appendText(buf, text);
 			}
@@ -563,7 +563,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private boolean appendBackgroundColor(StringBuilder buf, AbstractCSSValue value) {
 		if (!isUnsetValue(value) && isValidColor(value)) {
-			String text = value.getMinifiedCssText("background-color").toLowerCase(Locale.US);
+			String text = value.getMinifiedCssText("background-color").toLowerCase(Locale.ROOT);
 			if (!"transparent".equals(text) && !"rgba(0,0,0,0)".equals(text) && !"rgb(0 0 0/0)".equals(text)
 					&& !"initial".equals(text)) {
 				appendText(buf, text);
@@ -582,7 +582,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				return true;
 			}
 			if (ptype == CSSPrimitiveValue.CSS_IDENT) {
-				String s = primi.getStringValue().toLowerCase(Locale.US);
+				String s = primi.getStringValue().toLowerCase(Locale.ROOT);
 				return ColorIdentifiers.getInstance().isColorIdentifier(s) || "transparent".equals(s)
 						|| "initial".equals(s);
 			} else if (ptype == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY) {

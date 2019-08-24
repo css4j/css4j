@@ -82,7 +82,7 @@ public class CSSParser implements Parser2 {
 
 	@Override
 	public void setLocale(Locale locale) throws CSSException {
-		if (!Locale.US.equals(locale)) {
+		if (!Locale.ROOT.equals(locale)) {
 			throw new CSSException("Locale not supported");
 		}
 	}
@@ -379,7 +379,7 @@ public class CSSParser implements Parser2 {
 						unexpectedTokenError(index, word);
 						return;
 					}
-					String lctoken = word.toString().toLowerCase(Locale.US);
+					String lctoken = word.toString().toLowerCase(Locale.ROOT);
 					if ("not".equals(lctoken)) {
 						SupportsCondition newCond = new SupportsConditionImpl.NotCondition();
 						if (currentCond != null) {
@@ -691,7 +691,7 @@ public class CSSParser implements Parser2 {
 					parsingWord = 2;
 				}
 			}
-			if ("important".equals(buf.toString().toLowerCase(Locale.US))) {
+			if ("important".equals(buf.toString().toLowerCase(Locale.ROOT))) {
 				return true;
 			}
 		}
@@ -1365,7 +1365,7 @@ public class CSSParser implements Parser2 {
 							stage = 5;
 						}
 					} else if (stage == 2) {
-						String ruleName = word.toString().toLowerCase(Locale.US);
+						String ruleName = word.toString().toLowerCase(Locale.ROOT);
 						if (ruleType == PAGE_RULE) {
 							if (isMarginRuleName(ruleName)) {
 								ruleType = MARGIN_RULE;
@@ -2966,7 +2966,7 @@ public class CSSParser implements Parser2 {
 
 		private void newConditionalSelector(int index, int triggerCp, short condtype) {
 			String name = rawBuffer();
-			String lcname = name.toLowerCase(Locale.US).intern();
+			String lcname = name.toLowerCase(Locale.ROOT).intern();
 			Condition condition;
 			if (condtype == Condition.SAC_PSEUDO_CLASS_CONDITION) {
 				// See if we can specify the pseudo class.
@@ -3402,7 +3402,7 @@ public class CSSParser implements Parser2 {
 		@Override
 		void addWord(int index, CharSequence word) {
 			if (prevcp == 64) { // Got an at-rule
-				ruleFirstPart = word.toString().toLowerCase(Locale.US);
+				ruleFirstPart = word.toString().toLowerCase(Locale.ROOT);
 				buffer.setLength(0);
 			} else {
 				super.addWord(index, word);
@@ -4490,7 +4490,7 @@ public class CSSParser implements Parser2 {
 			short unitType;
 			if (i != s.length()) {
 				unit = s.substring(i);
-				unit = unit.trim().toLowerCase(Locale.US).intern();
+				unit = unit.trim().toLowerCase(Locale.ROOT).intern();
 				unitType = ParseHelper.unitFromString(unit);
 				strnum = s.substring(0, i);
 			} else { // No unit

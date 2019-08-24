@@ -81,7 +81,7 @@ abstract public class AnBExpression {
 			selectorList = parseSelector(s.substring(selIdx + 4).trim());
 			s = s.substring(0, selIdx);
 		}
-		s = s.trim().toLowerCase(Locale.US);
+		s = s.trim().toLowerCase(Locale.ROOT);
 		offset = 0;
 		if (s.equals("even")) {
 			step = 2;

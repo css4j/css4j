@@ -75,7 +75,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 			short ptype = ((CSSPrimitiveValue) value).getPrimitiveType();
 			if (ptype == CSSPrimitiveValue.CSS_IDENT) {
-				String ident = ((CSSPrimitiveValue) value).getStringValue().toLowerCase(Locale.US);
+				String ident = ((CSSPrimitiveValue) value).getStringValue().toLowerCase(Locale.ROOT);
 				String colorspec = ColorIdentifiers.getInstance().getColor(ident);
 				if (colorspec != null) {
 					value = factory.parseProperty(colorspec);
@@ -630,16 +630,14 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 		}
 
 		private String formattedNumber(float f) {
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
-			format.setGroupingUsed(false);
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMaximumFractionDigits(3);
 			format.setMinimumFractionDigits(0);
 			return format.format(f);
 		}
 
 		private String formattedNumberMinified(float f) {
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
-			format.setGroupingUsed(false);
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMaximumFractionDigits(3);
 			format.setMinimumFractionDigits(0);
 			format.setMinimumIntegerDigits(0);

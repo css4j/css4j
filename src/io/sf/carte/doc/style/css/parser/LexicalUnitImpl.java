@@ -223,9 +223,9 @@ class LexicalUnitImpl implements LexicalUnit2 {
 		case LexicalUnit2.SAC_FR:
 			StringBuilder buf = new StringBuilder();
 			if(floatValue % 1 != 0) {
-			    buf.append(String.format(Locale.US, "%s", floatValue));
+			    buf.append(String.format(Locale.ROOT, "%s", floatValue));
 			} else {
-				buf.append(String.format(Locale.US, "%.0f", floatValue));
+				buf.append(String.format(Locale.ROOT, "%.0f", floatValue));
 			}
 			if (dimensionUnitText != null) {
 				buf.append(dimensionUnitText);

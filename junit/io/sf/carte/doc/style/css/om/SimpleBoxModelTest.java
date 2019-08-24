@@ -73,7 +73,7 @@ public class SimpleBoxModelTest {
 		// Evaluating child nodes:
 		NodeList ndList0_0_0 = elm.getChildNodes();
 		node = ndList0_0_0.item(1 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"H1".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"H1".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(1 + delta);
 		}
@@ -99,7 +99,7 @@ public class SimpleBoxModelTest {
 		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(3 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(3 + delta);
 		}
@@ -125,7 +125,7 @@ public class SimpleBoxModelTest {
 		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(4 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(4 + delta);
 		}
@@ -179,7 +179,7 @@ public class SimpleBoxModelTest {
 		delta = 0;
 		// Return to parent level (body)
 		node = ndList0_0_0.item(6 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"H2".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"H2".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(6 + delta);
 		}
@@ -205,7 +205,7 @@ public class SimpleBoxModelTest {
 		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(8 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(8 + delta);
 		}
@@ -231,7 +231,7 @@ public class SimpleBoxModelTest {
 		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(10 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(10 + delta);
 		}
@@ -284,7 +284,7 @@ public class SimpleBoxModelTest {
 		delta = 0;
 		// Return to parent level (body)
 		node = ndList0_0_0.item(12 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"TABLE".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"TABLE".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(12 + delta);
 		}
@@ -1117,7 +1117,7 @@ public class SimpleBoxModelTest {
 		// Return to parent level (tbody)
 		// Return to parent level (table)
 		node = ndList0_0_0.item(14 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(14 + delta);
 		}
@@ -1142,7 +1142,7 @@ public class SimpleBoxModelTest {
 		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(16 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"TABLE".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"TABLE".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(16 + delta);
 		}
@@ -1667,7 +1667,7 @@ public class SimpleBoxModelTest {
 		// Return to parent level (tbody)
 		// Return to parent level (table)
 		node = ndList0_0_0.item(18 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"H3".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"H3".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(18 + delta);
 		}
@@ -1693,7 +1693,7 @@ public class SimpleBoxModelTest {
 		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(20 + delta);
-		while(node.getNodeType() != Node.ELEMENT_NODE || !"DIV".equals(((CSSElement)node).getTagName().toUpperCase(Locale.US))) {
+		while(node.getNodeType() != Node.ELEMENT_NODE || !"DIV".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
 		  delta++;
 		  node = ndList0_0_0.item(20 + delta);
 		}

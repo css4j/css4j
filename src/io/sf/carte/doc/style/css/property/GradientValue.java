@@ -77,7 +77,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		void setLexicalUnit(LexicalUnit lunit) throws DOMException {
 			String funcname = lunit.getFunctionName();
 			setFunctionName(funcname);
-			funcname = funcname.toLowerCase(Locale.US);
+			funcname = funcname.toLowerCase(Locale.ROOT);
 			LexicalUnit lu = lunit.getParameters();
 			if (lu == null) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Gradient without arguments");
@@ -152,7 +152,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		private LexicalUnit setAngleArguments(LexicalUnit lu, ValueFactory factory) {
 			LexicalUnit finalLU = null;
 			if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-				String ident = lu.getStringValue().toLowerCase(Locale.US);
+				String ident = lu.getStringValue().toLowerCase(Locale.ROOT);
 				ValueList list = ValueList.createWSValueList();
 				if ("to".equals(ident)) {
 					list.add(factory.createCSSPrimitiveValue(lu, true));
@@ -163,13 +163,13 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					reportSyntaxWarning("Missing 'to' in side/corner specification in gradient: " + lu.toString());
 				}
 				if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-					ident = lu.getStringValue().toLowerCase(Locale.US);
+					ident = lu.getStringValue().toLowerCase(Locale.ROOT);
 					if (isSideValue(ident)) {
 						list.add(factory.createCSSPrimitiveValue(lu, true));
 						lu = lu.getNextLexicalUnit();
 						finalLU = lu;
 						if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-							ident = lu.getStringValue().toLowerCase(Locale.US);
+							ident = lu.getStringValue().toLowerCase(Locale.ROOT);
 							if (isSideValue(ident)) {
 								list.add(factory.createCSSPrimitiveValue(lu, true));
 								finalLU = lu.getNextLexicalUnit();

@@ -142,7 +142,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 			} else if (value.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 				String sv = value.getStringValue();
 				// only auto (and css-wide keywords) for margin properties
-				String lcsv = sv.toLowerCase(Locale.US).intern();
+				String lcsv = sv.toLowerCase(Locale.ROOT).intern();
 				if (isIdentifierValue(lcsv)) {
 					valueCount++;
 					continue;

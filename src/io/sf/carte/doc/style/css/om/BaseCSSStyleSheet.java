@@ -1047,7 +1047,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			if (tentNameLen > 21) {
 				tentNameLen = 21;
 			}
-			String firstchars = atRule.trim().substring(0, tentNameLen).toLowerCase(Locale.US);
+			String firstchars = atRule.trim().substring(0, tentNameLen).toLowerCase(Locale.ROOT);
 			if (firstchars.startsWith("@supports")) {
 				rule = createCSSSupportsRule();
 			} else if (firstchars.startsWith("@keyframes ")) {

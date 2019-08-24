@@ -185,7 +185,7 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		mediaList.clear();
 		StringTokenizer st = new StringTokenizer(mediaText, ",");
 		while (st.hasMoreElements()) {
-			String medium = st.nextToken().trim().toLowerCase(Locale.US);
+			String medium = st.nextToken().trim().toLowerCase(Locale.ROOT);
 			medium = ParseHelper.unescapeStringValue(medium);
 			addMedium(medium);
 		}
@@ -195,7 +195,7 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		allMedia = false;
 		StringTokenizer st = new StringTokenizer(mediaText, ",");
 		while (st.hasMoreElements()) {
-			addMedium(st.nextToken().trim().toLowerCase(Locale.US));
+			addMedium(st.nextToken().trim().toLowerCase(Locale.ROOT));
 		}
 	}
 
@@ -252,7 +252,7 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		if (newMedium == null) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null medium");
 		}
-		String lcnm = newMedium.toLowerCase(Locale.US);
+		String lcnm = newMedium.toLowerCase(Locale.ROOT);
 		addMedium(lcnm);
 	}
 
@@ -329,7 +329,7 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		}
 		int sz = sacMedia.getLength();
 		for (int i = 0; i < sz; i++) {
-			String iitem = sacMedia.item(i).toLowerCase(Locale.US);
+			String iitem = sacMedia.item(i).toLowerCase(Locale.ROOT);
 			if (mediastringList.contains(iitem) || "all".equals(iitem)) {
 				return true;
 			}
@@ -351,7 +351,7 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		}
 		int sz = domMedia.getLength();
 		for (int i = 0; i < sz; i++) {
-			String iitem = domMedia.item(i).toLowerCase(Locale.US);
+			String iitem = domMedia.item(i).toLowerCase(Locale.ROOT);
 			if (mediastringList.contains(iitem) || "all".equals(iitem)) {
 				return true;
 			}

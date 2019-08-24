@@ -162,7 +162,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				Element el = (Element) node;
 				name = el.getNodeName();
 				if (name != null) {
-					name = name.toLowerCase(Locale.US);
+					name = name.toLowerCase(Locale.ROOT);
 					if ("link".equals(name)) {
 						mynode = new LinkElement((Element) node);
 						// Rescan of sheets may be required

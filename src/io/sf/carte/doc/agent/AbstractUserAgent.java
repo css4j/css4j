@@ -55,7 +55,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 	// Hostname -> Cookies
 	private Map<String, Set<Cookie>> cookieMap = new HashMap<String, Set<Cookie>>();
 
-	private SimpleDateFormat cookieDateFormat = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz", Locale.US);
+	private SimpleDateFormat cookieDateFormat = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz", Locale.ROOT);
 
 	private CookieConfig globalConfig = new GlobalCookieConfig();
 
@@ -288,7 +288,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private void setCookies(HttpURLConnection hcon, URL url, long creationDate) {
 		Set<Cookie> matchingCookies = new HashSet<Cookie>(8);
-		String host = url.getHost().toLowerCase(Locale.US);
+		String host = url.getHost().toLowerCase(Locale.ROOT);
 		Set<Cookie> cookies = cookieMap.get(host);
 		if (cookies != null) {
 			Iterator<Cookie> it = cookies.iterator();
@@ -387,7 +387,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 					} catch (ParseException e) {
 					}
 				} else if ("domain".equalsIgnoreCase(clave)) {
-					ck.setDomain(valor.toLowerCase(Locale.US));
+					ck.setDomain(valor.toLowerCase(Locale.ROOT));
 				}
 			}
 		}

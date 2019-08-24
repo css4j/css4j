@@ -32,7 +32,7 @@ class OrderedShorthandBuilder extends GenericShorthandBuilder {
 	OrderedShorthandBuilder(String shorthandName, BaseCSSStyleDeclaration parentStyle, String initialvalue,
 			String freeProperty) {
 		super(shorthandName, parentStyle, initialvalue);
-		this.freeProperty = freeProperty.toLowerCase(Locale.US);
+		this.freeProperty = freeProperty.toLowerCase(Locale.ROOT);
 		AbstractCSSValue freePropertyValue = getCSSValue(freeProperty);
 		if (freePropertyValue != null && freePropertyValue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE && 
 				((CSSPrimitiveValue) freePropertyValue).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {

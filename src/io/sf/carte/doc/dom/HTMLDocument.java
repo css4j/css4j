@@ -716,7 +716,7 @@ abstract public class HTMLDocument extends DOMDocument {
 			}
 		} else {
 			namespaceURI = HTMLDocument.HTML_NAMESPACE_URI;
-			localName = qualifiedName.toLowerCase(Locale.US);
+			localName = qualifiedName.toLowerCase(Locale.ROOT);
 			prefix = null;
 		}
 		if (!DOMDocument.isValidName(localName)) {
@@ -837,16 +837,16 @@ abstract public class HTMLDocument extends DOMDocument {
 					localName = qualifiedName.substring(idx + 1);
 				}
 				if (HTMLDocument.HTML_NAMESPACE_URI == namespaceURI) {
-					localName = localName.toLowerCase(Locale.US);
+					localName = localName.toLowerCase(Locale.ROOT);
 				}
 			} else {
 				namespaceURI = null;
-				localName = localName.toLowerCase(Locale.US);
+				localName = localName.toLowerCase(Locale.ROOT);
 			}
 		} else if (qualifiedName.indexOf(':') != -1) {
 			throw new DOMException(DOMException.NAMESPACE_ERR, "Prefix with null namespace");
 		} else {
-			localName = localName.toLowerCase(Locale.US);
+			localName = localName.toLowerCase(Locale.ROOT);
 		}
 		if (!DOMDocument.isValidName(localName)) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);

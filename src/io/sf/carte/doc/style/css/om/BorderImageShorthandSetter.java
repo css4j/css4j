@@ -90,7 +90,7 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 				bisliceUnset = false;
 				if (currentValue != null) {
 					if (lut == LexicalUnit.SAC_IDENT) {
-						if ("fill".equals(currentValue.getStringValue().toLowerCase(Locale.US))) {
+						if ("fill".equals(currentValue.getStringValue().toLowerCase(Locale.ROOT))) {
 							list.add(createCSSValue("border-image-slice", currentValue));
 							nextCurrentValue();
 							if (currentValue == null) {

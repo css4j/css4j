@@ -88,7 +88,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			if (classAttr.length() != 0) {
-				classAttr = classAttr.toLowerCase(Locale.US);
+				classAttr = classAttr.toLowerCase(Locale.ROOT);
 			}
 		}
 		return classAttr;
@@ -319,7 +319,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 					// Probably this implementation
 					argument = cond_value;
 				}
-				pseudoClassName = pseudoClassName.toLowerCase(Locale.US).intern();
+				pseudoClassName = pseudoClassName.toLowerCase(Locale.ROOT).intern();
 				if ("first-child".equals(pseudoClassName)) {
 					return isFirstChild();
 				} else if ("last-child".equals(pseudoClassName)) {
@@ -626,7 +626,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			if (hasAttribute("checked")) {
 				return true;
 			}
-			String type = getAttributeValue("type").toLowerCase(Locale.US);
+			String type = getAttributeValue("type").toLowerCase(Locale.ROOT);
 			if ("submit".equals(type) || "image".equals(type)) {
 				// Must be their form's default button.
 				return isDefaultButton();
@@ -881,7 +881,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				if (idxp != -1) {
 					pseudoClass = pseudoClass.substring(0, idxp);
 				}
-				pseudoClass = pseudoClass.toLowerCase(Locale.US).intern();
+				pseudoClass = pseudoClass.toLowerCase(Locale.ROOT).intern();
 				if (pseudoClass != "first-child" && pseudoClass != "last-child" && pseudoClass != "only-child"
 						&& pseudoClass != "any-link" && pseudoClass != "link" && pseudoClass != "visited"
 						&& pseudoClass != "target" && pseudoClass != "root" && pseudoClass != "empty"

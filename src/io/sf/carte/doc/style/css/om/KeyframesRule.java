@@ -156,9 +156,9 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		} else if (type == LexicalUnit.SAC_PERCENTAGE) {
 			float floatValue = selunit.getFloatValue();
 			if(floatValue % 1 != 0) {
-				buffer.append(String.format(Locale.US, "%s", floatValue));
+				buffer.append(String.format(Locale.ROOT, "%s", floatValue));
 			} else {
-				buffer.append(String.format(Locale.US, "%.0f", floatValue));
+				buffer.append(String.format(Locale.ROOT, "%.0f", floatValue));
 			}
 			buffer.append('%');
 		} else if (type == LexicalUnit.SAC_INTEGER && selunit.getIntegerValue() == 0) {

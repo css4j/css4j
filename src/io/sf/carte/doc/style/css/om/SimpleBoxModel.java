@@ -874,7 +874,7 @@ abstract class SimpleBoxModel {
 				} else {
 					display = styledecl.getPropertyValue("display");
 				}
-			} while (!"block".equals(display = display.toLowerCase(Locale.US)) && !"list-item".equals(display)
+			} while (!"block".equals(display = display.toLowerCase(Locale.ROOT)) && !"list-item".equals(display)
 					&& !"table".equals(display) && !display.startsWith("table-"));
 		}
 		return styledecl;
@@ -916,7 +916,7 @@ abstract class SimpleBoxModel {
 			if (contblockStyledecl == null) {
 				contBlockWidth = deviceDocumentWidth("width is auto, and cannot find top block width.", "auto");
 			} else {
-				String display = contblockStyledecl.getPropertyValue("display").toLowerCase(Locale.US);
+				String display = contblockStyledecl.getPropertyValue("display").toLowerCase(Locale.ROOT);
 				if ("table".equals(display) || display.startsWith("table-")) {
 					cssval = contblockStyledecl.getCSSValue("width");
 					if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE

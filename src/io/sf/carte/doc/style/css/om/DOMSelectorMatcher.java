@@ -43,7 +43,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 		if (name == null) {
 			name = elm.getTagName();
 		}
-		name = name.toLowerCase(Locale.US).intern();
+		name = name.toLowerCase(Locale.ROOT).intern();
 		setLocalName(name);
 	}
 
@@ -364,7 +364,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 		if (!element.hasAttribute("disabled")) {
 			String form = element.getAttribute("form");
 			if (form == null || form.equals(formid)) {
-				String tagname = element.getTagName().toLowerCase(Locale.US);
+				String tagname = element.getTagName().toLowerCase(Locale.ROOT);
 				if (tagname.equals("input")) {
 					String type = element.getAttribute("type");
 					if ("submit".equalsIgnoreCase(type) || "image".equalsIgnoreCase(type)) {

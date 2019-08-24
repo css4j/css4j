@@ -1556,7 +1556,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument, 
 		if (namespaceURI != null) {
 			if (namespaceURI.length() == 0) {
 				namespaceURI = null;
-				localName = qualifiedName.toLowerCase(Locale.US);
+				localName = qualifiedName.toLowerCase(Locale.ROOT);
 			} else {
 				namespaceURI = namespaceURI.intern();
 				int idx = qualifiedName.indexOf(':');
@@ -1576,7 +1576,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument, 
 			if (qualifiedName.indexOf(':') != -1) {
 				throw new DOMException(DOMException.NAMESPACE_ERR, "Prefix with null namespace");
 			}
-			localName = qualifiedName.toLowerCase(Locale.US);
+			localName = qualifiedName.toLowerCase(Locale.ROOT);
 		}
 		if (!isValidName(localName)) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);
@@ -1705,7 +1705,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument, 
 					localName = qualifiedName.substring(idx + 1);
 				}
 				if (HTMLDocument.HTML_NAMESPACE_URI == namespaceURI) {
-					localName = localName.toLowerCase(Locale.US);
+					localName = localName.toLowerCase(Locale.ROOT);
 				}
 			} else {
 				if (qualifiedName.indexOf(':') != -1) {

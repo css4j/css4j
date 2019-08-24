@@ -179,7 +179,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	public boolean hasAttribute(String name) {
 		boolean ret  = nodeMap.hasAttribute(name);
 		if (!ret && name.indexOf(':') == -1) {
-			name = name.toLowerCase(Locale.US);
+			name = name.toLowerCase(Locale.ROOT);
 			ret = nodeMap.hasAttribute(name);
 		}
 		return ret;
@@ -375,7 +375,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		@Override
 		public void setValue(String value) throws DOMException {
 			if (value != null && value.length() == 0) {
-				value = value.toLowerCase(Locale.US);
+				value = value.toLowerCase(Locale.ROOT);
 			}
 			super.setValue(value);
 		}
@@ -385,28 +385,28 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 			if (token == null) {
 				return false;
 			}
-			token = token.toLowerCase(Locale.US);
+			token = token.toLowerCase(Locale.ROOT);
 			return super.contains(token);
 		}
 
 		@Override
 		public void add(String token) throws DOMException {
 			argumentCheckVoidSpaces(token);
-			token = token.toLowerCase(Locale.US);
+			token = token.toLowerCase(Locale.ROOT);
 			addUnchecked(token);
 		}
 
 		@Override
 		public void remove(String token) throws DOMException {
 			argumentCheckVoidSpaces(token);
-			token = token.toLowerCase(Locale.US);
+			token = token.toLowerCase(Locale.ROOT);
 			removeUnchecked(token);
 		}
 
 		@Override
 		public boolean toggle(String token) throws DOMException {
 			argumentCheckVoidSpaces(token);
-			token = token.toLowerCase(Locale.US);
+			token = token.toLowerCase(Locale.ROOT);
 			return toggleUnchecked(token);
 		}
 
@@ -414,8 +414,8 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		public void replace(String oldToken, String newToken) throws DOMException {
 			argumentCheckVoidSpaces(oldToken);
 			argumentCheckVoidSpaces(newToken);
-			oldToken = oldToken.toLowerCase(Locale.US);
-			newToken = newToken.toLowerCase(Locale.US);
+			oldToken = oldToken.toLowerCase(Locale.ROOT);
+			newToken = newToken.toLowerCase(Locale.ROOT);
 			replaceUnchecked(oldToken, newToken);
 		}
 	}

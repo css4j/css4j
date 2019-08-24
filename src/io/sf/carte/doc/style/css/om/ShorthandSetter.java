@@ -442,7 +442,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	}
 
 	private boolean isImageFunctionOrGradientName() {
-		String lcfn = currentValue.getFunctionName().toLowerCase(Locale.US);
+		String lcfn = currentValue.getFunctionName().toLowerCase(Locale.ROOT);
 		return lcfn.endsWith("-gradient") || lcfn.equals("image") || lcfn.equals("image-set")
 				|| lcfn.equals("cross-fade");
 	}

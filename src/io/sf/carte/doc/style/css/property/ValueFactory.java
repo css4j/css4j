@@ -431,7 +431,7 @@ public class ValueFactory {
 	}
 
 	private static boolean isColorFunction(LexicalUnit lunit) {
-		String name = lunit.getFunctionName().toLowerCase(Locale.US);
+		String name = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 		// We may be using a parser that does not map "rgba" to RGBCOLOR.
 		if ("hsl".equals(name) || "hsla".equals(name) || "hwb".equals(name) || name.endsWith("-gradient")
 				|| "rgba".equals(name)) {
@@ -945,7 +945,7 @@ public class ValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_FUNCTION:
-				String func = lunit.getFunctionName().toLowerCase(Locale.US);
+				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 				if ("rgb".equals(func) || "rgba".equals(func) || "hsl".equals(func) || "hsla".equals(func)
 						|| "hwb".equals(func)) {
 					primi = new ColorValue();

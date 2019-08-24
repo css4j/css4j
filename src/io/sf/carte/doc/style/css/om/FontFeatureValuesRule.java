@@ -108,7 +108,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	 */
 	@Override
 	public void enableMap(String featureValueName) {
-		featureValueName = featureValueName.toLowerCase(Locale.US);
+		featureValueName = featureValueName.toLowerCase(Locale.ROOT);
 		enableMap(featureValueName, mapmap);
 	}
 
@@ -134,7 +134,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	@Override
 	public CSSFontFeatureValuesMap getFeatureValuesMap(String featureValueName) {
 		CSSFontFeatureValuesMap map;
-		featureValueName = featureValueName.toLowerCase(Locale.US);
+		featureValueName = featureValueName.toLowerCase(Locale.ROOT);
 		if (featureValueName.equals("annotation")) {
 			map = annotation;
 		} else if (featureValueName.equals("ornaments")) {
@@ -393,7 +393,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		@Override
 		public void startFeatureMap(String mapname) {
-			mapname = mapname.toLowerCase(Locale.US);
+			mapname = mapname.toLowerCase(Locale.ROOT);
 			enableMap(mapname);
 			currentMap = getFeatureValuesMap(mapname);
 		}

@@ -593,7 +593,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	String getCanonicalPropertyName(String propertyName) {
 		if (propertyName.length() > 2 && (propertyName.charAt(0) != '-' || propertyName.charAt(1) != '-')) {
-			propertyName = propertyName.toLowerCase(Locale.US);
+			propertyName = propertyName.toLowerCase(Locale.ROOT);
 		}
 		return propertyName;
 	}
@@ -1069,7 +1069,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
 		if (priority != null) {
-			priority = priority.toLowerCase(Locale.US).intern();
+			priority = priority.toLowerCase(Locale.ROOT).intern();
 		}
 		setProperty(propertyName, lunit, priority);
 	}
@@ -2015,11 +2015,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			if (sv == null) {
 				return false;
 			}
-			sv = sv.toLowerCase(Locale.US);
+			sv = sv.toLowerCase(Locale.ROOT);
 			ColorIdentifiers colorids = ColorIdentifiers.getInstance();
 			return colorids.isColorIdentifier(sv) || "transparent".equals(sv) || "currentcolor".equals(sv);
 		} else if (LexicalUnit.SAC_FUNCTION == utype) {
-			String func = lunit.getFunctionName().toLowerCase(Locale.US);
+			String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 			// Assume the SAC parser is old and knows about 'rgb' but not 'rgba'
 			if (func.length() <= 5 && ("hsla".equals(func) || "hsl".equals(func)
 					|| "hwb".equals(func) || "color".equals(func) || "rgba".equals(func))) {
