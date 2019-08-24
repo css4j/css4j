@@ -19,20 +19,20 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 			super(style, "list-style");
 		}
 
-		@Override
-		public boolean assignSubproperties() {
-			byte kwscan = scanForCssWideKeywords(currentValue);
-			if (kwscan == 1) {
-				return true;
-			} else if (kwscan == 2) {
-				return false;
-			}
-			setPropertyToDefault("list-style-image");
-			setPropertyToDefault("list-style-type");
-			setPropertyToDefault("list-style-position");
-			boolean stylePositionUnset = true;
-			boolean styleImageUnset = true;
-			boolean styleTypeUnset = true;
+	@Override
+	public boolean assignSubproperties() {
+		byte kwscan = scanForCssWideKeywords(currentValue);
+		if (kwscan == 1) {
+			return true;
+		} else if (kwscan == 2) {
+			return false;
+		}
+		setPropertyToDefault("list-style-image");
+		setPropertyToDefault("list-style-type");
+		setPropertyToDefault("list-style-position");
+		boolean stylePositionUnset = true;
+		boolean styleImageUnset = true;
+		boolean styleTypeUnset = true;
 		while (currentValue != null) {
 			short lut;
 			if (isImage()) {
@@ -46,31 +46,36 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 					stylePositionUnset = false;
 				} else if (styleTypeUnset && testIdentifiers("list-style-type")) {
 					setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
-						styleTypeUnset = false;
-					} else if ("none".equalsIgnoreCase(currentValue.getStringValue())) {
-						if (styleImageUnset) {
-							setSubpropertyValue("list-style-image", createCSSValue("list-style-image", currentValue));
-						}
-						if (styleTypeUnset) {
-							setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
-						}
-					} else if (styleTypeUnset) {
-						// Assume counter-style
-						setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
-						styleTypeUnset = false;
-					} else {
-						return false;
+					styleTypeUnset = false;
+				} else if ("none".equalsIgnoreCase(currentValue.getStringValue())) {
+					if (styleImageUnset) {
+						setSubpropertyValue("list-style-image", createCSSValue("list-style-image", currentValue));
 					}
-				} else if (styleTypeUnset && lut == LexicalUnit.SAC_STRING_VALUE) {
+					if (styleTypeUnset) {
+						setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
+					}
+				} else if (styleTypeUnset) {
+					// Assume counter-style
 					setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
 					styleTypeUnset = false;
 				} else {
 					return false;
 				}
-				nextCurrentValue();
+			} else if (styleTypeUnset) {
+				if (lut == LexicalUnit.SAC_STRING_VALUE || (lut == LexicalUnit.SAC_FUNCTION
+						&& "symbols".equalsIgnoreCase(currentValue.getFunctionName()))) {
+					setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
+					styleTypeUnset = false;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
 			}
-			flush();
-			return true;
+			nextCurrentValue();
 		}
+		flush();
+		return true;
+	}
 
 }

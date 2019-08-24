@@ -48,8 +48,11 @@ public class ListStyleShorthandBuilderTest {
 		assertShorthandText("list-style:inside square url('foo.png');", "list-style: url('foo.png') inside square");
 		assertShorthandText("list-style:inside foo;", "list-style: foo inside;");
 		assertShorthandText("list-style:inside \"foo\";", "list-style: \"foo\" inside;");
-		assertShorthandText("list-style:radial-gradient(yellow,green);",
-				"list-style: radial-gradient(yellow, green);");
+		assertShorthandText("list-style:inside thai;", "list-style: thai inside;");
+		assertShorthandText("list-style:inside MyStyle;", "list-style: inside MyStyle;");
+		assertShorthandText("list-style:inside symbols('*' '\u2020' '\u2021' '\u00a7');",
+				"list-style: inside symbols('*' '\\2020' '\\2021' '\\A7');");
+		assertShorthandText("list-style:radial-gradient(yellow,green);", "list-style: radial-gradient(yellow, green);");
 	}
 
 	@Test

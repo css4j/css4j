@@ -160,6 +160,10 @@ public class StringValueTest {
 		assertTrue("Ȁ B".equals(value.getStringValue()));
 		assertEquals("'\\200  B'", value.getCssText());
 		assertEquals("'\u0200 B'", value.getMinifiedCssText(""));
+		value.setCssText("'\\2020'");
+		assertEquals("\u2020", value.getStringValue());
+		assertEquals("'\\2020'", value.getCssText());
+		assertEquals("'\u2020'", value.getMinifiedCssText(""));
 	}
 
 	@Test

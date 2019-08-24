@@ -738,6 +738,37 @@ public class DeclarationParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("file:///dir/file", lu.getStringValue());
 		assertEquals("file\\:\\/\\/\\/dir\\/file", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationEscapedPropertyValue10() throws CSSException, IOException {
+		InputSource source = new InputSource(
+				new StringReader("list-style-type:symbols('*' '\\2020' '\\2021' '\\A7');"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("list-style-type", handler.propertyNames.getFirst());
+		LexicalUnit lunit = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_FUNCTION, lunit.getLexicalUnitType());
+		assertEquals("symbols", lunit.getFunctionName());
+		LexicalUnit lu = lunit.getParameters();
+		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
+		assertEquals("*", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
+		assertEquals("\u2020", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
+		assertEquals("\u2021", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
+		assertEquals("\u00a7", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("symbols('*' '\\2020' '\\2021' '\\A7')", lunit.toString());
 		assertFalse(errorHandler.hasError());
 	}
 
