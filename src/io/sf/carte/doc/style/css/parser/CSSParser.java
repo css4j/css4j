@@ -4612,20 +4612,23 @@ public class CSSParser implements Parser2 {
 
 		private boolean newIdentifier(String raw, String ident, String cssText) {
 			if (isValidIdentifier(raw)) {
-				LexicalUnitImpl lu = newLexicalUnit(LexicalUnit.SAC_IDENT);
 				String lcident = ident.toLowerCase(Locale.ROOT);
 				if (lcident != ident) {
 					if (propertyDatabase.isShorthand(propertyName)) {
-						String[] longhands = propertyDatabase.getLonghandProperties(propertyName);
-						for (int i = 0; i < longhands.length; i++) {
-							if (isIdentifierValueOf(longhands[i], lcident)) {
-								ident = lcident;
+						// Only if no Custom Ident was previously found.
+						if (!isPreviousValueCustomIdent()) {
+							String[] longhands = propertyDatabase.getLonghandProperties(propertyName);
+							for (int i = 0; i < longhands.length; i++) {
+								if (isIdentifierValueOf(longhands[i], lcident)) {
+									ident = lcident;
+								}
 							}
 						}
 					} else if (isIdentifierValueOf(propertyName, lcident)) {
 						ident = lcident;
 					}
 				}
+				LexicalUnitImpl lu = newLexicalUnit(LexicalUnit.SAC_IDENT);
 				lu.value = ident;
 				lu.identCssText = cssText;
 				return true;
@@ -4635,6 +4638,12 @@ public class CSSParser implements Parser2 {
 
 		private boolean isIdentifierValueOf(String propertyName, String lcident) {
 			return propertyDatabase.isIdentifierValue(propertyName, lcident) || "none".equals(lcident);
+		}
+
+		private boolean isPreviousValueCustomIdent() {
+			String s;
+			return currentlu != null && currentlu.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+					&& (s = currentlu.getStringValue()) != s.toLowerCase(Locale.ROOT);
 		}
 
 		@Override
