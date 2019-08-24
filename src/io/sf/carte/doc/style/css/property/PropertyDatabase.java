@@ -429,19 +429,32 @@ public final class PropertyDatabase {
 	 * <p>
 	 * The subproperties may be, in turn, shorthands.
 	 * 
-	 * @param shorthandName
-	 *            the shorthand name.
-	 * @return the subproperties.
+	 * @param shorthandName the shorthand name.
+	 * @return the array of subproperties, or <code>null</code> if the shorthand
+	 *         name is not known.
 	 */
 	public String[] getShorthandSubproperties(String shorthandName) {
 		return shorthand2subp.get(shorthandName);
 	}
 
+	/**
+	 * Get an array with the names of the longhand subproperties for
+	 * <code>shorthandName</code>.
+	 * <p>
+	 * For convenience of the library's internals, the array is incomplete for the
+	 * <code>font</code> shorthand, due to <code>font-variant</code> handling.
+	 * 
+	 * @param shorthandName the shorthand name.
+	 * @return an array with the names of the longhand subproperties, or
+	 *         <code>null</code> if the shorthand name is not known.
+	 */
 	public String[] getLonghandProperties(String shorthandName) {
 		String[] subparray = getShorthandSubproperties(shorthandName);
-		for (String subproperty : subparray) {
-			if (isShorthand(subproperty)) {
-				return longhandArray(subparray);
+		if (subparray != null) {
+			for (String subproperty : subparray) {
+				if (isShorthand(subproperty)) {
+					return longhandArray(subparray);
+				}
 			}
 		}
 		return subparray;

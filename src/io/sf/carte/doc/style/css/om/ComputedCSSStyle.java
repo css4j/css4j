@@ -105,6 +105,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	@Override
+	String getUnknownPropertyPriority(String propertyName) {
+		return checkShorthandPriority(propertyName);
+	}
+
+	@Override
 	protected void setPropertyCSSValue(String propertyName, AbstractCSSValue value, String hrefcontext) {
 		if ("background-image".equals(propertyName) || "border-image-source".equals(propertyName)) {
 			// Add parent stylesheet info

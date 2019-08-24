@@ -35,9 +35,9 @@ import org.w3c.dom.css.CSS2Properties;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
@@ -45,7 +45,6 @@ import io.sf.carte.doc.style.css.ExtendedCSSValueList;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.StyleDatabase;
-import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
@@ -562,22 +561,35 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		propertyName = getCanonicalPropertyName(propertyName);
 		CSSValue value = getCSSValue(propertyName);
 		if (value != null) {
-			short ptype;
-			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-					&& ((ptype = ((CSSPrimitiveValue) value).getPrimitiveType()) == CSSPrimitiveValue.CSS_STRING
-							|| ptype == CSSPrimitiveValue.CSS_IDENT)) {
-				return ((CSSPrimitiveValue) value).getStringValue();
-			} else {
-				try {
-					return value.getCssText();
-				} catch (StyleDatabaseRequiredException e) {
-					e.setValueText(propertyName);
-					throw e;
+			short type = value.getCssValueType();
+			if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+				short ptype;
+				if ((ptype = ((CSSPrimitiveValue) value).getPrimitiveType()) == CSSPrimitiveValue.CSS_STRING
+						|| ptype == CSSPrimitiveValue.CSS_IDENT) {
+					return ((CSSPrimitiveValue) value).getStringValue();
 				}
+			} else if (type == CSSValue.CSS_CUSTOM
+					&& ((ShorthandValue) value).getLonghands().size() < getLonghandPropertyCount(propertyName)) {
+				return "";
 			}
-		} else {
-			return "";
+			return value.getCssText();
 		}
+		return "";
+	}
+
+	private int getLonghandPropertyCount(String propertyName) {
+		int count;
+		if ("font".equals(propertyName)) {
+			count = 14;
+		} else {
+			String[] longhands = PropertyDatabase.getInstance().getLonghandProperties(propertyName);
+			if (longhands != null) {
+				count = longhands.length;
+			} else {
+				count = Integer.MAX_VALUE;
+			}
+		}
+		return count;
 	}
 
 	@Override
@@ -764,23 +776,20 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	/**
-	 * Used to retrieve the priority of a CSS property (e.g. the <code>"important"</code>
-	 * qualifier) if the property has been explicitly set in this declaration block.
+	 * Used to retrieve the priority of a CSS property (e.g. the
+	 * <code>"important"</code> qualifier) if the property has been explicitly set
+	 * in this declaration block.
 	 * 
-	 * @param propertyName
-	 *            The name of the CSS property. See the CSS property index.
-	 * @return A string representing the priority (e.g. <code>"important"</code>) if one
-	 *         exists. The empty string if none exists.
+	 * @param propertyName The name of the CSS property.
+	 * @return A string representing the priority (e.g. <code>"important"</code>) if
+	 *         the property has been explicitly set in this declaration block and
+	 *         has a priority specified. The empty string otherwise.
 	 */
 	@Override
 	public String getPropertyPriority(String propertyName) {
 		int idx = propertyList.indexOf(propertyName);
-		if (idx < 0) {
-			if (shorthandSet.contains(propertyName)
-					&& ((ShorthandValue) propValue.get(propertyName)).isImportant()) {
-				return "important";
-			}
-			return "";
+		if (idx == -1) {
+			return getUnknownPropertyPriority(propertyName);
 		}
 		String prio = priorities.get(idx);
 		if (prio != null) {
@@ -788,6 +797,35 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		} else {
 			return "";
 		}
+	}
+
+	String getUnknownPropertyPriority(String propertyName) {
+		/*
+		 * If an active shorthand property is important, subproperties remain
+		 * important
+		 */
+		if (shorthandSet.contains(propertyName)
+				&& ((ShorthandValue) propValue.get(propertyName)).isImportant()) {
+			return "important";
+		}
+		/*
+		 * No active shorthand, but perhaps all longhands are available
+		 */
+		return checkShorthandPriority(propertyName);
+	}
+
+	String checkShorthandPriority(String propertyName) {
+		PropertyDatabase pdb = PropertyDatabase.getInstance();
+		if (pdb.isShorthand(propertyName)) {
+			String[] longhands = pdb.getLonghandProperties(propertyName);
+			for (int i = 0; i < longhands.length; i++) {
+				if (!isPropertyImportant(longhands[i])) {
+					return "";
+				}
+			}
+			return "important";
+		}
+		return "";
 	}
 
 	/*

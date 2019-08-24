@@ -195,6 +195,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("\u5b8b\u4f53", primi.getStringValue());
 		emptyStyleDecl.setCssText(emptyStyleDecl.getCssText());
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
+		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font"));
 	}
 
 	@Test
@@ -303,6 +304,8 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("margin: 10px;\nwidth: 590px;\n", emptyStyleDecl.getCssText());
 		assertEquals("margin:10px;width:590px", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertEquals("10px", emptyStyleDecl.getPropertyValue("margin"));
+		assertEquals("590px", emptyStyleDecl.getPropertyValue("width"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIOCHAR);
 		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
@@ -424,6 +427,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("margin: 10px;\nwidth: 590px;\n", emptyStyleDecl.getCssText());
 		assertEquals("margin:10px;width:590px", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertEquals("10px", emptyStyleDecl.getPropertyValue("margin"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIO);
 		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
@@ -443,6 +447,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("margin: 10px 5px;\n", emptyStyleDecl.getCssText());
 		assertEquals("margin:10px 5px;", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertEquals("10px 5px", emptyStyleDecl.getPropertyValue("margin"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIO);
 		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
@@ -538,6 +543,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("margin: 10px 5px;\n", emptyStyleDecl.getCssText());
 		assertEquals("margin:10px 5px;", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertEquals("10px 5px", emptyStyleDecl.getPropertyValue("margin"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
 		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
@@ -557,6 +563,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("margin: 10px;\nwidth: 590px;\n", emptyStyleDecl.getCssText());
 		assertEquals("margin:10px;width:590px", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertEquals("10px", emptyStyleDecl.getPropertyValue("margin"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
 		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
@@ -723,9 +730,12 @@ public class BaseCSSStyleDeclarationTest {
 		emptyStyleDecl.setCssText("font: bold !important; border: solid blue; font-size: x-large;");
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("font-size"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("font"));
+		assertEquals("bold", emptyStyleDecl.getPropertyValue("font"));
 		emptyStyleDecl.setCssText("font: bold; border: solid blue; font-size: x-large;");
 		assertEquals("bold", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("", emptyStyleDecl.getPropertyPriority("font-weight"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("font"));
 	}
 
 	@Test
@@ -796,6 +806,7 @@ public class BaseCSSStyleDeclarationTest {
 	@Test
 	public void testIsPropertySetStringBoolean() {
 		emptyStyleDecl.setCssText("border: 3px yellow !important; color: blue");
+		assertEquals("3px yellow", emptyStyleDecl.getPropertyValue("border"));
 		assertTrue(emptyStyleDecl.isPropertySet("border-top-color", true));
 		assertFalse(emptyStyleDecl.isPropertySet("border-top-color", false));
 		assertTrue(emptyStyleDecl.isPropertySet("color", false));

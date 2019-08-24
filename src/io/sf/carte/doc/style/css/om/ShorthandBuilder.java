@@ -130,27 +130,7 @@ abstract class ShorthandBuilder {
 		}
 	}
 
-	protected void appendIndividualProperties(StringBuilder buf) {
-		Iterator<String> it = impPtySet.iterator();
-		while (it.hasNext()) {
-			String ptyname = it.next();
-			buf.append(ptyname);
-			buf.append(':').append(' ');
-			BaseCSSStyleDeclaration.appendCssText(buf, getCSSValue(ptyname));
-			buf.append(" ! important");
-			buf.append(';').append(' ');
-		}
-		it = ptySet.iterator();
-		while (it.hasNext()) {
-			String ptyname = it.next();
-			buf.append(ptyname);
-			buf.append(':').append(' ');
-			BaseCSSStyleDeclaration.appendCssText(buf, getCSSValue(ptyname));
-			buf.append(';').append(' ');
-		}
-	}
-
-	void appendMinifiedCssText(StringBuilder buf) {
+	public void appendMinifiedCssText(StringBuilder buf) {
 		int len = buf.length();
 		if (!appendShorthandText(buf)) {
 			buf.setLength(len);

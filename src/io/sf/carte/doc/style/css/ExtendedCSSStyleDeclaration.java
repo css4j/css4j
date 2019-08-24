@@ -52,7 +52,8 @@ public interface ExtendedCSSStyleDeclaration extends CSSStyleDeclaration {
 	 * @param propertyName
 	 *            The name of the CSS property.
 	 * @return the value of the property if it has been explicitly set for this declaration
-	 *         block, or the empty string if the property has not been set or is a shorthand.
+	 *         block, or the empty string if the property has not been set or is a shorthand
+	 *         that could not be serialized.
 	 */
 	@Override
 	public String getPropertyValue(String propertyName);
