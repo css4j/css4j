@@ -471,6 +471,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			return new GridShorthandBuilder(this);
 		} else if ("animation".equals(shorthand)) {
 			return new AnimationShorthandBuilder(this);
+		} else if ("transition".equals(shorthand)) {
+			return new TransitionShorthandBuilder(this);
 		} else if ("cue".equals(shorthand) || "pause".equals(shorthand) || "rest".equals(shorthand)) {
 			return new SequenceShorthandBuilder(shorthand, this);
 		} else if ("place-content".equals(shorthand) || "place-items".equals(shorthand)

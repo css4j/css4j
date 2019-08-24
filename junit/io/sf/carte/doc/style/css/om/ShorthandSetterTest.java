@@ -2350,10 +2350,18 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testTransition() {
+		emptyStyleDecl.setCssText("transition: 0s;");
+		assertEquals("ease", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("all", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("transition: 0s; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:0s;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("transition-delay: 30s; transition: background-color 1s linear 2s;");
 		assertEquals("linear", emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("1s", emptyStyleDecl.getPropertyValue("transition-duration"));
 		assertEquals("2s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("background-color", emptyStyleDecl.getPropertyValue("transition-property"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-property").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-duration").isSubproperty());

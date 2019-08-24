@@ -79,6 +79,7 @@ import io.sf.carte.doc.style.css.om.StylableDocumentWrapperTest;
 import io.sf.carte.doc.style.css.om.StyleRuleTest;
 import io.sf.carte.doc.style.css.om.StyleRuleTest2;
 import io.sf.carte.doc.style.css.om.SupportsRuleTest;
+import io.sf.carte.doc.style.css.om.TransitionShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.UnknownRuleTest;
 import io.sf.carte.doc.style.css.om.ViewportRuleTest;
 import io.sf.carte.doc.style.css.om.XMLDocumentWrapperTest;
@@ -177,6 +178,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		DOMCSSStyleSheetFactoryTest.class,
 		DOMCSSStyleSheetTest.class,
 		SupportsRuleTest.class,
+		TransitionShorthandBuilderTest.class,
 		UnknownRuleTest.class,
 		ViewportRuleTest.class,
 		MediaListTest.class,

@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class AnimationShorthandBuilderTest {
 
-	BaseCSSStyleDeclaration emptyStyleDecl;
+	private BaseCSSStyleDeclaration emptyStyleDecl;
 
 	@Before
 	public void setUp() {
@@ -45,7 +45,10 @@ public class AnimationShorthandBuilderTest {
 		assertShorthandText("animation:3500ms frames(5) 5s reverse 'my anim';",
 				"animation: 3500ms 5s frames(5) reverse 'my anim'");
 		assertShorthandText("animation:ease-in ease-out;", "animation: ease-in ease-out;");
+		assertShorthandText("animation:linear ease;", "animation: linear ease;");
 		assertShorthandText("animation:3s none backwards;", "animation: 3s none backwards;");
+		assertShorthandText("animation:3s ease-in 1s 2 reverse both paused slidein;",
+				"animation: 3s ease-in 1s 2 reverse both paused slidein;");
 	}
 
 	@Test
