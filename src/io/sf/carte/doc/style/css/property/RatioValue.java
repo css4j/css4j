@@ -12,12 +12,14 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.util.Objects;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSRatioValue;
+import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -28,8 +30,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioValue {
 
-	private int antecedentValue;
-	private int consequentValue;
+	private AbstractCSSPrimitiveValue antecedentValue;
+	private AbstractCSSPrimitiveValue consequentValue;
 
 	RatioValue() {
 		super();
@@ -38,74 +40,91 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 
 	protected RatioValue(RatioValue copied) {
 		super(copied);
-		this.antecedentValue = copied.antecedentValue;
-		this.consequentValue = copied.consequentValue;
+		this.antecedentValue = copied.antecedentValue.clone();
+		this.consequentValue = copied.consequentValue.clone();
 	}
 
 	@Override
 	public String getCssText() {
-		return antecedentValue + "/" + consequentValue;
+		BufferSimpleWriter sw = new BufferSimpleWriter(32);
+		try {
+			writeCssText(sw);
+		} catch (IOException e) {
+		}
+		return sw.toString();
 	}
 
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
-		wri.write(antecedentValue);
+		antecedentValue.writeCssText(wri);
 		wri.write('/');
-		wri.write(consequentValue);
+		consequentValue.writeCssText(wri);
 	}
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This value is read-only");
+		ValueFactory vf = new ValueFactory();
+		AbstractCSSPrimitiveValue value = vf.parseMediaFeature(cssText);
+		if (value.getPrimitiveType() != CSSPrimitiveValue2.CSS_RATIO) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Value is not a ratio.");
+		}
+		RatioValue ratio = (RatioValue) value;
+		this.antecedentValue = ratio.antecedentValue;
+		this.consequentValue = ratio.consequentValue;
 	}
 
 	@Override
 	LexicalSetter newLexicalSetter() {
-		return new MyLexicalSetter();
-	}
-
-	class MyLexicalSetter extends LexicalSetter {
-
-		@Override
-		void setLexicalUnit(LexicalUnit lunit) {
-			setAntecedentValue(lunit.getIntegerValue());
-			LexicalUnit nlu = lunit.getNextLexicalUnit(); // '/'
-			nlu = nlu.getNextLexicalUnit();
-			setConsequentValue(nlu.getIntegerValue());
-			this.nextLexicalUnit = nlu.getNextLexicalUnit();
-		}
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This value needs special handling");
 	}
 
 	@Override
-	public int getAntecedentValue() {
+	public AbstractCSSPrimitiveValue getAntecedentValue() {
 		return antecedentValue;
 	}
 
 	@Override
-	public int getConsequentValue() {
+	public AbstractCSSPrimitiveValue getConsequentValue() {
 		return consequentValue;
 	}
 
-	public void setAntecedentValue(int antecedentValue) {
-		if (antecedentValue < 0) {
-			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Value must be positive");
-		}
+	/**
+	 * Set the first value in the ratio.
+	 * 
+	 * @param antecedentValue the first value.
+	 * @throws DOMException if the value is <code>null</code> or of the wrong type.
+	 */
+	public void setAntecedentValue(AbstractCSSPrimitiveValue antecedentValue) throws DOMException {
+		checkValueType(antecedentValue);
 		this.antecedentValue = antecedentValue;
 	}
 
-	public void setConsequentValue(int consequentValue) {
-		if (consequentValue < 0) {
-			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Value must be positive");
-		}
+	/**
+	 * Set the second value in the ratio.
+	 * 
+	 * @param consequentValue the second value.
+	 * @throws DOMException if the value is <code>null</code> or of the wrong type.
+	 */
+	public void setConsequentValue(AbstractCSSPrimitiveValue consequentValue) throws DOMException {
+		checkValueType(consequentValue);
 		this.consequentValue = consequentValue;
+	}
+
+	private void checkValueType(CSSPrimitiveValue value) throws DOMException {
+		if (value == null) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null value in ratio.");
+		}
+		short ptype = value.getPrimitiveType();
+		if (ptype != CSSPrimitiveValue.CSS_NUMBER && ptype != CSSPrimitiveValue2.CSS_EXPRESSION) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected type in ratio: " + ptype);
+		}
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + antecedentValue;
-		result = prime * result + consequentValue;
+		result = prime * result + Objects.hash(antecedentValue, consequentValue);
 		return result;
 	}
 
@@ -121,13 +140,8 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 			return false;
 		}
 		RatioValue other = (RatioValue) obj;
-		if (antecedentValue != other.antecedentValue) {
-			return false;
-		}
-		if (consequentValue != other.consequentValue) {
-			return false;
-		}
-		return true;
+		return Objects.equals(antecedentValue, other.antecedentValue)
+				&& Objects.equals(consequentValue, other.consequentValue);
 	}
 
 	@Override

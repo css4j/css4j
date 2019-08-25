@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -24,6 +25,7 @@ import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.css.sac.Parser;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
@@ -398,6 +400,17 @@ public class ValueFactoryTest {
 		source = new InputSource(new StringReader("hwb(0, 0%, 0%)"));
 		lunit = parser.parsePropertyValue(source);
 		assertEquals(-1, ValueFactory.functionDimensionArgumentUnit(lunit));
+	}
+
+	@Test
+	public void testParseMediaFeatureString() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		try {
+			factory.parseMediaFeature("16/");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.SYNTAX_ERR, e.code);
+		}
 	}
 
 	@Test

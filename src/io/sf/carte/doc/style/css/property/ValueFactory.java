@@ -562,13 +562,11 @@ public class ValueFactory {
 	 * Parses a feature value.
 	 * <p>
 	 * 
-	 * @param feature
-	 *            the string containing the feature value
-	 * @return the CSSValue object containing the parsed value.
-	 * @throws DOMException
-	 *             if a problem was found parsing the feature.
+	 * @param feature the string containing the feature value
+	 * @return the CSSPrimitiveValue object containing the parsed value.
+	 * @throws DOMException if a problem was found parsing the feature.
 	 */
-	public AbstractCSSValue parseMediaFeature(String feature) throws DOMException {
+	public AbstractCSSPrimitiveValue parseMediaFeature(String feature) throws DOMException {
 		Parser parser = SACParserFactory.createSACParser();
 		InputSource source = new InputSource();
 		Reader re = new StringReader(feature);
@@ -584,20 +582,25 @@ public class ValueFactory {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		AbstractCSSValue css;
+		AbstractCSSPrimitiveValue css;
+		try {
+			css = createCSSPrimitiveValue(lunit, false);
+		} catch (DOMException e) {
+			// Hack ?
+			return createUnknownValue(feature, lunit);
+		}
 		LexicalUnit nlu = lunit.getNextLexicalUnit();
-		LexicalUnit nnlu;
-		if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH
-				&& (nnlu = nlu.getNextLexicalUnit()) != null && nnlu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER) {
-			// ratio
-			RatioValue ratio = new RatioValue();
-			ratio.newLexicalSetter().setLexicalUnit(lunit);
-			css = ratio;
-		} else {
-			css = createCSSValue(lunit);
-			if (css == null) {
-				css = createUnknownValue(feature, lunit);
+		if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
+			nlu = nlu.getNextLexicalUnit();
+			if (nlu == null) {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Ratio lacks second value.");
 			}
+			// ratio
+			AbstractCSSPrimitiveValue css2 = createCSSPrimitiveValue(nlu, false);
+			RatioValue ratio = new RatioValue();
+			ratio.setAntecedentValue(css);
+			ratio.setConsequentValue(css2);
+			return ratio;
 		}
 		return css;
 	}

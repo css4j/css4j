@@ -13,9 +13,9 @@
 package io.sf.carte.doc.style.css;
 
 /**
- * The ratio value type is a positive (not zero or negative) integer followed by optional
- * whitespace, followed by a solidus ('/'), followed by optional whitespace, followed by a
- * positive integer. (as defined by Media Queries level 4)
+ * The ratio value type is a number followed by optional whitespace, followed by
+ * a solidus ('/'), followed by optional whitespace, followed by a number. (as
+ * defined by Media Queries level 4)
  */
 public interface CSSRatioValue extends ExtendedCSSPrimitiveValue {
 
@@ -24,14 +24,14 @@ public interface CSSRatioValue extends ExtendedCSSPrimitiveValue {
 	 * 
 	 * @return the antecedent value.
 	 */
-	int getAntecedentValue();
+	ExtendedCSSPrimitiveValue getAntecedentValue();
 
 	/**
 	 * Get the consequent value (i.e. the 'b' in 'a/b').
 	 * 
 	 * @return the consequent value.
 	 */
-	int getConsequentValue();
+	ExtendedCSSPrimitiveValue getConsequentValue();
 
 	@Override
 	CSSRatioValue clone();
