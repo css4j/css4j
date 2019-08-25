@@ -348,7 +348,12 @@ public class Evaluator {
 		ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, 0);
 		float result = (float) Math.sqrt(floatValue(arg, resultUnit));
 		NumberValue value = new NumberValue();
-		resultUnit.setExponent((short) (resultUnit.getExponent() / 2));
+		int exp = resultUnit.getExponent();
+		if (exp % 2 != 0) {
+			// Odd number
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "invalid CSS unit in sqrt() function");
+		}
+		resultUnit.setExponent(exp / 2);
 		value.setFloatValue(resultUnit.getUnitType(), result);
 		return value;
 	}
@@ -515,6 +520,7 @@ public class Evaluator {
 					} catch (DOMException e) {
 						partial = unitCancellation(partial, partialUnit, firstUnit, op.isInverseOperation(), e);
 						firstUnit = CSSPrimitiveValue.CSS_NUMBER;
+						unitExp = 0;
 					}
 					partialUnit = firstUnit;
 				}

@@ -13,9 +13,11 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
@@ -283,6 +285,19 @@ public class EvaluatorTest {
 				1e-5);
 		assertEquals(0, unit.getExponent());
 		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcHzError() {
+		style.setCssText("foo: calc(sqrt(1.2 / 4Hz / 3.6Hz / 2.1Hz))");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateExpression(val.getExpression());
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
 	}
 
 	@Test
