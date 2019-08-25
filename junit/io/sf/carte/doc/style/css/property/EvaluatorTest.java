@@ -275,6 +275,18 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testCalcHzS2() {
+		style.setCssText("foo: calc(sqrt(1.2Hz * 3Hz * 1.1Hz * 3.6s))");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(3.775712f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_HZ), 1e-5);
+		assertEquals(1, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_HZ, unit.getUnitType());
+	}
+
+	@Test
 	public void testCalcKHzMs() {
 		style.setCssText("foo: calc(sqrt(1.2kHz * 3.6ms))");
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");

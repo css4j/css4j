@@ -518,9 +518,17 @@ public class Evaluator {
 					try {
 						partial = NumberValue.floatValueConversion(partial, partialUnit, firstUnit);
 					} catch (DOMException e) {
-						partial = unitCancellation(partial, partialUnit, firstUnit, op.isInverseOperation(), e);
-						firstUnit = CSSPrimitiveValue.CSS_NUMBER;
-						unitExp = 0;
+						if (!op.isInverseOperation()) {
+							partial = unitCancellation(partial, partialUnit, firstUnit, e);
+							unitExp--;
+						} else {
+							throw e;
+						}
+						if (unitExp == 0) {
+							firstUnit = CSSPrimitiveValue.CSS_NUMBER;
+						}
+						result *= partial;
+						continue;
 					}
 					partialUnit = firstUnit;
 				}
@@ -567,21 +575,19 @@ public class Evaluator {
 		return result;
 	}
 
-	private float unitCancellation(float partial, short partialUnit, short firstUnit, boolean inverseOperation,
-			DOMException exception) throws DOMException {
-		if (!inverseOperation) {
-			if (partialUnit == CSSPrimitiveValue.CSS_S || partialUnit == CSSPrimitiveValue.CSS_MS) {
-				if (firstUnit == CSSPrimitiveValue.CSS_HZ) {
-					return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_S);
-				} else if (firstUnit == CSSPrimitiveValue.CSS_KHZ) {
-					return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_MS);
-				}
-			} else if (partialUnit == CSSPrimitiveValue.CSS_HZ || partialUnit == CSSPrimitiveValue.CSS_KHZ) {
-				if (firstUnit == CSSPrimitiveValue.CSS_S) {
-					return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_HZ);
-				} else if (firstUnit == CSSPrimitiveValue.CSS_MS) {
-					return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_KHZ);
-				}
+	private float unitCancellation(float partial, short partialUnit, short firstUnit, DOMException exception)
+			throws DOMException {
+		if (partialUnit == CSSPrimitiveValue.CSS_S || partialUnit == CSSPrimitiveValue.CSS_MS) {
+			if (firstUnit == CSSPrimitiveValue.CSS_HZ) {
+				return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_S);
+			} else if (firstUnit == CSSPrimitiveValue.CSS_KHZ) {
+				return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_MS);
+			}
+		} else if (partialUnit == CSSPrimitiveValue.CSS_HZ || partialUnit == CSSPrimitiveValue.CSS_KHZ) {
+			if (firstUnit == CSSPrimitiveValue.CSS_S) {
+				return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_HZ);
+			} else if (firstUnit == CSSPrimitiveValue.CSS_MS) {
+				return NumberValue.floatValueConversion(partial, partialUnit, CSSPrimitiveValue.CSS_KHZ);
 			}
 		}
 		throw exception;
