@@ -176,6 +176,7 @@ public class MediaQueryTest {
 		assertTrue(MediaQueryFactory.isMediaFeature("width"));
 		assertTrue(MediaQueryFactory.isMediaFeature("pointer"));
 		assertTrue(MediaQueryFactory.isMediaFeature("orientation"));
+		assertTrue(MediaQueryFactory.isMediaFeature("aspect-ratio"));
 		assertFalse(MediaQueryFactory.isMediaFeature("foo"));
 	}
 

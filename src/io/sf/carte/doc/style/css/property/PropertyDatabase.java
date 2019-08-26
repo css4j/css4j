@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,7 +33,6 @@ import java.util.StringTokenizer;
  *
  */
 public final class PropertyDatabase {
-	private ClassLoader classLoader = null;
 
 	private final ValueFactory valueFactory = new ValueFactory();
 
@@ -61,16 +60,38 @@ public final class PropertyDatabase {
 
 	private static final PropertyDatabase singleton = new PropertyDatabase();
 
+	/**
+	 * Construct a property database that loads configuration files from classpath
+	 * using this object's <code>ClassLoader</code>.
+	 */
 	PropertyDatabase() {
+		this(null);
+	}
+
+	/**
+	 * Construct a property database that uses the given <code>ClassLoader</code> to
+	 * load files from classpath.
+	 * 
+	 * @param loader the loader.
+	 */
+	PropertyDatabase(ClassLoader loader) {
 		super();
 		/*
 		 * Inherited properties
 		 */
 		inherited_properties = computeInheritedPropertiesList();
 		/*
+		 * Initial values
+		 */
+		initialValueMap = computeInitialValueMap();
+		/*
+		 * Identifiers
+		 */
+		identifiers = loadPropertiesfromClasspath("identifier.properties", loader);
+		/*
 		 * Shorthand properties
 		 */
-		Properties shand = loadPropertiesfromClasspath("shorthand.properties");
+		Properties shand = loadPropertiesfromClasspath("shorthand.properties", loader);
 		ArrayList<String> array = new ArrayList<String>();
 		Iterator<Entry<Object, Object>> it = shand.entrySet().iterator();
 		while (it.hasNext()) {
@@ -84,14 +105,6 @@ public final class PropertyDatabase {
 			addShorthand(shname, array.toArray(new String[0]));
 			array.clear();
 		}
-		/*
-		 * Identifiers
-		 */
-		identifiers = loadPropertiesfromClasspath("identifier.properties");
-		/*
-		 * Initial values
-		 */
-		initialValueMap = computeInitialValueMap();
 	}
 
 	/**
@@ -114,7 +127,7 @@ public final class PropertyDatabase {
 		return inherited_properties.contains(name);
 	}
 
-	private Set<String> computeInheritedPropertiesList() {
+	private static Set<String> computeInheritedPropertiesList() {
 		/**
 		 * List of properties that inherit by default.
 		 */
@@ -129,7 +142,9 @@ public final class PropertyDatabase {
 				"text-indent", "text-shadow", "text-transform", "text-underline-position", "visibility",
 				"voice-balance", "voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
 				"voice-volume", "volume", "white-space", "widows", "word-spacing", "writing-mode" };
-		return new HashSet<String>(Arrays.asList(inherit));
+		HashSet<String> inheritSet = new HashSet<String>(inherit.length);
+		Collections.addAll(inheritSet, inherit);
+		return inheritSet;
 	}
 
 	/**
@@ -556,11 +571,7 @@ public final class PropertyDatabase {
 		return identifiers.containsKey(propertyName);
 	}
 
-	public void setClassLoader(ClassLoader loader) {
-		classLoader = loader;
-	}
-
-	Properties loadPropertiesfromClasspath(final String filename) {
+	Properties loadPropertiesfromClasspath(final String filename, final ClassLoader classLoader) {
 		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Properties>() {
 			@Override
 			public Properties run() {

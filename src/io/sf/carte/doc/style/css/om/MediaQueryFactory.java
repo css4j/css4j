@@ -11,7 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
@@ -31,9 +32,15 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
  */
 public class MediaQueryFactory {
 
-	private static final String[] mediaFeatures = { "any-hover", "any-pointer", "aspect-ratio", "color", "color-gamut",
-			"color-index", "grid", "height", "hover", "monochrome", "orientation", "overflow-block", "overflow-inline",
-			"pointer", "resolution", "scan", "update", "width" };
+	private static final HashSet<String> mediaFeatureSet;
+
+	static {
+		final String[] mediaFeatures = { "any-hover", "any-pointer", "aspect-ratio", "color", "color-gamut",
+				"color-index", "grid", "height", "hover", "monochrome", "orientation", "overflow-block",
+				"overflow-inline", "pointer", "resolution", "scan", "update", "width" };
+		mediaFeatureSet = new HashSet<String>(mediaFeatures.length);
+		Collections.addAll(mediaFeatureSet, mediaFeatures);
+	}
 
 	/**
 	 * Creates a new media list for <code>mediaQueryString</code>.
@@ -120,7 +127,7 @@ public class MediaQueryFactory {
 	}
 
 	public static boolean isMediaFeature(String string) {
-		return Arrays.binarySearch(mediaFeatures, string) >= 0;
+		return mediaFeatureSet.contains(string);
 	}
 
 	static class MyMediaQueryList implements MediaQueryList, MediaListAccess {
