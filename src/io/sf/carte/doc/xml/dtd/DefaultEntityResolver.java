@@ -49,9 +49,9 @@ import io.sf.carte.doc.agent.AgentUtil;
  * host from the URL.</li>
  * </ul>
  * <p>
- * If the whitelist was enabled (e.g. constructor with a <code>true</code> argument),
- * any attempt to download data from a remote URL not present in the whitelist is
- * going to produce an exception. You can use that to determine whether your documents
+ * If the whitelist was enabled (e.g. default constructor), any attempt to
+ * download data from a remote URL not present in the whitelist is going to
+ * produce an exception. You can use that to determine whether your documents
  * are referencing a DTD resource that is not bundled with this resolver.
  * </p>
  * <p>
@@ -81,12 +81,10 @@ public class DefaultEntityResolver implements EntityResolver2 {
 	private HashSet<String> whitelist = null;
 
 	/**
-	 * Construct a resolver with the whitelist enabled, and allow connections to
-	 * <code>www.w3.org</code>.
+	 * Construct a resolver with the whitelist enabled.
 	 */
 	public DefaultEntityResolver() {
 		this(true);
-		whitelist.add("www.w3.org");
 	}
 
 	/**
