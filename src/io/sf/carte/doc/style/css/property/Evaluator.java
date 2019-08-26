@@ -334,7 +334,7 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "pow() exponent cannot have a dimension");
 		}
 		float result = (float) Math.pow(base, exponent);
-		resultUnit.setExponent((short) (resultUnit.getExponent() * Math.round(exponent)));
+		resultUnit.setExponent(resultUnit.getExponent() * Math.round(exponent));
 		NumberValue value = new NumberValue();
 		value.setFloatValue(resultUnit.getUnitType(), result);
 		return value;
