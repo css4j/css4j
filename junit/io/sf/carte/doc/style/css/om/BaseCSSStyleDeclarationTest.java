@@ -790,6 +790,29 @@ public class BaseCSSStyleDeclarationTest {
 	}
 
 	@Test
+	public void testGetPropertyPriority() {
+		emptyStyleDecl.setCssText("pause-before:20ms;pause-after:23ms");
+		assertEquals(0, emptyStyleDecl.getPropertyPriority("pause-before").length());
+		assertEquals(0, emptyStyleDecl.getPropertyPriority("pause").length());
+		emptyStyleDecl.setCssText("pause-before:20ms;pause-after:23ms!important");
+		assertEquals(0, emptyStyleDecl.getPropertyPriority("pause-before").length());
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("pause-after"));
+		assertEquals(0, emptyStyleDecl.getPropertyPriority("pause").length());
+		emptyStyleDecl.setCssText("pause-before:20ms!important;pause-after:23ms!important");
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("pause-before"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("pause-after"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("pause"));
+		emptyStyleDecl.setCssText("pause:23ms");
+		assertEquals(0, emptyStyleDecl.getPropertyPriority("pause-before").length());
+		assertEquals(0, emptyStyleDecl.getPropertyPriority("pause-after").length());
+		assertEquals(0, emptyStyleDecl.getPropertyPriority("pause").length());
+		emptyStyleDecl.setCssText("pause:23ms!important");
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("pause-before"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("pause-after"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("pause"));
+	}
+
+	@Test
 	public void setPropertyStringStringString() {
 		emptyStyleDecl.setProperty("border", "none", "important");
 		assertEquals("none", emptyStyleDecl.getPropertyValue("border"));
