@@ -124,7 +124,6 @@ class TransitionShorthandSetter extends ShorthandSetter {
 
 	@Override
 	public boolean assignSubproperties() {
-		int lastTdurCopied = 0, lastTimingCopied = 0, lastDelayCopied = 0;
 		int i = 0;
 		toploop : while (i < transitionsCount && currentValue != null) {
 			boolean tpropUnset = true;
@@ -253,37 +252,13 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				lstProperty.add(defaultPropertyValue("transition-property"));
 			}
 			if (tdurUnset) {
-				if (i == 0 || lstDuration.isEmpty()) {
-					lstDuration.add(defaultPropertyValue("transition-duration"));
-				} else {
-					lstDuration.add(lstDuration.item(lastTdurCopied));
-				}
-				lastTdurCopied++;
-				if (lastTdurCopied == i) {
-					lastTdurCopied = 0;
-				}
+				lstDuration.add(defaultPropertyValue("transition-duration"));
 			}
 			if (ttfUnset) {
-				if (i == 0 || lstTiming.isEmpty()) {
-					lstTiming.add(defaultPropertyValue("transition-timing-function"));
-				} else {
-					lstTiming.add(lstTiming.item(lastTimingCopied));
-				}
-				lastTimingCopied++;
-				if (lastTimingCopied == i) {
-					lastTimingCopied = 0;
-				}
+				lstTiming.add(defaultPropertyValue("transition-timing-function"));
 			}
 			if (tdelayUnset) {
-				if (i == 0 || lstDelay.isEmpty()) {
-					lstDelay.add(defaultPropertyValue("transition-delay"));
-				} else {
-					lstDelay.add(lstDelay.item(lastDelayCopied));
-				}
-				lastDelayCopied++;
-				if (lastDelayCopied == i) {
-					lastDelayCopied = 0;
-				}
+				lstDelay.add(defaultPropertyValue("transition-delay"));
 			}
 		}
 		/*

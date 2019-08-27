@@ -2370,9 +2370,9 @@ public class ShorthandSetterTest {
 		assertEquals("transition:background-color 1s linear 2s;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("transition: background-color 1s linear 2s, opacity 4s;");
 		assertEquals("background-color, opacity", emptyStyleDecl.getPropertyValue("transition-property"));
-		assertEquals("linear, linear", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("linear, ease", emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("1s, 4s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("2s, 2s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("2s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-property").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-duration").isSubproperty());
@@ -2393,15 +2393,30 @@ public class ShorthandSetterTest {
 				"transition-delay: 30s; transition: background-color 1s linear 2s, opacity 10s 1s, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1);");
 		assertEquals("background-color, opacity, width, height",
 				emptyStyleDecl.getPropertyValue("transition-property"));
-		assertEquals("linear, linear, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
+		assertEquals("linear, ease, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
 				emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("1s, 10s, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("2s, 1s, 2s, 1s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("2s, 1s, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
 		assertEquals(
 				"transition: background-color 1s linear 2s, opacity 10s 1s, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1); ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
 				"transition:background-color 1s linear 2s,opacity 10s 1s,width 3s ease-in,height 5s cubic-bezier(.33,.1,.5,1);",
+				emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText(
+				"transition: background-color 1s linear 2s, opacity 10s, width ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1);");
+		assertEquals("background-color, opacity, width, height",
+				emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("linear, ease, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
+				emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("1s, 10s, 0s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("2s, 0s, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals(
+				"transition: background-color 1s linear 2s, opacity 10s, width ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1); ",
+				emptyStyleDecl.getCssText());
+		assertEquals(
+				"transition:background-color 1s linear 2s,opacity 10s,width ease-in,height 5s cubic-bezier(.33,.1,.5,1);",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2414,7 +2429,7 @@ public class ShorthandSetterTest {
 		assertEquals("linear, inherit, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
 				emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("1s, inherit, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("2s, inherit, 2s, inherit", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("2s, inherit, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
 		assertEquals(
 				"transition: background-color 1s linear 2s, inherit, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1); ",
 				emptyStyleDecl.getCssText());
@@ -2432,7 +2447,7 @@ public class ShorthandSetterTest {
 		assertEquals("unset, linear, inherit, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
 				emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("unset, 1s, inherit, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("unset, 2s, inherit, unset, 2s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("unset, 2s, inherit, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
 		assertEquals(
 				"transition: unset, background-color 1s linear 2s, inherit, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1); ",
 				emptyStyleDecl.getCssText());
@@ -2449,7 +2464,7 @@ public class ShorthandSetterTest {
 		assertEquals("linear, unset, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
 				emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("1s, unset, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("2s, unset, 2s, unset", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("2s, unset, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
 		assertEquals(
 				"transition: background-color 1s linear 2s, unset, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1); ",
 				emptyStyleDecl.getCssText());
@@ -2466,12 +2481,30 @@ public class ShorthandSetterTest {
 		assertEquals("ease-in, ease-in, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
 				emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("3s, 3s, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("2s, 2s, 2s, 1s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("0s, 0s, 0s, 1s", emptyStyleDecl.getPropertyValue("transition-delay"));
 		assertEquals(
 				"transition: background-color 1s linear 2s, opacity 10s, all 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1) 1s; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
 				"transition:background-color 1s linear 2s,opacity 10s,all 3s ease-in,height 5s cubic-bezier(.33,.1,.5,1) 1s;",
+				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testTransitionAll2() {
+		emptyStyleDecl.setCssText(
+				"transition: background-color 1s linear 2s, opacity 10s 3s, width 3s ease-in, all 8s 1s cubic-bezier(0.33, 0.1, 0.5, 1);");
+		assertEquals("background-color, opacity, width, all", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals(
+				"cubic-bezier(0.33, 0.1, 0.5, 1), cubic-bezier(0.33, 0.1, 0.5, 1), cubic-bezier(0.33, 0.1, 0.5, 1), cubic-bezier(0.33, 0.1, 0.5, 1)",
+				emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("8s, 8s, 8s, 8s", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("1s, 1s, 1s, 1s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals(
+				"transition: background-color 1s linear 2s, opacity 10s 3s, width 3s ease-in, all 8s 1s cubic-bezier(0.33, 0.1, 0.5, 1); ",
+				emptyStyleDecl.getCssText());
+		assertEquals(
+				"transition:background-color 1s linear 2s,opacity 10s 3s,width 3s ease-in,all 8s 1s cubic-bezier(.33,.1,.5,1);",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
