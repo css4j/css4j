@@ -1119,6 +1119,7 @@ public class TokenProducerTest {
 		assertEquals("(:)(:)", handler.punctbuffer.toString());
 		assertEquals(" 9 21 25 35", handler.sepbuffer.toString());
 		assertEquals(27, handler.lastWordIndex);
+		assertEquals(36, handler.lastQuotedIndex);
 	}
 
 	@Test
@@ -1655,6 +1656,9 @@ public class TokenProducerTest {
 		assertEquals("((", handler.openbuffer.toString());
 		assertEquals("))", handler.closebuffer.toString());
 		assertEquals("(:)(:)", handler.punctbuffer.toString());
+		assertEquals(" 9 21 25 35", handler.sepbuffer.toString());
+		assertEquals(27, handler.lastWordIndex);
+		assertEquals(36, handler.lastQuotedIndex);
 	}
 
 	@Test
@@ -1672,6 +1676,7 @@ public class TokenProducerTest {
 		assertEquals("((", handler.openbuffer.toString());
 		assertEquals("))", handler.closebuffer.toString());
 		assertEquals("(:)(:)", handler.punctbuffer.toString());
+		assertEquals(36, handler.lastQuotedIndex);
 	}
 
 	@Test
@@ -1698,6 +1703,7 @@ public class TokenProducerTest {
 		assertEquals(0, handler.errorCounter);
 		assertEquals(-1, handler.lastCommentIndex);
 		assertEquals(2, handler.control10);
+		assertEquals(53, handler.lastQuotedIndex);
 	}
 
 	@Test
@@ -1883,6 +1889,7 @@ public class TokenProducerTest {
 		int control10 = 0;
 		int errorCounter = 0;
 		int lastWordIndex = -1;
+		int lastQuotedIndex = -1;
 		int lastCharacterIndex = -1;
 		int lastCommentIndex = -1;
 		int lastControlIndex = -1;
@@ -1925,11 +1932,13 @@ public class TokenProducerTest {
 			StringBuilder buf = new StringBuilder(quoted.length() + 2);
 			buf.append(c).append(quoted).append(c);
 			words.add(buf.toString());
+			lastQuotedIndex = index;
 		}
 
 		@Override
 		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
 			quoted(index, quoted, quoteCp);
+			lastQuotedIndex = index;
 		}
 
 		@Override

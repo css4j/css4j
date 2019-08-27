@@ -559,7 +559,7 @@ public class TokenProducer {
 		protected void quoted(int quoteCp) throws IOException {
 			CharSequence seq = quotedSequence(quoteCp);
 			if (seq != null) {
-				handler.quoted(rootIndex, seq, quoteCp);
+				handler.quoted(previdx, seq, quoteCp);
 			} // an unexpected control was found.
 		}
 
