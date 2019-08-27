@@ -242,12 +242,12 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 				return fvalue / 12f;
 			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
 				// 1cm = 28.34646pt
-				return fvalue / 28.34646f;
+				return fvalue / 28.3464567f;
 			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
 				// 1mm = 2.834646pt
-				return fvalue / 2.834646f;
+				return fvalue / 2.83464567f;
 			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
-				return fvalue * 1.411111f;
+				return fvalue * 1.4111111f;
 			}
 			break;
 		case CSSPrimitiveValue.CSS_PX:
@@ -267,7 +267,7 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 				// 1mm = 3.7795px
 				return fvalue / 3.77952756f;
 			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
-				return fvalue * 1.05834f;
+				return fvalue * 1.05833333f;
 			}
 			break;
 		case CSSPrimitiveValue.CSS_PC:
@@ -281,13 +281,13 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 				// 1pc = 16px
 				return fvalue * 16f;
 			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
-				// 1cm = 2.3622pc
-				return fvalue / 2.3622f;
+				// 1cm = 2.3622047pc
+				return fvalue * 0.42333333f;
 			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
 				// 4.233mm = 1pc
-				return fvalue * 4.23333f;
+				return fvalue * 4.2333333f;
 			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
-				return fvalue * 16.93333f;
+				return fvalue * 16.9333333f;
 			}
 			break;
 		case CSSPrimitiveValue.CSS_IN:
@@ -313,7 +313,7 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 		case CSSPrimitiveValue.CSS_CM:
 			if (unitType == CSSPrimitiveValue.CSS_PT) {
 				// 1cm = 28.34646pt
-				return fvalue * 28.34646f;
+				return fvalue * 28.3464567f;
 			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
 				// 1in = 2.54cm
 				return fvalue / 2.54f;
@@ -322,7 +322,7 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 				return fvalue * 37.7952756f;
 			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
 				// 1cm = 2.3622pc
-				return fvalue * 2.3622f;
+				return fvalue * 2.3622047f;
 			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
 				// 1cm = 10mm
 				return fvalue * 10f;
@@ -333,7 +333,7 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 		case CSSPrimitiveValue.CSS_MM:
 			if (unitType == CSSPrimitiveValue.CSS_PT) {
 				// 1mm = 2.834646pt
-				return fvalue * 2.834646f;
+				return fvalue * 2.83464567f;
 			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
 				// 1in = 25.4mm
 				return fvalue / 25.4f;
@@ -356,9 +356,9 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
 				return fvalue / 101.6f;
 			} else if (unitType == CSSPrimitiveValue.CSS_PX) {
-				return fvalue * 0.944876f;
+				return fvalue * 0.9448819f;
 			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
-				return fvalue / 16.93333f;
+				return fvalue / 16.933333f;
 			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
 				return fvalue * 0.25f;
 			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
