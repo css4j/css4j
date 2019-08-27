@@ -14,8 +14,8 @@ If you want to build css4j from the code that is currently at the Git repositori
 ```
 Or download a zip and extract:
 ```
-	/usr/bin/curl -o css4j-dist-master.zip https://codeload.github.com/css4j/css4j-dist/zip/master
-	/usr/bin/unzip css4j-dist-master.zip
+    /usr/bin/curl -o css4j-dist-master.zip https://codeload.github.com/css4j/css4j-dist/zip/master
+    /usr/bin/unzip css4j-dist-master.zip
     cd css4j-dist-master
     ./tree.sh
 ```
