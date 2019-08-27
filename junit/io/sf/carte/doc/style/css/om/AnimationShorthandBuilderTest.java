@@ -53,8 +53,12 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilderList() {
+		assertShorthandText("animation:3500ms frames(3) 5s reverse '1st anim',0s 3s '2nd anim',1s '3rd anim';",
+				"animation: 3500ms frames(3) reverse 5s '1st anim', 0s 3s '2nd anim', 1s '3rd anim'");
 		assertShorthandText("animation:3500ms 5s reverse '1st anim',0s steps(2,start) 3s alternate '2nd anim';",
 				"animation: 3500ms 5s reverse '1st anim', 0s 3s steps(2, start) alternate '2nd anim'");
+		assertShorthandText("animation:0s frames(3) 5s reverse foo,1s bar;",
+				"animation-duration: 0s,1s; animation-timing-function: frames(3),ease; animation-delay: 5s,0s; animation-iteration-count: 1,1; animation-direction: reverse,normal; animation-fill-mode: none,none; animation-play-state: running,running; animation-name: foo,bar;");
 	}
 
 	@Test

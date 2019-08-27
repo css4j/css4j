@@ -49,9 +49,25 @@ public class TransitionShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderMulti() {
+		assertShorthandText("transition:right .15s ease-out,bottom .15s ease-out;",
+				"transition:.15s ease-out;transition-property:right,bottom");
+		assertShorthandText("transition:width 1s ease-in-out,border 1s ease-in-out;",
+				"transition: width 1s ease-in-out,border 1s ease-in-out;");
+	}
+
+	@Test
 	public void testBuilderList() {
+		assertShorthandText("transition:height .6s,opacity .3s .2s,visibility;",
+				"transition: 0.6s height ease, opacity 0.3s 0.2s, visibility 0s");
 		assertShorthandText("transition:margin-left 3500ms 5s,margin-top 0s steps(2,start) 3s;",
 				"transition: 3500ms 5s margin-left, 0s 3s steps(2, start) margin-top");
+	}
+
+	@Test
+	public void testBuilderList2() {
+		assertShorthandText("transition:height .6s ease-in .2s,width .6s ease-in .2s;",
+				"transition:height,width;transition-duration:0.6s;transition-delay:0.2s;transition-timing-function:ease-in");
 	}
 
 	@Test
