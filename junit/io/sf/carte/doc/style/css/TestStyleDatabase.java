@@ -32,11 +32,6 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	}
 
 	@Override
-	public int getPixelDepth() {
-		return 8;
-	}
-
-	@Override
 	public float getDeviceHeight() {
 		return 842f;
 	}
@@ -71,7 +66,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	}
 
 	@Override
-	public int getFontSizeFromIdentifier(String familyName,
+	public float getFontSizeFromIdentifier(String familyName,
 			String fontSizeIdentifier) throws DOMException {
 		float sz;
 		if (fontSizeIdentifier.equals("medium")) {
@@ -92,7 +87,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 					"Unknown size identifier: " + fontSizeIdentifier);
 		}
-		return Math.round(sz);
+		return sz;
 	}
 
 	@Override

@@ -82,7 +82,7 @@ public interface StyleDatabase {
 	 * @throws DOMException
 	 *             if the identifier is unknown.
 	 */
-	public int getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException;
+	public float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException;
 
 	/**
 	 * Gives the style declaration adequate to provide the given system font.
@@ -139,15 +139,6 @@ public interface StyleDatabase {
 	 *         support colors.
 	 */
 	public int getColorDepth();
-
-	/**
-	 * The pixelDepth attribute value.
-	 * <p>
-	 * From W3C's Screen interface.
-	 * 
-	 * @return the value of the pixelDepth attribute.
-	 */
-	public int getPixelDepth();
 
 	/**
 	 * Gets the height of the device, expressed in its natural unit.

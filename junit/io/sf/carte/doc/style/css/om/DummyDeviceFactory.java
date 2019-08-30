@@ -80,7 +80,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		public int getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException {
+		public float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException {
 			float sz;
 			if (fontSizeIdentifier.equals("medium")) {
 				sz = 12f;
@@ -100,7 +100,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 						"Unknown size identifier: " + fontSizeIdentifier);
 			}
-			return Math.round(sz);
+			return sz;
 		}
 
 		@Override
@@ -123,11 +123,6 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 
 		@Override
 		public int getColorDepth() {
-			return 24;
-		}
-
-		@Override
-		public int getPixelDepth() {
 			return 24;
 		}
 
