@@ -33,7 +33,7 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 	private AbstractCSSPrimitiveValue antecedentValue;
 	private AbstractCSSPrimitiveValue consequentValue;
 
-	RatioValue() {
+	public RatioValue() {
 		super();
 		setCSSUnitType(CSSPrimitiveValue2.CSS_RATIO);
 	}

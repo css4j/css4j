@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 
 interface MediaQueryHandler {
 
@@ -21,9 +21,10 @@ interface MediaQueryHandler {
 
 	public void onlyPrefix();
 
-	public void featureValue(String featureName, ExtendedCSSValue value);
+	public void featureValue(String featureName, ExtendedCSSPrimitiveValue value);
 
-	public void featureRange(String featureName, byte rangeType, ExtendedCSSValue minvalue, ExtendedCSSValue maxvalue);
+	public void featureRange(String featureName, byte rangeType, ExtendedCSSPrimitiveValue minvalue,
+			ExtendedCSSPrimitiveValue maxvalue);
 
 	public void endQuery();
 

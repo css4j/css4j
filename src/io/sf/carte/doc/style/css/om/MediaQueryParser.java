@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -28,8 +28,8 @@ class MediaQueryParser {
 		tp.parse(mediaQueryString, "/*", "*/");
 	}
 
-	private static ExtendedCSSValue parseMediaFeature(String stringValue) {
-		ExtendedCSSValue value;
+	private static ExtendedCSSPrimitiveValue parseMediaFeature(String stringValue) {
+		ExtendedCSSPrimitiveValue value;
 		try {
 			value = new ValueFactory().parseMediaFeature(stringValue);
 		} catch (RuntimeException e) {
@@ -38,8 +38,15 @@ class MediaQueryParser {
 		return value;
 	}
 
+	/**
+	 * Determine whether this looks like a media feature (rather than a value).
+	 * 
+	 * @param string the presumed feature name,
+	 * @return <code>true</code> if the string looks like a media feature.
+	 */
 	private static boolean isKnownFeature(String string) {
-		return string.startsWith("min-") || string.startsWith("max-") || MediaQueryFactory.isMediaFeature(string);
+		return string.startsWith("min-") || string.startsWith("max-") || MediaQueryFactory.isMediaFeature(string)
+				|| string.startsWith("device-");
 	}
 
 	private static boolean isValidFeatureSyntax(String string) {
@@ -218,7 +225,7 @@ class MediaQueryParser {
 						} else {
 							reverseRangetype();
 						}
-						ExtendedCSSValue value1 = parseMediaFeature(firstValue);
+						ExtendedCSSPrimitiveValue value1 = parseMediaFeature(firstValue);
 						if (value1 == null) {
 							error(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 						} else {
@@ -226,15 +233,15 @@ class MediaQueryParser {
 						}
 					} else if (buffer.length() != 0) {
 						if (stage == 4) {
-							ExtendedCSSValue value = parseMediaFeature(buffer.toString());
+							ExtendedCSSPrimitiveValue value = parseMediaFeature(buffer.toString());
 							if (value == null) {
 								error(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 							} else {
 								handler.featureValue(featureName, value);
 							}
 						} else if (stage == 7) {
-							ExtendedCSSValue value1 = parseMediaFeature(firstValue);
-							ExtendedCSSValue value2 = parseMediaFeature(buffer.toString());
+							ExtendedCSSPrimitiveValue value1 = parseMediaFeature(firstValue);
+							ExtendedCSSPrimitiveValue value2 = parseMediaFeature(buffer.toString());
 							if (value1 == null) {
 								error(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 							} else if (value2 == null) {
@@ -287,6 +294,9 @@ class MediaQueryParser {
 			// : 58
 			// ; 59
 			if (functionToken) {
+				if (prevcp == 32) {
+					buffer.append(' ');
+				}
 				buffer.append(Character.toChars(codepoint));
 			} else {
 				if (codepoint == 58) { // ':'
@@ -314,7 +324,7 @@ class MediaQueryParser {
 						reportError(index, "Unexpected '.'");
 					}
 				} else if (codepoint == 47) { // /
-					if (stage == 4 || stage == 3 || stage == 7 || functionToken) {
+					if (stage == 4 || stage == 3 || stage == 6 || stage == 7 || functionToken) {
 						buffer.append('/');
 					} else {
 						reportError(index, "Unexpected '/'");
@@ -327,10 +337,10 @@ class MediaQueryParser {
 					// <= 3, >= 5
 					// a <= foo < b ; 19
 					// a >= foo > b ; 37
-					if (stage < 3 || rangeType > 5) {
+					if (stage < 3 || (rangeType > 3 && ((rangeType & 16) != 0 || (rangeType & 4) != 0))) {
 						reportError(index, "Unexpected <");
 					} else {
-						if (stage != 6) {
+						if (stage != 6 && stage != 7) {
 							rangeType = (byte) (rangeType | 2);
 							stage = 5;
 						} else {
@@ -340,10 +350,10 @@ class MediaQueryParser {
 						}
 					}
 				} else if (codepoint == 61) { // =
-					if (stage < 3 || rangeType > 5) {
+					if (stage < 3 || (rangeType > 5 && (rangeType & 8) != 0)) {
 						reportError(index, "Unexpected =");
 					} else {
-						if (stage != 6) {
+						if (stage != 6 && stage != 7) {
 							rangeType = (byte) (rangeType | 1);
 							stage = 5;
 						} else {
@@ -352,11 +362,11 @@ class MediaQueryParser {
 							stage = 7;
 						}
 					}
-				} else if (codepoint == 62 || rangeType > 5) { // >
+				} else if (codepoint == 62 || (rangeType >= 4 && ((rangeType & 32) != 0 || (rangeType & 2) != 0))) { // >
 					if (stage < 3) {
 						reportError(index, "Unexpected >");
 					} else {
-						if (stage != 6) {
+						if (stage != 6 && stage != 7) {
 							rangeType = (byte) (rangeType | 4);
 							stage = 5;
 						} else {

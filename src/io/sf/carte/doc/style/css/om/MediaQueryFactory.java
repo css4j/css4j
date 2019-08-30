@@ -22,7 +22,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.CSSCanvas;
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -33,13 +33,18 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 public class MediaQueryFactory {
 
 	private static final HashSet<String> mediaFeatureSet;
+	private static final HashSet<String> rangeFeatureSet;
 
 	static {
-		final String[] mediaFeatures = { "any-hover", "any-pointer", "aspect-ratio", "color", "color-gamut",
-				"color-index", "grid", "height", "hover", "monochrome", "orientation", "overflow-block",
-				"overflow-inline", "pointer", "resolution", "scan", "update", "width" };
-		mediaFeatureSet = new HashSet<String>(mediaFeatures.length);
-		Collections.addAll(mediaFeatureSet, mediaFeatures);
+		final String[] rangeFeatures = { "aspect-ratio", "color", "color-index", "height", "monochrome", "resolution",
+				"width" };
+		final String[] discreteFeatures = { "any-hover", "any-pointer", "color-gamut", "grid", "hover", "orientation",
+				"overflow-block", "overflow-inline", "pointer", "scan", "update" };
+		mediaFeatureSet = new HashSet<String>(rangeFeatures.length + discreteFeatures.length);
+		rangeFeatureSet = new HashSet<String>(rangeFeatures.length);
+		Collections.addAll(rangeFeatureSet, rangeFeatures);
+		Collections.addAll(mediaFeatureSet, rangeFeatures);
+		Collections.addAll(mediaFeatureSet, discreteFeatures);
 	}
 
 	/**
@@ -128,6 +133,10 @@ public class MediaQueryFactory {
 
 	public static boolean isMediaFeature(String string) {
 		return mediaFeatureSet.contains(string);
+	}
+
+	public static boolean isRangeFeature(String string) {
+		return rangeFeatureSet.contains(string);
 	}
 
 	static class MyMediaQueryList implements MediaQueryList, MediaListAccess {
@@ -502,14 +511,14 @@ public class MediaQueryFactory {
 			}
 
 			@Override
-			public void featureValue(String featureName, ExtendedCSSValue value) {
+			public void featureValue(String featureName, ExtendedCSSPrimitiveValue value) {
 				featureName = ParseHelper.unescapeStringValue(featureName);
 				currentQuery.addFeature(featureName, (byte) 0, value, null);
 			}
 
 			@Override
-			public void featureRange(String featureName, byte rangeType, ExtendedCSSValue minvalue,
-					ExtendedCSSValue maxvalue) {
+			public void featureRange(String featureName, byte rangeType, ExtendedCSSPrimitiveValue minvalue,
+					ExtendedCSSPrimitiveValue maxvalue) {
 				featureName = ParseHelper.unescapeStringValue(featureName);
 				currentQuery.addFeature(featureName, rangeType, minvalue, maxvalue);
 			}
