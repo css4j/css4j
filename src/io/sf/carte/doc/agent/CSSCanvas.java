@@ -17,6 +17,7 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 
 /**
@@ -61,26 +62,38 @@ public interface CSSCanvas {
 	public boolean isActivePseudoClass(CSSElement element, String pseudoclassName);
 
 	/**
-	 * Does this canvas support the given feature?
+	 * Does this canvas support the given property?
 	 * 
-	 * @param featureName
-	 *            the feature name.
+	 * @param property
+	 *            the property name.
 	 * @param value
-	 *            the optional feature value to be tested against.
-	 * @return <code>true</code> if the feature (with the given value, if any) is supported,
+	 *            the optional property value to be tested against.
+	 * @return <code>true</code> if the property (with the given value, if any) is supported,
 	 *         <code>false</code> otherwise.
 	 */
-	public boolean supports(String featureName, CSSValue value);
+	public boolean supports(String property, CSSValue value);
 
 	/**
 	 * Provide the value of the requested media feature.
 	 * 
 	 * @param feature
 	 *            the media feature.
-	 * @return the value of the requested media feature, or null if the feature is not known
-	 *         or not supported.
+	 * @return the value of the requested media feature, or <code>null</code> if the
+	 *         feature is not known or not supported.
 	 */
-	public CSSValue getFeatureValue(String feature);
+	public ExtendedCSSPrimitiveValue getFeatureValue(String feature);
+
+	/**
+	 * Does this canvas support the given media feature?
+	 * 
+	 * @param featureName
+	 *            the media feature name.
+	 * @param value
+	 *            the optional feature value to be tested against.
+	 * @return <code>true</code> if the feature (with the given value, if any) is
+	 *         supported, <code>false</code> otherwise.
+	 */
+	public boolean matchesFeature(String featureName, ExtendedCSSPrimitiveValue value);
 
 	/**
 	 * Reload any possible style state/caching that this canvas may have.

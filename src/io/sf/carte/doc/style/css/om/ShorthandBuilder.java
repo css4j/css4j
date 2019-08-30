@@ -377,10 +377,14 @@ abstract class ShorthandBuilder {
 		return 2;
 	}
 
-	boolean isCssKeywordValue(String keyword, AbstractCSSValue cssValue) {
+	static boolean isCssKeywordValue(String keyword, AbstractCSSValue cssValue) {
 		return cssValue != null && cssValue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) cssValue).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& keyword.equalsIgnoreCase(((CSSPrimitiveValue) cssValue).getStringValue());
+				&& isCSSIdentifier((CSSPrimitiveValue) cssValue, keyword);
+	}
+
+	static boolean isCSSIdentifier(CSSPrimitiveValue value, String ident) {
+		return value.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+				&& ident.equalsIgnoreCase(value.getStringValue());
 	}
 
 	String getValueTextIfNotInitial(String propertyName, AbstractCSSValue cssVal) {

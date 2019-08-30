@@ -12,13 +12,13 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSFontFaceRule;
 import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.agent.AbstractDeviceFactory;
 import io.sf.carte.doc.agent.CSSCanvas;
@@ -140,13 +140,13 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 	/**
 	 * A dumb canvas useful for testing.
 	 */
-	public class DummyCanvas implements CSSCanvas {
-		private CSSDocument doc;
-		private Map<CSSElement, List<String>> statePseudoclasses;
+	public class DummyCanvas extends AbstractCSSCanvas {
+		private final HashSet<String> fontfaceNames;
+		private final Map<CSSElement, List<String>> statePseudoclasses;
 
 		DummyCanvas(CSSDocument doc) {
-			super();
-			this.doc = doc;
+			super(doc);
+			fontfaceNames = new HashSet<String>();
 			statePseudoclasses = new HashMap<CSSElement, List<String>>();
 		}
 
@@ -156,7 +156,22 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
+		public boolean isFontFaceName(String requestedFamily) {
+			return fontfaceNames.contains(requestedFamily);
+		}
+
+		/**
+		 * Try to load the font family according to the given font face rule.
+		 * 
+		 * @param rule the font face rule.
+		 */
+		@Override
 		public void loadFontFace(CSSFontFaceRule rule) {
+			String familyName = rule.getStyle().getPropertyValue("font-family");
+			if (familyName == null) {
+				((CSSStyleDeclarationRule) rule).getStyleDeclarationErrorHandler().missingRequiredProperty(familyName);
+				return;
+			}
 		}
 
 		public void registerStatePseudoclasses(CSSElement element, List<String> statePseudoclasses) {
@@ -170,13 +185,58 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		public boolean supports(String featureName, CSSValue value) {
+		protected float getColorIndex() {
+			return 0;
+		}
+
+		@Override
+		protected boolean isGridDevice() {
 			return false;
 		}
 
 		@Override
-		public CSSValue getFeatureValue(String feature) {
-			return null;
+		protected int getMonoBitsPerPixel() {
+			return 0;
+		}
+
+		@Override
+		protected String getOrientation() {
+			return "landscape";
+		}
+
+		@Override
+		protected String getOverflowBlock() {
+			return "scroll";
+		}
+
+		@Override
+		protected String getOverflowInline() {
+			return "scroll";
+		}
+
+		@Override
+		protected String getPointerAccuracy() {
+			return "fine";
+		}
+
+		@Override
+		protected float getResolution() {
+			return 96f;
+		}
+
+		@Override
+		protected String getScanType() {
+			return "progressive";
+		}
+
+		@Override
+		protected String getUpdateFrequency() {
+			return "fast";
+		}
+
+		@Override
+		protected boolean supportsGamut(String gamut) {
+			return "p3".equalsIgnoreCase(gamut) || "srgb".equalsIgnoreCase(gamut);
 		}
 
 		/**
@@ -184,11 +244,6 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		 */
 		@Override
 		public void reloadStyleState() {
-		}
-
-		@Override
-		public boolean isFontFaceName(String requestedFamily) {
-			return false;
 		}
 
 		@Override
@@ -214,11 +269,6 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		@Override
 		public float getCapHeight(CSSComputedProperties style) {
 			return style.getComputedFontSize() * 0.75f;
-		}
-
-		@Override
-		public CSSDocument getDocument() {
-			return doc;
 		}
 
 	}
