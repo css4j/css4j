@@ -112,6 +112,11 @@ public class NumberValueTest {
 		style.setCssText("height: 10%");
 		assertEquals("10%", style.getPropertyValue("height"));
 		assertEquals("10%", style.getPropertyCSSValue("height").getMinifiedCssText(""));
+		style.setCssText("resolution: 300dpi");
+		assertEquals("300dpi", style.getPropertyValue("resolution"));
+		AbstractCSSValue value = style.getPropertyCSSValue("resolution");
+		assertEquals(CSSPrimitiveValue2.CSS_DPI, ((CSSPrimitiveValue) value).getPrimitiveType());
+		assertEquals("300dpi", value.getMinifiedCssText(""));
 	}
 
 	@Test

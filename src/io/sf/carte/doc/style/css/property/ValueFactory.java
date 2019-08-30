@@ -1231,6 +1231,15 @@ public class ValueFactory {
 		case LexicalUnit2.SAC_VW:
 			primiType = CSSPrimitiveValue2.CSS_VW;
 			break;
+		case LexicalUnit2.SAC_DOTS_PER_CENTIMETER:
+			primiType = CSSPrimitiveValue2.CSS_DPCM;
+			break;
+		case LexicalUnit2.SAC_DOTS_PER_INCH:
+			primiType = CSSPrimitiveValue2.CSS_DPI;
+			break;
+		case LexicalUnit2.SAC_DOTS_PER_PIXEL:
+			primiType = CSSPrimitiveValue2.CSS_DPPX;
+			break;
 		case LexicalUnit2.SAC_FR:
 			primiType = CSSPrimitiveValue2.CSS_FR;
 			break;
