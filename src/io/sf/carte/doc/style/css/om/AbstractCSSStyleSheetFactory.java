@@ -46,7 +46,7 @@ abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFacto
 	abstract protected InlineStyle createInlineStyle(Node owner);
 
 	@Override
-	abstract public AbstractCSSStyleSheet createStyleSheet(String title, String media) throws DOMException;
+	abstract public AbstractCSSStyleSheet createStyleSheet(String title, MediaQueryList media);
 
 	/**
 	 * Creates a CSS style sheet owned by a CSS rule.

@@ -35,7 +35,7 @@ public class NamespaceRuleTest {
 	public void setUp() {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
-		sheet = factory.createStyleSheet("", "");
+		sheet = factory.createStyleSheet(null, null);
 	}
 
 	@Test

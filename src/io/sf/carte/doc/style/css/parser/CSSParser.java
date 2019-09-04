@@ -38,18 +38,29 @@ import org.w3c.css.sac.Selector;
 import org.w3c.css.sac.SelectorFactory;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.css.sac.SimpleSelector;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.AgentUtil;
+import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.DeclarationCondition;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.SupportsCondition;
-import io.sf.carte.doc.style.css.SupportsCondition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition2;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.Condition2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.nsac.Selector2;
+import io.sf.carte.doc.style.css.om.BooleanCondition;
+import io.sf.carte.doc.style.css.om.BooleanCondition.ConditionType;
+import io.sf.carte.doc.style.css.om.BooleanConditionFactory;
+import io.sf.carte.doc.style.css.om.MediaConditionFactory;
+import io.sf.carte.doc.style.css.om.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.om.MediaQueryFactory;
+import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ConditionalSelectorImpl;
@@ -59,7 +70,6 @@ import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.LangConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.PositionalConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SelectorArgumentConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SiblingSelectorImpl;
-import io.sf.carte.doc.style.css.parser.SupportsConditionImpl.MyDeclarationCondition;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -308,10 +318,10 @@ public class CSSParser implements Parser2 {
 	 *             <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a hard-coded limit in
 	 *             nested expressions was reached.
 	 */
-	public SupportsCondition parseSupportsCondition(String conditionText, ExtendedCSSRule rule)
+	public BooleanCondition parseSupportsCondition(String conditionText, ExtendedCSSRule rule)
 			throws CSSException {
 		int[] allowInWords = { 45, 46 }; // -.
-		SupportsTokenHandler handler = new SupportsTokenHandler();
+		ConditionTokenHandler handler = new ConditionTokenHandler(true, null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		try {
 			tp.parse(conditionText, "/*", "*/");
@@ -319,7 +329,7 @@ public class CSSParser implements Parser2 {
 			throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested conditions exceed limit", e);
 		}
 		if (handler.errorCode == 0) {
-			SupportsCondition condition = handler.currentCond;
+			BooleanCondition condition = handler.currentCond;
 			if (condition != null) {
 				while (condition.getParentCondition() != null) {
 					condition = condition.getParentCondition();
@@ -334,11 +344,39 @@ public class CSSParser implements Parser2 {
 		}
 	}
 
-	class SupportsTokenHandler extends CSSTokenHandler {
+	public void parseMediaQuery(String media, MediaQueryHandler mqhandler, Node ownerNode, ExtendedCSSRule rule)
+			throws CSSException {
+		int[] allowInWords = { 45, 46 }; // -.
+		ConditionTokenHandler handler = new MediaQueryTokenHandler(mqhandler);
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		mqhandler.startQuery();
+		try {
+			tp.parse(media, "/*", "*/");
+		} catch (IndexOutOfBoundsException e) {
+			throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested queries exceed limit", e);
+		}
+		if (handler.errorCode != 0) {
+			if (ownerNode != null) {
+				CSSMediaException ex = new CSSMediaException("Bad query: " + media, handler.errorException);
+				((CSSDocument) ownerNode.getOwnerDocument()).getErrorHandler().mediaQueryError(ownerNode, ex);
+			} else if (rule != null) {
+				rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, handler.errorException);
+			}
+		}
+	}
+
+	interface DelegateHandler extends TokenHandler {
+		void preBooleanHandling(int index, BooleanCondition.ConditionType type);
+	}
+
+	private class ConditionTokenHandler extends CSSTokenHandler {
+
+		final BooleanConditionFactory conditionFactory;
+
 		/**
 		 * The condition that we are currently working at in this handler.
 		 */
-		SupportsCondition currentCond = null;
+		BooleanCondition currentCond = null;
 
 		/**
 		 * Index of nested operation's depth.
@@ -350,15 +388,12 @@ public class CSSParser implements Parser2 {
 		 */
 		private short[] opParenDepth = new short[32]; // Limited to 32 nested expressions
 
-		/**
-		 * Number of unclosed left parentheses while reading a value.
-		 */
-		private short valueParendepth = 0;
+		final DelegateHandler predicateHandler;
 
 		/**
-		 * Are we reading a value instead of processing operation syntax ?
+		 * Are we reading a predicate instead of processing operation syntax ?
 		 */
-		private boolean readingValue = false;
+		private boolean readingPredicate = false;
 
 		/*
 		 * Error fields.
@@ -366,91 +401,117 @@ public class CSSParser implements Parser2 {
 		private byte errorCode = 0;
 		CSSParseException errorException = null;
 
-		SupportsTokenHandler() {
+		ConditionTokenHandler(boolean supports, MediaQueryHandler mqhandler) {
 			super(null);
+			if (supports) {
+				this.conditionFactory = new SupportsConditionFactory();
+				this.predicateHandler = new SupportsDelegateHandler();
+			} else {
+				this.conditionFactory = new MediaConditionFactory();
+				this.predicateHandler = new MediaQueryDelegateHandler(mqhandler);
+			}
 			buffer = new StringBuilder(64);
 		}
 
 		@Override
 		public void word(int index, CharSequence word) {
 			if (!parseError) {
-				if (!readingValue) {
-					if (buffer.length() != 0) {
-						unexpectedTokenError(index, word);
-						return;
-					}
-					String lctoken = word.toString().toLowerCase(Locale.ROOT);
-					if ("not".equals(lctoken)) {
-						SupportsCondition newCond = new SupportsConditionImpl.NotCondition();
-						if (currentCond != null) {
-							currentCond.addCondition(newCond);
-						}
-						setNestedCondition(newCond);
-					} else if ("and".equals(lctoken)) {
-						processOperation(index, SupportsCondition.ConditionType.AND_CONDITION, word);
-					} else if ("or".equals(lctoken)) {
-						processOperation(index, SupportsCondition.ConditionType.OR_CONDITION, word);
+				if (!readingPredicate) {
+					if (buffer.length() == 0) {
+						processWord(index, word.toString());
 					} else {
-						buffer.append(word);
+						unexpectedTokenError(index, word);
 					}
+				} else if (getCurrentParenDepth() > 1) {
+					predicateHandler.word(index, word);
 				} else {
-					if (buffer.length() != 0 && (prevcp == 32 || prevcp == 13)) {
-						buffer.append(' ');
-					}
-					buffer.append(word);
+					processWord(index, word.toString());
 				}
 				prevcp = 65;
 			}
 		}
 
-		private void processOperation(int index, SupportsCondition.ConditionType opType, CharSequence opname) {
-			if (currentCond != null) {
-				SupportsCondition operation = currentCond.getParentCondition();
-				SupportsCondition.ConditionType curType = currentCond.getType();
-				if (curType == SupportsCondition.ConditionType.DECLARATION_CONDITION) {
-					if (operation == null) {
-						SupportsCondition newCond = createOperation(opType);
-						newCond.addCondition(currentCond);
-						setNestedCondition(newCond);
-					} else if (operation.getType() == opType) {
-						currentCond = operation;
-					} else {
-						SupportsCondition newCond = createOperation(opType);
-						if (opParenDepth[opDepthIndex] != 0) {
-							SupportsCondition oldCond = operation.replaceLast(newCond);
-							newCond.addCondition(oldCond);
-						} else {
-							newCond.addCondition(operation);
-						}
-						setNestedCondition(newCond);
+		private void processWord(int index, String word) {
+			String lctoken = word.toLowerCase(Locale.ROOT);
+			if ("not".equals(lctoken)) {
+				predicateHandler.preBooleanHandling(index, BooleanCondition.ConditionType.NOT);
+				BooleanCondition newCond = conditionFactory.createNotCondition();
+				if (currentCond != null) {
+					currentCond.addCondition(newCond);
+				}
+				setNestedCondition(newCond);
+			} else if ("and".equals(lctoken)) {
+				predicateHandler.preBooleanHandling(index, BooleanCondition.ConditionType.AND);
+				if (currentCond != null) {
+					processOperation(index, BooleanCondition.ConditionType.AND, word);
+				} else {
+					processImplicitAnd(index);
+				}
+			} else if ("or".equals(lctoken)) {
+				if (currentCond != null) {
+					predicateHandler.preBooleanHandling(index, BooleanCondition.ConditionType.OR);
+					try {
+						processOperation(index, BooleanCondition.ConditionType.OR, word);
+					} catch (DOMException e) {
+						unexpectedTokenError(index, word);
 					}
-				} else if (curType == SupportsCondition.ConditionType.NOT_CONDITION) {
-					if (operation != null) {
-						SupportsCondition newCond = createOperation(opType);
-						SupportsCondition oldCond = operation.replaceLast(newCond);
-						newCond.addCondition(oldCond);
-						setNestedCondition(newCond);
-					} else {
-						unexpectedTokenError(index, opname);
-					}
-				} else if (curType != opType) {
-					unexpectedTokenError(index, opname);
+				} else {
+					unexpectedTokenError(index, word);
 				}
 			} else {
+				readingPredicate = true;
+				predicateHandler.word(index, word);
+			}
+		}
+
+		void processOperation(int index, BooleanCondition.ConditionType opType, String opname) {
+			BooleanCondition operation = currentCond.getParentCondition();
+			BooleanCondition.ConditionType curType = currentCond.getType();
+			if (curType == BooleanCondition.ConditionType.PREDICATE) {
+				if (operation == null) {
+					BooleanCondition newCond = createOperation(opType);
+					newCond.addCondition(currentCond);
+					setNestedCondition(newCond);
+				} else if (operation.getType() == opType) {
+					currentCond = operation;
+				} else {
+					BooleanCondition newCond = createOperation(opType);
+					if (opParenDepth[opDepthIndex] != 0) {
+						BooleanCondition oldCond = operation.replaceLast(newCond);
+						newCond.addCondition(oldCond);
+					} else {
+						newCond.addCondition(operation);
+					}
+					setNestedCondition(newCond);
+				}
+			} else if (curType == BooleanCondition.ConditionType.NOT) {
+				if (operation != null) {
+					BooleanCondition newCond = createOperation(opType);
+					BooleanCondition oldCond = operation.replaceLast(newCond);
+					newCond.addCondition(oldCond);
+					setNestedCondition(newCond);
+				} else {
+					unexpectedTokenError(index, opname);
+				}
+			} else if (curType != opType) {
 				unexpectedTokenError(index, opname);
 			}
 		}
 
-		private SupportsCondition createOperation(ConditionType opType) {
-			if (opType == SupportsCondition.ConditionType.AND_CONDITION) {
-				return new SupportsConditionImpl.AndCondition();
+		BooleanCondition createOperation(BooleanCondition.ConditionType opType) {
+			if (opType == BooleanCondition.ConditionType.AND) {
+				return conditionFactory.createAndCondition();
 			}
-			return new SupportsConditionImpl.OrCondition();
+			return conditionFactory.createOrCondition();
 		}
 
-		private void setNestedCondition(SupportsCondition newCond) {
+		private void setNestedCondition(BooleanCondition newCond) {
 			currentCond = newCond;
 			opDepthIndex++;
+		}
+
+		void processImplicitAnd(int index) {
+			unexpectedTokenError(index, "and");
 		}
 
 		@Override
@@ -458,13 +519,9 @@ public class CSSParser implements Parser2 {
 			if (codepoint == 40) {
 				opParenDepth[opDepthIndex]++;
 			}
-			if (readingValue) {
-				bufferAppend(codepoint);
-			} else if (codepoint != 40) {
-				unexpectedCharError(index, codepoint);
-			} else {
-				prevcp = codepoint;
-			}
+			predicateHandler.openGroup(index, codepoint);
+			readingPredicate = true;
+			prevcp = codepoint;
 		}
 
 		@Override
@@ -474,18 +531,8 @@ public class CSSParser implements Parser2 {
 				if (opParenDepth[opDepthIndex] < 0) {
 					unexpectedCharError(index, codepoint);
 				} else if (buffer.length() != 0) {
-					if (readingValue) {
-						if (valueParendepth == opParenDepth[opDepthIndex]) {
-							ValueFactory factory = new ValueFactory();
-							AbstractCSSValue value = factory.parseProperty(buffer.toString());
-							((MyDeclarationCondition) currentCond).setValue(value);
-							buffer.setLength(0);
-							readingValue = false;
-							escapedTokenIndex = -1;
-						} else {
-							bufferAppend(codepoint);
-							return;
-						}
+					if (readingPredicate) {
+						predicateHandler.closeGroup(index, codepoint);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -498,22 +545,195 @@ public class CSSParser implements Parser2 {
 					}
 				}
 				prevcp = codepoint;
-			} else if (readingValue) {
-				bufferAppend(codepoint);
+			} else if (readingPredicate) {
+				predicateHandler.closeGroup(index, codepoint);
+				prevcp = codepoint;
 			} else {
 				unexpectedCharError(index, codepoint);
 			}
 		}
 
+		private int getCurrentParenDepth() {
+			return opParenDepth[opDepthIndex];
+		}
+
 		@Override
 		public void character(int index, int codepoint) {
-			// ! 33
-			// : 58
-			// ; 59
 			if (!parseError) {
+				if (!readingPredicate) {
+					if (codepoint == 44) { // ','
+						predicateHandler.character(index, codepoint);
+					} else {
+						unexpectedCharError(index, codepoint);
+					}
+				} else {
+					predicateHandler.character(index, codepoint);
+				}
+				prevcp = codepoint;
+			} else if (codepoint == 44) { // ',' may clear error
+				predicateHandler.character(index, codepoint);
+			}
+		}
+
+		@Override
+		public void quoted(int index, CharSequence quoted, int quoteCp) {
+			if (!parseError) {
+				if (readingPredicate) {
+					predicateHandler.quoted(index, quoted, quoteCp);
+					prevcp = 65;
+				} else {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: '" + quoted + '\'');
+				}
+			}
+		}
+
+		@Override
+		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+			quoted(index, quoted, quoteCp);
+		}
+
+		@Override
+		public void escaped(int index, int codepoint) {
+			if (!parseError) {
+				if (readingPredicate) {
+					predicateHandler.escaped(index, codepoint);
+				} else if (prevcp == TokenProducer.CHAR_LEFT_PAREN) {
+					readingPredicate = true;
+					predicateHandler.escaped(index, codepoint);
+				} else {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected escaped character: \\u" + Integer.toHexString(codepoint));
+				}
+				prevcp = codepoint;
+			}
+		}
+
+		@Override
+		public void separator(int index, int codepoint) {
+			if (!parseError) {
+				if (readingPredicate) {
+					predicateHandler.separator(index, codepoint);
+				}
+				prevcp = 32;
+			}
+		}
+
+		@Override
+		public void control(int index, int codepoint) {
+			super.control(index, codepoint);
+			if (escapedTokenIndex != -1 && CSSParser.bufferEndsWithEscapedCharOrWS(buffer)) {
+				escapedTokenIndex = -1;
+				buffer.append(' '); // break the escape
+			}
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			if (opParenDepth[opDepthIndex] != 0) {
+				handleError(len, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
+			} else if (!parseError) {
+				predicateHandler.endOfStream(len);
+			}
+		}
+
+		@Override
+		protected void handleError(int index, byte errCode, String message) {
+			if (!parseError) {
+				if (this.errorCode == 0) {
+					this.errorCode = errCode;
+					this.errorException = createException(index, errCode, message);
+				}
+				parseError = true;
+			}
+		}
+
+		private class SupportsDelegateHandler implements DelegateHandler {
+
+			/**
+			 * Are we reading a value instead of processing a property name ?
+			 */
+			private boolean readingValue = false;
+
+			/**
+			 * Number of unclosed left parentheses while reading a value.
+			 */
+			private short valueParendepth = 0;
+
+			SupportsDelegateHandler() {
+				super();
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				if (buffer.length() != 0) {
+					if (!readingValue) {
+						unexpectedTokenError(index, word);
+						return;
+					} else if (prevcp == 32 || prevcp == 13) {
+						buffer.append(' ');
+					}
+				}
+				buffer.append(word);
+			}
+
+			@Override
+			public void openGroup(int index, int codepoint) {
+				if (readingValue) {
+					bufferAppend(codepoint);
+				} else if (codepoint != 40) {
+					unexpectedCharError(index, codepoint);
+				} else if (buffer.length() != 0) {
+					unexpectedCharError(index, codepoint);
+				} else {
+					prevcp = codepoint;
+				}
+			}
+
+			@Override
+			public void closeGroup(int index, int codepoint) {
+				if (codepoint == 41) {
+					if (readingValue) {
+						if (valueParendepth == getCurrentParenDepth()) {
+							String svalue = buffer.toString();
+							ValueFactory factory = new ValueFactory();
+							try {
+								AbstractCSSValue value = factory.parseProperty(svalue);
+								((DeclarationCondition) currentCond).setValue(value);
+							} catch (DOMException e) {
+								handleError(index, ParseHelper.ERR_WRONG_VALUE, "Bad @supports condition value.");
+								errorException.initCause(e);
+								((DeclarationCondition) currentCond).setValue(svalue);
+							}
+							buffer.setLength(0);
+							readingValue = false;
+							readingPredicate = false;
+							escapedTokenIndex = -1;
+						} else {
+							bufferAppend(codepoint);
+							return;
+						}
+					} else {
+						unexpectedCharError(index, codepoint);
+					}
+				} else if (readingValue) {
+					bufferAppend(codepoint);
+				} else {
+					unexpectedCharError(index, codepoint);
+				}
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				// ! 33
+				// : 58
+				// ; 59
 				if (!readingValue) {
 					if (codepoint == 58) {
-						SupportsCondition newCond = SupportsConditionFactory.createDeclarationCondition(buffer.toString());
+						BooleanCondition newCond = conditionFactory.createPredicate(buffer.toString());
 						if (currentCond != null) {
 							currentCond.addCondition(newCond);
 						}
@@ -533,13 +753,10 @@ public class CSSParser implements Parser2 {
 						bufferAppend(codepoint);
 					}
 				}
-				prevcp = codepoint;
 			}
-		}
 
-		@Override
-		public void quoted(int index, CharSequence quoted, int quoteCp) {
-			if (!parseError) {
+			@Override
+			public void quoted(int index, CharSequence quoted, int quoteCp) {
 				if (readingValue) {
 					if (buffer.length() != 0) {
 						buffer.append(' ');
@@ -551,64 +768,673 @@ public class CSSParser implements Parser2 {
 					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: '" + quoted + '\'');
 				}
 			}
-		}
 
-		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-			quoted(index, quoted, quoteCp);
-		}
-
-		@Override
-		public void escaped(int index, int codepoint) {
-			if (!parseError) {
+			@Override
+			public void escaped(int index, int codepoint) {
 				if (ParseHelper.isHexCodePoint(codepoint)) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				}
 				bufferAppend(codepoint);
-				prevcp = codepoint;
 			}
-		}
 
-		@Override
-		public void separator(int index, int cp) {
-			if (!parseError) {
+			@Override
+			public void separator(int index, int cp) {
 				if (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)) {
 					buffer.append(' ');
 					return;
 				}
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				if (readingPredicate) {
+					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of file");
+				} else if (buffer.length() != 0) {
+					handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
+				} else if (currentCond == null) {
+					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "No condition found");
+				}
+			}
+
+			@Override
+			public void preBooleanHandling(int index, ConditionType type) {
+			}
+
+			@Override
+			public void tokenControl(TokenControl control) {
+				// Not called
+			}
+
+			@Override
+			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+				// Not called
+			}
+
+			@Override
+			public void quotedNewlineChar(int index, int codePoint) {
+				// Not called
+			}
+
+			@Override
+			public void control(int index, int codePoint) {
+				// Not called
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+				// Not called
+			}
+
+			@Override
+			public void error(int index, byte errCode, CharSequence context) {
+				// Not called
+			}
+
+		}
+
+		class MediaQueryDelegateHandler implements DelegateHandler {
+
+			private MediaQueryHandler handler;
+			private byte stage = 0;
+			private boolean negativeQuery = false;
+			private boolean spaceFound = false;
+			private String mediaType = null;
+			private String featureName = null;
+			private String firstValue = null;
+			private byte rangeType = 0; // Type of range expression, 0 if none
+			private boolean functionToken = false;
+
+			private static final int WORD_UNQUOTED = 0;
+
+			private MediaQueryDelegateHandler(MediaQueryHandler handler) {
+				super();
+				this.handler = handler;
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				// @formatter:off
+				//
+				// Stages:
+				// not medium and ( feature : value )
+				//        0  | 1 |2|   3     |  4    |1
+				// not medium and ( value1  <= feature < value2 )
+				//        0  | 1 |2|   3     |5|  6     |7       |1
+				// 127 = error
+				//
+				// @formatter:on
+				if (stage == 127) {
+					return;
+				}
+				if (functionToken) {
+					if (buffer.length() != 0) {
+						buffer.append(' ');
+					}
+					buffer.append(word);
+				} else if (ParseHelper.equalsIgnoreCase(word, "not")) {
+					if (stage != 0) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'not' at the wrong parsing stage");
+					} else {
+						negativeQuery = true;
+					}
+				} else if (ParseHelper.equalsIgnoreCase(word, "only")) {
+					if (stage != 0) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'only' at the wrong parsing stage");
+					} else {
+						handler.onlyPrefix();
+					}
+				} else if (ParseHelper.equalsIgnoreCase(word, "or")) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'or'");
+				} else { // rest of cases are collected to buffer
+					if (!appendWord(index, word, WORD_UNQUOTED)) {
+						return;
+					}
+				}
+				prevcp = 65; // A
+			}
+
+			private boolean appendWord(int index, CharSequence word, int quote) {
+				if (buffer.length() != 0) {
+					if (escapedTokenIndex == -1) {
+						if (prevcp == 32 || prevcp == 13) {
+							if (stage == 1) {
+								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found white space between media");
+								return false;
+							}
+							spaceFound = true;
+							buffer.append(' ');
+						}
+					}
+				}
+				if (quote == WORD_UNQUOTED) {
+					buffer.append(word);
+				} else {
+					char c = (char) quote;
+					buffer.append(c).append(word).append(c);
+				}
+				if (!functionToken) {
+					if (stage == 0) {
+						stage = 1;
+					} else if (stage == 5) { // after "value [<][=]"
+						stage = 6;
+					}
+				}
+				return true;
+			}
+
+			@Override
+			public void preBooleanHandling(int index, ConditionType type) {
+				switch (type) {
+				case AND:
+					if (stage > 1) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'and' at the wrong parsing stage");
+						return;
+					}
+					if (buffer.length() != 0) {
+						processMediaType(index);
+					}
+				case OR:
+					stage = 2;
+					break;
+				default: // NOT
+				}
+			}
+
+			/**
+			 * Process a media type from buffer.
+			 * <p>
+			 * stage 0 or 1 is assumed, as well as a non-empty buffer.
+			 * 
+			 * @param index the index.
+			 */
+			private void processMediaType(int index) {
+				if (mediaType == null && getCurrentParenDepth() == 0) {
+					mediaType = rawBuffer();
+					if (currentCond != null && isEmptyNotCondition()) {
+						currentCond = null;
+						negativeQuery = true;
+						handler.negativeQuery();
+					}
+					handler.mediaType(mediaType);
+				}
+			}
+
+			/**
+			 * Checks whether the current condition is a stand-alone, empty <code>NOT</code>
+			 * condition. Assumes currentCond != null
+			 * 
+			 * @return <code>true</code> if the current condition is a stand-alone, empty
+			 *         <code>NOT</code> condition.
+			 */
+			private boolean isEmptyNotCondition() {
+				return currentCond.getType() == ConditionType.NOT
+						&& currentCond.getParentCondition() == null && currentCond.getNestedCondition() == null;
+			}
+
+			@Override
+			public void openGroup(int index, int codepoint) {
+				if (codepoint == 40) { // '('
+					if (prevcp != 32 && prevcp != 13) {
+						// Function token
+						functionToken = true;
+						buffer.append('(');
+					} else if (functionToken) {
+						buffer.append('(');
+					} else if (buffer.length() != 0) {
+						unexpectedCharError(index, codepoint);
+					} else {
+						if (stage == 2 || stage == 0) {
+							stage = 3;
+						}
+					}
+					parendepth++;
+				} else {
+					unexpectedCharError(index, codepoint);
+				}
+				prevcp = codepoint;
+			}
+
+			@Override
+			public void closeGroup(int index, int codepoint) {
+				if (codepoint == 41) { // ')'
+					parendepth--;
+					if (functionToken) {
+						buffer.append(')');
+						functionToken = false;
+					} else {
+						if (stage == 6) {
+							processBuffer(index);
+							// Need to determine whether we have "value <|>|= feature"
+							// or "feature <|>|= value"
+							if (firstValue != null && isKnownFeature(firstValue)) {
+								String tempstr = firstValue;
+								firstValue = featureName;
+								featureName = tempstr;
+							} else if (!isKnownFeature(featureName)) {
+								if (isValidFeatureSyntax(firstValue)) {
+									String tempstr = firstValue;
+									firstValue = featureName;
+									featureName = tempstr;
+								} else if (!isValidFeatureSyntax(featureName)) {
+									handleError(index, ParseHelper.ERR_RULE_SYNTAX, 
+											"Wrong feature expression near " + featureName + " " + firstValue + ")");
+									prevcp = codepoint;
+									return;
+								} else {
+									reverseRangetype();
+								}
+							} else {
+								reverseRangetype();
+							}
+							ExtendedCSSPrimitiveValue value1 = parseMediaFeature(firstValue);
+							if (value1 == null) {
+								handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
+							} else {
+								handlePredicate(featureName, rangeType, value1);
+							}
+						} else if (buffer.length() != 0) {
+							if (stage == 4) {
+								ExtendedCSSPrimitiveValue value = parseMediaFeature(buffer.toString());
+								if (value == null) {
+									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
+								} else {
+									handlePredicate(featureName, (byte) 0, value);
+								}
+							} else if (stage == 7) {
+								ExtendedCSSPrimitiveValue value1 = parseMediaFeature(firstValue);
+								ExtendedCSSPrimitiveValue value2 = parseMediaFeature(buffer.toString());
+								if (value1 == null) {
+									handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
+								} else if (value2 == null) {
+									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
+								} else {
+									handlePredicate(featureName, rangeType, value1, value2);
+								}
+							} else if (stage == 3 && !spaceFound) {
+								handlePredicate(buffer.toString(), (byte) 0, null);
+							} else {
+								handleError(index, ParseHelper.ERR_EXPR_SYNTAX, buffer.toString());
+							}
+							buffer.setLength(0);
+							spaceFound = false;
+							escapedTokenIndex = -1;
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+						if (stage == 5) {
+							unexpectedCharError(index, codepoint);
+						} else {
+							rangeType = 0;
+							stage = 1;
+						}
+						readingPredicate = false;
+					}
+				} else {
+					unexpectedCharError(index, codepoint);
+				}
+				prevcp = codepoint;
+			}
+
+			private void handlePredicate(String featureName, byte rangeType, ExtendedCSSPrimitiveValue value) {
+				MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory.createPredicate(featureName);
+				predicate.setRangeType(rangeType);
+				predicate.setValue(value);
+				if (currentCond == null) {
+					currentCond = predicate;
+				} else {
+					currentCond.addCondition(predicate);
+				}
+				clearPredicate();
+			}
+
+			private void handlePredicate(String featureName, byte rangeType, ExtendedCSSPrimitiveValue value1,
+					ExtendedCSSPrimitiveValue value2) {
+				MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory.createPredicate(featureName);
+				predicate.setRangeType(rangeType);
+				predicate.setValue(value1);
+				predicate.setRangeSecondValue(value2);
+				if (currentCond == null) {
+					currentCond = predicate;
+				} else {
+					currentCond.addCondition(predicate);
+				}
+				clearPredicate();
+			}
+
+			/**
+			 * Reverse the current range type.
+			 * <p>
+			 * Range type is a way to numerically characterize a range like 'a <= foo < b'
+			 */
+			private void reverseRangetype() {
+				if ((rangeType & 2) == 2) {
+					rangeType ^= 2;
+					rangeType = (byte) (rangeType | 4);
+				} else if ((rangeType & 4) == 4) {
+					rangeType ^= 4;
+					rangeType = (byte) (rangeType | 2);
+				}
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				// ! 33
+				// : 58
+				// ; 59
+				if (functionToken) {
+					if (prevcp == 32) {
+						buffer.append(' ');
+					}
+					bufferAppend(codepoint);
+				} else {
+					if (codepoint == 58) { // ':'
+						if (buffer.length() != 0) {
+							featureName = rawBuffer();
+							stage = 4;
+						} else {
+							handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty feature name");
+						}
+					} else if (codepoint == 44) { // ,
+						if (!parseError) {
+							if (parendepth != 0) {
+								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Unmatched parenthesis");
+								return;
+							} else if (stage == 0) {
+								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "No media found");
+							}
+							processBuffer(index);
+							endQuery(index);
+						} else if (parendepth == 0) {
+							handler.endQuery();
+							clearQuery();
+						}
+						handler.startQuery();
+					} else if (codepoint == 46) { // .
+						if (stage == 4 || stage == 3 || stage == 7 || functionToken) {
+							buffer.append('.');
+						} else {
+							unexpectedCharError(index, '.');
+						}
+					} else if (codepoint == 47) { // /
+						if (stage == 4 || stage == 3 || stage == 6 || stage == 7 || functionToken) {
+							buffer.append('/');
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 59) {
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, ";");
+					} else if (codepoint == 60) { // <
+						// rangeType:
+						// = 1, < 2, > 4,
+						// <= 3, >= 5
+						// a <= foo < b ; 19
+						// a >= foo > b ; 37
+						if (stage < 3 || (rangeType > 3 && ((rangeType & 16) != 0 || (rangeType & 4) != 0))) {
+							unexpectedCharError(index, codepoint);
+						} else {
+							if (stage != 6 && stage != 7) {
+								rangeType = (byte) (rangeType | 2);
+								stage = 5;
+							} else {
+								processBuffer(index);
+								rangeType = (byte) (rangeType | 16);
+								stage = 7;
+							}
+						}
+					} else if (codepoint == 61) { // =
+						if (stage < 3 || (rangeType > 5 && (rangeType & 8) != 0)) {
+							unexpectedCharError(index, codepoint);
+						} else {
+							if (stage != 6 && stage != 7) {
+								rangeType = (byte) (rangeType | 1);
+								stage = 5;
+							} else {
+								processBuffer(index);
+								rangeType = (byte) (rangeType | 8);
+								stage = 7;
+							}
+						}
+					} else if (codepoint == 62 || (rangeType >= 4 && ((rangeType & 32) != 0 || (rangeType & 2) != 0))) { // >
+						if (stage < 3) {
+							unexpectedCharError(index, codepoint);
+						} else {
+							if (stage != 6 && stage != 7) {
+								rangeType = (byte) (rangeType | 4);
+								stage = 5;
+							} else {
+								processBuffer(index);
+								rangeType = (byte) (rangeType | 32);
+								stage = 7;
+							}
+						}
+					} else {
+						unexpectedCharError(index, codepoint);
+					}
+					if (stage == 5 && firstValue == null && buffer.length() != 0) {
+						firstValue = rawBuffer();
+					}
+				}
+			}
+
+			private void processBuffer(int index) {
+				if (buffer.length() != 0) {
+					if (stage == 1) {
+						processMediaType(index);
+						if (mediaType == null) {
+							unexpectedTokenError(index, buffer.toString());
+							buffer.setLength(0);
+						}
+						readingPredicate = false;
+					} else if (stage == 6) {
+						featureName = rawBuffer();
+					}
+				}
+			}
+
+			private void endQuery(int index) {
+				if (currentCond != null) {
+					while (currentCond.getParentCondition() != null) {
+						currentCond = currentCond.getParentCondition();
+					}
+					handler.condition(currentCond);
+				} else if (negativeQuery && mediaType == null) {
+					handleError(index, ParseHelper.ERR_EXPR_SYNTAX, "Negative query without media.");
+				}
+				handler.endQuery();
+				clearQuery();
+			}
+
+			private void clearQuery() {
+				currentCond = null;
+				mediaType = null;
+				stage = 0;
 				prevcp = 32;
+				negativeQuery = false;
+				parseError = false;
+				clearPredicate();
 			}
+
+			private void clearPredicate() {
+				featureName = null;
+				firstValue = null;
+				rangeType = 0;
+				spaceFound = false;
+			}
+
+			String rawBuffer() {
+				spaceFound = false;
+				return ConditionTokenHandler.this.rawBuffer();
+			}
+
+			@Override
+			public void quoted(int index, CharSequence quoted, int quoteCp) {
+				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: '" + quoted + '\'');
+			}
+
+			@Override
+			public void escaped(int index, int codepoint) {
+				if (ParseHelper.isHexCodePoint(codepoint)) {
+					setEscapedTokenStart(index);
+					buffer.append('\\');
+				}
+				bufferAppend(codepoint);
+				if (stage == 5) {
+					stage = 6;
+				} else if (stage == 0) {
+					stage = 1;
+				}
+			}
+
+			@Override
+			public void separator(int index, int cp) {
+				if (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)) {
+					buffer.append(' ');
+					return;
+				}
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				if (stage == 1) {
+					processBuffer(len);
+				}
+				if (currentCond == null && mediaType == null) {
+					if (buffer.length() != 0) {
+						processMediaType(len);
+						if (mediaType == null) {
+							unexpectedTokenError(len, buffer.toString());
+							buffer.setLength(0);
+						}
+						handler.endQuery();
+						clearQuery();
+					} else {
+						handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "No valid query found");
+					}
+				} else if (readingPredicate || stage > 1) {
+					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of file");
+					handler.endQuery();
+				} else if (buffer.length() != 0) {
+					handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
+					handler.endQuery();
+				} else if (currentCond != null && isEmptyNotCondition()) {
+					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "No valid query found");
+					handler.endQuery();
+				} else {
+					endQuery(len);
+				}
+			}
+
+			@Override
+			public void tokenControl(TokenControl control) {
+				// Not called
+			}
+
+			@Override
+			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+				// Not called
+			}
+
+			@Override
+			public void quotedNewlineChar(int index, int codePoint) {
+				// Not called
+			}
+
+			@Override
+			public void control(int index, int codePoint) {
+				// Not called
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+				// Not called
+			}
+
+			@Override
+			public void error(int index, byte errCode, CharSequence context) {
+				// Not called
+			}
+
+		}
+
+	}
+
+	private class MediaQueryTokenHandler extends ConditionTokenHandler {
+
+		private boolean errorNotified = false;
+
+		MediaQueryTokenHandler(MediaQueryHandler mqhandler) {
+			super(false, mqhandler);
 		}
 
 		@Override
-		public void commented(int index, int commentType, String comment) {
+		void processImplicitAnd(int index) {
+			MediaQueryDelegateHandler mqhelper = (MediaQueryDelegateHandler) predicateHandler;
+			String medium = mqhelper.mediaType;
+			if (medium == null) {
+				if (buffer.length() != 0) {
+					mqhelper.processMediaType(index);
+				} else {
+					unexpectedTokenError(index, "and");
+					return;
+				}
+			}
+			currentCond = ((MediaConditionFactory) conditionFactory).createMediaTypePredicate(medium);
+			processOperation(index, BooleanCondition.ConditionType.AND, "and");
 		}
 
 		@Override
-		public void endOfStream(int len) {
-			if (opParenDepth[opDepthIndex] != 0) {
-				handleError(len, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
-			} else if (buffer.length() != 0) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
-			} else if (readingValue) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of file");
-			} else if (!parseError && currentCond == null) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "No condition found");
+		BooleanCondition createOperation(BooleanCondition.ConditionType opType) {
+			if (opType == BooleanCondition.ConditionType.AND) {
+				return conditionFactory.createAndCondition();
 			}
+			if (((MediaQueryDelegateHandler) predicateHandler).mediaType == null) {
+				return conditionFactory.createOrCondition();
+			}
+			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected 'OR'");
 		}
 
 		@Override
 		protected void handleError(int index, byte errCode, String message) {
-			if (!parseError) {
-				if (this.errorCode == 0) {
-					this.errorCode = errCode;
-					this.errorException = createException(index, errCode, message);
-				}
-				parseError = true;
+			super.handleError(index, errCode, message);
+			if (!errorNotified) {
+				errorNotified = true;
+				MediaQueryDelegateHandler mqhelper = (MediaQueryDelegateHandler) predicateHandler;
+				mqhelper.handler.invalidQuery(errorException);
 			}
 		}
 
+	}
+
+	private static ExtendedCSSPrimitiveValue parseMediaFeature(String stringValue) {
+		ExtendedCSSPrimitiveValue value;
+		try {
+			value = new ValueFactory().parseMediaFeature(stringValue);
+		} catch (RuntimeException e) {
+			value = null;
+		}
+		return value;
+	}
+
+	/**
+	 * Determine whether this looks like a media feature (rather than a value).
+	 * 
+	 * @param string the presumed feature name,
+	 * @return <code>true</code> if the string looks like a media feature.
+	 */
+	private static boolean isKnownFeature(String string) {
+		return string.startsWith("min-") || string.startsWith("max-") || MediaQueryFactory.isMediaFeature(string)
+				|| string.startsWith("device-");
+	}
+
+	private static boolean isValidFeatureSyntax(String string) {
+		for (int i = 0; i < string.length(); i++) {
+			char c = string.charAt(i);
+			if (!Character.isLetter(c) && c != '-') {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

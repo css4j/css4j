@@ -21,8 +21,8 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSSupportsRule;
+import io.sf.carte.doc.style.css.DeclarationCondition;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.SupportsCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -36,7 +36,7 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 
-	private SupportsCondition condition = null;
+	private BooleanCondition condition = null;
 
 	public SupportsRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, SUPPORTS_RULE, origin);
@@ -83,12 +83,38 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	}
 
 	@Override
-	public SupportsCondition getCondition() {
+	public BooleanCondition getCondition() {
 		return condition;
 	}
 
 	@Override
 	public boolean supports(CSSCanvas canvas) {
+		return supports(condition, canvas);
+	}
+
+	private boolean supports(BooleanCondition condition, CSSCanvas canvas) {
+		switch (condition.getType()) {
+		case PREDICATE:
+			DeclarationCondition declCond = (DeclarationCondition) condition;
+			return declCond.isParsable() && canvas.supports(declCond.getName(), declCond.getValue());
+		case AND:
+			Iterator<BooleanCondition> it = ((BooleanCondition.GroupCondition) condition).getSubConditions().iterator();
+			while (it.hasNext()) {
+				if (!supports(it.next(), canvas)) {
+					return false;
+				}
+			}
+			return true;
+		case NOT:
+			return supports(((BooleanCondition.NotCondition) condition).getNestedCondition(), canvas);
+		case OR:
+			it = ((BooleanCondition.GroupCondition) condition).getSubConditions().iterator();
+			while (it.hasNext()) {
+				if (supports(it.next(), canvas)) {
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
@@ -109,13 +135,11 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	public String getMinifiedCssText() {
 		if (condition != null || !getCssRules().isEmpty()) {
 			StringBuilder sb = new StringBuilder(30 + getCssRules().getLength() * 20);
-			String cond = condition != null ? condition.getMinifiedText() : "";
 			sb.append("@supports");
-			if (cond.length() != 0 && cond.charAt(0) != '(') {
-				sb.append(' ');
+			if (condition != null) {
+				condition.appendMinifiedText(sb);
 			}
-			sb.append(cond);
-			sb.append("{");
+			sb.append('{');
 			Iterator<AbstractCSSRule> it = getCssRules().iterator();
 			while (it.hasNext()) {
 				sb.append(it.next().getMinifiedCssText());

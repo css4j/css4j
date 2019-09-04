@@ -113,21 +113,12 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param title
 	 *            the advisory title.
 	 * @param media
-	 *            the target media for style.
+	 *            the target media for the style sheet.
 	 * @return the style sheet.
 	 */
 	@Override
-	public AbstractCSSStyleSheet createStyleSheet(String title, String media) throws DOMException {
-		MediaQueryList mediaList;
-		if (media == null || media.equals("all")) {
-			mediaList = MediaList.createMediaList();
-		} else {
-			mediaList = MediaQueryFactory.createMediaList(media);
-			if (mediaList.isNotAllMedia() && mediaList.hasErrors()) {
-				 throw new DOMException(DOMException.SYNTAX_ERR, "Could not parse media query: " + media);
-			}
-		}
-		return createLinkedStyleSheet(null, title, mediaList);
+	public AbstractCSSStyleSheet createStyleSheet(String title, MediaQueryList media) {
+		return createLinkedStyleSheet(null, title, media);
 	}
 
 	/**

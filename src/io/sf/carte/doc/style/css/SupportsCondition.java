@@ -11,10 +11,6 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.DOMException;
-
-import io.sf.carte.doc.agent.CSSCanvas;
-
 /**
  * CSS supports rule conditions.
  * 
@@ -73,33 +69,5 @@ public interface SupportsCondition {
 	 * @return the minified serialization of this condition.
 	 */
 	public String getMinifiedText();
-
-	/**
-	 * Check whether the given canvas supports this condition.
-	 * 
-	 * @param canvas
-	 *            the canvas.
-	 * @return <code>true</code> if the canvas supports this condition.
-	 */
-	public boolean supports(CSSCanvas canvas);
-
-	/**
-	 * A condition that declares a feature name and a value.
-	 *
-	 * @param <T>
-	 *            the value type.
-	 */
-	public interface DeclarationCondition<T extends ExtendedCSSValue> extends SupportsCondition {
-		/**
-		 * Set the condition feature value.
-		 * 
-		 * @param value
-		 *            the value.
-		 * @throws DOMException
-		 *             if the value is incompatible with the feature being tested with the
-		 *             condition.
-		 */
-		public void setValue(T value) throws DOMException;
-	}
 
 }

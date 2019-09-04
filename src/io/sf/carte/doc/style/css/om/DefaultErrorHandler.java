@@ -17,12 +17,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSMediaException;
 
 abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 
 	private LinkedHashMap<Node, String> linkedStyleErrors = null;
 	private LinkedHashMap<Node, String> linkedStyleWarnings = null;
-	private LinkedHashMap<Node, String> mediaErrors = null;
+	private LinkedHashMap<Node, CSSMediaException> mediaErrors = null;
 	private LinkedHashMap<Exception, String> inlineStyleErrors = null;
 	private LinkedHashMap<Exception, CSSStyleSheet> linkedSheetErrors = null;
 
@@ -54,11 +55,11 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void mediaQueryError(Node node, String media) {
+	public void mediaQueryError(Node node, CSSMediaException exception) {
 		if (mediaErrors == null) {
-			mediaErrors = new LinkedHashMap<Node, String>();
+			mediaErrors = new LinkedHashMap<Node, CSSMediaException>();
 		}
-		mediaErrors.put(node, media);
+		mediaErrors.put(node, exception);
 	}
 
 	@Override
@@ -95,7 +96,7 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 		return linkedStyleWarnings;
 	}
 
-	public LinkedHashMap<Node, String> getMediaErrors() {
+	public LinkedHashMap<Node, CSSMediaException> getMediaErrors() {
 		return mediaErrors;
 	}
 

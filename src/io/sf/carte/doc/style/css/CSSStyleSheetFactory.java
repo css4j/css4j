@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.agent.DeviceFactory;
@@ -41,10 +40,8 @@ public interface CSSStyleSheetFactory {
 	 * @param media
 	 *            the target media for style.
 	 * @return the style sheet.
-	 * @throws DOMException
-	 *             if the media string could not be parsed.
 	 */
-	public ExtendedCSSStyleSheet<? extends ExtendedCSSRule> createStyleSheet(String title, String media) throws DOMException;
+	public ExtendedCSSStyleSheet<? extends ExtendedCSSRule> createStyleSheet(String title, MediaQueryList media);
 
 	/**
 	 * Create a style declaration for an anonymous inline box, associated to a text/cdata

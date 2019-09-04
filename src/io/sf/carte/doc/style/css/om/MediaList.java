@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 
@@ -312,6 +313,11 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	@Override
 	public boolean hasErrors() {
 		return false;
+	}
+
+	@Override
+	public List<CSSParseException> getExceptions() {
+		return null;
 	}
 
 	/**

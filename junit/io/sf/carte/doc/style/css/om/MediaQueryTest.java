@@ -25,231 +25,349 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMedia() {
-		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only screen and (color)");
+		MediaQueryList mql;
+		mql = MediaQueryFactory.createMediaQueryList("not screen", null);
+		assertFalse(mql.hasErrors());
+		assertEquals("not screen", mql.getMedia());
+		assertEquals("not screen", mql.getMinifiedMedia());
+		//
+		mql = MediaQueryFactory.createMediaQueryList("only screen and (color)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("only screen and (color)", mql.getMedia());
+		assertEquals("only screen and (color)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("only screen");
+		mql = MediaQueryFactory.createMediaQueryList("only screen", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("only screen", mql.getMedia());
+		assertEquals("only screen", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen, print");
+		mql = MediaQueryFactory.createMediaQueryList("screen, print", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("screen,print", mql.getMedia());
+		assertEquals("screen,print", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaList("screen, print");
+		mql = MediaQueryFactory.createMediaList("screen, print", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("screen,print", mql.getMedia());
+		assertEquals("screen,print", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (min-color: 4)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (min-color: 4)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (min-color: 4)", mql.getMedia());
+		assertEquals("all and (min-color:4)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (min-color: calc(2*2))");
+		mql = MediaQueryFactory.createMediaQueryList("all and (min-color: calc(2*2))", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (min-color: calc(2*2))", mql.getMedia());
+		assertEquals("all and (min-color:calc(2*2))", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (color-index)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (color-index)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (color-index)", mql.getMedia());
+		assertEquals("all and (color-index)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (max-width:47.9375em)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (max-width:47.9375em)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (max-width: 47.9375em)", mql.getMedia());
-		assertEquals("all and(max-width:47.9375em)", mql.getMinifiedMedia());
+		assertEquals("all and (max-width:47.9375em)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("tv and (min-width: 700px) and (orientation: landscape)");
+		mql = MediaQueryFactory.createMediaQueryList("tv and (min-width: 700px) and (orientation: landscape)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("tv and (min-width: 700px) and (orientation: landscape)", mql.getMedia());
+		assertEquals("tv and (min-width:700px) and (orientation:landscape)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("(min-width: 700px) and (orientation: landscape)");
+		mql = MediaQueryFactory.createMediaQueryList("(min-width: 700px) and (orientation: landscape)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("(min-width: 700px) and (orientation: landscape)", mql.getMedia());
+		assertEquals("(min-width:700px) and (orientation:landscape)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("only screen and (color: rgb(255, 4, 165))");
+		mql = MediaQueryFactory.createMediaQueryList("only screen and (color: rgb(255, 4, 165))", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("only screen and (color: #ff04a5)", mql.getMedia());
-		assertEquals("only screen and(color:#ff04a5)", mql.getMinifiedMedia());
+		assertEquals("only screen and (color:#ff04a5)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList(
-				"only screen and (min-width:690px) and (max-width:780px)");
+		mql = MediaQueryFactory.createMediaQueryList("only screen and (min-width:690px) and (max-width:780px)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("only screen and (min-width: 690px) and (max-width: 780px)", mql.getMedia());
-		assertEquals("only screen and(min-width:690px) and(max-width:780px)", mql.getMinifiedMedia());
+		assertEquals("only screen and (min-width:690px) and (max-width:780px)", mql.getMinifiedMedia());
 	}
 
 	@Test
 	public void testGetMediaNL() {
-		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only\nscreen");
+		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only\nscreen", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("only screen", mql.getMedia());
 	}
 
 	@Test
 	public void testGetMediaEscaped() {
-		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only \\9 screen and (color)");
+		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only \\9 screen and (color)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("only \\9 screen and (color)", mql.getMedia());
-		mql = MediaQueryFactory.createMediaQueryList("only \\9 screen and (color)");
+		mql = MediaQueryFactory.createMediaQueryList("only \\9 screen and (color)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("only \\9 screen and (color)", mql.getMedia());
-		mql = MediaQueryFactory.createMediaQueryList("(min-width: 700px) and (orientation: \\9 foo)");
+		mql = MediaQueryFactory.createMediaQueryList("(min-width: 700px) and (orientation: \\9 foo)", null);
 		assertEquals("(min-width: 700px) and (orientation: \\9 foo)", mql.getMedia());
 		assertFalse(mql.hasErrors());
 	}
 
 	@Test
 	public void testGetMediaEscapedBad() {
-		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only \\9screen and (color)");
+		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only \\9screen and (color)", null);
 		assertEquals("only \\9screen and (color)", mql.getMedia());
 		assertFalse(mql.hasErrors());
 	}
 
 	@Test
 	public void testGetMediaRatio() {
-		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("(max-aspect-ratio:160/100) and (min-width:300px)");
+		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("(max-aspect-ratio:160/100) and (min-width:300px)",
+				null);
 		assertFalse(mql.hasErrors());
 		assertEquals("(max-aspect-ratio: 160/100) and (min-width: 300px)", mql.getMedia());
+		assertEquals("(max-aspect-ratio:160/100) and (min-width:300px)", mql.getMinifiedMedia());
 		mql.item(0);
 	}
 
 	@Test
 	public void testGetMediaLevel4() {
-		MediaQueryList mql = MediaQueryFactory.createMediaList("all and (2 <= color < 5)");
+		MediaQueryList mql = MediaQueryFactory.createMediaList("all and (2 <= color < 5)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (2 <= color < 5)", mql.getMedia());
+		assertEquals("all and (2<=color<5)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 < color <= 5)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (2 < color <= 5)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (2 < color <= 5)", mql.getMedia());
+		assertEquals("all and (2<color<=5)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 < color < 5)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (2 < color < 5)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (2 < color < 5)", mql.getMedia());
+		assertEquals("all and (2<color<5)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 <= color <= 5)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (2 <= color <= 5)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (2 <= color <= 5)", mql.getMedia());
+		assertEquals("all and (2<=color<=5)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (5 > color > 2)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (5 > color > 2)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (5 > color > 2)", mql.getMedia());
+		assertEquals("all and (5>color>2)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (5 >= color > 2)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (5 >= color > 2)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (5 >= color > 2)", mql.getMedia());
+		assertEquals("all and (5>=color>2)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (5 > color >= 2)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (5 > color >= 2)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (5 > color >= 2)", mql.getMedia());
+		assertEquals("all and (5>color>=2)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (5 >= color >= 2)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (5 >= color >= 2)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (5 >= color >= 2)", mql.getMedia());
+		assertEquals("all and (5>=color>=2)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (calc(4/2) < color < calc(4 + 1))");
+		mql = MediaQueryFactory.createMediaQueryList("all and (calc(4/2) < color < calc(4 + 1))", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (calc(4/2) < color < calc(4 + 1))", mql.getMedia());
+		assertEquals("all and (calc(4/2)<color<calc(4 + 1))", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (4/3 < aspect-ratio < 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (4/3 < aspect-ratio < 16/9)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (4/3 < aspect-ratio < 16/9)", mql.getMedia());
+		assertEquals("all and (4/3<aspect-ratio<16/9)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (4/3 <= aspect-ratio < 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (4/3 <= aspect-ratio < 16/9)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (4/3 <= aspect-ratio < 16/9)", mql.getMedia());
+		assertEquals("all and (4/3<=aspect-ratio<16/9)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (4/3 < aspect-ratio <= 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (4/3 < aspect-ratio <= 16/9)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (4/3 < aspect-ratio <= 16/9)", mql.getMedia());
+		assertEquals("all and (4/3<aspect-ratio<=16/9)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (4/3 <= aspect-ratio <= 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (4/3 <= aspect-ratio <= 16/9)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (4/3 <= aspect-ratio <= 16/9)", mql.getMedia());
+		assertEquals("all and (4/3<=aspect-ratio<=16/9)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))");
+		mql = MediaQueryFactory
+				.createMediaQueryList("all and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))", mql.getMedia());
+		assertEquals("all and (calc(2*2)/calc(9/3)<aspect-ratio<calc(4*4)/calc(3*3))", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (calc(6 - 2)/calc(5 - 2) < aspect-ratio < calc(20 - 4)/calc(10 - 1))");
+		mql = MediaQueryFactory.createMediaQueryList(
+				"all and (calc(6 - 2)/calc(5 - 2) < aspect-ratio < calc(20 - 4)/calc(10 - 1))", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (calc(6 - 2)/calc(5 - 2) < aspect-ratio < calc(20 - 4)/calc(10 - 1))", mql.getMedia());
+		assertEquals("all and (calc(6 - 2)/calc(5 - 2)<aspect-ratio<calc(20 - 4)/calc(10 - 1))",
+				mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (color >= 2)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (color >= 2)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (color >= 2)", mql.getMedia());
+		assertEquals("all and (color>=2)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 <= color)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (2 <= color)", null);
 		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
 		assertEquals("all and (color >= 2)", mql.getMedia());
+		assertEquals("all and (color>=2)", mql.getMinifiedMedia());
+	}
+
+	@Test
+	public void testGetMediaLevel4_2() {
+		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("all and (color >= 2) and (resolution >= 96dpi)",
+				null);
+		assertNotNull(mql);
+		assertFalse(mql.hasErrors());
+		assertEquals("all and (color >= 2) and (resolution >= 96dpi)", mql.getMedia());
+		assertEquals("all and (color>=2) and (resolution>=96dpi)", mql.getMinifiedMedia());
 		// Backwards-compatible serialization
-		mql = MediaQueryFactory.createMediaQueryList("(resolution = 300dpi) and (orientation: landscape)");
+		mql = MediaQueryFactory.createMediaQueryList("(resolution = 300dpi) and (orientation: landscape)", null);
 		assertFalse(mql.hasErrors());
 		assertEquals("(resolution: 300dpi) and (orientation: landscape)", mql.getMedia());
+		assertEquals("(resolution:300dpi) and (orientation:landscape)", mql.getMinifiedMedia());
 	}
 
 	@Test
 	public void testGetCssMediaInvalid() {
-		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only screen and (color");
+		MediaQueryList mql;
+		mql = createMediaQueryList("only screen and (color");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and (min-color 4)");
+		mql = createMediaQueryList("all and (min-color 4)");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and {min-color: 4}");
+		mql = createMediaQueryList("all and {min-color: 4}");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("not all and");
+		mql = createMediaQueryList("not all and");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and ()");
+		mql = createMediaQueryList("all and ()");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("tv and (orientation:)");
+		mql = createMediaQueryList("tv and (orientation:)");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("tv and only (orientation: landscape)");
+		mql = createMediaQueryList("tv and only (orientation: landscape)");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("(min-width: 700px) and");
+		mql = createMediaQueryList("(min-width: 700px) and");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("foo bar");
+		mql = createMediaQueryList("not");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 <= min-color <)");
+		mql = createMediaQueryList("screen only");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 > min-color < 5)");
+		mql = createMediaQueryList("foo bar");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 >= min-color < 5)");
+		mql = createMediaQueryList("and only");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 > min-color <= 5)");
+		mql = createMediaQueryList("and screen");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 >= min-color =< 5)");
+		mql = createMediaQueryList("or screen");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 <= 4)");
+		mql = createMediaQueryList("all and only");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("only screen and (color: rgb(255, 165))");
+		mql = createMediaQueryList("all and (min-color: 4) and only");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("only screen and (color: #xxxz)");
+		mql = createMediaQueryList("all and (min-color: 4) and not");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = MediaQueryFactory.createMediaQueryList("all and (min-color 4), tv");
+		mql = createMediaQueryList("all and (min-color: 4) and (not)");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("all and (2 <= min-color <)");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("all and (2 > min-color < 5)");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("all and (2 >= min-color < 5)");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("all and (2 > min-color <= 5)");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("all and (2 >= min-color =< 5)");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("all and (2 <= 4)");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("only screen and (color: rgb(255, 165))");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("only screen and (color: #xxxz)");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+	}
+
+	@Test
+	public void testGetCssMediaInvalid2() {
+		MediaQueryList mql;
+		mql = createMediaQueryList("all and (min-color 4), tv");
+		assertFalse(mql.isNotAllMedia());
+		assertTrue(mql.hasErrors());
 		assertEquals("tv", mql.getMedia());
+	}
+
+	@Test
+	public void testGetCssMediaInvalid3() {
+		MediaQueryList mql;
 		// Example 18 of spec
-		mql = MediaQueryFactory.createMediaQueryList("(example, all,), speech");
+		mql = createMediaQueryList("(example, all,), speech");
+		assertFalse(mql.isNotAllMedia());
+		assertTrue(mql.hasErrors());
 		assertEquals("speech", mql.getMedia());
-		mql = MediaQueryFactory.createMediaQueryList("&test, speech");
+	}
+
+	@Test
+	public void testGetCssMediaInvalid4() {
+		MediaQueryList mql;
+		mql = createMediaQueryList("&test, speech");
+		assertFalse(mql.isNotAllMedia());
+		assertTrue(mql.hasErrors());
 		assertEquals("speech", mql.getMedia());
-		mql = MediaQueryFactory.createMediaQueryList("(example, speech");
+		mql = createMediaQueryList("(example, speech");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+	}
+
+	@Test
+	public void testGetCssMediaInvalid5() {
+		MediaQueryList mql;
 		// Example 20 of spec
-		mql = MediaQueryFactory.createMediaQueryList("or and (color)");
+		mql = createMediaQueryList("or and (color)");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
 	}
 
 	@Test
 	public void testEquals() {
-		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only screen and (color)");
-		MediaQueryList mql2 = MediaQueryFactory.createMediaQueryList("only screen and (color)");
+		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("only screen and (color)", null);
+		MediaQueryList mql2 = MediaQueryFactory.createMediaQueryList("only screen and (color)", null);
 		assertTrue(mql.equals(mql2));
 		assertTrue(mql.hashCode() == mql2.hashCode());
-		mql = MediaQueryFactory.createMediaQueryList("all and (2 <= min-color < 5)");
-		mql2 = MediaQueryFactory.createMediaQueryList("all and (2 <= min-color < 5)");
+		mql = MediaQueryFactory.createMediaQueryList("all and (2 <= min-color < 5)", null);
+		mql2 = MediaQueryFactory.createMediaQueryList("all and (2 <= min-color < 5)", null);
 		assertTrue(mql.equals(mql2));
 		assertTrue(mql.hashCode() == mql2.hashCode());
-		mql2 = MediaQueryFactory.createMediaQueryList("all and (2 <= min-color < 4)");
+		mql2 = MediaQueryFactory.createMediaQueryList("all and (2 <= min-color < 4)", null);
 		assertFalse(mql.equals(mql2));
+	}
+
+	@Test
+	public void testMatchesPlainMedia() {
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		CSSCanvas canvas = factory.getDeviceFactory().createCanvas("screen", null);
+		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("not screen", null);
+		assertFalse(mql.hasErrors());
+		assertFalse(mql.matches("screen", canvas));
 	}
 
 	@Test
@@ -259,603 +377,670 @@ public class MediaQueryTest {
 		/*
 		 * Grid
 		 */
-		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("screen and (grid: 1)");
+		MediaQueryList mql = MediaQueryFactory.createMediaQueryList("screen and (grid: 1)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (grid)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (grid)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (grid:0)");
+		assertEquals("screen and (grid)", mql.getMedia());
+		assertEquals("screen and (grid)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (grid:0)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * Scan
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (scan: interlace)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (scan: interlace)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (scan)");
+		assertEquals("screen and (scan: interlace)", mql.getMedia());
+		assertEquals("screen and (scan:interlace)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (scan)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (scan: progressive)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (scan: progressive)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * Update
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (update: slow)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (update: slow)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (update)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (update)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (update: fast)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (update: fast)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
+		mql = MediaQueryFactory.createMediaQueryList("screen and (not (update: fast))", null);
+		assertFalse(mql.hasErrors());
+		assertFalse(mql.matches("screen", canvas));
+		assertEquals("screen and (not (update: fast))", mql.getMedia());
+		assertEquals("screen and (not (update:fast))", mql.getMinifiedMedia());
 		/*
 		 * Overflow-block
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-block: none)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-block: none)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-block)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-block)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-block: scroll)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-block: scroll)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * Overflow-inline
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-inline: none)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-inline: none)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-inline)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-inline)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-inline: scroll)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (overflow-inline: scroll)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * Pointer
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (pointer: coarse)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (pointer: coarse)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (pointer)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (pointer)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (pointer: fine)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (pointer: fine)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * Color-gamut
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (color-gamut: rec2020)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (color-gamut: rec2020)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (color-gamut)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (color-gamut)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (color-gamut: srgb)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (color-gamut: srgb)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * Color
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (color: 0)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (color: 0)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (color)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (color)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-color: 8)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-color: 8)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (color >= 8)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (color >= 8)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
+		assertEquals("screen and (color >= 8)", mql.getMedia());
+		assertEquals("screen and (color>=8)", mql.getMinifiedMedia());
 		/*
 		 * Monochrome
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (monochrome: 1)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (monochrome: 1)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (monochrome)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (monochrome)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (monochrome: 0)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (monochrome: 0)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * Orientation
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (orientation: portrait)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (orientation: portrait)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (orientation)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (orientation)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (orientation: landscape)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (orientation: landscape)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * Resolution
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-resolution: 200dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-resolution: 200dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-resolution: 72dpi)");
+		assertEquals("screen and (min-resolution: 200dpi)", mql.getMedia());
+		assertEquals("screen and (min-resolution:200dpi)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-resolution: 72dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-resolution: 300dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-resolution: 300dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-resolution: 72dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-resolution: 72dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// Wrong feature names and <=, >=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-resolution <= 200dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-resolution <= 200dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-resolution >= 72dpi)");
+		assertEquals("screen and (min-resolution <= 200dpi)", mql.getMedia());
+		assertEquals("screen and (min-resolution<=200dpi)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-resolution >= 72dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-resolution <= 300dpi)");
+		assertEquals("screen and (min-resolution >= 72dpi)", mql.getMedia());
+		assertEquals("screen and (min-resolution>=72dpi)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-resolution <= 300dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-resolution <= 72dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-resolution <= 72dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution > 200dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution > 200dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution > 72dpi)");
+		assertEquals("screen and (resolution > 200dpi)", mql.getMedia());
+		assertEquals("screen and (resolution>200dpi)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution > 72dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		// >=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution >= 200dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution >= 200dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution >= 96dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution >= 96dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution >= 72dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution >= 72dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		// <
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution < 300dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution < 300dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution < 72dpi)");
+		assertEquals("screen and (resolution < 300dpi)", mql.getMedia());
+		assertEquals("screen and (resolution<300dpi)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution < 72dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// <=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution <= 300dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution <= 300dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution <= 96dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution <= 96dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution <= 72dpi)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (resolution <= 72dpi)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		/*
 		 * width
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-width: 2000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-width: 2000px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-width: 600px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-width: 600px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-width: 2000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-width: 2000px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-width: 250px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-width: 250px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-device-width: 2000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-device-width: 2000px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-device-width: 600px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-device-width: 600px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-device-width: 2000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-device-width: 2000px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-device-width: 250px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-device-width: 250px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width >= 2000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width >= 2000px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width >= 1024px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width >= 1024px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width >= 600px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width >= 600px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		// <=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width <= 2000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width <= 2000px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width <= 1024px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width <= 1024px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width <= 250px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width <= 250px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 2000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 2000px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 600px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 600px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		// <
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width < 2000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width < 2000px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width < 250px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width < 250px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// =
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width = 1024px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width = 1024px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width = 250px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width = 250px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// > calc
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width > calc(200 * 1em))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width > calc(200 * 1em))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width > calc(60 * 1em))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width > calc(60 * 1em))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
+		// OR
+		mql = MediaQueryFactory.createMediaQueryList("(min-width: 1500px) or (height < 1000px)", null);
+		assertFalse(mql.hasErrors());
+		assertTrue(mql.matches("screen", canvas));
+		assertEquals("(min-width: 1500px) or (height < 1000px)", mql.getMedia());
+		assertEquals("(min-width:1500px) or (height<1000px)", mql.getMinifiedMedia());
+		// OR NOT
+		mql = MediaQueryFactory.createMediaQueryList("(min-width: 1500px) or (not (height < 1000px))", null);
+		assertFalse(mql.hasErrors());
+		assertFalse(mql.matches("screen", canvas));
+		assertEquals("(min-width: 1500px) or (not (height < 1000px))", mql.getMedia());
+		assertEquals("(min-width:1500px) or (not (height<1000px))", mql.getMinifiedMedia());
+		// OR NOT (II)
+		mql = MediaQueryFactory.createMediaQueryList("(min-width: 1500px) or (not (height > 1000px))", null);
+		assertFalse(mql.hasErrors());
+		assertTrue(mql.matches("screen", canvas));
+		assertEquals("(min-width: 1500px) or (not (height > 1000px))", mql.getMedia());
+		assertEquals("(min-width:1500px) or (not (height>1000px))", mql.getMinifiedMedia());
 		// > relative unit
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 60em)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 60em)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 100em)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 100em)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
+		mql = MediaQueryFactory.createMediaQueryList("screen and (width > 100ex)", null);
+		assertFalse(mql.hasErrors());
+		assertTrue(mql.matches("screen", canvas));
 		/*
 		 * height
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-height: 1000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-height: 1000px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-height: 600px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-height: 600px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-height: 1000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-height: 1000px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-height: 500px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-height: 500px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-device-height: 1000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-device-height: 1000px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-device-height: 600px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-device-height: 600px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-device-height: 1000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-device-height: 1000px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-device-height: 500px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-device-height: 500px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height >= 1000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height >= 1000px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height >= 768px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height >= 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height >= 600px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height >= 600px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		// <=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height <= 1000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height <= 1000px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height <= 768px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height <= 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height <= 500px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height <= 500px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height > 1000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height > 1000px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height > 600px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height > 600px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		// <
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height < 1000px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height < 1000px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height < 500px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height < 500px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// =
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height = 768px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height = 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (height = 500px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (height = 500px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >, <=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (720px < height <= 1080px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (720px < height <= 1080px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (768px < height <= 1080px)");
+		assertEquals("screen and (720px < height <= 1080px)", mql.getMedia());
+		assertEquals("screen and (720px<height<=1080px)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (768px < height <= 1080px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (720px < height <= 768px)");
+		assertEquals("screen and (768px < height <= 1080px)", mql.getMedia());
+		assertEquals("screen and (768px<height<=1080px)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (720px < height <= 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (360px < height <= 720px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (360px < height <= 720px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >=, <=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (720px <= height <= 1080px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (720px <= height <= 1080px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (768px <= height <= 1080px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (768px <= height <= 1080px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (720px <= height <= 768px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (720px <= height <= 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (360px <= height <= 720px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (360px <= height <= 720px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >=, <
-		mql = MediaQueryFactory.createMediaQueryList("screen and (720px <= height < 1080px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (720px <= height < 1080px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (768px <= height < 1080px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (768px <= height < 1080px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (360px <= height < 768px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (360px <= height < 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px <= height < 1480px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px <= height < 1480px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// >, <
-		mql = MediaQueryFactory.createMediaQueryList("screen and (720px < height < 1080px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (720px < height < 1080px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (768px < height < 1080px)");
+		assertEquals("screen and (720px < height < 1080px)", mql.getMedia());
+		assertEquals("screen and (720px<height<1080px)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (768px < height < 1080px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (360px < height < 768px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (360px < height < 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// <, >
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px > height > 720px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px > height > 720px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px > height > 768px)");
+		assertEquals("screen and (1080px > height > 720px)", mql.getMedia());
+		assertEquals("screen and (1080px>height>720px)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px > height > 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (768px > height > 360px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (768px > height > 360px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// <=, >
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height > 720px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height > 720px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height > 768px)");
+		assertEquals("screen and (1080px >= height > 720px)", mql.getMedia());
+		assertEquals("screen and (1080px>=height>720px)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height > 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (768px >= height > 360px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (768px >= height > 360px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (720px >= height > 360px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (720px >= height > 360px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// <, >=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px > height >= 720px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px > height >= 720px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px > height >= 768px)");
+		assertEquals("screen and (1080px > height >= 720px)", mql.getMedia());
+		assertEquals("screen and (1080px>height>=720px)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px > height >= 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (768px > height >= 360px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (768px > height >= 360px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		// <=, >=
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height >= 800px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height >= 800px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height >= 720px)");
+		assertEquals("screen and (1080px >= height >= 800px)", mql.getMedia());
+		assertEquals("screen and (1080px>=height>=800px)", mql.getMinifiedMedia());
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height >= 720px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height >= 768px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (1080px >= height >= 768px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (768px >= height >= 360px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (768px >= height >= 360px)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (720px >= height >= 360px)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (720px >= height >= 360px)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		/*
 		 * aspect-ratio
 		 */
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-aspect-ratio: 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-aspect-ratio: 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (min-aspect-ratio: 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (min-aspect-ratio: 4/3)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
-		mql = MediaQueryFactory.createMediaQueryList("screen and (max-aspect-ratio: 1024/768)");
-		assertFalse(mql.hasErrors());
-		assertTrue(mql.matches("screen", canvas));
-		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio: 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (max-aspect-ratio: 1024/768)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio: 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio: 4/3)", null);
 		assertFalse(mql.hasErrors());
-		assertFalse(mql.matches("screen", canvas));
+		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio: calc(2*8)/calc(3*3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio: 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio: calc(2*2)/calc(9/3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio: calc(2*8)/calc(3*3))", null);
+		assertFalse(mql.hasErrors());
+		assertFalse(mql.matches("screen", canvas));
+		assertEquals("screen and (aspect-ratio: calc(2*8)/calc(3*3))", mql.getMedia());
+		assertEquals("screen and (aspect-ratio:calc(2*8)/calc(3*3))", mql.getMinifiedMedia());
+		//
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio: calc(2*2)/calc(9/3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio = 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio = 4/3)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio = 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio = 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio < 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio < 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
+		assertEquals("screen and (aspect-ratio < 16/9)", mql.getMedia());
+		assertEquals("screen and (aspect-ratio<16/9)", mql.getMinifiedMedia());
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio > 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio > 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio < 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio < 4/3)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio > 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio > 4/3)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio <= 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio <= 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio >= 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio >= 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio <= 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio <= 4/3)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio >= 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio >= 4/3)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio = calc(2*8)/calc(3*3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio = calc(2*8)/calc(3*3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio = calc(2*2)/calc(9/3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio = calc(2*2)/calc(9/3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio < calc(2*8)/calc(3*3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio < calc(2*8)/calc(3*3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio < calc(2*2)/calc(9/3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio < calc(2*2)/calc(9/3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio > calc(2*8)/calc(3*3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio > calc(2*8)/calc(3*3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio > calc(2*2)/calc(9/3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio > calc(2*2)/calc(9/3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio <= calc(2*8)/calc(3*3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio <= calc(2*8)/calc(3*3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio <= calc(2*2)/calc(9/3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio <= calc(2*2)/calc(9/3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio >= calc(2*8)/calc(3*3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio >= calc(2*8)/calc(3*3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio >= calc(2*2)/calc(9/3))");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (aspect-ratio >= calc(2*2)/calc(9/3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 < aspect-ratio < 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 < aspect-ratio < 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 < aspect-ratio <= 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 < aspect-ratio <= 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 <= aspect-ratio <= 16/9)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 <= aspect-ratio <= 16/9)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (7/6 <= aspect-ratio <= 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (7/6 <= aspect-ratio <= 4/3)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (7/6 < aspect-ratio < 4/3)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (7/6 < aspect-ratio < 4/3)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 >= aspect-ratio >= 7/6)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 >= aspect-ratio >= 7/6)", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 > aspect-ratio >= 7/6)");
+		mql = MediaQueryFactory.createMediaQueryList("screen and (4/3 > aspect-ratio >= 7/6)", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		/*
 		 * aspect-ratio + Calc + level 4 syntax
 		 */
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))");
+		mql = MediaQueryFactory
+				.createMediaQueryList("screen and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (calc(2*2)/calc(9/3) < aspect-ratio <= calc(4*4)/calc(3*3))");
+		mql = MediaQueryFactory
+				.createMediaQueryList("screen and (calc(2*2)/calc(9/3) < aspect-ratio <= calc(4*4)/calc(3*3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (calc(2*2)/calc(9/3) <= aspect-ratio <= calc(4*4)/calc(3*3))");
+		mql = MediaQueryFactory
+				.createMediaQueryList("screen and (calc(2*2)/calc(9/3) <= aspect-ratio <= calc(4*4)/calc(3*3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (calc(8 - 1)/calc(2*3) <= aspect-ratio <= calc(2*2)/calc(9/3))");
+		mql = MediaQueryFactory.createMediaQueryList(
+				"screen and (calc(8 - 1)/calc(2*3) <= aspect-ratio <= calc(2*2)/calc(9/3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (calc(8 - 1)/calc(2*3) < aspect-ratio < calc(2*2)/calc(9/3))");
+		mql = MediaQueryFactory
+				.createMediaQueryList("screen and (calc(8 - 1)/calc(2*3) < aspect-ratio < calc(2*2)/calc(9/3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (calc(2*2)/calc(9/3) >= aspect-ratio >= calc(8 - 1)/calc(2*3))");
+		mql = MediaQueryFactory.createMediaQueryList(
+				"screen and (calc(2*2)/calc(9/3) >= aspect-ratio >= calc(8 - 1)/calc(2*3))", null);
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = MediaQueryFactory.createMediaQueryList("screen and (calc(2*2)/calc(9/3) > aspect-ratio >= calc(8 - 1)/calc(2*3))");
+		mql = MediaQueryFactory
+				.createMediaQueryList("screen and (calc(2*2)/calc(9/3) > aspect-ratio >= calc(8 - 1)/calc(2*3))", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 	}
@@ -877,4 +1062,9 @@ public class MediaQueryTest {
 		assertFalse(MediaQueryFactory.isPlainMediaList("not screen"));
 		assertFalse(MediaQueryFactory.isPlainMediaList("screen and (color)"));
 	}
+
+	private MediaQueryList createMediaQueryList(String media) {
+		return MediaQueryFactory.createMediaQueryList(media, null);
+	}
+
 }

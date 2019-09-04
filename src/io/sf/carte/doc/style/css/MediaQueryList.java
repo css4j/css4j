@@ -10,6 +10,9 @@
 
 package io.sf.carte.doc.style.css;
 
+import java.util.List;
+
+import org.w3c.css.sac.CSSParseException;
 import org.w3c.dom.stylesheets.MediaList;
 
 import io.sf.carte.doc.agent.CSSCanvas;
@@ -66,6 +69,14 @@ public interface MediaQueryList extends MediaList {
 	 *         parsed, <code>false</code> otherwise.
 	 */
 	boolean hasErrors();
+
+	/**
+	 * Get the exceptions found while parsing the query, if any.
+	 * 
+	 * @return the exceptions found while parsing the query, or <code>null</code> if
+	 *         no errors were found while parsing the media query.
+	 */
+	List<CSSParseException> getExceptions();
 
 	/**
 	 * Appends a listener to the list of media query list listeners, unless it is already in

@@ -92,7 +92,7 @@ public class MediaRuleTest {
 				"@media only screen and (min-width: 37.002em) {\n    nav.foo {\n        display: none;\n    }\n    footer .footer .foo {\n        padding-left: 0;\n        padding-right: 0;\n    }\n    h4 {\n        font-size: 20px;\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@media only screen and(min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
+				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -107,7 +107,7 @@ public class MediaRuleTest {
 		assertEquals("screen and (-webkit-min-device-pixel-ratio: 0)", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals(
-				"@media screen and(-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}",
+				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -178,7 +178,7 @@ public class MediaRuleTest {
 				"@media only screen and (min-width: 37.002em) {\n    nav.foo {\n        display: none;\n    }\n    footer .footer .foo {\n        padding-left: 0;\n        padding-right: 0;\n    }\n    h4 {\n        font-size: 20px;\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@media only screen and(min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
+				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
 	}
 

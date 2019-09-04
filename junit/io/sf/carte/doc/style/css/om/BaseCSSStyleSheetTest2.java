@@ -126,7 +126,7 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals(2, style.getLength());
 		assertTrue(css.getErrorHandler().hasSacErrors());
 		assertTrue(css.hasRuleErrorsOrWarnings());
-		assertEquals("@media screen and(min-width:768px){.foo{margin-left:0;margin-right:auto}}",
+		assertEquals("@media screen and (min-width:768px){.foo{margin-left:0;margin-right:auto}}",
 				css.toMinifiedString());
 	}
 

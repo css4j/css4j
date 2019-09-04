@@ -14,9 +14,7 @@ package io.sf.carte.doc.style.css.parser;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.SupportsCondition;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 
 /**
  * CSS supports rule conditions implementation.
@@ -47,11 +45,16 @@ abstract class SupportsConditionImpl implements SupportsCondition {
 	@Override
 	abstract public void addCondition(SupportsCondition nestedCondition);
 
+	/**
+	 * Replace the last condition added.
+	 * 
+	 * @param newCondition
+	 *            the condition that replaces the last condition.
+	 * 
+	 * @return the replaced condition.
+	 */
 	@Override
 	abstract public SupportsCondition replaceLast(SupportsCondition newCondition);
-
-	@Override
-	abstract public boolean supports(CSSCanvas canvas);
 
 	static class NotCondition extends SupportsConditionImpl {
 		SupportsCondition nestedCondition;
@@ -71,11 +74,6 @@ abstract class SupportsConditionImpl implements SupportsCondition {
 			SupportsCondition last = this.nestedCondition;
 			addCondition(newCondition);
 			return last;
-		}
-
-		@Override
-		public boolean supports(CSSCanvas canvas) {
-			return !nestedCondition.supports(canvas);
 		}
 
 		@Override
@@ -168,17 +166,6 @@ abstract class SupportsConditionImpl implements SupportsCondition {
 			last.setParentCondition(null);
 			addCondition(newCondition);
 			return last;
-		}
-
-		@Override
-		public boolean supports(CSSCanvas canvas) {
-			Iterator<SupportsCondition> it = nestedConditions.iterator();
-			while (it.hasNext()) {
-				if (!it.next().supports(canvas)) {
-					return false;
-				}
-			}
-			return true;
 		}
 
 		@Override
@@ -284,17 +271,6 @@ abstract class SupportsConditionImpl implements SupportsCondition {
 		}
 
 		@Override
-		public boolean supports(CSSCanvas canvas) {
-			Iterator<SupportsCondition> it = nestedConditions.iterator();
-			while (it.hasNext()) {
-				if (it.next().supports(canvas)) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		@Override
 		public ConditionType getType() {
 			return ConditionType.OR_CONDITION;
 		}
@@ -370,97 +346,6 @@ abstract class SupportsConditionImpl implements SupportsCondition {
 			if (hasparent) {
 				buf.append(')');
 			}
-			return buf.toString();
-		}
-	}
-
-	static class MyDeclarationCondition extends SupportsConditionImpl
-			implements SupportsCondition.DeclarationCondition<AbstractCSSValue> {
-		final String propertyName;
-		AbstractCSSValue value = null;
-
-		public MyDeclarationCondition(String propertyName) {
-			super();
-			this.propertyName = propertyName;
-		}
-
-		@Override
-		public void addCondition(SupportsCondition nestedCondition) {
-		}
-
-		@Override
-		public SupportsConditionImpl replaceLast(SupportsCondition newCondition) {
-			return this;
-		}
-
-		@Override
-		public void setValue(AbstractCSSValue value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean supports(CSSCanvas canvas) {
-			return canvas.supports(propertyName, value);
-		}
-
-		@Override
-		public ConditionType getType() {
-			return ConditionType.DECLARATION_CONDITION;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + propertyName.hashCode();
-			result = prime * result + ((value == null) ? 0 : value.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			MyDeclarationCondition other = (MyDeclarationCondition) obj;
-			if (!propertyName.equals(other.propertyName)) {
-				return false;
-			}
-			if (value == null) {
-				if (other.value != null) {
-					return false;
-				}
-			} else if (!value.equals(other.value)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String getMinifiedText() {
-			StringBuilder buf = new StringBuilder();
-			buf.append('(').append(propertyName).append(':');
-			if (value != null) {
-				buf.append(value.getMinifiedCssText(propertyName));
-			}
-			buf.append(')');
-			return buf.toString();
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			buf.append('(').append(propertyName).append(": ");
-			if (value != null) {
-				buf.append(value.getCssText());
-			}
-			buf.append(')');
 			return buf.toString();
 		}
 	}

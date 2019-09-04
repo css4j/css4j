@@ -80,7 +80,7 @@ public interface ErrorHandler {
 	 */
 	void linkedStyleWarning(Node node, String message);
 
-	void mediaQueryError(Node ownerNode, String media);
+	void mediaQueryError(Node ownerNode, CSSMediaException exception);
 
 	void linkedSheetError(Exception e, CSSStyleSheet sheet);
 

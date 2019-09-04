@@ -15,6 +15,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 
 class StandAloneErrorHandler extends AbstractErrorHandler {
@@ -47,9 +48,9 @@ class StandAloneErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void mediaQueryError(Node node, String media) {
+	public void mediaQueryError(Node node, CSSMediaException exception) {
 		errors = true;
-		throw new IllegalStateException("Media query error: " + media);
+		throw new IllegalStateException("Media query error.", exception);
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
 /**
@@ -57,8 +58,8 @@ abstract public class LogErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void mediaQueryError(Node node, String media) {
-		log.error("Error parsing media text: " + media);
+	public void mediaQueryError(Node node, CSSMediaException exception) {
+		log.error("Error parsing media text.", exception);
 		errors = true;
 	}
 

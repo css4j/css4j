@@ -94,7 +94,7 @@ import io.sf.carte.doc.style.css.parser.RuleParserTest;
 import io.sf.carte.doc.style.css.parser.SelectorParserNSTest;
 import io.sf.carte.doc.style.css.parser.SelectorParserTest;
 import io.sf.carte.doc.style.css.parser.SheetParserTest;
-import io.sf.carte.doc.style.css.parser.SupportsConditionImplTest;
+import io.sf.carte.doc.style.css.parser.SupportsConditionTest;
 import io.sf.carte.doc.style.css.property.AbstractCSSValueTest;
 import io.sf.carte.doc.style.css.property.AttrValueTest;
 import io.sf.carte.doc.style.css.property.CalcValueTest;
@@ -212,7 +212,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		SelectorParserTest.class,
 		SelectorParserNSTest.class,
 		SheetParserTest.class,
-		SupportsConditionImplTest.class,
+		SupportsConditionTest.class,
  		AbstractCSSValueTest.class,
  		AttrValueTest.class,
 		CalcValueTest.class,

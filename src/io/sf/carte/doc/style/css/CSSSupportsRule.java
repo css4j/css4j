@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css;
 
 import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.om.BooleanCondition;
 
 /**
  * Represents a ‘{@literal @}supports’ rule.
@@ -23,7 +24,7 @@ public interface CSSSupportsRule extends CSSConditionRule {
 	 * 
 	 * @return the object model representation of the condition associated to this rule.
 	 */
-	SupportsCondition getCondition();
+	BooleanCondition getCondition();
 
 	/**
 	 * Does the given canvas support the condition associated to this rule ?

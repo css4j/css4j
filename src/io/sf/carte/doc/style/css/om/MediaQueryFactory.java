@@ -17,14 +17,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
+import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.CSSCanvas;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
@@ -52,15 +54,17 @@ public class MediaQueryFactory {
 	 * 
 	 * @param mediaQueryString
 	 *            the media query string.
+	 * @param owner
+	 *            the node that would handle errors, if any.
 	 * @return a new media list for <code>mediaQueryString</code>, or
 	 *         <code>null</code> if the media query list could not be parsed for the
 	 *         given canvas.
 	 */
-	public static MediaQueryList createMediaList(String mediaQueryString) {
+	public static MediaQueryList createMediaList(String mediaQueryString, Node owner) {
 		if (isPlainMediaList(mediaQueryString)) {
 			return MediaList.createMediaList(mediaQueryString);
 		}
-		return createMediaQueryList(mediaQueryString);
+		return createMediaQueryList(mediaQueryString, owner);
 	}
 
 	/**
@@ -69,16 +73,18 @@ public class MediaQueryFactory {
 	 * @param media
 	 *            the comma-separated list of media. If <code>null</code>, the
 	 *            media list will be for all media.
+	 * @param owner
+	 *            the node that would handle errors, if any.
 	 * @return the unmodifiable media list.
 	 */
-	public static MediaQueryList createUnmodifiable(String media) {
+	public static MediaQueryList createUnmodifiable(String media, Node owner) {
 		if (media == null) {
 			return MediaList.createUnmodifiable();
 		}
 		if (isPlainMediaList(media)) {
 			return MediaList.createUnmodifiable(media);
 		}
-		return ((MediaListAccess) createMediaQueryList(media)).unmodifiable();
+		return ((MediaListAccess) createMediaQueryList(media, owner)).unmodifiable();
 	}
 
 	/**
@@ -86,11 +92,13 @@ public class MediaQueryFactory {
 	 * 
 	 * @param mediaQueryString
 	 *            the media query string.
+	 * @param owner
+	 *            the node that would handle errors, if any.
 	 * @return a new media query list for <code>mediaQueryString</code>.
 	 */
-	public static MediaQueryList createMediaQueryList(String mediaQueryString) {
+	public static MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) {
 		MyMediaQueryList qlist = new MyMediaQueryList();
-		qlist.parse(mediaQueryString);
+		qlist.parse(mediaQueryString, owner);
 		return qlist;
 	}
 
@@ -115,7 +123,7 @@ public class MediaQueryFactory {
 		} else {
 			MyMediaQueryList qlist = new MyMediaQueryList();
 			for (int i = 0; i < sz; i++) {
-				qlist.parse(media.item(i));
+				qlist.parse(media.item(i), null);
 			}
 			return qlist;
 		}
@@ -135,13 +143,15 @@ public class MediaQueryFactory {
 		return mediaFeatureSet.contains(string);
 	}
 
-	public static boolean isRangeFeature(String string) {
+	static boolean isRangeFeature(String string) {
 		return rangeFeatureSet.contains(string);
 	}
 
 	static class MyMediaQueryList implements MediaQueryList, MediaListAccess {
 
-		LinkedList<MediaQuery> queryList = new LinkedList<MediaQuery>();
+		private LinkedList<MediaQuery> queryList = new LinkedList<MediaQuery>();
+
+		private LinkedList<CSSParseException> queryErrorList = null;
 
 		boolean invalidQueryList = false;
 
@@ -191,7 +201,7 @@ public class MediaQueryFactory {
 		@Override
 		public void setMediaText(String mediaText) throws DOMException {
 			queryList.clear();
-			if (!parse(mediaText)) {
+			if (!parse(mediaText, null)) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Bad media query: " + mediaText);
 			}
 		}
@@ -229,7 +239,7 @@ public class MediaQueryFactory {
 
 		@Override
 		public void appendMedium(String newMedium) throws DOMException {
-			if (!parse(newMedium)) {
+			if (!parse(newMedium, null)) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Bad media query: " + newMedium);
 			}
 		}
@@ -300,7 +310,7 @@ public class MediaQueryFactory {
 		public void appendSACMediaList(SACMediaList sacMedia) {
 			int sz = sacMedia.getLength();
 			for (int i = 0; i < sz; i++) {
-				parse(sacMedia.item(i));
+				parse(sacMedia.item(i), null);
 			}
 		}
 
@@ -337,7 +347,18 @@ public class MediaQueryFactory {
 		 */
 		@Override
 		public boolean hasErrors() {
-			return invalidQueryList;
+			return invalidQueryList || queryErrorList != null;
+		}
+
+		/**
+		 * Get the exceptions found while parsing the query, if any.
+		 * 
+		 * @return the exceptions found while parsing the query, or <code>null</code> if
+		 *         no errors were found while parsing the media query.
+		 */
+		@Override
+		public LinkedList<CSSParseException> getExceptions() {
+			return queryErrorList;
 		}
 
 		@Override
@@ -442,6 +463,11 @@ public class MediaQueryFactory {
 			}
 
 			@Override
+			public LinkedList<CSSParseException> getExceptions() {
+				return MyMediaQueryList.this.getExceptions();
+			}
+
+			@Override
 			public void addListener(MediaQueryListListener listener) {
 				MyMediaQueryList.this.addListener(listener);
 			}
@@ -471,21 +497,26 @@ public class MediaQueryFactory {
 
 		}
 
-		boolean parse(String mediaQueryString) {
+		boolean parse(String mediaQueryString, Node owner) {
 			invalidQueryList = false;
-			MediaQueryParser.parse(mediaQueryString, new MyMediaQueryHandler());
+			CSSParser parser = new CSSParser();
+			parser.parseMediaQuery(mediaQueryString, new MyMediaQueryHandler(), owner, null);
 			if (invalidQueryList && !queryList.isEmpty()) {
 				invalidQueryList = false;
 			}
 			return !invalidQueryList;
 		}
 
-		public class MyMediaQueryHandler implements MediaQueryHandler {
-			MediaQuery currentQuery;
-			boolean invalidQuery = false;
+		class MyMediaQueryHandler implements io.sf.carte.doc.style.css.parser.MediaQueryHandler {
+			private MediaQuery currentQuery;
+			private boolean invalidQuery = false;
 
 			MyMediaQueryHandler() {
 				super();
+			}
+
+			@Override
+			public void startQuery() {
 				currentQuery = new MediaQuery();
 			}
 
@@ -511,16 +542,8 @@ public class MediaQueryFactory {
 			}
 
 			@Override
-			public void featureValue(String featureName, ExtendedCSSPrimitiveValue value) {
-				featureName = ParseHelper.unescapeStringValue(featureName);
-				currentQuery.addFeature(featureName, (byte) 0, value, null);
-			}
-
-			@Override
-			public void featureRange(String featureName, byte rangeType, ExtendedCSSPrimitiveValue minvalue,
-					ExtendedCSSPrimitiveValue maxvalue) {
-				featureName = ParseHelper.unescapeStringValue(featureName);
-				currentQuery.addFeature(featureName, rangeType, minvalue, maxvalue);
+			public void condition(BooleanCondition condition) {
+				currentQuery.setFeaturePredicate(condition);
 			}
 
 			@Override
@@ -528,14 +551,18 @@ public class MediaQueryFactory {
 				if (!invalidQuery) {
 					queryList.add(currentQuery);
 				}
-				currentQuery = new MediaQuery();
+				currentQuery = null;
 				invalidQuery = false;
 			}
 
 			@Override
-			public void invalidQuery(String message) {
+			public void invalidQuery(CSSParseException queryError) {
 				invalidQuery = true;
 				invalidQueryList = true;
+				if (queryErrorList == null) {
+					queryErrorList = new LinkedList<CSSParseException>();
+				}
+				queryErrorList.add(queryError);
 			}
 
 		}

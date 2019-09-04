@@ -34,7 +34,6 @@ import org.w3c.dom.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.SupportsCondition;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.om.DefaultSheetErrorHandler.RuleParseError;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -54,7 +53,7 @@ public class SupportsRuleTest {
 	public void testParseSupportsConditionBad() throws DOMException {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		CSSParser parser = new CSSParser();
-		SupportsCondition cond = parser.parseSupportsCondition(" ", rule);
+		BooleanCondition cond = parser.parseSupportsCondition(" ", rule);
 		assertNull(cond);
 		LinkedList<RuleParseError> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler()).getRuleParseErrors();
 		assertNotNull(errors);
@@ -69,7 +68,7 @@ public class SupportsRuleTest {
 	public void testParseSupportsConditionBad2() throws DOMException {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		CSSParser parser = new CSSParser();
-		SupportsCondition cond = parser.parseSupportsCondition("(", rule);
+		BooleanCondition cond = parser.parseSupportsCondition("(", rule);
 		assertNull(cond);
 		LinkedList<RuleParseError> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler()).getRuleParseErrors();
 		assertNotNull(errors);
@@ -104,13 +103,13 @@ public class SupportsRuleTest {
 	@Test
 	public void testParseSupportsRule1Minified() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
-				"@supports(display:table-cell)and(display:list-item){td{display:table-cell}li{display:list-item}}"));
+				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}"));
 		sheet.parseCSSStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: table-cell) and (display: list-item)", rule.getConditionText());
-		assertEquals("@supports(display:table-cell)and(display:list-item){td{display:table-cell}li{display:list-item}}",
+		assertEquals("@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}",
 				rule.getMinifiedCssText());
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
@@ -243,7 +242,7 @@ public class SupportsRuleTest {
 				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    #fooid.fooclass .barclass {\n        -webkit-backdrop-filter: saturate(180%) blur(20px);\n        backdrop-filter: saturate(180%) blur(20px);\n        background-color: rgb(255 255 255 / 0.7);\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/.7)}}",
+				"@supports(-webkit-backdrop-filter:initial) or (backdrop-filter:initial){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/.7)}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -260,7 +259,7 @@ public class SupportsRuleTest {
 				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    .fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass {\n        background-color: rgb(11 11 11 / 0.7);\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@supports(-webkit-backdrop-filter:initial)or(backdrop-filter:initial){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/.7)}}",
+				"@supports(-webkit-backdrop-filter:initial) or (backdrop-filter:initial){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/.7)}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -290,7 +289,7 @@ public class SupportsRuleTest {
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(position: -webkit-sticky) or (position: sticky)", rule.getConditionText());
 		assertEquals(
-				"@supports(position:-webkit-sticky)or(position:sticky){html:not(.foo) body:not(.bar) .myclass{position:sticky;bottom:-.08em}html:not(.foo) body:not(.bar) .myclass.otherclass{top:-.06em}}",
+				"@supports(position:-webkit-sticky) or (position:sticky){html:not(.foo) body:not(.bar) .myclass{position:sticky;bottom:-.08em}html:not(.foo) body:not(.bar) .myclass.otherclass{top:-.06em}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -311,20 +310,20 @@ public class SupportsRuleTest {
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    @page {\n        margin-top: 20%;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@supports(display:table-cell)and(display:list-item){td{display:table-cell}@page{margin-top:20%}li{display:list-item}}",
+				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}@page{margin-top:20%}li{display:list-item}}",
 				rule.getMinifiedCssText());
 	}
 
 	@Test
 	public void testParseSupportsRuleOr() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
-				"@supports(display:table-cell)or(display:list-item){td{display:table-cell}li{display:list-item}}"));
+				"@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}"));
 		sheet.parseCSSStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: table-cell) or (display: list-item)", rule.getConditionText());
-		assertEquals("@supports(display:table-cell)or(display:list-item){td{display:table-cell}li{display:list-item}}",
+		assertEquals("@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}",
 				rule.getMinifiedCssText());
 		assertEquals(
 				"@supports (display: table-cell) or (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
@@ -334,14 +333,14 @@ public class SupportsRuleTest {
 	@Test
 	public void testParseSupportsRuleNot() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
-				"@supports not((display:table-cell)or(display:list-item)){td{display:table-cell}li{display:list-item}}"));
+				"@supports not((display:table-cell) or (display:list-item)){td{display:table-cell}li{display:list-item}}"));
 		sheet.parseCSSStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("not ((display: table-cell) or (display: list-item))", rule.getConditionText());
 		assertEquals(
-				"@supports not((display:table-cell)or(display:list-item)){td{display:table-cell}li{display:list-item}}",
+				"@supports not ((display:table-cell) or (display:list-item)){td{display:table-cell}li{display:list-item}}",
 				rule.getMinifiedCssText());
 		assertEquals(
 				"@supports not ((display: table-cell) or (display: list-item)) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
@@ -369,7 +368,7 @@ public class SupportsRuleTest {
 		assertTrue(rule == nested1.getParentRule());
 		assertEquals("(display: table-cell) and (display: list-item)", rule.getConditionText());
 		assertEquals(
-				"@supports(display:table-cell)and(display:list-item){td{display:table-cell;filter:alpha(opacity=0)}li{display:list-item}}",
+				"@supports(display:table-cell) and (display:list-item){td{display:table-cell;filter:alpha(opacity=0)}li{display:list-item}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -380,7 +379,7 @@ public class SupportsRuleTest {
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    @page {\n        margin-top: 20%;\n    }\n    li {\n        display: list-item;\n    }\n}\n");
 		assertEquals("(display: table-cell) and (display: list-item)", rule.getConditionText());
 		assertEquals(
-				"@supports(display:table-cell)and(display:list-item){td{display:table-cell}@page{margin-top:20%}li{display:list-item}}",
+				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}@page{margin-top:20%}li{display:list-item}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -393,7 +392,7 @@ public class SupportsRuleTest {
 				"(background: -webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff))) or (background: -webkit-linear-gradient(transparent, #fff)) or (background: -moz-linear-gradient(transparent, #fff)) or (background: -o-linear-gradient(transparent, #fff)) or (background: linear-gradient(transparent, #fff))",
 				rule.getConditionText());
 		assertEquals(
-				"@supports(background:-webkit-gradient(linear,left top,left bottom,from(transparent),to(#fff)))or(background:-webkit-linear-gradient(transparent,#fff))or(background:-moz-linear-gradient(transparent,#fff))or(background:-o-linear-gradient(transparent,#fff))or(background:linear-gradient(transparent,#fff)){.foo{padding:10px;}}",
+				"@supports(background:-webkit-gradient(linear,left top,left bottom,from(transparent),to(#fff))) or (background:-webkit-linear-gradient(transparent,#fff)) or (background:-moz-linear-gradient(transparent,#fff)) or (background:-o-linear-gradient(transparent,#fff)) or (background:linear-gradient(transparent,#fff)){.foo{padding:10px;}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -516,7 +515,7 @@ public class SupportsRuleTest {
 	public void testCloneAbstractCSSStyleSheet() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText(
-				"@supports(display:table-cell)and(display:list-item){td{display:table-cell}li{display:list-item}}");
+				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}");
 		SupportsRule clon = rule.clone(sheet);
 		assertEquals(rule.getOrigin(), clon.getOrigin());
 		assertEquals(rule.getType(), clon.getType());
