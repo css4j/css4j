@@ -29,12 +29,12 @@ class StandAloneErrorHandler extends AbstractErrorHandler {
 
 	@Override
 	public boolean hasErrors() {
-		return errors || hasComputedStyleErrors();
+		return errors || super.hasErrors();
 	}
 
 	@Override
 	public boolean hasWarnings() {
-		return warnings;
+		return warnings || super.hasWarnings();
 	}
 
 	@Override

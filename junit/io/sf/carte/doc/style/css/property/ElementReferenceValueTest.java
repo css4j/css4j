@@ -126,7 +126,7 @@ public class ElementReferenceValueTest {
 		assertTrue(value.equals(clon));
 	}
 
-	private BaseCSSStyleDeclaration createStyleDeclaration() {
+	private static BaseCSSStyleDeclaration createStyleDeclaration() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
 		CSSStyleDeclarationRule styleRule = sheet.createCSSStyleRule();

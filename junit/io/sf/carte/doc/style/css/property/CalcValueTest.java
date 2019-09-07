@@ -489,6 +489,22 @@ public class CalcValueTest {
 	}
 
 	@Test
+	public void testSetCssTextSubExpressionAttribute() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("counter-reset: calc(attr(start integer, 1) - 1);");
+		AbstractCSSValue val = style.getPropertyCSSValue("counter-reset");
+		assertNotNull(val);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
+		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(start integer, 1) - 1", calc.getExpression().toString());
+		assertEquals("calc(attr(start integer, 1) - 1)", val.getCssText());
+		assertEquals("calc(attr(start integer,1) - 1)", val.getMinifiedCssText("line-height"));
+	}
+
+	@Test
 	public void testSetCssTextSubExpressionNegative() {
 		StyleRule styleRule = new StyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();

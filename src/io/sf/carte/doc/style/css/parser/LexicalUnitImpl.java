@@ -157,7 +157,6 @@ class LexicalUnitImpl implements LexicalUnit2 {
 			case LexicalUnit.SAC_OPERATOR_GT:
 			case LexicalUnit.SAC_OPERATOR_LE:
 			case LexicalUnit.SAC_OPERATOR_LT:
-			case LexicalUnit.SAC_OPERATOR_MOD:
 			case LexicalUnit.SAC_OPERATOR_MULTIPLY:
 			case LexicalUnit.SAC_OPERATOR_SLASH:
 			case LexicalUnit.SAC_OPERATOR_TILDE:

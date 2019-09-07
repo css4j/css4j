@@ -34,6 +34,14 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
  */
 public class URIValue extends StringValue {
 
+	/**
+	 * A URI value with a flag specifying the quote behaviour.
+	 * <p>
+	 * 
+	 * @param flags See
+	 *              {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(byte)
+	 *              CSSStyleSheetFactory.setFactoryFlag(byte)}
+	 */
 	public URIValue(byte flags) {
 		super(flags);
 		setCSSUnitType(CSS_URI);

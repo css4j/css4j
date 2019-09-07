@@ -143,7 +143,7 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 		} else {
 			asInteger = false;
 		}
-		lengthUnitType = ValueFactory.isLengthUnitType(getPrimitiveType());
+		lengthUnitType = isLengthUnitType(getPrimitiveType());
 	}
 
 	public void setFloatValuePt(float floatValue) {
@@ -622,7 +622,46 @@ public class NumberValue extends AbstractCSSPrimitiveValue {
 		}
 	}
 
-	public static NumberValue createCSSNumberValue(float floatValue, short unit) {
+	public static boolean isLengthUnitType(short primitiveType) {
+		switch (primitiveType) {
+		case CSSPrimitiveValue.CSS_CM:
+		case CSSPrimitiveValue.CSS_EMS:
+		case CSSPrimitiveValue.CSS_EXS:
+		case CSSPrimitiveValue.CSS_IN:
+		case CSSPrimitiveValue.CSS_MM:
+		case CSSPrimitiveValue.CSS_PC:
+		case CSSPrimitiveValue.CSS_PX:
+		case CSSPrimitiveValue.CSS_PT:
+		case CSSPrimitiveValue2.CSS_CAP:
+		case CSSPrimitiveValue2.CSS_CH:
+		case CSSPrimitiveValue2.CSS_IC:
+		case CSSPrimitiveValue2.CSS_LH:
+		case CSSPrimitiveValue2.CSS_QUARTER_MM:
+		case CSSPrimitiveValue2.CSS_REM:
+		case CSSPrimitiveValue2.CSS_RLH:
+		case CSSPrimitiveValue2.CSS_VB:
+		case CSSPrimitiveValue2.CSS_VH:
+		case CSSPrimitiveValue2.CSS_VI:
+		case CSSPrimitiveValue2.CSS_VMAX:
+		case CSSPrimitiveValue2.CSS_VMIN:
+		case CSSPrimitiveValue2.CSS_VW:
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isAngleUnitType(short primitiveType) {
+		switch (primitiveType) {
+		case CSSPrimitiveValue.CSS_DEG:
+		case CSSPrimitiveValue.CSS_RAD:
+		case CSSPrimitiveValue.CSS_GRAD:
+		case CSSPrimitiveValue2.CSS_TURN:
+			return true;
+		}
+		return false;
+	}
+
+	public static NumberValue createCSSNumberValue(short unit, float floatValue) {
 		NumberValue num = new NumberValue();
 		num.setFloatValue(unit, floatValue);
 		return num;

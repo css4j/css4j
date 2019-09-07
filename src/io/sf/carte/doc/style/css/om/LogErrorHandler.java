@@ -37,12 +37,12 @@ abstract public class LogErrorHandler extends AbstractErrorHandler {
 
 	@Override
 	public boolean hasErrors() {
-		return errors || hasInlineErrors() || hasComputedStyleErrors();
+		return errors || super.hasErrors();
 	}
 
 	@Override
 	public boolean hasWarnings() {
-		return warnings || hasInlineWarnings();
+		return warnings || super.hasWarnings();
 	}
 
 	@Override

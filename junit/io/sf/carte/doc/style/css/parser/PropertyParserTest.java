@@ -1035,6 +1035,42 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueUnitHz() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("1.3Hz"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(1.3, lu.getFloatValue(), 0.01);
+		assertEquals(LexicalUnit.SAC_HERTZ, lu.getLexicalUnitType());
+		assertEquals("hz", lu.getDimensionUnitText());
+	}
+
+	@Test
+	public void testParsePropertyValueUnitKHz() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("1.3kHz"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(1.3, lu.getFloatValue(), 0.01);
+		assertEquals(LexicalUnit.SAC_KILOHERTZ, lu.getLexicalUnitType());
+		assertEquals("khz", lu.getDimensionUnitText());
+	}
+
+	@Test
+	public void testParsePropertyValueUnitSecond() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("1.3s"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(1.3, lu.getFloatValue(), 0.01);
+		assertEquals("s", lu.getDimensionUnitText());
+		assertEquals(LexicalUnit.SAC_SECOND, lu.getLexicalUnitType());
+	}
+
+	@Test
+	public void testParsePropertyValueUnitMillisecond() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("1.3ms"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(1.3, lu.getFloatValue(), 0.01);
+		assertEquals("ms", lu.getDimensionUnitText());
+		assertEquals(LexicalUnit.SAC_MILLISECOND, lu.getLexicalUnitType());
+	}
+
+	@Test
 	public void testParsePropertyValueUnitFlex() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("0.7fr"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
@@ -1466,6 +1502,28 @@ public class PropertyParserTest {
 		assertEquals(2, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(1em + (0.4vw + 0.25vh)/2)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueCalcAttr() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("calc(attr(start integer, 1) - 1)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_ATTR, param.getLexicalUnitType());
+		assertEquals("start integer, 1", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(attr(start integer, 1) - 1)", lu.toString());
 	}
 
 	@Test
@@ -3152,6 +3210,16 @@ public class PropertyParserTest {
 		assertEquals("attr", lu.getFunctionName());
 		assertEquals("data-count", lu.getStringValue());
 		assertEquals("attr(data-count)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueAttrPcnt() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("attr(data-count %)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		assertEquals("data-count %", lu.getStringValue());
+		assertEquals("attr(data-count %)", lu.toString());
 	}
 
 	@Test

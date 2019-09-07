@@ -32,6 +32,8 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 
 	private HashMap<CSSElement, List<DOMException>> hintErrors = null;
 
+	private HashMap<CSSElement, HashMap<String, CSSPropertyValueException>> computedStyleWarnings = null;
+
 	AbstractErrorHandler() {
 		super();
 	}
@@ -105,6 +107,11 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 	}
 
 	@Override
+	public boolean hasErrors() {
+		return hasInlineErrors() || hasComputedStyleErrors();
+	}
+
+	@Override
 	public boolean hasComputedStyleErrors() {
 		return (computedStyleErrors != null && !computedStyleErrors.isEmpty())
 				|| (hintErrors != null && !hintErrors.isEmpty());
@@ -125,12 +132,53 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 		return false;
 	}
 
+	@Override
+	public boolean hasWarnings() {
+		return hasInlineWarnings() || hasComputedStyleWarnings();
+	}
+
+	@Override
+	public boolean hasComputedStyleWarnings() {
+		return (computedStyleWarnings != null && !computedStyleWarnings.isEmpty());
+	}
+
+	@Override
+	public boolean hasComputedStyleWarnings(CSSElement element) {
+		if (computedStyleWarnings != null) {
+			if (computedStyleWarnings.containsKey(element)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void computedStyleWarning(CSSElement element, String propertyName, CSSPropertyValueException exception) {
+		HashMap<String, CSSPropertyValueException> map;
+		if (computedStyleWarnings == null) {
+			computedStyleWarnings = new HashMap<CSSElement, HashMap<String, CSSPropertyValueException>>();
+			map = new HashMap<String, CSSPropertyValueException>();
+			computedStyleWarnings.put(element, map);
+		} else {
+			map = computedStyleWarnings.get(element);
+			if (map == null) {
+				map = new HashMap<String, CSSPropertyValueException>();
+				computedStyleWarnings.put(element, map);
+			}
+		}
+		map.put(propertyName, exception);
+	}
+
 	public HashMap<String, CSSPropertyValueException> getComputedStyleErrors(CSSElement element) {
 		return computedStyleErrors.get(element);
 	}
 
 	public List<DOMException> getHintErrors(CSSElement element) {
 		return hintErrors.get(element);
+	}
+
+	public HashMap<String, CSSPropertyValueException> getComputedStyleWarnings(CSSElement element) {
+		return computedStyleWarnings.get(element);
 	}
 
 	@Override
@@ -141,12 +189,16 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 		if (hintErrors != null) {
 			hintErrors.remove(element);
 		}
+		if (computedStyleWarnings != null) {
+			computedStyleWarnings.remove(element);
+		}
 	}
 
 	@Override
 	public void resetComputedStyleErrors() {
 		computedStyleErrors = null;
 		hintErrors = null;
+		computedStyleWarnings = null;
 	}
 
 	@Override

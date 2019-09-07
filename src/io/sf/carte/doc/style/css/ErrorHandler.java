@@ -54,6 +54,22 @@ public interface ErrorHandler {
 	boolean hasErrors();
 
 	/**
+	 * Check whether this handler has processed computed style warnings.
+	 * 
+	 * @return <code>true</code> if this handler processed computed style warnings.
+	 */
+	boolean hasComputedStyleWarnings();
+
+	/**
+	 * Check whether this handler has processed computed style warnings for the given
+	 * element.
+	 * 
+	 * @param element the element.
+	 * @return <code>true</code> if this handler processed computed style warnings.
+	 */
+	boolean hasComputedStyleWarnings(CSSElement element);
+
+	/**
 	 * Check whether this handler has processed any warnings.
 	 * 
 	 * @return <code>true</code> if this handler processed any warnings.
@@ -112,6 +128,21 @@ public interface ErrorHandler {
 	void computedStyleError(CSSElement element, String propertyName, CSSPropertyValueException exception);
 
 	/**
+	 * Error found in computed style declaration.
+	 * <p>
+	 * This means that an error could only be found when processing the values for computing
+	 * the style.
+	 * 
+	 * @param element
+	 *            the element for which the style was computed.
+	 * @param propertyName
+	 *            the property name.
+	 * @param exception
+	 *            the exception describing the error.
+	 */
+	void computedStyleWarning(CSSElement ownerNode, String propertyName, CSSPropertyValueException exception);
+
+	/**
 	 * While computing a style, an error was found when processing the presentational hints of
 	 * an element.
 	 * 
@@ -140,4 +171,5 @@ public interface ErrorHandler {
 	 * false;
 	 */
 	void reset();
+
 }

@@ -670,6 +670,20 @@ public class ComputedCSSStyleTest {
 		assertEquals(CSSPrimitiveValue.CSS_RGBCOLOR, color.getPrimitiveType());
 		RGBAColor rgb = color.getRGBColorValue();
 		assertEquals("#00f", rgb.toString());
+		/*
+		 * attr() value, fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin,0.8em)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(9.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		/*
+		 * attr() value in calc(), fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:calc(attr(leftmargin,0.8em)*2)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(19.2f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 	}
 
 	@Test

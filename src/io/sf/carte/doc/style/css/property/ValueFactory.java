@@ -1115,8 +1115,36 @@ public class ValueFactory {
 	 *            the lexical unit.
 	 * @return the unit type according to <code>CSSPrimitiveValue</code>.
 	 */
-	protected static short domPrimitiveType(LexicalUnit lunit) {
-		int sacType = lunit.getLexicalUnitType();
+	static short domPrimitiveType(LexicalUnit lunit) {
+		short sacType = lunit.getLexicalUnitType();
+		short primiType;
+		if (sacType == LexicalUnit.SAC_FUNCTION) {
+			LexicalUnit lu = lunit.getParameters();
+			while (lu != null) {
+				if (isNumericSACUnit(lu)) {
+					return CSSPrimitiveValue.CSS_NUMBER;
+				}
+				lu = lu.getNextLexicalUnit();
+				if (lu != null) {
+					if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+						lu = lu.getNextLexicalUnit();
+					}
+				}
+			}
+			primiType = CSSPrimitiveValue.CSS_UNKNOWN;
+		} else {
+			primiType = domPrimitiveType(sacType);
+		}
+		return primiType;
+	}
+
+	/**
+	 * Translate a SAC lexical type into a CSS primitive unit type.
+	 * @param lunit 
+	 *            the lexical unit.
+	 * @return the unit type according to <code>CSSPrimitiveValue</code>.
+	 */
+	public static short domPrimitiveType(short sacType) {
 		short primiType;
 		switch (sacType) {
 		case LexicalUnit.SAC_ATTR:
@@ -1261,50 +1289,10 @@ public class ValueFactory {
 		case LexicalUnit.SAC_COUNTERS_FUNCTION:
 			primiType = CSSPrimitiveValue2.CSS_COUNTERS;
 			break;
-		case LexicalUnit.SAC_FUNCTION:
-			LexicalUnit lu = lunit.getParameters();
-			while (lu != null) {
-				if (isNumericSACUnit(lu)) {
-					return CSSPrimitiveValue.CSS_NUMBER;
-				}
-				lu = lu.getNextLexicalUnit();
-				if (lu != null) {
-					if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-						lu = lu.getNextLexicalUnit();
-					}
-				}
-			}
 		default:
 			primiType = CSSPrimitiveValue.CSS_UNKNOWN;
 		}
 		return primiType;
 	}
 
-	public static boolean isLengthUnitType(short primitiveType) {
-		switch (primitiveType) {
-		case CSSPrimitiveValue.CSS_CM:
-		case CSSPrimitiveValue.CSS_EMS:
-		case CSSPrimitiveValue.CSS_EXS:
-		case CSSPrimitiveValue.CSS_IN:
-		case CSSPrimitiveValue.CSS_MM:
-		case CSSPrimitiveValue.CSS_PC:
-		case CSSPrimitiveValue.CSS_PX:
-		case CSSPrimitiveValue.CSS_PT:
-		case CSSPrimitiveValue2.CSS_CAP:
-		case CSSPrimitiveValue2.CSS_CH:
-		case CSSPrimitiveValue2.CSS_IC:
-		case CSSPrimitiveValue2.CSS_LH:
-		case CSSPrimitiveValue2.CSS_QUARTER_MM:
-		case CSSPrimitiveValue2.CSS_REM:
-		case CSSPrimitiveValue2.CSS_RLH:
-		case CSSPrimitiveValue2.CSS_VB:
-		case CSSPrimitiveValue2.CSS_VH:
-		case CSSPrimitiveValue2.CSS_VI:
-		case CSSPrimitiveValue2.CSS_VMAX:
-		case CSSPrimitiveValue2.CSS_VMIN:
-		case CSSPrimitiveValue2.CSS_VW:
-			return true;
-		}
-		return false;
-	}
 }

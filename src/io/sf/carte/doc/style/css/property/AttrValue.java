@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.w3c.css.sac.LexicalUnit;
@@ -67,6 +68,55 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 		return fallback;
 	}
 
+	/**
+	 * Creates a default value for the given <code>attr()</code> value type.
+	 * 
+	 * @param valueType the value type. If <code>null</code>, a <code>string</code>
+	 *                  will be assumed.
+	 * 
+	 * @return the default value, or <code>null</code> if no suitable default was
+	 *         found.
+	 */
+	public static AbstractCSSPrimitiveValue defaultFallback(String valueType) {
+		// Defaults
+		AbstractCSSPrimitiveValue defaultFallback = null;
+		if (valueType == null || "string".equalsIgnoreCase(valueType)) {
+			defaultFallback = new StringValue();
+			defaultFallback.setStringValue(CSSPrimitiveValue.CSS_STRING, "");
+		} else if ("color".equalsIgnoreCase(valueType)) {
+			defaultFallback = new IdentifierValue("currentColor");
+		} else if ("integer".equalsIgnoreCase(valueType) || "number".equalsIgnoreCase(valueType)
+				|| "length".equalsIgnoreCase(valueType)) {
+			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 0);
+		} else if ("angle".equalsIgnoreCase(valueType)) {
+			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_DEG, 0);
+		} else if ("time".equalsIgnoreCase(valueType)) {
+			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_S, 0);
+		} else if ("frequency".equalsIgnoreCase(valueType)) {
+			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_HZ, 0);
+		} else if ("%".equalsIgnoreCase(valueType)) {
+			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_PERCENTAGE, 0);
+		} else {
+			String lctypeval = valueType.toLowerCase(Locale.ROOT).intern();
+			short sacUnit = ParseHelper.unitFromString(lctypeval);
+			if (sacUnit != LexicalUnit.SAC_DIMENSION) {
+				short pType = ValueFactory.domPrimitiveType(sacUnit);
+				if (pType != CSSPrimitiveValue.CSS_UNKNOWN) {
+					if (NumberValue.isLengthUnitType(pType)) {
+						defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 0);
+					} else if (NumberValue.isAngleUnitType(pType)) {
+						defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_DEG, 0);
+					} else if (pType == CSSPrimitiveValue.CSS_S || pType == CSSPrimitiveValue.CSS_MS) {
+						defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_S, 0);
+					} else if (pType == CSSPrimitiveValue.CSS_HZ || pType == CSSPrimitiveValue.CSS_KHZ) {
+						defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_HZ, 0);
+					}
+				}
+			}
+		}
+		return defaultFallback;
+	}
+
 	@Override
 	public String getStringValue() {
 		if (typeval == null && fallback == null) {
@@ -119,7 +169,7 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 
 	@Override
 	public String getCssText() {
-		BufferSimpleWriter sw = new BufferSimpleWriter(attrname.length() + 6);
+		BufferSimpleWriter sw = new BufferSimpleWriter(32);
 		try {
 			writeCssText(sw);
 		} catch (IOException e) {
@@ -140,6 +190,23 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 			fallback.writeCssText(wri);
 		}
 		wri.write(')');
+	}
+
+	@Override
+	public String getMinifiedCssText(String propertyName) {
+		StringBuilder buf = new StringBuilder(32);
+		buf.append("attr(");
+		buf.append(attrname);
+		if (typeval != null) {
+			buf.append(' ');
+			buf.append(typeval);
+		}
+		if (fallback != null) {
+			buf.append(',');
+			buf.append(fallback.getMinifiedCssText(propertyName));
+		}
+		buf.append(')');
+		return buf.toString();
 	}
 
 	@Override
@@ -169,10 +236,18 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 			badSyntax(attr);
 		}
 		if (idxp1 != 0) {
+			String s = attr.substring(idxp1, len).trim();
 			ValueFactory factory = new ValueFactory(flags);
-			fallback = factory.parseProperty(attr.substring(idxp1, len));
-			if (fallback == null) {
-				badSyntax(attr);
+			AbstractCSSValue value = factory.parseProperty(s);
+			if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+				StringValue sval = new StringValue(flags);
+				sval.setStringValue(CSSPrimitiveValue.CSS_STRING, s);
+				fallback = sval;
+			} else {
+				fallback = value;
+				if (AbstractCSSPrimitiveValue.isOrContainsType(fallback, CSSPrimitiveValue.CSS_ATTR)) {
+					badSyntax(attr);
+				}
 			}
 		}
 		if (idx == -1) {

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import org.w3c.css.sac.LexicalUnit;
@@ -22,6 +23,8 @@ import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.css.Counter;
 import org.w3c.dom.css.Rect;
 
+import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -164,6 +167,101 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 	static boolean isCSSIdentifier(CSSPrimitiveValue value, String ident) {
 		return value.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
 				&& ident.equalsIgnoreCase(value.getStringValue());
+	}
+
+	/**
+	 * Determine whether the given value is or contains a given primitive type.
+	 * 
+	 * @param value         the value to check.
+	 * @param primitiveType the primitive type.
+	 * @return <code>true</code> if the given value is or contains an enclosed value
+	 *         with that primitive type.
+	 */
+	static boolean isOrContainsType(CSSValue value, short primitiveType) {
+		short type;
+		type = value.getCssValueType();
+		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+			return isOrContainsType((CSSPrimitiveValue) value, primitiveType);
+		} else if (type == CSSValue.CSS_VALUE_LIST) {
+			return listContainsType((ValueList) value, primitiveType);
+		}
+		return false;
+	}
+
+	/**
+	 * Determine whether the given list contains a value with the given primitive
+	 * type.
+	 * 
+	 * @param list          the list to check.
+	 * @param primitiveType the primitive type.
+	 * @return <code>true</code> if the list contains a value with that primitive
+	 *         type.
+	 */
+	private static boolean listContainsType(ValueList list, short primitiveType) {
+		for (AbstractCSSValue value : list) {
+			if (isOrContainsType(value, primitiveType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Determine whether the given value is or contains a given primitive type.
+	 * 
+	 * @param value         the value to check.
+	 * @param primitiveType the primitive type.
+	 * @return <code>true</code> if the given value is or contains an enclosed value
+	 *         with that primitive type.
+	 */
+	static boolean isOrContainsType(CSSPrimitiveValue value, short primitiveType) {
+		short pType;
+		pType = value.getPrimitiveType();
+		if (pType == primitiveType) {
+			return true;
+		} else if (pType == CSSPrimitiveValue2.CSS_FUNCTION) {
+			return functionContainsType((FunctionValue) value, primitiveType);
+		} else if (pType == CSSPrimitiveValue2.CSS_EXPRESSION) {
+			return expressionContainsType(((ExpressionValue) value).getExpression(), primitiveType);
+		} else if (pType == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY) {
+			AbstractCSSValue fallback = ((CustomPropertyValue) value).getFallback();
+			if (fallback != null && isOrContainsType(fallback, primitiveType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean functionContainsType(FunctionValue function, short primitiveType) {
+		LinkedCSSValueList list = function.getArguments();
+		for (AbstractCSSValue value : list) {
+			if (isOrContainsType(value, primitiveType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean expressionContainsType(CSSExpression expr, short primitiveType) {
+		switch (expr.getPartType()) {
+		case SUM:
+		case PRODUCT:
+			List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
+			Iterator<? extends CSSExpression> it = operands.iterator();
+			while (it.hasNext()) {
+				if (expressionContainsType(it.next(), primitiveType)) {
+					return true;
+				}
+			}
+			break;
+		case OPERAND:
+			OperandExpression operand = (OperandExpression) expr;
+			CSSPrimitiveValue primi = operand.getOperand();
+			if (isOrContainsType(primi, primitiveType)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

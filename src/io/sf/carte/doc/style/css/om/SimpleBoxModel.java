@@ -792,7 +792,7 @@ abstract class SimpleBoxModel {
 			short unitType) throws StyleDatabaseRequiredException {
 		float fv;
 		try {
-			fv = floatValue(styledecl, cssval, unitType, true);
+			fv = floatValue(styledecl, propertyName, cssval, unitType, true);
 			if (fv < 0f) {
 				fv = 0f;
 			}
@@ -805,7 +805,7 @@ abstract class SimpleBoxModel {
 		return fv;
 	}
 
-	private float floatValue(ComputedCSSStyle styledecl, CSSPrimitiveValue cssval, short unitType,
+	private float floatValue(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue cssval, short unitType,
 			boolean useDeviceDocumentWidth) throws DOMException {
 		if (unitType < 0) {
 			if (getStyleDatabase() == null) {
@@ -821,9 +821,9 @@ abstract class SimpleBoxModel {
 		if (declType == CSSPrimitiveValue.CSS_PERCENTAGE) {
 			fv = percentageValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
 		} else if (declType == CSSPrimitiveValue2.CSS_EXPRESSION) {
-			fv = calcValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
+			fv = calcValue(styledecl, propertyName, cssval, unitType, useDeviceDocumentWidth);
 		} else if (declType == CSSPrimitiveValue2.CSS_FUNCTION) {
-			fv = functionValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
+			fv = functionValue(styledecl, propertyName, cssval, unitType, useDeviceDocumentWidth);
 		} else {
 			fv = cssval.getFloatValue(unitType);
 		}
@@ -880,16 +880,16 @@ abstract class SimpleBoxModel {
 		return styledecl;
 	}
 
-	private float calcValue(ComputedCSSStyle styledecl, CSSPrimitiveValue cssCalc, short unitType,
+	private float calcValue(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue cssCalc, short unitType,
 			boolean useDeviceDocumentWidth) {
-		BoxEvaluator ev = new BoxEvaluator(styledecl, useDeviceDocumentWidth);
+		BoxEvaluator ev = new BoxEvaluator(styledecl, propertyName, useDeviceDocumentWidth);
 		ExtendedCSSPrimitiveValue result = ev.evaluateExpression(((ExpressionValue) cssCalc).getExpression());
 		return result.getFloatValue(unitType);
 	}
 
-	private float functionValue(ComputedCSSStyle styledecl, CSSPrimitiveValue function, short unitType,
-			boolean useDeviceDocumentWidth) {
-		BoxEvaluator ev = new BoxEvaluator(styledecl, useDeviceDocumentWidth);
+	private float functionValue(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue function,
+			short unitType, boolean useDeviceDocumentWidth) {
+		BoxEvaluator ev = new BoxEvaluator(styledecl, propertyName, useDeviceDocumentWidth);
 		return ev.evaluateFunction((CSSFunctionValue) function).getFloatValue(unitType);
 	}
 
@@ -941,7 +941,7 @@ abstract class SimpleBoxModel {
 		// width is not 'auto' nor 'inherit'.
 		float fv;
 		try {
-			fv = floatValue(styledecl, cssWidth, unitType, true);
+			fv = floatValue(styledecl, "width", cssWidth, unitType, true);
 		} catch (DOMException e) {
 			CSSPropertyValueException ex = new CSSPropertyValueException(
 					"Expected number, found " + cssWidth.getCssText());
@@ -1049,7 +1049,7 @@ abstract class SimpleBoxModel {
 			short unitType) throws StyleDatabaseRequiredException {
 		float fv;
 		try {
-			fv = floatValue(styledecl, cssprim, unitType, true);
+			fv = floatValue(styledecl, propertyName, cssprim, unitType, true);
 		} catch (DOMException e) {
 			CSSPropertyValueException ex = new CSSPropertyValueException(
 					"Expected number, found " + cssprim.getCssText());
@@ -1081,7 +1081,7 @@ abstract class SimpleBoxModel {
 		CSSPrimitiveValue csspri = (CSSPrimitiveValue) cssval;
 		float fv;
 		try {
-			fv = floatValue(styledecl, csspri, unitType, false);
+			fv = floatValue(styledecl, propertyName, csspri, unitType, false);
 			if (fv < 0f) {
 				fv = 0f;
 			}
@@ -1097,17 +1097,19 @@ abstract class SimpleBoxModel {
 	private class BoxEvaluator extends Evaluator {
 
 		private ComputedCSSStyle styledecl;
+		private final String propertyName;
 		private boolean useDeviceDocumentWidth;
 
-		private BoxEvaluator(ComputedCSSStyle styledecl, boolean useDeviceDocumentWidth) {
+		private BoxEvaluator(ComputedCSSStyle styledecl, String propertyName, boolean useDeviceDocumentWidth) {
 			super();
 			this.styledecl = styledecl;
+			this.propertyName = propertyName;
 			this.useDeviceDocumentWidth = useDeviceDocumentWidth;
 		}
 
 		@Override
 		protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
-			return styledecl.absolutePrimitiveValue((AbstractCSSPrimitiveValue) partialValue, false);
+			return styledecl.absolutePrimitiveValue(propertyName, (AbstractCSSPrimitiveValue) partialValue, false);
 		}
 
 		@Override

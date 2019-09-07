@@ -270,6 +270,8 @@ public class FunctionValueTest {
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");
 		assertNotNull(val);
 		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals("sin", val.getStringValue());
+		assertEquals("sin", val.getFunctionName());
 		assertEquals("sin(1.2*5deg)", style.getPropertyValue("transform"));
 		assertEquals(1, val.getArguments().size());
 		AbstractCSSValue arg = val.getArguments().get(0);
@@ -304,6 +306,8 @@ public class FunctionValueTest {
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals("atan2", val.getStringValue());
+		assertEquals("atan2", val.getFunctionName());
 		assertEquals("atan2(0.2*2, -1.5)", style.getPropertyValue("foo"));
 		assertEquals(2, val.getArguments().size());
 		AbstractCSSValue arg = val.getArguments().get(0);
@@ -315,6 +319,23 @@ public class FunctionValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_NUMBER, ((CSSPrimitiveValue) arg).getPrimitiveType());
 		assertEquals(-1.5f, ((CSSPrimitiveValue) arg).getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.01f);
+	}
+
+	@Test
+	public void testSqrt() {
+		style.setCssText("transform: sqrt(1.2 * calc(attr(foo) / 3))");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");
+		assertNotNull(val);
+		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals("sqrt", val.getStringValue());
+		assertEquals("sqrt", val.getFunctionName());
+		assertEquals("sqrt(1.2*calc(attr(foo)/3))", style.getPropertyValue("transform"));
+		assertEquals(1, val.getArguments().size());
+		AbstractCSSValue arg = val.getArguments().get(0);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
+		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
+		ExpressionValue calc = (ExpressionValue) arg;
+		assertEquals("1.2*calc(attr(foo)/3)", calc.getExpression().getCssText());
 	}
 
 	@Test

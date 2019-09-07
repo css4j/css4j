@@ -27,14 +27,14 @@ public interface CSSAttrValue extends ExtendedCSSPrimitiveValue {
 	/**
 	 * Get the attribute type.
 	 * 
-	 * @return the attribute type.
+	 * @return the attribute type, or <code>null</code> if no type was specified.
 	 */
 	String getAttributeType();
 
 	/**
 	 * Get the fallback value.
 	 * 
-	 * @return the fallback value.
+	 * @return the fallback value, or <code>null</code> if no fallback was specified.
 	 */
 	ExtendedCSSValue getFallback();
 

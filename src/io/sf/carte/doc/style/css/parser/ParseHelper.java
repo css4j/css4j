@@ -802,6 +802,13 @@ public class ParseHelper {
 		return buf.toString();
 	}
 
+	/**
+	 * Retrieves the SAC unit associated to the given unit string.
+	 * 
+	 * @param unit the unit string (must be interned).
+	 * @return the associated SAC unit, or <code>SAC_DIMENSION</code> if the unit is
+	 *         not known.
+	 */
 	public static short unitFromString(String unit) {
 		if (unit == "%") {
 			return LexicalUnit.SAC_PERCENTAGE;
@@ -879,10 +886,11 @@ public class ParseHelper {
 		switch (unitType) {
 		case LexicalUnit.SAC_FUNCTION:
 		case LexicalUnit.SAC_RGBCOLOR:
+		case LexicalUnit.SAC_URI:
 		case LexicalUnit.SAC_RECT_FUNCTION:
 		case LexicalUnit.SAC_COUNTER_FUNCTION:
 		case LexicalUnit.SAC_COUNTERS_FUNCTION:
-		case LexicalUnit.SAC_URI:
+		case LexicalUnit.SAC_ATTR:
 			return true;
 		}
 		return false;

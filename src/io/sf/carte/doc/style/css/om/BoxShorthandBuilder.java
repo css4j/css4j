@@ -18,7 +18,7 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
-import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.doc.style.css.property.NumberValue;
 
 /**
  * Build a margin/padding shorthand from individual properties.
@@ -56,7 +56,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
 			ExtendedCSSPrimitiveValue primi = (ExtendedCSSPrimitiveValue) cssValue;
 			short ptype = primi.getPrimitiveType();
-			return !ValueFactory.isLengthUnitType(ptype) && !primi.isNumberZero()
+			return !NumberValue.isLengthUnitType(ptype) && !primi.isNumberZero()
 					&& ptype != CSSPrimitiveValue.CSS_PERCENTAGE && ptype != CSSPrimitiveValue.CSS_IDENT;
 		} else if (type == CSSValue.CSS_VALUE_LIST) {
 			return true;

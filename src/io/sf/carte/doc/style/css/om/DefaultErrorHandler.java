@@ -30,12 +30,12 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	@Override
 	public boolean hasErrors() {
 		return linkedStyleErrors != null || mediaErrors != null || inlineStyleErrors != null
-				|| linkedSheetErrors != null || hasInlineErrors() || hasComputedStyleErrors();
+				|| linkedSheetErrors != null || super.hasErrors();
 	}
 
 	@Override
 	public boolean hasWarnings() {
-		return linkedStyleWarnings != null || hasInlineWarnings();
+		return linkedStyleWarnings != null || super.hasWarnings();
 	}
 
 	@Override

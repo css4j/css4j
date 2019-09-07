@@ -40,7 +40,15 @@ public class StringValue extends AbstractCSSPrimitiveValue {
 		this((byte) 0);
 	}
 
-	StringValue(byte flags) {
+	/**
+	 * A string value with a flag specifying the quote behaviour.
+	 * <p>
+	 * 
+	 * @param flags See
+	 *              {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(byte)
+	 *              CSSStyleSheetFactory.setFactoryFlag(byte)}
+	 */
+	public StringValue(byte flags) {
 		super();
 		this.flags = flags;
 		quote = '\'';

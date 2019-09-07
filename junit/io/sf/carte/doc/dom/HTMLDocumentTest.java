@@ -59,6 +59,7 @@ import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.CSSRuleArrayList;
+import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
@@ -1063,6 +1064,471 @@ public class HTMLDocumentTest {
 	}
 
 	@Test
+	public void testComputedStyleAttr() {
+		DOMElement elm = xhtmlDoc.getElementById("firstH3");
+		/*
+		 * attr() value, fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin,.6em)");
+		ComputedCSSStyle style = elm.getComputedStyle(null);
+		CSSPrimitiveValue marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(12.96f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() value in calc(), fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:calc(attr(leftmargin,.6em)*2)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(25.92f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() value, do not reparse.
+		 */
+		elm.setAttribute("leftmargin", " .8em");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(CSSPrimitiveValue.CSS_STRING, marginLeft.getPrimitiveType());
+		assertEquals(" .8em", marginLeft.getStringValue());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() value, expected type.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin length)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(17.28f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() value, string expected type, do not reparse.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin string)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(CSSPrimitiveValue.CSS_STRING, marginLeft.getPrimitiveType());
+		assertEquals(" .8em", marginLeft.getStringValue());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() value in calc().
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:calc(attr(leftmargin length,.6em)*2)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(34.56f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() invalid value type (em vs color).
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin color)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		// Currentcolor
+		assertEquals(CSSPrimitiveValue.CSS_RGBCOLOR, marginLeft.getPrimitiveType());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * attr() invalid value type (color), fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin color,.4em)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(8.64f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * attr() valid value type (number).
+		 */
+		elm.setAttribute("leftmargin", "0.3");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin number)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(0.3f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() invalid value type (number).
+		 */
+		elm.setAttribute("leftmargin", "0.3px");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin number)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * attr() invalid value type (integer).
+		 */
+		elm.setAttribute("leftmargin", "0.3");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin integer)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * attr() valid value type (integer).
+		 */
+		elm.setAttribute("leftmargin", "3");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin integer)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(3f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() valid value type (angle-deg).
+		 */
+		elm.setAttribute("leftmargin", "3deg");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin angle)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(3f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_DEG), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() valid value type (angle-rad).
+		 */
+		elm.setAttribute("leftmargin", "3rad");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin angle)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(3f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_RAD), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() valid value type (time).
+		 */
+		elm.setAttribute("leftmargin", "3s");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin time)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(3f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_S), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() valid value type (time II).
+		 */
+		elm.setAttribute("leftmargin", "3ms");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin time)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(3f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_MS), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() valid value type (frequency).
+		 */
+		elm.setAttribute("leftmargin", "0.3Hz");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin frequency)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(0.3f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_HZ), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() valid value type (frequency II).
+		 */
+		elm.setAttribute("leftmargin", "0.3kHz");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin frequency)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(0.3f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_KHZ), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (pt).
+		 */
+		elm.setAttribute("leftmargin", "15 ");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin pt)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(15f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (px).
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin px)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(15f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PX), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (em).
+		 */
+		elm.setAttribute("leftmargin", "1.6 ");
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin em)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(34.56f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (deg).
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin deg)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(1.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_DEG), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (grad).
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin grad)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(1.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_GRAD), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (rad).
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin rad)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(1.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_RAD), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (s).
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin s)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(1.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_S), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (ms).
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin ms)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(1.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_MS), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (Hz).
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin Hz)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(1.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_HZ), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unit-value type (kHz).
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin kHz)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("foo");
+		assertEquals(1.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_KHZ), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() unknown unit-value type.
+		 */
+		elm.getOverrideStyle(null).setCssText("foo:attr(leftmargin foo)");
+		style = elm.getComputedStyle(null);
+		assertNull(style.getPropertyCSSValue("foo"));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * attr() unknown unit-value type (II).
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin foo)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 1e-5);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * attr() valid value type (uri).
+		 */
+		elm.setAttribute("myuri", "https://www.example.com/foo");
+		elm.getOverrideStyle(null).setCssText("background-image:attr(myuri url)");
+		style = elm.getComputedStyle(null);
+		CSSPrimitiveValue value = (CSSPrimitiveValue) style.getPropertyCSSValue("background-image");
+		assertEquals(CSSPrimitiveValue.CSS_URI, value.getPrimitiveType());
+		assertEquals("https://www.example.com/foo", value.getStringValue());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() valid value type (relative uri).
+		 */
+		elm.setAttribute("myuri", "foo");
+		elm.getOverrideStyle(null).setCssText("background-image:attr(myuri url)");
+		style = elm.getComputedStyle(null);
+		value = (CSSPrimitiveValue) style.getPropertyCSSValue("background-image");
+		assertEquals(CSSPrimitiveValue.CSS_URI, value.getPrimitiveType());
+		assertEquals("http://www.example.com/foo", value.getStringValue());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() missing url value, fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("background-image:attr(noattr url,\"https://www.example.com/bar\")");
+		style = elm.getComputedStyle(null);
+		value = (CSSPrimitiveValue) style.getPropertyCSSValue("background-image");
+		assertEquals(CSSPrimitiveValue.CSS_URI, value.getPrimitiveType());
+		assertEquals("https://www.example.com/bar", value.getStringValue());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() invalid value type (number).
+		 */
+		elm.setAttribute("leftmargin", "foo");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin number)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		// Default fallback
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * attr() invalid value type (ident vs number), fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin number,.4em)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(8.64f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * attr() percentage invalid value type.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin %)");
+		assertEquals("margin-left: attr(leftmargin %); ", elm.getOverrideStyle(null).getCssText());
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		// Default fallback
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors(elm);
+		/*
+		 * attr() percentage invalid value type, fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin %, 1.2em)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(25.92f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors(elm);
+		/*
+		 * attr() percentage value type.
+		 */
+		elm.setAttribute("leftmargin", "2");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin %)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(2f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() percentage value type (II).
+		 */
+		elm.setAttribute("leftmargin", "2%");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin %)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(2f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		/*
+		 * attr() recursive.
+		 */
+		elm.setAttribute("leftmargin", "attr(leftmargin length)");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin length)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors(elm);
+		/*
+		 * attr() recursive with custom property (I).
+		 */
+		elm.getOverrideStyle(null).setCssText(
+			"margin-left:attr(noattr length,var(--foo));--foo:attr(noattr,var(margin-left))");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors(elm);
+		/*
+		 * attr() recursive with custom property (II).
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(noattr length,var(--foo));--foo:attr(noattr)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testCompatComputedStyle() {
 		DOMElement elm = xhtmlDoc.getElementById("cell12");
 		assertNotNull(elm);
@@ -1077,6 +1543,8 @@ public class HTMLDocumentTest {
 		// Check for non-existing property
 		assertNull(styledecl.getPropertyCSSValue("does-not-exist"));
 		assertEquals("", styledecl.getPropertyValue("does-not-exist"));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
 	@Test
