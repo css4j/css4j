@@ -63,6 +63,10 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * <p>
 	 * The comments preceding a rule will be available through
 	 * {@link AbstractCSSRule#getPrecedingComments()}.
+	 * <p>
+	 * To create a sheet, see
+	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
+	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
 	 * @param source
 	 *            the SAC input source.
@@ -72,8 +76,6 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *             if a problem is found parsing the sheet.
 	 * @throws IOException
 	 *             if a problem is found reading the sheet.
-	 * @see io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String
-	 *      title, String media)
 	 */
 	@Override
 	abstract public boolean parseCSSStyleSheet(InputSource source) throws DOMException, IOException;
@@ -89,6 +91,10 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * will be available through {@link AbstractCSSRule#getPrecedingComments()}.
 	 * <p>
 	 * This method resets the state of this sheet's error handler.
+	 * <p>
+	 * To create a sheet, see
+	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
+	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
 	 * @param source
 	 *            the SAC input source.
@@ -100,8 +106,6 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *             if a problem is found parsing the sheet.
 	 * @throws IOException
 	 *             if a problem is found reading the sheet.
-	 * @see io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String
-	 *      title, String media)
 	 */
 	@Override
 	abstract public boolean parseCSSStyleSheet(InputSource source, boolean ignoreComments)

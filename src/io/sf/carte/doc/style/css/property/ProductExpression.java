@@ -23,7 +23,7 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * A product expression.
  * 
- * @see CSSExpression.AlgebraicExpression
+ * @see CSSExpression
  */
 public class ProductExpression extends StyleExpression implements StyleExpression.AlgebraicExpression {
 	LinkedList<StyleExpression> operands = new LinkedList<StyleExpression>();

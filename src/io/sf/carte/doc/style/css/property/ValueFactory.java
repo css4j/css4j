@@ -1140,8 +1140,8 @@ public class ValueFactory {
 
 	/**
 	 * Translate a SAC lexical type into a CSS primitive unit type.
-	 * @param lunit 
-	 *            the lexical unit.
+	 * @param sacType 
+	 *            the SAC type.
 	 * @return the unit type according to <code>CSSPrimitiveValue</code>.
 	 */
 	public static short domPrimitiveType(short sacType) {

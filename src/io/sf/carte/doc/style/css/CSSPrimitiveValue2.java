@@ -186,7 +186,7 @@ public interface CSSPrimitiveValue2 extends CSSPrimitiveValue {
 	/**
 	 * CSS <code>counters()</code> function.
 	 * <p>
-	 * @see {@link CSSCountersValue}.
+	 * See {@link CSSCountersValue}.
 	 */
 	final short CSS_COUNTERS = 134;
 

@@ -17,7 +17,7 @@ import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
  * Media Feature predicate.
  * <p>
  * Represents a predicate like <code>(min-width: 600px)</code> or
- * <code>(400px <= width < 1000px)</code>.
+ * <code>(400px &lt;= width &lt; 1000px)</code>.
  */
 public interface MediaFeaturePredicate extends BooleanCondition {
 

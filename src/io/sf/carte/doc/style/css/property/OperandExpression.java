@@ -20,7 +20,7 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * An operand expression.
  * 
- * @see CSSExpression.CSSOperandExpression
+ * @see CSSExpression
  */
 public class OperandExpression extends StyleExpression implements CSSExpression.CSSOperandExpression {
 	ExtendedCSSPrimitiveValue operand = null;

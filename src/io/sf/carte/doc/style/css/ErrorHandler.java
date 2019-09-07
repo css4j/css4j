@@ -140,7 +140,7 @@ public interface ErrorHandler {
 	 * @param exception
 	 *            the exception describing the error.
 	 */
-	void computedStyleWarning(CSSElement ownerNode, String propertyName, CSSPropertyValueException exception);
+	void computedStyleWarning(CSSElement element, String propertyName, CSSPropertyValueException exception);
 
 	/**
 	 * While computing a style, an error was found when processing the presentational hints of

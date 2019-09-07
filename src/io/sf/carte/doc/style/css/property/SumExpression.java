@@ -23,7 +23,7 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * A sum expression.
  * 
- * @see CSSExpression.AlgebraicExpression
+ * @see CSSExpression
  */
 public class SumExpression extends StyleExpression implements StyleExpression.AlgebraicExpression {
 	LinkedList<StyleExpression> operands = new LinkedList<StyleExpression>();

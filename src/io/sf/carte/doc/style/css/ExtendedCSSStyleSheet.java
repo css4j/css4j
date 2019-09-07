@@ -257,24 +257,23 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	/**
 	 * Parses a style sheet.
 	 * <p>
-	 * If the style sheet is not empty, the rules from the parsed source will be added at the
-	 * end of the rule list, with the same origin as the rule with a highest precedence
-	 * origin.
+	 * If the style sheet is not empty, the rules from the parsed source will be
+	 * added at the end of the rule list, with the same origin as the rule with a
+	 * highest precedence origin.
 	 * <p>
-	 * If <code>ignoreComments</code> is false, the comments preceding a rule will be
-	 * available through {@link AbstractCSSRule#getPrecedingComments()}.
+	 * If <code>ignoreComments</code> is false, the comments preceding a rule will
+	 * be available through {@link AbstractCSSRule#getPrecedingComments()}.
+	 * <p>
+	 * To create a sheet, see
+	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
+	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
-	 * @param source
-	 *            the SAC input source.
-	 * @param ignoreComments
-	 *            true if comments have to be ignored.
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, <code>false</code> otherwise.
-	 * @throws DOMException
-	 *             if a problem is found parsing the sheet.
-	 * @throws IOException
-	 *             if a problem is found reading the sheet.
-	 * @see io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title,
-	 *      String media)
+	 * @param source         the SAC input source.
+	 * @param ignoreComments true if comments have to be ignored.
+	 * @return <code>true</code> if the SAC parser reported no errors or fatal
+	 *         errors, <code>false</code> otherwise.
+	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws IOException  if a problem is found reading the sheet.
 	 */
 	public boolean parseCSSStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException;
 
