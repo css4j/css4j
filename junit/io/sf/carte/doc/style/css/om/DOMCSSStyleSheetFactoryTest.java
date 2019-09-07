@@ -52,7 +52,7 @@ public class DOMCSSStyleSheetFactoryTest {
 		CSSStyleSheet css = factory.htmlDefaultSheet();
 		assertNotNull(css);
 		assertNotNull(css.getCssRules());
-		assertEquals(106, css.getCssRules().getLength());
+		assertEquals(109, css.getCssRules().getLength());
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class DOMCSSStyleSheetFactoryTest {
 		CSSStyleSheet css = factory.htmlQuirksDefaultSheet();
 		assertNotNull(css);
 		assertNotNull(css.getCssRules());
-		assertEquals(118, css.getCssRules().getLength());
+		assertEquals(121, css.getCssRules().getLength());
 	}
 
 	@Test

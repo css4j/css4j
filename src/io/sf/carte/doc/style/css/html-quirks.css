@@ -48,6 +48,8 @@ hr              { border: 1px inset }
 ol, ul, dir,
 menu, dd        { margin-left: 40px } /* LTR-specific: use 'margin-right' for rtl elements */
 dir, ol, ul     { padding-left: 40px } /* LTR-specific: use 'padding-right' for rtl elements */
+/* Set up ol and ul so that they scope the list-item counter */
+ol, ul          { counter-reset: list-item }
 ol              { list-style-type: decimal }
 dir, ul         { list-style-type: disc }
 dir dir, dir ul,
@@ -79,6 +81,10 @@ ol[type=I], li[type=I] { list-style-type: upper-roman; }
 ul[type=disc i], li[type=disc i] { list-style-type: disc; }
 ul[type=circle i], li[type=circle i] { list-style-type: circle; }
 ul[type=square i], li[type=square i] { list-style-type: square; }
+/* The start attribute on ol elements */
+ol[start]       { counter-reset: list-item calc(attr(start integer, 1) - 1) }
+/* The value attribute on li elements */
+li[value]       { counter-set: list-item attr(value integer, 1) }
 u, ins          { text-decoration: underline }
 center          { text-align: center }
 br              { white-space: pre; } /* this also has bidi implications */
