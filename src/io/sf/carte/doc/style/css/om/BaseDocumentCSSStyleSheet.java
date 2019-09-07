@@ -23,6 +23,7 @@ import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSRuleList;
 
 import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSRuleListener;
@@ -31,6 +32,7 @@ import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
+import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.om.StyleRule.RuleSpecifity;
 
 /**
@@ -217,6 +219,16 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 		return style;
 	}
 
+	CSSCanvas getCanvas() {
+		CSSCanvas canvas;
+		if (getOwnerNode() != null) {
+			canvas = getOwnerNode().getCanvas();
+		} else {
+			canvas = null;
+		}
+		return canvas;
+	}
+
 	class Cascade {
 		private SortedMap<StyleRule.RuleSpecifity, LinkedList<StyleRule>> matchingStyles = new TreeMap<StyleRule.RuleSpecifity, LinkedList<StyleRule>>(
 				new StyleRule.SpecificityComparator());
@@ -231,21 +243,17 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 				CSSRule rule = it.next();
 				short type = rule.getType();
 				if (type != CSSRule.STYLE_RULE && type != CSSRule.PAGE_RULE) {
-					CSSCanvas canvas;
-					if (getOwnerNode() != null) {
-						canvas = getOwnerNode().getCanvas();
-					} else {
-						canvas = null;
-					}
 					if (type == CSSRule.MEDIA_RULE) {
-						scanMediaRule(matcher, targetMedium, canvas, (MediaRule) rule);
+						scanMediaRule(matcher, targetMedium, getCanvas(), (MediaRule) rule);
 					} else if (type == CSSRule.IMPORT_RULE) {
-						scanImportRule(matcher, targetMedium, canvas, (ImportRule) rule);
+						scanImportRule(matcher, targetMedium, getCanvas(), (ImportRule) rule);
 					} else if (type == CSSRule.FONT_FACE_RULE) {
 						processFontFaceRule((FontFaceRule) rule);
-					} else if (type == ExtendedCSSRule.SUPPORTS_RULE && canvas != null) {
+					} else if (type == ExtendedCSSRule.SUPPORTS_RULE) {
 						SupportsRule supports = (SupportsRule) rule;
-						if (supports.supports(canvas)) {
+						DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
+						StyleDatabase sdb;
+						if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null && supports.supports(sdb)) {
 							CSSRuleArrayList rules = supports.getCssRules();
 							for (int i = 0; i < rules.getLength(); i++) {
 								ExtendedCSSRule supportedrule = rules.item(i);

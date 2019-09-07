@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.om;
 
 import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.Viewport;
@@ -176,11 +175,6 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 			fval = viewport.getViewportHeight();
 		}
 		return fval;
-	}
-
-	@Override
-	public boolean supports(String featureName, CSSValue value) {
-		return false;
 	}
 
 	protected abstract float getColorIndex();

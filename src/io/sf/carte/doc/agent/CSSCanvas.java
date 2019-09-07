@@ -12,7 +12,6 @@
 package io.sf.carte.doc.agent;
 
 import org.w3c.dom.css.CSSFontFaceRule;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -60,18 +59,6 @@ public interface CSSCanvas {
 	 * @return <code>true</code> id the pseudo-class is active, <code>false</code> otherwise.
 	 */
 	public boolean isActivePseudoClass(CSSElement element, String pseudoclassName);
-
-	/**
-	 * Does this canvas support the given property?
-	 * 
-	 * @param property
-	 *            the property name.
-	 * @param value
-	 *            the optional property value to be tested against.
-	 * @return <code>true</code> if the property (with the given value, if any) is supported,
-	 *         <code>false</code> otherwise.
-	 */
-	public boolean supports(String property, CSSValue value);
 
 	/**
 	 * Provide the value of the requested media feature.

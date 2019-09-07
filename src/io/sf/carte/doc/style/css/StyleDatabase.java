@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
+import org.w3c.dom.css.CSSValue;
 
 /**
  * CSS Style database.
@@ -153,5 +154,17 @@ public interface StyleDatabase {
 	 * @return the width of the rendering device.
 	 */
 	public float getDeviceWidth();
+
+	/**
+	 * Does this medium support the given property-value pair?
+	 * 
+	 * @param property
+	 *            the property name.
+	 * @param value
+	 *            the optional property value to be tested against.
+	 * @return <code>true</code> if the property (with the given value, if any) is supported,
+	 *         <code>false</code> otherwise.
+	 */
+	public boolean supports(String property, CSSValue value);
 
 }

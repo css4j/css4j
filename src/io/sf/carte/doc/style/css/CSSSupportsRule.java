@@ -11,7 +11,6 @@
 
 package io.sf.carte.doc.style.css;
 
-import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.om.BooleanCondition;
 
 /**
@@ -27,13 +26,13 @@ public interface CSSSupportsRule extends CSSConditionRule {
 	BooleanCondition getCondition();
 
 	/**
-	 * Does the given canvas support the condition associated to this rule ?
+	 * Does the given style database support the condition associated to this rule ?
 	 * 
-	 * @param canvas
-	 *            the canvas to test.
-	 * @return <code>true</code> if the canvas supports the condition, <code>false</code>
+	 * @param styleDatabase
+	 *            the style database to test.
+	 * @return <code>true</code> if the style database supports the condition, <code>false</code>
 	 *         otherwise.
 	 */
-	boolean supports(CSSCanvas canvas);
+	boolean supports(StyleDatabase styleDatabase);
 
 }

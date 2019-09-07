@@ -134,6 +134,11 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		return false;
 	}
 
+	@Override
+	public boolean supports(String featureName, CSSValue value) {
+		return false;
+	}
+
 	abstract protected boolean isFontFamilyAvailable(String fontFamily);
 
 }

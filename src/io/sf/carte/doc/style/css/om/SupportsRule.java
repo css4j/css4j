@@ -19,9 +19,9 @@ import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSSupportsRule;
 import io.sf.carte.doc.style.css.DeclarationCondition;
+import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -88,29 +88,29 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	}
 
 	@Override
-	public boolean supports(CSSCanvas canvas) {
-		return supports(condition, canvas);
+	public boolean supports(StyleDatabase styleDatabase) {
+		return supports(condition, styleDatabase);
 	}
 
-	private boolean supports(BooleanCondition condition, CSSCanvas canvas) {
+	private boolean supports(BooleanCondition condition, StyleDatabase styleDatabase) {
 		switch (condition.getType()) {
 		case PREDICATE:
 			DeclarationCondition declCond = (DeclarationCondition) condition;
-			return declCond.isParsable() && canvas.supports(declCond.getName(), declCond.getValue());
+			return declCond.isParsable() && styleDatabase.supports(declCond.getName(), declCond.getValue());
 		case AND:
 			Iterator<BooleanCondition> it = ((BooleanCondition.GroupCondition) condition).getSubConditions().iterator();
 			while (it.hasNext()) {
-				if (!supports(it.next(), canvas)) {
+				if (!supports(it.next(), styleDatabase)) {
 					return false;
 				}
 			}
 			return true;
 		case NOT:
-			return supports(((BooleanCondition.NotCondition) condition).getNestedCondition(), canvas);
+			return supports(((BooleanCondition.NotCondition) condition).getNestedCondition(), styleDatabase);
 		case OR:
 			it = ((BooleanCondition.GroupCondition) condition).getSubConditions().iterator();
 			while (it.hasNext()) {
-				if (supports(it.next(), canvas)) {
+				if (supports(it.next(), styleDatabase)) {
 					return true;
 				}
 			}
