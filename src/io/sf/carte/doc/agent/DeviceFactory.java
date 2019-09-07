@@ -20,7 +20,7 @@ import io.sf.carte.doc.style.css.StyleDatabase;
  * A device factory is the core source of device-related objects, like style
  * databases and canvases, for the different media supported by the device(s).
  * </p>
- * 
+ *
  * @author Carlos Amengual
  *
  */
@@ -28,21 +28,21 @@ public interface DeviceFactory {
 
 	/**
 	 * Supplies a style database for the given medium.
-	 * 
+	 *
 	 * @param medium
 	 *            the medium.
 	 * @return the StyleDatabase.
 	 */
-	public StyleDatabase getStyleDatabase(String medium);
+	StyleDatabase getStyleDatabase(String medium);
 
 	/**
 	 * Creates a Canvas for the given document and target medium.
-	 * 
+	 *
 	 * @param medium
 	 *            the target medium.
 	 * @param doc
 	 *            the document.
 	 * @return the canvas, or null if the factory does not support that medium.
 	 */
-	public CSSCanvas createCanvas(String medium, CSSDocument doc);
+	CSSCanvas createCanvas(String medium, CSSDocument doc);
 }

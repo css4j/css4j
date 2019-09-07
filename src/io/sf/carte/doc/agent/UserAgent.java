@@ -21,7 +21,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 
 /**
  * Very basic user agent abstraction.
- * 
+ *
  * @author Carlos Amengual
  *
  */
@@ -29,7 +29,7 @@ public interface UserAgent {
 
 	/**
 	 * Reads and parses a markup document located at the given URL.
-	 * 
+	 *
 	 * @param url
 	 *            the URL that points to the document.
 	 * @return the CSSDocument.
@@ -38,33 +38,33 @@ public interface UserAgent {
 	 * @throws DocumentException
 	 *             if there is a problem parsing the document.
 	 */
-	public CSSDocument readURL(URL url) throws IOException, DocumentException;
+	CSSDocument readURL(URL url) throws IOException, DocumentException;
 
 	/**
 	 * Has the provided url been visited by this user agent.
-	 * 
+	 *
 	 * @param url
 	 *            the URL to test.
 	 * @return <code>true</code> if the URL was visited by this agent, <code>false</code> if not visited
 	 *         or this agent does not support history.
 	 */
-	public boolean isVisitedURL(URL url);
+	boolean isVisitedURL(URL url);
 
 	/**
 	 * Sets the entity resolver to be used when parsing documents.
-	 * 
+	 *
 	 * @param resolver
 	 *            the entity resolver.
 	 */
-	public void setEntityResolver(EntityResolver resolver);
+	void setEntityResolver(EntityResolver resolver);
 
 	/**
 	 * Get the control object for this user agent.
-	 * 
+	 *
 	 * @return the control object for this user agent, or null if this agent has
 	 *         no control.
 	 */
-	public AgentControl getAgentControl();
+	AgentControl getAgentControl();
 
 	/**
 	 * User agent configuration and control.
@@ -73,13 +73,13 @@ public interface UserAgent {
 	public interface AgentControl {
 		/**
 		 * Gets a control property.
-		 * 
+		 *
 		 * @param propertyName
 		 *            the property name.
 		 * @return the string representation of the property value, or null if
 		 *         the property is not set.
 		 */
-		public String getProperty(String propertyName);
+		String getProperty(String propertyName);
 
 		/**
 		 * Sets a control property.
@@ -89,24 +89,24 @@ public interface UserAgent {
 		 * the property is known but the value is wrong, the user agent should
 		 * call the method
 		 * {@link UserAgentErrorHandler#onWrongPropertyValue(String, String)}.
-		 * 
+		 *
 		 * @param propertyName
 		 *            the name of the property to set.
 		 * @param value
 		 *            the string representation of the property value.
 		 */
-		public void setProperty(String propertyName, String value);
+		void setProperty(String propertyName, String value);
 
 		/**
 		 * Gets the global, useragent-wide default cookie config.
-		 * 
+		 *
 		 * @return the default user-agent cookie config.
 		 */
-		public CookieConfig getCookieConfig();
+		CookieConfig getCookieConfig();
 
 		/**
 		 * Gets the authentication credentials for the given URL.
-		 * 
+		 *
 		 * @param url
 		 *            the url for which the credential is required.
 		 * @param realm
@@ -114,27 +114,27 @@ public interface UserAgent {
 		 *            case any valid credential will be returned.
 		 * @return the authentication credentials, or null if there is none.
 		 */
-		public AuthenticationCredentials getAuthenticationCredentials(URL url, String realm);
+		AuthenticationCredentials getAuthenticationCredentials(URL url, String realm);
 
 		/**
 		 * Gives the credentials for the given hostname and realm, creating a
 		 * new one if there is none.
-		 * 
+		 *
 		 * @param host
 		 *            the host.
 		 * @param realm
 		 *            the realm. Cannot be null.
 		 * @return the credentials.
 		 */
-		public AuthenticationCredentials authenticationCredentials(String host, String realm);
+		AuthenticationCredentials authenticationCredentials(String host, String realm);
 
 		/**
 		 * Sets the connection timeout.
-		 * 
+		 *
 		 * @param timeout
 		 *            the connection timeout, in milliseconds. A
 		 *            <code>timeout</code> of 0 means no timeout (the default).
 		 */
-		public void setConnectionTimeout(int timeout);
+		void setConnectionTimeout(int timeout);
 	}
 }

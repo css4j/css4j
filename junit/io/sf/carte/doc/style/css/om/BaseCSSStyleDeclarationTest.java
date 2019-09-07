@@ -35,9 +35,9 @@ import org.w3c.dom.css.Rect;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.util.Diff;
 

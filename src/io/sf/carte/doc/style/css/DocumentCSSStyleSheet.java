@@ -26,38 +26,37 @@ public interface DocumentCSSStyleSheet extends ExtendedCSSStyleSheet<AbstractCSS
 
 	/**
 	 * Gets the target medium for this sheet.
-	 * 
+	 *
 	 * @return the target medium, or null if has not been set.
 	 */
-	public String getTargetMedium();
+	String getTargetMedium();
 
 	/**
 	 * Gets the computed style for the given Element and pseudo-element in the DOM Document
 	 * associated to this style sheet.
-	 * 
+	 *
 	 * @param elm
 	 *            the element.
 	 * @param pseudoElt
 	 *            the pseudo-element.
 	 * @return the computed style declaration.
 	 */
-	public CSSComputedProperties getComputedStyle(CSSElement elm, String pseudoElt);
+	CSSComputedProperties getComputedStyle(CSSElement elm, String pseudoElt);
 
 	/**
 	 * Clone this style sheet.
-	 * 
+	 *
 	 * @return the cloned style sheet.
 	 */
-	@Override
-	public DocumentCSSStyleSheet clone();
+	@Override DocumentCSSStyleSheet clone();
 
 	/**
 	 * Clone this style sheet, but only preserving rules targeting the given medium.
-	 * 
+	 *
 	 * @param targetMedium
 	 *            the medium.
 	 * @return a medium-specific pseudo-clone of this sheet.
 	 */
-	public DocumentCSSStyleSheet clone(String targetMedium);
+	DocumentCSSStyleSheet clone(String targetMedium);
 
 }

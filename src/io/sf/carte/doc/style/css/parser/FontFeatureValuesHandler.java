@@ -5,11 +5,11 @@
  *
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
- * 
+ *
  * Copyright © 2017,2018 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-19980720
- * 
+ *
  */
 package io.sf.carte.doc.style.css.parser;
 
@@ -19,15 +19,15 @@ import org.w3c.css.sac.DocumentHandler;
  * DocumentHandler for {@literal @}font-feature-values rule body.
  * <p>
  * It is likely to be moved to a new DocumentHandler2 interface in NSAC 1.1.
- * 
+ *
  */
 public interface FontFeatureValuesHandler extends DocumentHandler {
 
-	public void startFontFeatures(String[] familyName);
+	void startFontFeatures(String[] familyName);
 
-	public void endFontFeatures();
+	void endFontFeatures();
 
-	public void startFeatureMap(String mapName);
+	void startFeatureMap(String mapName);
 
-	public void endFeatureMap();
+	void endFeatureMap();
 }

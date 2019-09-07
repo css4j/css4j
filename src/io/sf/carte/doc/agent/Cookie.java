@@ -13,42 +13,42 @@ package io.sf.carte.doc.agent;
 
 public interface Cookie {
 
-	public String getDomain();
+	String getDomain();
 
-	public void setDomain(String domain);
+	void setDomain(String domain);
 
-	public int[] getPorts();
+	int[] getPorts();
 
-	public void addPort(int port);
+	void addPort(int port);
 
-	public String getPath();
+	String getPath();
 
-	public void setPath(String path);
+	void setPath(String path);
 
-	public String getName();
+	String getName();
 
-	public void setName(String name);
+	void setName(String name);
 
-	public String getValue();
+	String getValue();
 
-	public void setValue(String value);
+	void setValue(String value);
 
-	public long getExpiryTime();
+	long getExpiryTime();
 
-	public void setExpiryTime(long expiryTime);
+	void setExpiryTime(long expiryTime);
 
-	public String getComment();
+	String getComment();
 
-	public void setComment(String comment);
+	void setComment(String comment);
 
-	public boolean isSecure();
+	boolean isSecure();
 
-	public void setSecure();
+	void setSecure();
 
-	public boolean isPersistent();
+	boolean isPersistent();
 
-	public void setHttpOnly();
+	void setHttpOnly();
 
-	public boolean isHttpOnly();
+	boolean isHttpOnly();
 
 }

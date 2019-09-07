@@ -37,7 +37,7 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 	 * If two <grid-line> values are specified, the grid-row-start/grid-column-start longhand
 	 * is set to the value before the slash, and the grid-row-end/grid-column-end longhand is
 	 * set to the value after the slash.
-	 * 
+	 *
 	 * When the second value is omitted, if the first value is a <custom-ident>, the
 	 * grid-row-end/grid-column-end longhand is also set to that <custom-ident>; otherwise, it
 	 * is set to auto.
@@ -72,7 +72,7 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 		String[] subp = getSubproperties();
 		// Make sure that it is not a layered property
 		StyleValue cssVal0 = getCSSValue(subp[0]);
-		if ((cssVal0.getCssValueType() == CSSValue.CSS_VALUE_LIST && ((ValueList) cssVal0).isCommaSeparated())) {
+		if (cssVal0.getCssValueType() == CSSValue.CSS_VALUE_LIST && ((ValueList) cssVal0).isCommaSeparated()) {
 			return false;
 		}
 		appendValueText(buf, cssVal0);

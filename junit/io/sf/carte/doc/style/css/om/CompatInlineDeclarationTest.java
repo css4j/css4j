@@ -37,8 +37,8 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.Parser2;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 public class CompatInlineDeclarationTest {

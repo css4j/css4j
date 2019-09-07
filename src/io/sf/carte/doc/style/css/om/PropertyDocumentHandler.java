@@ -22,13 +22,13 @@ import org.w3c.css.sac.SelectorList;
 
 /**
  * A SAC DocumentHandler that calls a <code>LexicalPropertyListener</code>.
- * 
+ *
  * @author Carlos Amengual
- * 
+ *
  */
 class PropertyDocumentHandler implements DocumentHandler, ErrorHandler {
 
-	private LexicalPropertyListener listener = null;;
+	private LexicalPropertyListener listener = null;
 
 	PropertyDocumentHandler() {
 		super();

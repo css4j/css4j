@@ -142,7 +142,7 @@ public class XHTMLDocumentTest {
 
 	@Test
 	public void appendChild2() throws DOMException {
-		DOMDocument document = (new TestDOMImplementation(false, null)).createDocument(null, null, null);
+		DOMDocument document = new TestDOMImplementation(false, null).createDocument(null, null, null);
 		document.appendChild(document.getImplementation().createDocumentType(null, null, null));
 		try {
 			document.appendChild(document.getImplementation().createDocumentType(null, null, null));

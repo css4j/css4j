@@ -201,10 +201,10 @@ public interface StyleDeclarationErrorHandler {
 
 	/**
 	 * Have value warnings been reported to this error handler?
-	 * 
+	 *
 	 * @return <code>true</code> if value warnings were reported, <code>false</code> otherwise.
 	 */
-	public boolean hasWarnings();
+	boolean hasWarnings();
 
 	/**
 	 * Reset this handler and prepare it to handle a new declaration.

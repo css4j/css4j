@@ -27,14 +27,14 @@ import org.w3c.dom.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Abstract class to be inherited by CSS rules which have a CSSStyleDeclaration.
- * 
+ *
  * @author Carlos Amengual
- * 
+ *
  */
 abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSDeclarationRule {
 

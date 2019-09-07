@@ -23,11 +23,11 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.CalcValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.RatioValue;
 
 class MediaQuery {
@@ -226,21 +226,21 @@ class MediaQuery {
 		case FEATURE_GE:
 			return fval1 <= featureValue;
 		case FEATURE_LT_AND_LT:
-			return (fval1 < featureValue && featureValue < fval2);
+			return fval1 < featureValue && featureValue < fval2;
 		case FEATURE_LE_AND_LT:
-			return (fval1 <= featureValue && featureValue < fval2);
+			return fval1 <= featureValue && featureValue < fval2;
 		case FEATURE_LT_AND_LE:
-			return (fval1 < featureValue && featureValue <= fval2);
+			return fval1 < featureValue && featureValue <= fval2;
 		case FEATURE_LE_AND_LE:
-			return (fval1 <= featureValue && featureValue <= fval2);
+			return fval1 <= featureValue && featureValue <= fval2;
 		case FEATURE_GT_AND_GT:
-			return (fval1 > featureValue && featureValue > fval2);
+			return fval1 > featureValue && featureValue > fval2;
 		case FEATURE_GE_AND_GT:
-			return (fval1 >= featureValue && featureValue > fval2);
+			return fval1 >= featureValue && featureValue > fval2;
 		case FEATURE_GT_AND_GE:
-			return (fval1 > featureValue && featureValue >= fval2);
+			return fval1 > featureValue && featureValue >= fval2;
 		case FEATURE_GE_AND_GE:
-			return (fval1 >= featureValue && featureValue >= fval2);
+			return fval1 >= featureValue && featureValue >= fval2;
 		default:
 			return false;
 		}

@@ -5,11 +5,11 @@
  *
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
- * 
+ *
  * Copyright © 2017 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-19980720
- * 
+ *
  */
 package io.sf.carte.doc.style.css.nsac;
 
@@ -25,15 +25,15 @@ public interface ArgumentCondition extends Condition2 {
 
 	/**
 	 * Get the list of selectors that were supplied as argument.
-	 * 
+	 *
 	 * @return the list of argument selectors.
 	 */
-	public SelectorList getSelectors();
+	SelectorList getSelectors();
 
 	/**
 	 * The name of the pseudo-class.
-	 * 
+	 *
 	 * @return the name of the pseudo-class.
 	 */
-	public String getName();
+	String getName();
 }

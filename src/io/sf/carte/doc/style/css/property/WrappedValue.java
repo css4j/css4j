@@ -16,5 +16,5 @@ package io.sf.carte.doc.style.css.property;
  * its visibility is public).
  */
 public interface WrappedValue {
-	public String getParentSheetHref();
+	String getParentSheetHref();
 }

@@ -3,9 +3,9 @@
  *  (https://www.w3.org/TR/cssom-1/).
  * Copyright © 2016 W3C® (MIT, ERCIM, Keio, Beihang).
  * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
- * 
+ *
  * Copyright © 2005-2018 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-20150513
  */
 
@@ -39,104 +39,102 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 
 	/**
 	 * Inserts a rule in the current insertion point (generally after the last rule).
-	 * 
+	 *
 	 * @param cssrule
 	 *            the rule to be inserted.
 	 * @throws DOMException
 	 *             NAMESPACE_ERR if the rule could not be added due to a namespace-related
 	 *             error.
 	 */
-	public void addRule(R cssrule) throws DOMException;
+	void addRule(R cssrule) throws DOMException;
 
 	/**
 	 * Adds the rules contained by the supplied style sheet, if that sheet is not disabled.
 	 * <p>
 	 * If the provided sheet does not target all media, a media rule is created.
-	 * 
+	 *
 	 * @param sheet
 	 *            the sheet whose rules are to be added.
 	 */
-	public void addStyleSheet(AbstractCSSStyleSheet sheet);
+	void addStyleSheet(AbstractCSSStyleSheet sheet);
 
 	/**
 	 * Gets the collection of all CSS rules contained within the style sheet.
-	 * 
+	 *
 	 * @return the list of all CSS rules contained within the style sheet.
 	 */
-	@Override
-	public ExtendedCSSRuleList<R> getCssRules();
+	@Override ExtendedCSSRuleList<R> getCssRules();
 
 	/**
 	 * Get the destination media for this sheet.
-	 * 
+	 *
 	 * @return the media query list.
 	 */
-	@Override
-	public MediaQueryList getMedia();
+	@Override MediaQueryList getMedia();
 
 	/**
 	 * Clone this style sheet.
-	 * 
+	 *
 	 * @return the cloned style sheet.
 	 */
-	public ExtendedCSSStyleSheet<R> clone();
+	ExtendedCSSStyleSheet<R> clone();
 
 	/**
 	 * Create a CSSCounterStyleRule compatible with this implementation.
-	 * 
+	 *
 	 * @return a CSSCounterStyleRule object.
 	 */
-	public CSSCounterStyleRule createCSSCounterStyleRule();
+	CSSCounterStyleRule createCSSCounterStyleRule();
 
 	/**
 	 * Create a CSS Font Face rule compatible with this implementation.
-	 * 
+	 *
 	 * @return a CSS Font Face rule object.
 	 */
-	public CSSFontFaceRule createCSSFontFaceRule();
+	CSSFontFaceRule createCSSFontFaceRule();
 
 	/**
 	 * Create a CSSFontFeatureValuesRule compatible with this implementation.
-	 * 
+	 *
 	 * @return a CSSFontFeatureValuesRule object.
 	 */
-	public CSSFontFeatureValuesRule createCSSFontFeatureValuesRule();
+	CSSFontFeatureValuesRule createCSSFontFeatureValuesRule();
 
 	/**
 	 * Create a CSS import rule compatible with this implementation.
-	 * 
+	 *
 	 * @param mediaList
 	 *            a list of media types for which the new import rule may be used.
 	 * @return a CSS import rule.
 	 */
-	public CSSImportRule createCSSImportRule(MediaQueryList mediaList);
+	CSSImportRule createCSSImportRule(MediaQueryList mediaList);
 
 	/**
 	 * Create a CSSKeyframesRule compatible with this implementation.
-	 * 
+	 *
 	 * @return a CSSKeyframesRule object.
 	 */
-	public CSSKeyframesRule createCSSKeyframesRule();
+	CSSKeyframesRule createCSSKeyframesRule();
 
 	/**
 	 * Create a CSS media rule.
-	 * 
+	 *
 	 * @param mediaList
 	 *            a list of media types for the new rule.
 	 * @return a CSS media rule.
 	 */
-	public MediaRule createCSSMediaRule(MediaQueryList mediaList);
+	MediaRule createCSSMediaRule(MediaQueryList mediaList);
 
 	/**
 	 * Create a CSS page rule compatible with this implementation.
-	 * 
+	 *
 	 * @return a CSS page rule.
 	 */
-	public CSSPageRule createCSSPageRule();
+	CSSPageRule createCSSPageRule();
 
 	/**
 	 * Create a CSS namespace rule compatible with this implementation.
-	 * 
+	 *
 	 * @param prefix
 	 *            the namespace prefix.
 	 * @param namespaceUri
@@ -145,93 +143,93 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @throws DOMException
 	 *             INVALID_ACCESS_ERR: if the prefix or the URI are null.
 	 */
-	public CSSNamespaceRule createCSSNamespaceRule(String prefix, String namespaceUri);
+	CSSNamespaceRule createCSSNamespaceRule(String prefix, String namespaceUri);
 
 	/**
 	 * Create a CSS margin rule compatible with this implementation.
-	 * 
+	 *
 	 * @param name
 	 *            the margin rule name.
 	 * @return a CSS margin rule.
 	 */
-	public CSSMarginRule createCSSMarginRule(String name);
+	CSSMarginRule createCSSMarginRule(String name);
 
 	/**
 	 * Create a CSSSupportsRule compatible with this implementation.
-	 * 
+	 *
 	 * @return a CSSSupportsRule object.
 	 */
-	public CSSSupportsRule createCSSSupportsRule();
+	CSSSupportsRule createCSSSupportsRule();
 
 	/**
 	 * Create a CSSViewportRule compatible with this implementation.
-	 * 
+	 *
 	 * @return a CSSViewportRule object.
 	 */
-	public CSSDeclarationRule createCSSViewportRule();
+	CSSDeclarationRule createCSSViewportRule();
 
 	/**
 	 * Create a CSS style declaration compatible with this implementation.
-	 * 
+	 *
 	 * @return a CSS style declaration.
 	 */
-	public CSSStyleDeclaration createCSSStyleDeclaration();
+	CSSStyleDeclaration createCSSStyleDeclaration();
 
 	/**
 	 * Create a CSS style rule.
-	 * 
+	 *
 	 * @return a CSS style rule.
 	 */
-	public CSSStyleDeclarationRule createCSSStyleRule();
+	CSSStyleDeclarationRule createCSSStyleRule();
 
 	/**
 	 * Gets the error handler for this style sheet.
-	 * 
+	 *
 	 * @return the error handler.
 	 */
-	public SheetErrorHandler getErrorHandler();
+	SheetErrorHandler getErrorHandler();
 
 	/**
 	 * Check whether this sheet contains rules that have errors or warnings reported
 	 * to their handlers.
-	 * 
+	 *
 	 * @return <code>true</code> if this sheet contains rules that have errors or
 	 *         warnings.
 	 */
-	public boolean hasRuleErrorsOrWarnings();
+	boolean hasRuleErrorsOrWarnings();
 
 	/**
 	 * Returns a list of rules that apply to a style where the given longhand property
 	 * is set (either explicitly or through a shorthand).
 	 * <p>
 	 * Grouping rules are scanned too, regardless of the medium or condition.
-	 * 
+	 *
 	 * @param longhandPropertyName
 	 *            the longhand property name.
 	 * @return the list of rules, or <code>null</code> if no rules declare that property,
 	 *         or the property is a shorthand.
 	 */
-	public ExtendedCSSRuleList<? extends ExtendedCSSRule> getRulesForProperty(String longhandPropertyName);
+	ExtendedCSSRuleList<? extends ExtendedCSSRule> getRulesForProperty(String longhandPropertyName);
 
 	/**
 	 * Returns an array of selectors that apply to a style where the given longhand property
 	 * is set (either explicitly or through a shorthand).
 	 * <p>
 	 * Grouping rules are scanned too, regardless of the medium or condition.
-	 * 
+	 *
 	 * @param longhandPropertyName
 	 *            the longhand property name.
 	 * @return the array of selectors, or <code>null</code> if no rules declare that property,
 	 *         or the property is a shorthand.
 	 */
-	public Selector[] getSelectorsForProperty(String longhandPropertyName);
+	Selector[] getSelectorsForProperty(String longhandPropertyName);
 
 	/**
 	 * Get the style sheet factory used to produce this sheet.
-	 * 
+	 *
 	 * @return the style sheet factory.
 	 */
-	public CSSStyleSheetFactory getStyleSheetFactory();
+	CSSStyleSheetFactory getStyleSheetFactory();
 
 	/**
 	 * Parses a source into this style sheet.
@@ -241,7 +239,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * <p>
 	 * The comments preceding a rule will be available through
 	 * {@link AbstractCSSRule#getPrecedingComments()}.
-	 * 
+	 *
 	 * @param source
 	 *            the SAC input source.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, <code>false</code> otherwise.
@@ -252,7 +250,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @throws IOException
 	 *             if a problem is found reading the sheet.
 	 */
-	public boolean parseCSSStyleSheet(InputSource source) throws DOMException, IOException;
+	boolean parseCSSStyleSheet(InputSource source) throws DOMException, IOException;
 
 	/**
 	 * Parses a style sheet.
@@ -267,7 +265,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * To create a sheet, see
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
-	 * 
+	 *
 	 * @param source         the SAC input source.
 	 * @param ignoreComments true if comments have to be ignored.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal
@@ -275,6 +273,6 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @throws DOMException if a problem is found parsing the sheet.
 	 * @throws IOException  if a problem is found reading the sheet.
 	 */
-	public boolean parseCSSStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException;
+	boolean parseCSSStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException;
 
 }

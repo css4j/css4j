@@ -24,10 +24,10 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.InheritValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -561,7 +561,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean testBackgroundRepeat(ValueList rptList) {
-		if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers("background-repeat"))) {
+		if (LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers("background-repeat")) {
 			StyleValue value = createCSSValue("background-repeat", currentValue);
 			String s = value.getCssText();
 			nextCurrentValue();
@@ -584,7 +584,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 
 	private boolean testIdentifierProperty(int layer, Set<String> subp, String subpropertyName,
 			ValueList lst) {
-		if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subpropertyName))) {
+		if (LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subpropertyName)) {
 			StyleValue value = createCSSValue(subpropertyName, currentValue);
 			lst.add(value);
 			return true;

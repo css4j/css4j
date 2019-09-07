@@ -22,59 +22,59 @@ import org.w3c.dom.css.CSSValue;
  * available fonts, page sizes, etc. This information is supplied by an instance of the
  * <code>StyleDatabase</code> interface.
  * </p>
- * 
+ *
  * @author Carlos Amengual
  */
 public interface StyleDatabase {
 
 	/**
 	 * Gives the initial (default) value for the 'color' property on this device.
-	 * 
+	 *
 	 * @return the default color value.
 	 */
-	public CSSPrimitiveValue getInitialColor();
+	CSSPrimitiveValue getInitialColor();
 
 	/**
 	 * Sets the initial (default) value for the 'color' property on this device.
-	 * 
+	 *
 	 * @param initialColor
 	 *            the String representing default color value.
 	 */
-	public void setInitialColor(String initialColor);
+	void setInitialColor(String initialColor);
 
 	/**
 	 * Gets the name of the default font used when a generic font family (serif, sans-serif,
 	 * monospace, cursive, fantasy) is specified.
-	 * 
+	 *
 	 * @param genericFamily
 	 *            the name of the logical font.
 	 * @return the name of the real font to which the generic name is mapped to, or null if
 	 *         none.
 	 */
-	public String getDefaultGenericFontFamily(String genericFamily);
+	String getDefaultGenericFontFamily(String genericFamily);
 
 	/**
 	 * Gets the real name of the default font.
 	 * <p>
 	 * For example, if the default generic font name is 'serif', this method should return the
 	 * same as getDefaultGenericFontFamily("serif").
-	 * 
+	 *
 	 * @return the name of the default real font.
 	 */
-	public String getDefaultGenericFontFamily();
+	String getDefaultGenericFontFamily();
 
 	/**
 	 * Gets the used font family name according to the given style.
-	 * 
+	 *
 	 * @param computedStyle the computed style.
 	 * @return the name of the used font family.
 	 */
-	public String getUsedFontFamily(CSSComputedProperties computedStyle);
+	String getUsedFontFamily(CSSComputedProperties computedStyle);
 
 	/**
 	 * Gets the font size from the given size identifier (small, medium, etc.), expressed in
 	 * typographic points.
-	 * 
+	 *
 	 * @param familyName
 	 *            the font family name. Could be null.
 	 * @param fontSizeIdentifier
@@ -83,23 +83,23 @@ public interface StyleDatabase {
 	 * @throws DOMException
 	 *             if the identifier is unknown.
 	 */
-	public float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException;
+	float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException;
 
 	/**
 	 * Gives the style declaration adequate to provide the given system font.
-	 * 
+	 *
 	 * @param systemFontName
 	 *            the system font name.
 	 * @return the style declaration, or null if the system font name was not recognized.
 	 */
-	public String getSystemFontDeclaration(String systemFontName);
+	String getSystemFontDeclaration(String systemFontName);
 
 	/**
 	 * Gets the identifier of the device's natural unit.
-	 * 
+	 *
 	 * @return the unit identifier as in <code>CSSPrimitiveValue</code>.
 	 */
-	public short getNaturalUnit();
+	short getNaturalUnit();
 
 	/**
 	 * Gives the size of the 'ex' unit, expressed in 'pt' (typographic points) unit.
@@ -107,25 +107,25 @@ public interface StyleDatabase {
 	 * Although this type of information really belongs to <code>CSSCanvas</code>, having even
 	 * an approximate value here is helpful.
 	 * </p>
-	 * 
+	 *
 	 * @param familyName
 	 *            the font family name.
 	 * @param size
 	 *            the font size in 'pt' units.
 	 * @return the size of the 'ex' unit, in units of 'pt'.
 	 */
-	public float getExSizeInPt(String familyName, float size);
+	float getExSizeInPt(String familyName, float size);
 
 	/**
 	 * Gets the size corresponding to the given identifier (thin, thick, medium), in
 	 * typographic points.
-	 * 
+	 *
 	 * @param widthIdentifier the CSS width identifier.
 	 * @param fontSize        the font size used by the box, in typographic points.
 	 * @return the size.
 	 * @throws DOMException if the identifier is unknown.
 	 */
-	public float getWidthSize(String widthIdentifier, float fontSize) throws DOMException;
+	float getWidthSize(String widthIdentifier, float fontSize) throws DOMException;
 
 	/**
 	 * Gives the number of bits allocated to colors (excluding the alpha channel) in the
@@ -135,29 +135,29 @@ public interface StyleDatabase {
 	 * </p>
 	 * <p>
 	 * From W3C's Screen interface.
-	 * 
+	 *
 	 * @return the number of bits allocated to colors, or zero if the output device does not
 	 *         support colors.
 	 */
-	public int getColorDepth();
+	int getColorDepth();
 
 	/**
 	 * Gets the height of the device, expressed in its natural unit.
-	 * 
+	 *
 	 * @return the height of the rendering device.
 	 */
-	public float getDeviceHeight();
+	float getDeviceHeight();
 
 	/**
 	 * Gets the width of the device, expressed in its natural unit.
-	 * 
+	 *
 	 * @return the width of the rendering device.
 	 */
-	public float getDeviceWidth();
+	float getDeviceWidth();
 
 	/**
 	 * Does this medium support the given property-value pair?
-	 * 
+	 *
 	 * @param property
 	 *            the property name.
 	 * @param value
@@ -165,6 +165,6 @@ public interface StyleDatabase {
 	 * @return <code>true</code> if the property (with the given value, if any) is supported,
 	 *         <code>false</code> otherwise.
 	 */
-	public boolean supports(String property, CSSValue value);
+	boolean supports(String property, CSSValue value);
 
 }

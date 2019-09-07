@@ -14,10 +14,10 @@ package io.sf.carte.doc.style.css.om;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 class FlexShorthandSetter extends ShorthandSetter {
@@ -196,7 +196,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 				String cssText, miniCssText;
 				NumberValue number;
 				if (currentValue.getNextLexicalUnit() == null && cssValue instanceof NumberValue
-						&& ((number = (NumberValue) cssValue).isNumberZero())) {
+						&& (number = (NumberValue) cssValue).isNumberZero()) {
 					cssText = "0" + number.getDimensionUnitText();
 					miniCssText = cssText;
 				} else {

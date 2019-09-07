@@ -109,8 +109,8 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			String[] subp = getLonghandProperties();
 			for (String property : subp) {
 				StyleValue cssVal = getCSSValue(property);
-				if ((cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
-						((ValueList) cssVal).isCommaSeparated())) {
+				if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
+						((ValueList) cssVal).isCommaSeparated()) {
 					return false;
 				}
 			}
@@ -180,8 +180,8 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			String[] subp = getLonghandProperties();
 			for (String property : subp) {
 				StyleValue cssVal = getCSSValue(property);
-				if ((cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
-						((ValueList) cssVal).isCommaSeparated())) {
+				if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
+						((ValueList) cssVal).isCommaSeparated()) {
 					return false;
 				}
 			}

@@ -5,16 +5,16 @@
  * https://www.w3.org/Consortium/Legal/copyright-software-19980720
  *
  * Copyright © 2005-2019 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-19980720
- * 
+ *
  */
 
 package io.sf.carte.doc.style.css;
 
 /**
  * Extends the CSSValue interface to provide a couple serialization methods.
- * 
+ *
  * @author Carlos Amengual
  *
  */
@@ -22,8 +22,8 @@ public interface ExtendedCSSPrimitiveValue extends ExtendedCSSValue, CSSPrimitiv
 
 	/**
 	 * Is this value a number set to a value of zero ?
-	 * 
+	 *
 	 * @return <code>true</code> if this is a number and is set to zero.
 	 */
-	public boolean isNumberZero();
+	boolean isNumberZero();
 }

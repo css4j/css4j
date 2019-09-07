@@ -3,9 +3,9 @@
  *  (https://www.w3.org/TR/cssom-1/).
  * Copyright © 2016 W3C® (MIT, ERCIM, Keio, Beihang).
  * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
- * 
+ *
  * Copyright © 2018 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-20150513
  */
 
@@ -20,7 +20,7 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * An extended CSS rule.
- * 
+ *
  */
 public interface ExtendedCSSRule extends CSSRule {
 
@@ -38,41 +38,39 @@ public interface ExtendedCSSRule extends CSSRule {
 
 	/**
 	 * Obtain a clone of this rule whose parent sheet is <code>parentSheet</code>.
-	 * 
+	 *
 	 * @param parentSheet the parent sheet for the new rule.
 	 * @return a clone of this rule with the given parent sheet.
 	 */
-	public ExtendedCSSRule clone(AbstractCSSStyleSheet parentSheet);
+	ExtendedCSSRule clone(AbstractCSSStyleSheet parentSheet);
 
 	/**
 	 * A minified parsable textual representation of the rule. This reflects the current state
 	 * of the rule and not its initial value.
-	 * 
+	 *
 	 * @return the minified textual representation of the rule.
 	 */
-	public String getMinifiedCssText();
+	String getMinifiedCssText();
 
 	/**
 	 * If this rule is contained inside another rule, return that rule. If it is not nested
 	 * inside any other rules, return <code>null</code>.
-	 * 
+	 *
 	 * @return the containing rule, if any, otherwise <code>null</code>.
 	 */
-	@Override
-	public ExtendedCSSRule getParentRule();
+	@Override ExtendedCSSRule getParentRule();
 
 	/**
 	 * Get the style sheet that contains this rule.
-	 * 
+	 *
 	 * @return the style sheet, or null if no sheet contains this rule.
 	 */
-	@Override
-	public ExtendedCSSStyleSheet<? extends ExtendedCSSRule> getParentStyleSheet();
+	@Override ExtendedCSSStyleSheet<? extends ExtendedCSSRule> getParentStyleSheet();
 
 	/**
 	 * Write a serialization of this rule to the given simple writer, according to the given
 	 * context.
-	 * 
+	 *
 	 * @param wri
 	 *            the simple writer object.
 	 * @param context
@@ -80,6 +78,6 @@ public interface ExtendedCSSRule extends CSSRule {
 	 * @throws IOException
 	 *             if an error happened while writing.
 	 */
-	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException;
+	void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException;
 
 }

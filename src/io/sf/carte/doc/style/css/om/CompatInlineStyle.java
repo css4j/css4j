@@ -20,14 +20,14 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * Compat-aware CSS inline style declaration.
- * 
+ *
  */
 abstract public class CompatInlineStyle extends InlineStyle {
 

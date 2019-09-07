@@ -14,13 +14,13 @@ package io.sf.carte.doc.agent;
 /**
  * Origin policy.
  * <p>
- * 
+ *
  * @author Carlos Amengual
  */
 public interface OriginPolicy {
 
-	public boolean isTopLevelSuffix(String possibleTld);
+	boolean isTopLevelSuffix(String possibleTld);
 
-	public String domainFromHostname(String host);
+	String domainFromHostname(String host);
 
 }

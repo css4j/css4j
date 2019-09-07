@@ -3,7 +3,7 @@
  * (https://www.w3.org/TR/css-fonts-4/).
  * Copyright © 2013 W3C® (MIT, ERCIM, Keio, Beihang).
  * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
- * 
+ *
  * SPDX-License-Identifier: W3C-20150513
  */
 
@@ -16,8 +16,8 @@ package io.sf.carte.doc.style.css;
  */
 public interface CSSFontFeatureValuesMap {
 
-	public int[] get(String featureValueName);
+	int[] get(String featureValueName);
 
-	public void set(String featureValueName, int... values);
+	void set(String featureValueName, int... values);
 
 }

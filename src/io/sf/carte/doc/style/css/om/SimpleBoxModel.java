@@ -29,12 +29,12 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Simple CSS Box Model.

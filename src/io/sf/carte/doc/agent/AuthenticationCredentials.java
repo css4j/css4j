@@ -18,20 +18,20 @@ import java.security.Principal;
  */
 public interface AuthenticationCredentials {
 
-	public static final byte HTTP_BASIC_AUTH = 1;
+	byte HTTP_BASIC_AUTH = 1;
 
-	public String getRealm();
+	String getRealm();
 
-	public Principal getLoginPrincipal();
+	Principal getLoginPrincipal();
 
-	public void setLoginPrincipal(Principal loginPrincipal);
+	void setLoginPrincipal(Principal loginPrincipal);
 
-	public String getPassword();
+	String getPassword();
 
-	public void setPassword(String password);
+	void setPassword(String password);
 
-	public void setAuthType(byte authtype);
+	void setAuthType(byte authtype);
 
-	public byte getAuthType();
+	byte getAuthType();
 
 }

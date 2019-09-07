@@ -16,15 +16,15 @@ import org.w3c.dom.DOMException;
 
 /**
  * This interface listens to properties found by SAC event handlers.
- * 
+ *
  * @author Carlos Amengual
- * 
+ *
  */
 interface LexicalPropertyListener {
 
 	/**
 	 * Set a CSS property, based on lexixal value.
-	 * 
+	 *
 	 * @param propertyName
 	 *            the name of the property.
 	 * @param value
@@ -34,6 +34,6 @@ interface LexicalPropertyListener {
 	 * @throws DOMException
 	 *             if some error or inconsistency is found in the value.
 	 */
-	abstract void setProperty(String propertyName, LexicalUnit value, String priority) throws DOMException;
+	void setProperty(String propertyName, LexicalUnit value, String priority) throws DOMException;
 
 }

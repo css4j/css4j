@@ -13,37 +13,37 @@ package io.sf.carte.doc.agent;
 
 /**
  * User agent configuration for http cookies.
- * 
+ *
  * @author Carlos Amengual
  *
  */
 public interface CookieConfig {
 
-	public boolean acceptsAllCookies();
+	boolean acceptsAllCookies();
 
 	/**
 	 * Accept all cookies when opening HTTP connections to retrieve resources.
-	 * 
+	 *
 	 * @param acceptAllCookies
 	 *            true to accept all cookies, or <code>false</code> to ignore cookies.
 	 */
-	public void setAcceptAllCookies(boolean acceptAllCookies);
+	void setAcceptAllCookies(boolean acceptAllCookies);
 
 	/**
 	 * Does the user agent accept session cookies.
-	 * 
+	 *
 	 * @return <code>true</code> if session cookies are accepted, <code>false</code> otherwise.
 	 */
-	public boolean acceptsSessionCookies();
+	boolean acceptsSessionCookies();
 
 	/**
 	 * Accept only session cookies when opening HTTP connections to retrieve
 	 * resources.
-	 * 
+	 *
 	 * @param acceptSessionCookies
 	 *            true to accept session cookies, or <code>false</code> to ignore all
 	 *            cookies.
 	 */
-	public void setAcceptSessionCookies(boolean acceptSessionCookies);
+	void setAcceptSessionCookies(boolean acceptSessionCookies);
 
 }

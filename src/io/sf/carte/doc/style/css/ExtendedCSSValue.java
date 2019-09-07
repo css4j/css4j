@@ -5,9 +5,9 @@
  * https://www.w3.org/Consortium/Legal/copyright-software-19980720
  *
  * Copyright © 2005-2019 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-19980720
- * 
+ *
  */
 
 package io.sf.carte.doc.style.css;
@@ -21,7 +21,7 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Extends the CSSValue interface to provide a couple serialization methods, and
  * extend <code>Cloneable</code>.
- * 
+ *
  * @author Carlos Amengual
  *
  */
@@ -29,27 +29,27 @@ public interface ExtendedCSSValue extends CSSValue, Cloneable {
 
 	/**
 	 * Creates and returns a copy of this value.
-	 * 
+	 *
 	 * @return a clone of this value.
 	 */
-	public ExtendedCSSValue clone();
+	ExtendedCSSValue clone();
 
 	/**
 	 * Gives a minified version of the css text of the property, for the given property name.
-	 * 
+	 *
 	 * @param propertyName
 	 *            the property name.
 	 * @return the minified css text.
 	 */
-	public String getMinifiedCssText(String propertyName);
+	String getMinifiedCssText(String propertyName);
 
 	/**
 	 * Serialize this value to a {@link SimpleWriter}.
-	 * 
+	 *
 	 * @param wri
 	 *            the SimpleWriter.
 	 * @throws IOException
 	 *            if an error happened while writing.
 	 */
-	public void writeCssText(SimpleWriter wri) throws IOException;
+	void writeCssText(SimpleWriter wri) throws IOException;
 }

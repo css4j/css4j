@@ -66,8 +66,8 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 		String property = subp[0];
 		// Make sure that it is not a layered property
 		StyleValue cssVal = getCSSValue(property);
-		if ((cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
-				((ValueList) cssVal).isCommaSeparated())) {
+		if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
+				((ValueList) cssVal).isCommaSeparated()) {
 			return false;
 		}
 		boolean appended = false;

@@ -13,9 +13,9 @@ package io.sf.carte.doc.style.css;
 
 /**
  * CSS supports rule conditions.
- * 
+ *
  * @author Carlos Amengual
- * 
+ *
  */
 public interface SupportsCondition {
 
@@ -25,49 +25,49 @@ public interface SupportsCondition {
 
 	/**
 	 * The type of condition.
-	 * 
+	 *
 	 * @return the condition type.
 	 */
-	public ConditionType getType();
+	ConditionType getType();
 
 	/**
 	 * Get the parent condition, if any.
-	 * 
+	 *
 	 * @return the parent condition, or <code>null</code> if none.
 	 */
-	public SupportsCondition getParentCondition();
+	SupportsCondition getParentCondition();
 
 	/**
 	 * Set the parent condition.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent condition.
 	 */
-	public void setParentCondition(SupportsCondition parent);
+	void setParentCondition(SupportsCondition parent);
 
 	/**
 	 * Add a condition to a boolean condition.
-	 * 
+	 *
 	 * @param nestedCondition
 	 *            the nested condition.
 	 */
-	public void addCondition(SupportsCondition nestedCondition);
+	void addCondition(SupportsCondition nestedCondition);
 
 	/**
 	 * Replace the last condition added.
-	 * 
+	 *
 	 * @param newCondition
 	 *            the condition that replaces the last condition.
-	 * 
+	 *
 	 * @return the replaced condition.
 	 */
-	public SupportsCondition replaceLast(SupportsCondition newCondition);
+	SupportsCondition replaceLast(SupportsCondition newCondition);
 
 	/**
 	 * Get a minified serialization of the condition.
-	 * 
+	 *
 	 * @return the minified serialization of this condition.
 	 */
-	public String getMinifiedText();
+	String getMinifiedText();
 
 }

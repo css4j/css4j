@@ -13,8 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {

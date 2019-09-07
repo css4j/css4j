@@ -26,20 +26,20 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Generic class that attempts to set the subproperties of shorthand properties.
- * 
+ *
  * @author Carlos Amengual
- * 
+ *
  */
 class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 

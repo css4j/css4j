@@ -20,35 +20,35 @@ public interface TokenHandler {
 	/**
 	 * At the beginning of parsing, this method is called, passing the {@link TokenControl}
 	 * object that can be used to fine-control the parsing.
-	 * 
+	 *
 	 * @param control
 	 *            the <code>TokenControl</code> object in charge of parsing.
 	 */
-	public void tokenControl(TokenControl control);
+	void tokenControl(TokenControl control);
 
 	/**
 	 * A word was found by the parser (includes connector punctuation).
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the word was found.
 	 * @param word
 	 *            the word.
 	 */
-	public void word(int index, CharSequence word);
+	void word(int index, CharSequence word);
 
 	/**
 	 * A separator (Zs, Zl and Zp unicode categories) was found.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the separator was found.
 	 * @param codePoint
 	 *            the codepoint of the found separator.
 	 */
-	public void separator(int index, int codePoint);
+	void separator(int index, int codePoint);
 
 	/**
 	 * A quoted string was found by the parser.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the quoted string was found.
 	 * @param quoted
@@ -56,11 +56,11 @@ public interface TokenHandler {
 	 * @param quote
 	 *            the quote character.
 	 */
-	public void quoted(int index, CharSequence quoted, int quote);
+	void quoted(int index, CharSequence quoted, int quote);
 
 	/**
 	 * A quoted string was found by the parser, and contains control characters.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the quoted string was found.
 	 * @param quoted
@@ -68,37 +68,37 @@ public interface TokenHandler {
 	 * @param quoteCp
 	 *            the quote character codepoint.
 	 */
-	public void quotedWithControl(int index, CharSequence quoted, int quoteCp);
+	void quotedWithControl(int index, CharSequence quoted, int quoteCp);
 
 	/**
 	 * An unescaped FF/LF/CR control was found while assembling a quoted string.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the control was found.
 	 * @param codePoint
 	 *            the FF/LF/CR codepoint.
 	 */
-	public void quotedNewlineChar(int index, int codePoint);
+	void quotedNewlineChar(int index, int codePoint);
 
 	/**
 	 * Called when one of these codepoints is found: (, [, {
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the codepoint was found.
 	 * @param codePoint
 	 *            the found codepoint.
 	 */
-	public void openGroup(int index, int codePoint);
+	void openGroup(int index, int codePoint);
 
 	/**
 	 * Called when one of these codepoints is found: ), ], }
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the codepoint was found.
 	 * @param codePoint
 	 *            the found codepoint.
 	 */
-	public void closeGroup(int index, int codePoint);
+	void closeGroup(int index, int codePoint);
 
 	/**
 	 * Other characters including punctuation (excluding connector punctuation) and symbols
@@ -107,37 +107,37 @@ public interface TokenHandler {
 	 * <p>
 	 * Symbols in So category are considered part of words and won't be handled by this
 	 * method.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the punctuation was found.
 	 * @param codePoint
 	 *            the codepoint of the found punctuation.
 	 */
-	public void character(int index, int codePoint);
+	void character(int index, int codePoint);
 
 	/**
 	 * A codepoint preceded with a backslash was found outside of quoted text.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the escaped codepoint was found.
 	 * @param codePoint
 	 *            the escaped codepoint.
 	 */
-	public void escaped(int index, int codePoint);
+	void escaped(int index, int codePoint);
 
 	/**
 	 * A control character codepoint was found.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the control codepoint was found.
 	 * @param codePoint
 	 *            the control codepoint.
 	 */
-	public void control(int index, int codePoint);
+	void control(int index, int codePoint);
 
 	/**
 	 * A commented string was found by the parser.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the commented string was found.
 	 * @param commentType
@@ -145,22 +145,22 @@ public interface TokenHandler {
 	 * @param comment
 	 *            the commented string.
 	 */
-	public void commented(int index, int commentType, String comment);
+	void commented(int index, int commentType, String comment);
 
 	/**
 	 * The stream that was being parsed reached its end.
-	 * 
+	 *
 	 * @param len
 	 *            the length of the processed stream.
 	 */
-	public void endOfStream(int len);
+	void endOfStream(int len);
 
 	/**
 	 * An error was found while parsing.
 	 * <p>
 	 * Something was found that broke the assumptions made by the parser, like an escape
 	 * character at the end of the stream or an unmatched quote.
-	 * 
+	 *
 	 * @param index
 	 *            the index at which the error was found.
 	 * @param errCode
@@ -169,5 +169,5 @@ public interface TokenHandler {
 	 *            a context sequence. If a string was parsed, it will contain up to 16
 	 *            characters before and after the error.
 	 */
-	public void error(int index, byte errCode, CharSequence context);
+	void error(int index, byte errCode, CharSequence context);
 }

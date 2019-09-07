@@ -5,11 +5,11 @@
  *
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
- * 
+ *
  * Copyright © 2017,2018 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-19980720
- * 
+ *
  */
 package io.sf.carte.doc.style.css.parser;
 
@@ -20,15 +20,15 @@ import org.w3c.css.sac.LexicalUnit;
  * DocumentHandler for {@literal @}keyframes rule body.
  * <p>
  * It is likely to be moved to a new DocumentHandler2 interface in NSAC 1.1.
- * 
+ *
  */
 public interface KeyframesHandler extends DocumentHandler {
 
-	public void startKeyframes(String name);
+	void startKeyframes(String name);
 
-	public void endKeyframes();
+	void endKeyframes();
 
-	public void startKeyframe(LexicalUnit keyframeSelector);
+	void startKeyframe(LexicalUnit keyframeSelector);
 
-	public void endKeyframe();
+	void endKeyframe();
 }

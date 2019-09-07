@@ -43,9 +43,9 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.doc.style.css.RGBAColor;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 public class ComputedCSSStyleTest {
 
@@ -1329,7 +1329,7 @@ public class ComputedCSSStyleTest {
 					String selector = st.nextToken();
 					if (selector.equals(selectorText)) {
 						if (((CSSStyleRule) rule).getStyle().getPropertyCSSValue(propertyName) != null) {
-							return ((CSSStyleRule) rule);
+							return (CSSStyleRule) rule;
 						}
 						break;
 					}

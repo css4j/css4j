@@ -141,7 +141,7 @@ public class StyleRuleTest2 {
 					String selector = st.nextToken();
 					if (selector.equals(selectorText)) {
 						if (((CSSStyleRule) rule).getStyle().getPropertyCSSValue(propertyName) != null) {
-							return ((CSSStyleRule) rule);
+							return (CSSStyleRule) rule;
 						}
 						break;
 					}

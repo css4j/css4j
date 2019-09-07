@@ -32,46 +32,46 @@ import org.w3c.css.sac.SelectorList;
  * (and subsequently also this library's {@link CSSElement}) directly have
  * <code>matches</code> methods, which make the {@link CSSElement#getSelectorMatcher()}
  * method a bit superfluous, although it is being kept for now.
- * 
+ *
  * @author Carlos Amengual
- * 
+ *
  */
 public interface SelectorMatcher {
 
 	/**
 	 * Get the pseudo-element that this matcher will use to match selectors.
-	 * 
+	 *
 	 * @return the pseudo-element, or null if no pseudo-element will be used to
 	 *         match selectors.
 	 */
-	public String getPseudoElement();
+	String getPseudoElement();
 
 	/**
 	 * Set this selector's pseudo-element.
-	 * 
+	 *
 	 * @param pseudoElt
 	 *            the pseudo-element, or <code>null</code> if none.
 	 */
-	public void setPseudoElement(String pseudoElt);
+	void setPseudoElement(String pseudoElt);
 
 	/**
 	 * Does this selector match the given selector list?
-	 * 
+	 *
 	 * @param selist
 	 *            the list of selectors to which this matcher will compare.
-	 * 
+	 *
 	 * @return the index of the highest matching selector, or -1 if none
 	 *         matches.
 	 */
-	public int matches(SelectorList selist);
+	int matches(SelectorList selist);
 
 	/**
 	 * Does this matcher match the given selector?
-	 * 
+	 *
 	 * @param selector
 	 *            the selector to be tested.
-	 * 
+	 *
 	 * @return <code>true</code> if the given selector matches this object, <code>false</code> otherwise.
 	 */
-	public boolean matches(Selector selector);
+	boolean matches(Selector selector);
 }

@@ -25,7 +25,7 @@ public interface MediaFeaturePredicate extends BooleanCondition {
 	 * Get the name of the feature.
 	 * <p>
 	 * Example: <code>width</code>.
-	 * 
+	 *
 	 * @return the name of the feature.
 	 */
 	String getName();
@@ -33,14 +33,14 @@ public interface MediaFeaturePredicate extends BooleanCondition {
 	/**
 	 * If the feature is of range type, set the range type as determined by the
 	 * parser.
-	 * 
+	 *
 	 * @param rangeType the range type according to the implementation.
 	 */
 	void setRangeType(byte rangeType);
 
 	/**
 	 * Get the range type as was determined by the parser.
-	 * 
+	 *
 	 * @return the range type according to the implementation, or zero if not a
 	 *         range feature.
 	 */
@@ -49,7 +49,7 @@ public interface MediaFeaturePredicate extends BooleanCondition {
 	/**
 	 * Get the value to be tested on the feature. If the predicate involves two
 	 * values, this is the first value.
-	 * 
+	 *
 	 * @return the value to be tested on the feature.
 	 */
 	ExtendedCSSPrimitiveValue getValue();
@@ -57,14 +57,14 @@ public interface MediaFeaturePredicate extends BooleanCondition {
 	/**
 	 * Set the value to be tested on the feature. If the predicate involves two
 	 * values, this is the first value.
-	 * 
+	 *
 	 * @param value the value to be tested on the feature.
 	 */
 	void setValue(ExtendedCSSPrimitiveValue value);
 
 	/**
 	 * If this is a range feature test involving two values, get the second value.
-	 * 
+	 *
 	 * @return the second value in this range test, or <code>null</code> if this is
 	 *         not a range feature or the range only involves one value.
 	 */
@@ -72,7 +72,7 @@ public interface MediaFeaturePredicate extends BooleanCondition {
 
 	/**
 	 * Set the second value in this range test.
-	 * 
+	 *
 	 * @param value the second value in this range test.
 	 */
 	void setRangeSecondValue(ExtendedCSSPrimitiveValue value);

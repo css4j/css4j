@@ -99,7 +99,7 @@ class LexicalUnitImpl implements LexicalUnit2 {
 			if (lu != null) {
 				buf.append(lu.toString());
 			}
-			return buf.toString(); 
+			return buf.toString();
 		}
 		return value;
 	}

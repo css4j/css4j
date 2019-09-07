@@ -17,15 +17,15 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
-import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Abstract base class for CSS Style databases.
- * 
+ *
  * @author Carlos Amengual
  */
 abstract public class AbstractStyleDatabase implements StyleDatabase {

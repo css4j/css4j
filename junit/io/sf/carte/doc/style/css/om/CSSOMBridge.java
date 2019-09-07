@@ -14,8 +14,8 @@ package io.sf.carte.doc.style.css.om;
 import org.w3c.css.sac.DocumentHandler;
 import org.w3c.css.sac.SelectorList;
 
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 public class CSSOMBridge {
 

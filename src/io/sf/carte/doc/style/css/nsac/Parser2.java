@@ -5,11 +5,11 @@
  *
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
- * 
+ *
  * Copyright © 2017,2018 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-19980720
- * 
+ *
  */
 package io.sf.carte.doc.style.css.nsac;
 
@@ -57,19 +57,19 @@ public interface Parser2 extends Parser {
 
 	/**
 	 * Set a parser flag.
-	 * 
+	 *
 	 * @param flag
 	 *            the flag.
 	 */
-	public void setFlag(Flag flag);
+	void setFlag(Flag flag);
 
 	/**
 	 * Unset a parser flag.
-	 * 
+	 *
 	 * @param flag
 	 *            the flag.
 	 */
-	public void unsetFlag(Flag flag);
+	void unsetFlag(Flag flag);
 
 	/**
 	 * Parse a CSS rule.
@@ -78,14 +78,14 @@ public interface Parser2 extends Parser {
 	 *            the rule's source.
 	 * @param nsmap
 	 *            the namespace map.
-	 * 
+	 *
 	 * @exception CSSException
 	 *                Any CSS exception, possibly wrapping another exception.
 	 * @exception java.io.IOException
 	 *                An IO exception from the parser, possibly from a byte stream or
 	 *                character stream supplied by the application.
 	 */
-	public void parseRule(InputSource source, NamespaceMap nsmap) throws CSSException, IOException;
+	void parseRule(InputSource source, NamespaceMap nsmap) throws CSSException, IOException;
 
 	/**
 	 * Interface giving access to namespace URI from the prefix.
@@ -93,7 +93,7 @@ public interface Parser2 extends Parser {
 	public interface NamespaceMap {
 		/**
 		 * Gets the namespace URI associated to the given prefix.
-		 * 
+		 *
 		 * @param nsPrefix
 		 *            the namespace prefix.
 		 * @return the namespace URI string.

@@ -20,15 +20,15 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * Value for a shorthand property.
- * 
+ *
  * @author Carlos Amengual
- * 
+ *
  */
 class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSSShorthandValue {
 

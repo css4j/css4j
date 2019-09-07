@@ -5,11 +5,11 @@
  *
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
- * 
+ *
  * Copyright © 2017 Carlos Amengual.
- * 
+ *
  * SPDX-License-Identifier: W3C-19980720
- * 
+ *
  */
 package io.sf.carte.doc.style.css.nsac;
 
@@ -24,7 +24,7 @@ public interface AttributeCondition2 extends AttributeCondition {
 	 * Returns the <a href="http://www.w3.org/TR/REC-xml-names/#NT-LocalPart">local part</a>
 	 * of the <a href="http://www.w3.org/TR/REC-xml-names/#ns-qualnames">qualified name</a> of
 	 * this attribute.
-	 * 
+	 *
 	 * @return the local name of the attribute specified by this condition, or
 	 *         <code>null</code> if :
 	 *         <ul>
@@ -44,7 +44,7 @@ public interface AttributeCondition2 extends AttributeCondition {
 
 	/**
 	 * If this attribute is a class attribute, you'll get the class name without the '.'.
-	 * 
+	 *
 	 * @return the value of the attribute.
 	 */
 	@Override
@@ -58,7 +58,7 @@ public interface AttributeCondition2 extends AttributeCondition {
 		 * Case insensitive comparisons should be used.
 		 */
 		CASE_I,
-		
+
 		/**
 		 * Case sensitive comparisons should be used.
 		 */
@@ -67,11 +67,11 @@ public interface AttributeCondition2 extends AttributeCondition {
 
 	/**
 	 * Test this selector for the given flag.
-	 * 
+	 *
 	 * @param flag
 	 *            the flag to test.
 	 * @return <code>true</code> if the supplied flag was set for this condition.
 	 */
-	public boolean hasFlag(Flag flag);
+	boolean hasFlag(Flag flag);
 
 }

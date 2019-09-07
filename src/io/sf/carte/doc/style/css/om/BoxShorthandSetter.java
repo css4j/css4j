@@ -17,8 +17,8 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -129,7 +129,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 
 	/**
 	 * Counts the number of box-like values in style declarations.
-	 * 
+	 *
 	 * @param topLevelUnit
 	 *            the top lexical unit for the declaration.
 	 */
