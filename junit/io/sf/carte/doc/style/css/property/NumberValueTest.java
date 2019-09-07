@@ -120,6 +120,17 @@ public class NumberValueTest {
 	}
 
 	@Test
+	public void testGetCssTextInfinite() {
+		NumberValue val = new NumberValue();
+		val.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, Float.POSITIVE_INFINITY);
+		assertEquals("calc(1/0)", val.getCssText());
+		assertEquals("calc(1/0)", val.getMinifiedCssText(""));
+		val.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, Float.NEGATIVE_INFINITY);
+		assertEquals("calc(-1/0)", val.getCssText());
+		assertEquals("calc(-1/0)", val.getMinifiedCssText(""));
+	}
+
+	@Test
 	public void testSetFloatValuePt() {
 		NumberValue val = new NumberValue();
 		val.setFloatValue(CSSPrimitiveValue.CSS_EMS, 2f);

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
@@ -187,6 +188,43 @@ public class EvaluatorTest {
 				1e-5);
 		assertEquals(0, unit.getExponent());
 		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcNaN() {
+		style.setCssText("foo: calc(0 / 0)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateExpression(val.getExpression());
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testCalcInfinity() {
+		style.setCssText("foo: calc(1.2 / 0)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertTrue(Float.isInfinite(
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER)));
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcInfinityPt() {
+		style.setCssText("foo: calc(1.2pt / 0)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertTrue(Float.isInfinite(
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_PT)));
+		assertEquals(1, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_PT, unit.getUnitType());
 	}
 
 	@Test

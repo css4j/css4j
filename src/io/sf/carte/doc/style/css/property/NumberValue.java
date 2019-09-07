@@ -54,6 +54,9 @@ public class NumberValue extends PrimitiveValue {
 		if (realvalue == 0f && !notaNumber) {
 			return "0";
 		}
+		if (Float.isInfinite(realvalue)) {
+			return serializeInfinite();
+		}
 		double rintValue = Math.rint(realvalue);
 		if (asInteger) {
 			return Integer.toString((int) rintValue);
@@ -76,6 +79,10 @@ public class NumberValue extends PrimitiveValue {
 			wri.write('0');
 			return;
 		}
+		if (Float.isInfinite(realvalue)) {
+			writeInfinite(wri);
+			return;
+		}
 		double rintValue = Math.rint(realvalue);
 		if (asInteger) {
 			wri.write(Integer.toString((int) rintValue));
@@ -91,12 +98,23 @@ public class NumberValue extends PrimitiveValue {
 		wri.write(dimensionUnitText);
 	}
 
+	private void writeInfinite(SimpleWriter wri) throws IOException {
+		if (realvalue > 0f) {
+			wri.write("calc(1/0)");
+		} else {
+			wri.write("calc(-1/0)");
+		}
+	}
+
 	@Override
 	public String getMinifiedCssText(String propertyName) {
 		boolean notaNumber = getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER;
 		if (realvalue == 0f && notaNumber && getPrimitiveType() != CSSPrimitiveValue.CSS_PERCENTAGE
 				&& isLengthUnitType()) {
 			return "0";
+		}
+		if (Float.isInfinite(realvalue)) {
+			return serializeInfinite();
 		}
 		double rintValue = Math.rint(realvalue);
 		if (asInteger) {
@@ -123,6 +141,14 @@ public class NumberValue extends PrimitiveValue {
 		}
 		buf.append(dimensionUnitText);
 		return buf.toString();
+	}
+
+	private String serializeInfinite() {
+		if (realvalue > 0f) {
+			return "calc(1/0)";
+		} else {
+			return "calc(-1/0)";
+		}
 	}
 
 	private boolean isLengthUnitType() {
@@ -173,7 +199,7 @@ public class NumberValue extends PrimitiveValue {
 
 	@Override
 	public boolean isNumberZero() {
-		return realvalue == 0f || Math.abs(realvalue) < 1e-5;
+		return realvalue == 0f;
 	}
 
 	/**

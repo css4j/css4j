@@ -21,9 +21,9 @@ package io.sf.carte.doc.style.css;
 public interface ExtendedCSSPrimitiveValue extends ExtendedCSSValue, CSSPrimitiveValue2 {
 
 	/**
-	 * Is this value a number set to a value of zero, or an absolute value less than 1e-5 ?
+	 * Is this value a number set to a value of zero ?
 	 * 
-	 * @return <code>true</code> if this is a number and is set to zero (or equivalently small value).
+	 * @return <code>true</code> if this is a number and is set to zero.
 	 */
 	public boolean isNumberZero();
 }

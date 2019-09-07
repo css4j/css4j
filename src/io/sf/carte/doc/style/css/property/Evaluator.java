@@ -543,6 +543,9 @@ public class Evaluator {
 					}
 				}
 				result /= partial;
+				if (Float.isNaN(result)) {
+					throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Found NaN.");
+				}
 			} else {
 				if (partialUnit != CSSPrimitiveValue.CSS_NUMBER) {
 					unitExp++;
