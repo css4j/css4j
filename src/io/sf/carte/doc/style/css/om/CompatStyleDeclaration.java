@@ -20,7 +20,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.util.SimpleWriter;
@@ -49,7 +49,7 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 			super.setLonghandProperty(propertyName, value, priority);
 		} else {
 			ValueFactory factory = getValueFactory();
-			AbstractCSSValue cssvalue;
+			StyleValue cssvalue;
 			try {
 				cssvalue = factory.createCSSValue(value, this);
 			} catch (DOMException e) {
@@ -67,12 +67,12 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 	}
 
 	@Override
-	protected boolean addOverrideProperty(String propertyName, AbstractCSSValue cssValue, String priority) {
+	protected boolean addOverrideProperty(String propertyName, StyleValue cssValue, String priority) {
 		return addCompatProperty(propertyName, cssValue, priority);
 	}
 
 	@Override
-	protected void compatLonghand(String propertyName, AbstractCSSValue value, boolean priorityImportant,
+	protected void compatLonghand(String propertyName, StyleValue value, boolean priorityImportant,
 			boolean isOverride) {
 		compatSet.setCompatLonghand(propertyName, value, priorityImportant, isOverride);
 	}
@@ -107,10 +107,10 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 	}
 
 	@Override
-	protected void appendLonghandMinifiedCssText(StringBuilder sb, String ptyname, AbstractCSSValue cssVal,
+	protected void appendLonghandMinifiedCssText(StringBuilder sb, String ptyname, StyleValue cssVal,
 			boolean important) {
 		boolean isCompatOv = compatSet.isCompatLonghand(ptyname);
-		AbstractCSSValue compatvalue;
+		StyleValue compatvalue;
 		if (!isCompatOv && !important && (compatvalue = compatSet.getNonOvCompatLonghand(ptyname)) != null) {
 			super.appendLonghandMinifiedCssText(sb, ptyname, compatvalue, true);
 			sb.append('!').append(';');
@@ -152,9 +152,9 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 
 	@Override
 	protected void writeLonghandCssText(SimpleWriter wri, StyleFormattingContext context, String ptyname,
-			AbstractCSSValue ptyvalue, boolean important) throws IOException {
+			StyleValue ptyvalue, boolean important) throws IOException {
 		boolean isCompatOv = compatSet.isCompatLonghand(ptyname);
-		AbstractCSSValue compatvalue;
+		StyleValue compatvalue;
 		if (!isCompatOv && !important && (compatvalue = compatSet.getNonOvCompatLonghand(ptyname)) != null) {
 			context.startPropertyDeclaration(wri);
 			CompatDeclarationSet.writeIEPrioCharLonghandCssText(wri, context, ptyname, compatvalue);

@@ -46,7 +46,7 @@ public class ValueFactoryTest {
 		ValueFactory factory = new ValueFactory();
 		InputSource source = new InputSource(new StringReader("1, 2, 3, 4"));
 		LexicalUnit lunit = parser.parsePropertyValue(source);
-		AbstractCSSValue value = factory.createCSSValue(lunit);
+		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		ValueList list = (ValueList) value;
 		assertEquals(4, list.getLength());
@@ -419,7 +419,7 @@ public class ValueFactoryTest {
 		InputSource source = new InputSource(new StringReader("40pt\\9"));
 		((Parser2) parser).setFlag(Parser2.Flag.IEVALUES);
 		LexicalUnit lunit = parser.parsePropertyValue(source);
-		AbstractCSSValue value = factory.createCSSValue(lunit);
+		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
 		assertEquals("40pt\\9", value.getCssText());
@@ -431,7 +431,7 @@ public class ValueFactoryTest {
 		InputSource source = new InputSource(new StringReader("foo 40pt\\9"));
 		((Parser2) parser).setFlag(Parser2.Flag.IEVALUES);
 		LexicalUnit lunit = parser.parsePropertyValue(source);
-		AbstractCSSValue value = factory.createCSSValue(lunit);
+		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
 		assertEquals("foo 40pt\\9", value.getCssText());
@@ -443,7 +443,7 @@ public class ValueFactoryTest {
 		InputSource source = new InputSource(new StringReader("40pt!ie"));
 		((Parser2) parser).setFlag(Parser2.Flag.IEPRIO);
 		LexicalUnit lunit = parser.parsePropertyValue(source);
-		AbstractCSSValue value = factory.createCSSValue(lunit);
+		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
 		assertEquals("40pt!ie", value.getCssText());
@@ -455,7 +455,7 @@ public class ValueFactoryTest {
 		InputSource source = new InputSource(new StringReader("foo 40pt!ie"));
 		((Parser2) parser).setFlag(Parser2.Flag.IEPRIO);
 		LexicalUnit lunit = parser.parsePropertyValue(source);
-		AbstractCSSValue value = factory.createCSSValue(lunit);
+		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
 		assertEquals("foo 40pt!ie", value.getCssText());

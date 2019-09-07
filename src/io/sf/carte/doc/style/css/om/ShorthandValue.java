@@ -20,7 +20,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.util.SimpleWriter;
 
@@ -30,7 +30,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-class ShorthandValue extends AbstractCSSValue implements io.sf.carte.doc.style.css.CSSShorthandValue {
+class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSSShorthandValue {
 
 	private final LexicalUnit lexicalUnit;
 

@@ -63,7 +63,7 @@ public class CustomPropertyValueTest {
 		assertEquals("var(--my-identifier)", style.getPropertyValue("foo"));
 		assertEquals("foo: var(--my-identifier); ", style.getCssText());
 		assertEquals("foo:var(--my-identifier)", style.getMinifiedCssText());
-		AbstractCSSValue cssval = style.getPropertyCSSValue("foo");
+		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		CustomPropertyValue val = (CustomPropertyValue) cssval;
@@ -77,7 +77,7 @@ public class CustomPropertyValueTest {
 		assertEquals("var(--my-identifier, #f0c)", style.getPropertyValue("foo"));
 		assertEquals("foo: var(--my-identifier, #f0c); ", style.getCssText());
 		assertEquals("foo:var(--my-identifier,#f0c)", style.getMinifiedCssText());
-		AbstractCSSValue cssval = style.getPropertyCSSValue("foo");
+		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		CustomPropertyValue val = (CustomPropertyValue) cssval;

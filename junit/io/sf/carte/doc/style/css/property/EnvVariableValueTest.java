@@ -65,7 +65,7 @@ public class EnvVariableValueTest {
 		assertEquals("env(safe-area-inset-left)", style.getPropertyValue("foo"));
 		assertEquals("foo: env(safe-area-inset-left); ", style.getCssText());
 		assertEquals("foo:env(safe-area-inset-left)", style.getMinifiedCssText());
-		AbstractCSSValue cssval = style.getPropertyCSSValue("foo");
+		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_ENV_VAR, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		CSSEnvVariableValue val = (CSSEnvVariableValue) cssval;
@@ -79,7 +79,7 @@ public class EnvVariableValueTest {
 		assertEquals("env(safe-area-inset-left, 1px)", style.getPropertyValue("foo"));
 		assertEquals("foo: env(safe-area-inset-left, 1px); ", style.getCssText());
 		assertEquals("foo:env(safe-area-inset-left,1px)", style.getMinifiedCssText());
-		AbstractCSSValue cssval = style.getPropertyCSSValue("foo");
+		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_ENV_VAR, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		CSSEnvVariableValue val = (CSSEnvVariableValue) cssval;

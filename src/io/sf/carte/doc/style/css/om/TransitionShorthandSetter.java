@@ -17,7 +17,7 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
@@ -70,7 +70,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				break;
 			default:
 				ValueItem item = valueFactory.createCSSValueItem(value, true);
-				AbstractCSSValue cssVal = item.getCSSValue();
+				StyleValue cssVal = item.getCSSValue();
 				int len = valueBuffer.length();
 				if (len != 0) {
 					char c = valueBuffer.charAt(len -1);
@@ -157,7 +157,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 					String sv = currentValue.getStringValue().toLowerCase(Locale.ROOT);
 					if ("initial".equals(sv) || "unset".equals(sv)) {
-						AbstractCSSValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
+						StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 						// Full layer is 'keyword'
 						while (currentValue != null) {
 							boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
@@ -176,7 +176,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				}
 				if ((tdurUnset || tdelayUnset) && ValueFactory.isTimeSACUnit(currentValue)) {
 					if (tdurUnset) {
-						AbstractCSSValue value = createCSSValue("transition-duration", currentValue);
+						StyleValue value = createCSSValue("transition-duration", currentValue);
 						if (value != null) {
 							lstDuration.add(value);
 							tdurUnset = false;
@@ -184,7 +184,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 							continue;
 						}
 					} else {
-						AbstractCSSValue value = createCSSValue("transition-delay", currentValue);
+						StyleValue value = createCSSValue("transition-delay", currentValue);
 						if (value != null) {
 							lstDelay.add(value);
 							tdelayUnset = false;
@@ -196,7 +196,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				if (ttfUnset) {
 					if (LexicalUnit.SAC_IDENT == lut) {
 						if (testIdentifiers("transition-timing-function")) {
-							AbstractCSSValue value = createCSSValue("transition-timing-function", currentValue);
+							StyleValue value = createCSSValue("transition-timing-function", currentValue);
 							lstTiming.add(value);
 							ttfUnset = false;
 							nextCurrentValue();
@@ -204,7 +204,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 						}
 					} else if (lut == LexicalUnit.SAC_FUNCTION) {
 						// transition-timing-function
-						AbstractCSSValue value = createCSSValue("transition-timing-function", currentValue);
+						StyleValue value = createCSSValue("transition-timing-function", currentValue);
 						if (value != null) {
 							lstTiming.add(value);
 							ttfUnset = false;
@@ -215,7 +215,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				}
 				if (tpropUnset && (lut == LexicalUnit.SAC_IDENT || lut == LexicalUnit.SAC_STRING_VALUE)) {
 					// Assume a property
-					AbstractCSSValue value = createCSSValue("transition-property", currentValue);
+					StyleValue value = createCSSValue("transition-property", currentValue);
 					if (!"none".equals(value.getCssText()) || transitionsCount == 1) {
 						lstProperty.add(value);
 						tpropUnset = false;
@@ -241,7 +241,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 					if (lut == LexicalUnit.SAC_IDENT) {
 						errHandler.unknownIdentifier("transition", currentValue.getStringValue());
 					} else {
-						AbstractCSSValue val = createCSSValue("transition", currentValue);
+						StyleValue val = createCSSValue("transition", currentValue);
 						errHandler.unassignedShorthandValue("transition", val.getCssText());
 					}
 				}
@@ -276,7 +276,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 			// Scan for 'all'
 			i = 1;
 			while (i < sz) {
-				AbstractCSSValue value = lstProperty.item(i);
+				StyleValue value = lstProperty.item(i);
 				if ("all".equals(value.getCssText())) {
 					for (int j = i - 1; j != -1; j--) {
 						lstDuration.set(j, lstDuration.item(i));;
@@ -311,7 +311,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 		}
 	}
 
-	private void addSingleValueLayer(AbstractCSSValue keyword) {
+	private void addSingleValueLayer(StyleValue keyword) {
 		lstProperty.add(keyword);
 		lstDuration.add(keyword);
 		lstTiming.add(keyword);

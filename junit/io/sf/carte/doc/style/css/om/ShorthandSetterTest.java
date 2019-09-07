@@ -33,7 +33,7 @@ import org.w3c.dom.css.CSSValueList;
 
 import io.sf.carte.doc.style.css.TestStyleDatabase;
 import io.sf.carte.doc.style.css.nsac.Parser2;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 @RunWith(Parameterized.class)
@@ -1877,7 +1877,7 @@ public class ShorthandSetterTest {
 		assertEquals("url('bkg.png')", emptyStyleDecl.getPropertyValue("background-image"));
 		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("background-position"));
 		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("background-size"));
-		AbstractCSSValue val = emptyStyleDecl.getPropertyCSSValue("background-size");
+		StyleValue val = emptyStyleDecl.getPropertyCSSValue("background-size");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_VALUE_LIST, val.getCssValueType());
 		CSSValueList list = (CSSValueList) val;
@@ -1899,7 +1899,7 @@ public class ShorthandSetterTest {
 		assertEquals("url('bkg.png')", emptyStyleDecl.getPropertyValue("background-image"));
 		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("background-position"));
 		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("background-size"));
-		AbstractCSSValue val = emptyStyleDecl.getPropertyCSSValue("background-size");
+		StyleValue val = emptyStyleDecl.getPropertyCSSValue("background-size");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_VALUE_LIST, val.getCssValueType());
 		CSSValueList list = (CSSValueList) val;
@@ -3039,7 +3039,7 @@ public class ShorthandSetterTest {
 		assertEquals("[header-top] auto [header-bottom main-top] 1fr [main-bottom]",
 				emptyStyleDecl.getPropertyValue("grid-template-rows"));
 		assertEquals("auto 1fr auto", emptyStyleDecl.getPropertyValue("grid-template-columns"));
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("grid-template-columns");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("grid-template-columns");
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		assertEquals(3, ((ValueList) value).getLength());
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("grid-auto-rows"));
@@ -3506,7 +3506,7 @@ public class ShorthandSetterTest {
 		assertEquals("[header-top] auto [header-bottom main-top] 1fr [main-bottom]",
 				emptyStyleDecl.getPropertyValue("grid-template-rows"));
 		assertEquals("auto 1fr auto", emptyStyleDecl.getPropertyValue("grid-template-columns"));
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("grid-template-columns");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("grid-template-columns");
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		assertEquals(3, ((ValueList) value).getLength());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("grid-template-areas").isSubproperty());

@@ -24,7 +24,7 @@ public class RatioValueTest {
 	@Test
 	public void testEquals() {
 		ValueFactory vf = new ValueFactory();
-		AbstractCSSPrimitiveValue value = vf.parseMediaFeature("3/2");
+		PrimitiveValue value = vf.parseMediaFeature("3/2");
 		RatioValue ratio = (RatioValue) value;
 		assertTrue(ratio.equals(ratio));
 		RatioValue ratio2 = (RatioValue) vf.parseMediaFeature("3/2");
@@ -42,22 +42,22 @@ public class RatioValueTest {
 	@Test
 	public void testGetCssText() {
 		ValueFactory vf = new ValueFactory();
-		AbstractCSSPrimitiveValue value = vf.parseMediaFeature("3/2");
+		PrimitiveValue value = vf.parseMediaFeature("3/2");
 		RatioValue ratio = (RatioValue) value;
 		assertEquals("3", ratio.getAntecedentValue().getCssText());
 		assertEquals("2", ratio.getConsequentValue().getCssText());
 		assertEquals("3/2", ratio.getCssText());
 		//
-		ratio.setAntecedentValue((AbstractCSSPrimitiveValue) vf.parseProperty("9"));
+		ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("9"));
 		assertEquals("9/2", ratio.getCssText());
 		//
-		ratio.setConsequentValue((AbstractCSSPrimitiveValue) vf.parseProperty("5"));
+		ratio.setConsequentValue((PrimitiveValue) vf.parseProperty("5"));
 		assertEquals("9/5", ratio.getCssText());
 		//
-		ratio.setAntecedentValue((AbstractCSSPrimitiveValue) vf.parseProperty("11.8"));
+		ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("11.8"));
 		assertEquals("11.8/5", ratio.getCssText());
 		//
-		ratio.setConsequentValue((AbstractCSSPrimitiveValue) vf.parseProperty("3.7"));
+		ratio.setConsequentValue((PrimitiveValue) vf.parseProperty("3.7"));
 		assertEquals("11.8/3.7", ratio.getCssText());
 		//
 		CalcValue calc = (CalcValue) vf.parseProperty("calc(2 * 3)");
@@ -81,13 +81,13 @@ public class RatioValueTest {
 		}
 		//
 		try {
-			ratio.setAntecedentValue((AbstractCSSPrimitiveValue) vf.parseProperty("foo"));
+			ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("foo"));
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
 		}
 		try {
-			ratio.setConsequentValue((AbstractCSSPrimitiveValue) vf.parseProperty("foo"));
+			ratio.setConsequentValue((PrimitiveValue) vf.parseProperty("foo"));
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -97,7 +97,7 @@ public class RatioValueTest {
 	@Test
 	public void testSetCssText() {
 		ValueFactory vf = new ValueFactory();
-		AbstractCSSPrimitiveValue value = vf.parseMediaFeature("3/2");
+		PrimitiveValue value = vf.parseMediaFeature("3/2");
 		value.setCssText("16/9");
 		assertEquals("16/9", value.getCssText());
 		try {
@@ -123,7 +123,7 @@ public class RatioValueTest {
 	@Test
 	public void testClone() {
 		ValueFactory vf = new ValueFactory();
-		AbstractCSSPrimitiveValue value = vf.parseMediaFeature("3/2");
+		PrimitiveValue value = vf.parseMediaFeature("3/2");
 		RatioValue ratio = (RatioValue) value;
 		RatioValue clon = ratio.clone();
 		assertEquals(ratio.getAntecedentValue().getCssText(), clon.getAntecedentValue().getCssText());

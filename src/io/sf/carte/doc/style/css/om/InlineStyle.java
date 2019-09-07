@@ -23,7 +23,7 @@ import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -58,7 +58,7 @@ abstract public class InlineStyle extends BaseCSSStyleDeclaration implements Nod
 
 	@Override
 	protected void writeLonghandCssText(SimpleWriter wri, StyleFormattingContext context, String ptyname,
-			AbstractCSSValue ptyvalue, boolean important) throws IOException {
+			StyleValue ptyvalue, boolean important) throws IOException {
 		wri.write(ptyname);
 		context.writeColon(wri);
 		writeValue(wri, ptyname, ptyvalue);
@@ -69,7 +69,7 @@ abstract public class InlineStyle extends BaseCSSStyleDeclaration implements Nod
 		context.endInlinePropertyDeclaration(wri);
 	}
 
-	private void writeValue(SimpleWriter wri, String propertyName, AbstractCSSValue value) throws IOException {
+	private void writeValue(SimpleWriter wri, String propertyName, StyleValue value) throws IOException {
 		CSSPrimitiveValue primi;
 		if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
 				|| (primi = (CSSPrimitiveValue) value).getPrimitiveType() != CSSPrimitiveValue.CSS_STRING) {

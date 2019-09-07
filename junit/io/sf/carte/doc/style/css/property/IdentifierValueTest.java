@@ -149,7 +149,7 @@ public class IdentifierValueTest {
 	public void testEquals() {
 		CSSParser parser = new CSSParser();
 		ValueFactory factory = new ValueFactory();
-		AbstractCSSValue value = factory.parseProperty("scroll", parser);
+		StyleValue value = factory.parseProperty("scroll", parser);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_IDENT, ((CSSPrimitiveValue) value).getPrimitiveType());
 		assertTrue(value.equals(factory.parseProperty("scroll", parser)));

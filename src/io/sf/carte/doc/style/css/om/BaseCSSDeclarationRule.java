@@ -27,7 +27,7 @@ import org.w3c.dom.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
 /**
@@ -219,8 +219,8 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		}
 
 		@Override
-		protected AbstractCSSValue getCSSValue(String propertyName) {
-			AbstractCSSValue value = super.getCSSValue(propertyName);
+		protected StyleValue getCSSValue(String propertyName) {
+			StyleValue value = super.getCSSValue(propertyName);
 			if (value != null) {
 				value = WrappedCSSStyleDeclaration.wrapCSSValue(value, oldHrefContext, hrefcontext);
 			}

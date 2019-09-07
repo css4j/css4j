@@ -16,8 +16,8 @@ import java.util.Set;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Build an 'animation' shorthand from individual properties.
@@ -60,7 +60,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 			return false;
 		}
 		// Build the shorthand from values
-		AbstractCSSValue cssFlexGrow = null;
+		StyleValue cssFlexGrow = null;
 		if (declaredSet.contains(FLEX_GROW) || declaredSet.contains(FLEX_SHRINK)) {
 			cssFlexGrow = getCSSValue(FLEX_GROW);
 			// Make sure that it is not a (wrong) list property
@@ -69,7 +69,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
-		AbstractCSSValue cssFlexShrink = null;
+		StyleValue cssFlexShrink = null;
 		if (declaredSet.contains(FLEX_SHRINK)) {
 			cssFlexShrink = getCSSValue(FLEX_SHRINK);
 			// Make sure that it is not a (wrong) list property
@@ -78,7 +78,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
-		AbstractCSSValue cssFlexBasis = null;
+		StyleValue cssFlexBasis = null;
 		if (declaredSet.contains(FLEX_BASIS)) {
 			cssFlexBasis = getCSSValue(FLEX_BASIS);
 			// Make sure that it is not a (wrong) list property
@@ -88,7 +88,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 			}
 		}
 		// Special cases
-		AbstractCSSPrimitiveValue primiBasis = (AbstractCSSPrimitiveValue) cssFlexBasis;
+		PrimitiveValue primiBasis = (PrimitiveValue) cssFlexBasis;
 		if (primiBasis != null && primiBasis.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
 				&& "auto".equalsIgnoreCase(primiBasis.getStringValue())) {
 			CSSPrimitiveValue primiGrow = (CSSPrimitiveValue) cssFlexGrow;
@@ -176,12 +176,12 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 	 * This override is optimized for the case where non system-default values can be found
 	 */
 	@Override
-	protected boolean isNotInitialValue(AbstractCSSValue cssVal, String propertyName) {
+	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
 		return cssVal != null && !isInitialIdentifier(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
-	private void appendValueText(StringBuilder buf, AbstractCSSValue cssVal, boolean prepend) {
+	private void appendValueText(StringBuilder buf, StyleValue cssVal, boolean prepend) {
 		if (prepend) {
 			buf.append(' ');
 		}

@@ -24,8 +24,8 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -159,7 +159,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 					String sv = currentValue.getStringValue().toLowerCase(Locale.ROOT);
 					if ("initial".equals(sv) || "unset".equals(sv)) {
-						AbstractCSSValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
+						StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 						// Full layer is 'keyword'
 						while (currentValue != null) {
 							boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
@@ -243,7 +243,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		setListSubpropertyValue("background-attachment", lstAttachment);
 		// color
 		if (!isPropertySet("background-color")) {
-			AbstractCSSValue iniVal = defaultPropertyValue("background-color");
+			StyleValue iniVal = defaultPropertyValue("background-color");
 			setSubpropertyValue("background-color", iniVal);
 		}
 		// flush the properties
@@ -275,7 +275,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		}
 	}
 
-	private void addSingleValueLayer(AbstractCSSValue keyword) {
+	private void addSingleValueLayer(StyleValue keyword) {
 		lstImage.add(keyword);
 		lstPosition.add(keyword);
 		lstSize.add(keyword);
@@ -301,7 +301,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	private byte assignLayerValue(int i, Set<String> subp) {
 		byte retVal;
 		if (subp.contains("background-color") && BaseCSSStyleDeclaration.testColor(currentValue)) {
-			AbstractCSSValue cssValue = createCSSValue("background-color", currentValue);
+			StyleValue cssValue = createCSSValue("background-color", currentValue);
 			setSubpropertyValue("background-color", cssValue);
 			subp.remove("background-color");
 			// background-color means final layer
@@ -349,7 +349,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			if (currentValue != null && testIdentifierProperty(i, subp, "background-clip", lstClip)) {
 				nextCurrentValue();
 			} else {
-				AbstractCSSValue value = createCSSValue("background-clip", lastValue);
+				StyleValue value = createCSSValue("background-clip", lastValue);
 				lstClip.add(value);
 			}
 			subp.remove("background-clip");
@@ -372,7 +372,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 
 	private boolean lastChanceLayerAssign(String property, LexicalUnit lUnit) {
 		if (lUnit.getLexicalUnitType() == LexicalUnit.SAC_FUNCTION && "var".equalsIgnoreCase(lUnit.getFunctionName())) {
-			AbstractCSSValue cssValue = createCSSValue(property, lUnit);
+			StyleValue cssValue = createCSSValue(property, lUnit);
 			setSubpropertyValue(property, cssValue);
 			return true;
 		}
@@ -396,7 +396,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		Iterator<String> it = subp.iterator();
 		while (it.hasNext()) {
 			String pname = it.next();
-			AbstractCSSValue cssVal = defaultPropertyValue(pname);
+			StyleValue cssVal = defaultPropertyValue(pname);
 			if ("background-image".equals(pname)) {
 				// No background-image: "Note that a value of ‘none’ still creates a layer."
 				lstImage.add(cssVal);
@@ -421,9 +421,9 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 
 	private void setListSubpropertyValue(String pname, ValueList list) {
 		if (list.getLength() == 1) {
-			AbstractCSSValue val = list.item(0);
+			StyleValue val = list.item(0);
 			if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				((AbstractCSSPrimitiveValue) val).setSubproperty(true);
+				((PrimitiveValue) val).setSubproperty(true);
 			} else if (val.getCssValueType() == CSSValue.CSS_INHERIT) {
 				val = ((InheritValue) val).asSubproperty();
 			} else if (val.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
@@ -463,7 +463,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		if ((currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT && testIdentifiers("background-position"))
 				|| ValueFactory.isSizeSACUnit(currentValue)) {
 			ValueList list = ValueList.createWSValueList();
-			AbstractCSSValue value = createCSSValue("background-position", currentValue);
+			StyleValue value = createCSSValue("background-position", currentValue);
 			list.add(value);
 			short count = 1;
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
@@ -535,7 +535,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		if ((currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT && testIdentifiers("background-size"))
 				|| ValueFactory.isSizeSACUnit(currentValue)) {
 			ValueList list = ValueList.createWSValueList();
-			AbstractCSSValue value = createCSSValue("background-size", currentValue);
+			StyleValue value = createCSSValue("background-size", currentValue);
 			list.add(value);
 			layerBuffer.append(" /");
 			miniLayerBuffer.append('/');
@@ -562,7 +562,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 
 	private boolean testBackgroundRepeat(ValueList rptList) {
 		if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers("background-repeat"))) {
-			AbstractCSSValue value = createCSSValue("background-repeat", currentValue);
+			StyleValue value = createCSSValue("background-repeat", currentValue);
 			String s = value.getCssText();
 			nextCurrentValue();
 			if (s.equals("repeat-y") || s.equals("repeat-x")) {
@@ -585,7 +585,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	private boolean testIdentifierProperty(int layer, Set<String> subp, String subpropertyName,
 			ValueList lst) {
 		if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subpropertyName))) {
-			AbstractCSSValue value = createCSSValue(subpropertyName, currentValue);
+			StyleValue value = createCSSValue(subpropertyName, currentValue);
 			lst.add(value);
 			return true;
 		}

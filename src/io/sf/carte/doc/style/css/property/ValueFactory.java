@@ -30,7 +30,7 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue.LexicalSetter;
+import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
 
 /**
  * Factory of CSS values.
@@ -451,7 +451,7 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
 	 */
-	public AbstractCSSValue parseProperty(String value) throws DOMException {
+	public StyleValue parseProperty(String value) throws DOMException {
 		return parseProperty(value, SACParserFactory.createSACParser());
 	}
 
@@ -466,7 +466,7 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
 	 */
-	public AbstractCSSValue parseProperty(String value, Parser parser) throws DOMException {
+	public StyleValue parseProperty(String value, Parser parser) throws DOMException {
 		return parseProperty("", value, parser);
 	}
 
@@ -483,7 +483,7 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
 	 */
-	public AbstractCSSValue parseProperty(String propertyName, String value, CSSParser parser) throws DOMException {
+	public StyleValue parseProperty(String propertyName, String value, CSSParser parser) throws DOMException {
 		Reader re = new StringReader(value);
 		LexicalUnit lunit = null;
 		try {
@@ -496,7 +496,7 @@ public class ValueFactory {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		AbstractCSSValue css = createCSSValue(lunit);
+		StyleValue css = createCSSValue(lunit);
 		if (css == null) {
 			css = createUnknownValue(value, lunit);
 		}
@@ -514,7 +514,7 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
 	 */
-	public AbstractCSSValue parseProperty(String propertyName, String value, Parser parser) throws DOMException {
+	public StyleValue parseProperty(String propertyName, String value, Parser parser) throws DOMException {
 		InputSource source = new InputSource();
 		Reader re = new StringReader(value);
 		source.setCharacterStream(re);
@@ -529,7 +529,7 @@ public class ValueFactory {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		AbstractCSSValue css = createCSSValue(lunit);
+		StyleValue css = createCSSValue(lunit);
 		if (css == null) {
 			css = createUnknownValue(value, lunit);
 		}
@@ -553,7 +553,7 @@ public class ValueFactory {
 		default:
 			UnknownValue css = new UnknownValue();
 			css.setCssText(value);
-			((AbstractCSSPrimitiveValue) css).newLexicalSetter().setLexicalUnit(lunit);
+			((PrimitiveValue) css).newLexicalSetter().setLexicalUnit(lunit);
 			return css;
 		}
 	}
@@ -566,7 +566,7 @@ public class ValueFactory {
 	 * @return the CSSPrimitiveValue object containing the parsed value.
 	 * @throws DOMException if a problem was found parsing the feature.
 	 */
-	public AbstractCSSPrimitiveValue parseMediaFeature(String feature) throws DOMException {
+	public PrimitiveValue parseMediaFeature(String feature) throws DOMException {
 		Parser parser = SACParserFactory.createSACParser();
 		InputSource source = new InputSource();
 		Reader re = new StringReader(feature);
@@ -582,7 +582,7 @@ public class ValueFactory {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		AbstractCSSPrimitiveValue css;
+		PrimitiveValue css;
 		try {
 			css = createCSSPrimitiveValue(lunit, false);
 		} catch (DOMException e) {
@@ -596,7 +596,7 @@ public class ValueFactory {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Ratio lacks second value.");
 			}
 			// ratio
-			AbstractCSSPrimitiveValue css2 = createCSSPrimitiveValue(nlu, false);
+			PrimitiveValue css2 = createCSSPrimitiveValue(nlu, false);
 			RatioValue ratio = new RatioValue();
 			ratio.setAntecedentValue(css);
 			ratio.setConsequentValue(css2);
@@ -617,7 +617,7 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if the lexical unit had a wrong content to create a value.
 	 */
-	public AbstractCSSValue createCSSValue(LexicalUnit lunit)
+	public StyleValue createCSSValue(LexicalUnit lunit)
 			throws DOMException {
 		return createCSSValue(lunit, null);
 	}
@@ -637,7 +637,7 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if the lexical unit had a wrong content to create a value.
 	 */
-	public AbstractCSSValue createCSSValue(LexicalUnit lunit, AbstractCSSStyleDeclaration style)
+	public StyleValue createCSSValue(LexicalUnit lunit, AbstractCSSStyleDeclaration style)
 			throws DOMException {
 		if (lunit.getNextLexicalUnit() != null) {
 			ValueList superlist = null; // Comma-separated values
@@ -645,7 +645,7 @@ public class ValueFactory {
 																	// values
 			LexicalUnit nlu = lunit;
 			do {
-				AbstractCSSValue value;
+				StyleValue value;
 				// Check for bracket list.
 				if (nlu.getLexicalUnitType() != LexicalUnit2.SAC_LEFT_BRACKET) {
 					ValueItem item = createCSSValueItem(nlu, false);
@@ -704,7 +704,7 @@ public class ValueFactory {
 				break;
 			} while (nlu != null);
 			if (superlist != null) {
-				AbstractCSSValue value = listOrFirstItem(superlist);
+				StyleValue value = listOrFirstItem(superlist);
 				// if superlist is not null, cannot be empty
 				// so value cannot be null here
 				if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
@@ -737,7 +737,7 @@ public class ValueFactory {
 					item.handleSyntaxWarnings(errHandler);
 				}
 			}
-			AbstractCSSValue value = item.getCSSValue();
+			StyleValue value = item.getCSSValue();
 			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 				nlu = item.getNextLexicalUnit();
 			} else {
@@ -765,7 +765,7 @@ public class ValueFactory {
 		LexicalUnit nextLexicalUnit = null;
 
 		@Override
-		public AbstractCSSValue getCSSValue() {
+		public StyleValue getCSSValue() {
 			return null;
 		}
 
@@ -800,7 +800,7 @@ public class ValueFactory {
 
 	}
 
-	private static AbstractCSSValue listOrFirstItem(ValueList list) {
+	private static StyleValue listOrFirstItem(ValueList list) {
 		int ll = list.getLength();
 		if (ll > 1) {
 			return list;
@@ -852,7 +852,7 @@ public class ValueFactory {
 	 *             if a problem was found setting the lexical value to a CSS
 	 *             primitive.
 	 */
-	AbstractCSSPrimitiveValue createCSSPrimitiveValue(LexicalUnit lunit, boolean subp) throws DOMException {
+	PrimitiveValue createCSSPrimitiveValue(LexicalUnit lunit, boolean subp) throws DOMException {
 		return createCSSPrimitiveValueItem(lunit, subp).getCSSValue();
 	}
 
@@ -872,7 +872,7 @@ public class ValueFactory {
 	 */
 	LexicalSetter createCSSPrimitiveValueItem(LexicalUnit lunit, boolean subp) throws DOMException {
 		short unitType = lunit.getLexicalUnitType();
-		AbstractCSSPrimitiveValue primi;
+		PrimitiveValue primi;
 		LexicalSetter setter;
 		try {
 			switch (unitType) {
@@ -1022,13 +1022,13 @@ public class ValueFactory {
 		return setter;
 	}
 
-	private AbstractCSSPrimitiveValue createCustomProperty(LexicalUnit lunit) {
+	private PrimitiveValue createCustomProperty(LexicalUnit lunit) {
 		LexicalUnit lu = lunit.getParameters();
 		if (lu == null || lu.getLexicalUnitType() != LexicalUnit.SAC_IDENT) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Variable name must be an identifier");
 		}
 		lu = lu.getNextLexicalUnit();
-		AbstractCSSPrimitiveValue primi;
+		PrimitiveValue primi;
 		if (lu != null) {
 			if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Fallback must be separated by comma");
@@ -1037,7 +1037,7 @@ public class ValueFactory {
 			if (lu == null) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "No fallback found after comma");
 			}
-			AbstractCSSValue fallback = createCSSValue(lu);
+			StyleValue fallback = createCSSValue(lu);
 			primi = new CustomPropertyValue(fallback);
 		} else {
 			primi = new CustomPropertyValue();
@@ -1057,7 +1057,7 @@ public class ValueFactory {
 		} else if (type != LexicalUnit2.SAC_LEFT_BRACKET) {
 			ValueItem item = createCSSValueItem(lunit, true);
 			nlu = item.getNextLexicalUnit();
-			AbstractCSSValue cssValue = item.getCSSValue();
+			StyleValue cssValue = item.getCSSValue();
 			String cssText = cssValue.getCssText();
 			if (buf.length() != 0) {
 				buf.append(' ');
@@ -1083,7 +1083,7 @@ public class ValueFactory {
 		} else if (type != LexicalUnit2.SAC_LEFT_BRACKET) {
 			ValueItem item = createCSSValueItem(lunit, true);
 			nlu = item.getNextLexicalUnit();
-			AbstractCSSValue cssValue = item.getCSSValue();
+			StyleValue cssValue = item.getCSSValue();
 			String cssText = cssValue.getMinifiedCssText("");
 			int len = buf.length();
 			char c;

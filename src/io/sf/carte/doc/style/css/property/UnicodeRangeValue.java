@@ -25,10 +25,10 @@ import io.sf.carte.util.SimpleWriter;
  * Unicode range CSSPrimitiveValue.
  * 
  */
-public class UnicodeRangeValue extends AbstractCSSPrimitiveValue implements CSSUnicodeRangeValue {
+public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRangeValue {
 
-	private AbstractCSSPrimitiveValue value = null;
-	private AbstractCSSPrimitiveValue endValue = null;
+	private PrimitiveValue value = null;
+	private PrimitiveValue endValue = null;
 
 	UnicodeRangeValue() {
 		super(CSSPrimitiveValue2.CSS_UNICODE_RANGE);
@@ -145,7 +145,7 @@ public class UnicodeRangeValue extends AbstractCSSPrimitiveValue implements CSSU
 			this.nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 
-		private AbstractCSSPrimitiveValue readValue(LexicalUnit lu) {
+		private PrimitiveValue readValue(LexicalUnit lu) {
 			short type = lu.getLexicalUnitType();
 			if (type == LexicalUnit.SAC_INTEGER) {
 				UnicodeValue val = new UnicodeValue();

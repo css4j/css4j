@@ -109,7 +109,7 @@ public class Evaluator {
 			for (int i = 0; i < sz; i++) {
 				ExtendedCSSValue value = args.item(i);
 				if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-					args.set(i, (AbstractCSSValue) absoluteValue((ExtendedCSSPrimitiveValue) value));
+					args.set(i, (StyleValue) absoluteValue((ExtendedCSSPrimitiveValue) value));
 				}
 			}
 			return function;

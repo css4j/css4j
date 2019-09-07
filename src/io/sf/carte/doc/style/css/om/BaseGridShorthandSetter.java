@@ -17,8 +17,8 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueFactory.ListValueItem;
@@ -82,7 +82,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 		boolean missSlash = !setTemplateAreas;
 		short lasttype = -1;
 		topLoop: do {
-			AbstractCSSValue value;
+			StyleValue value;
 			short type;
 			switch (type = currentValue.getLexicalUnitType()) {
 			case LexicalUnit2.SAC_LEFT_BRACKET:
@@ -158,7 +158,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 		if (gridTemplateRows.getLength() != 0) {
 			// Is it different than a set of 'auto' ?
 			if (!isAutoOnly(gridTemplateRows)) {
-				AbstractCSSValue value;
+				StyleValue value;
 				if (gridTemplateRows.getLength() != 1) {
 					value = gridTemplateRows;
 				} else {
@@ -174,7 +174,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			setSubpropertyValue("grid-template-rows", auto);
 		}
 		if (gridTemplateAreas.getLength() != 0) {
-			AbstractCSSValue value;
+			StyleValue value;
 			if (gridTemplateAreas.getLength() != 1) {
 				value = gridTemplateAreas;
 			} else {
@@ -185,10 +185,10 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 		return true;
 	}
 
-	AbstractCSSValue subpropertyValue(AbstractCSSValue value) {
+	StyleValue subpropertyValue(StyleValue value) {
 		switch (value.getCssValueType()) {
 		case CSSValue.CSS_PRIMITIVE_VALUE:
-			((AbstractCSSPrimitiveValue) value).setSubproperty(true);
+			((PrimitiveValue) value).setSubproperty(true);
 			break;
 		case CSSValue.CSS_VALUE_LIST:
 			((ValueList) value).setSubproperty(true);
@@ -215,7 +215,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 	 * Is list different than a set of 'auto' ?
 	 */
 	static boolean isAutoOnly(ValueList list) {
-		Iterator<AbstractCSSValue> it = list.iterator();
+		Iterator<StyleValue> it = list.iterator();
 		while (it.hasNext()) {
 			if (!"auto".equalsIgnoreCase(it.next().getCssText())) {
 				return false;

@@ -26,7 +26,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class InheritValue extends AbstractCSSValue implements ValueItem {
+public class InheritValue extends StyleValue implements ValueItem {
 	private static InheritValue singleton = new InheritValue();
 
 	/**
@@ -52,7 +52,7 @@ public class InheritValue extends AbstractCSSValue implements ValueItem {
 	}
 
 	@Override
-	public AbstractCSSValue getCSSValue() {
+	public StyleValue getCSSValue() {
 		return singleton;
 	}
 
@@ -114,7 +114,7 @@ public class InheritValue extends AbstractCSSValue implements ValueItem {
 		}
 
 		@Override
-		public AbstractCSSValue getCSSValue() {
+		public StyleValue getCSSValue() {
 			return this;
 		}
 

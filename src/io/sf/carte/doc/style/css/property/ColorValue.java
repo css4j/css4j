@@ -29,7 +29,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class ColorValue extends AbstractCSSPrimitiveValue {
+public class ColorValue extends PrimitiveValue {
 
 	public static final NumberValue opaqueAlpha;
 
@@ -71,7 +71,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		ValueFactory factory = new ValueFactory();
-		AbstractCSSValue value = factory.parseProperty(cssText);
+		StyleValue value = factory.parseProperty(cssText);
 		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 			short ptype = ((CSSPrimitiveValue) value).getPrimitiveType();
 			if (ptype == CSSPrimitiveValue.CSS_IDENT) {
@@ -170,7 +170,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			try {
 				if ("rgb".equalsIgnoreCase(func) || "rgba".equalsIgnoreCase(func)) {
 					// red
-					AbstractCSSPrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					PrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, false);
 					color.setRed(basiccolor);
 					// comma ?
 					lu = lu.getNextLexicalUnit();
@@ -405,49 +405,49 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 
 	class CSSRGBColor implements RGBAColor {
 
-		private AbstractCSSPrimitiveValue red = null;
-		private AbstractCSSPrimitiveValue green = null;
-		private AbstractCSSPrimitiveValue blue = null;
-		private AbstractCSSPrimitiveValue alpha = opaqueAlpha;
+		private PrimitiveValue red = null;
+		private PrimitiveValue green = null;
+		private PrimitiveValue blue = null;
+		private PrimitiveValue alpha = opaqueAlpha;
 
 
 		CSSRGBColor() {
 			super();
 		}
 
-		public void setRed(AbstractCSSPrimitiveValue red) {
+		public void setRed(PrimitiveValue red) {
 			this.red = red;
 		}
 
 		@Override
-		public AbstractCSSPrimitiveValue getRed() {
+		public PrimitiveValue getRed() {
 			return red;
 		}
 
-		public void setGreen(AbstractCSSPrimitiveValue green) {
+		public void setGreen(PrimitiveValue green) {
 			this.green = green;
 		}
 
 		@Override
-		public AbstractCSSPrimitiveValue getGreen() {
+		public PrimitiveValue getGreen() {
 			return green;
 		}
 
-		public void setBlue(AbstractCSSPrimitiveValue blue) {
+		public void setBlue(PrimitiveValue blue) {
 			this.blue = blue;
 		}
 
 		@Override
-		public AbstractCSSPrimitiveValue getBlue() {
+		public PrimitiveValue getBlue() {
 			return blue;
 		}
 
-		public void setAlpha(AbstractCSSPrimitiveValue alpha) {
+		public void setAlpha(PrimitiveValue alpha) {
 			this.alpha = alpha;
 		}
 
 		@Override
-		public AbstractCSSPrimitiveValue getAlpha() {
+		public PrimitiveValue getAlpha() {
 			return alpha;
 		}
 
@@ -587,7 +587,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			return buf.toString();
 		}
 
-		private StringBuilder appendComponentCssText(StringBuilder buf, AbstractCSSPrimitiveValue component, boolean minify) {
+		private StringBuilder appendComponentCssText(StringBuilder buf, PrimitiveValue component, boolean minify) {
 			if (colorSpace == RGBAColor.ColorSpace.RGB
 					|| component.getPrimitiveType() != CSSPrimitiveValue.CSS_PERCENTAGE) {
 				return buf.append(component.getCssText());
@@ -821,7 +821,7 @@ public class ColorValue extends AbstractCSSPrimitiveValue {
 			return result * prime;
 		}
 
-		private int colorComponentHashCode(AbstractCSSPrimitiveValue comp) {
+		private int colorComponentHashCode(PrimitiveValue comp) {
 			float value;
 			if (comp.getPrimitiveType() == CSSPrimitiveValue.CSS_PERCENTAGE) {
 				value = comp.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) * 2.55f;

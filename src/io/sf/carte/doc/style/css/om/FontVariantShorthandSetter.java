@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import org.w3c.css.sac.LexicalUnit;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 
 /**
@@ -75,7 +75,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 			boolean is_set = false;
 			while (currentValue != null) {
 				if (testIdentifiers(subproperty)) {
-					AbstractCSSValue cssValue = createCSSValue(subproperty, currentValue);
+					StyleValue cssValue = createCSSValue(subproperty, currentValue);
 					addSubpropertyValue(subproperty, cssValue, false);
 					is_set = true;
 					nextCurrentValue();
@@ -104,7 +104,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 			switch (currentValue.getLexicalUnitType()) {
 			case LexicalUnit.SAC_IDENT:
 				if (testIdentifiers("font-variant-alternates")) {
-					AbstractCSSValue cssValue = createCSSValue("font-variant-alternates", currentValue);
+					StyleValue cssValue = createCSSValue("font-variant-alternates", currentValue);
 					addSubpropertyValue("font-variant-alternates", cssValue, false);
 					nextCurrentValue();
 					is_set = true;
@@ -113,7 +113,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 				}
 				break;
 			case LexicalUnit.SAC_FUNCTION:
-				AbstractCSSValue cssValue = createCSSValue("font-variant-alternates", currentValue);
+				StyleValue cssValue = createCSSValue("font-variant-alternates", currentValue);
 				addSubpropertyValue("font-variant-alternates", cssValue, false);
 				nextCurrentValue();
 				is_set = true;

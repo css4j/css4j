@@ -30,7 +30,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-class ElementReferenceValue extends AbstractCSSPrimitiveValue {
+class ElementReferenceValue extends PrimitiveValue {
 
 	private String refname = null;
 

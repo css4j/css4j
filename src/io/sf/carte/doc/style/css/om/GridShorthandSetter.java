@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import org.w3c.css.sac.LexicalUnit;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.ValueFactory.ListValueItem;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -89,7 +89,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 		boolean missSlash = true;
 		short lasttype = -1;
 		topLoop: do {
-			AbstractCSSValue value;
+			StyleValue value;
 			short type;
 			switch (type = currentValue.getLexicalUnitType()) {
 			case LexicalUnit2.SAC_LEFT_BRACKET:
@@ -185,7 +185,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 		if (gridTemplateRows.getLength() != 0) {
 			// Is it different than a set of 'auto' ?
 			if (!isAutoOnly(gridTemplateRows)) {
-				AbstractCSSValue value;
+				StyleValue value;
 				String property;
 				if (gridAutoRows) {
 					property = "grid-auto-rows";
@@ -207,7 +207,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 			setSubpropertyValue("grid-template-rows", auto);
 		}
 		if (gridTemplateAreas.getLength() != 0) {
-			AbstractCSSValue value;
+			StyleValue value;
 			if (gridTemplateAreas.getLength() != 1) {
 				value = gridTemplateAreas;
 			} else {
@@ -219,7 +219,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 	}
 
 	private void setGridAutoFlow(String ident, boolean dense) {
-		AbstractCSSValue value;
+		StyleValue value;
 		IdentifierValue cssident = new IdentifierValue(ident);
 		cssident.setSubproperty(true);
 		if (!dense) {

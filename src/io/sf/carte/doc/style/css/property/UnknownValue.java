@@ -25,7 +25,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class UnknownValue extends AbstractCSSPrimitiveValue {
+public class UnknownValue extends PrimitiveValue {
 
 	private boolean priorityCompat = false;
 

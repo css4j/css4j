@@ -13,7 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -25,7 +25,7 @@ class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {
 
 	@Override
 	boolean setFirstValue() {
-		AbstractCSSValue cssval;
+		StyleValue cssval;
 		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 			String sv = currentValue.getStringValue();
 			PropertyDatabase pdb = getPropertyDatabase();
@@ -50,7 +50,7 @@ class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {
 
 	@Override
 	boolean setSecondValue() {
-		AbstractCSSValue cssval;
+		StyleValue cssval;
 		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 			String sv = currentValue.getStringValue();
 			if (getPropertyDatabase().isIdentifierValue(subparray[1], sv)) {

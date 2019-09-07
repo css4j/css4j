@@ -21,7 +21,7 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.UnknownValue;
 import io.sf.carte.util.SimpleWriter;
 
@@ -31,9 +31,9 @@ import io.sf.carte.util.SimpleWriter;
  */
 class CompatDeclarationSet {
 
-	private final HashMap<String, AbstractCSSValue> overrideMap = new HashMap<String, AbstractCSSValue>();
+	private final HashMap<String, StyleValue> overrideMap = new HashMap<String, StyleValue>();
 	private final HashMap<String, Boolean> overridePrio = new HashMap<String, Boolean>();
-	private final HashMap<String, AbstractCSSValue> nonOverrideMap = new HashMap<String, AbstractCSSValue>();
+	private final HashMap<String, StyleValue> nonOverrideMap = new HashMap<String, StyleValue>();
 	private final HashMap<String, ShorthandValue> compatShorthandMap = new HashMap<String, ShorthandValue>();
 	private final HashMap<String, ShorthandValue> nonOvShorthandMap = new HashMap<String, ShorthandValue>();
 
@@ -50,7 +50,7 @@ class CompatDeclarationSet {
 		nonOvShorthandMap.putAll(copiedObject.nonOvShorthandMap);
 	}
 
-	void setCompatLonghand(String propertyName, AbstractCSSValue override, boolean priorityImportant,
+	void setCompatLonghand(String propertyName, StyleValue override, boolean priorityImportant,
 			boolean isOverride) {
 		if (isOverride) {
 			overrideMap.put(propertyName, override);
@@ -93,7 +93,7 @@ class CompatDeclarationSet {
 		return false;
 	}
 
-	static boolean isPriorityCompat(AbstractCSSValue compatvalue) {
+	static boolean isPriorityCompat(StyleValue compatvalue) {
 		return compatvalue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) compatvalue).getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN
 				&& ((UnknownValue) compatvalue).isPriorityCompat();
@@ -115,7 +115,7 @@ class CompatDeclarationSet {
 	}
 
 	static void writeIEPrioCharLonghandCssText(SimpleWriter wri, StyleFormattingContext context, String ptyname,
-			AbstractCSSValue compatvalue) throws IOException {
+			StyleValue compatvalue) throws IOException {
 		wri.write(ptyname);
 		context.writeColon(wri);
 		compatvalue.writeCssText(wri);
@@ -135,7 +135,7 @@ class CompatDeclarationSet {
 		return overrideMap.containsKey(ptyname);
 	}
 
-	AbstractCSSValue getCompatLonghand(String ptyname) {
+	StyleValue getCompatLonghand(String ptyname) {
 		return overrideMap.get(ptyname);
 	}
 
@@ -147,7 +147,7 @@ class CompatDeclarationSet {
 		return nonOvShorthandMap.get(shorthandName);
 	}
 
-	AbstractCSSValue getNonOvCompatLonghand(String ptyname) {
+	StyleValue getNonOvCompatLonghand(String ptyname) {
 		return nonOverrideMap.get(ptyname);
 	}
 

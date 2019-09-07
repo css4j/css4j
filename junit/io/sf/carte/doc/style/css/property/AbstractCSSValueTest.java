@@ -61,7 +61,7 @@ public class AbstractCSSValueTest {
 	@Test
 	public void testParseProperty() {
 		ValueFactory factory = new ValueFactory();
-		AbstractCSSValue value = factory.parseProperty("none");
+		StyleValue value = factory.parseProperty("none");
 		assertNotNull(value);
 		assertEquals("none", value.getCssText());
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());

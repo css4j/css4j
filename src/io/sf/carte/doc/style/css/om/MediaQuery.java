@@ -23,7 +23,7 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.CalcValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
@@ -273,8 +273,8 @@ class MediaQuery {
 		case CSSPrimitiveValue2.CSS_RATIO:
 			float ffirst, fsecond;
 			RatioValue ratio = (RatioValue) value;
-			AbstractCSSPrimitiveValue first = ratio.getAntecedentValue();
-			AbstractCSSPrimitiveValue second = ratio.getConsequentValue();
+			PrimitiveValue first = ratio.getAntecedentValue();
+			PrimitiveValue second = ratio.getConsequentValue();
 			if (first.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
 				ffirst = first.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
 			} else {

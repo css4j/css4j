@@ -23,7 +23,7 @@ import io.sf.carte.util.SimpleWriter;
  * this value can be used.
  * 
  */
-public class SystemDefaultValue extends AbstractCSSPrimitiveValue {
+public class SystemDefaultValue extends PrimitiveValue {
 	private static SystemDefaultValue strictmode = new SystemDefaultValue();
 
 	/**

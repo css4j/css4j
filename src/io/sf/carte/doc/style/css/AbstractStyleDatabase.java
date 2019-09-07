@@ -17,8 +17,8 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.agent.CSSCanvas;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -32,10 +32,10 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 
 	protected final String DEFAULT_GENERIC_FONT_FAMILY = "serif";
 
-	private static final AbstractCSSPrimitiveValue DEFAULT_INITIAL_COLOR;
+	private static final PrimitiveValue DEFAULT_INITIAL_COLOR;
 
 	static {
-		DEFAULT_INITIAL_COLOR = (AbstractCSSPrimitiveValue) new ValueFactory().parseProperty("#000000");
+		DEFAULT_INITIAL_COLOR = (PrimitiveValue) new ValueFactory().parseProperty("#000000");
 		((ColorValue) DEFAULT_INITIAL_COLOR).setSystemDefault();
 	}
 
@@ -58,7 +58,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 
 	@Override
 	public void setInitialColor(String initialColor) {
-		this.initialColor = (AbstractCSSPrimitiveValue) new ValueFactory().parseProperty(initialColor);
+		this.initialColor = (PrimitiveValue) new ValueFactory().parseProperty(initialColor);
 		((ColorValue) this.initialColor).setSystemDefault();
 	}
 
@@ -87,9 +87,9 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		if (value != null) {
 			if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 				ValueList fontList = (ValueList) value;
-				Iterator<AbstractCSSValue> it = fontList.iterator();
+				Iterator<StyleValue> it = fontList.iterator();
 				while (it.hasNext()) {
-					AbstractCSSValue item = it.next();
+					StyleValue item = it.next();
 					requestedFamily = stringValueOrNull(item);
 					if (requestedFamily != null && isFontFamilyAvailable(requestedFamily, style)) {
 						return requestedFamily;

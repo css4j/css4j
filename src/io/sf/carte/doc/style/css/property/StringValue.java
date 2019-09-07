@@ -28,7 +28,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class StringValue extends AbstractCSSPrimitiveValue {
+public class StringValue extends PrimitiveValue {
 
 	private String stringValue = null;
 

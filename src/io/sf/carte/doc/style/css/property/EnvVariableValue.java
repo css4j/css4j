@@ -27,10 +27,10 @@ import io.sf.carte.util.SimpleWriter;
  * Environment variable (<code>env</code>) CSSPrimitiveValue.
  * 
  */
-public class EnvVariableValue extends AbstractCSSPrimitiveValue implements CSSEnvVariableValue {
+public class EnvVariableValue extends PrimitiveValue implements CSSEnvVariableValue {
 
 	private String name = null;
-	private AbstractCSSValue fallback = null;
+	private StyleValue fallback = null;
 
 	EnvVariableValue() {
 		super(CSSPrimitiveValue2.CSS_ENV_VAR);
@@ -82,7 +82,7 @@ public class EnvVariableValue extends AbstractCSSPrimitiveValue implements CSSEn
 					"This property was set with a shorthand. Must modify at the style-declaration level.");
 		}
 		ValueFactory factory = new ValueFactory();
-		AbstractCSSValue cssval = factory.parseProperty(cssText);
+		StyleValue cssval = factory.parseProperty(cssText);
 		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||
 				((CSSPrimitiveValue)cssval).getPrimitiveType() != CSSPrimitiveValue2.CSS_ENV_VAR) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an environment variable value.");

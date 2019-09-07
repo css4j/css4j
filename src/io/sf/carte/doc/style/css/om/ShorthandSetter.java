@@ -26,8 +26,8 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
@@ -53,7 +53,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 
 	final ValueFactory valueFactory;
 
-	private HashMap<String, AbstractCSSValue> mypropValue = new HashMap<String, AbstractCSSValue>();
+	private HashMap<String, StyleValue> mypropValue = new HashMap<String, StyleValue>();
 
 	private LinkedList<String> mypropertyList = new LinkedList<String>();
 
@@ -211,7 +211,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 					reportMixedKeywords(keyword);
 					return 2;
 				}
-				AbstractCSSValue cssval = valueFactory.createCSSValueItem(lunit, true).getCSSValue();
+				StyleValue cssval = valueFactory.createCSSValueItem(lunit, true).getCSSValue();
 				setSubpropertiesToKeyword(cssval);
 				initValueString();
 				appendValueItemString(cssval);
@@ -244,7 +244,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		return;
 	}
 
-	protected void setSubpropertiesToKeyword(AbstractCSSValue keyword) {
+	protected void setSubpropertiesToKeyword(StyleValue keyword) {
 		String[] subparray = getShorthandSubproperties();
 		for (String subp : subparray) {
 			if (!getPropertyDatabase().isShorthand(subp)) {
@@ -326,12 +326,12 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	 *            the name of the property.
 	 * @return the initial value for the property, or null if none was found.
 	 */
-	AbstractCSSValue defaultPropertyValue(String propertyName) {
-		AbstractCSSValue cssVal = styleDeclaration.defaultPropertyValue(propertyName, getPropertyDatabase());
+	StyleValue defaultPropertyValue(String propertyName) {
+		StyleValue cssVal = styleDeclaration.defaultPropertyValue(propertyName, getPropertyDatabase());
 		if (cssVal != null) {
 			short type = cssVal.getCssValueType();
 			if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
-				((AbstractCSSPrimitiveValue) cssVal).setSubproperty(true);
+				((PrimitiveValue) cssVal).setSubproperty(true);
 			} else if (type == CSSValue.CSS_VALUE_LIST) {
 				((ValueList) cssVal).setSubproperty(true);
 			}
@@ -344,12 +344,12 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	}
 
 	void setPropertyToDefault(String pname) {
-		AbstractCSSValue cssVal = defaultPropertyValue(pname);
+		StyleValue cssVal = defaultPropertyValue(pname);
 		setProperty(pname, cssVal, getPriority());
 	}
 
 	void setDeclarationPropertyToDefault(String propertyName) {
-		AbstractCSSValue cssVal = defaultPropertyValue(propertyName);
+		StyleValue cssVal = defaultPropertyValue(propertyName);
 		styleDeclaration.setProperty(propertyName, cssVal, getPriority());
 	}
 
@@ -448,7 +448,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	}
 
 	boolean setCurrentValue(String subproperty) {
-		AbstractCSSValue cssValue = createCSSValue(subproperty, currentValue);
+		StyleValue cssValue = createCSSValue(subproperty, currentValue);
 		if (cssValue != null) {
 			setSubpropertyValue(subproperty, cssValue);
 			nextCurrentValue();
@@ -459,7 +459,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 
 	boolean assignIdentifiers(String subproperty) {
 		if (testIdentifiers(subproperty)) {
-			AbstractCSSValue cssValue = createCSSValue(subproperty, currentValue);
+			StyleValue cssValue = createCSSValue(subproperty, currentValue);
 			setSubpropertyValue(subproperty, cssValue);
 			nextCurrentValue();
 			return true;
@@ -471,11 +471,11 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		return getPropertyDatabase().isIdentifierValue(subproperty, currentValue.getStringValue());
 	}
 
-	protected void setSubpropertyValue(String subproperty, AbstractCSSValue cssValue) {
+	protected void setSubpropertyValue(String subproperty, StyleValue cssValue) {
 		setProperty(subproperty, cssValue, getPriority());
 	}
 
-	void setSubpropertyValueWListCheck(String property, AbstractCSSValue value) {
+	void setSubpropertyValueWListCheck(String property, StyleValue value) {
 		if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 			ValueList list = (ValueList) value;
 			if (list.getLength() == 1) {
@@ -485,8 +485,8 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		setSubpropertyValue(property, value);
 	}
 
-	void addSubpropertyValue(String subproperty, AbstractCSSValue cssValue, boolean commaList) {
-		AbstractCSSValue cssval = getDeclaredCSSValue(subproperty);
+	void addSubpropertyValue(String subproperty, StyleValue cssValue, boolean commaList) {
+		StyleValue cssval = getDeclaredCSSValue(subproperty);
 		if (cssval == null) {
 			setSubpropertyValue(subproperty, cssValue);
 		} else {
@@ -510,7 +510,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		}
 	}
 
-	void setProperty(String subpropertyName, AbstractCSSValue cssValue, String priority) {
+	void setProperty(String subpropertyName, StyleValue cssValue, String priority) {
 		mypropertyList.add(subpropertyName);
 		mypriorities.add(priority);
 		mypropValue.put(subpropertyName, cssValue);
@@ -520,7 +520,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		return mypropertyList.contains(subpropertyName);
 	}
 
-	AbstractCSSValue getDeclaredCSSValue(String propertyName) {
+	StyleValue getDeclaredCSSValue(String propertyName) {
 		return mypropValue.get(propertyName);
 	}
 
@@ -546,7 +546,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	 * @throws DOMException
 	 *             if a problem was found setting the lexical value to a CSS value.
 	 */
-	AbstractCSSValue createCSSValue() throws DOMException {
+	StyleValue createCSSValue() throws DOMException {
 		ValueItem item = valueFactory.createCSSValueItem(currentValue, true);
 		if (item.hasWarnings()) {
 			StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
@@ -558,12 +558,12 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		return item.getCSSValue();
 	}
 
-	protected AbstractCSSValue createCSSValue(String propertyName, LexicalUnit lunit) throws DOMException {
+	protected StyleValue createCSSValue(String propertyName, LexicalUnit lunit) throws DOMException {
 		return createCSSValue(propertyName, lunit, true);
 	}
 
-	AbstractCSSValue createCSSValue(String propertyName, LexicalUnit lunit, boolean subproperty) throws DOMException {
-		AbstractCSSValue cssVal;
+	StyleValue createCSSValue(String propertyName, LexicalUnit lunit, boolean subproperty) throws DOMException {
+		StyleValue cssVal;
 		ValueItem item = valueFactory.createCSSValueItem(lunit, subproperty);
 		cssVal = item.getCSSValue();
 		if (item.hasWarnings()) {
@@ -590,7 +590,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	 * @param cssValue
 	 *            the value
 	 */
-	void appendValueItemString(AbstractCSSValue cssValue) {
+	void appendValueItemString(StyleValue cssValue) {
 		if (cssValue != null) {
 			String cssText = cssValue.getCssText();
 			String miniCssText = cssValue.getMinifiedCssText(getShorthandName());

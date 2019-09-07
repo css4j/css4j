@@ -15,7 +15,7 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -38,13 +38,13 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 		}
 		setPropertyToDefault(subparray[0]);
 		setPropertyToDefault(subparray[1]);
-		AbstractCSSValue firstValue = gridLine();
+		StyleValue firstValue = gridLine();
 		if (firstValue != null) {
 			setSubpropertyValue(subparray[0], firstValue);
 			if (currentValue != null) {
 				nextCurrentValue();
 				if (currentValue != null) {
-					AbstractCSSValue secondValue = gridLine();
+					StyleValue secondValue = gridLine();
 					if (secondValue != null && currentValue == null) {
 						setSubpropertyValue(subparray[1], secondValue);
 						flush();
@@ -63,7 +63,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 		return false;
 	}
 
-	AbstractCSSValue gridLine() {
+	StyleValue gridLine() {
 		short lut = currentValue.getLexicalUnitType();
 		if (lut == LexicalUnit.SAC_IDENT) {
 			String sv = currentValue.getStringValue();
@@ -90,7 +90,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 					}
 				}
 			} else { // custom-ident
-				AbstractCSSValue customIdent = createCSSValue(getShorthandName(), currentValue);
+				StyleValue customIdent = createCSSValue(getShorthandName(), currentValue);
 				nextCurrentValue();
 				if (isFinalCurrentValue()) {
 					return customIdent;
@@ -98,7 +98,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 			}
 		} else if (lut == LexicalUnit.SAC_INTEGER) {
 			// <integer> && <custom-ident>?
-			AbstractCSSValue cssInt = createCSSValue(getShorthandName(), currentValue);
+			StyleValue cssInt = createCSSValue(getShorthandName(), currentValue);
 			nextCurrentValue();
 			if (isFinalCurrentValue()) {
 				return cssInt;

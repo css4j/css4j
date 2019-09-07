@@ -58,7 +58,7 @@ public class OMCSSRectValueTest {
 	@Test
 	public void testGetCssText() {
 		style.setCssText("clip: rect(2px 12em 3em 2pt); ");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("clip");
+		StyleValue cssval = style.getPropertyCSSValue("clip");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue.CSS_RECT, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("rect(2px, 12em, 3em, 2pt)", style.getPropertyValue("clip"));
@@ -75,7 +75,7 @@ public class OMCSSRectValueTest {
 	@Test
 	public void testGetCssTextSeparator() {
 		style.setCssText("clip: rect(2px, 12em, 3em, 2pt); ");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("clip");
+		StyleValue cssval = style.getPropertyCSSValue("clip");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue.CSS_RECT, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("rect(2px, 12em, 3em, 2pt)", style.getPropertyValue("clip"));

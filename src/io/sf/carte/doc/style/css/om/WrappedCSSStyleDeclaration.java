@@ -19,7 +19,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSDocument;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.URIValueWrapper;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -88,15 +88,15 @@ class WrappedCSSStyleDeclaration extends BaseCSSStyleDeclaration {
 	}
 
 	@Override
-	protected AbstractCSSValue getCSSValue(String propertyName) {
-		AbstractCSSValue value = super.getCSSValue(propertyName);
+	protected StyleValue getCSSValue(String propertyName) {
+		StyleValue value = super.getCSSValue(propertyName);
 		if (value != null) {
 			value = wrapCSSValue(value, oldHrefContext, hrefcontext);
 		}
 		return value;
 	}
 
-	static AbstractCSSValue wrapCSSValue(AbstractCSSValue value, String oldHrefContext, String hrefcontext) {
+	static StyleValue wrapCSSValue(StyleValue value, String oldHrefContext, String hrefcontext) {
 		short type = value.getCssValueType();
 		if (type == CSSValue.CSS_VALUE_LIST) {
 			if (hrefcontext != null) {

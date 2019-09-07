@@ -13,7 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -44,7 +44,7 @@ class BorderShorthandSetter extends ShorthandSetter {
 		if ("border-width".equals(subproperty)) {
 			if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subproperty))
 					|| ValueFactory.isSizeSACUnit(currentValue)) {
-				AbstractCSSValue cssValue = createCSSValue("border-width", currentValue);
+				StyleValue cssValue = createCSSValue("border-width", currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();
 				return true;
@@ -52,13 +52,13 @@ class BorderShorthandSetter extends ShorthandSetter {
 		} else if ("border-style".equals(subproperty)) {
 			short utype = currentValue.getLexicalUnitType();
 			if (LexicalUnit.SAC_IDENT == utype && testIdentifiers(subproperty)) {
-				AbstractCSSValue cssValue = createCSSValue("border-style", currentValue);
+				StyleValue cssValue = createCSSValue("border-style", currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();
 				return true;
 			}
 		} else if ("border-color".equals(subproperty) && BaseCSSStyleDeclaration.testColor(currentValue)) {
-			AbstractCSSValue cssValue = createCSSValue("border-color", currentValue);
+			StyleValue cssValue = createCSSValue("border-color", currentValue);
 			setSubpropertyValue(subproperty, cssValue);
 			nextCurrentValue();
 			return true;
@@ -67,7 +67,7 @@ class BorderShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	protected void setSubpropertyValue(String subproperty, AbstractCSSValue cssValue) {
+	protected void setSubpropertyValue(String subproperty, StyleValue cssValue) {
 		String[] subparray = getPropertyDatabase().getShorthandSubproperties(subproperty);
 		for (int i = 0; i < subparray.length; i++) {
 			if (i != 0) {

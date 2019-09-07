@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 class BorderBuilder extends BaseBoxShorthandBuilder {
 
@@ -820,7 +820,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	private void appendFullBorderText(StringBuilder buf, Set<String> declaredSet, PropertyValueScore score,
 			byte live_state, Set<String> equivWidthSet, Set<String> equivStyleSet, Set<String> equivColorSet,
 			boolean important) {
-		AbstractCSSValue widthVal;
+		StyleValue widthVal;
 		String widthProperty;
 		if (equivWidthSet != null
 				&& (widthProperty = liveMember(declaredSet, equivWidthSet, score, live_state)) != null) {
@@ -829,7 +829,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			widthProperty = "border-top-width";
 			widthVal = null;
 		}
-		AbstractCSSValue styleVal;
+		StyleValue styleVal;
 		String styleProperty;
 		if (equivStyleSet != null
 				&& (styleProperty = liveMember(declaredSet, equivStyleSet, score, live_state)) != null) {
@@ -838,7 +838,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			styleProperty = "border-top-style";
 			styleVal = null;
 		}
-		AbstractCSSValue colorVal;
+		StyleValue colorVal;
 		String colorProperty;
 		if (equivColorSet != null
 				&& (colorProperty = liveMember(declaredSet, equivColorSet, score, live_state)) != null) {
@@ -888,24 +888,24 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		if (declaredSet.contains(colorProperty)) {
 			localSet.add(colorProperty);
 		}
-		AbstractCSSValue widthVal = getCSSValue(widthProperty);
-		AbstractCSSValue styleVal = getCSSValue(styleProperty);
-		AbstractCSSValue colorVal = getCSSValue(colorProperty);
+		StyleValue widthVal = getCSSValue(widthProperty);
+		StyleValue styleVal = getCSSValue(styleProperty);
+		StyleValue colorVal = getCSSValue(colorProperty);
 		appendBorderText(buf, localSet, score, live_state, widthProperty, widthVal, styleProperty, styleVal,
 				colorProperty, colorVal, important);
 	}
 
 	private void appendBorderText(StringBuilder buf, Set<String> declaredSet, PropertyValueScore score, byte live_state,
-			String widthProperty, AbstractCSSValue widthVal, String styleProperty, AbstractCSSValue styleVal,
-			String colorProperty, AbstractCSSValue colorVal, boolean important) {
+			String widthProperty, StyleValue widthVal, String styleProperty, StyleValue styleVal,
+			String colorProperty, StyleValue colorVal, boolean important) {
 		appendBorderTextTriplet(buf, declaredSet, score, live_state, widthProperty, widthVal, styleProperty, styleVal,
 				colorProperty, colorVal);
 		appendPriority(buf, important);
 	}
 
 	private void appendBorderTextTriplet(StringBuilder buf, Set<String> declaredSet, PropertyValueScore score,
-			byte live_state, String widthProperty, AbstractCSSValue widthVal, String styleProperty,
-			AbstractCSSValue styleVal, String colorProperty, AbstractCSSValue colorVal) {
+			byte live_state, String widthProperty, StyleValue widthVal, String styleProperty,
+			StyleValue styleVal, String colorProperty, StyleValue colorVal) {
 		boolean appended = false;
 		if (widthProperty != null && declaredSet.contains(widthProperty) && isNotInitialValue(widthVal, widthProperty)
 				&& isLiveState(widthVal, live_state)) {
@@ -1389,9 +1389,9 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 *         mixed.
 	 */
 	private byte getTopKeywordState() {
-		AbstractCSSValue width = getCSSValue("border-top-width");
-		AbstractCSSValue style = getCSSValue("border-top-style");
-		AbstractCSSValue color = getCSSValue("border-top-color");
+		StyleValue width = getCSSValue("border-top-width");
+		StyleValue style = getCSSValue("border-top-style");
+		StyleValue color = getCSSValue("border-top-color");
 		return getSideKeywordState(width, style, color);
 	}
 
@@ -1402,9 +1402,9 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 *         mixed.
 	 */
 	private byte getRightKeywordState() {
-		AbstractCSSValue width = getCSSValue("border-right-width");
-		AbstractCSSValue style = getCSSValue("border-right-style");
-		AbstractCSSValue color = getCSSValue("border-right-color");
+		StyleValue width = getCSSValue("border-right-width");
+		StyleValue style = getCSSValue("border-right-style");
+		StyleValue color = getCSSValue("border-right-color");
 		return getSideKeywordState(width, style, color);
 	}
 
@@ -1415,9 +1415,9 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 *         mixed.
 	 */
 	private byte getBottomKeywordState() {
-		AbstractCSSValue width = getCSSValue("border-bottom-width");
-		AbstractCSSValue style = getCSSValue("border-bottom-style");
-		AbstractCSSValue color = getCSSValue("border-bottom-color");
+		StyleValue width = getCSSValue("border-bottom-width");
+		StyleValue style = getCSSValue("border-bottom-style");
+		StyleValue color = getCSSValue("border-bottom-color");
 		return getSideKeywordState(width, style, color);
 	}
 
@@ -1428,9 +1428,9 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 *         mixed.
 	 */
 	private byte getLeftKeywordState() {
-		AbstractCSSValue width = getCSSValue("border-left-width");
-		AbstractCSSValue style = getCSSValue("border-left-style");
-		AbstractCSSValue color = getCSSValue("border-left-color");
+		StyleValue width = getCSSValue("border-left-width");
+		StyleValue style = getCSSValue("border-left-style");
+		StyleValue color = getCSSValue("border-left-color");
 		return getSideKeywordState(width, style, color);
 	}
 
@@ -1443,7 +1443,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if unset, -1 if
 	 *         mixed.
 	 */
-	private byte getSideKeywordState(AbstractCSSValue width, AbstractCSSValue style, AbstractCSSValue color) {
+	private byte getSideKeywordState(StyleValue width, StyleValue style, StyleValue color) {
 		byte state;
 		byte keyword_state_width = keywordState(width);
 		byte keyword_state_style = keywordState(style);
@@ -1465,13 +1465,13 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		return isLiveState(getCSSValue(property), live_state);
 	}
 
-	private boolean isLiveState(AbstractCSSValue value, byte live_state) {
+	private boolean isLiveState(StyleValue value, byte live_state) {
 		return keywordState(value) == live_state;
 	}
 
 	private boolean equivalentProperties(String property1, String property2, byte live_state) {
-		AbstractCSSValue value1 = getCSSValue(property1);
-		AbstractCSSValue value2 = getCSSValue(property2);
+		StyleValue value1 = getCSSValue(property1);
+		StyleValue value2 = getCSSValue(property2);
 		return valueEquals(value1, value2) || keywordState(value1) != live_state || keywordState(value2) != live_state;
 	}
 
@@ -1765,10 +1765,10 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			 *         if an incompatible combination of CSS keywords was found.
 			 */
 			private int sameValueScore(String ptyTop, String ptyRight, String ptyBottom, String ptyLeft) {
-				AbstractCSSValue top = getCSSValue(ptyTop);
-				AbstractCSSValue bottom = getCSSValue(ptyBottom);
-				AbstractCSSValue left = getCSSValue(ptyLeft);
-				AbstractCSSValue right = getCSSValue(ptyRight);
+				StyleValue top = getCSSValue(ptyTop);
+				StyleValue bottom = getCSSValue(ptyBottom);
+				StyleValue left = getCSSValue(ptyLeft);
+				StyleValue right = getCSSValue(ptyRight);
 				byte keyword_state_top = keywordState(top);
 				byte keyword_state_bottom = keywordState(bottom);
 				byte keyword_state_left = keywordState(left);
@@ -1808,10 +1808,10 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			 *         0 if 3 or 4 values are different (right could be equal to bottom or top).
 			 */
 			private int equivalentValueScore(String ptyTop, String ptyRight, String ptyBottom, String ptyLeft) {
-				AbstractCSSValue top = getCSSValue(ptyTop);
-				AbstractCSSValue bottom = getCSSValue(ptyBottom);
-				AbstractCSSValue left = getCSSValue(ptyLeft);
-				AbstractCSSValue right = getCSSValue(ptyRight);
+				StyleValue top = getCSSValue(ptyTop);
+				StyleValue bottom = getCSSValue(ptyBottom);
+				StyleValue left = getCSSValue(ptyLeft);
+				StyleValue right = getCSSValue(ptyRight);
 				byte keyword_state_top = keywordState(top);
 				byte keyword_state_bottom = keywordState(bottom);
 				byte keyword_state_left = keywordState(left);

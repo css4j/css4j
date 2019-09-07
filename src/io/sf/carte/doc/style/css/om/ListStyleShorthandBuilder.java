@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 
 /**
  * Build a 'list-style' shorthand from individual properties.
@@ -27,7 +27,7 @@ class ListStyleShorthandBuilder extends OrderedShorthandBuilder {
 	}
 
 	@Override
-	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, AbstractCSSPrimitiveValue primi) {
+	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, PrimitiveValue primi) {
 		short type = primi.getPrimitiveType();
 		if (type == CSSPrimitiveValue.CSS_IDENT) {
 			return invalidIdentValueClash(declaredSet, propertyName, primi);

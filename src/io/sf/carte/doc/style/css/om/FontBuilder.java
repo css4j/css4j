@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 import java.util.Set;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Build a font shorthand from individual properties.
@@ -86,13 +86,13 @@ class FontBuilder extends ShorthandBuilder {
 		}
 		// Append property name
 		buf.append(getShorthandName()).append(':');
-		AbstractCSSValue vFontVariant = getCSSValue("font-variant-caps");
-		AbstractCSSValue vFontStyle = getCSSValue("font-style");
-		AbstractCSSValue vFontWeight = getCSSValue("font-weight");
-		AbstractCSSValue vFontStretch = getCSSValue("font-stretch");
-		AbstractCSSValue vFontSize = getCSSValue("font-size");
-		AbstractCSSValue vFontFamily = getCSSValue("font-family");
-		AbstractCSSValue vLineHeight = getCSSValue("line-height");
+		StyleValue vFontVariant = getCSSValue("font-variant-caps");
+		StyleValue vFontStyle = getCSSValue("font-style");
+		StyleValue vFontWeight = getCSSValue("font-weight");
+		StyleValue vFontStretch = getCSSValue("font-stretch");
+		StyleValue vFontSize = getCSSValue("font-size");
+		StyleValue vFontFamily = getCSSValue("font-family");
+		StyleValue vLineHeight = getCSSValue("line-height");
 		if (declaredSet.size() >= 7) {
 			// Check for inherit
 			byte inheritcheck = checkValuesForInherit(vFontStyle, vFontWeight, vFontStretch, vFontSize, vFontFamily,
@@ -170,7 +170,7 @@ class FontBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private boolean appendValueIfNotInitial(StringBuilder buf, String propertyName, AbstractCSSValue cssVal,
+	private boolean appendValueIfNotInitial(StringBuilder buf, String propertyName, StyleValue cssVal,
 			boolean appended) {
 		String text = getValueTextIfNotInitial(propertyName, cssVal);
 		if (text != null) {
@@ -183,9 +183,9 @@ class FontBuilder extends ShorthandBuilder {
 		return appended;
 	}
 
-	private byte checkValuesForInherit(AbstractCSSValue vFontStyle, AbstractCSSValue vFontWeight,
-			AbstractCSSValue vFontStretch, AbstractCSSValue vFontSize, AbstractCSSValue vFontFamily,
-			AbstractCSSValue vLineHeight) {
+	private byte checkValuesForInherit(StyleValue vFontStyle, StyleValue vFontWeight,
+			StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily,
+			StyleValue vLineHeight) {
 		byte count = 0;
 		if (isInherit(vFontStyle)) {
 			count++;
@@ -215,9 +215,9 @@ class FontBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private byte checkValuesForUnset(AbstractCSSValue vFontStyle, AbstractCSSValue vFontWeight,
-			AbstractCSSValue vFontStretch, AbstractCSSValue vFontSize, AbstractCSSValue vFontFamily,
-			AbstractCSSValue vLineHeight) {
+	private byte checkValuesForUnset(StyleValue vFontStyle, StyleValue vFontWeight,
+			StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily,
+			StyleValue vLineHeight) {
 		byte ucount = 0;
 		if (isCssKeywordValue("unset", vFontStyle)) {
 			ucount++;
@@ -247,9 +247,9 @@ class FontBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private boolean checkValuesForInitial(AbstractCSSValue vFontStyle, AbstractCSSValue vFontVariant,
-			AbstractCSSValue vFontWeight, AbstractCSSValue vFontStretch, AbstractCSSValue vFontSize,
-			AbstractCSSValue vFontFamily, AbstractCSSValue vLineHeight) {
+	private boolean checkValuesForInitial(StyleValue vFontStyle, StyleValue vFontVariant,
+			StyleValue vFontWeight, StyleValue vFontStretch, StyleValue vFontSize,
+			StyleValue vFontFamily, StyleValue vLineHeight) {
 		if (!isCssKeywordValue("initial", vFontStyle) && isNotInitialValue(vFontStyle, "font-style")) {
 			return false;
 		}
@@ -274,12 +274,12 @@ class FontBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private boolean isFontVariantCss21(AbstractCSSValue vFontVariant) {
+	private boolean isFontVariantCss21(StyleValue vFontVariant) {
 		String text = vFontVariant.getCssText().toLowerCase(Locale.ROOT);
 		return text.equals("normal") || text.equals("small-caps") || text.equals("initial");
 	}
 
-	private boolean isFontStretchCss3(AbstractCSSValue vFontStretch) {
+	private boolean isFontStretchCss3(StyleValue vFontStretch) {
 		String text = vFontStretch.getCssText().toLowerCase(Locale.ROOT);
 		return text.equals("normal") || text.equals("ultra-condensed") || text.equals("extra-condensed")
 				|| text.equals("condensed") || text.equals("semi-condensed") || text.equals("semi-expanded")
@@ -298,7 +298,7 @@ class FontBuilder extends ShorthandBuilder {
 	}
 
 	private boolean isFontVariantSetToInitialOrCss21() {
-		AbstractCSSValue cssVal = getCSSValue("font-variant-caps");
+		StyleValue cssVal = getCSSValue("font-variant-caps");
 		String fvcaps = cssVal.getCssText();
 		if (isInitialIdentifier(cssVal) || fvcaps.equalsIgnoreCase("normal") || fvcaps.equalsIgnoreCase("small-caps")) {
 			return isInitialValue("font-variant-ligatures") && isInitialValue("font-variant-position")

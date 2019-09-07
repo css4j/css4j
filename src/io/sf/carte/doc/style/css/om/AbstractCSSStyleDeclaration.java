@@ -17,7 +17,7 @@ import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -28,7 +28,7 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract public class AbstractCSSStyleDeclaration implements LexicalPropertyListener, ExtendedCSSStyleDeclaration {
 
-	abstract void addProperty(String propertyName, AbstractCSSValue cssValue, String priority);
+	abstract void addProperty(String propertyName, StyleValue cssValue, String priority);
 
 	/**
 	 * Clear the internal property lists.
@@ -60,7 +60,7 @@ abstract public class AbstractCSSStyleDeclaration implements LexicalPropertyList
 	abstract public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException;
 
 	@Override
-	abstract public AbstractCSSValue getPropertyCSSValue(String propertyName);
+	abstract public StyleValue getPropertyCSSValue(String propertyName);
 
 	/**
 	 * Get the error handler for this style declaration.

@@ -290,7 +290,7 @@ public class AttrValueTest {
 		assertEquals("data-title string, \"My Title\"", value.getStringValue());
 		assertEquals("data-title", value.getAttributeName());
 		assertEquals("string", value.getAttributeType());
-		AbstractCSSValue fallback = value.getFallback();
+		StyleValue fallback = value.getFallback();
 		assertEquals(CSSPrimitiveValue.CSS_STRING, ((CSSPrimitiveValue) value.getFallback()).getPrimitiveType());
 		assertEquals("\"My Title\"", fallback.getCssText());
 		assertEquals("attr(data-title string, \"My Title\")", value.getCssText());
@@ -304,7 +304,7 @@ public class AttrValueTest {
 		assertEquals("myuri url, 'https://www.example.com/foo'", value.getStringValue());
 		assertEquals("myuri", value.getAttributeName());
 		assertEquals("url", value.getAttributeType());
-		AbstractCSSValue fallback = value.getFallback();
+		StyleValue fallback = value.getFallback();
 		assertEquals(CSSPrimitiveValue.CSS_STRING, ((CSSPrimitiveValue) value.getFallback()).getPrimitiveType());
 		assertEquals("'https://www.example.com/foo'", fallback.getCssText());
 		assertEquals("attr(myuri url, 'https://www.example.com/foo')", value.getCssText());

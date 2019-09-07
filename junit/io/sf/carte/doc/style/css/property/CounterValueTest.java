@@ -65,7 +65,7 @@ public class CounterValueTest {
 	@Test
 	public void testGetCssText() {
 		style.setCssText("content: counter(ListCounter);");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("content");
+		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue.CSS_COUNTER, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("counter(ListCounter)", style.getPropertyValue("content"));
@@ -79,7 +79,7 @@ public class CounterValueTest {
 	@Test
 	public void testGetCssTextNone() {
 		style.setCssText("content: counter(ListCounter, none);");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("content");
+		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue.CSS_COUNTER, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("counter(ListCounter, none)", style.getPropertyValue("content"));
@@ -93,7 +93,7 @@ public class CounterValueTest {
 	@Test
 	public void testGetCssTextDefaultStyle() {
 		style.setCssText("content: counter(ListCounter, decimal);");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("content");
+		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue.CSS_COUNTER, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("counter(ListCounter)", style.getPropertyValue("content"));
@@ -101,7 +101,7 @@ public class CounterValueTest {
 		assertEquals("content:counter(ListCounter)", style.getMinifiedCssText());
 		CounterValue counter = (CounterValue) cssval;
 		assertEquals("ListCounter", counter.getName());
-		AbstractCSSPrimitiveValue counterstyle = counter.getCounterStyle();
+		PrimitiveValue counterstyle = counter.getCounterStyle();
 		assertEquals(CSSPrimitiveValue.CSS_IDENT, counterstyle.getPrimitiveType());
 		assertEquals("decimal", counterstyle.getStringValue());
 	}
@@ -109,7 +109,7 @@ public class CounterValueTest {
 	@Test
 	public void testGetCssTextSeparator() {
 		style.setCssText("content: counter(ListCounter) '. ';");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("content");
+		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
 		assertEquals(CSSValue.CSS_VALUE_LIST, cssval.getCssValueType());
 		ValueList list = (ValueList) cssval;
@@ -128,7 +128,7 @@ public class CounterValueTest {
 	@Test
 	public void testGetCssTextStyle() {
 		style.setCssText("content: counter(ListCounter, upper-latin);");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("content");
+		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue.CSS_COUNTER, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("counter(ListCounter, upper-latin)", style.getPropertyValue("content"));
@@ -136,7 +136,7 @@ public class CounterValueTest {
 		assertEquals("content:counter(ListCounter,upper-latin)", style.getMinifiedCssText());
 		CounterValue counter = (CounterValue) cssval;
 		assertEquals("ListCounter", counter.getName());
-		AbstractCSSPrimitiveValue counterstyle = counter.getCounterStyle();
+		PrimitiveValue counterstyle = counter.getCounterStyle();
 		assertEquals(CSSPrimitiveValue.CSS_IDENT, counterstyle.getPrimitiveType());
 		assertEquals("upper-latin", counterstyle.getStringValue());
 	}
@@ -144,7 +144,7 @@ public class CounterValueTest {
 	@Test
 	public void testGetCssTextStyleSymbols() {
 		style.setCssText("content: counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7')); ");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("content");
+		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue.CSS_COUNTER, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7'))",
@@ -155,7 +155,7 @@ public class CounterValueTest {
 				style.getMinifiedCssText());
 		CounterValue counter = (CounterValue) cssval;
 		assertEquals("ListCounter", counter.getName());
-		AbstractCSSPrimitiveValue counterstyle = counter.getCounterStyle();
+		PrimitiveValue counterstyle = counter.getCounterStyle();
 		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, counterstyle.getPrimitiveType());
 		assertEquals("symbols", counterstyle.getStringValue());
 	}

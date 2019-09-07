@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
@@ -43,8 +43,8 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 	 *         1 if top left and top right are the same but other values differ (bottom right
 	 *         could be equal to bottom left), 0 if 3 or 4 values are different.
 	 */
-	private int sameValueScore(Set<String> declaredSet, AbstractCSSValue topLeftValue, AbstractCSSValue topRightValue,
-			AbstractCSSValue bottomRightValue, AbstractCSSValue bottomLeftValue) {
+	private int sameValueScore(Set<String> declaredSet, StyleValue topLeftValue, StyleValue topRightValue,
+			StyleValue bottomRightValue, StyleValue bottomLeftValue) {
 		int score = 0;
 		if (bottomLeftValue.equals(topRightValue)) {
 			score += 16;
@@ -107,13 +107,13 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 		} else if (unsetcheck == 2) {
 			return false;
 		}
-		AbstractCSSValue topLeftValue = getCSSValue("border-top-left-radius");
-		AbstractCSSValue topRightValue = getCSSValue("border-top-right-radius");
-		AbstractCSSValue bottomRightValue = getCSSValue("border-bottom-right-radius");
-		AbstractCSSValue bottomLeftValue = getCSSValue("border-bottom-left-radius");
+		StyleValue topLeftValue = getCSSValue("border-top-left-radius");
+		StyleValue topRightValue = getCSSValue("border-top-right-radius");
+		StyleValue bottomRightValue = getCSSValue("border-bottom-right-radius");
+		StyleValue bottomLeftValue = getCSSValue("border-bottom-left-radius");
 		// Check for list values
 		boolean slash = false;
-		AbstractCSSValue topLeftValue0, topLeftValue1;
+		StyleValue topLeftValue0, topLeftValue1;
 		if (topLeftValue != null && topLeftValue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 			topLeftValue0 = ((ValueList) topLeftValue).item(0);
 			topLeftValue1 = ((ValueList) topLeftValue).item(1);
@@ -122,7 +122,7 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 			topLeftValue0 = topLeftValue;
 			topLeftValue1 = null;
 		}
-		AbstractCSSValue topRightValue0, topRightValue1;
+		StyleValue topRightValue0, topRightValue1;
 		if (topRightValue != null && topRightValue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 			topRightValue0 = ((ValueList) topRightValue).item(0);
 			topRightValue1 = ((ValueList) topRightValue).item(1);
@@ -131,7 +131,7 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 			topRightValue0 = topRightValue;
 			topRightValue1 = null;
 		}
-		AbstractCSSValue bottomRightValue0, bottomRightValue1;
+		StyleValue bottomRightValue0, bottomRightValue1;
 		if (bottomRightValue != null && bottomRightValue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 			bottomRightValue0 = ((ValueList) bottomRightValue).item(0);
 			bottomRightValue1 = ((ValueList) bottomRightValue).item(1);
@@ -140,7 +140,7 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 			bottomRightValue0 = bottomRightValue;
 			bottomRightValue1 = null;
 		}
-		AbstractCSSValue bottomLeftValue0, bottomLeftValue1;
+		StyleValue bottomLeftValue0, bottomLeftValue1;
 		if (bottomLeftValue != null && bottomLeftValue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 			bottomLeftValue0 = ((ValueList) bottomLeftValue).item(0);
 			bottomLeftValue1 = ((ValueList) bottomLeftValue).item(1);
@@ -160,12 +160,12 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	void appendBorderRadiusSide(StringBuilder buf, Set<String> declaredSet, AbstractCSSValue topLeftValue,
-			AbstractCSSValue topRightValue, AbstractCSSValue bottomRightValue, AbstractCSSValue bottomLeftValue,
+	void appendBorderRadiusSide(StringBuilder buf, Set<String> declaredSet, StyleValue topLeftValue,
+			StyleValue topRightValue, StyleValue bottomRightValue, StyleValue bottomLeftValue,
 			boolean important) {
 		switch (sameValueScore(declaredSet, topLeftValue, topRightValue, bottomRightValue, bottomLeftValue)) {
 		case 21: // 1 value
-			AbstractCSSValue value;
+			StyleValue value;
 			if (declaredSet.contains("border-top-left-radius")) {
 				value = topLeftValue;
 			} else if (declaredSet.contains("border-bottom-right-radius")) {
@@ -243,7 +243,7 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private void appendValue(StringBuilder buf, AbstractCSSValue cssVal) {
+	private void appendValue(StringBuilder buf, StyleValue cssVal) {
 		if (isNotInitialValue(cssVal, "border-top-left-radius")) {
 			buf.append(cssVal.getMinifiedCssText("border-radius"));
 		} else {

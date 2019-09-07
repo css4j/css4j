@@ -35,7 +35,7 @@ import org.w3c.dom.css.Rect;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -131,7 +131,7 @@ public class BaseCSSStyleDeclarationTest {
 	@Test
 	public void setCssTextEscaped() {
 		emptyStyleDecl.setCssText("font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
 		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, Arial, \\5b8b\\4f53, sans-serif", value.getCssText());
 		assertEquals("微软雅黑,Arial,宋体,sans-serif", value.getMinifiedCssText("font-family"));
 		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, Arial, \\5b8b\\4f53, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
@@ -140,7 +140,7 @@ public class BaseCSSStyleDeclarationTest {
 	@Test
 	public void setCssTextEscaped2() {
 		emptyStyleDecl.setCssText("font-family: \\5FAE\\8F6F\\96C5\\9ED1,\"Times New Roman\",\\5b8b\\4f53");
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
 		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, \"Times New Roman\", \\5b8b\\4f53", value.getCssText());
 		assertEquals("微软雅黑,\"Times New Roman\",宋体", value.getMinifiedCssText("font-family"));
 		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, \"Times New Roman\", \\5b8b\\4f53", emptyStyleDecl.getPropertyValue("font-family"));
@@ -149,7 +149,7 @@ public class BaseCSSStyleDeclarationTest {
 	@Test
 	public void setCssTextEscaped3() {
 		emptyStyleDecl.setCssText("font-family: \\\\5FAE\\8F6F");
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
 		assertEquals("\\\\5FAE\\8F6F", value.getCssText());
 		assertEquals("\\\\5FAE\u8F6F", value.getMinifiedCssText("font-family"));
 		assertEquals("\\5FAE软", emptyStyleDecl.getPropertyValue("font-family"));
@@ -171,7 +171,7 @@ public class BaseCSSStyleDeclarationTest {
 	public void setCssTextEscaped6() {
 		emptyStyleDecl.setCssText("font-family: \"\u5b8b\u4f53\",Arial");
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		value = ((ValueList) value).item(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
@@ -186,7 +186,7 @@ public class BaseCSSStyleDeclarationTest {
 	public void setCssTextEscaped7() {
 		emptyStyleDecl.setCssText("font: \"\u5b8b\u4f53\",Arial");
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		value = ((ValueList) value).item(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
@@ -201,7 +201,7 @@ public class BaseCSSStyleDeclarationTest {
 	@Test
 	public void setCssTextEscaped8() {
 		emptyStyleDecl.setCssText("font-family: \\\u5b8b\u4f53");
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		CSSPrimitiveValue primi = (CSSPrimitiveValue) value;
 		assertEquals(CSSPrimitiveValue.CSS_IDENT, primi.getPrimitiveType());
@@ -693,7 +693,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("10% 20%, left top", emptyStyleDecl.getPropertyValue("background-position"));
 		emptyStyleDecl.setCssText("background-position: 10% 20%, center top 30%");
 		assertEquals("10% 20%, center top 30%", emptyStyleDecl.getPropertyValue("background-position"));
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("background-position");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("background-position");
 		assertNotNull(value);
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		assertEquals(2, ((CSSValueList) value).getLength());
@@ -717,7 +717,7 @@ public class BaseCSSStyleDeclarationTest {
 	public void setCssTextForLayeredBackgroundPosition2() {
 		emptyStyleDecl.setCssText("background-position:0 2px,0 2px;");
 		assertEquals("0 2px, 0 2px", emptyStyleDecl.getPropertyValue("background-position"));
-		AbstractCSSValue value = emptyStyleDecl.getPropertyCSSValue("background-position");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("background-position");
 		assertNotNull(value);
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		assertEquals(2, ((CSSValueList) value).getLength());

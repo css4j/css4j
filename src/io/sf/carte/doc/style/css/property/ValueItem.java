@@ -28,7 +28,7 @@ public interface ValueItem {
 	 * 
 	 * @return the CSSValue associated to this item.
 	 */
-	AbstractCSSValue getCSSValue();
+	StyleValue getCSSValue();
 
 	/**
 	 * Get the next lexical unit after processing this item.

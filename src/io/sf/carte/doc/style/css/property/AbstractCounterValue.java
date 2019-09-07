@@ -24,10 +24,10 @@ import io.sf.carte.doc.style.css.CSSCounterValue;
  * @author Carlos Amengual
  *
  */
-abstract class AbstractCounterValue extends AbstractCSSPrimitiveValue implements CSSCounterValue {
+abstract class AbstractCounterValue extends PrimitiveValue implements CSSCounterValue {
 
 	private String identifier;
-	private AbstractCSSPrimitiveValue listStyle = null;
+	private PrimitiveValue listStyle = null;
 
 	protected AbstractCounterValue(short primitiveType) {
 		super(primitiveType);
@@ -57,11 +57,11 @@ abstract class AbstractCounterValue extends AbstractCSSPrimitiveValue implements
 	}
 
 	@Override
-	public AbstractCSSPrimitiveValue getCounterStyle() {
+	public PrimitiveValue getCounterStyle() {
 		return listStyle;
 	}
 
-	public void setCounterStyle(AbstractCSSPrimitiveValue listStyle) {
+	public void setCounterStyle(PrimitiveValue listStyle) {
 		this.listStyle = listStyle;
 	}
 

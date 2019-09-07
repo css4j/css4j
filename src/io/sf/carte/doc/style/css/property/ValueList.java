@@ -31,18 +31,18 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSValueList<AbstractCSSValue> {
+abstract public class ValueList extends StyleValue implements ExtendedCSSValueList<StyleValue> {
 
-	protected final List<AbstractCSSValue> valueList;
+	protected final List<StyleValue> valueList;
 
 	private ValueList() {
 		super(CSSValue.CSS_VALUE_LIST);
-		valueList = new ArrayList<AbstractCSSValue>();
+		valueList = new ArrayList<StyleValue>();
 	}
 
 	private ValueList(ValueList copy) {
 		super(CSSValue.CSS_VALUE_LIST);
-		valueList = new ArrayList<AbstractCSSValue>(copy.valueList);
+		valueList = new ArrayList<StyleValue>(copy.valueList);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 	}
 
 	@Override
-	public AbstractCSSValue item(int index) {
+	public StyleValue item(int index) {
 		if (index < 0 || index >= valueList.size()) {
 			return null;
 		}
@@ -59,7 +59,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 	}
 
 	@Override
-	public Iterator<AbstractCSSValue> iterator() {
+	public Iterator<StyleValue> iterator() {
 		return valueList.iterator();
 	}
 
@@ -71,7 +71,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 	 * @return true
 	 */
 	@Override
-	public boolean add(AbstractCSSValue value) {
+	public boolean add(StyleValue value) {
 		if( value == null) {
 			throw new NullPointerException("Null value added to CSSValueList");
 		}
@@ -104,7 +104,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 	 * @return the list item that was removed.
 	 */
 	@Override
-	public AbstractCSSValue remove(int index) {
+	public StyleValue remove(int index) {
 		return valueList.remove(index);
 	}
 
@@ -120,7 +120,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 	 * @throws NullPointerException if the value is <code>null</code>.
 	 */
 	@Override
-	public AbstractCSSValue set(int index, AbstractCSSValue value) {
+	public StyleValue set(int index, StyleValue value) {
 		if( value == null) {
 			throw new NullPointerException("Null value set to CSSValueList");
 		}
@@ -150,7 +150,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 		final int prime = 31;
 		int result = super.hashCode() * prime;
 		if (valueList != null) {
-			Iterator<AbstractCSSValue> it = valueList.iterator();
+			Iterator<StyleValue> it = valueList.iterator();
 			while (it.hasNext()) {
 				ExtendedCSSValue value = it.next();
 				result = prime * result + ((value == null) ? 0 : value.hashCode());
@@ -199,7 +199,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 			for (int i = 0; i < getLength(); i++) {
 				ExtendedCSSValue val = item(i);
 				if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-					((AbstractCSSPrimitiveValue) val).setSubproperty(true);
+					((PrimitiveValue) val).setSubproperty(true);
 				} else if (val.getCssValueType() == CSSValue.CSS_INHERIT) {
 					set(i, ((InheritValue) val).asSubproperty());
 				} else if (val.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
@@ -212,7 +212,7 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 	@Override
 	public boolean isSubproperty() {
 		if (valueList != null) {
-			Iterator<AbstractCSSValue> it = valueList.iterator();
+			Iterator<StyleValue> it = valueList.iterator();
 			while (it.hasNext()) {
 				if (!it.next().isSubproperty()) {
 					return false;
@@ -327,8 +327,8 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 			}
 
 			@Override
-			public AbstractCSSValue item(int index) {
-				AbstractCSSValue val = super.item(index);
+			public StyleValue item(int index) {
+				StyleValue val = super.item(index);
 				if (val != null && val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 						&& ((CSSPrimitiveValue) val).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
 					return new URIValueWrapper((URIValue) val, oldHrefContext, this.parentSheetHref);
@@ -428,8 +428,8 @@ abstract public class ValueList extends AbstractCSSValue implements ExtendedCSSV
 			}
 
 			@Override
-			public AbstractCSSValue item(int index) {
-				AbstractCSSValue val = super.item(index);
+			public StyleValue item(int index) {
+				StyleValue val = super.item(index);
 				if (val != null && val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 						&& ((CSSPrimitiveValue) val).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
 					return new URIValueWrapper((URIValue) val, oldHrefContext, this.parentSheetHref);

@@ -28,18 +28,18 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class CustomPropertyValue extends AbstractCSSPrimitiveValue implements CSSCustomPropertyValue {
+public class CustomPropertyValue extends PrimitiveValue implements CSSCustomPropertyValue {
 
 	private String name = null;
 
-	private AbstractCSSValue fallback = null;
+	private StyleValue fallback = null;
 
 	CustomPropertyValue() {
 		super(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY);
 		this.fallback = null;
 	}
 
-	CustomPropertyValue(AbstractCSSValue fallback) {
+	CustomPropertyValue(StyleValue fallback) {
 		super(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY);
 		this.fallback = fallback;
 	}
@@ -51,7 +51,7 @@ public class CustomPropertyValue extends AbstractCSSPrimitiveValue implements CS
 	}
 
 	@Override
-	public AbstractCSSValue getFallback() {
+	public StyleValue getFallback() {
 		return fallback;
 	}
 
@@ -117,7 +117,7 @@ public class CustomPropertyValue extends AbstractCSSPrimitiveValue implements CS
 					"This property was set with a shorthand. Must modify at the style-declaration level.");
 		}
 		ValueFactory factory = new ValueFactory();
-		AbstractCSSValue cssval = factory.parseProperty(cssText);
+		StyleValue cssval = factory.parseProperty(cssText);
 		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||
 				((CSSPrimitiveValue)cssval).getPrimitiveType() != CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a custom property value.");

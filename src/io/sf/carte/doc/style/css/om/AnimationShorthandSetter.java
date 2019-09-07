@@ -21,8 +21,8 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -148,7 +148,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 					String sv = currentValue.getStringValue().toLowerCase(Locale.ROOT);
 					if ("initial".equals(sv) || "unset".equals(sv)) {
-						AbstractCSSValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
+						StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 						// Full layer is 'keyword'
 						while (currentValue != null) {
 							boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
@@ -248,7 +248,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		}
 	}
 
-	private void addSingleValueLayer(AbstractCSSValue keyword) {
+	private void addSingleValueLayer(StyleValue keyword) {
 		lstDuration.add(keyword);
 		lstTimingFunction.add(keyword);
 		lstDelay.add(keyword);
@@ -379,7 +379,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		Iterator<String> it = subp.iterator();
 		while (it.hasNext()) {
 			String pname = it.next();
-			AbstractCSSValue cssVal = defaultPropertyValue(pname);
+			StyleValue cssVal = defaultPropertyValue(pname);
 			if ("animation-duration".equals(pname)) {
 				lstDuration.add(cssVal);
 			} else if ("animation-timing-function".equals(pname)) {
@@ -402,9 +402,9 @@ class AnimationShorthandSetter extends ShorthandSetter {
 
 	private void setListSubpropertyValue(String pname, ValueList list) {
 		if (list.getLength() == 1) {
-			AbstractCSSValue val = list.item(0);
+			StyleValue val = list.item(0);
 			if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				((AbstractCSSPrimitiveValue) val).setSubproperty(true);
+				((PrimitiveValue) val).setSubproperty(true);
 			} else if (val.getCssValueType() == CSSValue.CSS_INHERIT) {
 				val = ((InheritValue) val).asSubproperty();
 			} else if (val.getCssValueType() == CSSValue.CSS_VALUE_LIST) {

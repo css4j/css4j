@@ -38,7 +38,7 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.nsac.Parser2.Flag;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -358,7 +358,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @return the system default css primitive value.
 	 */
 	@Override
-	public AbstractCSSPrimitiveValue getSystemDefaultValue(String propertyName) {
+	public PrimitiveValue getSystemDefaultValue(String propertyName) {
 		if (lenientSystemValues) {
 			CSSPrimitiveValue2 value = null;
 			propertyName = propertyName.toLowerCase(Locale.ROOT);

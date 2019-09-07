@@ -31,11 +31,11 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue {
+public class AttrValue extends PrimitiveValue implements CSSAttrValue {
 
 	private String attrname = null;
 	private String typeval = null;
-	private AbstractCSSValue fallback = null;
+	private StyleValue fallback = null;
 
 	private final byte flags;
 
@@ -64,7 +64,7 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 	}
 
 	@Override
-	public AbstractCSSValue getFallback() {
+	public StyleValue getFallback() {
 		return fallback;
 	}
 
@@ -77,9 +77,9 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 	 * @return the default value, or <code>null</code> if no suitable default was
 	 *         found.
 	 */
-	public static AbstractCSSPrimitiveValue defaultFallback(String valueType) {
+	public static PrimitiveValue defaultFallback(String valueType) {
 		// Defaults
-		AbstractCSSPrimitiveValue defaultFallback = null;
+		PrimitiveValue defaultFallback = null;
 		if (valueType == null || "string".equalsIgnoreCase(valueType)) {
 			defaultFallback = new StringValue();
 			defaultFallback.setStringValue(CSSPrimitiveValue.CSS_STRING, "");
@@ -216,7 +216,7 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 					"This property was set with a shorthand. Must modify at the style-declaration level.");
 		}
 		ValueFactory factory = new ValueFactory(flags);
-		AbstractCSSValue cssval = factory.parseProperty(cssText);
+		StyleValue cssval = factory.parseProperty(cssText);
 		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||
 				((CSSPrimitiveValue)cssval).getPrimitiveType() != CSSPrimitiveValue.CSS_ATTR) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an attr value.");
@@ -238,14 +238,14 @@ public class AttrValue extends AbstractCSSPrimitiveValue implements CSSAttrValue
 		if (idxp1 != 0) {
 			String s = attr.substring(idxp1, len).trim();
 			ValueFactory factory = new ValueFactory(flags);
-			AbstractCSSValue value = factory.parseProperty(s);
+			StyleValue value = factory.parseProperty(s);
 			if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
 				StringValue sval = new StringValue(flags);
 				sval.setStringValue(CSSPrimitiveValue.CSS_STRING, s);
 				fallback = sval;
 			} else {
 				fallback = value;
-				if (AbstractCSSPrimitiveValue.isOrContainsType(fallback, CSSPrimitiveValue.CSS_ATTR)) {
+				if (PrimitiveValue.isOrContainsType(fallback, CSSPrimitiveValue.CSS_ATTR)) {
 					badSyntax(attr);
 				}
 			}

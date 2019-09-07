@@ -23,7 +23,7 @@ import io.sf.carte.util.SimpleWriter;
  * Unicode range wildcard CSSPrimitiveValue.
  * 
  */
-public class UnicodeWildcardValue extends AbstractCSSPrimitiveValue {
+public class UnicodeWildcardValue extends PrimitiveValue {
 
 	private String wildcard = null;
 

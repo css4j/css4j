@@ -213,7 +213,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			LexicalUnit finalLU = null;
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
 			if (BaseCSSStyleDeclaration.testColor(lu)) {
-				AbstractCSSPrimitiveValue color = factory.createCSSPrimitiveValue(lu, true);
+				PrimitiveValue color = factory.createCSSPrimitiveValue(lu, true);
 				if (lu2 != null && ValueFactory.isSizeSACUnit(lu2)) {
 					ValueList list = ValueList.createWSValueList();
 					list.add(color);
@@ -349,7 +349,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			LexicalUnit finalLU = null;
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
 			if (BaseCSSStyleDeclaration.testColor(lu)) {
-				AbstractCSSPrimitiveValue color = factory.createCSSPrimitiveValue(lu, true);
+				PrimitiveValue color = factory.createCSSPrimitiveValue(lu, true);
 				if (lu2 != null && (ValueFactory.isAngleSACUnit(lu2) || lu2.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE)) {
 					ValueList list = ValueList.createWSValueList();
 					list.add(color);

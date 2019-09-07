@@ -181,7 +181,7 @@ public class FunctionValueTest {
 		assertNotNull(val);
 		assertEquals("expression(iequirk \\= (document\\.body\\.scrollTop) + \"px\")", val.getCssText());
 		assertEquals("expression(iequirk \\= (document\\.body\\.scrollTop) + \"px\")", val.getMinifiedCssText("top"));
-		List<AbstractCSSValue> args = val.getArguments();
+		List<StyleValue> args = val.getArguments();
 		assertEquals(1, args.size());
 		CSSValue cssval = args.get(0);
 		assertEquals(CSSValue.CSS_VALUE_LIST, cssval.getCssValueType());
@@ -210,7 +210,7 @@ public class FunctionValueTest {
 		assertEquals(
 				"expression(eval(document\\.documentElement\\.scrollTop + (document\\.documentElement\\.clientHeight-this\\.offsetHeight)))",
 				val.getMinifiedCssText("top"));
-		List<AbstractCSSValue> args = val.getArguments();
+		List<StyleValue> args = val.getArguments();
 		assertEquals(1, args.size());
 		CSSValue cssval = args.get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, cssval.getCssValueType());
@@ -253,7 +253,7 @@ public class FunctionValueTest {
 		assertEquals("translateY(calc(3% - 1.2*5px))", style.getPropertyValue("transform"));
 		assertEquals("transform: translateY(calc(3% - 1.2*5px)); ", style.getCssText());
 		assertEquals(1, val.getArguments().size());
-		AbstractCSSValue arg = val.getArguments().get(0);
+		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
@@ -274,7 +274,7 @@ public class FunctionValueTest {
 		assertEquals("sin", val.getFunctionName());
 		assertEquals("sin(1.2*5deg)", style.getPropertyValue("transform"));
 		assertEquals(1, val.getArguments().size());
-		AbstractCSSValue arg = val.getArguments().get(0);
+		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
@@ -289,7 +289,7 @@ public class FunctionValueTest {
 		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
 		assertEquals("atan2(-1.5, 0.2*2)", style.getPropertyValue("foo"));
 		assertEquals(2, val.getArguments().size());
-		AbstractCSSValue arg = val.getArguments().get(0);
+		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_NUMBER, ((CSSPrimitiveValue) arg).getPrimitiveType());
 		assertEquals(-1.5f, ((CSSPrimitiveValue) arg).getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.01f);
@@ -310,7 +310,7 @@ public class FunctionValueTest {
 		assertEquals("atan2", val.getFunctionName());
 		assertEquals("atan2(0.2*2, -1.5)", style.getPropertyValue("foo"));
 		assertEquals(2, val.getArguments().size());
-		AbstractCSSValue arg = val.getArguments().get(0);
+		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
@@ -331,7 +331,7 @@ public class FunctionValueTest {
 		assertEquals("sqrt", val.getFunctionName());
 		assertEquals("sqrt(1.2*calc(attr(foo)/3))", style.getPropertyValue("transform"));
 		assertEquals(1, val.getArguments().size());
-		AbstractCSSValue arg = val.getArguments().get(0);
+		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
@@ -341,7 +341,7 @@ public class FunctionValueTest {
 	@Test
 	public void testGetCssTextBracketList() {
 		style.setCssText("grid-template-columns: repeat(3, [line1 line2 line3] 200px); ");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("grid-template-columns");
+		StyleValue cssval = style.getPropertyCSSValue("grid-template-columns");
 		assertNotNull(cssval);
 		FunctionValue val = (FunctionValue) cssval;
 		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());

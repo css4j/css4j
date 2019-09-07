@@ -82,7 +82,7 @@ public class UnicodeRangeValueTest {
 	@Test
 	public void testGetCssText() {
 		style.setCssText("unicode-range: U+???; ");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("unicode-range");
+		StyleValue cssval = style.getPropertyCSSValue("unicode-range");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_RANGE, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("unicode-range: U+???; ", style.getCssText());
@@ -95,7 +95,7 @@ public class UnicodeRangeValueTest {
 	@Test
 	public void testGetCssText2() {
 		style.setCssText("unicode-range: U+0027; ");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("unicode-range");
+		StyleValue cssval = style.getPropertyCSSValue("unicode-range");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_RANGE, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("U+27", style.getPropertyValue("unicode-range"));
@@ -108,7 +108,7 @@ public class UnicodeRangeValueTest {
 	@Test
 	public void testGetCssText3() {
 		style.setCssText("unicode-range: U+0025-00FF; ");
-		AbstractCSSValue cssval = style.getPropertyCSSValue("unicode-range");
+		StyleValue cssval = style.getPropertyCSSValue("unicode-range");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_RANGE, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("U+25-ff", style.getPropertyValue("unicode-range"));

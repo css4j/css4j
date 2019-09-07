@@ -26,7 +26,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class NumberValue extends AbstractCSSPrimitiveValue {
+public class NumberValue extends PrimitiveValue {
 
 	protected float realvalue = 0;
 

@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import org.w3c.css.sac.LexicalUnit;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -35,20 +35,20 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
-		AbstractCSSValue topLeftValue = createBorderRadiusValue(null);
-		AbstractCSSValue topRightValue = createBorderRadiusValue(topLeftValue);
-		AbstractCSSValue bottomRightValue = createBorderRadiusValue(topLeftValue);
-		AbstractCSSValue bottomLeftValue = createBorderRadiusValue(topRightValue);
+		StyleValue topLeftValue = createBorderRadiusValue(null);
+		StyleValue topRightValue = createBorderRadiusValue(topLeftValue);
+		StyleValue bottomRightValue = createBorderRadiusValue(topLeftValue);
+		StyleValue bottomLeftValue = createBorderRadiusValue(topRightValue);
 		if (topRightValue == null || bottomRightValue == null || bottomLeftValue == null) {
 			return false;
 		}
 		if (currentValue != null) {
 			if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
 				nextCurrentValue();
-				AbstractCSSValue topLeftValue2 = createBorderRadiusValue(null);
-				AbstractCSSValue topRightValue2 = createBorderRadiusValue(topLeftValue2);
-				AbstractCSSValue bottomRightValue2 = createBorderRadiusValue(topLeftValue2);
-				AbstractCSSValue bottomLeftValue2 = createBorderRadiusValue(topRightValue2);
+				StyleValue topLeftValue2 = createBorderRadiusValue(null);
+				StyleValue topRightValue2 = createBorderRadiusValue(topLeftValue2);
+				StyleValue bottomRightValue2 = createBorderRadiusValue(topLeftValue2);
+				StyleValue bottomLeftValue2 = createBorderRadiusValue(topRightValue2);
 				if (topRightValue2 == null || bottomRightValue2 == null || bottomLeftValue2 == null) {
 					return false;
 				}
@@ -68,21 +68,21 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 		return true;
 	}
 
-	private AbstractCSSValue valuesToList(AbstractCSSValue value, AbstractCSSValue value2) {
+	private StyleValue valuesToList(StyleValue value, StyleValue value2) {
 		ValueList list = ValueList.createWSValueList();
 		list.add(value);
 		list.add(value2);
 		return list;
 	}
 
-	private AbstractCSSValue createBorderRadiusValue(AbstractCSSValue defval) {
+	private StyleValue createBorderRadiusValue(StyleValue defval) {
 		if (currentValue == null) {
 			return defval;
 		} else {
 			if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
 				return defval;
 			} else if (ValueFactory.isSizeSACUnit(currentValue) || isCustomProperty()) {
-				AbstractCSSValue value = createCSSValue(getShorthandName(), currentValue);
+				StyleValue value = createCSSValue(getShorthandName(), currentValue);
 				nextCurrentValue();
 				return value;
 			} else {

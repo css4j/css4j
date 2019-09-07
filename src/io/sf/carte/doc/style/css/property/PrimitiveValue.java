@@ -35,22 +35,22 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
  * @author Carlos Amengual
  * 
  */
-abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue implements ExtendedCSSPrimitiveValue {
+abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPrimitiveValue {
 
 	private short primitiveType = CSSPrimitiveValue.CSS_UNKNOWN;
 
 	private boolean subproperty = false;
 
-	protected AbstractCSSPrimitiveValue(short unitType) {
+	protected PrimitiveValue(short unitType) {
 		super(CSSValue.CSS_PRIMITIVE_VALUE);
 		primitiveType = unitType;
 	}
 
-	protected AbstractCSSPrimitiveValue() {
+	protected PrimitiveValue() {
 		this(CSSPrimitiveValue.CSS_UNKNOWN);
 	}
 
-	protected AbstractCSSPrimitiveValue(AbstractCSSPrimitiveValue copied) {
+	protected PrimitiveValue(PrimitiveValue copied) {
 		this(copied.primitiveType);
 		this.subproperty = copied.subproperty;
 	}
@@ -127,8 +127,8 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 				try {
 					CSSValue val = factory.parseProperty(spec);
 					if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-							&& ((AbstractCSSPrimitiveValue) val).getPrimitiveType() == CSSPrimitiveValue.CSS_RGBCOLOR) {
-						return ((AbstractCSSPrimitiveValue) val).getRGBColorValue();
+							&& ((PrimitiveValue) val).getPrimitiveType() == CSSPrimitiveValue.CSS_RGBCOLOR) {
+						return ((PrimitiveValue) val).getRGBColorValue();
 					}
 				} catch (DOMException e) {
 				}
@@ -198,7 +198,7 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 	 *         type.
 	 */
 	private static boolean listContainsType(ValueList list, short primitiveType) {
-		for (AbstractCSSValue value : list) {
+		for (StyleValue value : list) {
 			if (isOrContainsType(value, primitiveType)) {
 				return true;
 			}
@@ -224,7 +224,7 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 		} else if (pType == CSSPrimitiveValue2.CSS_EXPRESSION) {
 			return expressionContainsType(((ExpressionValue) value).getExpression(), primitiveType);
 		} else if (pType == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY) {
-			AbstractCSSValue fallback = ((CustomPropertyValue) value).getFallback();
+			StyleValue fallback = ((CustomPropertyValue) value).getFallback();
 			if (fallback != null && isOrContainsType(fallback, primitiveType)) {
 				return true;
 			}
@@ -234,7 +234,7 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 
 	private static boolean functionContainsType(FunctionValue function, short primitiveType) {
 		LinkedCSSValueList list = function.getArguments();
-		for (AbstractCSSValue value : list) {
+		for (StyleValue value : list) {
 			if (isOrContainsType(value, primitiveType)) {
 				return true;
 			}
@@ -280,10 +280,10 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (!(obj instanceof AbstractCSSPrimitiveValue)) {
+		if (!(obj instanceof PrimitiveValue)) {
 			return false;
 		}
-		AbstractCSSPrimitiveValue other = (AbstractCSSPrimitiveValue) obj;
+		PrimitiveValue other = (PrimitiveValue) obj;
 		if (getPrimitiveType() != other.getPrimitiveType()) {
 			return false;
 		}
@@ -319,8 +319,8 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 		}
 
 		@Override
-		public AbstractCSSPrimitiveValue getCSSValue() {
-			return AbstractCSSPrimitiveValue.this;
+		public PrimitiveValue getCSSValue() {
+			return PrimitiveValue.this;
 		}
 
 		void reportSyntaxWarning(String message) {
@@ -363,6 +363,6 @@ abstract public class AbstractCSSPrimitiveValue extends AbstractCSSValue impleme
 	 * @return a copy of this object.
 	 */
 	@Override
-	abstract public AbstractCSSPrimitiveValue clone();
+	abstract public PrimitiveValue clone();
 
 }

@@ -28,10 +28,10 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioValue {
+public class RatioValue extends PrimitiveValue implements CSSRatioValue {
 
-	private AbstractCSSPrimitiveValue antecedentValue;
-	private AbstractCSSPrimitiveValue consequentValue;
+	private PrimitiveValue antecedentValue;
+	private PrimitiveValue consequentValue;
 
 	public RatioValue() {
 		super();
@@ -64,7 +64,7 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		ValueFactory vf = new ValueFactory();
-		AbstractCSSPrimitiveValue value = vf.parseMediaFeature(cssText);
+		PrimitiveValue value = vf.parseMediaFeature(cssText);
 		if (value.getPrimitiveType() != CSSPrimitiveValue2.CSS_RATIO) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Value is not a ratio.");
 		}
@@ -79,12 +79,12 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 	}
 
 	@Override
-	public AbstractCSSPrimitiveValue getAntecedentValue() {
+	public PrimitiveValue getAntecedentValue() {
 		return antecedentValue;
 	}
 
 	@Override
-	public AbstractCSSPrimitiveValue getConsequentValue() {
+	public PrimitiveValue getConsequentValue() {
 		return consequentValue;
 	}
 
@@ -94,7 +94,7 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 	 * @param antecedentValue the first value.
 	 * @throws DOMException if the value is <code>null</code> or of the wrong type.
 	 */
-	public void setAntecedentValue(AbstractCSSPrimitiveValue antecedentValue) throws DOMException {
+	public void setAntecedentValue(PrimitiveValue antecedentValue) throws DOMException {
 		checkValueType(antecedentValue);
 		this.antecedentValue = antecedentValue;
 	}
@@ -105,7 +105,7 @@ public class RatioValue extends AbstractCSSPrimitiveValue implements CSSRatioVal
 	 * @param consequentValue the second value.
 	 * @throws DOMException if the value is <code>null</code> or of the wrong type.
 	 */
-	public void setConsequentValue(AbstractCSSPrimitiveValue consequentValue) throws DOMException {
+	public void setConsequentValue(PrimitiveValue consequentValue) throws DOMException {
 		checkValueType(consequentValue);
 		this.consequentValue = consequentValue;
 	}

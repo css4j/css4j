@@ -24,7 +24,7 @@ import io.sf.carte.util.SimpleWriter;
  * Unicode character CSSPrimitiveValue.
  * 
  */
-public class UnicodeValue extends AbstractCSSPrimitiveValue implements CSSUnicodeRangeValue.CSSUnicodeValue {
+public class UnicodeValue extends PrimitiveValue implements CSSUnicodeRangeValue.CSSUnicodeValue {
 
 	private int codePoint = 0;
 

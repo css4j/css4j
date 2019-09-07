@@ -43,7 +43,7 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.doc.style.css.RGBAColor;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.NumberValue;
 
@@ -1239,7 +1239,7 @@ public class ComputedCSSStyleTest {
 		CSSValueList list = (CSSValueList) val;
 		assertEquals(3, list.getLength());
 		list = (CSSValueList) ((BaseCSSStyleDeclaration) style).computeBoundProperty("background-image",
-				"background-repeat", (AbstractCSSValue) val);
+				"background-repeat", (StyleValue) val);
 		assertEquals(2, list.getLength());
 		assertEquals("repeat no-repeat", list.item(0).getCssText());
 		assertEquals("round round", list.item(1).getCssText());
@@ -1253,7 +1253,7 @@ public class ComputedCSSStyleTest {
 		val = style.getPropertyCSSValue("background-clip");
 		assertNotNull(val);
 		val = ((BaseCSSStyleDeclaration) style).computeBoundProperty("background-image", "background-clip",
-				(AbstractCSSValue) val);
+				(StyleValue) val);
 		assertEquals(CSSValue.CSS_VALUE_LIST, val.getCssValueType());
 		list = (CSSValueList) val;
 		assertEquals(2, list.getLength());
@@ -1262,7 +1262,7 @@ public class ComputedCSSStyleTest {
 		val = style.getPropertyCSSValue("background-attachment");
 		assertNotNull(val);
 		val = ((BaseCSSStyleDeclaration) style).computeBoundProperty("background-image", "background-attachment",
-				(AbstractCSSValue) val);
+				(StyleValue) val);
 		assertEquals(CSSValue.CSS_VALUE_LIST, val.getCssValueType());
 		list = (CSSValueList) val;
 		assertEquals(2, list.getLength());
@@ -1271,7 +1271,7 @@ public class ComputedCSSStyleTest {
 		val = style.getPropertyCSSValue("background-size");
 		assertNotNull(val);
 		val = ((BaseCSSStyleDeclaration) style).computeBoundProperty("background-image", "background-size",
-				(AbstractCSSValue) val);
+				(StyleValue) val);
 		assertEquals(CSSValue.CSS_VALUE_LIST, val.getCssValueType());
 		list = (CSSValueList) val;
 		assertEquals(2, list.getLength());
@@ -1301,7 +1301,7 @@ public class ComputedCSSStyleTest {
 		list = (CSSValueList) val;
 		assertEquals(3, list.getLength());
 		list = (CSSValueList) ((BaseCSSStyleDeclaration) style).computeBoundProperty("transition-property",
-				"transition-duration", (AbstractCSSValue) val);
+				"transition-duration", (StyleValue) val);
 		assertEquals(4, list.getLength());
 		assertEquals("1s", list.item(0).getCssText());
 		assertEquals("10s", list.item(1).getCssText());
@@ -1309,11 +1309,11 @@ public class ComputedCSSStyleTest {
 		assertEquals("1s", list.item(3).getCssText());
 		val = style.getPropertyCSSValue("transition-timing-function");
 		val = ((BaseCSSStyleDeclaration) style).computeBoundProperty("transition-property",
-				"transition-timing-function", (AbstractCSSValue) val);
+				"transition-timing-function", (StyleValue) val);
 		assertEquals("ease, linear, cubic-bezier(0.33, 0.1, 0.5, 1), ease", val.getCssText());
 		val = style.getPropertyCSSValue("transition-delay");
 		val = ((BaseCSSStyleDeclaration) style).computeBoundProperty("transition-property", "transition-delay",
-				(AbstractCSSValue) val);
+				(StyleValue) val);
 		assertEquals("2s, 1s, 2s, 1s", val.getCssText());
 	}
 

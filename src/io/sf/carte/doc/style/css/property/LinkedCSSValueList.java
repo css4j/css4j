@@ -25,7 +25,7 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Linked-list implementation of <code>ExtendedCSSValueList</code>.
  */
-public class LinkedCSSValueList extends LinkedList<AbstractCSSValue> implements ExtendedCSSValueList<AbstractCSSValue> {
+public class LinkedCSSValueList extends LinkedList<StyleValue> implements ExtendedCSSValueList<StyleValue> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,7 +36,7 @@ public class LinkedCSSValueList extends LinkedList<AbstractCSSValue> implements 
 	 *            the value to be added.
 	 */
 	@Override
-	public boolean add(AbstractCSSValue value) {
+	public boolean add(StyleValue value) {
 		return super.add(value);
 	}
 
@@ -59,7 +59,7 @@ public class LinkedCSSValueList extends LinkedList<AbstractCSSValue> implements 
 	}
 
 	@Override
-	public AbstractCSSValue item(int index) {
+	public StyleValue item(int index) {
 		return get(index);
 	}
 
@@ -71,7 +71,7 @@ public class LinkedCSSValueList extends LinkedList<AbstractCSSValue> implements 
 	 * @return a clone of this instance.
 	 */
 	@Override
-	public ExtendedCSSValueList<AbstractCSSValue> clone() {
+	public ExtendedCSSValueList<StyleValue> clone() {
 		LinkedCSSValueList copy = new LinkedCSSValueList();
 		copy.addAll(this);
 		return copy;
@@ -121,7 +121,7 @@ public class LinkedCSSValueList extends LinkedList<AbstractCSSValue> implements 
 	 * @throws NullPointerException if the value is <code>null</code>.
 	 */
 	@Override
-	public AbstractCSSValue set(int index, AbstractCSSValue value) {
+	public StyleValue set(int index, StyleValue value) {
 		if(value == null) {
 			throw new NullPointerException("Null value set to CSSValueList");
 		}

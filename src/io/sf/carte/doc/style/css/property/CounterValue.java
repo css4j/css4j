@@ -87,7 +87,7 @@ class CounterValue extends AbstractCounterValue {
 	public String getCssText() {
 		StringBuilder buf = new StringBuilder();
 		buf.append("counter(").append(getName());
-		AbstractCSSPrimitiveValue style = getCounterStyle();
+		PrimitiveValue style = getCounterStyle();
 		String listStyle;
 		if (style != null && !"decimal".equalsIgnoreCase(listStyle = style.getCssText())) {
 			buf.append(',').append(' ').append(listStyle);
@@ -100,7 +100,7 @@ class CounterValue extends AbstractCounterValue {
 	public String getMinifiedCssText(String propertyName) {
 		StringBuilder buf = new StringBuilder();
 		buf.append("counter(").append(getName());
-		AbstractCSSPrimitiveValue style = getCounterStyle();
+		PrimitiveValue style = getCounterStyle();
 		String listStyle;
 		if (style != null && !"decimal".equalsIgnoreCase(listStyle = style.getCssText())) {
 			buf.append(',').append(listStyle);
@@ -113,7 +113,7 @@ class CounterValue extends AbstractCounterValue {
 	public void writeCssText(SimpleWriter wri) throws IOException {
 		wri.write("counter(");
 		wri.write(getName());
-		AbstractCSSPrimitiveValue listStyle = getCounterStyle();
+		PrimitiveValue listStyle = getCounterStyle();
 		if (listStyle != null && !isCSSIdentifier(listStyle, "decimal")) {
 			wri.write(", ");
 			listStyle.writeCssText(wri);

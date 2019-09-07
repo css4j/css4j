@@ -17,8 +17,8 @@ import java.util.Set;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Build a shorthand from individual properties when specific order matters, and the
@@ -33,7 +33,7 @@ class OrderedShorthandBuilder extends GenericShorthandBuilder {
 			String freeProperty) {
 		super(shorthandName, parentStyle, initialvalue);
 		this.freeProperty = freeProperty.toLowerCase(Locale.ROOT);
-		AbstractCSSValue freePropertyValue = getCSSValue(freeProperty);
+		StyleValue freePropertyValue = getCSSValue(freeProperty);
 		if (freePropertyValue != null && freePropertyValue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE && 
 				((CSSPrimitiveValue) freePropertyValue).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
 			this.freePropertyStringValue = ((CSSPrimitiveValue) freePropertyValue).getStringValue();
@@ -43,7 +43,7 @@ class OrderedShorthandBuilder extends GenericShorthandBuilder {
 	}
 
 	@Override
-	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, AbstractCSSPrimitiveValue primi) {
+	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, PrimitiveValue primi) {
 		return !freeProperty.equals(propertyName) && super.invalidPrimitiveValueClash(declaredSet, propertyName, primi);
 	}
 
@@ -54,7 +54,7 @@ class OrderedShorthandBuilder extends GenericShorthandBuilder {
 
 	@Override
 	boolean appendValueText(StringBuilder buf, String property, boolean appended) {
-		AbstractCSSValue cssVal = getCSSValue(property);
+		StyleValue cssVal = getCSSValue(property);
 		if (isNotInitialValue(cssVal, property) ||
 				(!freeProperty.equals(property) && validValueClash(property))) {
 			if (appended) {

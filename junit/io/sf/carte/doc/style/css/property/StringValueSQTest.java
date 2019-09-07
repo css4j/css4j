@@ -29,7 +29,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue.LexicalSetter;
+import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
 
 public class StringValueSQTest {
 

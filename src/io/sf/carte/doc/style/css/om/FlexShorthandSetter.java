@@ -14,8 +14,8 @@ package io.sf.carte.doc.style.css.om;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -77,7 +77,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 				}
 			}
 			if (flexBasisUnset && ValueFactory.isSizeSACUnit(currentValue)) {
-				AbstractCSSPrimitiveValue value = (AbstractCSSPrimitiveValue) createCSSValue("flex-basis",
+				PrimitiveValue value = (PrimitiveValue) createCSSValue("flex-basis",
 						currentValue);
 				if (value.isNumberZero()) {
 					NumberValue number = new NumberValue();
@@ -191,7 +191,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 	@Override
 	protected void appendValueItemString() {
 		if (currentValue != null) {
-			AbstractCSSValue cssValue = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
+			StyleValue cssValue = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 			if (cssValue != null) {
 				String cssText, miniCssText;
 				NumberValue number;

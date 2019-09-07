@@ -32,7 +32,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunctionValue {
+public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 
 	private String functionName = null;
 
@@ -78,7 +78,7 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 			ValueList list = null;
 			while (lu != null) {
 				ValueItem item;
-				AbstractCSSValue newval;
+				StyleValue newval;
 				short type = lu.getLexicalUnitType();
 				if (type == LexicalUnit.SAC_SUB_EXPRESSION) {
 					item = subExpression(lu);
@@ -116,7 +116,7 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 						lu = lu.getNextLexicalUnit();
 						if (!commaSep && !arguments.isEmpty()) {
 							list = ValueList.createWSValueList();
-							Iterator<AbstractCSSValue> it = arguments.iterator();
+							Iterator<StyleValue> it = arguments.iterator();
 							while (it.hasNext()) {
 								list.add(it.next());
 							}
@@ -147,7 +147,7 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 
-		private boolean isOperand(AbstractCSSValue value) {
+		private boolean isOperand(StyleValue value) {
 			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 				short pType = ((CSSPrimitiveValue) value).getPrimitiveType();
 				switch (pType) {
@@ -239,7 +239,7 @@ public class FunctionValue extends AbstractCSSPrimitiveValue implements CSSFunct
 		if (sz == 1) {
 			// Check whether the only parameter is an expression, and omit the
 			// parentheses in that case
-			AbstractCSSValue first = arguments.get(0);
+			StyleValue first = arguments.get(0);
 			if (first.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 					&& ((CSSPrimitiveValue2) first).getPrimitiveType() == CSSPrimitiveValue2.CSS_EXPRESSION
 					&& ((CSSPrimitiveValue2) first).getStringValue().length() == 0) {

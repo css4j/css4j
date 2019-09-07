@@ -13,7 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -38,20 +38,20 @@ class BorderSideShorthandSetter extends ShorthandSetter {
 		if (pnameWidth.equals(subproperty)) {
 			if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers("border-width"))
 					|| ValueFactory.isSizeSACUnit(currentValue)) {
-				AbstractCSSValue cssValue = createCSSValue(subproperty, currentValue);
+				StyleValue cssValue = createCSSValue(subproperty, currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();
 				return true;
 			}
 		} else if (pnameStyle.equals(subproperty)) {
 			if (LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers("border-style")) {
-				AbstractCSSValue cssValue = createCSSValue(subproperty, currentValue);
+				StyleValue cssValue = createCSSValue(subproperty, currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();
 				return true;
 			}
 		} else if (pnameColor.equals(subproperty) && BaseCSSStyleDeclaration.testColor(currentValue)) {
-			AbstractCSSValue cssValue = createCSSValue(subproperty, currentValue);
+			StyleValue cssValue = createCSSValue(subproperty, currentValue);
 			setSubpropertyValue(subproperty, cssValue);
 			// border-side-color must be last
 			currentValue = null;

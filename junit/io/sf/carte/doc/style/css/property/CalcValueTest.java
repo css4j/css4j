@@ -60,7 +60,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(80% - 3em); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -76,7 +76,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(100%/3 - 2*1em - 2*1px); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -109,7 +109,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("font-size: calc(1em + (0.4vw + 0.25vh)/2); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("font-size");
+		StyleValue val = style.getPropertyCSSValue("font-size");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -147,7 +147,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("font-size: calc(1em - (0.4vw + 0.25vh)/2); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("font-size");
+		StyleValue val = style.getPropertyCSSValue("font-size");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -185,7 +185,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("left: calc(20px + 2vw + 8.1% - 2.1vw); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("left");
+		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -224,7 +224,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("left: calc(20px + 2vw + (8.1% - 2.1vw)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("left");
+		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -242,7 +242,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("left: calc(20px + 2vw - (8.1% - 2.1vw)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("left");
+		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -260,7 +260,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("left: calc(20px + 2 * (8.1% - 2.1vw)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("left");
+		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -278,7 +278,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("margin-left:calc(1em - var(--bar,0.3rem))");
-		AbstractCSSValue val = style.getPropertyCSSValue("margin-left");
+		StyleValue val = style.getPropertyCSSValue("margin-left");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -302,7 +302,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(-3em); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -318,7 +318,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((50% - 3em)*2); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -334,7 +334,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((100.0% - 60.0px) / 3); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -350,7 +350,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(calc(50% - 3em)*2); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -366,7 +366,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((50% - 3em) - (2% - 1px)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -382,7 +382,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((50% - 3em) - max(6px, 1em)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -398,7 +398,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((50% - 3em) - calc(2% - 1px)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -414,7 +414,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(calc(50% - 3em) - (2% - 1px)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -430,7 +430,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em)/(35 - 21)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("line-height");
+		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -446,7 +446,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) - (35 - 21)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("line-height");
+		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -462,7 +462,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) / max(6px, 1em)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("line-height");
+		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -478,7 +478,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) - max(6px, 1em)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("line-height");
+		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -494,7 +494,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("counter-reset: calc(attr(start integer, 1) - 1);");
-		AbstractCSSValue val = style.getPropertyCSSValue("counter-reset");
+		StyleValue val = style.getPropertyCSSValue("counter-reset");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -510,7 +510,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((-3em)*2); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -526,7 +526,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((-3em + 5%)*2); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
@@ -547,7 +547,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(*(-3em + 5%)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
 		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
 	}
@@ -558,7 +558,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(/(-3em + 5%)); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
 		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
 	}
@@ -569,7 +569,7 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(3em 5%); ");
-		AbstractCSSValue val = style.getPropertyCSSValue("width");
+		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
 		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
 	}

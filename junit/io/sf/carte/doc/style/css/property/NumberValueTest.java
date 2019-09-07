@@ -114,7 +114,7 @@ public class NumberValueTest {
 		assertEquals("10%", style.getPropertyCSSValue("height").getMinifiedCssText(""));
 		style.setCssText("resolution: 300dpi");
 		assertEquals("300dpi", style.getPropertyValue("resolution"));
-		AbstractCSSValue value = style.getPropertyCSSValue("resolution");
+		StyleValue value = style.getPropertyCSSValue("resolution");
 		assertEquals(CSSPrimitiveValue2.CSS_DPI, ((CSSPrimitiveValue) value).getPrimitiveType());
 		assertEquals("300dpi", value.getMinifiedCssText(""));
 	}
@@ -157,11 +157,11 @@ public class NumberValueTest {
 		StyleRule styleRule = new StyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("left: 5.33333333%; ");
-		AbstractCSSValue value = style.getPropertyCSSValue("left");
+		StyleValue value = style.getPropertyCSSValue("left");
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_PERCENTAGE, ((CSSPrimitiveValue) value).getPrimitiveType());
 		style.setCssText("left: 5.33333333%; ");
-		AbstractCSSValue other = style.getPropertyCSSValue("left");
+		StyleValue other = style.getPropertyCSSValue("left");
 		assertTrue(value.equals(other));
 		assertTrue(value.hashCode() == other.hashCode());
 		style.setCssText(style.getCssText());
@@ -179,11 +179,11 @@ public class NumberValueTest {
 		StyleRule styleRule = new StyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("left: 2.6666666667px; ");
-		AbstractCSSValue value = style.getPropertyCSSValue("left");
+		StyleValue value = style.getPropertyCSSValue("left");
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_PX, ((CSSPrimitiveValue) value).getPrimitiveType());
 		style.setCssText("left: 2.6666666667px; ");
-		AbstractCSSValue other = style.getPropertyCSSValue("left");
+		StyleValue other = style.getPropertyCSSValue("left");
 		assertTrue(value.equals(other));
 		assertTrue(value.hashCode() == other.hashCode());
 		style.setCssText(style.getCssText());
@@ -205,11 +205,11 @@ public class NumberValueTest {
 		StyleRule styleRule = new StyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("left: 0px; ");
-		AbstractCSSValue value = style.getPropertyCSSValue("left");
+		StyleValue value = style.getPropertyCSSValue("left");
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_PX, ((CSSPrimitiveValue) value).getPrimitiveType());
 		style.setCssText("left: 0px; ");
-		AbstractCSSValue other = style.getPropertyCSSValue("left");
+		StyleValue other = style.getPropertyCSSValue("left");
 		assertTrue(value.equals(other));
 		assertTrue(value.hashCode() == other.hashCode());
 		style.setCssText(style.getCssText());

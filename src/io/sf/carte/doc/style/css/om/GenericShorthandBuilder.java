@@ -18,8 +18,8 @@ import java.util.Set;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -69,7 +69,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 			String property = subp[i];
 			if (declaredSet.contains(property)) {
 				// First, make sure that it is not a layered property
-				AbstractCSSValue cssVal = getCSSValue(property);
+				StyleValue cssVal = getCSSValue(property);
 				if ((cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
 						((ValueList) cssVal).isCommaSeparated()) || 
 						invalidValueClash(declaredSet, property, cssVal)) {
@@ -94,7 +94,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 	 * @param cssVal      the value of that property
 	 * @return <code>true</code> if the shorthand should not be built.
 	 */
-	boolean invalidValueClash(Set<String> declaredSet, String property, AbstractCSSValue cssVal) {
+	boolean invalidValueClash(Set<String> declaredSet, String property, StyleValue cssVal) {
 		if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 			ValueList list = (ValueList) cssVal;
 			int len = list.getLength();
@@ -104,21 +104,21 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 				}
 			}
 		} else if (cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			return invalidPrimitiveValueClash(declaredSet, property, (AbstractCSSPrimitiveValue) cssVal);
+			return invalidPrimitiveValueClash(declaredSet, property, (PrimitiveValue) cssVal);
 		} else {
 			return true;
 		}
 		return false;
 	}
 
-	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, AbstractCSSPrimitiveValue primi) {
+	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, PrimitiveValue primi) {
 		if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
 			return invalidIdentValueClash(declaredSet, propertyName, primi);
 		}
 		return false;
 	}
 
-	boolean invalidIdentValueClash(Set<String> declaredSet, String propertyName, AbstractCSSPrimitiveValue primi) {
+	boolean invalidIdentValueClash(Set<String> declaredSet, String propertyName, PrimitiveValue primi) {
 		String ident = primi.getStringValue().toLowerCase(Locale.ROOT);
 		if (!pdb.isIdentifierValue(propertyName, ident) && !ident.equals(initialvalue) && !ident.equals("initial")) {
 			if (identifierValuesAreKnown(propertyName) || containsControl(ident)) {

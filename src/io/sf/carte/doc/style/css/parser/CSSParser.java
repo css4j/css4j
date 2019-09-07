@@ -63,7 +63,7 @@ import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.LangConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.PositionalConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SelectorArgumentConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SiblingSelectorImpl;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.uparser.TokenControl;
@@ -743,7 +743,7 @@ public class CSSParser implements Parser2 {
 							String svalue = buffer.toString();
 							ValueFactory factory = new ValueFactory();
 							try {
-								AbstractCSSValue value = factory.parseProperty(svalue);
+								StyleValue value = factory.parseProperty(svalue);
 								((DeclarationCondition) currentCond).setValue(value);
 							} catch (DOMException e) {
 								handleError(index, ParseHelper.ERR_WRONG_VALUE, "Bad @supports condition value.");

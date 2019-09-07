@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
@@ -65,7 +65,7 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 		}
 		String property = subp[0];
 		// Make sure that it is not a layered property
-		AbstractCSSValue cssVal = getCSSValue(property);
+		StyleValue cssVal = getCSSValue(property);
 		if ((cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
 				((ValueList) cssVal).isCommaSeparated())) {
 			return false;
@@ -75,7 +75,7 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 			appendValueText(buf, cssVal, false);
 			appended = true;
 		}
-		AbstractCSSValue cssVal2 = getCSSValue(subp[1]);
+		StyleValue cssVal2 = getCSSValue(subp[1]);
 		if (!valueEquals(cssVal, cssVal2)) {
 			appendValueText(buf, cssVal2, appended);
 			appended = true;
@@ -91,12 +91,12 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 	 * This override is optimized for the case where non system-default values cannot be found
 	 */
 	@Override
-	protected boolean isNotInitialValue(AbstractCSSValue cssVal, String propertyName) {
+	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
 		return cssVal != null && !isInitialIdentifier(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
-	private void appendValueText(StringBuilder buf, AbstractCSSValue cssVal, boolean prepend) {
+	private void appendValueText(StringBuilder buf, StyleValue cssVal, boolean prepend) {
 		if (prepend) {
 			buf.append(' ');
 		}

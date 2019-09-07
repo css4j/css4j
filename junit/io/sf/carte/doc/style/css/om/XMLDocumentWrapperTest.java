@@ -47,7 +47,7 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleProcessingInstruction;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 /**
@@ -255,7 +255,7 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(elm);
 		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
-		AbstractCSSValue color = (AbstractCSSValue) style.getPropertyCSSValue("color");
+		StyleValue color = (StyleValue) style.getPropertyCSSValue("color");
 		assertNotNull(color);
 		assertEquals("initial", color.getCssText());
 		assertTrue(color.isSystemDefault());
@@ -263,7 +263,7 @@ public class XMLDocumentWrapperTest {
 		// style database
 		xmlDoc.setTargetMedium("print");
 		style = elm.getComputedStyle(null);
-		color = (AbstractCSSValue) style.getPropertyCSSValue("color");
+		color = (StyleValue) style.getPropertyCSSValue("color");
 		assertNotNull(color);
 		assertEquals("#000", color.getCssText());
 		assertTrue(color.isSystemDefault());
@@ -284,7 +284,7 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(elm);
 		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
-		AbstractCSSValue color = (AbstractCSSValue) style.getPropertyCSSValue("color");
+		StyleValue color = (StyleValue) style.getPropertyCSSValue("color");
 		assertNotNull(color);
 		assertEquals("#000", color.getCssText());
 		assertFalse(color.isSystemDefault());

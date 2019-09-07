@@ -29,8 +29,8 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
@@ -583,7 +583,7 @@ abstract class SimpleBoxModel {
 			maxcw += maxrcw[i];
 		}
 		box.colwidth = new float[ncol];
-		AbstractCSSValue cssval = style.getCSSValue("width");
+		StyleValue cssval = style.getCSSValue("width");
 		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
 				|| isPrimitiveAuto((CSSPrimitiveValue) cssval)) {
 			// width: auto
@@ -1109,7 +1109,7 @@ abstract class SimpleBoxModel {
 
 		@Override
 		protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
-			return styledecl.absolutePrimitiveValue(propertyName, (AbstractCSSPrimitiveValue) partialValue, false);
+			return styledecl.absolutePrimitiveValue(propertyName, (PrimitiveValue) partialValue, false);
 		}
 
 		@Override

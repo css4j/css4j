@@ -13,7 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Shorthand setter for the shorthand properties whose subproperties are single-value and
@@ -40,7 +40,7 @@ class SequenceShorthandSetter extends ShorthandSetter {
 			nextCurrentValue();
 			setSubpropertyValue(subparray[1], createCSSValue(subparray[1], currentValue));
 		} else if (vcount == 1) {
-			AbstractCSSValue cssval = createCSSValue(subparray[0], currentValue);
+			StyleValue cssval = createCSSValue(subparray[0], currentValue);
 			setSubpropertyValue(subparray[0], cssval);
 			setSubpropertyValue(subparray[1], cssval);
 		} else {

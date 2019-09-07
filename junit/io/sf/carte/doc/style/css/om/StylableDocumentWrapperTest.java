@@ -52,7 +52,7 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class StylableDocumentWrapperTest {
@@ -270,7 +270,7 @@ public class StylableDocumentWrapperTest {
 		CSSElement elm = xhtmlDoc.getDocumentElement();
 		assertNotNull(elm);
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		AbstractCSSValue color = (AbstractCSSValue) style.getPropertyCSSValue("color");
+		StyleValue color = (StyleValue) style.getPropertyCSSValue("color");
 		assertNotNull(color);
 		assertEquals("initial", color.getCssText());
 		assertTrue(color.isSystemDefault());
@@ -278,7 +278,7 @@ public class StylableDocumentWrapperTest {
 		// style database
 		xhtmlDoc.setTargetMedium("print");
 		style = elm.getComputedStyle(null);
-		color = (AbstractCSSValue) style.getPropertyCSSValue("color");
+		color = (StyleValue) style.getPropertyCSSValue("color");
 		assertNotNull(color);
 		assertEquals("#000", color.getCssText());
 		assertTrue(color.isSystemDefault());

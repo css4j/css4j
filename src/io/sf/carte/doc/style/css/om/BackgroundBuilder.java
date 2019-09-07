@@ -20,8 +20,8 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSCustomPropertyValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -30,13 +30,13 @@ import io.sf.carte.doc.style.css.property.ValueList;
  */
 class BackgroundBuilder extends ShorthandBuilder {
 
-	private AbstractCSSValue bgimage;
-	private AbstractCSSValue bgposition;
-	private AbstractCSSValue bgsize;
-	private AbstractCSSValue bgrepeat;
-	private AbstractCSSValue bgattachment;
-	private AbstractCSSValue bgclip;
-	private AbstractCSSValue bgorigin;
+	private StyleValue bgimage;
+	private StyleValue bgposition;
+	private StyleValue bgsize;
+	private StyleValue bgrepeat;
+	private StyleValue bgattachment;
+	private StyleValue bgclip;
+	private StyleValue bgorigin;
 
 	private boolean appended = false;
 
@@ -103,7 +103,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private AbstractCSSValue computeMultipleSubproperty(String masterProperty, String propertyName) {
+	private StyleValue computeMultipleSubproperty(String masterProperty, String propertyName) {
 		return getParentStyle().computeBoundProperty(masterProperty, propertyName, getCSSValue(propertyName));
 	}
 
@@ -112,9 +112,9 @@ class BackgroundBuilder extends ShorthandBuilder {
 				getCSSValue("background-color"));
 	}
 
-	private byte checkForInherit(AbstractCSSValue bimg, AbstractCSSValue bpos, AbstractCSSValue bsize,
-			AbstractCSSValue brepeat, AbstractCSSValue battach, AbstractCSSValue bclip, AbstractCSSValue borigin,
-			AbstractCSSValue bcolor) {
+	private byte checkForInherit(StyleValue bimg, StyleValue bpos, StyleValue bsize,
+			StyleValue brepeat, StyleValue battach, StyleValue bclip, StyleValue borigin,
+			StyleValue bcolor) {
 		byte check = checkForInherit(bimg, bpos, bsize, brepeat, battach, bclip, borigin);
 		if (check == 2) {
 			return 2;
@@ -129,8 +129,8 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return check;
 	}
 
-	private byte checkForInherit(AbstractCSSValue bimg, AbstractCSSValue bpos, AbstractCSSValue bsize,
-			AbstractCSSValue brepeat, AbstractCSSValue battach, AbstractCSSValue bclip, AbstractCSSValue borigin) {
+	private byte checkForInherit(StyleValue bimg, StyleValue bpos, StyleValue bsize,
+			StyleValue brepeat, StyleValue battach, StyleValue bclip, StyleValue borigin) {
 		byte count = 0;
 		if (isInherit(bimg)) {
 			count++;
@@ -257,7 +257,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private boolean isUnsetValue(AbstractCSSValue cssValue) {
+	private boolean isUnsetValue(StyleValue cssValue) {
 		return isCssKeywordValue("unset", cssValue);
 	}
 
@@ -306,13 +306,13 @@ class BackgroundBuilder extends ShorthandBuilder {
 			}
 		}
 		ValueList list = (ValueList) bgposition;
-		AbstractCSSValue posval;
+		StyleValue posval;
 		if (declaredSet.contains("background-position")) {
 			posval = list.item(index);
 		} else {
 			posval = null;
 		}
-		AbstractCSSValue sizeval;
+		StyleValue sizeval;
 		if (declaredSet.contains("background-size")) {
 			sizeval = ((ValueList) bgsize).item(index);
 		} else {
@@ -333,8 +333,8 @@ class BackgroundBuilder extends ShorthandBuilder {
 		}
 		boolean bcset = declaredSet.contains("background-clip");
 		if (declaredSet.contains("background-origin") || bcset) {
-			AbstractCSSValue origin = ((ValueList) bgorigin).item(index);
-			AbstractCSSValue clip;
+			StyleValue origin = ((ValueList) bgorigin).item(index);
+			StyleValue clip;
 			if (bcset) {
 				clip = ((ValueList) bgclip).item(index);
 			} else {
@@ -356,13 +356,13 @@ class BackgroundBuilder extends ShorthandBuilder {
 	}
 
 	private boolean appendSingleLayer(StringBuilder buf, Set<String> declaredSet) {
-		AbstractCSSValue posval;
+		StyleValue posval;
 		if (declaredSet.contains("background-position")) {
 			posval = valueOrFirstItem(bgposition);
 		} else {
 			posval = null;
 		}
-		AbstractCSSValue sizeval;
+		StyleValue sizeval;
 		if (declaredSet.contains("background-size")) {
 			sizeval = valueOrFirstItem(bgsize);
 		} else {
@@ -379,8 +379,8 @@ class BackgroundBuilder extends ShorthandBuilder {
 		}
 		boolean bcset = declaredSet.contains("background-clip");
 		if (declaredSet.contains("background-origin") || bcset) {
-			AbstractCSSValue origin = valueOrFirstItem(bgorigin);
-			AbstractCSSValue clip;
+			StyleValue origin = valueOrFirstItem(bgorigin);
+			StyleValue clip;
 			if (bcset) {
 				clip = valueOrFirstItem(bgclip);
 			} else {
@@ -391,7 +391,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 			}
 		}
 		if (declaredSet.contains("background-color")) {
-			AbstractCSSValue value = getCSSValue("background-color");
+			StyleValue value = getCSSValue("background-color");
 			if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 				return false;
 			}
@@ -402,7 +402,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private AbstractCSSValue valueOrFirstItem(AbstractCSSValue value) {
+	private StyleValue valueOrFirstItem(StyleValue value) {
 		if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 			ValueList list = (ValueList) value;
 			if (list.isCommaSeparated()) {
@@ -412,7 +412,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return value;
 	}
 
-	private boolean appendBackgroundImage(StringBuilder buf, AbstractCSSValue value) {
+	private boolean appendBackgroundImage(StringBuilder buf, StyleValue value) {
 		if (!isUnsetValue(value) && possibleBackgroundImage(value)) {
 			appended = appendRelativeURI(buf, appended, value);
 			return true;
@@ -420,9 +420,9 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return false;
 	}
 
-	private boolean possibleBackgroundImage(AbstractCSSValue value) {
+	private boolean possibleBackgroundImage(StyleValue value) {
 		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			AbstractCSSPrimitiveValue primi = (AbstractCSSPrimitiveValue) value;
+			PrimitiveValue primi = (PrimitiveValue) value;
 			short type = primi.getPrimitiveType();
 			if (type == CSSPrimitiveValue.CSS_IDENT) {
 				String s = primi.getStringValue();
@@ -434,8 +434,8 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return false;
 	}
 
-	private boolean appendBackgroundPositionSize(StringBuilder buf, AbstractCSSValue posvalue,
-			AbstractCSSValue sizevalue) {
+	private boolean appendBackgroundPositionSize(StringBuilder buf, StyleValue posvalue,
+			StyleValue sizevalue) {
 		boolean appended = false;
 		if (posvalue != null) {
 			short type = posvalue.getCssValueType();
@@ -486,7 +486,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private boolean appendBackgroundRepeat(StringBuilder buf, AbstractCSSValue value) {
+	private boolean appendBackgroundRepeat(StringBuilder buf, StyleValue value) {
 		short type = value.getCssValueType();
 		String text = value.getCssText().toLowerCase(Locale.ROOT);
 		if (isUnsetValue(value) || text.indexOf('\\') != -1) {
@@ -520,7 +520,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private boolean appendBackgroundAttachment(StringBuilder buf, AbstractCSSValue value) {
+	private boolean appendBackgroundAttachment(StringBuilder buf, StyleValue value) {
 		if (!isUnsetValue(value) && !isUnknownIdentifier("background-attachment", value)) {
 			String text = value.getMinifiedCssText("background-attachment").toLowerCase(Locale.ROOT);
 			if (!"scroll".equals(text) && !"initial".equals(text)) {
@@ -532,7 +532,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private boolean appendBackgroundOriginClip(StringBuilder buf, AbstractCSSValue origin, AbstractCSSValue clip) {
+	private boolean appendBackgroundOriginClip(StringBuilder buf, StyleValue origin, StyleValue clip) {
 		/*
 		 * "If one <box> value is present then it sets both background-origin
 		 * and background-clip to that value. If two values are present, then
@@ -561,7 +561,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private boolean appendBackgroundColor(StringBuilder buf, AbstractCSSValue value) {
+	private boolean appendBackgroundColor(StringBuilder buf, StyleValue value) {
 		if (!isUnsetValue(value) && isValidColor(value)) {
 			String text = value.getMinifiedCssText("background-color").toLowerCase(Locale.ROOT);
 			if (!"transparent".equals(text) && !"rgba(0,0,0,0)".equals(text) && !"rgb(0 0 0/0)".equals(text)

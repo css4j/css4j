@@ -40,7 +40,7 @@ public class CalcValue extends ExpressionValue {
 	}
 
 	@Override
-	protected boolean isInvalidOperand(AbstractCSSPrimitiveValue primi, short lutype, short lastlutype) {
+	protected boolean isInvalidOperand(PrimitiveValue primi, short lutype, short lastlutype) {
 		if (super.isInvalidOperand(primi, lutype, lastlutype)) {
 			return true;
 		}

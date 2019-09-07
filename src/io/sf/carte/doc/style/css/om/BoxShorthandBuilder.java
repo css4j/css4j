@@ -17,7 +17,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 
 /**
@@ -51,7 +51,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 	}
 
 	@Override
-	boolean isExcludedValue(AbstractCSSValue cssValue) {
+	boolean isExcludedValue(StyleValue cssValue) {
 		short type = cssValue.getCssValueType();
 		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
 			ExtendedCSSPrimitiveValue primi = (ExtendedCSSPrimitiveValue) cssValue;
@@ -75,10 +75,10 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 	 *         0 if 3 or 4 values are different (right could be equal to bottom or top).
 	 */
 	private int sameValueScore(Set<String> declaredSet, byte live_state) {
-		AbstractCSSValue topv = getCSSValue(topProperty);
-		AbstractCSSValue bottomv = getCSSValue(bottomProperty);
-		AbstractCSSValue leftv = getCSSValue(leftProperty);
-		AbstractCSSValue rightv = getCSSValue(rightProperty);
+		StyleValue topv = getCSSValue(topProperty);
+		StyleValue bottomv = getCSSValue(bottomProperty);
+		StyleValue leftv = getCSSValue(leftProperty);
+		StyleValue rightv = getCSSValue(rightProperty);
 		int score = 0;
 		if (!declaredSet.contains(leftProperty) || keyword_state_left != live_state) {
 			leftv = null;
@@ -306,7 +306,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 	}
 
 	private boolean appendValueIfSaneAndNotInitial(StringBuilder buf, String propertyName) {
-		AbstractCSSValue cssVal = getCSSValue(propertyName);
+		StyleValue cssVal = getCSSValue(propertyName);
 		short type = cssVal.getCssValueType();
 		if (type != CSSValue.CSS_VALUE_LIST) {
 			if (type == CSSValue.CSS_PRIMITIVE_VALUE) {

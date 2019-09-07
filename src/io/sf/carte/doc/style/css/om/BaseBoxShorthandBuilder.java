@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Base logic for building box-like shorthands.
@@ -30,7 +30,7 @@ abstract class BaseBoxShorthandBuilder extends ShorthandBuilder {
 	 * @param value
 	 * @return 1 if the value is inherit, 5 if unset, 0 otherwise.
 	 */
-	byte keywordState(AbstractCSSValue value) {
+	byte keywordState(StyleValue value) {
 		if (isInherit(value)) {
 			return 1;
 		}

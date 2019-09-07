@@ -27,8 +27,8 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValueList;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
@@ -76,16 +76,16 @@ abstract class ShorthandBuilder {
 		return subp;
 	}
 
-	AbstractCSSValue getCSSValue(String propertyName) {
+	StyleValue getCSSValue(String propertyName) {
 		return parentStyle.getCSSValue(propertyName);
 	}
 
-	AbstractCSSValue getInitialPropertyValue(String propertyName) {
+	StyleValue getInitialPropertyValue(String propertyName) {
 		PropertyDatabase pdb = PropertyDatabase.getInstance();
 		if (parentStyle instanceof ComputedCSSStyle) {
 			return parentStyle.defaultPropertyValue(propertyName, pdb);
 		}
-		AbstractCSSValue defval = pdb.getInitialValue(propertyName);
+		StyleValue defval = pdb.getInitialValue(propertyName);
 		if (defval == null) {
 			if (propertyName.equals("color")) {
 				defval = SystemDefaultValue.getInstance();
@@ -196,14 +196,14 @@ abstract class ShorthandBuilder {
 		return isExcludedValue(getCSSValue(property));
 	}
 
-	boolean isExcludedValue(AbstractCSSValue cssValue) {
+	boolean isExcludedValue(StyleValue cssValue) {
 		short type = cssValue.getCssValueType();
 		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
 			return isExcludedType(((CSSPrimitiveValue) cssValue).getPrimitiveType());
 		} else if (type == CSSValue.CSS_VALUE_LIST) {
 			@SuppressWarnings("unchecked")
-			ExtendedCSSValueList<AbstractCSSValue> list = (ExtendedCSSValueList<AbstractCSSValue>) cssValue;
-			Iterator<AbstractCSSValue> it = list.iterator();
+			ExtendedCSSValueList<StyleValue> list = (ExtendedCSSValueList<StyleValue>) cssValue;
+			Iterator<StyleValue> it = list.iterator();
 			while (it.hasNext()) {
 				if (isExcludedValue(it.next())) {
 					return true;
@@ -309,7 +309,7 @@ abstract class ShorthandBuilder {
 		return 2;
 	}
 
-	boolean isInherit(AbstractCSSValue value) {
+	boolean isInherit(StyleValue value) {
 		return value != null && value.getCssValueType() == CSSValue.CSS_INHERIT;
 	}
 
@@ -377,7 +377,7 @@ abstract class ShorthandBuilder {
 		return 2;
 	}
 
-	static boolean isCssKeywordValue(String keyword, AbstractCSSValue cssValue) {
+	static boolean isCssKeywordValue(String keyword, StyleValue cssValue) {
 		return cssValue != null && cssValue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& isCSSIdentifier((CSSPrimitiveValue) cssValue, keyword);
 	}
@@ -387,7 +387,7 @@ abstract class ShorthandBuilder {
 				&& ident.equalsIgnoreCase(value.getStringValue());
 	}
 
-	String getValueTextIfNotInitial(String propertyName, AbstractCSSValue cssVal) {
+	String getValueTextIfNotInitial(String propertyName, StyleValue cssVal) {
 		if (cssVal != null && !cssVal.isSystemDefault() && !isInitialIdentifier(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal)) {
 			return cssVal.getMinifiedCssText(propertyName);
@@ -395,19 +395,19 @@ abstract class ShorthandBuilder {
 		return null;
 	}
 
-	static boolean isInitialIdentifier(AbstractCSSValue cssVal) {
+	static boolean isInitialIdentifier(StyleValue cssVal) {
 		return cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) cssVal).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
 				&& ((CSSPrimitiveValue) cssVal).getStringValue().toLowerCase(Locale.ROOT).equals("initial");
 	}
 
 	boolean isInitialValue(String propertyName) {
-		AbstractCSSValue cssVal = getCSSValue(propertyName);
+		StyleValue cssVal = getCSSValue(propertyName);
 		return cssVal.isSystemDefault() || isInitialIdentifier(cssVal)
 				|| valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
-	protected boolean isNotInitialValue(AbstractCSSValue cssVal, String propertyName) {
+	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
 		return cssVal != null && !cssVal.isSystemDefault() && !isInitialIdentifier(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
@@ -423,7 +423,7 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean isUnknownIdentifier(String propertyName, AbstractCSSValue value) {
+	boolean isUnknownIdentifier(String propertyName, StyleValue value) {
 		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 			CSSPrimitiveValue primi = (CSSPrimitiveValue) value;
 			if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
@@ -445,20 +445,20 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean isImagePrimitiveValue(AbstractCSSPrimitiveValue primi) {
+	boolean isImagePrimitiveValue(PrimitiveValue primi) {
 		short type = primi.getPrimitiveType();
 		return type == CSSPrimitiveValue.CSS_URI || type == CSSPrimitiveValue2.CSS_GRADIENT
 				|| (type == CSSPrimitiveValue2.CSS_FUNCTION && isImageFunction(primi))
 				|| type == CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE || type == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY;
 	}
 
-	private boolean isImageFunction(AbstractCSSPrimitiveValue primi) {
+	private boolean isImageFunction(PrimitiveValue primi) {
 		String name = primi.getStringValue();
 		return "image".equalsIgnoreCase(name) || "image-set".equalsIgnoreCase(name)
 				|| "cross-fade".equalsIgnoreCase(name);
 	}
 
-	boolean valueEquals(AbstractCSSValue value1, AbstractCSSValue value2) {
+	boolean valueEquals(StyleValue value1, StyleValue value2) {
 		if (value2 == null) {
 			if (value1 == null) {
 				return true;
@@ -472,9 +472,9 @@ abstract class ShorthandBuilder {
 		}
 		if (value1.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& value2.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			AbstractCSSPrimitiveValue pvalue1 = (AbstractCSSPrimitiveValue) value1;
+			PrimitiveValue pvalue1 = (PrimitiveValue) value1;
 			short type1 = pvalue1.getPrimitiveType();
-			AbstractCSSPrimitiveValue pvalue2 = (AbstractCSSPrimitiveValue) value2;
+			PrimitiveValue pvalue2 = (PrimitiveValue) value2;
 			short type2 = pvalue2.getPrimitiveType();
 			if (type1 == CSSPrimitiveValue.CSS_IDENT) {
 				if (type2 == CSSPrimitiveValue.CSS_RGBCOLOR) {
@@ -491,7 +491,7 @@ abstract class ShorthandBuilder {
 		return value1.equals(value2);
 	}
 
-	private boolean testColorIdentifier(AbstractCSSPrimitiveValue color, String ident) {
+	private boolean testColorIdentifier(PrimitiveValue color, String ident) {
 		String spec;
 		if ("transparent".equals(ident)) {
 			spec = "rgba(0,0,0,0)";
@@ -510,7 +510,7 @@ abstract class ShorthandBuilder {
 	}
 
 	boolean appendValueIfNotInitial(StringBuilder buf, String propertyName, boolean prepend) {
-		AbstractCSSValue cssVal = getCSSValue(propertyName);
+		StyleValue cssVal = getCSSValue(propertyName);
 		if (isNotInitialValue(cssVal, propertyName)) {
 			if (prepend) {
 				buf.append(' ');
@@ -537,7 +537,7 @@ abstract class ShorthandBuilder {
 		}
 	}
 
-	boolean appendRelativeURI(StringBuilder buf, boolean prepend, AbstractCSSValue value) {
+	boolean appendRelativeURI(StringBuilder buf, boolean prepend, StyleValue value) {
 		String text;
 		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 			CSSPrimitiveValue pvalue = (CSSPrimitiveValue) value;

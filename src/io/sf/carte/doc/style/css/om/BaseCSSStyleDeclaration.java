@@ -48,8 +48,8 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
@@ -73,7 +73,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	private final BaseCSSDeclarationRule parentRule;
 
-	private HashMap<String, AbstractCSSValue> propValue;
+	private HashMap<String, StyleValue> propValue;
 
 	private ArrayList<String> propertyList;
 
@@ -92,7 +92,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	protected BaseCSSStyleDeclaration(BaseCSSDeclarationRule parentRule) {
 		super();
 		this.parentRule = parentRule;
-		propValue = new HashMap<String, AbstractCSSValue>();
+		propValue = new HashMap<String, StyleValue>();
 		propertyList = new ArrayList<String>();
 		priorities = new ArrayList<String>();
 		shorthandSet = new LinkedList<String>();
@@ -101,7 +101,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	public BaseCSSStyleDeclaration() {
 		super();
 		this.parentRule = null;
-		propValue = new HashMap<String, AbstractCSSValue>();
+		propValue = new HashMap<String, StyleValue>();
 		propertyList = new ArrayList<String>();
 		priorities = new ArrayList<String>();
 		shorthandSet = new LinkedList<String>();
@@ -127,12 +127,12 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		shorthandSet = (LinkedList<String>) other.shorthandSet.clone();
 	}
 
-	private HashMap<String, AbstractCSSValue> deepClone(HashMap<String, AbstractCSSValue> cloneFrom) {
-		HashMap<String, AbstractCSSValue> propValue = new HashMap<String, AbstractCSSValue>(cloneFrom.size());
-		Iterator<Entry<String, AbstractCSSValue>> it = cloneFrom.entrySet().iterator();
+	private HashMap<String, StyleValue> deepClone(HashMap<String, StyleValue> cloneFrom) {
+		HashMap<String, StyleValue> propValue = new HashMap<String, StyleValue>(cloneFrom.size());
+		Iterator<Entry<String, StyleValue>> it = cloneFrom.entrySet().iterator();
 		while (it.hasNext()) {
-			Entry<String, AbstractCSSValue> entry = it.next();
-			AbstractCSSValue value = entry.getValue();
+			Entry<String, StyleValue> entry = it.next();
+			StyleValue value = entry.getValue();
 			if (value.getCssValueType() == CSSValue.CSS_CUSTOM) {
 				value = value.clone();
 			}
@@ -154,7 +154,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			String ptyname = propertyList.get(i);
 			String prio = priorities.get(i);
 			boolean important = prio != null && "important".equals(prio);
-			AbstractCSSValue cssVal = propValue.get(ptyname);
+			StyleValue cssVal = propValue.get(ptyname);
 			short type = cssVal.getCssValueType();
 			// Verify if the property is a subproperty of a previously set
 			// shorthand
@@ -193,7 +193,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		sb.append(';');
 	}
 
-	protected void appendLonghandMinifiedCssText(StringBuilder sb, String ptyname, AbstractCSSValue cssVal,
+	protected void appendLonghandMinifiedCssText(StringBuilder sb, String ptyname, StyleValue cssVal,
 			boolean important) {
 		sb.append(ptyname).append(':').append(cssVal.getMinifiedCssText(ptyname));
 		if (important) {
@@ -246,7 +246,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			// shorthand
 			if (type == CSSValue.CSS_PRIMITIVE_VALUE || type == CSSValue.CSS_VALUE_LIST
 					|| type == CSSValue.CSS_INHERIT) {
-				if (((AbstractCSSValue) cssVal).isSubproperty()) {
+				if (((StyleValue) cssVal).isSubproperty()) {
 					Iterator<String> it = unusedShorthands.iterator();
 					while (it.hasNext()) {
 						String sh = it.next();
@@ -262,7 +262,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				}
 			}
 			// No subproperty of already printed shorthand, print it.
-			AbstractCSSValue ptyvalue = getCSSValue(ptyname);
+			StyleValue ptyvalue = getCSSValue(ptyname);
 			writeLonghandCssText(wri, context, ptyname, ptyvalue, important);
 		}
 	}
@@ -281,7 +281,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	protected void writeLonghandCssText(SimpleWriter wri, StyleFormattingContext context, String ptyname,
-			AbstractCSSValue ptyvalue, boolean important) throws IOException {
+			StyleValue ptyvalue, boolean important) throws IOException {
 		context.startPropertyDeclaration(wri);
 		wri.write(ptyname);
 		context.writeColon(wri);
@@ -414,7 +414,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return sb.toString();
 	}
 
-	static void appendCssText(StringBuilder buf, AbstractCSSValue value) {
+	static void appendCssText(StringBuilder buf, StyleValue value) {
 		String text;
 		if (!value.isSystemDefault()) {
 			text = value.getCssText();
@@ -424,7 +424,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		buf.append(text);
 	}
 
-	static void appendMinifiedCssText(StringBuilder buf, AbstractCSSValue value, String ptyname) {
+	static void appendMinifiedCssText(StringBuilder buf, StyleValue value, String ptyname) {
 		String text;
 		if (!value.isSystemDefault()) {
 			text = value.getMinifiedCssText(ptyname);
@@ -593,7 +593,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	@Override
-	public AbstractCSSValue getPropertyCSSValue(String propertyName) {
+	public StyleValue getPropertyCSSValue(String propertyName) {
 		propertyName = getCanonicalPropertyName(propertyName);
 		if (PropertyDatabase.getInstance().isShorthand(propertyName)) {
 			return null;
@@ -612,11 +612,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return propertyName;
 	}
 
-	protected AbstractCSSValue getCSSValue(String propertyName) {
+	protected StyleValue getCSSValue(String propertyName) {
 		return getDeclaredCSSValue(propertyName);
 	}
 
-	protected AbstractCSSValue getDeclaredCSSValue(String propertyName) {
+	protected StyleValue getDeclaredCSSValue(String propertyName) {
 		return propValue.get(propertyName);
 	}
 
@@ -634,8 +634,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 *            the specified value for that property.
 	 * @return the used value for the given parameters.
 	 */
-	public AbstractCSSValue computeBoundProperty(String masterProperty, String propertyName, AbstractCSSValue value) {
-		AbstractCSSValue bimg = getCSSValue(masterProperty);
+	public StyleValue computeBoundProperty(String masterProperty, String propertyName, StyleValue value) {
+		StyleValue bimg = getCSSValue(masterProperty);
 		if (bimg == null) {
 			return null;
 		}
@@ -661,7 +661,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	/*
 	 * Adjust the number of list items to the count of layers.
 	 */
-	ValueList computeSubpropertyList(AbstractCSSValue value, int layers) {
+	ValueList computeSubpropertyList(StyleValue value, int layers) {
 		int items;
 		ValueList list;
 		if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST && ((ValueList) value).isCommaSeparated()) {
@@ -942,7 +942,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	protected void setLonghandProperty(String propertyName, LexicalUnit value, String priority) throws DOMException {
 		ValueFactory factory = getValueFactory();
-		AbstractCSSValue cssvalue;
+		StyleValue cssvalue;
 		try {
 			cssvalue = factory.createCSSValue(value, this);
 		} catch (DOMException e) {
@@ -978,7 +978,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				if (list.isCommaSeparated()) {
 					int sz = list.getLength();
 					for (int i = 0; i < sz; i++) {
-						AbstractCSSValue item = list.item(i);
+						StyleValue item = list.item(i);
 						if (item.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 							if (!checkBackgroundPosition((ValueList) item)) {
 								list.remove(i--);
@@ -1009,11 +1009,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	private AbstractCSSValue listToString(ValueList list) {
+	private StyleValue listToString(ValueList list) {
 		int len = list.getLength();
 		boolean allItemsAreIdent = true;
 		for (int i = 1; i < len; i++) {
-			AbstractCSSValue cssval = list.item(i);
+			StyleValue cssval = list.item(i);
 			if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
 					|| ((CSSPrimitiveValue) cssval).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT) {
 				allItemsAreIdent = false;
@@ -1126,7 +1126,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 * @return <code>true</code> if the property was set and the length of the style
 	 *         declaration varied.
 	 */
-	boolean setProperty(String propertyName, AbstractCSSValue cssValue, String priority) {
+	boolean setProperty(String propertyName, StyleValue cssValue, String priority) {
 		propertyName = propertyName.intern();
 		if (!propertyList.contains(propertyName)) {
 			addProperty(propertyName, cssValue, priority);
@@ -1149,7 +1149,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 * @return <code>true</code> if the property was set and the length of the style
 	 *         declaration varied.
 	 */
-	boolean replaceProperty(String propertyName, AbstractCSSValue cssValue, String priority) {
+	boolean replaceProperty(String propertyName, StyleValue cssValue, String priority) {
 		int idx = propertyList.indexOf(propertyName);
 		boolean overriddenImportant = "important".equals(priorities.get(idx));
 		if (!overriddenImportant || "important".equals(priority)) {
@@ -1163,14 +1163,14 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	@Override
-	protected void addProperty(String propertyName, AbstractCSSValue cssValue, String priority) {
+	protected void addProperty(String propertyName, StyleValue cssValue, String priority) {
 		if (cssValue.getCssValueType() == CSSValue.CSS_CUSTOM) {
 			// We got a CSSShorthandValue
 			addShorthandName(propertyName);
 		} else {
 			propertyList.add(propertyName);
 			priorities.add(priority);
-			AbstractCSSValue ovValue = propValue.get(propertyName);
+			StyleValue ovValue = propValue.get(propertyName);
 			if (ovValue != null && ovValue.isSubproperty()) {
 				overrideShorthands(propertyName, priority);
 			}
@@ -1178,7 +1178,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		propValue.put(propertyName, cssValue);
 	}
 
-	protected boolean addOverrideProperty(String propertyName, AbstractCSSValue cssValue, String priority) {
+	protected boolean addOverrideProperty(String propertyName, StyleValue cssValue, String priority) {
 		addProperty(propertyName, cssValue, priority);
 		return true;
 	}
@@ -1218,19 +1218,19 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	boolean addCompatProperty(String propertyName, AbstractCSSValue cssValue, String priority) {
+	boolean addCompatProperty(String propertyName, StyleValue cssValue, String priority) {
 		if (cssValue.getCssValueType() == CSSValue.CSS_CUSTOM) {
 			// We got a CSSShorthandValue
 			addShorthandName(propertyName);
 		} else {
-			AbstractCSSValue overridden = propValue.get(propertyName);
+			StyleValue overridden = propValue.get(propertyName);
 			if (hasUnknown(cssValue)) {
 				compatLonghand(propertyName, cssValue, "important".equals(priority), overridden != null);
 				return false;
 			}
 			propertyList.add(propertyName);
 			priorities.add(priority);
-			AbstractCSSValue ovValue = propValue.get(propertyName);
+			StyleValue ovValue = propValue.get(propertyName);
 			if (ovValue != null && ovValue.isSubproperty()) {
 				overrideShorthands(propertyName, priority);
 			}
@@ -1281,7 +1281,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return false;
 	}
 
-	protected void compatLonghand(String propertyName, AbstractCSSValue overridden, boolean priorityImportant,
+	protected void compatLonghand(String propertyName, StyleValue overridden, boolean priorityImportant,
 			boolean isOverridden) {
 	}
 
@@ -1426,7 +1426,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				continue;
 			}
 			// Obtain value
-			AbstractCSSValue value = style.getCSSValue(propertyName);
+			StyleValue value = style.getCSSValue(propertyName);
 			// Deal with shorthands (we reach this only if priority allows)
 			if (value.isSubproperty()) {
 				String shorthand = pdb.getShorthand(propertyName);
@@ -1438,10 +1438,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					if (bigshorthand != null && style.shorthandSet.contains(bigshorthand)) {
 						addedShorthands.add(bigshorthand);
 						addShorthandName(bigshorthand);
-						AbstractCSSValue shvalue = style.propValue.get(bigshorthand);
+						StyleValue shvalue = style.propValue.get(bigshorthand);
 						BaseCSSStyleDeclaration.this.setPropertyCSSValue(bigshorthand, shvalue, null);
 					}
-					AbstractCSSValue shvalue = style.propValue.get(shorthand);
+					StyleValue shvalue = style.propValue.get(shorthand);
 					if (shvalue != null) {
 						addedShorthands.add(shorthand);
 						addShorthandName(shorthand);
@@ -1464,7 +1464,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	protected void setPropertyCSSValue(String propertyName, AbstractCSSValue value, String hrefcontext) {
+	protected void setPropertyCSSValue(String propertyName, StyleValue value, String hrefcontext) {
 		propValue.put(propertyName, value);
 	}
 
@@ -1482,7 +1482,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		int psz = propertyList.size();
 		for (int i = 0; i < psz; i++) {
 			String propertyName = propertyList.get(i);
-			AbstractCSSValue value = propValue.get(propertyName);
+			StyleValue value = propValue.get(propertyName);
 			String priority = priorities.get(i);
 			if ("important".equals(priority)) {
 				importantDecl.addProperty(propertyName, value, priority);
@@ -1529,8 +1529,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 *            the name of the property.
 	 * @return the initial value for the property, or null if none was found.
 	 */
-	AbstractCSSValue defaultPropertyValue(String propertyName, PropertyDatabase pdb) {
-		AbstractCSSValue defval = pdb.getInitialValue(propertyName);
+	StyleValue defaultPropertyValue(String propertyName, PropertyDatabase pdb) {
+		StyleValue defval = pdb.getInitialValue(propertyName);
 		if (defval == null) {
 			if (propertyName.equals("color")) {
 				// Initial value depends on user agent
@@ -1555,20 +1555,20 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return defval;
 	}
 
-	private AbstractCSSPrimitiveValue getColorInitialValue() {
-		AbstractCSSPrimitiveValue value;
+	private PrimitiveValue getColorInitialValue() {
+		PrimitiveValue value;
 		StyleDatabase sdb = getStyleDatabase();
 		if (sdb == null) {
 			// Initial value depends on user agent
 			value = getSystemDefaultValue("color");
 		} else {
-			value = (AbstractCSSPrimitiveValue) sdb.getInitialColor();
+			value = (PrimitiveValue) sdb.getInitialColor();
 		}
 		return value;
 	}
 
-	private AbstractCSSValue getFontFamilyInitialValue() {
-		AbstractCSSValue value;
+	private StyleValue getFontFamilyInitialValue() {
+		StyleValue value;
 		StyleDatabase sdb = getStyleDatabase();
 		if (sdb == null) {
 			// Initial value depends on user agent
@@ -1579,8 +1579,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return value;
 	}
 
-	private AbstractCSSPrimitiveValue getSystemDefaultValue(String propertyName) {
-		AbstractCSSPrimitiveValue value;
+	private PrimitiveValue getSystemDefaultValue(String propertyName) {
+		PrimitiveValue value;
 		AbstractCSSStyleSheetFactory factory = getStyleSheetFactory();
 		if (factory != null) {
 			value = factory.getSystemDefaultValue(propertyName);
@@ -1590,17 +1590,17 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return value;
 	}
 
-	protected AbstractCSSPrimitiveValue getCurrentColor() {
+	protected PrimitiveValue getCurrentColor() {
 		return new IdentifierValue("currentcolor");
 	}
 
-	public AbstractCSSPrimitiveValue getCSSColor() {
-		AbstractCSSValue cssvalue = getCSSValue("color");
-		AbstractCSSPrimitiveValue color;
+	public PrimitiveValue getCSSColor() {
+		StyleValue cssvalue = getCSSValue("color");
+		PrimitiveValue color;
 		if (cssvalue == null || cssvalue.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
 			color = getColorInitialValue();
 		} else {
-			color = (AbstractCSSPrimitiveValue) cssvalue;
+			color = (PrimitiveValue) cssvalue;
 		}
 		return color;
 	}
@@ -1761,7 +1761,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			if (!other.propertyList.contains(property)) {
 				return false;
 			}
-			AbstractCSSValue value = propValue.get(property);
+			StyleValue value = propValue.get(property);
 			if (!value.equals(other.propValue.get(property))) {
 				return false;
 			}
@@ -1800,8 +1800,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			if (!other.propertyList.contains(property)) {
 				diff.leftSide.add(property);
 			} else {
-				AbstractCSSValue value = getCSSValue(property);
-				AbstractCSSValue otherValue = other.getCSSValue(property);
+				StyleValue value = getCSSValue(property);
+				StyleValue otherValue = other.getCSSValue(property);
 				if (value.equals(otherValue)) {
 					int idx = propertyList.indexOf(property);
 					int idxo = other.propertyList.indexOf(property);

@@ -22,7 +22,7 @@ import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser2;
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -85,7 +85,7 @@ abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFacto
 	abstract public AbstractCSSStyleDeclaration createAnonymousStyleDeclaration(Node node);
 
 	@Override
-	abstract public AbstractCSSPrimitiveValue getSystemDefaultValue(String propertyName);
+	abstract public PrimitiveValue getSystemDefaultValue(String propertyName);
 
 	/**
 	 * Create a SAC Parser specified by the system property

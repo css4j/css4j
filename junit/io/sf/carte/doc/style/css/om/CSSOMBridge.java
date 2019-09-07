@@ -14,12 +14,12 @@ package io.sf.carte.doc.style.css.om;
 import org.w3c.css.sac.DocumentHandler;
 import org.w3c.css.sac.SelectorList;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 
 public class CSSOMBridge {
 
-	public static AbstractCSSValue getInitialValue(String propertyName, BaseCSSStyleDeclaration style,
+	public static StyleValue getInitialValue(String propertyName, BaseCSSStyleDeclaration style,
 			PropertyDatabase pdb) {
 		return style.defaultPropertyValue(propertyName, pdb);
 	}

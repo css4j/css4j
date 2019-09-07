@@ -28,7 +28,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-class OMCSSRectValue extends AbstractCSSPrimitiveValue {
+class OMCSSRectValue extends PrimitiveValue {
 
 	private CSSRect rect = new CSSRect();
 

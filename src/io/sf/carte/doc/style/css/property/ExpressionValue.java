@@ -28,7 +28,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExpressionValue {
+public class ExpressionValue extends PrimitiveValue implements CSSExpressionValue {
 
 	private StyleExpression expression = null;
 
@@ -172,7 +172,7 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 						break;
 					}
 				default:
-					AbstractCSSPrimitiveValue primi;
+					PrimitiveValue primi;
 					LexicalSetter item = factory.createCSSPrimitiveValueItem(lu, false);
 					if (item == null || isInvalidOperand(primi = item.getCSSValue(), lutype, lastlutype)) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
@@ -207,7 +207,7 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 		return expression;
 	}
 
-	protected boolean isInvalidOperand(AbstractCSSPrimitiveValue primi, short lutype, short lastlutype) {
+	protected boolean isInvalidOperand(PrimitiveValue primi, short lutype, short lastlutype) {
 		if (isOperatorType(lutype)) {
 			return isOperatorType(lastlutype);
 		}

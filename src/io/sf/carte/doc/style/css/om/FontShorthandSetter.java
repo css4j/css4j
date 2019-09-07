@@ -17,8 +17,8 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.StringValue;
@@ -77,7 +77,7 @@ class FontShorthandSetter extends ShorthandSetter {
 				if (currentValue != null && currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
 					// the line-height value
 					nextCurrentValue();
-					AbstractCSSValue cssValue = createCSSValue(subproperty, currentValue);
+					StyleValue cssValue = createCSSValue(subproperty, currentValue);
 					setProperty("line-height", cssValue, getPriority());
 					nextCurrentValue();
 					lineHeightSet = true;
@@ -166,7 +166,7 @@ class FontShorthandSetter extends ShorthandSetter {
 			stringType = CSSPrimitiveValue.CSS_STRING;
 			super.nextCurrentValue();
 		}
-		AbstractCSSPrimitiveValue value;
+		PrimitiveValue value;
 		if (stringType == CSSPrimitiveValue.CSS_STRING) {
 			value = new StringValue();
 		} else {
@@ -178,7 +178,7 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	private void consumeFontFamilyString() {
-		AbstractCSSValue value = createCSSValue("font-family", currentValue);
+		StyleValue value = createCSSValue("font-family", currentValue);
 		addSubpropertyValue("font-family", value, true);
 		super.nextCurrentValue();
 	}
@@ -187,7 +187,7 @@ class FontShorthandSetter extends ShorthandSetter {
 		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 			return super.assignSubproperty("font-size");
 		} else if (ValueFactory.isPositiveSizeSACUnit(currentValue)) {
-			AbstractCSSValue cssValue = createCSSValue("font-size", currentValue);
+			StyleValue cssValue = createCSSValue("font-size", currentValue);
 			setSubpropertyValue("font-size", cssValue);
 			nextCurrentValue();
 			return true;
@@ -223,7 +223,7 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	protected void setSubpropertiesToKeyword(AbstractCSSValue keyword) {
+	protected void setSubpropertiesToKeyword(StyleValue keyword) {
 		super.setSubpropertiesToKeyword(keyword);
 		lineHeightSet = true;
 		resetSubproperties();

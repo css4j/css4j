@@ -55,7 +55,7 @@ public class ElementReferenceValueTest {
 		assertEquals("element(#someId)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: element(#someId); ", style.getCssText());
 		assertEquals("background-image:element(#someId)", style.getMinifiedCssText());
-		AbstractCSSValue cssval = style.getPropertyCSSValue("background-image");
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE, ((CSSPrimitiveValue) cssval).getPrimitiveType());
 		assertEquals("element(#someId)", cssval.getCssText());
@@ -115,9 +115,9 @@ public class ElementReferenceValueTest {
 	public void testClone() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("background-image: element(#someId); ");
-		AbstractCSSPrimitiveValue value = (AbstractCSSPrimitiveValue) style.getPropertyCSSValue("background-image");
+		PrimitiveValue value = (PrimitiveValue) style.getPropertyCSSValue("background-image");
 		assertNotNull(value);
-		AbstractCSSPrimitiveValue clon = value.clone();
+		PrimitiveValue clon = value.clone();
 		assertNotNull(clon);
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());

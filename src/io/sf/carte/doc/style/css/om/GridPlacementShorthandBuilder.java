@@ -16,7 +16,7 @@ import java.util.Set;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
@@ -71,21 +71,21 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 		}
 		String[] subp = getSubproperties();
 		// Make sure that it is not a layered property
-		AbstractCSSValue cssVal0 = getCSSValue(subp[0]);
+		StyleValue cssVal0 = getCSSValue(subp[0]);
 		if ((cssVal0.getCssValueType() == CSSValue.CSS_VALUE_LIST && ((ValueList) cssVal0).isCommaSeparated())) {
 			return false;
 		}
 		appendValueText(buf, cssVal0);
 		if (subp.length == 2) {
-			AbstractCSSValue cssVal = getCSSValue(subp[1]);
+			StyleValue cssVal = getCSSValue(subp[1]);
 			if (isPrintValue(subp[1], cssVal, cssVal0)) {
 				buf.append('/');
 				appendValueText(buf, cssVal);
 			}
 		} else {
-			AbstractCSSValue cssVal3 = getCSSValue(subp[3]);
-			AbstractCSSValue cssVal2 = getCSSValue(subp[2]);
-			AbstractCSSValue cssVal1 = getCSSValue(subp[1]);
+			StyleValue cssVal3 = getCSSValue(subp[3]);
+			StyleValue cssVal2 = getCSSValue(subp[2]);
+			StyleValue cssVal1 = getCSSValue(subp[1]);
 			boolean p3 = isPrintValue(subp[3], cssVal3, cssVal1);
 			// We print cssVal2 if isPrintValue2 or p3
 			boolean p2 = isPrintValue(subp[2], cssVal2, cssVal0) || p3;
@@ -107,7 +107,7 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private boolean isPrintValue(String propertyName, AbstractCSSValue cssValue, AbstractCSSValue cssVal0) {
+	private boolean isPrintValue(String propertyName, StyleValue cssValue, StyleValue cssVal0) {
 		if (!isIdentifier(cssValue)) {
 			return true;
 		}
@@ -122,16 +122,16 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 	 * This override is optimized for the case where non system-default values cannot be found
 	 */
 	@Override
-	protected boolean isNotInitialValue(AbstractCSSValue cssVal, String propertyName) {
+	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
 		return cssVal != null && !isInitialIdentifier(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
-	private void appendValueText(StringBuilder buf, AbstractCSSValue cssVal) {
+	private void appendValueText(StringBuilder buf, StyleValue cssVal) {
 		buf.append(cssVal.getMinifiedCssText(getShorthandName()));
 	}
 
-	private boolean isIdentifier(AbstractCSSValue cssVal) {
+	private boolean isIdentifier(StyleValue cssVal) {
 		return cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
 				&& ((CSSPrimitiveValue) cssVal).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT;
 	}

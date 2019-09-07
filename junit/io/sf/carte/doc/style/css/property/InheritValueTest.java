@@ -22,7 +22,7 @@ public class InheritValueTest {
 	@Test
 	public void testEquals() {
 		ValueFactory factory = new ValueFactory();
-		AbstractCSSValue value = factory.parseProperty("scroll");
+		StyleValue value = factory.parseProperty("scroll");
 		InheritValue inherit = InheritValue.getValue();
 		assertFalse(inherit.equals(value));
 		assertTrue(inherit.equals(inherit));

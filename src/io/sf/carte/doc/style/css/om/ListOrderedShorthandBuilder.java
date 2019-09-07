@@ -18,7 +18,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.css.CSSValueList;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
@@ -34,7 +34,7 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		if (hasPropertiesToExclude(declaredSet)) {
 			return false;
 		}
-		AbstractCSSValue masterValue = getCSSValue(freeProperty);
+		StyleValue masterValue = getCSSValue(freeProperty);
 		ValueList masterList;
 		if (masterValue.getCssValueType() != CSSValue.CSS_VALUE_LIST
 				|| !(masterList = (ValueList) masterValue).isCommaSeparated()) {
@@ -52,7 +52,7 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		Iterator<String> it = declaredSet.iterator();
 		while (it.hasNext()) {
 			String property = it.next();
-			AbstractCSSValue value = getCSSValue(property);
+			StyleValue value = getCSSValue(property);
 			short type = value.getCssValueType();
 			if (type == CSSValue.CSS_VALUE_LIST) {
 				if (invalidListValueClash(declaredSet, property, (ValueList) value)) {
@@ -119,7 +119,7 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 	}
 
 	private boolean appendValueText(int index, StringBuilder buf, String property, boolean appended) {
-		AbstractCSSValue cssVal = getCSSListItemValue(property, index);
+		StyleValue cssVal = getCSSListItemValue(property, index);
 		if (isNotInitialValue(cssVal, property) ||
 				(!freeProperty.equals(property) && valueClash(index, property))) {
 			if (appended) {
@@ -131,12 +131,12 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		return appended;
 	}
 
-	AbstractCSSValue getCSSListItemValue(String propertyName, int index) {
+	StyleValue getCSSListItemValue(String propertyName, int index) {
 		return computeCSSItemList(propertyName, index).item(index);
 	}
 
 	private ValueList computeCSSItemList(String propertyName, int lastIdx) {
-		AbstractCSSValue value = getCSSValue(propertyName);
+		StyleValue value = getCSSValue(propertyName);
 		int items;
 		ValueList list;
 		if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST && ((ValueList) value).isCommaSeparated()) {

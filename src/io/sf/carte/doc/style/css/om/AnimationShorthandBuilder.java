@@ -15,7 +15,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.css.CSSValueList;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Build an 'animation' shorthand from individual properties.
@@ -32,7 +32,7 @@ class AnimationShorthandBuilder extends ListOrderedShorthandBuilder {
 		if ("animation-timing-function".equals(property)) {
 			chkProperty = "transition-timing-function";
 		}
-		AbstractCSSValue freePropertyValue = getCSSListItemValue(freeProperty, index);
+		StyleValue freePropertyValue = getCSSListItemValue(freeProperty, index);
 		short freeType = freePropertyValue.getCssValueType();
 		boolean retval = false;
 		if (freeType == CSSValue.CSS_PRIMITIVE_VALUE) {
@@ -41,7 +41,7 @@ class AnimationShorthandBuilder extends ListOrderedShorthandBuilder {
 			retval = listHasConflictingIdentifiers(chkProperty, (CSSValueList) freePropertyValue);
 		}
 		if (!retval && property.equals("animation-duration")) {
-			AbstractCSSValue delay = getCSSListItemValue("animation-delay", index);
+			StyleValue delay = getCSSListItemValue("animation-delay", index);
 			if (isNotInitialValue(delay, "animation-delay")) {
 				retval = true;
 			}
@@ -58,7 +58,7 @@ class AnimationShorthandBuilder extends ListOrderedShorthandBuilder {
 		// Make sure that 'none' is in animation-fill-mode list in 'identifier.properties'
 		boolean retval = super.validValueClash(chkProperty);
 		if (!retval && property.equals("animation-duration")) {
-			AbstractCSSValue delay = getCSSValue("animation-delay");
+			StyleValue delay = getCSSValue("animation-delay");
 			if (isNotInitialValue(delay, "animation-delay")) {
 				retval = true;
 			}

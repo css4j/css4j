@@ -54,7 +54,7 @@ public final class PropertyDatabase {
 	/**
 	 * Map of initial property values.
 	 */
-	private final Map<String, AbstractCSSValue> initialValueMap;
+	private final Map<String, StyleValue> initialValueMap;
 
 	private static final PropertyDatabase singleton = new PropertyDatabase();
 
@@ -154,11 +154,11 @@ public final class PropertyDatabase {
 	 * @return the initial CSS value, or null if no device-independent default
 	 *         could be found.
 	 */
-	public AbstractCSSValue getInitialValue(String propertyName) {
+	public StyleValue getInitialValue(String propertyName) {
 		return initialValueMap.get(propertyName);
 	}
 
-	private Map<String, AbstractCSSValue> computeInitialValueMap() {
+	private Map<String, StyleValue> computeInitialValueMap() {
 		String[][] initialArray = {
 			{"align-content", "normal"},
 			{"align-items", "normal"},
@@ -348,10 +348,10 @@ public final class PropertyDatabase {
 			{"z-index", "auto"}
 		};
 		ValueFactory valueFactory = new ValueFactory();
-		Map<String, AbstractCSSValue> initialValueMap =
-			new HashMap<String, AbstractCSSValue>(initialArray.length);
+		Map<String, StyleValue> initialValueMap =
+			new HashMap<String, StyleValue>(initialArray.length);
 		for (int i=0; i<initialArray.length; i++){
-			AbstractCSSValue value = valueFactory.parseProperty(initialArray[i][1]);
+			StyleValue value = valueFactory.parseProperty(initialArray[i][1]);
 			initialValueMap.put(initialArray[i][0], value);
 		}
 		return initialValueMap;

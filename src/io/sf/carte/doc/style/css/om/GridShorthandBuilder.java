@@ -18,7 +18,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
@@ -58,21 +58,21 @@ class GridShorthandBuilder extends ShorthandBuilder {
 	 * This override is optimized for the case where non system-default values cannot be found
 	 */
 	@Override
-	protected boolean isNotInitialValue(AbstractCSSValue cssVal, String propertyName) {
+	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
 		return cssVal != null && !isInitialIdentifier(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
-	private void appendValueText(StringBuilder buf, AbstractCSSValue cssVal) {
+	private void appendValueText(StringBuilder buf, StyleValue cssVal) {
 		buf.append(cssVal.getMinifiedCssText(getShorthandName()));
 	}
 
-	private boolean isIdentifier(AbstractCSSValue cssVal) {
+	private boolean isIdentifier(StyleValue cssVal) {
 		return cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE &&
 				((CSSPrimitiveValue) cssVal).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT;
 	}
 
-	private boolean isIdentifier(AbstractCSSValue cssVal, String ident) {
+	private boolean isIdentifier(StyleValue cssVal, String ident) {
 		return isIdentifier(cssVal) && ident.equalsIgnoreCase(((CSSPrimitiveValue) cssVal).getStringValue());
 	}
 
@@ -108,7 +108,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			// Make sure that it is not a layered property
 			String[] subp = getLonghandProperties();
 			for (String property : subp) {
-				AbstractCSSValue cssVal = getCSSValue(property);
+				StyleValue cssVal = getCSSValue(property);
 				if ((cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
 						((ValueList) cssVal).isCommaSeparated())) {
 					return false;
@@ -179,7 +179,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			// Make sure that it is not a layered property
 			String[] subp = getLonghandProperties();
 			for (String property : subp) {
-				AbstractCSSValue cssVal = getCSSValue(property);
+				StyleValue cssVal = getCSSValue(property);
 				if ((cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
 						((ValueList) cssVal).isCommaSeparated())) {
 					return false;
@@ -223,9 +223,9 @@ class GridShorthandBuilder extends ShorthandBuilder {
 
 	private class GridTemplateValues {
 
-		final AbstractCSSValue cssGridTAreas;
-		final AbstractCSSValue cssGridTRows;
-		final AbstractCSSValue cssGridTColumns;
+		final StyleValue cssGridTAreas;
+		final StyleValue cssGridTRows;
+		final StyleValue cssGridTColumns;
 		final boolean defaultGridTAreas;
 		final boolean defaultGridTRows;
 		final boolean defaultGridTColumns;
@@ -245,10 +245,10 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			lacksRepeatInGridTRows = lacksRepeatFunction(cssGridTRows);
 		}
 
-		private boolean lacksRepeatFunction(AbstractCSSValue value) {
+		private boolean lacksRepeatFunction(StyleValue value) {
 			if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 				ValueList list = (ValueList) value;
-				Iterator<AbstractCSSValue> it = list.iterator();
+				Iterator<StyleValue> it = list.iterator();
 				while (it.hasNext()) {
 					if (!lacksRepeatFunction(it.next())) {
 						return false;
@@ -280,7 +280,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			 *  @formatter:on
 			 */
 			if (isIdentifier(cssGridTRows, "auto") || !declaredSet.contains("grid-template-rows")) {
-				AbstractCSSValue areavalue = getGridTemplateAreaItem(0);
+				StyleValue areavalue = getGridTemplateAreaItem(0);
 				appendValueText(buf, areavalue);
 				int idx = 1;
 				while ((areavalue = getGridTemplateAreaItem(idx)) != null) {
@@ -292,10 +292,10 @@ class GridShorthandBuilder extends ShorthandBuilder {
 				if (!((ValueList) cssGridTRows).isBracketList()) {
 					int rowlistIdx = 0;
 					ValueList rowsslist = (ValueList) cssGridTRows;
-					Iterator<AbstractCSSValue> it = rowsslist.iterator();
+					Iterator<StyleValue> it = rowsslist.iterator();
 					boolean bracketLast = false;
 					while (it.hasNext()) {
-						AbstractCSSValue value = it.next();
+						StyleValue value = it.next();
 						ValueList bracketlist;
 						if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
 								(bracketlist = (ValueList) value).isBracketList()) {
@@ -311,7 +311,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 							} else {
 								return false;
 							}
-							AbstractCSSValue areavalue = getGridTemplateAreaItem(rowlistIdx);
+							StyleValue areavalue = getGridTemplateAreaItem(rowlistIdx);
 							if (areavalue != null) {
 								buf.append(' ');
 								appendValueText(buf, areavalue);
@@ -322,7 +322,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 								return false;
 							}
 						} else {
-							AbstractCSSValue areavalue = getGridTemplateAreaItem(rowlistIdx);
+							StyleValue areavalue = getGridTemplateAreaItem(rowlistIdx);
 							if (areavalue != null && !bracketLast) {
 								appendValueText(buf, areavalue);
 								buf.append(' ');
@@ -339,7 +339,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 				} else {
 					// Bracket list [line-name] 
 					appendValueText(buf, cssGridTRows);
-					AbstractCSSValue areavalue;
+					StyleValue areavalue;
 					int idx = 0;
 					while ((areavalue = getGridTemplateAreaItem(idx)) != null) {
 						buf.append(' ');
@@ -350,7 +350,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 				}
 			} else {
 				// track-size
-				AbstractCSSValue areavalue = getGridTemplateAreaItem(0);
+				StyleValue areavalue = getGridTemplateAreaItem(0);
 				appendValueText(buf, areavalue);
 				buf.append(' ');
 				appendValueText(buf, cssGridTRows);
@@ -392,7 +392,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			return defaultGridTAreas && defaultGridTRows && defaultGridTColumns;
 		}
 
-		AbstractCSSValue getGridTemplateAreaItem(int index) {
+		StyleValue getGridTemplateAreaItem(int index) {
 			if (cssGridTAreas.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 				return ((ValueList) cssGridTAreas).item(index);
 			}
@@ -406,9 +406,9 @@ class GridShorthandBuilder extends ShorthandBuilder {
 
 	private class GridValues extends GridTemplateValues {
 
-		final AbstractCSSValue cssGridARows;
-		final AbstractCSSValue cssGridAColumns;
-		final AbstractCSSValue cssGridAFlow;
+		final StyleValue cssGridARows;
+		final StyleValue cssGridAColumns;
+		final StyleValue cssGridAFlow;
 		final boolean defaultGridARows;
 		final boolean defaultGridAColumns;
 		final boolean defaultGridAFlow;

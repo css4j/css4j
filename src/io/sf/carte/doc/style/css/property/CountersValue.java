@@ -115,7 +115,7 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 		String separator = getSeparator();
 		buf.append(", ");
 		quoteSeparator(separator, buf);
-		AbstractCSSPrimitiveValue style = getCounterStyle();
+		PrimitiveValue style = getCounterStyle();
 		String listStyle;
 		if (style != null && !"decimal".equalsIgnoreCase(listStyle = style.getCssText())) {
 			buf.append(", ").append(listStyle);
@@ -131,7 +131,7 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 		String separator = getSeparator();
 		buf.append(',');
 		quoteSeparator(separator, buf);
-		AbstractCSSPrimitiveValue style = getCounterStyle();
+		PrimitiveValue style = getCounterStyle();
 		String listStyle;
 		if (style != null && !"decimal".equalsIgnoreCase(listStyle = style.getCssText())) {
 			buf.append(',').append(listStyle);
@@ -155,7 +155,7 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 			wri.write(separator);
 			wri.write('"');
 		}
-		AbstractCSSPrimitiveValue listStyle = getCounterStyle();
+		PrimitiveValue listStyle = getCounterStyle();
 		if (listStyle != null && !isCSSIdentifier(listStyle, "decimal")) {
 			wri.write(", ");
 			listStyle.writeCssText(wri);

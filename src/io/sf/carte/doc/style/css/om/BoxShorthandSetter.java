@@ -17,7 +17,7 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -74,17 +74,17 @@ class BoxShorthandSetter extends ShorthandSetter {
 		// Set values according to value count
 		switch (vcount) {
 		case 1:
-			AbstractCSSValue cssValue = createCSSValue(getShorthandName(), currentValue);
+			StyleValue cssValue = createCSSValue(getShorthandName(), currentValue);
 			for (int i = 0; i < subparray.length; i++) {
 				setSubpropertyValue(subparray[i], cssValue);
 			}
 			break;
 		case 2:
 			// top and bottom
-			AbstractCSSValue top = createCSSValue(subparray[0], currentValue);
+			StyleValue top = createCSSValue(subparray[0], currentValue);
 			nextCurrentValue();
 			// right and left
-			AbstractCSSValue right_left = createCSSValue(subparray[1], currentValue);
+			StyleValue right_left = createCSSValue(subparray[1], currentValue);
 			// set top
 			setSubpropertyValue(subparray[0], top);
 			// set right
@@ -102,7 +102,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 			right_left = createCSSValue(subparray[1], currentValue);
 			nextCurrentValue();
 			// bottom
-			AbstractCSSValue bottom = createCSSValue(subparray[2], currentValue);
+			StyleValue bottom = createCSSValue(subparray[2], currentValue);
 			// set top
 			setSubpropertyValue(subparray[0], top);
 			// set right
@@ -179,12 +179,12 @@ class BoxShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	protected AbstractCSSValue createCSSValue(String propertyName, LexicalUnit lunit) throws DOMException {
+	protected StyleValue createCSSValue(String propertyName, LexicalUnit lunit) throws DOMException {
 		return createCSSValue(propertyName, lunit, nonmixed);
 	}
 
 	@Override
-	protected void setSubpropertyValue(String subproperty, AbstractCSSValue cssValue) {
+	protected void setSubpropertyValue(String subproperty, StyleValue cssValue) {
 		styleDeclaration.setProperty(subproperty, cssValue, getPriority());
 	}
 

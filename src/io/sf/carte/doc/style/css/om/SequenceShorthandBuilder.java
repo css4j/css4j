@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.property.AbstractCSSValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
  * Build a shorthand from individual properties that follow a sequence pattern.
@@ -57,20 +57,20 @@ class SequenceShorthandBuilder extends ShorthandBuilder {
 		String[] subp = getSubproperties();
 		for (int i = 0; i < subp.length; i++) {
 			if (declaredSet.contains(subp[i])) {
-				AbstractCSSValue cssVal = getCSSValue(subp[i]);
+				StyleValue cssVal = getCSSValue(subp[i]);
 				if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
 					return false;
 				}
 			}
 		}
 		// Now append value(s)
-		AbstractCSSValue cssVal0 = null;
+		StyleValue cssVal0 = null;
 		if (declaredSet.contains(subp[0])) {
 			cssVal0 = getCSSValue(subp[0]);
 			buf.append(cssVal0.getMinifiedCssText(subp[0]));
 		}
 		if (declaredSet.contains(subp[1])) {
-			AbstractCSSValue cssVal1 = getCSSValue(subp[1]);
+			StyleValue cssVal1 = getCSSValue(subp[1]);
 			if (!valueEquals(cssVal0, cssVal1)) {
 				buf.append(cssVal1.getMinifiedCssText(subp[1]));
 			}

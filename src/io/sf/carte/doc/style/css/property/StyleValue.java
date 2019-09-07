@@ -21,18 +21,18 @@ import io.sf.carte.doc.style.css.ExtendedCSSValue;
  * @author Carlos Amengual
  * 
  */
-abstract public class AbstractCSSValue implements ExtendedCSSValue, Cloneable {
+abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 
 	private final short valueType;
 
 	private String cssText = null;
 
-	protected AbstractCSSValue(short valueType) {
+	protected StyleValue(short valueType) {
 		super();
 		this.valueType = valueType;
 	}
 
-	protected AbstractCSSValue(AbstractCSSValue copied) {
+	protected StyleValue(StyleValue copied) {
 		this(copied.valueType);
 		this.cssText = copied.cssText;
 	}
@@ -127,10 +127,10 @@ abstract public class AbstractCSSValue implements ExtendedCSSValue, Cloneable {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof AbstractCSSValue)) {
+		if (!(obj instanceof StyleValue)) {
 			return false;
 		}
-		AbstractCSSValue other = (AbstractCSSValue) obj;
+		StyleValue other = (StyleValue) obj;
 		if (valueType != other.valueType) {
 			return false;
 		}
@@ -138,7 +138,7 @@ abstract public class AbstractCSSValue implements ExtendedCSSValue, Cloneable {
 	}
 
 	@Override
-	abstract public AbstractCSSValue clone();
+	abstract public StyleValue clone();
 
 	@Override
 	public String toString() {
