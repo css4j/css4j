@@ -20,6 +20,8 @@ import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
+import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.CalcValue;
@@ -105,7 +107,7 @@ class MediaQuery {
 	private boolean matchesCondition(BooleanCondition condition, CSSCanvas canvas) {
 		switch (condition.getType()) {
 		case AND:
-			Iterator<BooleanCondition> it = ((BooleanCondition.GroupCondition) condition).getSubConditions().iterator();
+			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
 				if (!matchesCondition(subcond, canvas)) {
@@ -114,9 +116,9 @@ class MediaQuery {
 			}
 			return true;
 		case NOT:
-			return !matchesCondition(((BooleanCondition.NotCondition) condition).getNestedCondition(), canvas);
+			return !matchesCondition(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(), canvas);
 		case OR:
-			it = ((BooleanCondition.GroupCondition) condition).getSubConditions().iterator();
+			it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
 				if (matchesCondition(subcond, canvas)) {
@@ -125,7 +127,7 @@ class MediaQuery {
 			}
 			break;
 		default:
-			if (((BooleanCondition.Predicate) condition).getPredicateType() == 0) {
+			if (((BooleanConditionImpl.Predicate) condition).getPredicateType() == 0) {
 				return matchesPredicate((MediaFeaturePredicate) condition, canvas);
 			}
 			return true;

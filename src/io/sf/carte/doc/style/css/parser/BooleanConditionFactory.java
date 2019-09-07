@@ -9,7 +9,7 @@
 
  */
 
-package io.sf.carte.doc.style.css.om;
+package io.sf.carte.doc.style.css.parser;
 
 /**
  * Factory interface for boolean conditions.

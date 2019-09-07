@@ -2,10 +2,10 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.DeclarationCondition;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 
-class DeclarationConditionImpl extends BooleanCondition.Predicate implements DeclarationCondition {
+class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements DeclarationCondition {
 
 	private ExtendedCSSValue value = null;
 	private String cssText = null;

@@ -13,11 +13,13 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Iterator;
 
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
+
 /**
  * AND condition.
  * 
  */
-class AndCondition extends BooleanCondition.AndCondition {
+class AndCondition extends BooleanConditionImpl.AndCondition {
 
 	AndCondition() {
 		super();

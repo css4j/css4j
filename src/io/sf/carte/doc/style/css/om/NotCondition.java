@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css.om;
  * NOT condition.
  * 
  */
-class NotCondition extends BooleanCondition.NotCondition {
+class NotCondition extends BooleanConditionImpl.NotCondition {
 
 	NotCondition() {
 		super();

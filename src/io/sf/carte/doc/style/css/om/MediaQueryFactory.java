@@ -24,9 +24,13 @@ import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.MediaQueryHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
@@ -147,7 +151,7 @@ public class MediaQueryFactory {
 		return rangeFeatureSet.contains(string);
 	}
 
-	static class MyMediaQueryList implements MediaQueryList, MediaListAccess {
+	private static class MyMediaQueryList implements MediaQueryList, MediaListAccess {
 
 		private LinkedList<MediaQuery> queryList = new LinkedList<MediaQuery>();
 
@@ -500,19 +504,22 @@ public class MediaQueryFactory {
 		boolean parse(String mediaQueryString, Node owner) {
 			invalidQueryList = false;
 			CSSParser parser = new CSSParser();
-			parser.parseMediaQuery(mediaQueryString, new MyMediaQueryHandler(), owner, null);
+			MediaQueryHandler qhandler = new MyMediaQueryHandler(owner);
+			parser.parseMediaQuery(mediaQueryString, qhandler);
 			if (invalidQueryList && !queryList.isEmpty()) {
 				invalidQueryList = false;
 			}
 			return !invalidQueryList;
 		}
 
-		class MyMediaQueryHandler implements io.sf.carte.doc.style.css.parser.MediaQueryHandler {
+		private class MyMediaQueryHandler implements io.sf.carte.doc.style.css.parser.MediaQueryHandler {
 			private MediaQuery currentQuery;
 			private boolean invalidQuery = false;
+			private final Node ownerNode;
 
-			MyMediaQueryHandler() {
+			MyMediaQueryHandler(Node ownerNode) {
 				super();
+				this.ownerNode = ownerNode;
 			}
 
 			@Override
@@ -563,6 +570,10 @@ public class MediaQueryFactory {
 					queryErrorList = new LinkedList<CSSParseException>();
 				}
 				queryErrorList.add(queryError);
+				if (ownerNode != null) {
+					CSSMediaException e = new CSSMediaException(queryError);
+					((CSSDocument) ownerNode.getOwnerDocument()).getErrorHandler().mediaQueryError(ownerNode, e);
+				}
 			}
 
 		}

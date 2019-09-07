@@ -9,9 +9,11 @@
 
  */
 
-package io.sf.carte.doc.style.css;
+package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
+
+import io.sf.carte.doc.style.css.ExtendedCSSValue;
 
 /**
  * A condition that declares a property name and a value.

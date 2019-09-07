@@ -15,28 +15,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
+
 /**
- * Boolean conditions.
+ * Base implementation for boolean conditions.
  * <p>
  * Used by media queries and <code>{@literal @}supports</code> conditions.
  * 
  * @author Carlos Amengual
  * 
  */
-abstract public class BooleanCondition {
+abstract class BooleanConditionImpl implements BooleanCondition {
 
 	private BooleanCondition parent = null;
-
-	public enum ConditionType {
-		PREDICATE, OR, AND, NOT
-	}
-
-	/**
-	 * The type of condition.
-	 * 
-	 * @return the condition type.
-	 */
-	abstract public ConditionType getType();
 
 	/**
 	 * If this condition is composed of a list of conditions, return them.
@@ -44,6 +35,7 @@ abstract public class BooleanCondition {
 	 * @return the list of sub-conditions, or <code>null</code> if this condition
 	 *         contains no sub-conditions.
 	 */
+	@Override
 	public List<BooleanCondition> getSubConditions() {
 		return null;
 	}
@@ -54,6 +46,7 @@ abstract public class BooleanCondition {
 	 * @return the negated condition, or <code>null</code> if this condition is not
 	 *         a <code>NOT</code> condition, or contains no negated condition.
 	 */
+	@Override
 	public BooleanCondition getNestedCondition() {
 		return null;
 	}
@@ -63,6 +56,7 @@ abstract public class BooleanCondition {
 	 * 
 	 * @return the parent condition, or <code>null</code> if none.
 	 */
+	@Override
 	public BooleanCondition getParentCondition() {
 		return parent;
 	}
@@ -73,6 +67,7 @@ abstract public class BooleanCondition {
 	 * @param parent
 	 *            the parent condition.
 	 */
+	@Override
 	public void setParentCondition(BooleanCondition parent) {
 		this.parent = parent;
 	}
@@ -83,6 +78,7 @@ abstract public class BooleanCondition {
 	 * @param nestedCondition
 	 *            the nested condition.
 	 */
+	@Override
 	abstract public void addCondition(BooleanCondition nestedCondition);
 
 	/**
@@ -93,6 +89,7 @@ abstract public class BooleanCondition {
 	 * 
 	 * @return the replaced condition.
 	 */
+	@Override
 	abstract public BooleanCondition replaceLast(BooleanCondition newCondition);
 
 	/**
@@ -100,6 +97,7 @@ abstract public class BooleanCondition {
 	 * 
 	 * @param buf the buffer to append to.
 	 */
+	@Override
 	abstract public void appendText(StringBuilder buf);
 
 	/**
@@ -107,6 +105,7 @@ abstract public class BooleanCondition {
 	 * 
 	 * @param buf the buffer to append to.
 	 */
+	@Override
 	abstract public void appendMinifiedText(StringBuilder buf);
 
 	@Override
@@ -116,7 +115,7 @@ abstract public class BooleanCondition {
 		return buf.toString();
 	}
 
-	static abstract class GroupCondition extends BooleanCondition {
+	static abstract class GroupCondition extends BooleanConditionImpl {
 		LinkedList<BooleanCondition> nestedConditions;
 
 		GroupCondition() {
@@ -180,8 +179,8 @@ abstract public class BooleanCondition {
 		}
 
 		@Override
-		public ConditionType getType() {
-			return ConditionType.AND;
+		public Type getType() {
+			return Type.AND;
 		}
 
 		@Override
@@ -198,8 +197,8 @@ abstract public class BooleanCondition {
 		}
 
 		@Override
-		public ConditionType getType() {
-			return ConditionType.OR;
+		public Type getType() {
+			return Type.OR;
 		}
 
 		@Override
@@ -209,7 +208,7 @@ abstract public class BooleanCondition {
 
 	}
 
-	static abstract class NotCondition extends BooleanCondition {
+	static abstract class NotCondition extends BooleanConditionImpl {
 		BooleanCondition nestedCondition;
 
 		NotCondition() {
@@ -230,8 +229,8 @@ abstract public class BooleanCondition {
 		}
 
 		@Override
-		public ConditionType getType() {
-			return ConditionType.NOT;
+		public Type getType() {
+			return Type.NOT;
 		}
 
 		@Override
@@ -268,7 +267,7 @@ abstract public class BooleanCondition {
 
 	}
 
-	static abstract class Predicate extends BooleanCondition {
+	static abstract class Predicate extends BooleanConditionImpl {
 
 		private final String name;
 
@@ -282,8 +281,8 @@ abstract public class BooleanCondition {
 		}
 
 		@Override
-		public ConditionType getType() {
-			return ConditionType.PREDICATE;
+		public Type getType() {
+			return Type.PREDICATE;
 		}
 
 		public short getPredicateType() {

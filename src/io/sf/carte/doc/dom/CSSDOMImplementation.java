@@ -38,8 +38,8 @@ import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.CompatInlineStyle;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
-import io.sf.carte.doc.style.css.om.DOMComputedStyle;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheet;
+import io.sf.carte.doc.style.css.om.DOMComputedStyle;
 import io.sf.carte.doc.style.css.om.DOMDocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.InlineStyle;
 

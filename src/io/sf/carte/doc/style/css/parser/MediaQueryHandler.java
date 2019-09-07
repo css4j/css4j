@@ -13,8 +13,6 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.css.sac.CSSParseException;
 
-import io.sf.carte.doc.style.css.om.BooleanCondition;
-
 public interface MediaQueryHandler {
 
 	void startQuery();

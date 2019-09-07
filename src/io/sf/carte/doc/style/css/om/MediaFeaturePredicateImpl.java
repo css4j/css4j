@@ -14,42 +14,49 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Objects;
 
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
- * Media Feature predicate.
+ * Media Feature predicate implementation.
  * 
  */
-public class MediaFeaturePredicate extends BooleanCondition.Predicate {
+class MediaFeaturePredicateImpl extends BooleanConditionImpl.Predicate implements MediaFeaturePredicate {
 
 	private ExtendedCSSPrimitiveValue value1;
 	private ExtendedCSSPrimitiveValue value2;
 	private byte rangeType;
 
-	MediaFeaturePredicate(String featureName) {
+	MediaFeaturePredicateImpl(String featureName) {
 		super(featureName);
 	}
 
+	@Override
 	public void setRangeType(byte rangeType) {
 		this.rangeType = rangeType;
 	}
 
+	@Override
 	public byte getRangeType() {
 		return rangeType;
 	}
 
+	@Override
 	public ExtendedCSSPrimitiveValue getValue() {
 		return value1;
 	}
 
+	@Override
 	public void setValue(ExtendedCSSPrimitiveValue value) {
 		this.value1 = value;
 	}
 
+	@Override
 	public ExtendedCSSPrimitiveValue getRangeSecondValue() {
 		return value2;
 	}
 
+	@Override
 	public void setRangeSecondValue(ExtendedCSSPrimitiveValue value) {
 		value2 = value;
 	}
@@ -265,7 +272,7 @@ public class MediaFeaturePredicate extends BooleanCondition.Predicate {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		MediaFeaturePredicate other = (MediaFeaturePredicate) obj;
+		MediaFeaturePredicateImpl other = (MediaFeaturePredicateImpl) obj;
 		byte efftype, otherefftype;
 		if (rangeType == MediaQuery.FEATURE_PLAIN) {
 			// We handle 'feature: value' effectively as 'feature = value'

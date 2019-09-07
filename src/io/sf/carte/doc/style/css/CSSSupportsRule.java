@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css;
 
-import io.sf.carte.doc.style.css.om.BooleanCondition;
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
 
 /**
  * Represents a ‘{@literal @}supports’ rule.

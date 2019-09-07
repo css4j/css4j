@@ -20,10 +20,11 @@ import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSSupportsRule;
-import io.sf.carte.doc.style.css.DeclarationCondition;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -98,7 +99,8 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			DeclarationCondition declCond = (DeclarationCondition) condition;
 			return declCond.isParsable() && styleDatabase.supports(declCond.getName(), declCond.getValue());
 		case AND:
-			Iterator<BooleanCondition> it = ((BooleanCondition.GroupCondition) condition).getSubConditions().iterator();
+			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions()
+					.iterator();
 			while (it.hasNext()) {
 				if (!supports(it.next(), styleDatabase)) {
 					return false;
@@ -106,9 +108,9 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			}
 			return true;
 		case NOT:
-			return supports(((BooleanCondition.NotCondition) condition).getNestedCondition(), styleDatabase);
+			return supports(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(), styleDatabase);
 		case OR:
-			it = ((BooleanCondition.GroupCondition) condition).getSubConditions().iterator();
+			it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
 			while (it.hasNext()) {
 				if (supports(it.next(), styleDatabase)) {
 					return true;

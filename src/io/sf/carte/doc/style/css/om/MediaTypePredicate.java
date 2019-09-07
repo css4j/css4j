@@ -17,7 +17,7 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
  * Media type predicate.
  * 
  */
-class MediaTypePredicate extends BooleanCondition.Predicate {
+class MediaTypePredicate extends BooleanConditionImpl.Predicate {
 
 	MediaTypePredicate(String medium) {
 		super(medium);

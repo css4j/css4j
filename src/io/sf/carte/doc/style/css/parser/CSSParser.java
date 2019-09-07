@@ -39,13 +39,9 @@ import org.w3c.css.sac.SelectorFactory;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.css.sac.SimpleSelector;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.AgentUtil;
-import io.sf.carte.doc.style.css.CSSDocument;
-import io.sf.carte.doc.style.css.CSSMediaException;
-import io.sf.carte.doc.style.css.DeclarationCondition;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition2;
@@ -54,13 +50,10 @@ import io.sf.carte.doc.style.css.nsac.Condition2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.nsac.Selector2;
-import io.sf.carte.doc.style.css.om.BooleanCondition;
-import io.sf.carte.doc.style.css.om.BooleanCondition.ConditionType;
-import io.sf.carte.doc.style.css.om.BooleanConditionFactory;
 import io.sf.carte.doc.style.css.om.MediaConditionFactory;
-import io.sf.carte.doc.style.css.om.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.om.MediaQueryFactory;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
+import io.sf.carte.doc.style.css.parser.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ConditionalSelectorImpl;
@@ -210,7 +203,7 @@ public class CSSParser implements Parser2 {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationTokenHandler(source);
+		DeclarationTokenHandler handler = new DeclarationTokenHandler(source, PropertyDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(getReaderFromSource(source), "/*", "*/");
 	}
@@ -251,7 +244,7 @@ public class CSSParser implements Parser2 {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(source);
+		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(source, PropertyDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		Reader re = getReaderFromSource(source);
 		tp.parse(re, "/*", "*/");
@@ -321,7 +314,7 @@ public class CSSParser implements Parser2 {
 	public BooleanCondition parseSupportsCondition(String conditionText, ExtendedCSSRule rule)
 			throws CSSException {
 		int[] allowInWords = { 45, 46 }; // -.
-		ConditionTokenHandler handler = new ConditionTokenHandler(true, null);
+		SupportsTokenHandler handler = new SupportsTokenHandler(rule);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		try {
 			tp.parse(conditionText, "/*", "*/");
@@ -329,22 +322,13 @@ public class CSSParser implements Parser2 {
 			throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested conditions exceed limit", e);
 		}
 		if (handler.errorCode == 0) {
-			BooleanCondition condition = handler.currentCond;
-			if (condition != null) {
-				while (condition.getParentCondition() != null) {
-					condition = condition.getParentCondition();
-				}
-			}
-			return condition;
-		} else if (rule == null) {
-			throw handler.errorException;
+			return handler.getCondition();
 		} else {
-			rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, handler.errorException);
 			return null;
 		}
 	}
 
-	public void parseMediaQuery(String media, MediaQueryHandler mqhandler, Node ownerNode, ExtendedCSSRule rule)
+	public void parseMediaQuery(String media, MediaQueryHandler mqhandler)
 			throws CSSException {
 		int[] allowInWords = { 45, 46 }; // -.
 		ConditionTokenHandler handler = new MediaQueryTokenHandler(mqhandler);
@@ -355,18 +339,43 @@ public class CSSParser implements Parser2 {
 		} catch (IndexOutOfBoundsException e) {
 			throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested queries exceed limit", e);
 		}
-		if (handler.errorCode != 0) {
-			if (ownerNode != null) {
-				CSSMediaException ex = new CSSMediaException("Bad query: " + media, handler.errorException);
-				((CSSDocument) ownerNode.getOwnerDocument()).getErrorHandler().mediaQueryError(ownerNode, ex);
-			} else if (rule != null) {
-				rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, handler.errorException);
-			}
-		}
 	}
 
-	interface DelegateHandler extends TokenHandler {
-		void preBooleanHandling(int index, BooleanCondition.ConditionType type);
+	abstract private class DelegateHandler implements TokenHandler {
+
+		public void preBooleanHandling(int index, Type type) {
+		}
+
+		@Override
+		public void tokenControl(TokenControl control) {
+			// Not called
+		}
+
+		@Override
+		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+			// Not called
+		}
+
+		@Override
+		public void quotedNewlineChar(int index, int codePoint) {
+			// Not called
+		}
+
+		@Override
+		public void control(int index, int codePoint) {
+			// Not called
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			// Not called
+		}
+
+		@Override
+		public void error(int index, byte errCode, CharSequence context) {
+			// Not called
+		}
+
 	}
 
 	private class ConditionTokenHandler extends CSSTokenHandler {
@@ -388,29 +397,25 @@ public class CSSParser implements Parser2 {
 		 */
 		private short[] opParenDepth = new short[32]; // Limited to 32 nested expressions
 
-		final DelegateHandler predicateHandler;
+		private DelegateHandler predicateHandler;
 
 		/**
 		 * Are we reading a predicate instead of processing operation syntax ?
 		 */
-		private boolean readingPredicate = false;
+		boolean readingPredicate = false;
 
-		/*
-		 * Error fields.
-		 */
-		private byte errorCode = 0;
-		CSSParseException errorException = null;
-
-		ConditionTokenHandler(boolean supports, MediaQueryHandler mqhandler) {
+		ConditionTokenHandler(BooleanConditionFactory conditionFactory) {
 			super(null);
-			if (supports) {
-				this.conditionFactory = new SupportsConditionFactory();
-				this.predicateHandler = new SupportsDelegateHandler();
-			} else {
-				this.conditionFactory = new MediaConditionFactory();
-				this.predicateHandler = new MediaQueryDelegateHandler(mqhandler);
-			}
+			this.conditionFactory = conditionFactory;
 			buffer = new StringBuilder(64);
+		}
+
+		DelegateHandler getPredicateHandler() {
+			return predicateHandler;
+		}
+
+		void setPredicateHandler(DelegateHandler predicateHandler) {
+			this.predicateHandler = predicateHandler;
 		}
 
 		@Override
@@ -434,24 +439,24 @@ public class CSSParser implements Parser2 {
 		private void processWord(int index, String word) {
 			String lctoken = word.toLowerCase(Locale.ROOT);
 			if ("not".equals(lctoken)) {
-				predicateHandler.preBooleanHandling(index, BooleanCondition.ConditionType.NOT);
+				predicateHandler.preBooleanHandling(index, BooleanCondition.Type.NOT);
 				BooleanCondition newCond = conditionFactory.createNotCondition();
 				if (currentCond != null) {
 					currentCond.addCondition(newCond);
 				}
 				setNestedCondition(newCond);
 			} else if ("and".equals(lctoken)) {
-				predicateHandler.preBooleanHandling(index, BooleanCondition.ConditionType.AND);
+				predicateHandler.preBooleanHandling(index, BooleanCondition.Type.AND);
 				if (currentCond != null) {
-					processOperation(index, BooleanCondition.ConditionType.AND, word);
+					processOperation(index, BooleanCondition.Type.AND, word);
 				} else {
 					processImplicitAnd(index);
 				}
 			} else if ("or".equals(lctoken)) {
 				if (currentCond != null) {
-					predicateHandler.preBooleanHandling(index, BooleanCondition.ConditionType.OR);
+					predicateHandler.preBooleanHandling(index, BooleanCondition.Type.OR);
 					try {
-						processOperation(index, BooleanCondition.ConditionType.OR, word);
+						processOperation(index, BooleanCondition.Type.OR, word);
 					} catch (DOMException e) {
 						unexpectedTokenError(index, word);
 					}
@@ -464,10 +469,10 @@ public class CSSParser implements Parser2 {
 			}
 		}
 
-		void processOperation(int index, BooleanCondition.ConditionType opType, String opname) {
+		void processOperation(int index, BooleanCondition.Type opType, String opname) {
 			BooleanCondition operation = currentCond.getParentCondition();
-			BooleanCondition.ConditionType curType = currentCond.getType();
-			if (curType == BooleanCondition.ConditionType.PREDICATE) {
+			BooleanCondition.Type curType = currentCond.getType();
+			if (curType == BooleanCondition.Type.PREDICATE) {
 				if (operation == null) {
 					BooleanCondition newCond = createOperation(opType);
 					newCond.addCondition(currentCond);
@@ -484,7 +489,7 @@ public class CSSParser implements Parser2 {
 					}
 					setNestedCondition(newCond);
 				}
-			} else if (curType == BooleanCondition.ConditionType.NOT) {
+			} else if (curType == BooleanCondition.Type.NOT) {
 				if (operation != null) {
 					BooleanCondition newCond = createOperation(opType);
 					BooleanCondition oldCond = operation.replaceLast(newCond);
@@ -498,8 +503,8 @@ public class CSSParser implements Parser2 {
 			}
 		}
 
-		BooleanCondition createOperation(BooleanCondition.ConditionType opType) {
-			if (opType == BooleanCondition.ConditionType.AND) {
+		BooleanCondition createOperation(BooleanCondition.Type opType) {
+			if (opType == BooleanCondition.Type.AND) {
 				return conditionFactory.createAndCondition();
 			}
 			return conditionFactory.createOrCondition();
@@ -553,7 +558,7 @@ public class CSSParser implements Parser2 {
 			}
 		}
 
-		private int getCurrentParenDepth() {
+		short getCurrentParenDepth() {
 			return opParenDepth[opDepthIndex];
 		}
 
@@ -642,16 +647,53 @@ public class CSSParser implements Parser2 {
 
 		@Override
 		protected void handleError(int index, byte errCode, String message) {
+			throw createException(index, errCode, message);
+		}
+
+	}
+
+	private class SupportsTokenHandler extends ConditionTokenHandler {
+
+		/*
+		 * Error-related fields.
+		 */
+		private byte errorCode = 0;
+		private CSSParseException errorException = null;
+		private final ExtendedCSSRule rule;
+
+		SupportsTokenHandler(ExtendedCSSRule rule) {
+			super(new SupportsConditionFactory());
+			this.rule = rule;
+			setPredicateHandler(new SupportsDelegateHandler());
+		}
+
+		BooleanCondition getCondition() {
+			BooleanCondition condition = currentCond;
+			if (condition != null) {
+				while (condition.getParentCondition() != null) {
+					condition = condition.getParentCondition();
+				}
+			}
+			return condition;
+		}
+
+		@Override
+		protected void handleError(int index, byte errCode, String message) {
 			if (!parseError) {
-				if (this.errorCode == 0) {
-					this.errorCode = errCode;
-					this.errorException = createException(index, errCode, message);
+				if (errorCode == 0) {
+					errorCode = errCode;
+					errorException = createException(index, errCode, message);
+					if (rule != null) {
+						rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, errorException);
+					} else {
+						throw errorException;
+					}
 				}
 				parseError = true;
 			}
 		}
 
-		private class SupportsDelegateHandler implements DelegateHandler {
+		private class SupportsDelegateHandler extends DelegateHandler {
 
 			/**
 			 * Are we reading a value instead of processing a property name ?
@@ -739,7 +781,7 @@ public class CSSParser implements Parser2 {
 						}
 						currentCond = newCond;
 						buffer.setLength(0);
-						valueParendepth = opParenDepth[opDepthIndex];
+						valueParendepth = getCurrentParenDepth();
 						valueParendepth--;
 						readingValue = true;
 						escapedTokenIndex = -1;
@@ -797,43 +839,55 @@ public class CSSParser implements Parser2 {
 				}
 			}
 
-			@Override
-			public void preBooleanHandling(int index, ConditionType type) {
-			}
-
-			@Override
-			public void tokenControl(TokenControl control) {
-				// Not called
-			}
-
-			@Override
-			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-				// Not called
-			}
-
-			@Override
-			public void quotedNewlineChar(int index, int codePoint) {
-				// Not called
-			}
-
-			@Override
-			public void control(int index, int codePoint) {
-				// Not called
-			}
-
-			@Override
-			public void commented(int index, int commentType, String comment) {
-				// Not called
-			}
-
-			@Override
-			public void error(int index, byte errCode, CharSequence context) {
-				// Not called
-			}
-
 		}
 
-		class MediaQueryDelegateHandler implements DelegateHandler {
+	}
+
+	private class MediaQueryTokenHandler extends ConditionTokenHandler {
+
+		MediaQueryTokenHandler(MediaQueryHandler mqhandler) {
+			super(new MediaConditionFactory());
+			setPredicateHandler(new MediaQueryDelegateHandler(mqhandler));
+		}
+
+		@Override
+		void processImplicitAnd(int index) {
+			MediaQueryDelegateHandler mqhelper = (MediaQueryDelegateHandler) getPredicateHandler();
+			String medium = mqhelper.mediaType;
+			if (medium == null) {
+				if (buffer.length() != 0) {
+					mqhelper.processMediaType(index);
+				} else {
+					unexpectedTokenError(index, "and");
+					return;
+				}
+			}
+			currentCond = ((MediaConditionFactory) conditionFactory).createMediaTypePredicate(medium);
+			processOperation(index, BooleanCondition.Type.AND, "and");
+		}
+
+		@Override
+		BooleanCondition createOperation(BooleanCondition.Type opType) {
+			if (opType == BooleanCondition.Type.AND) {
+				return conditionFactory.createAndCondition();
+			}
+			if (((MediaQueryDelegateHandler) getPredicateHandler()).mediaType == null) {
+				return conditionFactory.createOrCondition();
+			}
+			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected 'OR'");
+		}
+
+		@Override
+		protected void handleError(int index, byte errCode, String message) {
+			if (!parseError) {
+				MediaQueryDelegateHandler mqhelper = (MediaQueryDelegateHandler) getPredicateHandler();
+				CSSParseException ex = createException(index, errCode, message);
+				mqhelper.handler.invalidQuery(ex);
+				parseError = true;
+			}
+		}
+
+		class MediaQueryDelegateHandler extends DelegateHandler {
 
 			private MediaQueryHandler handler;
 			private byte stage = 0;
@@ -924,7 +978,7 @@ public class CSSParser implements Parser2 {
 			}
 
 			@Override
-			public void preBooleanHandling(int index, ConditionType type) {
+			public void preBooleanHandling(int index, Type type) {
 				switch (type) {
 				case AND:
 					if (stage > 1) {
@@ -968,7 +1022,7 @@ public class CSSParser implements Parser2 {
 			 *         <code>NOT</code> condition.
 			 */
 			private boolean isEmptyNotCondition() {
-				return currentCond.getType() == ConditionType.NOT
+				return currentCond.getType() == Type.NOT
 						&& currentCond.getParentCondition() == null && currentCond.getNestedCondition() == null;
 			}
 
@@ -1264,7 +1318,7 @@ public class CSSParser implements Parser2 {
 
 			String rawBuffer() {
 				spaceFound = false;
-				return ConditionTokenHandler.this.rawBuffer();
+				return MediaQueryTokenHandler.this.rawBuffer();
 			}
 
 			@Override
@@ -1325,83 +1379,6 @@ public class CSSParser implements Parser2 {
 				}
 			}
 
-			@Override
-			public void tokenControl(TokenControl control) {
-				// Not called
-			}
-
-			@Override
-			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-				// Not called
-			}
-
-			@Override
-			public void quotedNewlineChar(int index, int codePoint) {
-				// Not called
-			}
-
-			@Override
-			public void control(int index, int codePoint) {
-				// Not called
-			}
-
-			@Override
-			public void commented(int index, int commentType, String comment) {
-				// Not called
-			}
-
-			@Override
-			public void error(int index, byte errCode, CharSequence context) {
-				// Not called
-			}
-
-		}
-
-	}
-
-	private class MediaQueryTokenHandler extends ConditionTokenHandler {
-
-		private boolean errorNotified = false;
-
-		MediaQueryTokenHandler(MediaQueryHandler mqhandler) {
-			super(false, mqhandler);
-		}
-
-		@Override
-		void processImplicitAnd(int index) {
-			MediaQueryDelegateHandler mqhelper = (MediaQueryDelegateHandler) predicateHandler;
-			String medium = mqhelper.mediaType;
-			if (medium == null) {
-				if (buffer.length() != 0) {
-					mqhelper.processMediaType(index);
-				} else {
-					unexpectedTokenError(index, "and");
-					return;
-				}
-			}
-			currentCond = ((MediaConditionFactory) conditionFactory).createMediaTypePredicate(medium);
-			processOperation(index, BooleanCondition.ConditionType.AND, "and");
-		}
-
-		@Override
-		BooleanCondition createOperation(BooleanCondition.ConditionType opType) {
-			if (opType == BooleanCondition.ConditionType.AND) {
-				return conditionFactory.createAndCondition();
-			}
-			if (((MediaQueryDelegateHandler) predicateHandler).mediaType == null) {
-				return conditionFactory.createOrCondition();
-			}
-			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected 'OR'");
-		}
-
-		@Override
-		protected void handleError(int index, byte errCode, String message) {
-			super.handleError(index, errCode, message);
-			if (!errorNotified) {
-				errorNotified = true;
-				MediaQueryDelegateHandler mqhelper = (MediaQueryDelegateHandler) predicateHandler;
-				mqhelper.handler.invalidQuery(errorException);
-			}
 		}
 
 	}
@@ -1879,7 +1856,7 @@ public class CSSParser implements Parser2 {
 		private class NestedRuleDeclarationTokenHandler extends DeclarationTokenHandler {
 
 			private NestedRuleDeclarationTokenHandler() {
-				super(null);
+				super(null, null);
 			}
 
 			@Override
@@ -2854,7 +2831,7 @@ public class CSSParser implements Parser2 {
 		private class MyDeclarationTokenHandler extends DeclarationTokenHandler {
 
 			MyDeclarationTokenHandler(InputSource source) {
-				super(source);
+				super(source, PropertyDatabase.getInstance());
 			}
 
 			@Override
@@ -4221,8 +4198,8 @@ public class CSSParser implements Parser2 {
 	class DeclarationRuleTokenHandler extends DeclarationTokenHandler {
 		private String ruleFirstPart = null;
 
-		DeclarationRuleTokenHandler(InputSource source) {
-			super(source, 0);
+		DeclarationRuleTokenHandler(InputSource source, PropertyDatabase propertyDatabase) {
+			super(source, propertyDatabase, 0);
 		}
 
 		@Override
@@ -4312,12 +4289,12 @@ public class CSSParser implements Parser2 {
 
 	class PropertyTokenHandler extends DeclarationTokenHandler {
 		PropertyTokenHandler(InputSource source) {
-			super(source);
+			super(source, null);
 			this.propertyName = "";
 		}
 
 		PropertyTokenHandler(String propertyName) {
-			super(null);
+			super(null, PropertyDatabase.getInstance());
 			this.propertyName = propertyName;
 		}
 
@@ -4358,7 +4335,7 @@ public class CSSParser implements Parser2 {
 		private LexicalUnitImpl lunit = null;
 		private LexicalUnitImpl currentlu = null;
 		String propertyName = null;
-		private final PropertyDatabase propertyDatabase = PropertyDatabase.getInstance();
+		private final PropertyDatabase propertyDatabase;
 		private boolean hexColor = false;
 		private boolean unicodeRange = false;
 		private boolean readPriority = false;
@@ -4368,15 +4345,16 @@ public class CSSParser implements Parser2 {
 		private boolean functionToken = false;
 		private final boolean flagIEValues;
 
-		DeclarationTokenHandler(InputSource source) {
-			this(source, 1);
+		DeclarationTokenHandler(InputSource source, PropertyDatabase propertyDatabase) {
+			this(source, propertyDatabase, 1);
 		}
 
-		DeclarationTokenHandler(InputSource source, int initialCurlyBracketDepth) {
+		DeclarationTokenHandler(InputSource source, PropertyDatabase propertyDatabase, int initialCurlyBracketDepth) {
 			super(source);
 			this.curlyBracketDepth = initialCurlyBracketDepth;
 			flagIEValues = CSSParser.this.parserFlags.contains(Flag.IEVALUES);
 			buffer = new StringBuilder(128);
+			this.propertyDatabase = propertyDatabase;
 		}
 
 		LexicalUnit2 getLexicalUnit() {
@@ -5438,20 +5416,22 @@ public class CSSParser implements Parser2 {
 
 		private boolean newIdentifier(String raw, String ident, String cssText) {
 			if (isValidIdentifier(raw)) {
-				String lcident = ident.toLowerCase(Locale.ROOT);
-				if (lcident != ident) {
-					if (propertyDatabase.isShorthand(propertyName)) {
-						// Only if no Custom Ident was previously found.
-						if (!isPreviousValueCustomIdent()) {
-							String[] longhands = propertyDatabase.getLonghandProperties(propertyName);
-							for (int i = 0; i < longhands.length; i++) {
-								if (isIdentifierValueOf(longhands[i], lcident)) {
-									ident = lcident;
+				if (propertyDatabase != null) {
+					String lcident = ident.toLowerCase(Locale.ROOT);
+					if (lcident != ident) {
+						if (propertyDatabase.isShorthand(propertyName)) {
+							// Only if no Custom Ident was previously found.
+							if (!isPreviousValueCustomIdent()) {
+								String[] longhands = propertyDatabase.getLonghandProperties(propertyName);
+								for (int i = 0; i < longhands.length; i++) {
+									if (isIdentifierValueOf(longhands[i], lcident)) {
+										ident = lcident;
+									}
 								}
 							}
+						} else if (isIdentifierValueOf(propertyName, lcident)) {
+							ident = lcident;
 						}
-					} else if (isIdentifierValueOf(propertyName, lcident)) {
-						ident = lcident;
 					}
 				}
 				LexicalUnitImpl lu = newLexicalUnit(LexicalUnit.SAC_IDENT);
