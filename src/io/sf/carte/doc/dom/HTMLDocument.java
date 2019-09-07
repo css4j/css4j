@@ -127,7 +127,7 @@ abstract public class HTMLDocument extends DOMDocument {
 			if (idAttr == null || !hasAttributeNS(nsuri, idAttr.getLocalName())) {
 				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
 			}
-			if ((nsuri == null || nsuri == HTMLDocument.HTML_NAMESPACE_URI)) {
+			if (nsuri == null || nsuri == HTMLDocument.HTML_NAMESPACE_URI) {
 				if (!"id".equalsIgnoreCase(idAttr.getName())) {
 					throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "Id attribute is always 'id'");
 				}

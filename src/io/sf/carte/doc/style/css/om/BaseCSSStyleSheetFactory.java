@@ -38,14 +38,14 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.nsac.Parser2.Flag;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.ColorValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
  * Base class for CSS style sheet factories.
- * 
+ *
  * @author Carlos Amengual
  */
 abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFactory {

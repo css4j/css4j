@@ -21,9 +21,9 @@ import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
-import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**

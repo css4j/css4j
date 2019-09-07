@@ -14,9 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 
 import org.w3c.css.sac.LexicalUnit;

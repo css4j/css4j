@@ -139,7 +139,7 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 
 	@Override
 	public boolean hasComputedStyleWarnings() {
-		return (computedStyleWarnings != null && !computedStyleWarnings.isEmpty());
+		return computedStyleWarnings != null && !computedStyleWarnings.isEmpty();
 	}
 
 	@Override
