@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser2;
@@ -31,12 +32,13 @@ import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.om.AnonymousStyleDeclaration;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.CompatInlineStyle;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
-import io.sf.carte.doc.style.css.om.DOMCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.om.DOMComputedStyle;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.DOMDocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.InlineStyle;
@@ -185,7 +187,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	@Override
 	public AbstractCSSStyleDeclaration createAnonymousStyleDeclaration(Node node) {
-		MyDOMCSSStyleDeclaration style = new MyDOMCSSStyleDeclaration(node);
+		MyAnonymousStyleDeclaration style = new MyAnonymousStyleDeclaration(node);
 		return style;
 	}
 
@@ -287,7 +289,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 		@Override
 		protected ComputedCSSStyle createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet) {
-			return new MyDOMCSSStyleDeclaration(parentSheet);
+			return new MyDOMComputedStyle(parentSheet);
 		}
 
 		@Override
@@ -354,16 +356,12 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	}
 
-	class MyDOMCSSStyleDeclaration extends DOMCSSStyleDeclaration {
-		MyDOMCSSStyleDeclaration(Node ownerNode) {
-			super(ownerNode);
-		}
-
-		MyDOMCSSStyleDeclaration(BaseDocumentCSSStyleSheet parentSheet) {
+	class MyDOMComputedStyle extends DOMComputedStyle {
+		MyDOMComputedStyle(BaseDocumentCSSStyleSheet parentSheet) {
 			super(parentSheet);
 		}
 
-		MyDOMCSSStyleDeclaration(ComputedCSSStyle copiedObject) {
+		private MyDOMComputedStyle(ComputedCSSStyle copiedObject) {
 			super(copiedObject);
 		}
 
@@ -373,13 +371,35 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 		}
 
 		@Override
-		protected void setOwnerNode(Node node) {
+		protected void setOwnerNode(CSSElement node) {
 			super.setOwnerNode(node);
 		}
 
 		@Override
 		public ComputedCSSStyle clone() {
-			MyDOMCSSStyleDeclaration styleClone = new MyDOMCSSStyleDeclaration(this);
+			MyDOMComputedStyle styleClone = new MyDOMComputedStyle(this);
+			return styleClone;
+		}
+
+	}
+
+	class MyAnonymousStyleDeclaration extends AnonymousStyleDeclaration {
+		MyAnonymousStyleDeclaration(Node ownerNode) {
+			super(ownerNode);
+		}
+
+		private MyAnonymousStyleDeclaration(MyAnonymousStyleDeclaration copiedObject) {
+			super(copiedObject);
+		}
+
+		@Override
+		protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {
+			return CSSDOMImplementation.this;
+		}
+
+		@Override
+		public AnonymousStyleDeclaration clone() {
+			MyAnonymousStyleDeclaration styleClone = new MyAnonymousStyleDeclaration(this);
 			return styleClone;
 		}
 

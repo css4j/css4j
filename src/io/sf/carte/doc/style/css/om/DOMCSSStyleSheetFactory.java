@@ -197,9 +197,7 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	@Override
 	public AbstractCSSStyleDeclaration createAnonymousStyleDeclaration(Node node) {
-		DOMCSSStyleDeclaration style = new MyDOMCSSStyleDeclaration(node);
-		// Set the style database
-		style.setStyleDatabase(((CSSDocument) node.getParentNode().getOwnerDocument()).getStyleDatabase());
+		MyAnonStyleDeclaration style = new MyAnonStyleDeclaration(node);
 		return style;
 	}
 
@@ -263,16 +261,12 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	}
 
-	class MyDOMCSSStyleDeclaration extends DOMCSSStyleDeclaration {
-		MyDOMCSSStyleDeclaration(Node ownerNode) {
-			super(ownerNode);
-		}
-
-		MyDOMCSSStyleDeclaration(BaseDocumentCSSStyleSheet parentSheet) {
+	class MyDOMComputedStyle extends DOMComputedStyle {
+		MyDOMComputedStyle(BaseDocumentCSSStyleSheet parentSheet) {
 			super(parentSheet);
 		}
 
-		MyDOMCSSStyleDeclaration(ComputedCSSStyle copiedObject) {
+		private MyDOMComputedStyle(ComputedCSSStyle copiedObject) {
 			super(copiedObject);
 		}
 
@@ -283,7 +277,28 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 		@Override
 		public ComputedCSSStyle clone() {
-			DOMCSSStyleDeclaration styleClone = new MyDOMCSSStyleDeclaration(MyDOMCSSStyleDeclaration.this);
+			DOMComputedStyle styleClone = new MyDOMComputedStyle(MyDOMComputedStyle.this);
+			return styleClone;
+		}
+	}
+
+	class MyAnonStyleDeclaration extends AnonymousStyleDeclaration {
+		MyAnonStyleDeclaration(Node ownerNode) {
+			super(ownerNode);
+		}
+
+		private MyAnonStyleDeclaration(AnonymousStyleDeclaration copiedObject) {
+			super(copiedObject);
+		}
+
+		@Override
+		protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {
+			return DOMCSSStyleSheetFactory.this;
+		}
+
+		@Override
+		public AnonymousStyleDeclaration clone() {
+			MyAnonStyleDeclaration styleClone = new MyAnonStyleDeclaration(this);
 			return styleClone;
 		}
 	}
@@ -300,8 +315,8 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 		}
 
 		@Override
-		protected DOMCSSStyleDeclaration createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet) {
-			return new MyDOMCSSStyleDeclaration(parentSheet);
+		protected DOMComputedStyle createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet) {
+			return new MyDOMComputedStyle(parentSheet);
 		}
 
 		@Override

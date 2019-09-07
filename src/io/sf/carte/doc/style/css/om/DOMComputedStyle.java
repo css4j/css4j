@@ -18,29 +18,23 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.StyleDatabase;
 
 /**
- * Style declaration associated to a DOM node (either a computed style or an
- * anonymous declaration).
+ * Computed style associated to a DOM node.
  * 
  * @author Carlos Amengual
  * 
  */
-abstract public class DOMCSSStyleDeclaration extends ComputedCSSStyle {
+abstract public class DOMComputedStyle extends ComputedCSSStyle {
 
 	private BaseDocumentCSSStyleSheet parentSheet = null;
 
 	private transient ComputedCSSStyle parentStyle = null;
 
-	protected DOMCSSStyleDeclaration(Node ownerNode) {
-		super();
-		setOwnerNode(ownerNode);
-	}
-
-	protected DOMCSSStyleDeclaration(BaseDocumentCSSStyleSheet parentSheet) {
+	protected DOMComputedStyle(BaseDocumentCSSStyleSheet parentSheet) {
 		super();
 		this.parentSheet = parentSheet;
 	}
 
-	protected DOMCSSStyleDeclaration(ComputedCSSStyle copiedObject) {
+	protected DOMComputedStyle(ComputedCSSStyle copiedObject) {
 		super(copiedObject);
 	}
 

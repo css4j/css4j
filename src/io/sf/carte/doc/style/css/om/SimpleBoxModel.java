@@ -506,7 +506,7 @@ abstract class SimpleBoxModel {
 		// compute minimum width required by all the columns plus cell spacing or
 		// borders
 		ComputedCSSStyle style = getComputedStyle();
-		CSSElement tbl = (CSSElement) style.getOwnerNode();
+		CSSElement tbl = style.getOwnerNode();
 		NodeList nlist = tbl.getElementsByTagName("tbody");
 		if (nlist.getLength() > 0) {
 			// has tbody
@@ -672,9 +672,9 @@ abstract class SimpleBoxModel {
 	 * Document should be normalized for this to work
 	 */
 	private float computeCapmin(short unitType) {
-		CSSCanvas canvas = ((CSSDocument) getComputedStyle().getOwnerNode().getOwnerDocument()).getCanvas();
+		CSSCanvas canvas = getComputedStyle().getOwnerNode().getOwnerDocument().getCanvas();
 		ComputedCSSStyle style = getComputedStyle();
-		CSSElement tbl = (CSSElement) style.getOwnerNode();
+		CSSElement tbl = style.getOwnerNode();
 		NodeList nlist = tbl.getElementsByTagName("caption");
 		float capmin = 0f;
 		for (int i = 0; i < nlist.getLength(); i++) {
@@ -740,7 +740,7 @@ abstract class SimpleBoxModel {
 		float[] contw = { 0, 0 }; // contw[0] = max content width, contw[1] = min content width
 		// Get text content and remove contiguous space
 		text = BoxModelHelper.contractSpaces(text.trim());
-		CSSCanvas canvas = ((CSSDocument) getComputedStyle().getOwnerNode().getOwnerDocument()).getCanvas();
+		CSSCanvas canvas = getComputedStyle().getOwnerNode().getOwnerDocument().getCanvas();
 		if (canvas != null) {
 			contw[0] = NumberValue.floatValueConversion(canvas.stringWidth(text, style), CSSPrimitiveValue.CSS_PT,
 					unitType);
@@ -769,7 +769,7 @@ abstract class SimpleBoxModel {
 	 */
 	private float deviceDocumentWidth(String failureReason, String value) throws StyleDatabaseRequiredException {
 		StyleDatabase sdb = getStyleDatabase();
-		CSSDocument doc = (CSSDocument) getComputedStyle().getOwnerNode().getOwnerDocument();
+		CSSDocument doc = getComputedStyle().getOwnerNode().getOwnerDocument();
 		if (doc != null) {
 			CSSCanvas canvas = doc.getCanvas();
 			Viewport viewport;

@@ -66,14 +66,11 @@ import io.sf.carte.util.SimpleWriter;
  * <p>
  * See section 6.1 of the Document Object Model CSS spec.
  * </p>
- * <p>
- * Some of the methods require that a style database is set, for example to
- * verify the availability of font families.
  * 
  */
 abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implements CSSComputedProperties {
 
-	private Node node = null;
+	private CSSElement node = null;
 
 	private transient LinkedList<String> customPropertyStack = null;
 
@@ -86,20 +83,20 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		setOwnerNode(copiedObject.getOwnerNode());
 	}
 
-	protected void setOwnerNode(Node node) {
+	protected void setOwnerNode(CSSElement node) {
 		this.node = node;
 	}
 
 	@Override
-	public Node getOwnerNode() {
+	public CSSElement getOwnerNode() {
 		return node;
 	}
 
 	@Override
 	public StyleDeclarationErrorHandler getStyleDeclarationErrorHandler() {
 		if (node != null && node.getNodeType() == Node.ELEMENT_NODE) {
-			return ((CSSDocument) node.getOwnerDocument()).getErrorHandler()
-					.getInlineStyleErrorHandler((CSSElement) node);
+			return node.getOwnerDocument().getErrorHandler()
+					.getInlineStyleErrorHandler(node);
 		}
 		return null;
 	}
@@ -379,7 +376,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				fv *= 0.5f;
 			}
 		} else if (unit == CSSPrimitiveValue2.CSS_REM) {
-			CSSElement root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
+			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				fv *= root.getComputedStyle(null).getComputedFontSize();
 			} else {
@@ -392,14 +389,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				fv *= getComputedLineHeight();
 			}
 		} else if (unit == CSSPrimitiveValue2.CSS_RLH) {
-			CSSElement root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
+			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				fv *= root.getComputedStyle(null).getComputedLineHeight();
 			} else {
 				fv *= getInitialFontSize();
 			}
 		} else {
-			CSSCanvas canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			CSSCanvas canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (unit == CSSPrimitiveValue2.CSS_CAP) {
 				if (canvas != null) {
 					fv *= canvas.getCapHeight(this);
@@ -473,7 +470,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(), CSSPrimitiveValue.CSS_PT);
 		}
 		String medium;
-		if (force && (medium = ((CSSDocument) getOwnerNode().getOwnerDocument()).getTargetMedium()) != null) {
+		if (force && (medium = getOwnerNode().getOwnerDocument().getTargetMedium()) != null) {
 			if ("print".equals(medium)) {
 				return 595f; // A4
 			} else if ("screen".equals(medium)) {
@@ -501,7 +498,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(), CSSPrimitiveValue.CSS_PT);
 		}
 		String medium;
-		if (force && (medium = ((CSSDocument) getOwnerNode().getOwnerDocument()).getTargetMedium()) != null) {
+		if (force && (medium = getOwnerNode().getOwnerDocument().getTargetMedium()) != null) {
 			if ("print".equals(medium)) {
 				return 842f; // A4
 			} else if ("screen".equals(medium)) {
@@ -648,7 +645,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_REM:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_REM);
-			CSSElement root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
+			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedFontSize();
 			} else if (force) {
@@ -672,7 +669,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_RLH:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_RLH);
-			root = (CSSElement) getOwnerNode().getOwnerDocument().getDocumentElement();
+			root = getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedLineHeight();
 			} else if (force) {
@@ -684,7 +681,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_CAP:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_CAP);
-			CSSCanvas canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			CSSCanvas canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (canvas != null) {
 				parentStyle = getParentComputedStyle();
 				if (parentStyle != null) {
@@ -700,7 +697,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_CH:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_CH);
-			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (canvas != null) {
 				parentStyle = getParentComputedStyle();
 				if (parentStyle != null) {
@@ -716,7 +713,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_IC:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_IC);
-			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (canvas != null) {
 				parentStyle = getParentComputedStyle();
 				if (parentStyle != null) {
@@ -746,7 +743,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			return getRelativeFontSize(cssSize, pcnt * 0.01f, force);
 		case CSSPrimitiveValue2.CSS_VW:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VW);
-			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
 				sz = getInitialContainingBlockWidthPt(canvas, force) * factor * 0.01f;
 			} catch (StyleDatabaseRequiredException e) {
@@ -758,7 +755,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_VH:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VH);
-			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
 				sz = getInitialContainingBlockHeightPt(canvas, force) * factor * 0.01f;
 			} catch (StyleDatabaseRequiredException e) {
@@ -771,7 +768,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		case CSSPrimitiveValue2.CSS_VI:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VI);
 			String writingMode = getCSSValue("writing-mode").getCssText();
-			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
 				if ("horizontal-tb".equalsIgnoreCase(writingMode)) {
 					sz = getInitialContainingBlockWidthPt(canvas, force);
@@ -789,7 +786,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		case CSSPrimitiveValue2.CSS_VB:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VB);
 			writingMode = getCSSValue("writing-mode").getCssText();
-			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
 				if ("horizontal-tb".equalsIgnoreCase(writingMode)) {
 					sz = getInitialContainingBlockHeightPt(canvas, force);
@@ -806,7 +803,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_VMIN:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VMIN);
-			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
 				sz = Math.min(getInitialContainingBlockWidthPt(canvas, force),
 						getInitialContainingBlockHeightPt(canvas, force));
@@ -820,7 +817,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_VMAX:
 			factor = cssSize.getFloatValue(CSSPrimitiveValue2.CSS_VMAX);
-			canvas = ((CSSDocument) getOwnerNode().getOwnerDocument()).getCanvas();
+			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
 				sz = Math.max(getInitialContainingBlockWidthPt(canvas, force),
 						getInitialContainingBlockHeightPt(canvas, force));

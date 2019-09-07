@@ -163,7 +163,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 		// Set the pseudo-element
 		matcher.setPseudoElement(pseudoElt);
 		// Obtain the owner element and look for non-CSS presentational hints.
-		CSSElement elt = (CSSElement) style.getOwnerNode();
+		CSSElement elt = style.getOwnerNode();
 		ErrorHandler errHandler = elt.getOwnerDocument().getErrorHandler();
 		errHandler.resetComputedStyleErrors(elt);
 		if (elt.hasPresentationalHints()) {

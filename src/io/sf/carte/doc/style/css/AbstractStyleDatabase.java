@@ -127,7 +127,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		if (isFontFamilyAvailable(requestedFamily)) {
 			return true;
 		}
-		CSSCanvas canvas = ((CSSDocument) style.getOwnerNode().getOwnerDocument()).getCanvas();
+		CSSCanvas canvas = style.getOwnerNode().getOwnerDocument().getCanvas();
 		if (canvas != null) {
 			return canvas.isFontFaceName(requestedFamily);
 		}

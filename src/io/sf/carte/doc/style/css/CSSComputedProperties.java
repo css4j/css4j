@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Node;
 import org.w3c.dom.css.CSS2Properties;
 
 /**
@@ -126,7 +125,7 @@ public interface CSSComputedProperties extends CSS2Properties, NodeStyleDeclarat
 	 * @return the owner node.
 	 */
 	@Override
-	public Node getOwnerNode();
+	public CSSElement getOwnerNode();
 
 	/**
 	 * Gets the computed style for the parent element.
