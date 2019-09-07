@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.property;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 
 import org.w3c.css.sac.LexicalUnit;
@@ -23,6 +22,7 @@ import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.css.Counter;
 import org.w3c.dom.css.Rect;
 
+import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
@@ -246,10 +246,10 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 		switch (expr.getPartType()) {
 		case SUM:
 		case PRODUCT:
-			List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
-			Iterator<? extends CSSExpression> it = operands.iterator();
-			while (it.hasNext()) {
-				if (expressionContainsType(it.next(), primitiveType)) {
+			AlgebraicExpression ae = (AlgebraicExpression) expr;
+			int len = ae.getLength();
+			for (int i = 0; i < len; i++) {
+				if (expressionContainsType(ae.item(i), primitiveType)) {
 					return true;
 				}
 			}

@@ -17,13 +17,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.Test;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
@@ -85,18 +85,18 @@ public class CalcValueTest {
 		assertEquals("100%/3 - 2*1em - 2*1px", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		assertFalse(expr.isInverseOperation());
-		List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
-		assertEquals(3, operands.size());
-		CSSExpression op0 = operands.get(0);
+		AlgebraicExpression ae = (AlgebraicExpression) expr;
+		assertEquals(3, ae.getLength());
+		CSSExpression op0 = ae.item(0);
 		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, op0.getPartType());
 		assertEquals("100%/3", op0.toString());
 		assertFalse(op0.isInverseOperation());
-		List<? extends CSSExpression> op0erands = ((CSSExpression.AlgebraicExpression) op0).getOperands();
-		assertEquals(2, op0erands.size());
-		CSSExpression op01 = op0erands.get(1);
+		AlgebraicExpression op0erands = (AlgebraicExpression) op0;
+		assertEquals(2, op0erands.getLength());
+		CSSExpression op01 = op0erands.item(1);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op01.getPartType());
 		assertTrue(op01.isInverseOperation());
-		CSSExpression op1 = operands.get(1);
+		CSSExpression op1 = ae.item(1);
 		assertTrue(op1.isInverseOperation());
 		assertEquals("2*1em", op1.toString());
 		assertEquals("calc(100%/3 - 2*1em - 2*1px)", val.getCssText());
@@ -118,22 +118,22 @@ public class CalcValueTest {
 		assertEquals("1em + (0.4vw + 0.25vh)/2", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		assertFalse(expr.isInverseOperation());
-		List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
-		assertEquals(2, operands.size());
-		CSSExpression op0 = operands.get(0);
+		AlgebraicExpression operands = (AlgebraicExpression) expr;
+		assertEquals(2, operands.getLength());
+		CSSExpression op0 = operands.item(0);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op0.getPartType());
 		assertEquals("1em", op0.toString());
 		assertFalse(op0.isInverseOperation());
-		CSSExpression op1 = operands.get(1);
+		CSSExpression op1 = operands.item(1);
 		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, op1.getPartType());
 		assertFalse(op1.isInverseOperation());
-		List<? extends CSSExpression> op1erands = ((CSSExpression.AlgebraicExpression) op1).getOperands();
-		assertEquals(2, op1erands.size());
-		CSSExpression op10 = op1erands.get(0);
+		AlgebraicExpression op1erands = (AlgebraicExpression) op1;
+		assertEquals(2, op1erands.getLength());
+		CSSExpression op10 = op1erands.item(0);
 		assertEquals(CSSExpression.AlgebraicPart.SUM, op10.getPartType());
 		assertEquals("0.4vw + 0.25vh", op10.toString());
 		assertFalse(op10.isInverseOperation());
-		CSSExpression op11 = op1erands.get(1);
+		CSSExpression op11 = op1erands.item(1);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op11.getPartType());
 		assertTrue(op11.isInverseOperation());
 		assertEquals("2", op11.toString());
@@ -156,22 +156,22 @@ public class CalcValueTest {
 		assertEquals("1em - (0.4vw + 0.25vh)/2", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		assertFalse(expr.isInverseOperation());
-		List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
-		assertEquals(2, operands.size());
-		CSSExpression op0 = operands.get(0);
+		AlgebraicExpression operands = (AlgebraicExpression) expr;
+		assertEquals(2, operands.getLength());
+		CSSExpression op0 = operands.item(0);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op0.getPartType());
 		assertEquals("1em", op0.toString());
 		assertFalse(op0.isInverseOperation());
-		CSSExpression op1 = operands.get(1);
+		CSSExpression op1 = operands.item(1);
 		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, op1.getPartType());
 		assertTrue(op1.isInverseOperation());
-		List<? extends CSSExpression> op1erands = ((CSSExpression.AlgebraicExpression) op1).getOperands();
-		assertEquals(2, op1erands.size());
-		CSSExpression op10 = op1erands.get(0);
+		AlgebraicExpression op1erands = (AlgebraicExpression) op1;
+		assertEquals(2, op1erands.getLength());
+		CSSExpression op10 = op1erands.item(0);
 		assertEquals(CSSExpression.AlgebraicPart.SUM, op10.getPartType());
 		assertEquals("0.4vw + 0.25vh", op10.toString());
 		assertFalse(op10.isInverseOperation());
-		CSSExpression op11 = op1erands.get(1);
+		CSSExpression op11 = op1erands.item(1);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op11.getPartType());
 		assertTrue(op11.isInverseOperation());
 		assertEquals("2", op11.toString());
@@ -197,20 +197,20 @@ public class CalcValueTest {
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		SumExpression sum = (SumExpression) expr;
 		assertFalse(sum.inverseOperation);
-		assertEquals(4, sum.operands.size());
-		StyleExpression op0 = sum.operands.get(0);
+		assertEquals(4, sum.getLength());
+		StyleExpression op0 = sum.item(0);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op0.getPartType());
 		assertFalse(op0.inverseOperation);
 		assertEquals("20px", op0.getCssText());
-		StyleExpression op1 = sum.operands.get(1);
+		StyleExpression op1 = sum.item(1);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op1.getPartType());
 		assertFalse(op1.inverseOperation);
 		assertEquals("2vw", op1.getCssText());
-		StyleExpression op2 = sum.operands.get(2);
+		StyleExpression op2 = sum.item(2);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op2.getPartType());
 		assertFalse(op2.inverseOperation);
 		assertEquals("8.1%", op2.getCssText());
-		StyleExpression op3 = sum.operands.get(3);
+		StyleExpression op3 = sum.item(3);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op3.getPartType());
 		assertTrue(op3.inverseOperation);
 		assertEquals("2.1vw", op3.getCssText());
@@ -285,11 +285,11 @@ public class CalcValueTest {
 		CalcValue calc = (CalcValue) val;
 		StyleExpression expr = calc.getExpression();
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
-		List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
-		assertEquals(2, operands.size());
-		CSSExpression op2 = operands.get(1);
+		AlgebraicExpression operands = (AlgebraicExpression) expr;
+		assertEquals(2, operands.getLength());
+		CSSExpression op2 = operands.item(1);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op2.getPartType());
-		ExtendedCSSPrimitiveValue varop = ((CSSExpression.CSSOperandExpression) op2).getOperand();
+		ExtendedCSSPrimitiveValue varop = ((CSSOperandExpression) op2).getOperand();
 		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, varop.getPrimitiveType());
 		assertEquals("1em - var(--bar, 0.3rem)", expr.toString());
 		assertEquals("calc(1em - var(--bar, 0.3rem))", val.getCssText());
@@ -310,6 +310,19 @@ public class CalcValueTest {
 		assertEquals("-3em", calc.getExpression().toString());
 		assertEquals("calc(-3em)", val.getCssText());
 		assertEquals("calc(-3em)", val.getMinifiedCssText("width"));
+	}
+
+	@Test
+	public void testSetCssTextNegative2() {
+		NumberValue number1 = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 4);
+		OperandExpression op1 = OperandExpression.createOperand(number1);
+		NumberValue number2 = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, -1);
+		OperandExpression op2 = OperandExpression.createOperand(number2);
+		AlgebraicExpression sum = SumExpression.createSumExpression();
+		((StyleExpression) sum).addExpression(op1);
+		((StyleExpression) sum).addExpression(op2);
+		assertEquals("4 - 1", sum.getCssText());
+		assertEquals("4 - 1", sum.getMinifiedCssText());
 	}
 
 	@Test
@@ -533,9 +546,9 @@ public class CalcValueTest {
 		CalcValue calc = (CalcValue) val;
 		StyleExpression expr = calc.getExpression();
 		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, expr.getPartType());
-		List<StyleExpression> operands = ((ProductExpression) expr).getOperands();
-		assertEquals(2, operands.size());
-		assertEquals(CSSExpression.AlgebraicPart.SUM, operands.get(0).getPartType());
+		ProductExpression operands = (ProductExpression) expr;
+		assertEquals(2, operands.getLength());
+		assertEquals(CSSExpression.AlgebraicPart.SUM, operands.item(0).getPartType());
 		assertEquals("(-3em + 5%)*2", expr.toString());
 		assertEquals("calc((-3em + 5%)*2)", val.getCssText());
 		assertEquals("calc((-3em + 5%)*2)", val.getMinifiedCssText("width"));
@@ -588,7 +601,7 @@ public class CalcValueTest {
 		assertEquals(expr.getPartType(), clonexpr.getPartType());
 		SumExpression sum = (SumExpression) expr;
 		SumExpression clonesum = (SumExpression) clonexpr;
-		assertEquals(sum.getOperands().size(), clonesum.getOperands().size());
+		assertEquals(sum.getLength(), clonesum.getLength());
 		assertEquals(value.getCssText(), clon.getCssText());
 		assertTrue(value.equals(clon));
 	}

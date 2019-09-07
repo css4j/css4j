@@ -14,15 +14,16 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * An operand expression.
- * 
+ *
  * @see CSSExpression
  */
-public class OperandExpression extends StyleExpression implements CSSExpression.CSSOperandExpression {
+public class OperandExpression extends StyleExpression implements CSSOperandExpression {
 	ExtendedCSSPrimitiveValue operand = null;
 
 	OperandExpression() {
@@ -94,6 +95,12 @@ public class OperandExpression extends StyleExpression implements CSSExpression.
 	@Override
 	public OperandExpression clone() {
 		return new OperandExpression(this);
+	}
+
+	public static OperandExpression createOperand(ExtendedCSSPrimitiveValue operand) {
+		OperandExpression opexpr = new OperandExpression();
+		opexpr.setOperand(operand);
+		return opexpr;
 	}
 
 }

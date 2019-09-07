@@ -14,19 +14,19 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
+import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * A product expression.
- * 
+ *
  * @see CSSExpression
  */
-public class ProductExpression extends StyleExpression implements StyleExpression.AlgebraicExpression {
-	LinkedList<StyleExpression> operands = new LinkedList<StyleExpression>();
+public class ProductExpression extends StyleExpression implements AlgebraicExpression {
+	private LinkedList<CSSExpression> operands = new LinkedList<>();
 
 	ProductExpression() {
 		super();
@@ -34,7 +34,7 @@ public class ProductExpression extends StyleExpression implements StyleExpressio
 
 	ProductExpression(ProductExpression copyFrom) {
 		super(copyFrom);
-		Iterator<StyleExpression> it = copyFrom.operands.iterator();
+		Iterator<CSSExpression> it = copyFrom.operands.iterator();
 		while (it.hasNext()) {
 			this.operands.add(it.next().clone());
 		}
@@ -56,8 +56,17 @@ public class ProductExpression extends StyleExpression implements StyleExpressio
 	}
 
 	@Override
-	public List<StyleExpression> getOperands() {
-		return operands;
+	public CSSExpression item(int index) {
+		try {
+			return operands.get(index);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public int getLength() {
+		return operands.size();
 	}
 
 	@Override
@@ -111,7 +120,7 @@ public class ProductExpression extends StyleExpression implements StyleExpressio
 			return "";
 		}
 		StringBuilder buf = new StringBuilder(32);
-		Iterator<StyleExpression> it = operands.iterator();
+		Iterator<CSSExpression> it = operands.iterator();
 		CSSExpression expr = it.next();
 		if (expr.getPartType() == AlgebraicPart.SUM) {
 			buf.append('(').append(expr.getMinifiedCssText()).append(')');
@@ -136,11 +145,11 @@ public class ProductExpression extends StyleExpression implements StyleExpressio
 
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
-		Iterator<StyleExpression> it = operands.iterator();
+		Iterator<CSSExpression> it = operands.iterator();
 		if (!it.hasNext()) {
 			return;
 		}
-		StyleExpression expr = it.next();
+		CSSExpression expr = it.next();
 		if (expr.getPartType() == AlgebraicPart.SUM) {
 			wri.write('(');
 			expr.writeCssText(wri);
@@ -163,6 +172,10 @@ public class ProductExpression extends StyleExpression implements StyleExpressio
 				expr.writeCssText(wri);
 			}
 		}
+	}
+
+	public static AlgebraicExpression createProductExpression() {
+		return new ProductExpression();
 	}
 
 }

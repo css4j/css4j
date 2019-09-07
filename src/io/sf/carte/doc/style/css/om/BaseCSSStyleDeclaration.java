@@ -1270,10 +1270,12 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	private static boolean hasUnknown(CSSExpression expression) {
 		if (expression.getPartType() == CSSExpression.AlgebraicPart.OPERAND) {
-			return hasUnknown(((CSSExpression.CSSOperandExpression) expression).getOperand());
+			return hasUnknown(((CSSOperandExpression) expression).getOperand());
 		}
-		List<? extends CSSExpression> list = ((CSSExpression.AlgebraicExpression) expression).getOperands();
-		for (CSSExpression expr : list) {
+		AlgebraicExpression ae = (AlgebraicExpression) expression;
+		int len = ae.getLength();
+		for (int i = 0; i < len; i++) {
+			CSSExpression expr = ae.item(i);
 			if (hasUnknown(expr)) {
 				return true;
 			}

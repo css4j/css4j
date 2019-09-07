@@ -45,7 +45,7 @@ public class CalcValue extends ExpressionValue {
 			return true;
 		}
 		if (primi instanceof NumberValue) {
-			return (lastlutype != -1 && lastlutype != LexicalUnit.SAC_SUB_EXPRESSION && primi.isNegativeNumber());
+			return lastlutype != -1 && lastlutype != LexicalUnit.SAC_SUB_EXPRESSION && primi.isNegativeNumber();
 		}
 		return lutype != LexicalUnit.SAC_FUNCTION && lutype != LexicalUnit.SAC_ATTR;
 	}

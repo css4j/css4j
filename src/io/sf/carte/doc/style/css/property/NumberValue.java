@@ -74,6 +74,10 @@ public class NumberValue extends PrimitiveValue {
 
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
+		writeCssText(wri, realvalue);
+	}
+
+	void writeCssText(SimpleWriter wri, float realvalue) throws IOException {
 		boolean notaNumber = getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER;
 		if (realvalue == 0f && !notaNumber) {
 			wri.write('0');
@@ -106,8 +110,16 @@ public class NumberValue extends PrimitiveValue {
 		}
 	}
 
+	public void serializeAbsolute(SimpleWriter wri) throws IOException {
+		writeCssText(wri, Math.abs(realvalue));
+	}
+
 	@Override
 	public String getMinifiedCssText(String propertyName) {
+		return getMinifiedCssText(propertyName, realvalue);
+	}
+
+	private String getMinifiedCssText(String propertyName, float realvalue) {
 		boolean notaNumber = getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER;
 		if (realvalue == 0f && notaNumber && getPrimitiveType() != CSSPrimitiveValue.CSS_PERCENTAGE
 				&& isLengthUnitType()) {
@@ -149,6 +161,10 @@ public class NumberValue extends PrimitiveValue {
 		} else {
 			return "calc(-1/0)";
 		}
+	}
+
+	public String minifyAbsolute(String propertyName) {
+		return getMinifiedCssText(propertyName, Math.abs(realvalue));
 	}
 
 	private boolean isLengthUnitType() {

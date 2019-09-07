@@ -12,15 +12,15 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
-import io.sf.carte.doc.style.css.CSSExpression.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
+import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
@@ -445,7 +445,7 @@ public class Evaluator {
 
 	/**
 	 * Evaluate the given expression.
-	 * 
+	 *
 	 * @param expression the expression to evaluate.
 	 * @param resultUnit the result unit(s).
 	 * @return the result from evaluating the expression.
@@ -455,37 +455,37 @@ public class Evaluator {
 		float result;
 		switch (expression.getPartType()) {
 		case SUM:
-			AlgebraicExpression sum = (CSSExpression.AlgebraicExpression) expression;
-			result = sum(sum.getOperands(), resultUnit);
+			AlgebraicExpression sum = (AlgebraicExpression) expression;
+			result = sum(sum, resultUnit);
 			if (expression.getParentExpression() == null && expression.isInverseOperation()) {
 				result = -result;
 			}
 			break;
 		case PRODUCT:
-			AlgebraicExpression prod = (CSSExpression.AlgebraicExpression) expression;
-			result = multiply(prod.getOperands(), resultUnit);
+			AlgebraicExpression prod = (AlgebraicExpression) expression;
+			result = multiply(prod, resultUnit);
 			break;
 		default:
-			return evaluate(((CSSExpression.CSSOperandExpression) expression).getOperand(), resultUnit);
+			return evaluate(((CSSOperandExpression) expression).getOperand(), resultUnit);
 		}
 		NumberValue value = new NumberValue();
 		value.setFloatValue(resultUnit.getUnitType(), result);
 		return value;
 	}
 
-	private float sum(List<? extends CSSExpression> operands, Unit resultUnit) throws DOMException {
-		Iterator<? extends CSSExpression> it = operands.iterator();
-		if (!it.hasNext()) {
+	private float sum(AlgebraicExpression sumop, Unit resultUnit) throws DOMException {
+		int len = sumop.getLength();
+		if (len == 0) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Sum without operands.");
 		}
-		CSSExpression op = it.next();
+		CSSExpression op = sumop.item(0);
 		float result = floatValue(evaluateExpression(op, resultUnit), resultUnit);
 		if (op.isInverseOperation()) {
 			result = -result;
 		}
 		short firstUnit = resultUnit.getUnitType();
-		while (it.hasNext()) {
-			op = it.next();
+		for (int i = 1; i < len; i++) {
+			op = sumop.item(i);
 			float partial = floatValue(evaluateExpression(op, resultUnit), resultUnit);
 			short partialUnit = resultUnit.getUnitType();
 			if (firstUnit != partialUnit) {
@@ -501,13 +501,13 @@ public class Evaluator {
 		return result;
 	}
 
-	private float multiply(List<? extends CSSExpression> operands, Unit resultUnit) throws DOMException {
+	private float multiply(AlgebraicExpression product, Unit resultUnit) throws DOMException {
 		float result = 1f;
 		short firstUnit = CSSPrimitiveValue.CSS_NUMBER;
 		int unitExp = 0;
-		Iterator<? extends CSSExpression> it = operands.iterator();
-		while (it.hasNext()) {
-			CSSExpression op = it.next();
+		int len = product.getLength();
+		for (int i = 0; i < len; i++) {
+			CSSExpression op = product.item(i);
 			ExtendedCSSPrimitiveValue partialValue = evaluateExpression(op, resultUnit);
 			float partial = floatValue(partialValue, resultUnit);
 			short partialUnit = resultUnit.getUnitType();

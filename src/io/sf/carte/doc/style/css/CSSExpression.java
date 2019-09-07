@@ -1,15 +1,17 @@
 /*
- * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
- * 
- * Copyright © 2018 Carlos Amengual.
- * 
- * SPDX-License-Identifier: W3C-20150513
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://css4j.github.io/LICENSE.txt
+
  */
 
 package io.sf.carte.doc.style.css;
 
 import java.io.IOException;
-import java.util.List;
 
 import io.sf.carte.util.SimpleWriter;
 
@@ -86,27 +88,10 @@ public interface CSSExpression {
 	AlgebraicPart getPartType();
 
 	/**
-	 * Sub-interface to be implemented by operations like sum or product.
+	 * Create and return a copy of this object.
+	 *
+	 * @return a copy of this object.
 	 */
-	public interface AlgebraicExpression extends CSSExpression {
-		/**
-		 * Retrieve the operands.
-		 * 
-		 * @return the list of operands.
-		 */
-		public List<? extends CSSExpression> getOperands();
-	}
-
-	/**
-	 * Sub-interface to be implemented by individual operands.
-	 */
-	public interface CSSOperandExpression extends CSSExpression {
-		/**
-		 * Retrieve the operand.
-		 * 
-		 * @return the primitive operand.
-		 */
-		public ExtendedCSSPrimitiveValue getOperand();
-	}
+	CSSExpression clone();
 
 }

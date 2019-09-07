@@ -14,19 +14,21 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
+import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSOperandExpression;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * A sum expression.
- * 
+ *
  * @see CSSExpression
  */
-public class SumExpression extends StyleExpression implements StyleExpression.AlgebraicExpression {
-	LinkedList<StyleExpression> operands = new LinkedList<StyleExpression>();
+public class SumExpression extends StyleExpression implements AlgebraicExpression {
+	private LinkedList<StyleExpression> operands = new LinkedList<>();
 
 	SumExpression() {
 		super();
@@ -64,8 +66,17 @@ public class SumExpression extends StyleExpression implements StyleExpression.Al
 	}
 
 	@Override
-	public List<StyleExpression> getOperands() {
-		return operands;
+	public StyleExpression item(int index) {
+		try {
+			return operands.get(index);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public int getLength() {
+		return operands.size();
 	}
 
 	@Override
@@ -113,15 +124,33 @@ public class SumExpression extends StyleExpression implements StyleExpression.Al
 		if (operands.isEmpty()) {
 			return "";
 		}
-		boolean parens = false;
 		StringBuilder buf = new StringBuilder(32);
 		Iterator<StyleExpression> it = operands.iterator();
 		CSSExpression expr = it.next();
+		appendMinifiedFirstExpression(expr, buf);
+		while (it.hasNext()) {
+			expr = it.next();
+			appendMinifiedExpression(expr, buf);
+		}
+		return buf.toString();
+	}
+
+	private void appendMinifiedFirstExpression(CSSExpression expr, StringBuilder buf) {
+		boolean parens = false;
 		if (expr.isInverseOperation()) {
 			if (expr.getPartType() == AlgebraicPart.SUM) {
 				buf.append(" - (");
 				parens = true;
 			} else {
+				if (expr.getPartType() == AlgebraicPart.OPERAND) {
+					ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+					NumberValue number;
+					if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+						buf.append(" + ");
+						buf.append(number.minifyAbsolute(""));
+						return;
+					}
+				}
 				buf.append(" - ");
 			}
 		}
@@ -129,11 +158,6 @@ public class SumExpression extends StyleExpression implements StyleExpression.Al
 		if (parens) {
 			buf.append(')');
 		}
-		while (it.hasNext()) {
-			expr = it.next();
-			appendMinifiedExpression(expr, buf);
-		}
-		return buf.toString();
 	}
 
 	private void appendMinifiedExpression(CSSExpression expr, StringBuilder buf) {
@@ -144,9 +168,27 @@ public class SumExpression extends StyleExpression implements StyleExpression.Al
 				buf.append(" - (");
 				parens = true;
 			} else {
+				if (expr.getPartType() == AlgebraicPart.OPERAND) {
+					ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+					NumberValue number;
+					if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+						buf.append(" + ");
+						buf.append(number.minifyAbsolute(""));
+						return;
+					}
+				}
 				buf.append(" - ");
 			}
 		} else {
+			if (expr.getPartType() == AlgebraicPart.OPERAND) {
+				ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+				NumberValue number;
+				if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+					buf.append(" - ");
+					buf.append(number.minifyAbsolute(""));
+					return;
+				}
+			}
 			buf.append(" + ");
 		}
 		buf.append(expr.getMinifiedCssText());
@@ -158,25 +200,38 @@ public class SumExpression extends StyleExpression implements StyleExpression.Al
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
 		if (!operands.isEmpty()) {
-			boolean parens = false;
 			Iterator<StyleExpression> it = operands.iterator();
 			StyleExpression expr = it.next();
-			if (expr.isInverseOperation()) {
-				if (expr.getPartType() == AlgebraicPart.SUM) {
-					wri.write(" - (");
-					parens = true;
-				} else {
-					wri.write(" - ");
-				}
-			}
-			expr.writeCssText(wri);
-			if (parens) {
-				wri.write(')');
-			}
+			writeFirstExpression(expr, wri);
 			while (it.hasNext()) {
 				expr = it.next();
 				writeExpression(expr, wri);
 			}
+		}
+	}
+
+	private void writeFirstExpression(StyleExpression expr, SimpleWriter wri) throws IOException {
+		boolean parens = false;
+		if (expr.isInverseOperation()) {
+			if (expr.getPartType() == AlgebraicPart.SUM) {
+				wri.write(" - (");
+				parens = true;
+			} else {
+				if (expr.getPartType() == AlgebraicPart.OPERAND) {
+					ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+					NumberValue number;
+					if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+						wri.write(" + ");
+						number.serializeAbsolute(wri);
+						return;
+					}
+				}
+				wri.write(" - ");
+			}
+		}
+		expr.writeCssText(wri);
+		if (parens) {
+			wri.write(')');
 		}
 	}
 
@@ -188,9 +243,27 @@ public class SumExpression extends StyleExpression implements StyleExpression.Al
 				wri.write(" - (");
 				parens = true;
 			} else {
+				if (expr.getPartType() == AlgebraicPart.OPERAND) {
+					ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+					NumberValue number;
+					if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+						wri.write(" + ");
+						number.serializeAbsolute(wri);
+						return;
+					}
+				}
 				wri.write(" - ");
 			}
 		} else {
+			if (expr.getPartType() == AlgebraicPart.OPERAND) {
+				ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+				NumberValue number;
+				if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+					wri.write(" - ");
+					number.serializeAbsolute(wri);
+					return;
+				}
+			}
 			wri.write(" + ");
 		}
 		expr.writeCssText(wri);
@@ -204,5 +277,8 @@ public class SumExpression extends StyleExpression implements StyleExpression.Al
 		return new SumExpression(this);
 	}
 
-}
+	public static AlgebraicExpression createSumExpression() {
+		return new SumExpression();
+	}
 
+}

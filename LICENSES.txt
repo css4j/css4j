@@ -18,7 +18,6 @@ license information):
  File: src/io/sf/carte/doc/style/css/CSSConditionRule.java
  File: src/io/sf/carte/doc/style/css/CSSCounterStyleRule.java
  File: src/io/sf/carte/doc/style/css/CSSDeclarationRule.java
- File: src/io/sf/carte/doc/style/css/CSSExpression.java
  File: src/io/sf/carte/doc/style/css/CSSFontFeatureValuesMap.java
  File: src/io/sf/carte/doc/style/css/CSSFontFeatureValuesRule.java
  File: src/io/sf/carte/doc/style/css/CSSGroupingRule.java

@@ -28,6 +28,7 @@ import org.w3c.dom.css.CSSValueList;
 
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.Viewport;
+import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
@@ -40,9 +41,6 @@ import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.StyleExpression;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.AttrValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
@@ -54,8 +52,11 @@ import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.OperandExpression;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StringValue;
+import io.sf.carte.doc.style.css.property.StyleExpression;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.URIValueWrapper;
@@ -477,10 +478,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		switch (expr.getPartType()) {
 		case SUM:
 		case PRODUCT:
-			List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
-			Iterator<? extends CSSExpression> it = operands.iterator();
-			while (it.hasNext()) {
-				absoluteExpressionValue(propertyName, it.next(), useParentStyle);
+			AlgebraicExpression ae = (AlgebraicExpression) expr;
+			int len = ae.getLength();
+			for (int i = 0; i < len; i++) {
+				CSSExpression op = ae.item(i);
+				absoluteExpressionValue(propertyName, op, useParentStyle);
 			}
 			break;
 		case OPERAND:
@@ -1450,7 +1452,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				 * "parent node is document"), then constrain 'display'
 				 */
 				if (!"none".equalsIgnoreCase(floatProp)
-						|| ((node = getOwnerNode()).getParentNode() == node.getOwnerDocument())) {
+						|| (node = getOwnerNode()).getParentNode() == node.getOwnerDocument()) {
 					computedValue = computeConstrainedDisplay(value);
 				}
 			}
@@ -1461,7 +1463,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	/**
 	 * Table of computed values of 'display' property, per CSS spec, sect. 9.7.
-	 * 
+	 *
 	 * @param value
 	 *            the value to constrain.
 	 * @return the constrained value.
