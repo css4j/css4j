@@ -25,8 +25,8 @@ import io.sf.carte.util.SimpleWriter;
  * 
  * @see CSSExpression.AlgebraicExpression
  */
-public class ProductExpression extends AbstractCSSExpression implements AbstractCSSExpression.AlgebraicExpression {
-	LinkedList<AbstractCSSExpression> operands = new LinkedList<AbstractCSSExpression>();
+public class ProductExpression extends StyleExpression implements StyleExpression.AlgebraicExpression {
+	LinkedList<StyleExpression> operands = new LinkedList<StyleExpression>();
 
 	ProductExpression() {
 		super();
@@ -34,15 +34,15 @@ public class ProductExpression extends AbstractCSSExpression implements Abstract
 
 	ProductExpression(ProductExpression copyFrom) {
 		super(copyFrom);
-		Iterator<AbstractCSSExpression> it = copyFrom.operands.iterator();
+		Iterator<StyleExpression> it = copyFrom.operands.iterator();
 		while (it.hasNext()) {
 			this.operands.add(it.next().clone());
 		}
 	}
 
 	@Override
-	void addExpression(AbstractCSSExpression expr) {
-		AbstractCSSExpression oparent = expr.getParentExpression();
+	void addExpression(StyleExpression expr) {
+		StyleExpression oparent = expr.getParentExpression();
 		if (oparent != null && oparent.getPartType() == AlgebraicPart.SUM) {
 			oparent.replaceLastExpression(this);
 		} else {
@@ -56,7 +56,7 @@ public class ProductExpression extends AbstractCSSExpression implements Abstract
 	}
 
 	@Override
-	public List<AbstractCSSExpression> getOperands() {
+	public List<StyleExpression> getOperands() {
 		return operands;
 	}
 
@@ -111,7 +111,7 @@ public class ProductExpression extends AbstractCSSExpression implements Abstract
 			return "";
 		}
 		StringBuilder buf = new StringBuilder(32);
-		Iterator<AbstractCSSExpression> it = operands.iterator();
+		Iterator<StyleExpression> it = operands.iterator();
 		CSSExpression expr = it.next();
 		if (expr.getPartType() == AlgebraicPart.SUM) {
 			buf.append('(').append(expr.getMinifiedCssText()).append(')');
@@ -136,11 +136,11 @@ public class ProductExpression extends AbstractCSSExpression implements Abstract
 
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
-		Iterator<AbstractCSSExpression> it = operands.iterator();
+		Iterator<StyleExpression> it = operands.iterator();
 		if (!it.hasNext()) {
 			return;
 		}
-		AbstractCSSExpression expr = it.next();
+		StyleExpression expr = it.next();
 		if (expr.getPartType() == AlgebraicPart.SUM) {
 			wri.write('(');
 			expr.writeCssText(wri);

@@ -25,8 +25,8 @@ import io.sf.carte.util.SimpleWriter;
  * 
  * @see CSSExpression.AlgebraicExpression
  */
-public class SumExpression extends AbstractCSSExpression implements AbstractCSSExpression.AlgebraicExpression {
-	LinkedList<AbstractCSSExpression> operands = new LinkedList<AbstractCSSExpression>();
+public class SumExpression extends StyleExpression implements StyleExpression.AlgebraicExpression {
+	LinkedList<StyleExpression> operands = new LinkedList<StyleExpression>();
 
 	SumExpression() {
 		super();
@@ -34,14 +34,14 @@ public class SumExpression extends AbstractCSSExpression implements AbstractCSSE
 
 	SumExpression(SumExpression copyFrom) {
 		super();
-		Iterator<AbstractCSSExpression> it = copyFrom.operands.iterator();
+		Iterator<StyleExpression> it = copyFrom.operands.iterator();
 		while (it.hasNext()) {
 			this.operands.add(it.next().clone());
 		}
 	}
 
 	@Override
-	void addExpression(AbstractCSSExpression expr) {
+	void addExpression(StyleExpression expr) {
 		operands.add(expr);
 		expr.setParentExpression(this);
 		if (nextOperandInverse) {
@@ -51,8 +51,8 @@ public class SumExpression extends AbstractCSSExpression implements AbstractCSSE
 	}
 
 	@Override
-	void replaceLastExpression(AbstractCSSExpression operation) {
-		AbstractCSSExpression lastexpr = operands.removeLast();
+	void replaceLastExpression(StyleExpression operation) {
+		StyleExpression lastexpr = operands.removeLast();
 		if (lastexpr.isInverseOperation()) {
 			lastexpr.setInverseOperation(false);
 			operation.setInverseOperation(true);
@@ -64,7 +64,7 @@ public class SumExpression extends AbstractCSSExpression implements AbstractCSSE
 	}
 
 	@Override
-	public List<AbstractCSSExpression> getOperands() {
+	public List<StyleExpression> getOperands() {
 		return operands;
 	}
 
@@ -115,7 +115,7 @@ public class SumExpression extends AbstractCSSExpression implements AbstractCSSE
 		}
 		boolean parens = false;
 		StringBuilder buf = new StringBuilder(32);
-		Iterator<AbstractCSSExpression> it = operands.iterator();
+		Iterator<StyleExpression> it = operands.iterator();
 		CSSExpression expr = it.next();
 		if (expr.isInverseOperation()) {
 			if (expr.getPartType() == AlgebraicPart.SUM) {
@@ -159,8 +159,8 @@ public class SumExpression extends AbstractCSSExpression implements AbstractCSSE
 	public void writeCssText(SimpleWriter wri) throws IOException {
 		if (!operands.isEmpty()) {
 			boolean parens = false;
-			Iterator<AbstractCSSExpression> it = operands.iterator();
-			AbstractCSSExpression expr = it.next();
+			Iterator<StyleExpression> it = operands.iterator();
+			StyleExpression expr = it.next();
 			if (expr.isInverseOperation()) {
 				if (expr.getPartType() == AlgebraicPart.SUM) {
 					wri.write(" - (");
@@ -180,7 +180,7 @@ public class SumExpression extends AbstractCSSExpression implements AbstractCSSE
 		}
 	}
 
-	private void writeExpression(AbstractCSSExpression expr, SimpleWriter wri) throws IOException {
+	private void writeExpression(StyleExpression expr, SimpleWriter wri) throws IOException {
 		boolean parens = false;
 		// 8.1.1. "white space is required on both sides of the + and - operators."
 		if (expr.isInverseOperation()) {

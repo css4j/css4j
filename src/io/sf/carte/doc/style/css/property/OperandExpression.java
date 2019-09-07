@@ -22,7 +22,7 @@ import io.sf.carte.util.SimpleWriter;
  * 
  * @see CSSExpression.CSSOperandExpression
  */
-public class OperandExpression extends AbstractCSSExpression implements CSSExpression.CSSOperandExpression {
+public class OperandExpression extends StyleExpression implements CSSExpression.CSSOperandExpression {
 	ExtendedCSSPrimitiveValue operand = null;
 
 	OperandExpression() {
@@ -35,7 +35,7 @@ public class OperandExpression extends AbstractCSSExpression implements CSSExpre
 	}
 
 	@Override
-	void addExpression(AbstractCSSExpression expr) {
+	void addExpression(StyleExpression expr) {
 	}
 
 	@Override

@@ -30,7 +30,7 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExpressionValue {
 
-	private AbstractCSSExpression expression = null;
+	private StyleExpression expression = null;
 
 	public ExpressionValue() {
 		super(CSSPrimitiveValue2.CSS_EXPRESSION);
@@ -61,11 +61,11 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 			}
 		}
 	
-		private AbstractCSSExpression fillExpressionLevel(LexicalUnit lu, ValueFactory factory) {
-			AbstractCSSExpression expression = null;
+		private StyleExpression fillExpressionLevel(LexicalUnit lu, ValueFactory factory) {
+			StyleExpression expression = null;
 			short lastlutype = -1;
 			while (lu != null) {
-				AbstractCSSExpression operation;
+				StyleExpression operation;
 				boolean inverse = false;
 				short lutype = lu.getLexicalUnitType();
 				switch (lutype) {
@@ -87,7 +87,7 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 					} else if (expression.getPartType() == AlgebraicPart.SUM) {
 						expression.nextOperandInverse = inverse;
 					} else { // product
-						AbstractCSSExpression parent = expression.getParentExpression();
+						StyleExpression parent = expression.getParentExpression();
 						if (parent == null) {
 							operation = new SumExpression();
 							operation.addExpression(expression);
@@ -128,7 +128,7 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 					if (subval == null) {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Empty sub-expression");
 					}
-					AbstractCSSExpression subexpr = fillExpressionLevel(subval, factory);
+					StyleExpression subexpr = fillExpressionLevel(subval, factory);
 					if (subexpr != null) {
 						if (expression != null) {
 							expression.addExpression(subexpr);
@@ -194,7 +194,7 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 		}
 	}
 
-	private AbstractCSSExpression addOperand(AbstractCSSExpression expression, OperandExpression operand) {
+	private StyleExpression addOperand(StyleExpression expression, OperandExpression operand) {
 		if (expression == null) {
 			expression = operand;
 		} else {
@@ -226,7 +226,7 @@ public class ExpressionValue extends AbstractCSSPrimitiveValue implements CSSExp
 	}
 
 	@Override
-	public AbstractCSSExpression getExpression() {
+	public StyleExpression getExpression() {
 		return expression;
 	}
 

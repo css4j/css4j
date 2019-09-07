@@ -81,7 +81,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals("100%/3 - 2*1em - 2*1px", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		assertFalse(expr.isInverseOperation());
@@ -114,7 +114,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals("1em + (0.4vw + 0.25vh)/2", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		assertFalse(expr.isInverseOperation());
@@ -152,7 +152,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals("1em - (0.4vw + 0.25vh)/2", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		assertFalse(expr.isInverseOperation());
@@ -190,7 +190,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw + 8.1% - 2.1vw", expr.toString());
 		assertEquals("calc(20px + 2vw + 8.1% - 2.1vw)", val.getCssText());
 		assertEquals("calc(20px + 2vw + 8.1% - 2.1vw)", val.getMinifiedCssText("left"));
@@ -198,19 +198,19 @@ public class CalcValueTest {
 		SumExpression sum = (SumExpression) expr;
 		assertFalse(sum.inverseOperation);
 		assertEquals(4, sum.operands.size());
-		AbstractCSSExpression op0 = sum.operands.get(0);
+		StyleExpression op0 = sum.operands.get(0);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op0.getPartType());
 		assertFalse(op0.inverseOperation);
 		assertEquals("20px", op0.getCssText());
-		AbstractCSSExpression op1 = sum.operands.get(1);
+		StyleExpression op1 = sum.operands.get(1);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op1.getPartType());
 		assertFalse(op1.inverseOperation);
 		assertEquals("2vw", op1.getCssText());
-		AbstractCSSExpression op2 = sum.operands.get(2);
+		StyleExpression op2 = sum.operands.get(2);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op2.getPartType());
 		assertFalse(op2.inverseOperation);
 		assertEquals("8.1%", op2.getCssText());
-		AbstractCSSExpression op3 = sum.operands.get(3);
+		StyleExpression op3 = sum.operands.get(3);
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op3.getPartType());
 		assertTrue(op3.inverseOperation);
 		assertEquals("2.1vw", op3.getCssText());
@@ -229,7 +229,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw + 8.1% - 2.1vw", expr.toString());
 		assertEquals("calc(20px + 2vw + 8.1% - 2.1vw)", val.getCssText());
 		assertEquals("calc(20px + 2vw + 8.1% - 2.1vw)", val.getMinifiedCssText("left"));
@@ -247,7 +247,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw - (8.1% - 2.1vw)", expr.toString());
 		assertEquals("calc(20px + 2vw - (8.1% - 2.1vw))", val.getCssText());
 		assertEquals("calc(20px + 2vw - (8.1% - 2.1vw))", val.getMinifiedCssText("left"));
@@ -265,7 +265,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals("20px + 2*(8.1% - 2.1vw)", expr.toString());
 		assertEquals("calc(20px + 2*(8.1% - 2.1vw))", val.getCssText());
 		assertEquals("calc(20px + 2*(8.1% - 2.1vw))", val.getMinifiedCssText("left"));
@@ -283,7 +283,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		List<? extends CSSExpression> operands = ((CSSExpression.AlgebraicExpression) expr).getOperands();
 		assertEquals(2, operands.size());
@@ -531,9 +531,9 @@ public class CalcValueTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
 		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
-		AbstractCSSExpression expr = calc.getExpression();
+		StyleExpression expr = calc.getExpression();
 		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, expr.getPartType());
-		List<AbstractCSSExpression> operands = ((ProductExpression) expr).getOperands();
+		List<StyleExpression> operands = ((ProductExpression) expr).getOperands();
 		assertEquals(2, operands.size());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, operands.get(0).getPartType());
 		assertEquals("(-3em + 5%)*2", expr.toString());

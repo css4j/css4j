@@ -40,7 +40,7 @@ import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.AbstractCSSExpression;
+import io.sf.carte.doc.style.css.property.StyleExpression;
 import io.sf.carte.doc.style.css.property.AbstractCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.AbstractCSSValue;
 import io.sf.carte.doc.style.css.property.AttrValue;
@@ -283,7 +283,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			short type = pri.getPrimitiveType();
 			if (type == CSSPrimitiveValue2.CSS_EXPRESSION) {
 				pri = pri.clone();
-				AbstractCSSExpression expr = ((ExpressionValue) pri).getExpression();
+				StyleExpression expr = ((ExpressionValue) pri).getExpression();
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
 					pri = (AbstractCSSPrimitiveValue) ev.evaluateExpression(expr);
@@ -983,7 +983,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_EXPRESSION:
 			cssSize = cssSize.clone();
-			AbstractCSSExpression expr = ((ExpressionValue) cssSize).getExpression();
+			StyleExpression expr = ((ExpressionValue) cssSize).getExpression();
 			absoluteExpressionValue("font-size", expr, true);
 			Evaluator ev = new FontEvaluator();
 			try {

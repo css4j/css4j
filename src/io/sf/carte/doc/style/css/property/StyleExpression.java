@@ -19,36 +19,36 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Abstract base class for CSS expressions.
  */
-abstract public class AbstractCSSExpression implements CSSExpression {
+abstract public class StyleExpression implements CSSExpression {
 
-	AbstractCSSExpression parent = null;
+	StyleExpression parent = null;
 	boolean inverseOperation = false;
 	transient boolean nextOperandInverse = false;
 
-	AbstractCSSExpression() {
+	StyleExpression() {
 		super();
 	}
 
-	AbstractCSSExpression(AbstractCSSExpression copyFrom) {
+	StyleExpression(StyleExpression copyFrom) {
 		super();
 		this.parent = copyFrom.parent;
 		this.inverseOperation = copyFrom.inverseOperation;
 	}
 
 	@Override
-	public AbstractCSSExpression getParentExpression() {
+	public StyleExpression getParentExpression() {
 		return parent;
 	}
 
-	void replaceLastExpression(AbstractCSSExpression operation) {
+	void replaceLastExpression(StyleExpression operation) {
 		throw new IllegalStateException();
 	}
 
-	void setParentExpression(AbstractCSSExpression parent) {
+	void setParentExpression(StyleExpression parent) {
 		this.parent = parent;
 	}
 
-	abstract void addExpression(AbstractCSSExpression expr);
+	abstract void addExpression(StyleExpression expr);
 
 	void setInverseOperation(boolean inverse) {
 		inverseOperation = inverse;
@@ -70,9 +70,9 @@ abstract public class AbstractCSSExpression implements CSSExpression {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(this instanceof AbstractCSSExpression))
+		if (!(this instanceof StyleExpression))
 			return false;
-		AbstractCSSExpression other = (AbstractCSSExpression) obj;
+		StyleExpression other = (StyleExpression) obj;
 		if (getPartType() != other.getPartType())
 			return false;
 		if (inverseOperation != other.inverseOperation)
@@ -91,7 +91,7 @@ abstract public class AbstractCSSExpression implements CSSExpression {
 	}
 
 	@Override
-	abstract public AbstractCSSExpression clone();
+	abstract public StyleExpression clone();
 
 	@Override
 	abstract public String getCssText();
