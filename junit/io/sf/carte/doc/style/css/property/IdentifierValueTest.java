@@ -34,6 +34,10 @@ public class IdentifierValueTest {
 		IdentifierValue value = new IdentifierValue("scroll");
 		assertEquals("scroll", value.getStringValue());
 		assertEquals("scroll", value.getCssText());
+		assertFalse(value.isCalculatedNumber());
+		assertFalse(value.isNegativeNumber());
+		assertFalse(value.isNumberZero());
+		assertFalse(value.isSystemDefault());
 	}
 
 	@Test

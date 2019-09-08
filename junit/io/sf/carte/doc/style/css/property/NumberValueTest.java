@@ -26,33 +26,63 @@ import io.sf.carte.doc.style.css.om.StyleRule;
 public class NumberValueTest {
 
 	@Test
-	public void testGetCssText() {
+	public void testVarious() {
 		NumberValue val = new NumberValue();
 		val.setFloatValue(CSSPrimitiveValue.CSS_PX, 5f);
 		assertEquals("5px", val.getCssText());
+		assertEquals("5px", val.getMinifiedCssText(null));
+		assertFalse(val.isCalculatedNumber());
+		assertFalse(val.isNumberZero());
+		assertFalse(val.isNegativeNumber());
+		//
 		val.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, 5f);
 		assertEquals("5", val.getCssText());
+		assertEquals("5", val.getMinifiedCssText(null));
+		assertFalse(val.isCalculatedNumber());
+		assertFalse(val.isNumberZero());
+		assertFalse(val.isNegativeNumber());
+		//
 		val.setFloatValue(CSSPrimitiveValue.CSS_PX, 0f);
 		assertEquals("0px", val.getCssText());
-	}
-
-	@Test
-	public void testGetMinifiedCssText() {
-		NumberValue val = new NumberValue();
-		val.setFloatValue(CSSPrimitiveValue.CSS_PX, 5f);
-		assertEquals("5px", val.getMinifiedCssText(null));
-		val.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, 5f);
-		assertEquals("5", val.getMinifiedCssText(null));
-		val.setFloatValue(CSSPrimitiveValue.CSS_PX, 0f);
 		assertEquals("0", val.getMinifiedCssText(null));
+		assertFalse(val.isCalculatedNumber());
+		assertTrue(val.isNumberZero());
+		assertFalse(val.isNegativeNumber());
+		//
+		val.setFloatValue(CSSPrimitiveValue.CSS_PX, -5f);
+		assertEquals("-5px", val.getCssText());
+		assertEquals("-5px", val.getMinifiedCssText(null));
+		assertFalse(val.isCalculatedNumber());
+		assertFalse(val.isNumberZero());
+		assertTrue(val.isNegativeNumber());
+		//
 		val.setFloatValue(CSSPrimitiveValue.CSS_PX, 0.1f);
+		assertEquals("0.1px", val.getCssText());
 		assertEquals(".1px", val.getMinifiedCssText(null));
+		assertFalse(val.isCalculatedNumber());
+		assertFalse(val.isNumberZero());
+		assertFalse(val.isNegativeNumber());
+		//
 		val.setFloatValue(CSSPrimitiveValue.CSS_PX, -0.1f);
+		assertEquals("-0.1px", val.getCssText());
 		assertEquals("-.1px", val.getMinifiedCssText(null));
+		assertFalse(val.isCalculatedNumber());
+		assertFalse(val.isNumberZero());
+		assertTrue(val.isNegativeNumber());
+		//
 		val.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, 0.1f);
+		assertEquals("0.1", val.getCssText());
 		assertEquals(".1", val.getMinifiedCssText(null));
+		assertFalse(val.isCalculatedNumber());
+		assertFalse(val.isNumberZero());
+		assertFalse(val.isNegativeNumber());
+		//
 		val.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, -0.1f);
+		assertEquals("-0.1", val.getCssText());
 		assertEquals("-.1", val.getMinifiedCssText(null));
+		assertFalse(val.isCalculatedNumber());
+		assertFalse(val.isNumberZero());
+		assertTrue(val.isNegativeNumber());
 	}
 
 	@Test
@@ -246,6 +276,21 @@ public class NumberValueTest {
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getFloatValue(CSSPrimitiveValue.CSS_PX), clon.getFloatValue(CSSPrimitiveValue.CSS_PX), 1e-8);
 		assertEquals(value.getCssText(), clon.getCssText());
+		assertFalse(clon.isCalculatedNumber());
+		assertTrue(value.equals(clon));
+	}
+
+	@Test
+	public void testCloneCalculated() {
+		NumberValue value = new NumberValue();
+		value.setFloatValue(CSSPrimitiveValue.CSS_PX, 5f);
+		value.setCalculatedNumber(true);
+		NumberValue clon = value.clone();
+		assertEquals(value.getCssValueType(), clon.getCssValueType());
+		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
+		assertEquals(value.getFloatValue(CSSPrimitiveValue.CSS_PX), clon.getFloatValue(CSSPrimitiveValue.CSS_PX), 1e-8);
+		assertEquals(value.getCssText(), clon.getCssText());
+		assertTrue(clon.isCalculatedNumber());
 		assertTrue(value.equals(clon));
 	}
 

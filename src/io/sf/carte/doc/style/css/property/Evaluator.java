@@ -470,6 +470,7 @@ public class Evaluator {
 		}
 		NumberValue value = new NumberValue();
 		value.setFloatValue(resultUnit.getUnitType(), result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 

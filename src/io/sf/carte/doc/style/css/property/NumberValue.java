@@ -36,6 +36,8 @@ public class NumberValue extends PrimitiveValue {
 
 	boolean lengthUnitType = false;
 
+	private boolean calculated = false;
+
 	public NumberValue() {
 		super();
 	}
@@ -44,8 +46,9 @@ public class NumberValue extends PrimitiveValue {
 		super(copied);
 		this.realvalue = copied.realvalue;
 		this.asInteger = copied.asInteger;
-		this.dimensionUnitText = copied.dimensionUnitText;
+		this.calculated = copied.calculated;
 		this.lengthUnitType = copied.lengthUnitType;
+		this.dimensionUnitText = copied.dimensionUnitText;
 	}
 
 	@Override
@@ -209,7 +212,16 @@ public class NumberValue extends PrimitiveValue {
 	}
 
 	@Override
-	boolean isNegativeNumber() {
+	public boolean isCalculatedNumber() {
+		return calculated ;
+	}
+
+	void setCalculatedNumber(boolean calculated) {
+		this.calculated = calculated;
+	}
+
+	@Override
+	public boolean isNegativeNumber() {
 		return realvalue < 0f;
 	}
 

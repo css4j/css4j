@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -48,11 +49,11 @@ public class EvaluatorTest {
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		Unit unit = new Unit();
-		assertEquals(24f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
-				1e-5);
+		ExtendedCSSPrimitiveValue number = evaluator.evaluateExpression(val.getExpression(), unit);
+		assertEquals(24f, number.getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-5);
 		assertEquals(0, unit.getExponent());
 		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+		assertTrue(number.isCalculatedNumber());
 	}
 
 	@Test
@@ -184,6 +185,110 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.04115f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcPrecedence1() {
+		style.setCssText("foo: calc(7 + 2*4)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(15f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcPrecedence2() {
+		style.setCssText("foo: calc(7 + 4/2)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(9f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcPrecedence3() {
+		style.setCssText("foo: calc(9 - 2*4)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(1f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcPrecedence4() {
+		style.setCssText("foo: calc(9 - 4/2)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(7f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcPrecedence5() {
+		style.setCssText("foo: calc(2*4 + 7)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(15f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcPrecedence6() {
+		style.setCssText("foo: calc(4/2 + 7)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(9f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcPrecedence7() {
+		style.setCssText("foo: calc(2*4 - 7)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(1f,
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				1e-5);
+		assertEquals(0, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+	}
+
+	@Test
+	public void testCalcPrecedence8() {
+		style.setCssText("foo: calc(9/3 - 1)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		Unit unit = new Unit();
+		assertEquals(2f,
 				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
 				1e-5);
 		assertEquals(0, unit.getExponent());

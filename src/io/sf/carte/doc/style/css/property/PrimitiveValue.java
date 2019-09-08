@@ -150,7 +150,13 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 		this.primitiveType = cssUnitType;
 	}
 
-	boolean isNegativeNumber() {
+	@Override
+	public boolean isCalculatedNumber() {
+		return false;
+	}
+
+	@Override
+	public boolean isNegativeNumber() {
 		return false;
 	}
 

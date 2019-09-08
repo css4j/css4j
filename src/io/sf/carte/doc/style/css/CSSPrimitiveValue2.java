@@ -206,4 +206,22 @@ public interface CSSPrimitiveValue2 extends CSSPrimitiveValue {
 	 */
 	@Override RGBAColor getRGBColorValue() throws DOMException;
 
+	/**
+	 * Test whether this is a numeric value that was the result of a
+	 * <code>calc()</code> expression.
+	 * 
+	 * @return <code>true</code> if this is a numeric value, and it was produced as
+	 *         the output of a calculation (instead of declared as a plain, constant
+	 *         numeric value).
+	 */
+	boolean isCalculatedNumber();
+
+	/**
+	 * Test whether this is a numeric value that is less than zero.
+	 * 
+	 * @return <code>true</code> if this is a numeric value and its value is
+	 *         negative.
+	 */
+	boolean isNegativeNumber();
+
 }
