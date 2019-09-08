@@ -279,9 +279,9 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				StyleValue value = lstProperty.item(i);
 				if ("all".equals(value.getCssText())) {
 					for (int j = i - 1; j != -1; j--) {
-						lstDuration.set(j, lstDuration.item(i));;
-						lstTiming.set(j, lstTiming.item(i));;
-						lstDelay.set(j, lstDelay.item(i));;
+						lstDuration.set(j, lstDuration.item(i));
+						lstTiming.set(j, lstTiming.item(i));
+						lstDelay.set(j, lstDelay.item(i));
 					}
 				}
 				i++;
