@@ -19,7 +19,7 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Abstract base class for CSS expressions.
  */
-abstract public class StyleExpression implements CSSExpression {
+abstract class StyleExpression implements CSSExpression {
 
 	StyleExpression parent = null;
 	boolean inverseOperation = false;

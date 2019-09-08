@@ -25,7 +25,7 @@ import io.sf.carte.util.SimpleWriter;
  *
  * @see CSSExpression
  */
-public class ProductExpression extends StyleExpression implements AlgebraicExpression {
+class ProductExpression extends StyleExpression implements AlgebraicExpression {
 	private LinkedList<CSSExpression> operands = new LinkedList<>();
 
 	ProductExpression() {
@@ -174,7 +174,7 @@ public class ProductExpression extends StyleExpression implements AlgebraicExpre
 		}
 	}
 
-	public static AlgebraicExpression createProductExpression() {
+	static AlgebraicExpression createProductExpression() {
 		return new ProductExpression();
 	}
 

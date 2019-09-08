@@ -30,4 +30,11 @@ public interface CSSOperandExpression extends CSSExpression {
 	@Override
 	CSSOperandExpression clone();
 
+	/**
+	 * Set the operand value.
+	 * 
+	 * @param operand the operand value.
+	 */
+	void setOperand(ExtendedCSSPrimitiveValue operand);
+
 }

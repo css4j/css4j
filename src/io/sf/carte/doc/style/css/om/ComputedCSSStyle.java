@@ -32,6 +32,7 @@ import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
@@ -49,11 +50,9 @@ import io.sf.carte.doc.style.css.property.FunctionValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
 import io.sf.carte.doc.style.css.property.NumberValue;
-import io.sf.carte.doc.style.css.property.OperandExpression;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StringValue;
-import io.sf.carte.doc.style.css.property.StyleExpression;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 import io.sf.carte.doc.style.css.property.URIValue;
@@ -282,7 +281,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			short type = pri.getPrimitiveType();
 			if (type == CSSPrimitiveValue2.CSS_EXPRESSION) {
 				pri = pri.clone();
-				StyleExpression expr = ((ExpressionValue) pri).getExpression();
+				CSSExpression expr = ((ExpressionValue) pri).getExpression();
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
 					pri = (PrimitiveValue) ev.evaluateExpression(expr);
@@ -484,7 +483,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			break;
 		case OPERAND:
-			OperandExpression operand = (OperandExpression) expr;
+			CSSOperandExpression operand = (CSSOperandExpression) expr;
 			PrimitiveValue primi = (PrimitiveValue) operand.getOperand();
 			operand.setOperand(absolutePrimitiveValue(propertyName, primi, useParentStyle));
 		}
@@ -983,7 +982,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_EXPRESSION:
 			cssSize = cssSize.clone();
-			StyleExpression expr = ((ExpressionValue) cssSize).getExpression();
+			CSSExpression expr = ((ExpressionValue) cssSize).getExpression();
 			absoluteExpressionValue("font-size", expr, true);
 			Evaluator ev = new FontEvaluator();
 			try {

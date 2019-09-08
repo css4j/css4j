@@ -226,7 +226,7 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 	}
 
 	@Override
-	public StyleExpression getExpression() {
+	public CSSExpression getExpression() {
 		return expression;
 	}
 
