@@ -1317,6 +1317,59 @@ public class ComputedCSSStyleTest {
 		assertEquals("2s, 1s, 2s, 1s", val.getCssText());
 	}
 
+	/*
+	 * Shorthand serialization
+	 */
+	@Test
+	public void getComputedStyleShorthand() throws CSSMediaException {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("24.12pt 0", style.getPropertyValue("margin"));
+		//
+		elm.getOverrideStyle(null).setCssText("padding: 0.4em 1.8em");
+		style = elm.getComputedStyle(null);
+		assertEquals("14.4pt 64.8pt", style.getPropertyValue("padding"));
+		//
+		elm.getOverrideStyle(null).setCssText("font:bold 83%/116% Arial");
+		style = elm.getComputedStyle(null);
+		assertEquals("bold 9.96pt/116% Arial", style.getPropertyValue("font"));
+		//
+		elm.getOverrideStyle(null).setCssText(
+				"background:url('a.png') no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png') white;");
+		style = elm.getComputedStyle(null);
+		assertEquals("url('a.png') no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png') #fff",
+				style.getPropertyValue("background"));
+		//
+		elm.getOverrideStyle(null).setCssText("list-style:inside square url('foo.png')");
+		style = elm.getComputedStyle(null);
+		assertEquals("inside square url('foo.png')", style.getPropertyValue("list-style"));
+		//
+		elm.getOverrideStyle(null).setCssText("text-decoration:blink dashed magenta");
+		style = elm.getComputedStyle(null);
+		assertEquals("blink dashed #f0f", style.getPropertyValue("text-decoration"));
+		//
+		elm.getOverrideStyle(null).setCssText("flex:2 2 0.1pt");
+		style = elm.getComputedStyle(null);
+		assertEquals("2 2 0.1pt", style.getPropertyValue("flex"));
+		//
+		elm.getOverrideStyle(null).setCssText("grid:auto 1fr/auto 1fr auto;");
+		style = elm.getComputedStyle(null);
+		assertEquals("auto 1fr/auto 1fr auto", style.getPropertyValue("grid"));
+		//
+		elm.getOverrideStyle(null).setCssText("animation:3500ms 5s reverse 'my anim'");
+		style = elm.getComputedStyle(null);
+		assertEquals("3500ms 5s reverse 'my anim'", style.getPropertyValue("animation"));
+		//
+		elm.getOverrideStyle(null).setCssText("transition:margin-top 3500ms cubic-bezier(.05,.69,.95,.6) 5s");
+		style = elm.getComputedStyle(null);
+		assertEquals("margin-top 3500ms cubic-bezier(.05,.69,.95,.6) 5s", style.getPropertyValue("transition"));
+		//
+		elm.getOverrideStyle(null).setCssText("place-content:last baseline right");
+		style = elm.getComputedStyle(null);
+		assertEquals("last baseline right", style.getPropertyValue("place-content"));
+	}
+
 	CSSStyleRule defaultStyleRule(String selectorText, String propertyName) {
 		CSSRuleList rules = sheet.getCssRules();
 		for (int i = 0; i < rules.getLength(); i++) {

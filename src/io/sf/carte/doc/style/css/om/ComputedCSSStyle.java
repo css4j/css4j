@@ -12,11 +12,14 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Locale;
 
+import org.w3c.css.sac.CSSException;
+import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -39,6 +42,7 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.AttrValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
@@ -52,6 +56,7 @@ import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
@@ -112,6 +117,72 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	@Override
+	public String getPropertyValue(String propertyName) {
+		propertyName = getCanonicalPropertyName(propertyName);
+		CSSValue value = getCSSValue(propertyName);
+		if (value != null) {
+			short type = value.getCssValueType();
+			if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+				short ptype;
+				if ((ptype = ((CSSPrimitiveValue) value).getPrimitiveType()) == CSSPrimitiveValue.CSS_STRING
+						|| ptype == CSSPrimitiveValue.CSS_IDENT) {
+					return ((CSSPrimitiveValue) value).getStringValue();
+				}
+			}
+			return value.getCssText();
+		} else if (ShorthandDatabase.getInstance().isShorthand(propertyName)) {
+			return serializeShorthand(propertyName);
+		}
+		return "";
+	}
+
+	private String serializeShorthand(String propertyName) {
+		ShorthandBuilder builder = createBuilder(propertyName);
+		if (builder != null) {
+			String[] longhands = builder.getLonghandProperties();
+			for (String longhand : longhands) {
+				builder.addAssignedProperty(longhand, false);
+			}
+			if ("font".equals(propertyName) || "font-variant".equals(propertyName)) {
+				builder.addAssignedProperty("font-variant-caps", false);
+				builder.addAssignedProperty("font-variant-ligatures", false);
+				builder.addAssignedProperty("font-variant-position", false);
+				builder.addAssignedProperty("font-variant-numeric", false);
+				builder.addAssignedProperty("font-variant-alternates", false);
+				builder.addAssignedProperty("font-variant-east-asian", false);
+			}
+			StringBuilder buf = new StringBuilder(64);
+			builder.appendMinifiedCssText(buf);
+			String declaration = buf.toString();
+			/* 
+			 * Reparse and check for errors and number of properties serialized.
+			 * Shorthand builders often use multiple declarations for more
+			 * efficiency in the full style serialization. Skip those cases.
+			 */
+			InputSource source = new InputSource(new StringReader(declaration));
+			CSSParser parser = new CSSParser();
+			PropertyCounterDocumentHandler handler = new PropertyCounterDocumentHandler();
+			parser.setDocumentHandler(handler);
+			parser.setErrorHandler(handler);
+			try {
+				parser.parseStyleDeclaration(source);
+			} catch (CSSException | IOException e) {
+				return "";
+			}
+			if (!handler.hasError() && handler.getPropertyCount() == 1) {
+				int len = declaration.length();
+				int lenm1 = len - 1;
+				int firstc = declaration.indexOf(':');
+				if (declaration.charAt(lenm1) == ';') {
+					len = lenm1;
+				}
+				return declaration.substring(firstc + 1, len);
+			}
+		}
+		return "";
+	}
+
+	@Override
 	protected void setPropertyCSSValue(String propertyName, StyleValue value, String hrefcontext) {
 		if ("background-image".equals(propertyName) || "border-image-source".equals(propertyName)) {
 			// Add parent stylesheet info
@@ -153,12 +224,17 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		PropertyDatabase propertydb = PropertyDatabase.getInstance();
 		boolean inherited = propertydb.isInherited(property) || property.startsWith("--");
 		// Check for unset
-		if (value != null && isCSSIdentifier(value, "unset")) {
-			/*
-			 * The 'unset' keyword acts as either inherit or initial, depending on whether the
-			 * property is inherited or not.
-			 */
-			value = null;
+		if (value != null) {
+			if (value.getCssValueType() == CSSValue.CSS_CUSTOM) {
+				return null;
+			}
+			if (isCSSIdentifier(value, "unset")) {
+				/*
+				 * The 'unset' keyword acts as either inherit or initial, depending on whether
+				 * the property is inherited or not.
+				 */
+				value = null;
+			}
 		}
 		/*
 		 * We compute inherited value, if appropriate.

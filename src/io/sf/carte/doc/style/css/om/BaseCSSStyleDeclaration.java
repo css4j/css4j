@@ -436,7 +436,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		buf.append(text);
 	}
 
-	private ShorthandBuilder createBuilder(String shorthand) {
+	ShorthandBuilder createBuilder(String shorthand) {
 		if ("border".equals(shorthand)) {
 			return new BorderBuilder(this);
 		} else if ("background".equals(shorthand)) {

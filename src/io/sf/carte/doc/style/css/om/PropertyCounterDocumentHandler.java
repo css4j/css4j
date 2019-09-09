@@ -15,41 +15,37 @@ import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.LexicalUnit;
 
-/**
- * A SAC DocumentHandler that calls a <code>LexicalPropertyListener</code>.
- *
- * @author Carlos Amengual
- *
- */
-class PropertyDocumentHandler extends EmptyDocumentHandler {
+class PropertyCounterDocumentHandler extends EmptyDocumentHandler {
 
-	private LexicalPropertyListener listener = null;
+	private int count = 0;
 
-	PropertyDocumentHandler() {
+	private boolean error = false;
+
+	PropertyCounterDocumentHandler() {
 		super();
-	}
-
-	public void setLexicalPropertyListener(LexicalPropertyListener listener) {
-		this.listener = listener;
 	}
 
 	@Override
 	public void property(String name, LexicalUnit value, boolean important) throws CSSException {
-		if (important) {
-			listener.setProperty(name, value, "important");
-		} else {
-			listener.setProperty(name, value, null);
-		}
+		count++;
 	}
 
 	@Override
 	public void error(CSSParseException exception) throws CSSException {
-		throw exception;
+		error = true;
 	}
 
 	@Override
 	public void fatalError(CSSParseException exception) throws CSSException {
-		throw exception;
+		error = true;
+	}
+
+	int getPropertyCount() {
+		return count;
+	}
+
+	boolean hasError() {
+		return error;
 	}
 
 }
