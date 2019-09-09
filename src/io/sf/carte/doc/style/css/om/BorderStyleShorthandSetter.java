@@ -25,7 +25,7 @@ class BorderStyleShorthandSetter extends BoxShorthandSetter {
 
 	@Override
 	boolean isIdentifierValue(String lcIdent) {
-		return "none".equals(lcIdent) || getPropertyDatabase().isIdentifierValue("border-style", lcIdent);
+		return "none".equals(lcIdent) || getShorthandDatabase().isIdentifierValue("border-style", lcIdent);
 	}
 
 }

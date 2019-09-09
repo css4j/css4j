@@ -18,7 +18,7 @@ class BorderWidthShorthandSetter extends BoxShorthandSetter {
 
 	@Override
 	boolean isIdentifierValue(String lcIdent) {
-		return getPropertyDatabase().isIdentifierValue("border-width", lcIdent);
+		return getShorthandDatabase().isIdentifierValue("border-width", lcIdent);
 	}
 
 }

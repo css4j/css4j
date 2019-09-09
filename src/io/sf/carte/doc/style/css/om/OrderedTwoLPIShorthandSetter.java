@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -28,11 +27,11 @@ class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {
 		StyleValue cssval;
 		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 			String sv = currentValue.getStringValue();
-			PropertyDatabase pdb = getPropertyDatabase();
-			if (pdb.isIdentifierValue(subparray[0], sv)) {
+			if (getShorthandDatabase().isIdentifierValue(subparray[0], sv)) {
 				cssval = createCSSValue(subparray[0], currentValue);
 				setSubpropertyValue(subparray[0], cssval);
-				if (currentValue.getNextLexicalUnit() == null && pdb.isIdentifierValue(subparray[1], sv)) {
+				if (currentValue.getNextLexicalUnit() == null
+						&& getShorthandDatabase().isIdentifierValue(subparray[1], sv)) {
 					setSubpropertyValue(subparray[1], cssval.clone());
 				}
 				return true;
@@ -53,7 +52,7 @@ class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {
 		StyleValue cssval;
 		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 			String sv = currentValue.getStringValue();
-			if (getPropertyDatabase().isIdentifierValue(subparray[1], sv)) {
+			if (getShorthandDatabase().isIdentifierValue(subparray[1], sv)) {
 				cssval = createCSSValue(subparray[1], currentValue);
 				setSubpropertyValue(subparray[1], cssval);
 				return true;

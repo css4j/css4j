@@ -62,7 +62,7 @@ import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.LangConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.PositionalConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SelectorArgumentConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SiblingSelectorImpl;
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.uparser.TokenControl;
@@ -202,7 +202,7 @@ public class CSSParser implements Parser2 {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationTokenHandler(source, PropertyDatabase.getInstance());
+		DeclarationTokenHandler handler = new DeclarationTokenHandler(source, ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(getReaderFromSource(source), "/*", "*/");
 	}
@@ -243,7 +243,7 @@ public class CSSParser implements Parser2 {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(source, PropertyDatabase.getInstance());
+		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(source, ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		Reader re = getReaderFromSource(source);
 		tp.parse(re, "/*", "*/");
@@ -2835,7 +2835,7 @@ public class CSSParser implements Parser2 {
 		private class MyDeclarationTokenHandler extends DeclarationTokenHandler {
 
 			MyDeclarationTokenHandler(InputSource source) {
-				super(source, PropertyDatabase.getInstance());
+				super(source, ShorthandDatabase.getInstance());
 			}
 
 			@Override
@@ -4202,7 +4202,7 @@ public class CSSParser implements Parser2 {
 	class DeclarationRuleTokenHandler extends DeclarationTokenHandler {
 		private String ruleFirstPart = null;
 
-		DeclarationRuleTokenHandler(InputSource source, PropertyDatabase propertyDatabase) {
+		DeclarationRuleTokenHandler(InputSource source, ShorthandDatabase propertyDatabase) {
 			super(source, propertyDatabase, 0);
 		}
 
@@ -4298,7 +4298,7 @@ public class CSSParser implements Parser2 {
 		}
 
 		PropertyTokenHandler(String propertyName) {
-			super(null, PropertyDatabase.getInstance());
+			super(null, ShorthandDatabase.getInstance());
 			this.propertyName = propertyName;
 		}
 
@@ -4339,7 +4339,7 @@ public class CSSParser implements Parser2 {
 		private LexicalUnitImpl lunit = null;
 		private LexicalUnitImpl currentlu = null;
 		String propertyName = null;
-		private final PropertyDatabase propertyDatabase;
+		private final ShorthandDatabase propertyDatabase;
 		private boolean hexColor = false;
 		private boolean unicodeRange = false;
 		private boolean readPriority = false;
@@ -4349,11 +4349,11 @@ public class CSSParser implements Parser2 {
 		private boolean functionToken = false;
 		private final boolean flagIEValues;
 
-		DeclarationTokenHandler(InputSource source, PropertyDatabase propertyDatabase) {
+		DeclarationTokenHandler(InputSource source, ShorthandDatabase propertyDatabase) {
 			this(source, propertyDatabase, 1);
 		}
 
-		DeclarationTokenHandler(InputSource source, PropertyDatabase propertyDatabase, int initialCurlyBracketDepth) {
+		DeclarationTokenHandler(InputSource source, ShorthandDatabase propertyDatabase, int initialCurlyBracketDepth) {
 			super(source);
 			this.curlyBracketDepth = initialCurlyBracketDepth;
 			flagIEValues = CSSParser.this.parserFlags.contains(Flag.IEVALUES);

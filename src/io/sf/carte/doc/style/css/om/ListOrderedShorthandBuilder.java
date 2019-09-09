@@ -161,7 +161,7 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		// Make sure that 'none' is in animation-fill-mode list in
 		// 'identifier.properties'
 		return freePrimi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& pdb.isIdentifierValue(property, freePrimi.getStringValue());
+				&& getShorthandDatabase().isIdentifierValue(property, freePrimi.getStringValue());
 	}
 
 	boolean listHasConflictingIdentifiers(String property, CSSValueList list) {

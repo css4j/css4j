@@ -113,6 +113,7 @@ import io.sf.carte.doc.style.css.property.NumberValueTest;
 import io.sf.carte.doc.style.css.property.OMCSSRectValueTest;
 import io.sf.carte.doc.style.css.property.PropertyDatabaseTest;
 import io.sf.carte.doc.style.css.property.RatioValueTest;
+import io.sf.carte.doc.style.css.property.ShorthandDatabaseTest;
 import io.sf.carte.doc.style.css.property.StringValueDQTest;
 import io.sf.carte.doc.style.css.property.StringValueSQTest;
 import io.sf.carte.doc.style.css.property.StringValueTest;
@@ -231,6 +232,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		OMCSSRectValueTest.class,
 		PropertyDatabaseTest.class,
 		RatioValueTest.class,
+		ShorthandDatabaseTest.class,
 		StringValueTest.class,
 		StringValueDQTest.class,
 		StringValueSQTest.class,

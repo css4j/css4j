@@ -469,7 +469,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
 			while (nlu != null && count < 4) { // Up to 4 values per layer
 				if ((nlu.getLexicalUnitType() == LexicalUnit.SAC_IDENT
-						&& getPropertyDatabase().isIdentifierValue("background-position", nlu.getStringValue()))
+						&& getShorthandDatabase().isIdentifierValue("background-position", nlu.getStringValue()))
 						|| ValueFactory.isSizeSACUnit(nlu)) {
 					value = createCSSValue("background-position", nlu);
 					list.add(value);
@@ -542,7 +542,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
 			if (nlu != null) {
 				if ((nlu.getLexicalUnitType() == LexicalUnit.SAC_IDENT
-						&& getPropertyDatabase().isIdentifierValue("background-size", nlu.getStringValue()))
+						&& getShorthandDatabase().isIdentifierValue("background-size", nlu.getStringValue()))
 						|| ValueFactory.isSizeSACUnit(nlu)) {
 					value = createCSSValue("background-size", nlu);
 					list.add(value);

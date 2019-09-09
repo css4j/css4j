@@ -68,7 +68,7 @@ class BorderShorthandSetter extends ShorthandSetter {
 
 	@Override
 	protected void setSubpropertyValue(String subproperty, StyleValue cssValue) {
-		String[] subparray = getPropertyDatabase().getShorthandSubproperties(subproperty);
+		String[] subparray = getShorthandDatabase().getShorthandSubproperties(subproperty);
 		for (int i = 0; i < subparray.length; i++) {
 			if (i != 0) {
 				cssValue = cssValue.clone();

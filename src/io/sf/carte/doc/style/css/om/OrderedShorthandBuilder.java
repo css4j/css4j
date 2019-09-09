@@ -67,7 +67,8 @@ class OrderedShorthandBuilder extends GenericShorthandBuilder {
 	}
 
 	boolean validValueClash(String property) {
-		return freePropertyStringValue != null && pdb.isIdentifierValue(property, freePropertyStringValue);
+		return freePropertyStringValue != null
+				&& getShorthandDatabase().isIdentifierValue(property, freePropertyStringValue);
 	}
 
 }

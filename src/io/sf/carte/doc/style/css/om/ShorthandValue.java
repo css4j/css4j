@@ -130,9 +130,9 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 		return new ShorthandValue(this);
 	}
 
-	static ShorthandValue createCSSShorthandValue(PropertyDatabase pdb, String shorthandName, LexicalUnit value,
+	static ShorthandValue createCSSShorthandValue(ShorthandDatabase sdb, String shorthandName, LexicalUnit value,
 			boolean important) {
-		ShorthandValue shval = new ShorthandValue(value, important, pdb.getLonghandProperties(shorthandName));
+		ShorthandValue shval = new ShorthandValue(value, important, sdb.getLonghandProperties(shorthandName));
 		if ("border".equals(shorthandName)) {
 			shval.longhands.add("border-image-source");
 			shval.longhands.add("border-image-slice");

@@ -19,7 +19,6 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -29,7 +28,6 @@ import io.sf.carte.doc.style.css.property.ValueList;
 class GenericShorthandBuilder extends ShorthandBuilder {
 
 	final String initialvalue;
-	final PropertyDatabase pdb = PropertyDatabase.getInstance();
 
 	GenericShorthandBuilder(String shorthandName, BaseCSSStyleDeclaration parentStyle, String initialvalue) {
 		super(shorthandName, parentStyle);
@@ -120,14 +118,14 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 
 	boolean invalidIdentValueClash(Set<String> declaredSet, String propertyName, PrimitiveValue primi) {
 		String ident = primi.getStringValue().toLowerCase(Locale.ROOT);
-		if (!pdb.isIdentifierValue(propertyName, ident) && !ident.equals(initialvalue) && !ident.equals("initial")) {
+		if (!getShorthandDatabase().isIdentifierValue(propertyName, ident) && !ident.equals(initialvalue) && !ident.equals("initial")) {
 			if (identifierValuesAreKnown(propertyName) || containsControl(ident)) {
 				return true; // Invalid value
 			}
 			Iterator<String> it = declaredSet.iterator();
 			while (it.hasNext()) {
 				String property = it.next();
-				if (pdb.hasKnownIdentifierValues(property) && pdb.isIdentifierValue(property, ident)) {
+				if (getShorthandDatabase().hasKnownIdentifierValues(property) && getShorthandDatabase().isIdentifierValue(property, ident)) {
 					return true;
 				}
 			}
@@ -136,7 +134,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 	}
 
 	boolean identifierValuesAreKnown(String propertyName) {
-		return pdb.hasKnownIdentifierValues(propertyName);
+		return getShorthandDatabase().hasKnownIdentifierValues(propertyName);
 	}
 
 	boolean appendValueText(StringBuilder buf, String property, boolean appended) {

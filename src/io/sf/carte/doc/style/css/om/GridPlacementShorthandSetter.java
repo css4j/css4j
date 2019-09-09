@@ -25,7 +25,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 
 	GridPlacementShorthandSetter(BaseCSSStyleDeclaration style, String shorthandName) {
 		super(style, shorthandName);
-		subparray = getPropertyDatabase().getShorthandSubproperties(shorthandName);
+		subparray = getShorthandDatabase().getShorthandSubproperties(shorthandName);
 	}
 
 	@Override

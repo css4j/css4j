@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -23,7 +22,7 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 
 	OrderedTwoIdentifierShorthandSetter(BaseCSSStyleDeclaration style, String shorthandName) {
 		super(style, shorthandName);
-		subparray = getPropertyDatabase().getShorthandSubproperties(shorthandName);
+		subparray = getShorthandDatabase().getShorthandSubproperties(shorthandName);
 	}
 
 	@Override
@@ -58,23 +57,22 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 
 	boolean setFirstValue() {
 		String sv = currentValue.getStringValue();
-		PropertyDatabase pdb = getPropertyDatabase();
-		if (pdb.isIdentifierValue(subparray[0], sv)) {
+		if (getShorthandDatabase().isIdentifierValue(subparray[0], sv)) {
 			StyleValue cssval = createCSSValue(subparray[0], currentValue);
 			setSubpropertyValue(subparray[0], cssval);
-			setSingleValueSecondProperty(pdb, cssval, sv);
+			setSingleValueSecondProperty(cssval, sv);
 			return true;
 		} else {
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
 			if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 				String nsv = sv + " " + nlu.getStringValue();
-				if (pdb.isIdentifierValue(subparray[0], nsv)) {
+				if (getShorthandDatabase().isIdentifierValue(subparray[0], nsv)) {
 					ValueList list = ValueList.createWSValueList();
 					list.add(valueFactory.createCSSValueItem(currentValue, true).getCSSValue());
 					nextCurrentValue();
 					list.add(valueFactory.createCSSValueItem(currentValue, true).getCSSValue());
 					setSubpropertyValue(subparray[0], list);
-					setSingleValueSecondProperty(pdb, list, nsv);
+					setSingleValueSecondProperty(list, nsv);
 					return true;
 				}
 			}
@@ -82,14 +80,13 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 		return false;
 	}
 
-	private void setSingleValueSecondProperty(PropertyDatabase pdb, StyleValue cssval, String sv) {
-		if (currentValue.getNextLexicalUnit() == null && pdb.isIdentifierValue(subparray[1], sv)) {
+	private void setSingleValueSecondProperty(StyleValue cssval, String sv) {
+		if (currentValue.getNextLexicalUnit() == null && getShorthandDatabase().isIdentifierValue(subparray[1], sv)) {
 			setSubpropertyValue(subparray[1], cssval.clone());
 		}
 	}
 
 	boolean setSecondValue() {
-		PropertyDatabase pdb = getPropertyDatabase();
 		LexicalUnit nlu = currentValue.getNextLexicalUnit();
 		if (nlu != null) {
 			if (isValidType(nlu)) {
@@ -97,12 +94,12 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 				list.add(valueFactory.createCSSValueItem(currentValue, true).getCSSValue());
 				nextCurrentValue();
 				list.add(valueFactory.createCSSValueItem(currentValue, true).getCSSValue());
-				if (pdb.isIdentifierValue(subparray[1], list.getCssText())) {
+				if (getShorthandDatabase().isIdentifierValue(subparray[1], list.getCssText())) {
 					setSubpropertyValue(subparray[1], list);
 					return true;
 				}
 			}
-		} else if (pdb.isIdentifierValue(subparray[1], currentValue.getStringValue())) {
+		} else if (getShorthandDatabase().isIdentifierValue(subparray[1], currentValue.getStringValue())) {
 			setSubpropertyValue(subparray[1], createCSSValue(subparray[1], currentValue));
 			return true;
 		}

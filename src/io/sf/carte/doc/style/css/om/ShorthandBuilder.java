@@ -31,6 +31,7 @@ import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 import io.sf.carte.doc.style.css.property.URIValue;
@@ -43,6 +44,7 @@ import io.sf.carte.doc.style.css.property.ValueList;
  */
 abstract class ShorthandBuilder {
 
+	private static final ShorthandDatabase shorthandDb = ShorthandDatabase.getInstance();
 	private final String shorthandName;
 	private BaseCSSStyleDeclaration parentStyle;
 	private String[] subp;
@@ -53,7 +55,7 @@ abstract class ShorthandBuilder {
 		super();
 		this.shorthandName = shorthandName;
 		this.parentStyle = parentStyle;
-		subp = PropertyDatabase.getInstance().getShorthandSubproperties(shorthandName);
+		subp = getShorthandDatabase().getShorthandSubproperties(shorthandName);
 	}
 
 	BaseCSSStyleDeclaration getParentStyle() {
@@ -64,12 +66,16 @@ abstract class ShorthandBuilder {
 		return shorthandName;
 	}
 
+	static ShorthandDatabase getShorthandDatabase() {
+		return shorthandDb;
+	}
+
 	String[] getLonghandProperties() {
 		return getLonghandProperties(getShorthandName());
 	}
 
 	String[] getLonghandProperties(String shorthandName) {
-		return PropertyDatabase.getInstance().getLonghandProperties(shorthandName);
+		return getShorthandDatabase().getLonghandProperties(shorthandName);
 	}
 
 	String[] getSubproperties() {
@@ -429,8 +435,7 @@ abstract class ShorthandBuilder {
 			if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
 				String s = primi.getStringValue();
 				if (!"none".equalsIgnoreCase(s)) {
-					PropertyDatabase pdb = PropertyDatabase.getInstance();
-					return !pdb.isIdentifierValue(propertyName, s);
+					return !getShorthandDatabase().isIdentifierValue(propertyName, s);
 				}
 			}
 		} else if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {

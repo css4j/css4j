@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
-
 class GridTemplateShorthandSetter extends BaseGridShorthandSetter {
 
 	GridTemplateShorthandSetter(BaseCSSStyleDeclaration style) {
@@ -28,7 +26,7 @@ class GridTemplateShorthandSetter extends BaseGridShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
-		String[] subparray = PropertyDatabase.getInstance().getShorthandSubproperties(getShorthandName());
+		String[] subparray = getShorthandDatabase().getShorthandSubproperties(getShorthandName());
 		setPropertyToDefault(subparray[0]);
 		setPropertyToDefault(subparray[1]);
 		setPropertyToDefault(subparray[2]);

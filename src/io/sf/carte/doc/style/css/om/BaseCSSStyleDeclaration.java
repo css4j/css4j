@@ -54,6 +54,7 @@ import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
@@ -332,17 +333,17 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		ArrayList<String> ptyList = new ArrayList<String>(sz);
 		HashSet<String> prioSet = new HashSet<String>(sz);
 		HashMap<String, ShorthandBuilder> builders = new HashMap<String, ShorthandBuilder>();
-		PropertyDatabase pdb = PropertyDatabase.getInstance();
+		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		StringBuilder sb = new StringBuilder(50 + sz * 24);
 		for (int i = 0; i < sz; i++) {
 			String ptyname = propertyList.get(i);
-			String shorthand = pdb.getShorthand(ptyname);
+			String shorthand = sdb.getShorthand(ptyname);
 			String prio = priorities.get(i);
 			boolean isimportant = prio != null && "important".equals(prio);
 			if (shorthand != null) {
 				// Is a shorthand subproperty
 				// Get topmost shorthand
-				String topsh = pdb.getShorthand(shorthand);
+				String topsh = sdb.getShorthand(shorthand);
 				if (topsh != null) {
 					shorthand = topsh;
 				}
@@ -583,7 +584,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		if ("font".equals(propertyName)) {
 			count = 14;
 		} else {
-			String[] longhands = PropertyDatabase.getInstance().getLonghandProperties(propertyName);
+			String[] longhands = ShorthandDatabase.getInstance().getLonghandProperties(propertyName);
 			if (longhands != null) {
 				count = longhands.length;
 			} else {
@@ -596,7 +597,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	@Override
 	public StyleValue getPropertyCSSValue(String propertyName) {
 		propertyName = getCanonicalPropertyName(propertyName);
-		if (PropertyDatabase.getInstance().isShorthand(propertyName)) {
+		if (ShorthandDatabase.getInstance().isShorthand(propertyName)) {
 			return null;
 		} else {
 			return getCSSValue(propertyName);
@@ -701,7 +702,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	@Override
 	public String removeProperty(String propertyName) {
-		PropertyDatabase pdb;
+		ShorthandDatabase sdb;
 		propertyName = getCanonicalPropertyName(propertyName);
 		int idx = propertyList.indexOf(propertyName);
 		if (idx >= 0 && !propValue.get(propertyName).isSubproperty()) {
@@ -711,8 +712,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			priorities.remove(idx);
 			// Check whether there is a previous shorthand that has to have
 			// effect again
-			if (!shorthandSet.isEmpty() && (pdb = PropertyDatabase.getInstance()).isShorthandSubproperty(propertyName)) {
-				resetFromShorthand(propertyName, pdb);
+			if (!shorthandSet.isEmpty() && (sdb = ShorthandDatabase.getInstance()).isShorthandSubproperty(propertyName)) {
+				resetFromShorthand(propertyName, sdb);
 			}
 			return oldcsstext;
 		} else if (shorthandSet.contains(propertyName)) {
@@ -720,16 +721,16 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			propValue.remove(propertyName);
 			shorthandSet.remove(propertyName);
 			String text = shval.getCssText();
-			pdb = PropertyDatabase.getInstance();
+			sdb = ShorthandDatabase.getInstance();
 			// Remove all sub-properties
-			removeSubproperties(shval, pdb);
+			removeSubproperties(shval, sdb);
 			return text;
 		} else {
 			return "";
 		}
 	}
 
-	private boolean resetFromShorthand(String propertyName, PropertyDatabase pdb) {
+	private boolean resetFromShorthand(String propertyName, ShorthandDatabase sdb) {
 		// Check whether there is a previous shorthand that has to have
 		// effect again
 		String shorthand = propertyName;
@@ -737,7 +738,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		Iterator<String> it = shorthandSet.iterator();
 		while (it.hasNext()) {
 			String shname = it.next();
-			if (pdb.isShorthandSubpropertyOf(shname, propertyName)) {
+			if (sdb.isShorthandSubpropertyOf(shname, propertyName)) {
 				ShorthandValue shval = (ShorthandValue) propValue.get(shname);
 				String pty = shval.getLonghands().iterator().next();
 				int i = propertyList.indexOf(pty);
@@ -761,7 +762,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return false;
 	}
 
-	private void removeSubproperties(ShorthandValue shval, PropertyDatabase pdb) {
+	private void removeSubproperties(ShorthandValue shval, ShorthandDatabase sdb) {
 		HashSet<String> longhands = shval.getLonghands();
 		Iterator<String> it = longhands.iterator();
 		while (it.hasNext()) {
@@ -771,7 +772,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			priorities.remove(idx);
 			propValue.remove(property);
 			if (!shorthandSet.isEmpty()) {
-				resetFromShorthand(property, pdb);
+				resetFromShorthand(property, sdb);
 			}
 		}
 	}
@@ -816,9 +817,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	String checkShorthandPriority(String propertyName) {
-		PropertyDatabase pdb = PropertyDatabase.getInstance();
-		if (pdb.isShorthand(propertyName)) {
-			String[] longhands = pdb.getLonghandProperties(propertyName);
+		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
+		if (sdb.isShorthand(propertyName)) {
+			String[] longhands = sdb.getLonghandProperties(propertyName);
 			for (int i = 0; i < longhands.length; i++) {
 				if (!isPropertyImportant(longhands[i])) {
 					return "";
@@ -839,17 +840,17 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	public void setProperty(String propertyName, LexicalUnit value, String priority) throws DOMException {
 		propertyName = getCanonicalPropertyName(propertyName);
 		// Check for shorthand properties
-		PropertyDatabase pdb = PropertyDatabase.getInstance();
-		if (pdb.isShorthand(propertyName)) {
+		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
+		if (sdb.isShorthand(propertyName)) {
 			// Shorthand case.
 			boolean important = priority == "important";
-			setShorthandProperty(pdb, propertyName, value, important);
+			setShorthandProperty(sdb, propertyName, value, important);
 		} else {
 			setLonghandProperty(propertyName, value, priority);
 		}
 	}
 
-	private void setShorthandProperty(PropertyDatabase pdb, String propertyName, LexicalUnit value, boolean important)
+	private void setShorthandProperty(ShorthandDatabase sdb, String propertyName, LexicalUnit value, boolean important)
 			throws DOMException {
 		// Check whether an ordinary shorthand tries to replace an
 		// important one.
@@ -867,7 +868,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				Iterator<String> it = shorthandSet.iterator();
 				while (it.hasNext()) {
 					String sh = it.next();
-					if (pdb.isShorthandSubpropertyOf(propertyName, sh)) {
+					if (sdb.isShorthandSubpropertyOf(propertyName, sh)) {
 						// Found a set shorthand that is a subproperty of propertyName
 						if (important || !((ShorthandValue) propValue.get(sh)).isImportant()) {
 							// It is replaceable, add to shadowedShorthands
@@ -876,7 +877,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 							}
 							shadowedShorthands.add(sh);
 						}
-					} else if (pdb.isShorthandSubpropertyOf(sh, propertyName) && !important
+					} else if (sdb.isShorthandSubpropertyOf(sh, propertyName) && !important
 							&& ((ShorthandValue) propValue.get(sh)).isImportant()) {
 						return; // ignore non-important subproperty of
 								// previously set important shorthand
@@ -887,7 +888,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				SubpropertySetter shorthandSetter = setSubproperties(propertyName, value, important);
 				String shorthandText = shorthandSetter.getCssText();
 				if (shorthandText.length() != 0) {
-					ShorthandValue shVal = ShorthandValue.createCSSShorthandValue(pdb, propertyName, value,
+					ShorthandValue shVal = ShorthandValue.createCSSShorthandValue(sdb, propertyName, value,
 							important);
 					shVal.setShorthandText(shorthandText, shorthandSetter.getMinifiedCssText());
 					if (shadowedShorthands != null) {
@@ -1408,7 +1409,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 *            the style declaration whose properties have to be added.
 	 */
 	public void addStyle(BaseCSSStyleDeclaration style) {
-		PropertyDatabase pdb = PropertyDatabase.getInstance();
+		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		HashSet<String> addedShorthands = new HashSet<String>(style.shorthandSet.size());
 		// Process individual properties
 		Iterator<String> it = style.propertyList.iterator();
@@ -1432,12 +1433,12 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			StyleValue value = style.getCSSValue(propertyName);
 			// Deal with shorthands (we reach this only if priority allows)
 			if (value.isSubproperty()) {
-				String shorthand = pdb.getShorthand(propertyName);
+				String shorthand = sdb.getShorthand(propertyName);
 				if (!addedShorthands.contains(shorthand)) {
 					/*
 					 * Check whether we got a shorthand of a shorthand (like border-width and border)
 					 */
-					String bigshorthand = pdb.getShorthand(shorthand);
+					String bigshorthand = sdb.getShorthand(shorthand);
 					if (bigshorthand != null && style.shorthandSet.contains(bigshorthand)) {
 						addedShorthands.add(bigshorthand);
 						addShorthandName(bigshorthand);
@@ -1629,8 +1630,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	private SubpropertySetter setSubproperties(String propertyName, LexicalUnit value, boolean important)
 			throws DOMException {
-		PropertyDatabase pdb = PropertyDatabase.getInstance();
-		if (pdb.isShorthand(propertyName)) {
+		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
+		if (sdb.isShorthand(propertyName)) {
 			SubpropertySetter setter;
 			if ("font".equals(propertyName)) {
 				if (getStyleDatabase() != null) {

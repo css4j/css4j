@@ -30,6 +30,7 @@ import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
@@ -49,7 +50,9 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 
 	private boolean priorityImportant = false;
 
-	private PropertyDatabase pdb = PropertyDatabase.getInstance();
+	private final PropertyDatabase pdb = PropertyDatabase.getInstance();
+
+	private final ShorthandDatabase shorthandDb = ShorthandDatabase.getInstance();
 
 	final ValueFactory valueFactory;
 
@@ -96,6 +99,10 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 
 	public final PropertyDatabase getPropertyDatabase() {
 		return pdb;
+	}
+
+	public final ShorthandDatabase getShorthandDatabase() {
+		return shorthandDb;
 	}
 
 	/**
@@ -232,10 +239,10 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	protected void setSubpropertiesInherit(InheritValue inherit) {
 		String[] subparray = getShorthandSubproperties();
 		for (String subp : subparray) {
-			if (!getPropertyDatabase().isShorthand(subp)) {
+			if (!getShorthandDatabase().isShorthand(subp)) {
 				styleDeclaration.setProperty(subp, inherit, getPriority());
 			} else {
-				String[] sh = getPropertyDatabase().getShorthandSubproperties(subp);
+				String[] sh = getShorthandDatabase().getShorthandSubproperties(subp);
 				for (String s : sh) {
 					styleDeclaration.setProperty(s, inherit, getPriority());
 				}
@@ -247,10 +254,10 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	protected void setSubpropertiesToKeyword(StyleValue keyword) {
 		String[] subparray = getShorthandSubproperties();
 		for (String subp : subparray) {
-			if (!getPropertyDatabase().isShorthand(subp)) {
+			if (!getShorthandDatabase().isShorthand(subp)) {
 				styleDeclaration.setProperty(subp, keyword, getPriority());
 			} else {
-				String[] sh = getPropertyDatabase().getShorthandSubproperties(subp);
+				String[] sh = getShorthandDatabase().getShorthandSubproperties(subp);
 				for (String s : sh) {
 					styleDeclaration.setProperty(s, keyword, getPriority());
 				}
@@ -260,7 +267,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	}
 
 	protected String[] getShorthandSubproperties() {
-		return getPropertyDatabase().getShorthandSubproperties(getShorthandName());
+		return getShorthandDatabase().getShorthandSubproperties(getShorthandName());
 	}
 
 	protected void nextCurrentValue() {
@@ -291,10 +298,10 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		Iterator<String> it = props.iterator();
 		while (it.hasNext()) {
 			String pname = it.next();
-			if (!getPropertyDatabase().isShorthand(pname)) {
+			if (!getShorthandDatabase().isShorthand(pname)) {
 				setPropertyToDefault(pname);
 			} else {
-				String[] sh = getPropertyDatabase().getShorthandSubproperties(pname);
+				String[] sh = getShorthandDatabase().getShorthandSubproperties(pname);
 				for (int i = 0; i < sh.length; i++) {
 					setPropertyToDefault(sh[i]);
 				}
@@ -308,10 +315,10 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	protected void setSubpropertiesToDefault() {
 		String[] subp = getShorthandSubproperties();
 		for (String pname : subp) {
-			if (!getPropertyDatabase().isShorthand(pname)) {
+			if (!getShorthandDatabase().isShorthand(pname)) {
 				setPropertyToDefault(pname);
 			} else {
-				String[] sh = getPropertyDatabase().getShorthandSubproperties(pname);
+				String[] sh = getShorthandDatabase().getShorthandSubproperties(pname);
 				for (int i = 0; i < sh.length; i++) {
 					setPropertyToDefault(sh[i]);
 				}
@@ -468,7 +475,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	}
 
 	boolean testIdentifiers(String subproperty) {
-		return getPropertyDatabase().isIdentifierValue(subproperty, currentValue.getStringValue());
+		return getShorthandDatabase().isIdentifierValue(subproperty, currentValue.getStringValue());
 	}
 
 	protected void setSubpropertyValue(String subproperty, StyleValue cssValue) {

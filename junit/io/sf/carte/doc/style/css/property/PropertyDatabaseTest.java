@@ -14,7 +14,10 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Iterator;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -44,24 +47,32 @@ public class PropertyDatabaseTest {
 		CSSValue value = pdb.getInitialValue("width");
 		assertNotNull(value);
 		assertEquals("auto", value.getCssText());
+		CSSValue value2 = pdb.getInitialValue("width");
+		assertTrue(value == value2);
+		assertNull(pdb.getInitialValue("foo"));
 	}
 
 	@Test
-	public void isIdentifierValue() {
-		assertTrue(pdb.isIdentifierValue("border-color", "gray"));
+	public void testInitialValues() {
+		Iterator<String> it = pdb.getKnownPropertySet().iterator();
+		while (it.hasNext()) {
+			String property = it.next();
+			assertNotNull(pdb.getInitialValue(property));
+		}
 	}
 
 	@Test
-	public void isShorthandSubpropertyString() {
-		assertTrue(pdb.isShorthandSubproperty("border-right-style"));
+	public void testIsInherited() {
+		assertFalse(pdb.isInherited("foo"));
+		assertFalse(pdb.isInherited("width"));
+		assertTrue(pdb.isInherited("font-size"));
 	}
 
 	@Test
-	public void isShorthandSubpropertyOfStringString() {
-		assertTrue(pdb.isShorthandSubpropertyOf("border-style", "border-right-style"));
-		assertTrue(pdb.isShorthandSubpropertyOf("border-right", "border-right-style"));
-		assertTrue(pdb.isShorthandSubpropertyOf("border", "border-right-style"));
-		assertFalse(pdb.isShorthandSubpropertyOf("border", "font-family"));
+	public void testIsKnownProperty() {
+		assertFalse(pdb.isKnownProperty("foo"));
+		assertTrue(pdb.isKnownProperty("width"));
+		assertTrue(pdb.isKnownProperty("font-size"));
 	}
 
 }
