@@ -12,6 +12,8 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
@@ -37,6 +39,11 @@ public class NumberValue extends PrimitiveValue {
 	boolean lengthUnitType = false;
 
 	private boolean calculated = false;
+
+	/**
+	 * True if this number is in the same unit as was specified.
+	 */
+	private boolean specified = true;
 
 	public NumberValue() {
 		super();
@@ -68,11 +75,28 @@ public class NumberValue extends PrimitiveValue {
 				return Integer.toString((int) rintValue) + dimensionUnitText;
 			}
 		}
-		String s = Float.toString(realvalue);
+		String s = serializeNumber(realvalue);
 		StringBuilder buf = new StringBuilder(s.length() + dimensionUnitText.length());
 		buf.append(s);
 		buf.append(dimensionUnitText);
 		return buf.toString();
+	}
+
+	private String serializeNumber(float real) {
+		String s;
+		if (specified) {
+			s = Float.toString(real);
+		} else {
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumFractionDigits(0);
+			if (isLengthUnitType()) {
+				format.setMaximumFractionDigits(2);
+			} else {
+				format.setMaximumFractionDigits(3);
+			}
+			s = format.format(real);
+		}
+		return s;
 	}
 
 	@Override
@@ -101,7 +125,8 @@ public class NumberValue extends PrimitiveValue {
 				return;
 			}
 		}
-		wri.write(Float.toString(realvalue));
+		String s = serializeNumber(realvalue);
+		wri.write(s);
 		wri.write(dimensionUnitText);
 	}
 
@@ -142,7 +167,7 @@ public class NumberValue extends PrimitiveValue {
 				return s;
 			}
 		}
-		String s = Float.toString(realvalue);
+		String s = serializeNumber(realvalue);
 		int len = s.length();
 		StringBuilder buf = new StringBuilder(len + dimensionUnitText.length());
 		char c = s.charAt(0);
@@ -215,6 +240,17 @@ public class NumberValue extends PrimitiveValue {
 
 	void setCalculatedNumber(boolean calculated) {
 		this.calculated = calculated;
+	}
+
+	/**
+	 * Set that the value that this number represents was originally specified as a
+	 * calculation or as a relative unit, but comes from being either calculated or
+	 * absolutized.
+	 * <p>
+	 * This has consequences as to how the number is serialized.
+	 */
+	public void setAbsolutizedUnit() {
+		this.specified = false;
 	}
 
 	@Override

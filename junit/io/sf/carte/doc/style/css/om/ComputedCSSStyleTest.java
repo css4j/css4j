@@ -1038,12 +1038,12 @@ public class ComputedCSSStyleTest {
 		assertEquals(0f, box.getPaddingTop(), 0.01f);
 		assertEquals(0f, box.getPaddingRight(), 0.01f);
 		assertEquals(0f, box.getPaddingBottom(), 0.01f);
-		assertEquals(8.26f, box.getPaddingLeft(), 0.01f);
-		assertEquals(29.62f, box.getMarginTop(), 0.01f);
+		assertEquals(8.28f, box.getPaddingLeft(), 0.01f);
+		assertEquals(29.61f, box.getMarginTop(), 0.01f);
 		assertEquals(0f, box.getMarginRight(), 0.01f);
-		assertEquals(44.43f, box.getMarginBottom(), 0.01f);
+		assertEquals(44.415f, box.getMarginBottom(), 0.01f);
 		assertEquals(14.81f, box.getMarginLeft(), 0.01f);
-		assertEquals(651.93f, box.getWidth(), 0.01f);
+		assertEquals(651.915f, box.getWidth(), 0.01f);
 		//
 		elm.getOverrideStyle(null).setCssText("font-size: max(110%,1.4rem);margin-left:calc(1em - 0.3rem)");
 		style = elm.getComputedStyle(null);

@@ -408,9 +408,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				fv = NumberValue.floatValueConversion(fv, unit, CSSPrimitiveValue.CSS_PT);
 			}
 		}
-		fv = Math.round(fv * 100f) * 0.01f;
+		fv = Math.round(fv * 10000f) * 0.0001f;
 		value = new NumberValue();
 		value.setFloatValuePt(fv);
+		value.setAbsolutizedUnit();
 		return value;
 	}
 
