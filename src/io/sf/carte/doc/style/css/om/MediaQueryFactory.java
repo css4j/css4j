@@ -505,7 +505,7 @@ public class MediaQueryFactory {
 			invalidQueryList = false;
 			CSSParser parser = new CSSParser();
 			MediaQueryHandler qhandler = new MyMediaQueryHandler(owner);
-			parser.parseMediaQuery(mediaQueryString, qhandler);
+			parser.parseMediaQuery(mediaQueryString, new MediaConditionFactoryImpl(), qhandler);
 			if (invalidQueryList && !queryList.isEmpty()) {
 				invalidQueryList = false;
 			}

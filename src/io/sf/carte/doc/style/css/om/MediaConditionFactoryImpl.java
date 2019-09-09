@@ -13,11 +13,12 @@ package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.BooleanConditionFactory;
+import io.sf.carte.doc.style.css.parser.MediaConditionFactory;
 
 /**
  * Contains methods related to media query conditions.
  */
-public class MediaConditionFactory implements BooleanConditionFactory {
+class MediaConditionFactoryImpl implements BooleanConditionFactory, MediaConditionFactory {
 
 	/**
 	 * Create a boolean condition of the <code>and</code> type.
@@ -51,7 +52,7 @@ public class MediaConditionFactory implements BooleanConditionFactory {
 	}
 
 	/**
-	 * Create a operand condition.
+	 * Create a media-feature operand condition.
 	 * 
 	 * @param featureName
 	 *            the name of the media feature.
@@ -63,6 +64,7 @@ public class MediaConditionFactory implements BooleanConditionFactory {
 		return new MediaFeaturePredicateImpl(featureName);
 	}
 
+	@Override
 	public BooleanCondition createMediaTypePredicate(String medium) {
 		return new MediaTypePredicate(medium);
 	}

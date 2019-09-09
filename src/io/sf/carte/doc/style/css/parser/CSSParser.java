@@ -50,7 +50,6 @@ import io.sf.carte.doc.style.css.nsac.Condition2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.nsac.Selector2;
-import io.sf.carte.doc.style.css.om.MediaConditionFactory;
 import io.sf.carte.doc.style.css.om.MediaQueryFactory;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
 import io.sf.carte.doc.style.css.parser.BooleanCondition.Type;
@@ -328,10 +327,10 @@ public class CSSParser implements Parser2 {
 		}
 	}
 
-	public void parseMediaQuery(String media, MediaQueryHandler mqhandler)
+	public void parseMediaQuery(String media, MediaConditionFactory condFactory, MediaQueryHandler mqhandler)
 			throws CSSException {
 		int[] allowInWords = { 45, 46 }; // -.
-		ConditionTokenHandler handler = new MediaQueryTokenHandler(mqhandler);
+		ConditionTokenHandler handler = new MediaQueryTokenHandler(condFactory, mqhandler);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		mqhandler.startQuery();
 		try {
@@ -845,14 +844,19 @@ public class CSSParser implements Parser2 {
 
 	private class MediaQueryTokenHandler extends ConditionTokenHandler {
 
-		MediaQueryTokenHandler(MediaQueryHandler mqhandler) {
-			super(new MediaConditionFactory());
+		MediaQueryTokenHandler(MediaConditionFactory conditionFactory, MediaQueryHandler mqhandler) {
+			super(conditionFactory);
 			setPredicateHandler(new MediaQueryDelegateHandler(mqhandler));
 		}
 
 		@Override
+		MediaQueryDelegateHandler getPredicateHandler() {
+			return (MediaQueryDelegateHandler) super.getPredicateHandler();
+		}
+
+		@Override
 		void processImplicitAnd(int index) {
-			MediaQueryDelegateHandler mqhelper = (MediaQueryDelegateHandler) getPredicateHandler();
+			MediaQueryDelegateHandler mqhelper = getPredicateHandler();
 			String medium = mqhelper.mediaType;
 			if (medium == null) {
 				if (buffer.length() != 0) {
@@ -871,7 +875,7 @@ public class CSSParser implements Parser2 {
 			if (opType == BooleanCondition.Type.AND) {
 				return conditionFactory.createAndCondition();
 			}
-			if (((MediaQueryDelegateHandler) getPredicateHandler()).mediaType == null) {
+			if (getPredicateHandler().mediaType == null) {
 				return conditionFactory.createOrCondition();
 			}
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected 'OR'");
@@ -880,7 +884,7 @@ public class CSSParser implements Parser2 {
 		@Override
 		protected void handleError(int index, byte errCode, String message) {
 			if (!parseError) {
-				MediaQueryDelegateHandler mqhelper = (MediaQueryDelegateHandler) getPredicateHandler();
+				MediaQueryDelegateHandler mqhelper = getPredicateHandler();
 				CSSParseException ex = createException(index, errCode, message);
 				mqhelper.handler.invalidQuery(ex);
 				parseError = true;
