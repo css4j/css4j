@@ -70,17 +70,12 @@ public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRange
 	}
 
 	@Override
-	public void setCssText(String cssText) throws DOMException {
-		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This value is read-only");
-	}
-
-	@Override
-	public CSSPrimitiveValue2 getValue() {
+	public PrimitiveValue getValue() {
 		return value;
 	}
 
 	@Override
-	public CSSPrimitiveValue2 getEndValue() {
+	public PrimitiveValue getEndValue() {
 		return endValue;
 	}
 

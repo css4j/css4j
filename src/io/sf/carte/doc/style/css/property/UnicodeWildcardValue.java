@@ -48,14 +48,38 @@ public class UnicodeWildcardValue extends PrimitiveValue {
 
 	@Override
 	public void setStringValue(short stringType, String stringValue) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
+		checkModifiableProperty();
 		if (stringType != CSSPrimitiveValue2.CSS_UNICODE_WILDCARD) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Only setting wildcards is supported.");
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Only setting wildcards is supported.");
 		}
+		if (stringValue == null) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null value.");
+		}
+		stringValue = stringValue.trim();
+		checkWildcard(stringValue);
 		this.wildcard = stringValue;
+	}
+
+	private void checkWildcard(String wildcard) {
+		int len = wildcard.length();
+		if (len == 0 || len > 6) {
+			invalidWildcardError(wildcard);
+		}
+		for (int i = 0; i < len; i++) {
+			char c = wildcard.charAt(i);
+			if (c != '?' && !isHexChar(c)) {
+				invalidWildcardError(wildcard);
+			}
+		}
+	}
+
+	static boolean isHexChar(char codePoint) {
+		return (codePoint >= 0x30 && codePoint <= 0x39) || (codePoint >= 0x41 && codePoint <= 0x46)
+				|| (codePoint >= 0x61 && codePoint <= 0x66);
+	}
+
+	private void invalidWildcardError(String wildcard2) {
+		throw new DOMException(DOMException.SYNTAX_ERR, "Not a valid wildcard: " + wildcard);
 	}
 
 	public void setWildcard(String wildcard) {

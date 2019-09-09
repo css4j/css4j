@@ -146,6 +146,13 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 		return subproperty;
 	}
 
+	void checkModifiableProperty() throws DOMException {
+		if (isSubproperty()) {
+			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+					"This property was set with a shorthand. Must modify at the style-declaration level.");
+		}
+	}
+
 	void setCSSUnitType(short cssUnitType) {
 		this.primitiveType = cssUnitType;
 	}

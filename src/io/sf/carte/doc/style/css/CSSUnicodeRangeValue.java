@@ -24,14 +24,14 @@ public interface CSSUnicodeRangeValue extends ExtendedCSSPrimitiveValue {
 	 * 
 	 * @return the value.
 	 */
-	CSSPrimitiveValue2 getValue();
+	ExtendedCSSPrimitiveValue getValue();
 
 	/**
 	 * Get the end of this unicode range.
 	 * 
 	 * @return the range end value, or null if a single unicode value was specified.
 	 */
-	CSSPrimitiveValue2 getEndValue();
+	ExtendedCSSPrimitiveValue getEndValue();
 
 	@Override
 	CSSUnicodeRangeValue clone();
@@ -39,7 +39,7 @@ public interface CSSUnicodeRangeValue extends ExtendedCSSPrimitiveValue {
 	/**
 	 * A CSS unicode character value.
 	 */
-	public interface CSSUnicodeValue extends CSSPrimitiveValue2, ExtendedCSSValue {
+	public interface CSSUnicodeValue extends ExtendedCSSPrimitiveValue {
 
 		void setCodePoint(int codePoint);
 
