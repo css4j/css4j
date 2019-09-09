@@ -16,6 +16,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -24,6 +25,7 @@ import org.junit.Test;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
@@ -43,26 +45,38 @@ public class StringValueTest {
 		assertEquals("Some text in \"double quotes\"", value.getStringValue());
 		assertEquals("'Some text in \"double quotes\"'", value.getCssText());
 		assertEquals("'Some text in \"double quotes\"'", value.getMinifiedCssText(""));
+		//
 		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "Some text 'in quotes'");
 		assertEquals("Some text 'in quotes'", value.getStringValue());
 		assertEquals("\"Some text 'in quotes'\"", value.getCssText());
 		assertEquals("\"Some text 'in quotes'\"", value.getMinifiedCssText(""));
+		//
 		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "Some text in \"double quote's\"");
 		assertEquals("Some text in \"double quote's\"", value.getStringValue());
 		assertEquals("'Some text in \"double quote\\'s\"'", value.getCssText());
 		assertEquals("'Some text in \"double quote\\'s\"'", value.getMinifiedCssText(""));
+		//
 		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "&");
 		assertEquals("&", value.getStringValue());
 		assertEquals("'&'", value.getCssText());
 		assertEquals("'&'", value.getMinifiedCssText(""));
+		//
 		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "foo");
 		assertEquals("foo", value.getStringValue());
 		assertEquals("'foo'", value.getCssText());
 		assertEquals("'foo'", value.getMinifiedCssText(""));
+		//
 		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "\\5FAE\u8F6F");
 		assertEquals("\\5FAE\u8F6F", value.getStringValue());
 		assertEquals("'\\\\5FAE\u8F6F'", value.getCssText());
 		assertEquals("'\\\\5FAE\u8F6F'", value.getMinifiedCssText(""));
+		//
+		try {
+			value.setStringValue(CSSPrimitiveValue.CSS_STRING, null);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
 	}
 
 	@Test

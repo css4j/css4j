@@ -77,10 +77,7 @@ public class EnvVariableValue extends PrimitiveValue implements CSSEnvVariableVa
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
+		checkModifiableProperty();
 		ValueFactory factory = new ValueFactory();
 		StyleValue cssval = factory.parseProperty(cssText);
 		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||
@@ -90,7 +87,6 @@ public class EnvVariableValue extends PrimitiveValue implements CSSEnvVariableVa
 		EnvVariableValue env = (EnvVariableValue) cssval;
 		this.name = env.getName();
 		this.fallback = env.fallback;
-		setPlainCssText(cssval.getCssText());
 	}
 
 	@Override

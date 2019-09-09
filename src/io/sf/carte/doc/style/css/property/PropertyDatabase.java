@@ -113,7 +113,8 @@ public final class PropertyDatabase {
 		StyleValue svalue;
 		Object value = initialValueMap.get(propertyName);
 		if (value != null && value.getClass() == String.class) {
-			svalue =  valueFactory.parseProperty((String) value);
+			svalue = valueFactory.parseProperty((String) value);
+			svalue.setReadOnly();
 			initialValueMap.put(propertyName, svalue);
 		} else {
 			svalue = (StyleValue) value;

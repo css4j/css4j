@@ -28,7 +28,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class StringValue extends PrimitiveValue {
+public class StringValue extends AbstractTextValue {
 
 	private String stringValue = null;
 
@@ -49,7 +49,20 @@ public class StringValue extends PrimitiveValue {
 	 *              CSSStyleSheetFactory.setFactoryFlag(byte)}
 	 */
 	public StringValue(byte flags) {
-		super();
+		this(CSSPrimitiveValue.CSS_STRING, flags);
+	}
+
+	/**
+	 * A string value with a flag specifying the quote behaviour.
+	 * <p>
+	 * 
+	 * @param primitiveType the primitive type.
+	 * @param flags         See
+	 *                      {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(byte)
+	 *                      CSSStyleSheetFactory.setFactoryFlag(byte)}
+	 */
+	StringValue(short primitiveType, byte flags) {
+		super(primitiveType);
 		this.flags = flags;
 		quote = '\'';
 		setQuote();
@@ -60,7 +73,6 @@ public class StringValue extends PrimitiveValue {
 		this.stringValue = copied.stringValue;
 		this.flags = copied.flags;
 		this.quote = copied.quote;
-		setPlainCssText(copied.getCssText());
 	}
 
 	private void setQuote() {
@@ -81,10 +93,7 @@ public class StringValue extends PrimitiveValue {
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
+		checkModifiableProperty();
 		boolean doubleQuotes = false;
 		boolean singleQuotes = false;
 		cssText = cssText.trim();
@@ -127,13 +136,13 @@ public class StringValue extends PrimitiveValue {
 
 	@Override
 	public void setStringValue(short stringType, String stringValue) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
+		checkModifiableProperty();
 		if (getPrimitiveType() != stringType) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
 					"This value is a different type. To have a new type, set it at the style-declaration level.");
+		}
+		if (stringValue == null) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null value.");
 		}
 		setStringValue(stringValue);
 		setUnescapedCssText(stringValue);

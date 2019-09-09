@@ -43,8 +43,7 @@ public class URIValue extends StringValue {
 	 *              CSSStyleSheetFactory.setFactoryFlag(byte)}
 	 */
 	public URIValue(byte flags) {
-		super(flags);
-		setCSSUnitType(CSS_URI);
+		super(CSSPrimitiveValue.CSS_URI, flags);
 	}
 
 	protected URIValue(URIValue copied) {
@@ -58,10 +57,7 @@ public class URIValue extends StringValue {
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
+		checkModifiableProperty();
 		if (cssText.indexOf('(') == -1 && cssText.indexOf(')') == -1) {
 			cssText = "url(" + cssText + ")";
 		}

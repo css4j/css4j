@@ -176,10 +176,7 @@ public class NumberValue extends PrimitiveValue {
 
 	@Override
 	public void setFloatValue(short unitType, float floatValue) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify the whole style declaration.");
-		}
+		checkModifiableProperty();
 		setCSSUnitType(unitType);
 		realvalue = floatValue;
 		dimensionUnitText = dimensionUnitString(unitType);

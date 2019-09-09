@@ -97,7 +97,7 @@ public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 						vbi.nextLexicalUnit = lu.getNextLexicalUnit();
 						item = vbi;
 						newval = new UnknownValue();
-						newval.setPlainCssText("/");
+						((UnknownValue) newval).setPlainCssText("/");
 					}
 				} else if (list != null
 						&& (type == LexicalUnit.SAC_OPERATOR_PLUS || type == LexicalUnit.SAC_OPERATOR_MINUS

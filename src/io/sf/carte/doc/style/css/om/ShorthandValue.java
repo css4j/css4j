@@ -20,7 +20,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.SimpleWriter;
 
@@ -31,6 +31,8 @@ import io.sf.carte.util.SimpleWriter;
  *
  */
 class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSSShorthandValue {
+
+	private String cssText = null;
 
 	private final LexicalUnit lexicalUnit;
 
@@ -59,6 +61,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 		this.lexicalUnit = copied.lexicalUnit;
 		this.important = copied.important;
 		this.priorityCompat = copied.priorityCompat;
+		this.cssText = copied.cssText;
 		this.miniCssText = copied.miniCssText;
 		this.longhands = new HashSet<String>(copied.longhands.size());
 		this.longhands.addAll(copied.longhands);
@@ -71,7 +74,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 	}
 
 	public void setShorthandText(String cssText, String miniCssText) throws DOMException {
-		super.setCssText(cssText);
+		this.cssText = cssText;
 		this.miniCssText = miniCssText;
 	}
 
@@ -91,6 +94,11 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 
 	public boolean isPriorityCompat() {
 		return priorityCompat;
+	}
+
+	@Override
+	public String getCssText() {
+		return cssText;
 	}
 
 	@Override

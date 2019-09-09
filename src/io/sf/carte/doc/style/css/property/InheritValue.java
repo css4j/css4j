@@ -72,7 +72,7 @@ public class InheritValue extends StyleValue implements ValueItem {
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Attempt to modify inherited value");
+		throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Attempt to modify inherit value");
 	}
 
 	@Override

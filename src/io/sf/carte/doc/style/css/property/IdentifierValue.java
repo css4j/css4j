@@ -31,13 +31,12 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class IdentifierValue extends PrimitiveValue {
+public class IdentifierValue extends AbstractTextValue {
 
 	private String stringValue = null;
 
 	public IdentifierValue() {
-		super();
-		setCSSUnitType(CSS_IDENT);
+		super(CSS_IDENT);
 	}
 
 	/**
@@ -49,8 +48,7 @@ public class IdentifierValue extends PrimitiveValue {
 	 *            the identifier.
 	 */
 	public IdentifierValue(String plainIdentifier) {
-		super();
-		setCSSUnitType(CSS_IDENT);
+		super(CSS_IDENT);
 		this.stringValue = plainIdentifier;
 		setPlainCssText(plainIdentifier);
 	}
@@ -63,9 +61,9 @@ public class IdentifierValue extends PrimitiveValue {
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
+		checkModifiableProperty();
+		if (cssText == null || cssText.length() == 0) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null or empty value.");
 		}
 		InputSource source = new InputSource(new StringReader(cssText));
 		CSSParser parser = new CSSParser();
@@ -98,13 +96,13 @@ public class IdentifierValue extends PrimitiveValue {
 
 	@Override
 	public void setStringValue(short stringType, String stringValue) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
+		checkModifiableProperty();
 		if (stringType != CSSPrimitiveValue.CSS_IDENT) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
 					"This value is an identifier. To have a new type, set it at the style-declaration level.");
+		}
+		if (stringValue == null || stringValue.length() == 0) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null or empty value.");
 		}
 		setCSSUnitType(stringType);
 		setStringValue(stringValue);

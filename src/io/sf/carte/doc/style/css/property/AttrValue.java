@@ -31,7 +31,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class AttrValue extends PrimitiveValue implements CSSAttrValue {
+public class AttrValue extends AbstractTextValue implements CSSAttrValue {
 
 	private String attrname = null;
 	private String typeval = null;
@@ -40,9 +40,8 @@ public class AttrValue extends PrimitiveValue implements CSSAttrValue {
 	private final byte flags;
 
 	public AttrValue(byte flags) {
-		super();
+		super(CSS_ATTR);
 		this.flags = flags;
-		setCSSUnitType(CSS_ATTR);
 	}
 
 	protected AttrValue(AttrValue copied) {
@@ -137,10 +136,7 @@ public class AttrValue extends PrimitiveValue implements CSSAttrValue {
 
 	@Override
 	public void setStringValue(short stringType, String stringValue) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
+		checkModifiableProperty();
 		if (stringType != CSSPrimitiveValue.CSS_ATTR) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
 					"This value is an attribute. To have a new type, set it at the style-declaration level.");
@@ -211,10 +207,7 @@ public class AttrValue extends PrimitiveValue implements CSSAttrValue {
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
+		checkModifiableProperty();
 		ValueFactory factory = new ValueFactory(flags);
 		StyleValue cssval = factory.parseProperty(cssText);
 		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||

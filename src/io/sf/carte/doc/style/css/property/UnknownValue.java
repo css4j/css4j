@@ -25,18 +25,23 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class UnknownValue extends PrimitiveValue {
+public class UnknownValue extends AbstractTextValue {
 
 	private boolean priorityCompat = false;
 
 	public UnknownValue() {
-		super();
-		setCSSUnitType(CSS_UNKNOWN);
+		super(CSS_UNKNOWN);
 	}
 
 	protected UnknownValue(UnknownValue copied) {
 		super(copied);
 		setCssText(copied.getCssText());
+	}
+
+	@Override
+	public void setCssText(String cssText) throws DOMException {
+		checkModifiableProperty();
+		setPlainCssText(cssText);
 	}
 
 	@Override

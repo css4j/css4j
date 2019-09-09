@@ -62,7 +62,10 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 
 	@Override
 	public void setFloatValue(short unitType, float floatValue) throws DOMException {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not a Float");
+		if (unitType != getPrimitiveType()) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a Float.");
+		}
+		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not a <number>.");
 	}
 
 	/**
@@ -94,7 +97,10 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 
 	@Override
 	public void setStringValue(short stringType, String stringValue) throws DOMException {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not a String");
+		if (stringType != getPrimitiveType()) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Type not supported.");
+		}
+		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Cannot be modified as a String");
 	}
 
 	@Override
@@ -147,7 +153,7 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 	}
 
 	void checkModifiableProperty() throws DOMException {
-		if (isSubproperty()) {
+		if (isSubproperty() || isReadOnly()) {
 			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
 					"This property was set with a shorthand. Must modify at the style-declaration level.");
 		}

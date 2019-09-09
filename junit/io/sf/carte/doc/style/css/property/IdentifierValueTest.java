@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
@@ -46,9 +48,31 @@ public class IdentifierValueTest {
 		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "scroll");
 		assertEquals("scroll", value.getStringValue());
 		assertEquals("scroll", value.getCssText());
+		//
 		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "\uD83D\uDC4D");
 		assertEquals("\uD83D\uDC4D", value.getStringValue());
 		assertEquals("\uD83D\uDC4D", value.getCssText());
+		//
+		try {
+			value.setStringValue(CSSPrimitiveValue.CSS_STRING, null);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+		}
+		//
+		try {
+			value.setStringValue(CSSPrimitiveValue.CSS_IDENT, null);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		//
+		try {
+			value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
 	}
 
 	@Test
@@ -58,6 +82,24 @@ public class IdentifierValueTest {
 		assertEquals("\\5b8b\u4f53", value.getStringValue());
 		assertEquals("\\\\5b8b\\4f53", value.getCssText());
 		assertEquals("\\\\5b8b\u4f53", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testSetCssTextError() {
+		IdentifierValue value = new IdentifierValue();
+		try {
+			value.setCssText(null);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		//
+		try {
+			value.setCssText("");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
 	}
 
 	@Test

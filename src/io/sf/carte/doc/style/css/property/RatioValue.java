@@ -63,6 +63,7 @@ public class RatioValue extends PrimitiveValue implements CSSRatioValue {
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
+		checkModifiableProperty();
 		ValueFactory vf = new ValueFactory();
 		PrimitiveValue value = vf.parseMediaFeature(cssText);
 		if (value.getPrimitiveType() != CSSPrimitiveValue2.CSS_RATIO) {

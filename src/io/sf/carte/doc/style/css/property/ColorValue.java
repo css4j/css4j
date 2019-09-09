@@ -29,7 +29,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class ColorValue extends PrimitiveValue {
+public class ColorValue extends AbstractTextValue {
 
 	public static final NumberValue opaqueAlpha;
 
@@ -70,6 +70,7 @@ public class ColorValue extends PrimitiveValue {
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
+		checkModifiableProperty();
 		ValueFactory factory = new ValueFactory();
 		StyleValue value = factory.parseProperty(cssText);
 		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
@@ -87,7 +88,7 @@ public class ColorValue extends PrimitiveValue {
 			} else if (ptype != CSSPrimitiveValue.CSS_RGBCOLOR) {
 				failSetCssText();
 			}
-			super.setCssText(cssText);
+			setPlainCssText(cssText);
 			set((ColorValue) value);
 		} else {
 			failSetCssText();

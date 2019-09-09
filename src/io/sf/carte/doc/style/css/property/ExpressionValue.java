@@ -269,6 +269,12 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 	}
 
 	@Override
+	public void setCssText(String cssText) throws DOMException {
+		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+				"The value of this property cannot be modified.");
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

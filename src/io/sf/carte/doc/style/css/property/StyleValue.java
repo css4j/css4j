@@ -25,7 +25,7 @@ abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 
 	private final short valueType;
 
-	private String cssText = null;
+	private transient boolean readOnly = false;
 
 	protected StyleValue(short valueType) {
 		super();
@@ -34,17 +34,6 @@ abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 
 	protected StyleValue(StyleValue copied) {
 		this(copied.valueType);
-		this.cssText = copied.cssText;
-	}
-
-	/**
-	 * Get a string representation of the current value.
-	 * 
-	 * @return the css text representing the value of this property.
-	 */
-	@Override
-	public String getCssText() {
-		return cssText;
 	}
 
 	/**
@@ -64,15 +53,8 @@ abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 	 */
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		if (isSubproperty()) {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
-		}
-		setPlainCssText(cssText);
-	}
-
-	void setPlainCssText(String cssText) {
-		this.cssText = cssText;
+		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+				"This property can only be modified at the style declaration level.");
 	}
 
 	/**
@@ -114,6 +96,14 @@ abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 		return false;
 	}
 
+	boolean isReadOnly() {
+		return readOnly;
+	}
+
+	void setReadOnly() {
+		this.readOnly = true;
+	}
+
 	@Override
 	public int hashCode() {
 		return valueType;
@@ -138,11 +128,19 @@ abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 	}
 
 	@Override
-	abstract public StyleValue clone();
-
-	@Override
 	public String toString() {
 		return getCssText();
 	}
+
+	/**
+	 * Get a string representation of the current value.
+	 * 
+	 * @return the css text representing the value of this property.
+	 */
+	@Override
+	abstract public String getCssText();
+
+	@Override
+	abstract public StyleValue clone();
 
 }
