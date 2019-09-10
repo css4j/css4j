@@ -34,11 +34,4 @@ interface MediaListAccess {
 	 */
 	boolean match(SACMediaList sacMedia);
 
-	/**
-	 * Append the contents of the given SAC media list to this one.
-	 * 
-	 * @param sacMedia
-	 *            the SAC media to add.
-	 */
-	void appendSACMediaList(SACMediaList sacMedia);
 }

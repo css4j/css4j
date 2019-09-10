@@ -12,10 +12,9 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
@@ -23,6 +22,7 @@ import org.w3c.dom.css.CSSRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -34,20 +34,24 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCSSRule {
 
-	private AbstractCSSStyleSheet loadedSheet = null;
+	private AbstractCSSStyleSheet importedSheet = null;
 
-	private String styleSheetURI = null;
+	private final String styleSheetURI;
 
-	private MediaQueryList mediaList;
+	private final MediaQueryList mediaList;
 
-	public ImportRule(AbstractCSSStyleSheet parentSheet, byte origin) {
-		super(parentSheet, CSSRule.IMPORT_RULE, origin);
-		mediaList = MediaList.createMediaList();
-	}
-
-	ImportRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, byte origin) {
+	/**
+	 * Construct an import rule with the given parameters.
+	 * 
+	 * @param parentSheet the parent style sheet.
+	 * @param mediaList   the media list to which the sheet shall apply.
+	 * @param href        the URI from which to import the sheet.
+	 * @param origin      the origin of the rule.
+	 */
+	ImportRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, String href, byte origin) {
 		super(parentSheet, CSSRule.IMPORT_RULE, origin);
 		this.mediaList = mediaList;
+		this.styleSheetURI = href;
 	}
 
 	@Override
@@ -62,7 +66,21 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 
 	@Override
 	public AbstractCSSStyleSheet getStyleSheet() {
-		return loadedSheet;
+		if (importedSheet == null) {
+			AbstractCSSStyleSheet parent = getParentStyleSheet();
+			importedSheet = parent.getStyleSheetFactory().createRuleStyleSheet(this, parent.getTitle(),
+					mediaList);
+			importedSheet.setParentStyleSheet(parent);
+			// Load the sheet
+			try {
+				loadStyleSheet();
+			} catch (DOMException e) {
+				parent.getErrorHandler().badAtRule(e, getCssText());
+			} catch (IOException e) {
+				parent.getErrorHandler().ruleIOError(this, e);
+			}
+		}
+		return importedSheet;
 	}
 
 	@Override
@@ -94,43 +112,62 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 		context.writeSemiColon(wri);
 	}
 
+	@Override
+	public String getMinifiedCssText() {
+		StringBuilder buf = new StringBuilder(80);
+		buf.append("@import ");
+		buf.append(ParseHelper.quote(styleSheetURI, '\''));
+		if (!mediaList.isAllMedia()) {
+			buf.append(' ');
+			buf.append(mediaList.getMinifiedMedia());
+		}
+		buf.append(';');
+		return buf.toString();
+	}
+
 	/**
 	 * Loads and parses an imported CSS style sheet.
 	 * 
-	 * @param uri
-	 *            the URI to import the sheet.
-	 * @param title
-	 *            the advisory title of the imported sheet. If not set, will try
-	 *            to get the title from the parent style sheet.
-	 * @param media
-	 *            the destination SAC media list for the style information.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
 	 *         otherwise.
-	 * @throws CSSException
-	 *             if there is a serious problem parsing the style sheet at low
-	 *             level.
 	 * @throws IOException
 	 *             if a problem appears fetching or resolving the uri contents.
 	 * @throws DOMException
 	 *             if there is a problem building the sheet's DOM.
 	 */
-	public boolean loadStyleSheet(String uri, String title, SACMediaList media)
-			throws CSSException, IOException, DOMException {
-		URL styleSheetURL = getURL(uri);
-		styleSheetURI = styleSheetURL.toExternalForm();
-		((MediaListAccess) mediaList).appendSACMediaList(media);
-		AbstractCSSStyleSheet parentSS = getParentStyleSheet();
-		if (title == null) {
-			if (parentSS != null) {
-				title = parentSS.getTitle();
+	private boolean loadStyleSheet() throws IOException, DOMException {
+		URL styleSheetURL = getURL(getHref());
+		String href = styleSheetURL.toExternalForm();
+		checkCircularity(href);
+		// load & Parse
+		return importedSheet.loadStyleSheet(styleSheetURL, "");
+	}
+
+	private void checkCircularity(String styleSheetURI) throws DOMException {
+		int count = 0;
+		AbstractCSSRule rule = getParentRule();
+		while (rule != null) {
+			if (rule.getType() == CSSRule.IMPORT_RULE) {
+				String href = ((ImportRule) rule).getHref();
+				URL styleSheetURL;
+				try {
+					styleSheetURL = getURL(href);
+					href = styleSheetURL.toExternalForm();
+				} catch (MalformedURLException e) {
+				}
+				if (styleSheetURI.equalsIgnoreCase(href)) {
+					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Circularity in import rule, sheet " + styleSheetURI);
+				}
+			}
+			rule = rule.getParentRule();
+			count++;
+			if (count == 8) {
+				throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+						"Too many nested imports, unreached sheet: " + styleSheetURI);
 			}
 		}
-		// Create, load & Parse
-		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this, title,
-				mediaList);
-		css.setParentStyleSheet(parentSS);
-		loadedSheet = css;
-		return css.loadStyleSheet(styleSheetURL, "");
+
 	}
 
 	@Override
@@ -173,9 +210,8 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 
 	@Override
 	public ImportRule clone(AbstractCSSStyleSheet parentSheet) {
-		ImportRule rule = new ImportRule(parentSheet, ((MediaListAccess) getMedia()).unmodifiable(), getOrigin());
-		rule.styleSheetURI = getHref();
-		rule.loadedSheet = getStyleSheet();
+		ImportRule rule = new ImportRule(parentSheet, ((MediaListAccess) getMedia()).unmodifiable(), getHref(),
+				getOrigin());
 		return rule;
 	}
 

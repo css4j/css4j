@@ -33,12 +33,22 @@ public class CSSRuleArrayList extends ArrayList<AbstractCSSRule>
 
 	private static final long serialVersionUID = 2L;
 
+	/**
+	 * Constructs an empty rule list with the specified initial capacity.
+	 * 
+	 * @param initialCapacity the initial capacity.
+	 * @throws IllegalArgumentException if the specified initial capacity is
+	 *                                  negative.
+	 */
 	public CSSRuleArrayList(int initialCapacity) {
 		super(initialCapacity);
 	}
 
+	/**
+	 * Constructs an empty rule list with an initial capacity of 16.
+	 */
 	public CSSRuleArrayList() {
-		super();
+		super(16);
 	}
 
 	public CSSRuleArrayList(Collection<? extends AbstractCSSRule> c) {

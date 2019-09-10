@@ -421,8 +421,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public ImportRule createCSSImportRule(MediaQueryList mediaList) {
-		return new ImportRule(this, ((MediaListAccess) mediaList).unmodifiable(), getOrigin());
+	public ImportRule createCSSImportRule(MediaQueryList mediaList, String href) {
+		if (href == null) {
+			throw new NullPointerException("Null @import URI");
+		}
+		return new ImportRule(this, ((MediaListAccess) mediaList).unmodifiable(), href, getOrigin());
 	}
 
 	@Override
@@ -1125,14 +1128,16 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				return;
 			}
 			if (((MediaListAccess) destinationMedia).match(media)) {
-				// Importing rule from uri
-				ImportRule imp = new ImportRule(BaseCSSStyleSheet.this, sheetOrigin);
-				try {
-					imp.loadStyleSheet(uri, getTitle(), media);
-				} catch (CSSException e) {
-					throw new CSSException(e);
-				} catch (IOException e) {
-					throw new CSSException(e);
+				MediaQueryList mql = MediaQueryFactory.createMediaList(media);
+				if (!mql.isNotAllMedia()) {
+					if (currentRule == null) { // That should be always true
+						// Importing rule from uri
+						ImportRule imp = createCSSImportRule(mql, uri);
+						setCommentsToRule(imp);
+						addLocalRule(imp);
+					}
+				} else {
+					getErrorHandler().badMediaList(media);
 				}
 			} // else { Ignoring @import from uri due to target media mismatch
 		}

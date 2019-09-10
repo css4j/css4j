@@ -61,6 +61,7 @@ import io.sf.carte.doc.style.css.om.GridAreaShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.GridPlacementShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.GridShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.GridTemplateShorthandBuilderTest;
+import io.sf.carte.doc.style.css.om.ImportRuleTest;
 import io.sf.carte.doc.style.css.om.KeyframesRuleTest;
 import io.sf.carte.doc.style.css.om.ListStyleShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.MarginBuilderTest;
@@ -170,6 +171,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		CounterStyleRuleTest.class,
 		FontFaceRuleTest.class,
 		FontFeatureValuesRuleTest.class,
+		ImportRuleTest.class,
 		KeyframesRuleTest.class,
 		MediaRuleTest.class,
 		NamespaceRuleTest.class,

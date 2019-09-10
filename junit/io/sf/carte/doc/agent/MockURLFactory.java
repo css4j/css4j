@@ -40,6 +40,7 @@ public class MockURLFactory {
 		mockURLMap.put("http://www.example.com/css/default.css", "default.css");
 		mockURLMap.put("http://www.example.com/css/background.png", "background.png");
 		mockURLMap.put("http://www.example.com/media/print.css", "print.css");
+		mockURLMap.put("http://www.example.com/css/circular.css", "circular.css");
 		mockURLMap.put("http://www.example.com/etc/fakepasswd", "fakepasswd");
 	}
 

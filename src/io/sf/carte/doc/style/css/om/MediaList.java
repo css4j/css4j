@@ -102,7 +102,14 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 			mlist.allMedia = false;
 			int mll = list.getLength();
 			for (int i = 0; i < mll; i++) {
-				mlist.addMedium(list.item(i));
+				String newMedium = list.item(i);
+				if ("all".equals(newMedium)) {
+					mlist.allMedia = true;
+					mlist.mediastringList.clear();
+					return mlist;
+				} else {
+					mlist.addMedium(newMedium);
+				}
 			}
 		}
 		return mlist;
@@ -188,7 +195,13 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		while (st.hasMoreElements()) {
 			String medium = st.nextToken().trim().toLowerCase(Locale.ROOT);
 			medium = ParseHelper.unescapeStringValue(medium);
-			addMedium(medium);
+			if ("all".equals(medium)) {
+				allMedia = true;
+				mediastringList.clear();
+				return;
+			} else {
+				addMedium(medium);
+			}
 		}
 	}
 
@@ -196,7 +209,14 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		allMedia = false;
 		StringTokenizer st = new StringTokenizer(mediaText, ",");
 		while (st.hasMoreElements()) {
-			addMedium(st.nextToken().trim().toLowerCase(Locale.ROOT));
+			String newMedium = st.nextToken().trim().toLowerCase(Locale.ROOT);
+			if ("all".equals(newMedium)) {
+				allMedia = true;
+				mediastringList.clear();
+				return;
+			} else {
+				addMedium(newMedium);
+			}
 		}
 	}
 
@@ -222,30 +242,10 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 
 	@Override
 	public void deleteMedium(String oldMedium) throws DOMException {
-		oldMedium = extractPlainMedium(oldMedium);
 		if (!mediastringList.remove(oldMedium)) {
 			throw new DOMException(DOMException.NOT_FOUND_ERR, oldMedium + " not in media list.");
 		}
 		mediaList.remove(oldMedium);
-	}
-
-	/**
-	 * If the supplied medium is a plain medium name, return it unchanged. But if it is a
-	 * media query, extract the plain medium from it.
-	 * <p>
-	 * This class should not be used for media queries, but we still do media query detection,
-	 * and the legacy processing of just using the first part (like in 'screen and...').
-	 * 
-	 * @param medium
-	 *            the medium or media query.
-	 * @return the plain medium name.
-	 */
-	private String extractPlainMedium(String medium) {
-		int idx = medium.indexOf(' ');
-		if (idx != -1) {
-			medium = medium.substring(0, idx);
-		}
-		return medium;
 	}
 
 	@Override
@@ -254,7 +254,12 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null medium");
 		}
 		String lcnm = newMedium.toLowerCase(Locale.ROOT);
-		addMedium(lcnm);
+		if ("all".equals(newMedium)) {
+			allMedia = true;
+			mediastringList.clear();
+		} else {
+			addMedium(lcnm);
+		}
 	}
 
 	boolean isValidMedium(String lcmedia) {
@@ -269,13 +274,10 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 			if (newMedium == null) {
 				throw new NullPointerException("New medium cannot be null");
 			}
-			newMedium = extractPlainMedium(newMedium);
-			if (!"all".equals(newMedium)) {
-				newMedium = newMedium.intern();
-				mediastringList.add(newMedium);
-				mediaList.add(newMedium);
-				allMedia = false;
-			}
+			newMedium = newMedium.intern();
+			mediastringList.add(newMedium);
+			mediaList.add(newMedium);
+			allMedia = false;
 		}
 	}
 
@@ -397,25 +399,6 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	}
 
 	/**
-	 * Append the contents of the given SAC media list to this one.
-	 * 
-	 * @param sacMedia
-	 *            the SAC media to add.
-	 */
-	@Override
-	public void appendSACMediaList(SACMediaList sacMedia) {
-		if (sacMedia != null) {
-			int sz = sacMedia.getLength();
-			for (int i = 0; i < sz; i++) {
-				appendMedium(sacMedia.item(i));
-			}
-		} else {
-			allMedia = true;
-			mediastringList.clear();
-		}
-	}
-
-	/**
 	 * Gives an unmodifiable view of this media list.
 	 * 
 	 * @return an unmodifiable view of this media list.
@@ -423,7 +406,7 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	@Override
 	public MediaList unmodifiable() {
 		if (allMedia) {
-			return new UnmodifiableMediaList();
+			return allMediaSingleton;
 		} else {
 			return new UnmodifiableMediaList(this);
 		}

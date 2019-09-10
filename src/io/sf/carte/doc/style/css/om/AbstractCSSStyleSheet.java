@@ -146,7 +146,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	abstract public CSSFontFaceRule createCSSFontFaceRule();
 
 	@Override
-	abstract public ImportRule createCSSImportRule(MediaQueryList mediaList);
+	abstract public ImportRule createCSSImportRule(MediaQueryList mediaList, String href);
 
 	@Override
 	abstract public MediaRule createCSSMediaRule(MediaQueryList mediaList);

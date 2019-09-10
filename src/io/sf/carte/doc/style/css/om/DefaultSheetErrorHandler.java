@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSElement;
@@ -39,6 +42,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	private LinkedList<String> unknownRules = null;
 	private LinkedList<String> ignoredImports = null;
 	private LinkedList<RuleParseError> ruleParseErrors = null;
+	private HashMap<CSSImportRule,IOException> importIOErrors = null;
 	private LinkedList<String> emptyRules = null;
 
 	private LinkedList<SACMediaList> badMediaLists = null;
@@ -137,6 +141,10 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		return sacErrors;
 	}
 
+	public HashMap<CSSImportRule, IOException> getImportIOErrors() {
+		return importIOErrors;
+	}
+
 	public List<CSSParseException> getSacWarnings() {
 		return sacWarnings;
 	}
@@ -166,7 +174,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	@Override
 	public boolean hasOMErrors() {
 		return omErrorMergedState || unknownRules != null || ignoredImports != null || ruleParseErrors != null
-				|| badMediaLists != null || badAtRules != null || badInlineStyles != null;
+				|| importIOErrors != null || badMediaLists != null || badAtRules != null || badInlineStyles != null;
 	}
 
 	@Override
@@ -280,6 +288,14 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 
 	@Override
 	public void ruleParseWarning(CSSRule rule, CSSParseException ex) {
+	}
+
+	@Override
+	public void ruleIOError(CSSImportRule rule, IOException exception) {
+		if (importIOErrors == null) {
+			importIOErrors = new HashMap<CSSImportRule,IOException>();
+		}
+		importIOErrors.put(rule, exception);
 	}
 
 	@Override

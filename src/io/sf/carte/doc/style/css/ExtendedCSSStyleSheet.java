@@ -105,9 +105,11 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *
 	 * @param mediaList
 	 *            a list of media types for which the new import rule may be used.
+	 * @param href
+	 *            the URI from which to import the sheet.
 	 * @return a CSS import rule.
 	 */
-	CSSImportRule createCSSImportRule(MediaQueryList mediaList);
+	CSSImportRule createCSSImportRule(MediaQueryList mediaList, String href);
 
 	/**
 	 * Create a CSSKeyframesRule compatible with this implementation.

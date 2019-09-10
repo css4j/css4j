@@ -304,20 +304,6 @@ public class MediaQueryFactory {
 			return false;
 		}
 
-		/**
-		 * Append the contents of the given SAC media list to this one.
-		 * 
-		 * @param sacMedia
-		 *            the SAC media to add.
-		 */
-		@Override
-		public void appendSACMediaList(SACMediaList sacMedia) {
-			int sz = sacMedia.getLength();
-			for (int i = 0; i < sz; i++) {
-				parse(sacMedia.item(i), null);
-			}
-		}
-
 		@Override
 		public void addListener(MediaQueryListListener listener) throws DOMException {
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
@@ -446,12 +432,6 @@ public class MediaQueryFactory {
 			}
 
 			@Override
-			public void appendSACMediaList(SACMediaList sacMedia) {
-				throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-						"Cannot modify target media: you must re-create the style sheet with a different media list.");
-			}
-
-			@Override
 			public boolean matches(String medium, CSSCanvas canvas) {
 				return MyMediaQueryList.this.matches(medium, canvas);
 			}
@@ -501,6 +481,17 @@ public class MediaQueryFactory {
 
 		}
 
+		/**
+		 * Parses the given media query string.
+		 * <p>
+		 * Does not reset the media query list, but adds to it.
+		 * 
+		 * @param mediaQueryString the media query string.
+		 * @param owner            the owner node that would process errors.
+		 * @return <code>true</code> if the query list is not invalid. Note that if this
+		 *         query list already contains a valid query, it will never return
+		 *         <code>false</code>.
+		 */
 		boolean parse(String mediaQueryString, Node owner) {
 			invalidQueryList = false;
 			CSSParser parser = new CSSParser();

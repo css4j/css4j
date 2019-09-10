@@ -11,10 +11,13 @@
 
 package io.sf.carte.doc.style.css;
 
+import java.io.IOException;
+
 import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
 
 /**
@@ -94,6 +97,16 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 *            the exception.
 	 */
 	void ruleParseWarning(CSSRule rule, CSSParseException ex);
+
+	/**
+	 * A I/O error was produced when processing an import rule.
+	 * 
+	 * @param rule
+	 *            the import rule.
+	 * @param exception
+	 *            the exception.
+	 */
+	void ruleIOError(CSSImportRule rule, IOException exception);
 
 	/**
 	 * Notify this handler that a rule of unknown type was found.
