@@ -1120,7 +1120,37 @@ public class ComputedCSSStyleTest {
 		ExtendedCSSValue val = style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(0.70710677f, ((CSSPrimitiveValue) val).getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-5);
+		assertEquals(0.70710677f, ((CSSPrimitiveValue) val).getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
+		/*
+		 * Serialize (computed) centimeters
+		 */
+		elm.getOverrideStyle(null).setCssText("height: calc(2 * 0.0001102cm)");
+		style = elm.getComputedStyle(null);
+		val = style.getPropertyCSSValue("height");
+		assertNotNull(val); // result is 0.00833px
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
+		assertEquals(0.0002204f, ((CSSPrimitiveValue) val).getFloatValue(CSSPrimitiveValue.CSS_CM), 1e-6);
+		assertEquals("0.0002cm", val.getCssText());
+		assertEquals(".0002cm", val.getMinifiedCssText(""));
+		//
+		elm.getOverrideStyle(null).setCssText("height: calc(2 * 0.0000662cm)");
+		style = elm.getComputedStyle(null);
+		val = style.getPropertyCSSValue("height");
+		assertNotNull(val);
+		// result is 0.00500px, browsers often serialize rounding to 0.01px
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
+		assertEquals(1.324e-4, ((CSSPrimitiveValue) val).getFloatValue(CSSPrimitiveValue.CSS_CM), 1e-6);
+		assertEquals("0.0001cm", val.getCssText());
+		assertEquals(".0001cm", val.getMinifiedCssText(""));
+		//
+		elm.getOverrideStyle(null).setCssText("height: calc(2 * 0.0110312cm)");
+		style = elm.getComputedStyle(null);
+		val = style.getPropertyCSSValue("height");
+		assertNotNull(val); // result is 0.834px
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
+		assertEquals(0.0220624f, ((CSSPrimitiveValue) val).getFloatValue(CSSPrimitiveValue.CSS_CM), 1e-6);
+		assertEquals("0.0221cm", val.getCssText());
+		assertEquals(".0221cm", val.getMinifiedCssText(""));
 	}
 
 	@Test

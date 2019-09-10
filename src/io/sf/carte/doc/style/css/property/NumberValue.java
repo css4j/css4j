@@ -89,11 +89,7 @@ public class NumberValue extends PrimitiveValue {
 		} else {
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMinimumFractionDigits(0);
-			if (isLengthUnitType()) {
-				format.setMaximumFractionDigits(2);
-			} else {
-				format.setMaximumFractionDigits(3);
-			}
+			format.setMaximumFractionDigits(fractionDigits(getPrimitiveType()));
 			s = format.format(real);
 		}
 		return s;
@@ -707,6 +703,34 @@ public class NumberValue extends PrimitiveValue {
 		default:
 			return "";
 		}
+	}
+
+	private static int fractionDigits(short primitiveType) {
+		switch (primitiveType) {
+		case CSSPrimitiveValue.CSS_EMS:
+		case CSSPrimitiveValue.CSS_EXS:
+		case CSSPrimitiveValue.CSS_IN:
+		case CSSPrimitiveValue.CSS_MM:
+		case CSSPrimitiveValue.CSS_PC:
+		case CSSPrimitiveValue.CSS_PX:
+		case CSSPrimitiveValue.CSS_PT:
+		case CSSPrimitiveValue2.CSS_CAP:
+		case CSSPrimitiveValue2.CSS_CH:
+		case CSSPrimitiveValue2.CSS_IC:
+		case CSSPrimitiveValue2.CSS_LH:
+		case CSSPrimitiveValue2.CSS_QUARTER_MM:
+		case CSSPrimitiveValue2.CSS_REM:
+		case CSSPrimitiveValue2.CSS_RLH:
+		case CSSPrimitiveValue.CSS_MS:
+		case CSSPrimitiveValue.CSS_DEG:
+		case CSSPrimitiveValue.CSS_GRAD:
+			return 2;
+		case CSSPrimitiveValue.CSS_KHZ:
+		case CSSPrimitiveValue.CSS_CM:
+		case CSSPrimitiveValue2.CSS_TURN:
+			return 4;
+		}
+		return 3;
 	}
 
 	public static boolean isLengthUnitType(short primitiveType) {
