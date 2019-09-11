@@ -52,6 +52,9 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	abstract public AbstractCSSStyleSheet getParentStyleSheet();
 
 	@Override
+	abstract public AbstractCSSRule getOwnerRule();
+
+	@Override
 	abstract public AbstractCSSStyleSheetFactory getStyleSheetFactory();
 
 	/**
@@ -209,7 +212,11 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 			if (pss != null) {
 				Node node = pss.getOwnerNode();
 				if (node != null) {
-					doc = (CSSDocument) node.getOwnerDocument();
+					if (node.getNodeType() != Node.DOCUMENT_NODE) {
+						doc = (CSSDocument) node.getOwnerDocument();
+					} else {
+						doc = (CSSDocument) node;
+					}
 				}
 			}
 		}

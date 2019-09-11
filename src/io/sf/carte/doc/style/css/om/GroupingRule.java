@@ -126,7 +126,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 	 *            the index at which to insert the rule.
 	 * @return the index at which the rule was finally inserted.
 	 */
-	public int insertRule(AbstractCSSRule cssrule, int index) {
+	int insertRule(AbstractCSSRule cssrule, int index) {
 		cssrule.setParentRule(this);
 		return cssRules.insertRule(cssrule, index);
 	}
@@ -140,7 +140,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 	 *            the rule to add.
 	 * @return the index at which the rule was inserted.
 	 */
-	public int addRule(AbstractCSSRule cssrule) {
+	int addRule(AbstractCSSRule cssrule) {
 		int len = cssRules.getLength();
 		cssRules.add(cssrule);
 		cssrule.setParentRule(this);

@@ -25,7 +25,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.css.CSSRule;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -328,13 +327,13 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	class MyDOMCSSStyleSheet extends DOMCSSStyleSheet {
 
-		MyDOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, CSSRule ownerRule, byte origin) {
+		MyDOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
 
 		@Override
 		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
-				CSSRule ownerRule, byte origin) {
+				AbstractCSSRule ownerRule, byte origin) {
 			return new MyDOMCSSStyleSheet(title, ownerNode, media, ownerRule, origin);
 		}
 

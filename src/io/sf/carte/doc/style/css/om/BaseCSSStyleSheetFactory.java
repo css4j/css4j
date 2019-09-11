@@ -118,6 +118,9 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 */
 	@Override
 	public AbstractCSSStyleSheet createStyleSheet(String title, MediaQueryList media) {
+		if (media == null) {
+			media = MediaList.createUnmodifiable();
+		}
 		return createLinkedStyleSheet(null, title, media);
 	}
 

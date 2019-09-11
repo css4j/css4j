@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.w3c.dom.DOMException;
@@ -83,9 +82,25 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 		return importedSheet;
 	}
 
+	/**
+	 * Loads and parses an imported CSS style sheet.
+	 * 
+	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
+	 *         otherwise.
+	 * @throws IOException
+	 *             if a problem appears fetching or resolving the uri contents.
+	 * @throws DOMException
+	 *             if there is a problem building the sheet's DOM.
+	 */
+	private boolean loadStyleSheet() throws IOException, DOMException {
+		URL styleSheetURL = getURL(getHref());
+		// load & Parse
+		return importedSheet.loadStyleSheet(styleSheetURL, "");
+	}
+
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		throw new UnsupportedOperationException();
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "@import rules must be created from a style sheet.");
 	}
 
 	@Override
@@ -104,7 +119,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		wri.write("@import ");
-		context.writeURL(wri, getStyleSheet().getHref());
+		context.writeURL(wri, getHref());
 		if (!mediaList.isAllMedia()) {
 			wri.write(' ');
 			wri.write(mediaList.getMediaText());
@@ -123,51 +138,6 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 		}
 		buf.append(';');
 		return buf.toString();
-	}
-
-	/**
-	 * Loads and parses an imported CSS style sheet.
-	 * 
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
-	 *         otherwise.
-	 * @throws IOException
-	 *             if a problem appears fetching or resolving the uri contents.
-	 * @throws DOMException
-	 *             if there is a problem building the sheet's DOM.
-	 */
-	private boolean loadStyleSheet() throws IOException, DOMException {
-		URL styleSheetURL = getURL(getHref());
-		String href = styleSheetURL.toExternalForm();
-		checkCircularity(href);
-		// load & Parse
-		return importedSheet.loadStyleSheet(styleSheetURL, "");
-	}
-
-	private void checkCircularity(String styleSheetURI) throws DOMException {
-		int count = 0;
-		AbstractCSSRule rule = getParentRule();
-		while (rule != null) {
-			if (rule.getType() == CSSRule.IMPORT_RULE) {
-				String href = ((ImportRule) rule).getHref();
-				URL styleSheetURL;
-				try {
-					styleSheetURL = getURL(href);
-					href = styleSheetURL.toExternalForm();
-				} catch (MalformedURLException e) {
-				}
-				if (styleSheetURI.equalsIgnoreCase(href)) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-							"Circularity in import rule, sheet " + styleSheetURI);
-				}
-			}
-			rule = rule.getParentRule();
-			count++;
-			if (count == 8) {
-				throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-						"Too many nested imports, unreached sheet: " + styleSheetURI);
-			}
-		}
-
 	}
 
 	@Override

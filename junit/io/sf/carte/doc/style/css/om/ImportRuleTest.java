@@ -16,17 +16,26 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.css.CSSRule;
 
+import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
 
@@ -52,14 +61,14 @@ public class ImportRuleTest {
 		style.setAttribute("id", "styleId");
 		style.setIdAttribute("id", true);
 		style.setAttribute("type", "text/css");
-		style.setTextContent("@import 'http://www.example.com/css/default.css';");
+		style.setTextContent("@import 'http://www.example.com/css/default.css';p{margin-left:1em;}");
 		doc.getDocumentElement().appendChild(head);
 		head.appendChild(style);
 		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		assertNotNull(cssStyle);
 		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) cssStyle).getSheet();
-		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(2, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		MediaQueryList mql = imp.getMedia();
 		assertNotNull(mql);
@@ -76,6 +85,112 @@ public class ImportRuleTest {
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+	}
+
+	@Test
+	public void testGetStyleSheetMedia() throws ParserConfigurationException, CSSMediaException {
+		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
+		Element head = doc.createElement("head");
+		Element style = doc.createElement("style");
+		style.setAttribute("id", "styleId");
+		style.setIdAttribute("id", true);
+		style.setAttribute("type", "text/css");
+		style.setTextContent("@import 'http://www.example.com/css/alter2.css' screen;p{margin-left:1em;}");
+		doc.getDocumentElement().appendChild(head);
+		head.appendChild(style);
+		Element body = doc.createElement("body");
+		body.setAttribute("id", "bodyId");
+		body.setIdAttribute("id", true);
+		doc.getDocumentElement().appendChild(body);
+		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
+		CSSElement cssStyle = cssdoc.getElementById("styleId");
+		assertNotNull(cssStyle);
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) cssStyle).getSheet();
+		assertEquals(2, sheet.getCssRules().getLength());
+		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
+		MediaQueryList mql = imp.getMedia();
+		assertNotNull(mql);
+		assertFalse(mql.isAllMedia());
+		assertFalse(mql.isNotAllMedia());
+		assertEquals("screen", mql.getMediaText());
+		AbstractCSSStyleSheet imported = imp.getStyleSheet();
+		assertNotNull(imported);
+		CSSRuleArrayList list = imported.getCssRules();
+		assertEquals(1, list.getLength());
+		assertEquals(CSSRule.STYLE_RULE, list.item(0).getType());
+		assertEquals("@import url('http://www.example.com/css/alter2.css') screen; ", imp.getCssText());
+		assertEquals("@import 'http://www.example.com/css/alter2.css' screen;", imp.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasSacWarnings());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
+		assertFalse(docsheet.getErrorHandler().hasSacErrors());
+		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
+		assertFalse(docsheet.getErrorHandler().hasOMErrors());
+		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
+		assertEquals(2, docsheet.getCssRules().getLength());
+		// Rule 1
+		AbstractCSSRule rule = docsheet.getCssRules().item(0);
+		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
+		MediaRule mediaRule = (MediaRule) rule;
+		assertEquals("screen", mediaRule.getMedia().getMediaText());
+		assertEquals(1, mediaRule.getCssRules().getLength());
+		rule = mediaRule.getCssRules().item(0);
+		assertEquals(CSSRule.STYLE_RULE, rule.getType());
+		ExtendedCSSStyleRule srule = (ExtendedCSSStyleRule) rule;
+		assertEquals("body", srule.getSelectorText());
+		ExtendedCSSStyleDeclaration styleDecl = srule.getStyle();
+		assertEquals(2, styleDecl.getLength());
+		assertEquals("background-color", styleDecl.item(0));
+		assertEquals("color", styleDecl.item(1));
+		// Rule 2
+		rule = docsheet.getCssRules().item(1);
+		assertEquals(CSSRule.STYLE_RULE, rule.getType());
+		srule = (ExtendedCSSStyleRule) rule;
+		assertEquals("p", srule.getSelectorText());
+		styleDecl = srule.getStyle();
+		assertEquals(1, styleDecl.getLength());
+		assertEquals("margin-left", styleDecl.item(0));
+		// Usage in computed style
+		CSSElement cssBody = cssdoc.getElementById("bodyId");
+		assertNotNull(cssBody);
+		CSSComputedProperties gcs = cssBody.getComputedStyle(null);
+		assertEquals(0, gcs.getLength());
+		/*
+		 * Target medium: screen
+		 */
+		cssdoc.setTargetMedium("screen");
+		docsheet = cssdoc.getStyleSheet();
+		assertEquals(2, docsheet.getCssRules().getLength());
+		// Rule 1
+		rule = docsheet.getCssRules().item(0);
+		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
+		mediaRule = (MediaRule) rule;
+		assertEquals("screen", mediaRule.getMedia().getMediaText());
+		assertEquals(1, mediaRule.getCssRules().getLength());
+		rule = mediaRule.getCssRules().item(0);
+		assertEquals(CSSRule.STYLE_RULE, rule.getType());
+		srule = (ExtendedCSSStyleRule) rule;
+		assertEquals("body", srule.getSelectorText());
+		styleDecl = srule.getStyle();
+		assertEquals(2, styleDecl.getLength());
+		assertEquals("background-color", styleDecl.item(0));
+		assertEquals("color", styleDecl.item(1));
+		// Rule 2
+		rule = docsheet.getCssRules().item(1);
+		assertEquals(CSSRule.STYLE_RULE, rule.getType());
+		srule = (ExtendedCSSStyleRule) rule;
+		assertEquals("p", srule.getSelectorText());
+		styleDecl = srule.getStyle();
+		assertEquals(1, styleDecl.getLength());
+		assertEquals("margin-left", styleDecl.item(0));
+		// Usage in computed style
+		gcs = cssBody.getComputedStyle(null);
+		assertEquals(2, gcs.getLength());
+		assertEquals("background-color", gcs.item(0));
+		assertEquals("color", gcs.item(1));
 	}
 
 	@Test
@@ -98,15 +213,62 @@ public class ImportRuleTest {
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		AbstractCSSStyleSheet imported = imp.getStyleSheet();
 		assertNotNull(imported);
-		assertNotNull(imported);
 		CSSRuleArrayList list = imported.getCssRules();
-		assertEquals(0, list.getLength());
+		assertEquals(2, list.getLength());
 		assertEquals("@import url('http://www.example.com/css/circular.css'); ", imp.getCssText());
 		assertEquals("@import 'http://www.example.com/css/circular.css';", imp.getMinifiedCssText());
+		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
+		assertFalse(docsheet.getErrorHandler().hasSacErrors());
+		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
+		assertTrue(docsheet.getErrorHandler().hasOMErrors());
+		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
+	}
+
+	/*
+	 * Parse variant with explicit 'url()'
+	 */
+	@Test
+	public void testParseVariant() throws DOMException, IOException {
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		InputSource source = new InputSource(
+				new StringReader("@import url('http://www.example.com/css/default.css');p{margin-left:1em;}"));
+		sheet.parseCSSStyleSheet(source);
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
-		assertTrue(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		CSSRuleArrayList list = sheet.getCssRules();
+		assertEquals(2, list.getLength());
+		assertEquals(CSSRule.IMPORT_RULE, list.item(0).getType());
+		ImportRule imp = (ImportRule) list.item(0);
+		assertTrue(imp.getMedia().isAllMedia());
+		assertEquals("@import url('http://www.example.com/css/default.css'); ", imp.getCssText());
+		assertEquals("@import 'http://www.example.com/css/default.css';", imp.getMinifiedCssText());
+	}
+
+	/*
+	 * Parse variant with explicit 'url()' + media
+	 */
+	@Test
+	public void testParseVariantMedia() throws DOMException, IOException {
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		InputSource source = new InputSource(new StringReader(
+				"@import url('http://www.example.com/css/default.css') screen and (min-width: 600px);p{margin-left:1em;}"));
+		sheet.parseCSSStyleSheet(source);
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasSacWarnings());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		CSSRuleArrayList list = sheet.getCssRules();
+		assertEquals(2, list.getLength());
+		assertEquals(CSSRule.IMPORT_RULE, list.item(0).getType());
+		ImportRule imp = (ImportRule) list.item(0);
+		assertFalse(imp.getMedia().isAllMedia());
+		assertEquals("screen and (min-width: 600px)", imp.getMedia().getMediaText());
+		assertEquals("@import url('http://www.example.com/css/default.css') screen and (min-width: 600px); ",
+				imp.getCssText());
+		assertEquals("@import 'http://www.example.com/css/default.css' screen and (min-width:600px);",
+				imp.getMinifiedCssText());
 	}
 
 	@Test
@@ -129,8 +291,7 @@ public class ImportRuleTest {
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
 		MediaQueryList mql = MediaQueryFactory.createMediaList("all", null);
 		ImportRule rule = sheet.createCSSImportRule(mql, "http://www.example.com/css/foo.css");
-		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null,
-				null);
+		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null, null);
 		ImportRule cloned = rule.clone(newSheet);
 		assertFalse(rule == cloned);
 		assertEquals(rule.getHref(), cloned.getHref());

@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.om;
 import java.net.URL;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -29,7 +28,8 @@ abstract public class DOMCSSStyleSheet extends BaseCSSStyleSheet implements Clon
 
 	private Node ownerNode = null;
 
-	public DOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, CSSRule ownerRule, byte origin) {
+	public DOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule,
+			byte origin) {
 		super(title, media, ownerRule, origin);
 		this.ownerNode = ownerNode;
 	}
@@ -51,7 +51,7 @@ abstract public class DOMCSSStyleSheet extends BaseCSSStyleSheet implements Clon
 	}
 
 	abstract protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
-			CSSRule ownerRule, byte origin);
+			AbstractCSSRule ownerRule, byte origin);
 
 	/**
 	 * Creates and returns a copy of this style sheet.

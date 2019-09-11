@@ -21,7 +21,6 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -249,13 +248,13 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	class MyCSSStyleSheet extends DOMCSSStyleSheet {
 
-		MyCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, CSSRule ownerRule, byte origin) {
+		MyCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
 
 		@Override
 		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
-				CSSRule ownerRule, byte origin) {
+				AbstractCSSRule ownerRule, byte origin) {
 			return new MyCSSStyleSheet(title, ownerNode, media, ownerRule, origin);
 		}
 

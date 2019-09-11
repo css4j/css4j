@@ -80,7 +80,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	private String href = null;
 
-	private CSSRule ownerRule = null;
+	private AbstractCSSRule ownerRule = null;
 
 	private byte sheetOrigin;
 
@@ -94,7 +94,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	private boolean disabled = false;
 
-	private SheetErrorHandler sheetErrorHandler;
+	private SheetErrorHandler sheetErrorHandler = null;
+
+	private static final int MAX_IMPORT_RECURSION = 8; // Allows 6 nested imports
 
 	/**
 	 * 
@@ -107,11 +109,10 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @param origin
 	 *            the sheet origin.
 	 */
-	protected BaseCSSStyleSheet(String title, MediaQueryList media, CSSRule ownerRule, byte origin) {
+	protected BaseCSSStyleSheet(String title, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
 		super(title);
 		this.ownerRule = ownerRule;
 		this.destinationMedia = media;
-		sheetErrorHandler = getStyleSheetFactory().createSheetErrorHandler(this);
 		sheetOrigin = origin;
 	}
 
@@ -124,7 +125,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		myCopy.currentInsertionIndex = this.currentInsertionIndex;
 		myCopy.setDisabled(getDisabled());
 		myCopy.namespaces = this.namespaces;
-		myCopy.setParentStyleSheet(getParentStyleSheet());
+		if (parent != null) {
+			myCopy.setParentStyleSheet(parent);
+		}
 	}
 
 	protected void copyRulesTo(BaseCSSStyleSheet myCopy) {
@@ -144,7 +147,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	abstract public BaseCSSStyleSheetFactory getStyleSheetFactory();
 
 	@Override
-	public CSSRule getOwnerRule() {
+	public AbstractCSSRule getOwnerRule() {
 		return ownerRule;
 	}
 
@@ -335,6 +338,97 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return false;
 	}
 
+	/**
+	 * Adds the rules contained by the supplied style sheet, if that sheet is
+	 * not disabled.
+	 * <p>
+	 * If the provided sheet does not target all media, a media rule is created.
+	 * 
+	 * @param sheet
+	 *            the sheet whose rules are to be added.
+	 */
+	@Override
+	public void addStyleSheet(AbstractCSSStyleSheet sheet) {
+		if (!sheet.getDisabled()) {
+			MediaQueryList mediaList = sheet.getMedia();
+			if (mediaList.isAllMedia()) { // all media
+				CSSRuleArrayList otherRules = sheet.getCssRules();
+				addRuleList(otherRules, sheet, 0);
+			} else if (!mediaList.isNotAllMedia()) {
+				CSSRuleArrayList otherRules = sheet.getCssRules();
+				// Create a Media rule
+				MediaRule mrule = createCSSMediaRule(mediaList);
+				addToMediaRule(mrule, otherRules, sheet, 0);
+				addLocalRule(mrule);
+			}
+			getErrorHandler().mergeState(sheet.getErrorHandler());
+		}
+	}
+
+	private void addRuleList(CSSRuleArrayList otherRules, AbstractCSSStyleSheet sheet, int importCount) {
+		int orl = otherRules.getLength();
+		for (int i = 0; i < orl; i++) {
+			AbstractCSSRule oRule = otherRules.item(i);
+			if (oRule.getType() != CSSRule.IMPORT_RULE) {
+				addLocalRule(oRule.clone(sheet));
+			} else {
+				importCount++;
+				if (importCount == MAX_IMPORT_RECURSION) {
+					DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Too many nested imports");
+					getErrorHandler().badAtRule(ex, oRule.getCssText());
+					return;
+				}
+				// We clone with this as parent, to receive the errors
+				ImportRule imp = (ImportRule) oRule.clone(this);
+				AbstractCSSStyleSheet impSheet = imp.getStyleSheet();
+				CSSRuleArrayList impRules = impSheet.getCssRules();
+				MediaQueryList media = imp.getMedia();
+				if (media.isAllMedia()) {
+					addRuleList(impRules, impSheet, importCount);
+				} else if (!media.isNotAllMedia()) {
+					// Create a Media rule
+					MediaRule mrule = createCSSMediaRule(imp.getMedia());
+					addToMediaRule(mrule, impRules, impSheet, importCount);
+					addLocalRule(mrule);
+				}
+			}
+		}
+	}
+
+	private void addToMediaRule(MediaRule mrule, CSSRuleArrayList otherRules, AbstractCSSStyleSheet sheet,
+			int importCount) {
+		// Fill the media rule
+		int orl = otherRules.getLength();
+		for (int i = 0; i < orl; i++) {
+			AbstractCSSRule oRule = otherRules.item(i);
+			if (oRule.getType() != CSSRule.IMPORT_RULE) {
+				mrule.addRule(oRule.clone(sheet));
+			} else {
+				importCount++;
+				if (importCount == MAX_IMPORT_RECURSION) {
+					DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Too many nested imports");
+					getErrorHandler().badAtRule(ex, oRule.getCssText());
+					return;
+				}
+				// We clone with this as parent, to receive the errors
+				ImportRule imp = (ImportRule) oRule.clone(this);
+				AbstractCSSStyleSheet impSheet = imp.getStyleSheet();
+				CSSRuleArrayList impRules = impSheet.getCssRules();
+				MediaQueryList media = imp.getMedia();
+				if (mrule.getMedia().equals(media)) {
+					addToMediaRule(mrule, impRules, impSheet, importCount);
+				} else {
+					// Create a Media rule
+					MediaRule nestedMRule = createCSSMediaRule(media);
+					addToMediaRule(nestedMRule, impRules, impSheet, importCount);
+					mrule.addRule(nestedMRule);
+				}
+			}
+		}
+	}
+
 	private static boolean selectorListHasNamespace(SelectorList selist, String namespaceURI) {
 		for(int i = 0; i < selist.getLength(); i++) {
 			if (selectorHasNamespace(selist.item(i), namespaceURI)) {
@@ -515,6 +609,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	@Override
 	public SheetErrorHandler getErrorHandler() {
+		if (sheetErrorHandler == null) {
+			sheetErrorHandler = getStyleSheetFactory().createSheetErrorHandler(this);
+		}
 		return sheetErrorHandler;
 	}
 
@@ -580,9 +677,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return parent;
 	}
 
-	@Override
 	protected void setParentStyleSheet(AbstractCSSStyleSheet parent) {
 		this.parent = parent;
+		sheetErrorHandler = parent.getErrorHandler();
 	}
 
 	@Override
@@ -596,47 +693,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	@Override
 	public void setHref(String href) {
 		this.href = href;
-	}
-
-	/**
-	 * Adds the rules contained by the supplied style sheet, if that sheet is
-	 * not disabled.
-	 * <p>
-	 * If the provided sheet does not target all media, a media rule is created.
-	 * 
-	 * @param sheet
-	 *            the sheet whose rules are to be added.
-	 */
-	@Override
-	public void addStyleSheet(AbstractCSSStyleSheet sheet) {
-		if (!sheet.getDisabled()) {
-			MediaQueryList mediaList = sheet.getMedia();
-			if (mediaList.isAllMedia()) { // all media
-				 CSSRuleArrayList otherRules = sheet.getCssRules();
-				int orl = otherRules.getLength();
-				for (int i = 0; i < orl; i++) {
-					addLocalRule(otherRules.item(i).clone(sheet));
-				}
-			} else {
-				boolean nouri = sheet.getHref() == null;
-				// Create a Media rule
-				MediaRule mrule = createCSSMediaRule(mediaList);
-				// Fill the media rule
-				CSSRuleArrayList otherRules = sheet.getCssRules();
-				int orl = otherRules.getLength();
-				for (int i = 0; i < orl; i++) {
-					AbstractCSSRule orule;
-					if (nouri) {
-						orule = otherRules.item(i).clone(this);
-					} else {
-						orule = otherRules.item(i).clone(sheet);
-					}
-					mrule.addRule(orule);
-				}
-				addLocalRule(mrule);
-			}
-			getErrorHandler().mergeState(sheet.getErrorHandler());
-		}
 	}
 
 	/**
@@ -1139,7 +1195,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				} else {
 					getErrorHandler().badMediaList(media);
 				}
-			} // else { Ignoring @import from uri due to target media mismatch
+			} else { // Ignoring @import from uri due to target media mismatch
+				resetCommentStack();
+			}
 		}
 
 		@Override
