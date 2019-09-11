@@ -1853,6 +1853,14 @@ public class CSSParser implements Parser2 {
 		}
 
 		@Override
+		public void commented(int index, int commentType, String comment) {
+			if (!parseError && buffer.length() == 0 && curlyBracketDepth == 1 && parendepth == 0
+					&& stage == STAGE_WAIT_SELECTOR) {
+				super.commented(index, commentType, comment);
+			}
+		}
+
+		@Override
 		CSSParseException createException(int index, byte errCode, String message) {
 			return super.createException(offset + index, errCode, message);
 		}
@@ -2679,6 +2687,8 @@ public class CSSParser implements Parser2 {
 			if (stage == 5 || stage == 7) {
 				// Unknown rule
 				buffer.append("/*").append(comment).append("*/");
+			} else if (contextHandler != null) {
+				contextHandler.commented(index, commentType, comment);
 			} else {
 				super.commented(index, commentType, comment);
 			}
@@ -4048,6 +4058,13 @@ public class CSSParser implements Parser2 {
 				stage = STAGE_ATTR_POST_SYMBOL;
 			} else {
 				unexpectedCharError(index - 1, 92);
+			}
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			if (stage == 0) {
+				super.commented(index, commentType, comment);
 			}
 		}
 
@@ -5559,6 +5576,14 @@ public class CSSParser implements Parser2 {
 				} else {
 					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
 				}
+			}
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			if (!parseError && buffer.length() == 0 && propertyName == null && curlyBracketDepth == 1 && parendepth == 0
+					&& squareBracketDepth == 0) {
+				super.commented(index, commentType, comment);
 			}
 		}
 

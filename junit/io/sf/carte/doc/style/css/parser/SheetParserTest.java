@@ -40,7 +40,7 @@ import io.sf.carte.doc.style.css.parser.RuleParserTest.TestRuleErrorHandler;
 
 public class SheetParserTest {
 
-	static CSSParser parser;
+	private static CSSParser parser;
 
 	@Before
 	public void setUp() {
@@ -640,11 +640,11 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheet1() throws CSSException, IOException {
-		InputSource source = new InputSource(loadTestCSSReader("sheet1.css"));
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
+		InputSource source = new InputSource(loadTestCSSReader("sheet1.css"));
 		parser.parseStyleSheet(source);
 		assertEquals(1, handler.atRules.size());
 		assertEquals(
@@ -865,6 +865,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
+		source.getCharacterStream().close();
 		assertEquals(1, handler.comments.size());
 		assertEquals(108, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
@@ -981,6 +982,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
+		source.getCharacterStream().close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(6, handler.propertyNames.size());
@@ -1177,6 +1179,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
+		source.getCharacterStream().close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1628,7 +1631,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
-		assertEquals(17, handler.comments.size());
+		assertEquals(16, handler.comments.size());
 		assertEquals("textarea", handler.selectors.get(73).toString());
 		assertEquals("hr[align=\"left\"]", handler.selectors.get(76).toString());
 		assertEquals(111, handler.selectors.size());
@@ -1653,7 +1656,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
-		assertEquals(19, handler.comments.size());
+		assertEquals(18, handler.comments.size());
 		assertEquals("textarea", handler.selectors.get(74).toString());
 		assertEquals("hr[align=\"left\"]", handler.selectors.get(78).toString());
 		assertEquals(123, handler.selectors.size());
@@ -1834,6 +1837,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
+		source.getCharacterStream().close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1852,6 +1856,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
+		source.getCharacterStream().close();
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("print", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1870,6 +1875,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
+		source.getCharacterStream().close();
 		assertEquals(1, handler.atRules.size());
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}",
@@ -1887,6 +1893,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(source);
+		source.getCharacterStream().close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -1927,6 +1934,34 @@ public class SheetParserTest {
 		assertNotNull(errorHandler.exception);
 		assertEquals(4, errorHandler.exception.getLineNumber());
 		assertEquals(13, errorHandler.exception.getColumnNumber());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetComments() throws CSSException, IOException {
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		InputSource source = new InputSource(loadTestCSSReader("comments.css"));
+		parser.parseStyleSheet(source);
+		assertEquals(1, handler.selectors.size());
+		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("background-color", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("red", lu.getStringValue());
+		assertEquals(4, handler.comments.size());
+		assertEquals(" pre-rule-1 ", handler.comments.get(0));
+		assertEquals(" pre-rule-2 ", handler.comments.get(1));
+		assertEquals(" pre-style-decl 1 ", handler.comments.get(2));
+		assertEquals(" post-style-decl 1 ", handler.comments.get(3));
+		assertEquals(1, handler.atRules.size());
+		assertEquals("@viewport /* skip-vw 1 */{/* pre-viewport-decl */ width: /* skip-vw 2 */device-width; /* post-viewport-decl */}",
+				handler.atRules.get(0));
+		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
 

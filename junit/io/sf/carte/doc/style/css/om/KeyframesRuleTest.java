@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -46,17 +47,49 @@ public class KeyframesRuleTest {
 		// Rule taken from mozilla website
 		// https://developer.mozilla.org/en-US/docs/Web/CSS/@counter-style
 		InputSource source = new InputSource(new StringReader(
-				"@keyframes foo {  from { margin-left: 100%;  width: 300%;} 50% {margin-left: 50%;    width: 50%; }  to {margin-left: 0%;    width: 100%; }}"));
+				"/* pre-rule */@keyframes /* skip 1 */ foo /* skip 2 */ {  /* pre-from */ from /* skip 3 */ { margin-left: 100%;  width: 300%;} /* pre-50% */ 50% {margin-left: 50%;    width: 50%; }  to {margin-left: 0%;    width: 100%; }/* skip 4 */}"));
 		sheet.parseCSSStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
+		CSSRuleArrayList kfrules = rule.getCssRules();
+		assertNotNull(kfrules);
+		assertEquals(3, kfrules.getLength());
+		KeyframeRule kfrule = (KeyframeRule) kfrules.item(0);
+		assertEquals(ExtendedCSSRule.KEYFRAME_RULE, kfrule.getType());
+		assertEquals("from", kfrule.getKeyText());
+		AbstractCSSStyleDeclaration style = kfrule.getStyle();
+		assertNotNull(style);
+		assertEquals(2, style.getLength());
+		assertNotNull(kfrule.getPrecedingComments());
+		assertEquals(1, kfrule.getPrecedingComments().size());
+		assertEquals(" pre-from ", kfrule.getPrecedingComments().get(0));
+		//
+		kfrule = (KeyframeRule) kfrules.item(1);
+		assertEquals(ExtendedCSSRule.KEYFRAME_RULE, kfrule.getType());
+		assertEquals("50%", kfrule.getKeyText());
+		style = kfrule.getStyle();
+		assertNotNull(style);
+		assertEquals(2, style.getLength());
+		assertNotNull(kfrule.getPrecedingComments());
+		assertEquals(1, kfrule.getPrecedingComments().size());
+		assertEquals(" pre-50% ", kfrule.getPrecedingComments().get(0));
+		//
+		kfrule = (KeyframeRule) kfrules.item(2);
+		assertEquals(ExtendedCSSRule.KEYFRAME_RULE, kfrule.getType());
+		assertEquals("to", kfrule.getKeyText());
+		style = kfrule.getStyle();
+		assertNotNull(style);
+		assertEquals(2, style.getLength());
 		assertEquals(
 				"@keyframes foo{from{margin-left:100%;width:300%}50%{margin-left:50%;width:50%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"@keyframes foo {\n    from {\n        margin-left: 100%;\n        width: 300%;\n    }\n    50% {\n        margin-left: 50%;\n        width: 50%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
+				"@keyframes foo {\n    /* pre-from */\n    from {\n        margin-left: 100%;\n        width: 300%;\n    }\n    /* pre-50% */\n    50% {\n        margin-left: 50%;\n        width: 50%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
+		assertNotNull(rule.getPrecedingComments());
+		assertEquals(1, rule.getPrecedingComments().size());
+		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
 	}
 
 	@Test

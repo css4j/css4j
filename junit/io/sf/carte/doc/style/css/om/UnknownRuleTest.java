@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class UnknownRuleTest {
 	@Test
 	public void testParseRule() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
-				"@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }"));
+				"/* pre-rule */@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }"));
 		sheet.parseCSSStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(0).getType());
@@ -50,6 +51,9 @@ public class UnknownRuleTest {
 		assertEquals(
 				"@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }",
 				rule.getMinifiedCssText());
+		assertNotNull(rule.getPrecedingComments());
+		assertEquals(1, rule.getPrecedingComments().size());
+		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
 	}
 
 	@Test

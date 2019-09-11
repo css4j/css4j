@@ -12,20 +12,19 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.SACMediaList;
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesMap;
@@ -351,7 +350,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 	}
 
-	private class MyFontFeatureValuesHandler implements FontFeatureValuesHandler {
+	private class MyFontFeatureValuesHandler extends EmptyDocumentHandler implements FontFeatureValuesHandler {
 
 		private String[] fontFamily = null;
 		private CSSFontFeatureValuesMapImpl annotation = new CSSFontFeatureValuesMapImpl();
@@ -363,6 +362,8 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		private HashMap<String, CSSFontFeatureValuesMapImpl> mapmap = null;
 
 		private CSSFontFeatureValuesMap currentMap = null;
+
+		private LinkedList<String> comments = null;
 
 		MyFontFeatureValuesHandler() {
 			super();
@@ -389,6 +390,13 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			FontFeatureValuesRule.this.characterVariant.addAll(characterVariant);
 			FontFeatureValuesRule.this.styleset.addAll(styleset);
 			FontFeatureValuesRule.this.mapmap = mapmap;
+			// Comments
+			FontFeatureValuesRule.this.annotation.setPrecedingComments(annotation.getPrecedingComments());
+			FontFeatureValuesRule.this.ornaments.setPrecedingComments(ornaments.getPrecedingComments());
+			FontFeatureValuesRule.this.stylistic.setPrecedingComments(stylistic.getPrecedingComments());
+			FontFeatureValuesRule.this.swash.setPrecedingComments(swash.getPrecedingComments());
+			FontFeatureValuesRule.this.characterVariant.setPrecedingComments(characterVariant.getPrecedingComments());
+			FontFeatureValuesRule.this.styleset.setPrecedingComments(styleset.getPrecedingComments());
 		}
 
 		@Override
@@ -403,7 +411,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		private CSSFontFeatureValuesMap getFeatureValuesMap(String featureValueName) {
-			CSSFontFeatureValuesMap map;
+			CSSFontFeatureValuesMapImpl map;
 			if (featureValueName.equals("annotation")) {
 				map = annotation;
 			} else if (featureValueName.equals("ornaments")) {
@@ -420,12 +428,15 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				map = null;
 			} else {
 				map = mapmap.get(featureValueName);
+				map.precedingComments = null;
 			}
 			return map;
 		}
 
 		@Override
 		public void endFeatureMap() {
+			setCommentsToCurrentMap();
+			currentMap = null;
 		}
 
 		@Override
@@ -447,59 +458,28 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		@Override
-		public void startDocument(InputSource source) throws CSSException {
-		}
-
-		@Override
-		public void endDocument(InputSource source) throws CSSException {
-		}
-
-		@Override
 		public void comment(String text) throws CSSException {
+			if (currentMap == null) {
+				if (comments == null) {
+					comments = new LinkedList<String>();
+				}
+				comments.add(text);
+			}
 		}
 
-		@Override
-		public void ignorableAtRule(String atRule) throws CSSException {
+		private void setCommentsToCurrentMap() {
+			if (comments != null && !comments.isEmpty()) {
+				ArrayList<String> ruleComments = new ArrayList<String>(comments.size());
+				ruleComments.addAll(comments);
+				((CSSFontFeatureValuesMapImpl) currentMap).setPrecedingComments(ruleComments);
+			}
+			resetCommentStack();
 		}
 
-		@Override
-		public void namespaceDeclaration(String prefix, String uri) throws CSSException {
-		}
-
-		@Override
-		public void importStyle(String uri, SACMediaList media, String defaultNamespaceURI) throws CSSException {
-		}
-
-		@Override
-		public void startMedia(SACMediaList media) throws CSSException {
-		}
-
-		@Override
-		public void endMedia(SACMediaList media) throws CSSException {
-		}
-
-		@Override
-		public void startPage(String name, String pseudo_page) throws CSSException {
-		}
-
-		@Override
-		public void endPage(String name, String pseudo_page) throws CSSException {
-		}
-
-		@Override
-		public void startFontFace() throws CSSException {
-		}
-
-		@Override
-		public void endFontFace() throws CSSException {
-		}
-
-		@Override
-		public void startSelector(SelectorList selectors) throws CSSException {
-		}
-
-		@Override
-		public void endSelector(SelectorList selectors) throws CSSException {
+		private void resetCommentStack() {
+			if (comments != null) {
+				comments.clear();
+			}
 		}
 
 	}
@@ -598,6 +578,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap {
 
 		private LinkedHashMap<String, int[]> featureMap = new LinkedHashMap<String, int[]>();
+		private List<String> precedingComments = null;
 
 		void addAll(CSSFontFeatureValuesMapImpl othermap) {
 			featureMap.putAll(othermap.featureMap);
@@ -622,6 +603,15 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		public boolean isEmpty() {
 			return featureMap.isEmpty();
+		}
+
+		void setPrecedingComments(List<String> ruleComments) {
+			this.precedingComments  = ruleComments;
+		}
+
+		@Override
+		public List<String> getPrecedingComments() {
+			return precedingComments;
 		}
 
 		@Override

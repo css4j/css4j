@@ -371,8 +371,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationComments() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("-moz-foo:moz-bar;/*!rtl:ignore*/-o-foo:o-bar;/*!rtl:ignore*/foo:bar/*!rtl:ignore*/"));
+		InputSource source = new InputSource(new StringReader(
+				"-moz-foo:moz-bar;/*!rtl:ignore*/-o-foo:o-bar;/*!rtl:ignore*/foo:bar/*(skipped)!rtl:ignore*/;/*!rtl:ignore*/"));
 		parser.parseStyleDeclaration(source);
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("-moz-foo", handler.propertyNames.getFirst());

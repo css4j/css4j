@@ -14,7 +14,9 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Locale;
 
 import org.w3c.css.sac.CSSException;
@@ -264,6 +266,8 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 		private KeyframeRule currentRule = null;
 
+		private LinkedList<String> comments = null;
+
 		MyKeyframesHandler() {
 			super();
 		}
@@ -315,8 +319,34 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 		@Override
 		public void endKeyframe() {
+			setCommentsToRule(currentRule);
 			currentRule = null;
 			setLexicalPropertyListener(null);
+		}
+
+		@Override
+		public void comment(String text) throws CSSException {
+			if (currentRule == null) {
+				if (comments == null) {
+					comments = new LinkedList<String>();
+				}
+				comments.add(text);
+			}
+		}
+
+		private void setCommentsToRule(AbstractCSSRule rule) {
+			if (comments != null && !comments.isEmpty()) {
+				ArrayList<String> ruleComments = new ArrayList<String>(comments.size());
+				ruleComments.addAll(comments);
+				rule.setPrecedingComments(ruleComments);
+			}
+			resetCommentStack();
+		}
+
+		private void resetCommentStack() {
+			if (comments != null) {
+				comments.clear();
+			}
 		}
 
 	}

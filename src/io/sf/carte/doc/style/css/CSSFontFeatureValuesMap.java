@@ -9,6 +9,8 @@
 
 package io.sf.carte.doc.style.css;
 
+import java.util.List;
+
 /**
  * Based on W3C's CSSFontFeatureValuesMap interface. See the
  * <a href="https://www.w3.org/TR/css-fonts-4/#cssfontfeaturevaluesmap">definition of
@@ -19,5 +21,13 @@ public interface CSSFontFeatureValuesMap {
 	int[] get(String featureValueName);
 
 	void set(String featureValueName, int... values);
+
+	/**
+	 * Get a list of the comments that preceded this map, if any.
+	 * 
+	 * @return the list of comments, or <code>null</code> if there were no preceding
+	 *         comments.
+	 */
+	List<String> getPrecedingComments();
 
 }

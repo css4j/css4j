@@ -83,7 +83,7 @@ public class SupportsRuleTest {
 	@Test
 	public void testParseSupportsRule1() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
-				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}"));
+				"/* pre-rule */@supports /* skip 1 */ (display: table-cell) and (display: list-item) /* skip 2 */ {td {display: table-cell; } li {display: list-item; }}"));
 		sheet.parseCSSStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
@@ -99,6 +99,8 @@ public class SupportsRuleTest {
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(1, rule.getPrecedingComments().size());
+		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
 	}
 
 	@Test

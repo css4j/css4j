@@ -1,0 +1,7 @@
+/* pre-rule-1 */
+@viewport /* skip-vw 1 */ {/* pre-viewport-decl */ width: /* skip-vw 2 */device-width; /* post-viewport-decl */}
+
+/* pre-rule-2 */
+body /* skip 2 */ {/* pre-style-decl 1 */
+	background-color/* skip 3 */: /* skip 4 */ red /* skip 5 */;/* post-style-decl 1 */
+}

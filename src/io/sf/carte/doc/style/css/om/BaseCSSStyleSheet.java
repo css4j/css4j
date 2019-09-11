@@ -1082,17 +1082,13 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			currentRule = null;
 			ignoreRulesForMedia = false;
 			ignoreImports = false;
-			if (comments != null) {
-				comments.clear();
-			}
+			resetCommentStack();
 		}
 
 		@Override
 		public void endDocument(InputSource source) throws CSSException {
 			// Ending StyleSheet processing
-			if (comments != null) {
-				comments.clear();
-			}
+			resetCommentStack();
 		}
 
 		@Override
@@ -1167,6 +1163,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					addLocalRule(rule);
 				}
 				resetCurrentRule();
+			} else {
+				resetCommentStack();
 			}
 		}
 
@@ -1181,6 +1179,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				if (eh != null) {
 					eh.ignoredImport(uri);
 				}
+				resetCommentStack();
 				return;
 			}
 			if (((MediaListAccess) destinationMedia).match(media)) {
@@ -1230,10 +1229,12 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 						setCommentsToRule(currentRule);
 						ignoreRulesForMedia = false; // this should not be needed - just in case
 					}
+					resetCommentStack();
 				}
 			} else {
 				// @media rule with empty media list
 				ignoreRulesForMedia = true;
+				resetCommentStack();
 			}
 		}
 
@@ -1286,6 +1287,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					}
 				}
 				setCommentsToRule(currentRule);
+			} else {
+				resetCommentStack();
 			}
 		}
 
@@ -1311,7 +1314,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					}
 					currentRule = pRule;
 				}
-			} // else { Ignored @page: target media mismatch
+			} else { // Ignored @page: target media mismatch
+				resetCommentStack();
+			}
 		}
 
 		@Override
@@ -1341,6 +1346,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 						currentRule = pRule;
 					}
 				}
+			} else {
+				resetCommentStack();
 			}
 		}
 
@@ -1365,7 +1372,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				currentRule = styleRule;
 				((CSSStyleDeclarationRule) currentRule).setSelectorList(selectors);
 				setCommentsToRule(currentRule);
-			} // else { Ignoring rule for these selectors due to target media mismatch
+			} else { // Ignoring rule for these selectors due to target media mismatch
+				resetCommentStack();
+			}
 		}
 
 		@Override
@@ -1386,9 +1395,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 						((GroupingRule) pRule).addRule(currentRule);
 					}
 				}
-				resetCommentStack();
 				currentRule = pRule;
 			}
+			resetCommentStack();
 		}
 
 		@Override
