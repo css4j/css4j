@@ -183,6 +183,11 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 		return false;
 	}
 
+	public void setExpectInteger() {
+		throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+				"Expected an integer, found type " + getPrimitiveType());
+	}
+
 	static boolean isCSSIdentifier(CSSPrimitiveValue value, String ident) {
 		return value.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
 				&& ident.equalsIgnoreCase(value.getStringValue());

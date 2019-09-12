@@ -892,7 +892,7 @@ abstract class SimpleBoxModel {
 	private float calcValue(ComputedCSSStyle styledecl, String propertyName, ExpressionValue cssCalc, short unitType,
 			boolean useDeviceDocumentWidth) {
 		BoxEvaluator ev = new BoxEvaluator(styledecl, propertyName, useDeviceDocumentWidth);
-		ExtendedCSSPrimitiveValue result = ev.evaluateExpression(cssCalc.getExpression());
+		ExtendedCSSPrimitiveValue result = ev.evaluateExpression(cssCalc);
 		if (result.isNegativeNumber()) {
 			// A negative calculated length is taken as zero.
 			return 0f;

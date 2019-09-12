@@ -357,13 +357,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			short type = pri.getPrimitiveType();
 			if (type == CSSPrimitiveValue2.CSS_EXPRESSION) {
 				pri = pri.clone();
-				CSSExpression expr = ((ExpressionValue) pri).getExpression();
+				ExpressionValue exprval = (ExpressionValue) pri;
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
-					pri = (PrimitiveValue) ev.evaluateExpression(expr);
+					pri = (PrimitiveValue) ev.evaluateExpression(exprval);
 				} catch (DOMException e) {
 					// Evaluation failed, convert expressions to absolute anyway.
-					absoluteExpressionValue(propertyName, expr, useParentStyle);
+					absoluteExpressionValue(propertyName, exprval.getExpression(), useParentStyle);
 				}
 			} else if (type == CSSPrimitiveValue2.CSS_FUNCTION) {
 				FunctionValue function = (FunctionValue) pri;
@@ -761,6 +761,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		} else if (customPropertyStack.contains(propertyName)) {
 			StyleValue custom = value.getFallback();
 			if (custom != null) {
+				// Fallback is already checked for expecting integer.
 				return absoluteValue(property, custom, useParentStyle);
 			} else {
 				customPropertyStack.clear();
@@ -787,6 +788,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			throw e;
 		}
 		customPropertyStack.remove(propertyName);
+		if (value.isExpectingInteger() && value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+			((PrimitiveValue) custom).setExpectInteger();
+		} // 'custom' could be <inherit>
 		return custom;
 	}
 
@@ -1058,11 +1062,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case CSSPrimitiveValue2.CSS_EXPRESSION:
 			cssSize = cssSize.clone();
-			CSSExpression expr = ((ExpressionValue) cssSize).getExpression();
-			absoluteExpressionValue("font-size", expr, true);
+			ExpressionValue exprval = (ExpressionValue) cssSize;
+			absoluteExpressionValue("font-size", exprval.getExpression(), true);
 			Evaluator ev = new FontEvaluator();
 			try {
-				cssSize = (PrimitiveValue) ev.evaluateExpression(expr);
+				cssSize = (PrimitiveValue) ev.evaluateExpression(exprval);
 			} catch (DOMException e) {
 			}
 			return cssSize;

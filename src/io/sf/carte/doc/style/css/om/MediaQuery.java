@@ -268,7 +268,7 @@ class MediaQuery {
 		case CSSPrimitiveValue2.CSS_EXPRESSION:
 			ExpressionValue evalue = (ExpressionValue) value;
 			Evaluator ev = new MQEvaluator(canvas);
-			fval = ev.evaluateExpression(evalue.getExpression()).getFloatValue(primitype);
+			fval = ev.evaluateExpression(evalue).getFloatValue(primitype);
 			break;
 		case CSSPrimitiveValue2.CSS_RATIO:
 			float ffirst, fsecond;
@@ -280,16 +280,14 @@ class MediaQuery {
 			} else {
 				// Calc
 				ev = new MQEvaluator(canvas);
-				ffirst = ev.evaluateExpression(((CalcValue) first).getExpression())
-						.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+				ffirst = ev.evaluateExpression((CalcValue) first).getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
 			}
 			if (second.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
 				fsecond = second.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
 			} else {
 				// Calc
 				ev = new MQEvaluator(canvas);
-				fsecond = ev.evaluateExpression(((CalcValue) second).getExpression())
-						.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+				fsecond = ev.evaluateExpression((CalcValue) second).getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
 			}
 			fval = ffirst / fsecond;
 			break;

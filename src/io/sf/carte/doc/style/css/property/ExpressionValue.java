@@ -32,6 +32,8 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 
 	private StyleExpression expression = null;
 
+	private boolean roundResult = false;
+
 	public ExpressionValue() {
 		super(CSSPrimitiveValue2.CSS_EXPRESSION);
 	}
@@ -272,6 +274,15 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 	public void setCssText(String cssText) throws DOMException {
 		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
 				"The value of this property cannot be modified.");
+	}
+
+	@Override
+	public void setExpectInteger() {
+		roundResult = true;
+	}
+
+	boolean mustRoundResult() {
+		return roundResult;
 	}
 
 	@Override

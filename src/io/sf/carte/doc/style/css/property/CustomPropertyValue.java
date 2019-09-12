@@ -34,6 +34,8 @@ public class CustomPropertyValue extends PrimitiveValue implements CSSCustomProp
 
 	private StyleValue fallback = null;
 
+	private boolean expectInteger = false;
+
 	CustomPropertyValue() {
 		super(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY);
 		this.fallback = null;
@@ -53,6 +55,22 @@ public class CustomPropertyValue extends PrimitiveValue implements CSSCustomProp
 	@Override
 	public StyleValue getFallback() {
 		return fallback;
+	}
+
+	public boolean isExpectingInteger() {
+		return expectInteger;
+	}
+
+	@Override
+	public void setExpectInteger() {
+		expectInteger = true;
+		if (fallback != null) {
+			if (fallback.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+				super.setExpectInteger();
+			} else {
+				((PrimitiveValue) fallback).setExpectInteger();
+			}
+		}
 	}
 
 	@Override

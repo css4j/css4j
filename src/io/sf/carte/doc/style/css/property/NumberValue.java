@@ -225,6 +225,19 @@ public class NumberValue extends PrimitiveValue {
 	}
 
 	@Override
+	public void setExpectInteger() {
+		if (getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER || !asInteger) {
+			super.setExpectInteger();
+		}
+	}
+
+	void roundToInteger() throws DOMException {
+		setExpectInteger();
+		realvalue = Math.round(realvalue);
+		asInteger = true;
+	}
+
+	@Override
 	public void setCssText(String cssText) throws DOMException {
 		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "Cannot use setCssText here");
 	}
@@ -777,4 +790,5 @@ public class NumberValue extends PrimitiveValue {
 		num.setFloatValue(unit, floatValue);
 		return num;
 	}
+
 }

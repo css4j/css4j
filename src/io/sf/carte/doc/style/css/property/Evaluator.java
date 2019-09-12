@@ -430,15 +430,18 @@ public class Evaluator {
 	 * the returned primitive value (some functions may return values where the
 	 * units are raised to a power greater than one, or lesser than zero).
 	 * 
-	 * @param expression the expression to evaluate.
+	 * @param calc the expression value to evaluate.
 	 * @return the result from evaluating the expression.
 	 * @throws DOMException if a problem was found evaluating the expression.
 	 */
-	public ExtendedCSSPrimitiveValue evaluateExpression(CSSExpression expression) throws DOMException {
+	public ExtendedCSSPrimitiveValue evaluateExpression(ExpressionValue calc) throws DOMException {
 		Unit resultUnit = new Unit();
-		ExtendedCSSPrimitiveValue result = evaluateExpression(expression, resultUnit);
+		ExtendedCSSPrimitiveValue result = evaluateExpression(calc.getExpression(), resultUnit);
 		if (Math.abs(resultUnit.getExponent()) > 1) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
+		}
+		if (calc.mustRoundResult() && result.isCalculatedNumber()) {
+			((NumberValue) result).roundToInteger();
 		}
 		return result;
 	}

@@ -301,7 +301,7 @@ public class EvaluatorTest {
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		try {
-			evaluator.evaluateExpression(val.getExpression());
+			evaluator.evaluateExpression(val);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
@@ -448,7 +448,7 @@ public class EvaluatorTest {
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		try {
-			evaluator.evaluateExpression(val.getExpression());
+			evaluator.evaluateExpression(val);
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
