@@ -44,7 +44,7 @@ public class FontFeatureValuesRuleTest {
 	public void testParseRule() throws IOException {
 		InputSource source = new InputSource(new StringReader(
 				"/* pre-rule */@font-feature-values /* skip 1 */ Some Font, Other Font /* skip 2 */ {/* pre-swash */@swash /* skip 3 */{ swishy: 1; flowing: 2; } /* pre-styleset */@styleset /* skip 4 */{ double-W: 14; sharp-terminals: 16 1; }}"));
-		assertTrue(sheet.parseCSSStyleSheet(source));
+		assertTrue(sheet.parseStyleSheet(source));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
 		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
@@ -71,7 +71,7 @@ public class FontFeatureValuesRuleTest {
 	public void testParseRuleQuotedFF() throws IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@font-feature-values 'Some Font' {@swash { swishy: 1; flowing: 2; } @styleset { double-W: 14; sharp-terminals: 16 1; }}"));
-		assertTrue(sheet.parseCSSStyleSheet(source));
+		assertTrue(sheet.parseStyleSheet(source));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
 		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
@@ -89,7 +89,7 @@ public class FontFeatureValuesRuleTest {
 	public void testParseRuleQuotedFF2() throws IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@font-feature-values 'Some Font', 'Other Font' {@swash { swishy: 1; flowing: 2; } @styleset { double-W: 14; sharp-terminals: 16 1; }}"));
-		assertTrue(sheet.parseCSSStyleSheet(source));
+		assertTrue(sheet.parseStyleSheet(source));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
 		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
@@ -108,7 +108,7 @@ public class FontFeatureValuesRuleTest {
 	public void testParseRuleBad() throws IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@font-feature-values Some Font, Other Font {@swash 'foo'}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertTrue(sheet.getErrorHandler().hasOMErrors());
 		assertEquals(0, sheet.getCssRules().getLength());
 	}

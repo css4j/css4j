@@ -40,7 +40,7 @@ public class ViewportRuleTest {
 	@Test
 	public void testParseRule() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader("@viewport {\norientation: landscape;\n}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
 		ViewportRule rule = (ViewportRule) sheet.getCssRules().item(0);
@@ -51,7 +51,7 @@ public class ViewportRuleTest {
 	@Test
 	public void testParseRuleMinified() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader("@viewport{orientation:landscape}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
 		ViewportRule rule = (ViewportRule) sheet.getCssRules().item(0);

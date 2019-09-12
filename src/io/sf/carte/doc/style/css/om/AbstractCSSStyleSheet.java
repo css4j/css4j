@@ -81,7 +81,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *             if a problem is found reading the sheet.
 	 */
 	@Override
-	abstract public boolean parseCSSStyleSheet(InputSource source) throws DOMException, IOException;
+	abstract public boolean parseStyleSheet(InputSource source) throws DOMException, IOException;
 
 	/**
 	 * Parses a style sheet.
@@ -111,7 +111,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *             if a problem is found reading the sheet.
 	 */
 	@Override
-	abstract public boolean parseCSSStyleSheet(InputSource source, boolean ignoreComments)
+	abstract public boolean parseStyleSheet(InputSource source, boolean ignoreComments)
 			throws DOMException, IOException;
 
 	/**
@@ -143,24 +143,24 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	abstract public boolean loadStyleSheet(URL url, String referrerPolicy) throws DOMException, IOException;
 
 	@Override
-	abstract public CSSStyleDeclarationRule createCSSStyleRule();
+	abstract public CSSStyleDeclarationRule createStyleRule();
 
 	@Override
-	abstract public CSSFontFaceRule createCSSFontFaceRule();
+	abstract public CSSFontFaceRule createFontFaceRule();
 
 	@Override
-	abstract public ImportRule createCSSImportRule(MediaQueryList mediaList, String href);
+	abstract public ImportRule createImportRule(MediaQueryList mediaList, String href);
 
 	@Override
-	abstract public MediaRule createCSSMediaRule(MediaQueryList mediaList);
+	abstract public MediaRule createMediaRule(MediaQueryList mediaList);
 
 	@Override
-	abstract public CSSPageRule createCSSPageRule();
+	abstract public CSSPageRule createPageRule();
 
 	abstract public CSSUnknownRule createCSSUnknownRule();
 
 	@Override
-	abstract public AbstractCSSStyleDeclaration createCSSStyleDeclaration();
+	abstract public AbstractCSSStyleDeclaration createStyleDeclaration();
 
 	abstract protected AbstractCSSStyleDeclaration createCSSStyleDeclaration(BaseCSSDeclarationRule rule);
 

@@ -258,7 +258,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals(0, emptyStyleDecl.getLength());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("progid:DXImageTransform.Microsoft.Blur(pixelradius=5)",
@@ -285,7 +285,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals(0, emptyStyleDecl.getLength());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("progid:DXImageTransform.Microsoft.gradient(startColorStr= '#f5f5f5', EndColorStr= '#f1f1f1')",
@@ -308,7 +308,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("590px", emptyStyleDecl.getPropertyValue("width"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIOCHAR);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px; margin: 8px!important!; width: 590px; width: 600px!important!; ",
@@ -329,7 +329,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIOCHAR);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 8px!important!; margin: 10px; width: 600px!important!; width: 590px; ",
@@ -350,7 +350,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIOCHAR);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px 5px; margin: 8px 4px!important!; ", style.getCssText());
@@ -369,7 +369,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIOCHAR);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals(
@@ -391,7 +391,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIOCHAR);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px ! important; width: 590px ! important; ", style.getCssText());
@@ -410,7 +410,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIO);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px; margin: 10px!ie; width: 590px; width: 600px!ie; ", style.getCssText());
@@ -430,7 +430,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("10px", emptyStyleDecl.getPropertyValue("margin"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIO);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px; width: 590px; width: 600px!ie; ", style.getCssText());
@@ -450,7 +450,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("10px 5px", emptyStyleDecl.getPropertyValue("margin"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIO);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px 5px; margin: 8px 4px!ie; ", style.getCssText());
@@ -469,7 +469,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIO);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("display: inline-block; display: inline!ie; ", style.getCssText());
@@ -488,7 +488,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEPRIO);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px ! important; width: 590px ! important; ", style.getCssText());
@@ -507,7 +507,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px; margin: 10px\\9; width: 590px; width: 600px\\9; ", style.getCssText());
@@ -526,7 +526,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px; width: 590px; width: 600px\\9; ", style.getCssText());
@@ -546,7 +546,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("10px 5px", emptyStyleDecl.getPropertyValue("margin"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px 5px; margin: 8px 4px\\9; ", style.getCssText());
@@ -566,7 +566,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("10px", emptyStyleDecl.getPropertyValue("margin"));
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px; margin: 10px\\9 ! important; width: 590px; width: 600px\\9 ! important; ",
@@ -587,7 +587,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("margin: 10px ! important; width: 590px ! important; width: 600px\\9 ! important; ",
@@ -609,7 +609,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("border-radius: 3px; border-radius: 0\\9; ", style.getCssText());
@@ -628,7 +628,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("width: 600px; ", style.getCssText());
@@ -644,7 +644,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.getParserFlags().add(Parser2.Flag.IEVALUES);
-		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createCSSStyleRule();
+		CSSStyleDeclarationRule rule = factory.createStyleSheet(null, null).createStyleRule();
 		AbstractCSSStyleDeclaration style = rule.getStyle();
 		style.setCssText(cssText);
 		assertEquals("width: 600px ! important; ", style.getCssText());
@@ -849,7 +849,7 @@ public class BaseCSSStyleDeclarationTest {
 	public void testAddStyle() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) factory.createStyleSheet(null, null)
-				.createCSSStyleRule().getStyle();
+				.createStyleRule().getStyle();
 		style.setCssText("margin: 8px;");
 		emptyStyleDecl.setCssText("margin-top: 10px;");
 		emptyStyleDecl.addStyle(style);

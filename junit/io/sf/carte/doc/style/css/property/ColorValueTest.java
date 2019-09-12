@@ -35,7 +35,7 @@ public class ColorValueTest {
 	public void testGetCssText() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		CSSStyleDeclarationRule styleRule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("color: rgb(8,63,255); ");
 		assertEquals("#083fff", style.getPropertyValue("color"));
@@ -533,7 +533,7 @@ public class ColorValueTest {
 	public void testRGBATransparentColor() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		CSSStyleDeclarationRule styleRule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("color: rgba(0,0,0,0); ");
 		assertEquals("rgba(0, 0, 0, 0)", style.getPropertyValue("color"));

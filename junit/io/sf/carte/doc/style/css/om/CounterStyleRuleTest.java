@@ -44,7 +44,7 @@ public class CounterStyleRuleTest {
 		// https://developer.mozilla.org/en-US/docs/Web/CSS/@counter-style
 		InputSource source = new InputSource(
 				new StringReader("@counter-style thumbs {system: cyclic;\nsymbols: \\1F44D;\n suffix: \" \";\n}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		CounterStyleRule rule = (CounterStyleRule) sheet.getCssRules().item(0);
 		assertEquals(ExtendedCSSRule.COUNTER_STYLE_RULE, rule.getType());
@@ -57,7 +57,7 @@ public class CounterStyleRuleTest {
 	public void testParseRuleError1() throws DOMException, IOException {
 		InputSource source = new InputSource(
 				new StringReader("@counter-style inherit {system: cyclic;\nsymbols: \\1F44D;\n suffix: \" \";\n}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
@@ -65,7 +65,7 @@ public class CounterStyleRuleTest {
 	public void testParseRuleError2() throws DOMException, IOException {
 		InputSource source = new InputSource(
 				new StringReader("@counter-style outside {system: cyclic;\nsymbols: \\1F44D;\n suffix: \" \";\n}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 

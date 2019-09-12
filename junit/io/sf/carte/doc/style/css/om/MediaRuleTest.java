@@ -47,7 +47,7 @@ public class MediaRuleTest {
 	@Test
 	public void testInsertRuleStringInt() {
 		MediaList mediaList = MediaList.createMediaList("screen,print");
-		MediaRule rule = sheet.createCSSMediaRule(mediaList);
+		MediaRule rule = sheet.createMediaRule(mediaList);
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals(0, rule.insertRule("p {border-top: 1px dashed yellow; }", 0));
 		assertEquals(1, rule.insertRule("span.reddish {color: red; }", 1));
@@ -59,7 +59,7 @@ public class MediaRuleTest {
 	@Test
 	public void testGetCssText() {
 		MediaList mediaList = MediaList.createMediaList("screen,print");
-		MediaRule rule = sheet.createCSSMediaRule(mediaList);
+		MediaRule rule = sheet.createMediaRule(mediaList);
 		assertTrue(sheet == rule.getParentStyleSheet());
 		rule.insertRule("p {border-top: 1px dashed yellow; }", 0);
 		rule.insertRule("span.reddish {color: red; }", 1);
@@ -82,7 +82,7 @@ public class MediaRuleTest {
 	public void testParse() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -100,7 +100,7 @@ public class MediaRuleTest {
 	public void testParse2() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -115,7 +115,7 @@ public class MediaRuleTest {
 	public void testParseIgnoreBad() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -129,7 +129,7 @@ public class MediaRuleTest {
 	public void testParseIgnoreBad2() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }}@media {div.foo{margin:1em}}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -143,7 +143,7 @@ public class MediaRuleTest {
 	public void testParseNested() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -204,7 +204,7 @@ public class MediaRuleTest {
 		InputSource source = new InputSource(new StringReader(
 				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}"
 						+ "@media print  {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -216,7 +216,7 @@ public class MediaRuleTest {
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
 		MediaList mediaList = MediaList.createMediaList("screen,print");
-		MediaRule rule = sheet.createCSSMediaRule(mediaList);
+		MediaRule rule = sheet.createMediaRule(mediaList);
 		rule.insertRule("p {border-top: 1px dashed yellow; }", 0);
 		rule.insertRule("span.reddish {color: red; }", 1);
 		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null,

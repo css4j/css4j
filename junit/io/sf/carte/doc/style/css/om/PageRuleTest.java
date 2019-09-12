@@ -42,7 +42,7 @@ public class PageRuleTest {
 	@Test
 	public void testParsePageRule() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader("@page {margin-top: 20%;}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
@@ -54,7 +54,7 @@ public class PageRuleTest {
 	public void testParsePageRuleNested() throws DOMException, IOException {
 		InputSource source = new InputSource(
 				new StringReader("@media print {@page {margin-top: 20%;}h3 {width: 80%}}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		AbstractCSSRule rule = sheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
@@ -74,7 +74,7 @@ public class PageRuleTest {
 	@Test
 	public void testParsePageRulePseudoPage() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader("@page :first {margin-top: 20%;}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
@@ -86,7 +86,7 @@ public class PageRuleTest {
 	public void testParsePageRuleWithMargin() throws DOMException, IOException {
 		InputSource source = new InputSource(
 				new StringReader("@page :first {margin-top: 20%;@top-left {content: 'foo'; color: blue;}}"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);

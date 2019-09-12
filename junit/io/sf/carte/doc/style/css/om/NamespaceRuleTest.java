@@ -40,7 +40,7 @@ public class NamespaceRuleTest {
 
 	@Test
 	public void testInsertDeleteRuleStringInt() {
-		NamespaceRule nsrule = (NamespaceRule) sheet.createCSSNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		NamespaceRule nsrule = (NamespaceRule) sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
 		sheet.addRule(nsrule);
 		CSSRuleList rules = sheet.getCssRules();
 		assertEquals(1, rules.getLength());
@@ -67,14 +67,14 @@ public class NamespaceRuleTest {
 
 	@Test
 	public void testGetCssText() {
-		CSSNamespaceRule nsrule = sheet.createCSSNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		CSSNamespaceRule nsrule = sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
 		assertEquals("@namespace svg url('http://www.w3.org/2000/svg');", nsrule.getCssText());
 		assertEquals("@namespace svg url('http://www.w3.org/2000/svg');", nsrule.getMinifiedCssText());
 	}
 
 	@Test
 	public void testSetPrefix() {
-		NamespaceRule nsrule = (NamespaceRule) sheet.createCSSNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		NamespaceRule nsrule = (NamespaceRule) sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
 		sheet.addRule(nsrule);
 		CSSRuleList rules = sheet.getCssRules();
 		assertEquals(1, rules.getLength());
@@ -90,14 +90,14 @@ public class NamespaceRuleTest {
 
 	@Test
 	public void testEquals() {
-		CSSNamespaceRule nsrule = sheet.createCSSNamespaceRule("svg", "http://www.w3.org/2000/svg");
-		CSSNamespaceRule nsrule2 = sheet.createCSSNamespaceRule("foo", "http://www.example.com/examplens");
+		CSSNamespaceRule nsrule = sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		CSSNamespaceRule nsrule2 = sheet.createNamespaceRule("foo", "http://www.example.com/examplens");
 		assertFalse(nsrule.equals(nsrule2));
 	}
 
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
-		NamespaceRule rule = (NamespaceRule) sheet.createCSSNamespaceRule("svg",
+		NamespaceRule rule = (NamespaceRule) sheet.createNamespaceRule("svg",
 				"http://www.w3.org/2000/svg");
 		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null,
 				null);

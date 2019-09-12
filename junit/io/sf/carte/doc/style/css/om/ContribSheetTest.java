@@ -68,7 +68,7 @@ public class ContribSheetTest {
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
 		source = new InputSource(re);
-		assertTrue(reparsed.parseCSSStyleSheet(source, false));
+		assertTrue(reparsed.parseStyleSheet(source, false));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(0).getPrecedingComments();
@@ -101,7 +101,7 @@ public class ContribSheetTest {
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
 		source = new InputSource(re);
-		assertTrue(reparsed.parseCSSStyleSheet(source, false));
+		assertTrue(reparsed.parseStyleSheet(source, false));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(4).getPrecedingComments();
@@ -133,7 +133,7 @@ public class ContribSheetTest {
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
 		source = new InputSource(re);
-		assertTrue(reparsed.parseCSSStyleSheet(source, false));
+		assertTrue(reparsed.parseStyleSheet(source, false));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(0).getPrecedingComments();
@@ -165,7 +165,7 @@ public class ContribSheetTest {
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
 		source = new InputSource(re);
-		assertTrue(reparsed.parseCSSStyleSheet(source, false));
+		assertTrue(reparsed.parseStyleSheet(source, false));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(0).getPrecedingComments();

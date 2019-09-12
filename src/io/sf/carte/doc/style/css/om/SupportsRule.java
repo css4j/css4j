@@ -191,7 +191,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 		StringReader re = new StringReader(cssText.substring(idx + 1, lm1));
 		InputSource source = new InputSource(re);
 		try {
-			css.parseCSSStyleSheet(source);
+			css.parseStyleSheet(source);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());

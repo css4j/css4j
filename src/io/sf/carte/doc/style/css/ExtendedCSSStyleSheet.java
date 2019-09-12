@@ -82,23 +82,27 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	/**
 	 * Create a CSSCounterStyleRule compatible with this implementation.
 	 *
+	 * @param name
+	 *            the counter-style name.
 	 * @return a CSSCounterStyleRule object.
 	 */
-	CSSCounterStyleRule createCSSCounterStyleRule();
+	CSSCounterStyleRule createCounterStyleRule(String name);
 
 	/**
 	 * Create a CSS Font Face rule compatible with this implementation.
 	 *
 	 * @return a CSS Font Face rule object.
 	 */
-	CSSFontFaceRule createCSSFontFaceRule();
+	CSSFontFaceRule createFontFaceRule();
 
 	/**
 	 * Create a CSSFontFeatureValuesRule compatible with this implementation.
 	 *
+	 * @param fontFamily
+	 *            the font family.
 	 * @return a CSSFontFeatureValuesRule object.
 	 */
-	CSSFontFeatureValuesRule createCSSFontFeatureValuesRule();
+	CSSFontFeatureValuesRule createFontFeatureValuesRule(String[] fontFamily);
 
 	/**
 	 * Create a CSS import rule compatible with this implementation.
@@ -109,14 +113,16 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *            the URI from which to import the sheet.
 	 * @return a CSS import rule.
 	 */
-	CSSImportRule createCSSImportRule(MediaQueryList mediaList, String href);
+	CSSImportRule createImportRule(MediaQueryList mediaList, String href);
 
 	/**
 	 * Create a CSSKeyframesRule compatible with this implementation.
 	 *
+	 * @param keyframesName
+	 *            the name of the keyframes.
 	 * @return a CSSKeyframesRule object.
 	 */
-	CSSKeyframesRule createCSSKeyframesRule();
+	CSSKeyframesRule createKeyframesRule(String keyframesName);
 
 	/**
 	 * Create a CSS media rule.
@@ -125,14 +131,14 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *            a list of media types for the new rule.
 	 * @return a CSS media rule.
 	 */
-	MediaRule createCSSMediaRule(MediaQueryList mediaList);
+	MediaRule createMediaRule(MediaQueryList mediaList);
 
 	/**
 	 * Create a CSS page rule compatible with this implementation.
 	 *
 	 * @return a CSS page rule.
 	 */
-	CSSPageRule createCSSPageRule();
+	CSSPageRule createPageRule();
 
 	/**
 	 * Create a CSS namespace rule compatible with this implementation.
@@ -145,7 +151,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @throws DOMException
 	 *             INVALID_ACCESS_ERR: if the prefix or the URI are null.
 	 */
-	CSSNamespaceRule createCSSNamespaceRule(String prefix, String namespaceUri);
+	CSSNamespaceRule createNamespaceRule(String prefix, String namespaceUri);
 
 	/**
 	 * Create a CSS margin rule compatible with this implementation.
@@ -154,35 +160,35 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *            the margin rule name.
 	 * @return a CSS margin rule.
 	 */
-	CSSMarginRule createCSSMarginRule(String name);
+	CSSMarginRule createMarginRule(String name);
 
 	/**
 	 * Create a CSSSupportsRule compatible with this implementation.
 	 *
 	 * @return a CSSSupportsRule object.
 	 */
-	CSSSupportsRule createCSSSupportsRule();
+	CSSSupportsRule createSupportsRule();
 
 	/**
 	 * Create a CSSViewportRule compatible with this implementation.
 	 *
 	 * @return a CSSViewportRule object.
 	 */
-	CSSDeclarationRule createCSSViewportRule();
+	CSSDeclarationRule createViewportRule();
 
 	/**
 	 * Create a CSS style declaration compatible with this implementation.
 	 *
 	 * @return a CSS style declaration.
 	 */
-	CSSStyleDeclaration createCSSStyleDeclaration();
+	CSSStyleDeclaration createStyleDeclaration();
 
 	/**
 	 * Create a CSS style rule.
 	 *
 	 * @return a CSS style rule.
 	 */
-	CSSStyleDeclarationRule createCSSStyleRule();
+	CSSStyleDeclarationRule createStyleRule();
 
 	/**
 	 * Gets the error handler for this style sheet.
@@ -252,7 +258,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @throws IOException
 	 *             if a problem is found reading the sheet.
 	 */
-	boolean parseCSSStyleSheet(InputSource source) throws DOMException, IOException;
+	boolean parseStyleSheet(InputSource source) throws DOMException, IOException;
 
 	/**
 	 * Parses a style sheet.
@@ -275,6 +281,6 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @throws DOMException if a problem is found parsing the sheet.
 	 * @throws IOException  if a problem is found reading the sheet.
 	 */
-	boolean parseCSSStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException;
+	boolean parseStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException;
 
 }

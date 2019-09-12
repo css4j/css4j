@@ -612,7 +612,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument, 
 			Reader re = new StringReader(styleText);
 			source.setCharacterStream(re);
 			try {
-				sheet.parseCSSStyleSheet(source);
+				sheet.parseStyleSheet(source);
 			} catch (Exception e) {
 				getErrorHandler().linkedSheetError(e, sheet);
 			}

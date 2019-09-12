@@ -159,7 +159,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		Reader re = new StringReader(cssText);
 		InputSource source = new InputSource(re);
 		try {
-			css.parseCSSStyleSheet(source);
+			css.parseStyleSheet(source);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
@@ -295,7 +295,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		public void startSelector(SelectorList selectors) throws CSSException {
 			if (active) {
 				if (currentRule == null) {
-					currentRule = getParentStyleSheet().createCSSStyleRule();
+					currentRule = getParentStyleSheet().createStyleRule();
 				}
 				((CSSStyleDeclarationRule) currentRule).setSelectorList(selectors);
 			}

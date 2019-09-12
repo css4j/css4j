@@ -179,7 +179,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 			try {
 				org.w3c.css.sac.InputSource source = new org.w3c.css.sac.InputSource(re);
 				cssSheet = createDocumentStyleSheet(ORIGIN_USER);
-				cssSheet.parseCSSStyleSheet(source);
+				cssSheet.parseStyleSheet(source);
 			} catch (IOException e) {
 				throw e;
 			}
@@ -204,8 +204,8 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 
 	static void prioritySplit(AbstractCSSStyleSheet cssSheet, AbstractCSSStyleSheet importantSheet,
 			AbstractCSSStyleSheet normalSheet) {
-		AbstractCSSStyleDeclaration userImportantStyle = cssSheet.createCSSStyleDeclaration();
-		AbstractCSSStyleDeclaration userNormalStyle = cssSheet.createCSSStyleDeclaration();
+		AbstractCSSStyleDeclaration userImportantStyle = cssSheet.createStyleDeclaration();
+		AbstractCSSStyleDeclaration userNormalStyle = cssSheet.createStyleDeclaration();
 		CSSRuleArrayList rules = cssSheet.getCssRules();
 		int rl = rules.getLength();
 		for (int i = 0; i < rl; i++) {
@@ -217,14 +217,14 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 				AbstractCSSStyleDeclaration st = rule.getStyle();
 				st.prioritySplit(userImportantStyle, userNormalStyle);
 				if (!userImportantStyle.isEmpty()) {
-					CSSStyleDeclarationRule newrule = importantSheet.createCSSStyleRule();
+					CSSStyleDeclarationRule newrule = importantSheet.createStyleRule();
 					newrule.setSelectorList(rule.getSelectorList());
 					BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) newrule.getStyle();
 					style.setProperties((BaseCSSStyleDeclaration) userImportantStyle);
 					importantSheet.addRule(newrule);
 				}
 				if (!userNormalStyle.isEmpty()) {
-					CSSStyleDeclarationRule newrule = normalSheet.createCSSStyleRule();
+					CSSStyleDeclarationRule newrule = normalSheet.createStyleRule();
 					newrule.setSelectorList(rule.getSelectorList());
 					BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) newrule.getStyle();
 					style.setProperties((BaseCSSStyleDeclaration) userNormalStyle);
@@ -282,7 +282,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 			re = new InputStreamReader(is, "UTF-8");
 			InputSource source = new InputSource(re);
 			cssSheet = createDocumentStyleSheet(ORIGIN_USER_AGENT);
-			cssSheet.parseCSSStyleSheet(source, true);
+			cssSheet.parseStyleSheet(source, true);
 		} catch (IOException e) {
 			throw e;
 		} finally {

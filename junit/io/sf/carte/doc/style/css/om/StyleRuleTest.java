@@ -48,7 +48,7 @@ public class StyleRuleTest {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser2.Flag.IEVALUES));
 		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
 		sheet = factory.createStyleSheet(null, null);
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("p {display: table-cell; filter:alpha(opacity=0);}");
 		assertEquals(2, rule.getStyle().getLength());
 		assertEquals("p {display: table-cell; filter: alpha(opacity=0); }", rule.getCssText());

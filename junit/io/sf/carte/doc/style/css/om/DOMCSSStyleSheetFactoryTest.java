@@ -107,7 +107,7 @@ public class DOMCSSStyleSheetFactoryTest {
 		}
 		Reader re = loadSampleCSSReader();
 		try {
-			sheet.parseCSSStyleSheet(new InputSource(re));
+			sheet.parseStyleSheet(new InputSource(re));
 			re.close();
 		} catch (IOException e) {
 			e.printStackTrace();

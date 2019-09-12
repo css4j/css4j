@@ -97,7 +97,7 @@ abstract public class AbstractCSSRule implements ExtendedCSSRule {
 	 * 
 	 * @return the list of comments, or <code>null</code> if there were no preceding
 	 *         comments or the parsing was specified to ignore comments.
-	 * @see AbstractCSSStyleSheet#parseCSSStyleSheet(org.w3c.css.sac.InputSource,
+	 * @see AbstractCSSStyleSheet#parseStyleSheet(org.w3c.css.sac.InputSource,
 	 *      boolean)
 	 */
 	abstract public List<String> getPrecedingComments();

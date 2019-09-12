@@ -38,7 +38,7 @@ public class CountersValueTest {
 	public void setUp() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		styleRule = sheet.createCSSStyleRule();
+		styleRule = sheet.createStyleRule();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}

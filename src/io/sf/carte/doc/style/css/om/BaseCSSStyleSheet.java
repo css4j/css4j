@@ -357,7 +357,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			} else if (!mediaList.isNotAllMedia()) {
 				CSSRuleArrayList otherRules = sheet.getCssRules();
 				// Create a Media rule
-				MediaRule mrule = createCSSMediaRule(mediaList);
+				MediaRule mrule = createMediaRule(mediaList);
 				addToMediaRule(mrule, otherRules, sheet, 0);
 				addLocalRule(mrule);
 			}
@@ -388,7 +388,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					addRuleList(impRules, impSheet, importCount);
 				} else if (!media.isNotAllMedia()) {
 					// Create a Media rule
-					MediaRule mrule = createCSSMediaRule(imp.getMedia());
+					MediaRule mrule = createMediaRule(imp.getMedia());
 					addToMediaRule(mrule, impRules, impSheet, importCount);
 					addLocalRule(mrule);
 				}
@@ -421,7 +421,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					addToMediaRule(mrule, impRules, impSheet, importCount);
 				} else {
 					// Create a Media rule
-					MediaRule nestedMRule = createCSSMediaRule(media);
+					MediaRule nestedMRule = createMediaRule(media);
 					addToMediaRule(nestedMRule, impRules, impSheet, importCount);
 					mrule.addRule(nestedMRule);
 				}
@@ -495,27 +495,31 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public StyleRule createCSSStyleRule() {
+	public StyleRule createStyleRule() {
 		return new StyleRule(this, getOrigin());
 	}
 
 	@Override
-	public CounterStyleRule createCSSCounterStyleRule() {
-		return new CounterStyleRule(this, getOrigin());
+	public CounterStyleRule createCounterStyleRule(String name) {
+		CounterStyleRule rule = new CounterStyleRule(this, getOrigin());
+		rule.setName(name);
+		return rule;
 	}
 
 	@Override
-	public CSSFontFaceRule createCSSFontFaceRule() {
+	public CSSFontFaceRule createFontFaceRule() {
 		return new FontFaceRule(this, getOrigin());
 	}
 
 	@Override
-	public FontFeatureValuesRule createCSSFontFeatureValuesRule() {
-		return new FontFeatureValuesRule(this, getOrigin());
+	public FontFeatureValuesRule createFontFeatureValuesRule(String[] fontFamily) {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(this, getOrigin());
+		rule.setFontFamily(fontFamily);
+		return rule;
 	}
 
 	@Override
-	public ImportRule createCSSImportRule(MediaQueryList mediaList, String href) {
+	public ImportRule createImportRule(MediaQueryList mediaList, String href) {
 		if (href == null) {
 			throw new NullPointerException("Null @import URI");
 		}
@@ -523,17 +527,19 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public KeyframesRule createCSSKeyframesRule() {
-		return new KeyframesRule(this, getOrigin());
+	public KeyframesRule createKeyframesRule(String keyframesName) {
+		KeyframesRule rule = new KeyframesRule(this, getOrigin());
+		rule.setName(keyframesName);
+		return rule;
 	}
 
 	@Override
-	public MarginRule createCSSMarginRule(String name) {
+	public MarginRule createMarginRule(String name) {
 		return new MarginRule(this, getOrigin(), name);
 	}
 
 	@Override
-	public MediaRule createCSSMediaRule(MediaQueryList mediaList) {
+	public MediaRule createMediaRule(MediaQueryList mediaList) {
 		return new MediaRule(this, mediaList, getOrigin());
 	}
 
@@ -542,7 +548,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * accounted for the namespace URI - prefix mapping.
 	 */
 	@Override
-	public NamespaceRule createCSSNamespaceRule(String prefix, String namespaceUri) {
+	public NamespaceRule createNamespaceRule(String prefix, String namespaceUri) {
 		if (prefix == null || namespaceUri == null) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null parameter");
 		}
@@ -550,17 +556,17 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public PageRule createCSSPageRule() {
+	public PageRule createPageRule() {
 		return new PageRule(this, getOrigin());
 	}
 
 	@Override
-	public SupportsRule createCSSSupportsRule() {
+	public SupportsRule createSupportsRule() {
 		return new SupportsRule(this, getOrigin());
 	}
 
 	@Override
-	public ViewportRule createCSSViewportRule() {
+	public ViewportRule createViewportRule() {
 		return new ViewportRule(this, getOrigin());
 	}
 
@@ -582,7 +588,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public BaseCSSStyleDeclaration createCSSStyleDeclaration() {
+	public BaseCSSStyleDeclaration createStyleDeclaration() {
 		return new BaseCSSStyleDeclaration();
 	}
 
@@ -677,6 +683,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return parent;
 	}
 
+	@Override
 	protected void setParentStyleSheet(AbstractCSSStyleSheet parent) {
 		this.parent = parent;
 		sheetErrorHandler = parent.getErrorHandler();
@@ -732,7 +739,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		boolean result;
 		try {
 			setHref(url.toExternalForm());
-			result = parseCSSStyleSheet(source);
+			result = parseStyleSheet(source);
 		} catch (DOMException e) {
 			getDocumentErrorHandler().linkedSheetError(e, this);
 			throw e;
@@ -971,8 +978,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 *             if a problem is found reading the sheet.
 	 */
 	@Override
-	public boolean parseCSSStyleSheet(InputSource source) throws DOMException, IOException {
-		return parseCSSStyleSheet(source, false);
+	public boolean parseStyleSheet(InputSource source) throws DOMException, IOException {
+		return parseStyleSheet(source, false);
 	}
 
 	/**
@@ -1003,7 +1010,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 *             if a problem is found reading the sheet.
 	 */
 	@Override
-	public boolean parseCSSStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException {
+	public boolean parseStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException {
 		getErrorHandler().reset();
 		// Find origin
 		byte origin = getOrigin();
@@ -1108,15 +1115,15 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			}
 			String firstchars = atRule.trim().substring(0, tentNameLen).toLowerCase(Locale.ROOT);
 			if (firstchars.startsWith("@supports")) {
-				rule = createCSSSupportsRule();
+				rule = createSupportsRule();
 			} else if (firstchars.startsWith("@keyframes ")) {
-				rule = createCSSKeyframesRule();
+				rule = new KeyframesRule(BaseCSSStyleSheet.this, getOrigin());
 			} else if (firstchars.startsWith("@viewport")) {
-				rule = createCSSViewportRule();
+				rule = createViewportRule();
 			} else if (firstchars.startsWith("@counter-style ")) {
-				rule = createCSSCounterStyleRule();
+				rule = new CounterStyleRule(BaseCSSStyleSheet.this, getOrigin());
 			} else if (firstchars.equals("@font-feature-values ")) {
-				rule = createCSSFontFeatureValuesRule();
+				rule = new FontFeatureValuesRule(BaseCSSStyleSheet.this, getOrigin());
 			} else {
 				rule = createCSSUnknownRule();
 				if (atRule.charAt(1) != '-') {
@@ -1155,7 +1162,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			// Setting namespace uri
 			namespaces.put(uri, prefix);
 			if (!ignoreRulesForMedia) {
-				NamespaceRule rule = createCSSNamespaceRule(prefix, uri);
+				NamespaceRule rule = createNamespaceRule(prefix, uri);
 				if (currentRule != null) {
 					addToCurrentRule(rule);
 				} else {
@@ -1187,7 +1194,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				if (!mql.isNotAllMedia()) {
 					if (currentRule == null) { // That should be always true
 						// Importing rule from uri
-						ImportRule imp = createCSSImportRule(mql, uri);
+						ImportRule imp = createImportRule(mql, uri);
 						setCommentsToRule(imp);
 						addLocalRule(imp);
 					}
@@ -1265,11 +1272,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			if (!ignoreRulesForMedia) {
 				if (currentRule instanceof PageRule) {
 					// Margin rule or error
-					MarginRule marginRule = createCSSMarginRule(name);
+					MarginRule marginRule = createMarginRule(name);
 					marginRule.setParentRule(currentRule);
 					currentRule = marginRule;
 				} else {
-					PageRule pageRule = createCSSPageRule();
+					PageRule pageRule = createPageRule();
 					pageRule.setParentRule(currentRule);
 					currentRule = pageRule;
 					if (name != null) {
@@ -1365,7 +1372,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		public void startSelector(SelectorList selectors) throws CSSException {
 			ignoreImports = true;
 			if (!ignoreRulesForMedia) {
-				StyleRule styleRule = BaseCSSStyleSheet.this.createCSSStyleRule();
+				StyleRule styleRule = BaseCSSStyleSheet.this.createStyleRule();
 				if (currentRule != null) {
 					styleRule.setParentRule(currentRule);
 				}

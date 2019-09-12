@@ -129,7 +129,7 @@ public class ElementReferenceValueTest {
 	private static BaseCSSStyleDeclaration createStyleDeclaration() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		CSSStyleDeclarationRule styleRule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		return (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}

@@ -1174,7 +1174,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				Reader re = new StringReader(styleText);
 				source.setCharacterStream(re);
 				try {
-					sheet.parseCSSStyleSheet(source);
+					sheet.parseStyleSheet(source);
 				} catch (Exception e) {
 					getErrorHandler().linkedSheetError(e, sheet);
 				}

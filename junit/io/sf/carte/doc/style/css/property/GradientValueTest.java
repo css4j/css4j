@@ -38,7 +38,7 @@ public class GradientValueTest {
 	public void setUp() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		CSSStyleDeclarationRule styleRule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}

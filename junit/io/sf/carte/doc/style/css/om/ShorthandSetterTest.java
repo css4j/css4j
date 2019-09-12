@@ -62,7 +62,7 @@ public class ShorthandSetterTest {
 
 	@Before
 	public void setUp() {
-		CSSStyleDeclarationRule styleRule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 

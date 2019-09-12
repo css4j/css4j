@@ -80,14 +80,14 @@ public class DOMCSSStyleSheetTest {
 		assertNotNull(re);
 		InputSource source = new InputSource();
 		source.setCharacterStream(re);
-		assertTrue(sheet.parseCSSStyleSheet(source));
+		assertTrue(sheet.parseStyleSheet(source));
 		re.close();
 		assertEquals(defSz + DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS, sheet.getCssRules().getLength());
 		assertEquals("li {margin-top: 1em; margin-bottom: 1em; }",
 				sheet.getCssRules().item(defSz + DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS - 6).getCssText());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet2 = factory.createStyleSheet("", null);
-		boolean parseok = sheet2.parseCSSStyleSheet(new InputSource(new StringReader(sheet.toString())));
+		boolean parseok = sheet2.parseStyleSheet(new InputSource(new StringReader(sheet.toString())));
 		if (!parseok) {
 			System.err.println(sheet2.getErrorHandler().toString());
 		}

@@ -644,7 +644,7 @@ public class CompatInlineDeclarationTest {
 	public void testAddStyle() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) factory.createStyleSheet(null, null)
-				.createCSSStyleRule().getStyle();
+				.createStyleRule().getStyle();
 		style.setCssText("margin: 8px;");
 		emptyStyleDecl.setCssText("margin-top: 10px;");
 		emptyStyleDecl.addStyle(style);

@@ -41,7 +41,7 @@ public class UnknownRuleTest {
 	public void testParseRule() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"/* pre-rule */@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }"));
-		sheet.parseCSSStyleSheet(source);
+		sheet.parseStyleSheet(source);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(0).getType());
 		UnknownRule rule = (UnknownRule) sheet.getCssRules().item(0);

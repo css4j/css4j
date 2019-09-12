@@ -40,7 +40,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSetCssTextString() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		String cssText = "p {border-top: 1px dashed yellow; }";
 		rule.setCssText(cssText);
 		assertEquals(cssText, rule.getCssText().replace("\n", ""));
@@ -51,7 +51,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSetCssTextStringInvalidValue() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		String cssText = "p {color: #zzzz; border-top: 1px dashed yellow; }";
 		rule.setCssText(cssText);
 		assertEquals("p {border-top: 1px dashed yellow; }", rule.getCssText().replace("\n", ""));
@@ -63,13 +63,13 @@ public class CSSStyleDeclarationRuleTest {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheetlenient = factory.createStyleSheet(null, null);
 		factory.getParserFlags().add(Parser2.Flag.STARHACK);
-		CSSStyleDeclarationRule rule = sheetlenient.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheetlenient.createStyleRule();
 		String cssText = "p {*zoom: 1; }";
 		rule.setCssText(cssText);
 		assertEquals("p {*zoom: 1; }", rule.getCssText().replace("\n", ""));
 		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 		assertTrue(rule.getStyleDeclarationErrorHandler().hasWarnings());
-		rule = sheet.createCSSStyleRule();
+		rule = sheet.createStyleRule();
 		rule.setCssText(cssText);
 		assertEquals("p {}", rule.getCssText());
 		assertTrue(rule.getStyleDeclarationErrorHandler().hasErrors());
@@ -78,7 +78,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSetCssTextStringInvalidRule() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		String cssText = "p border-top: 1px dashed yellow; }.someclass, h1 > p, a:visited {color: blue; }";
 		rule.setCssText(cssText);
 		assertEquals(".someclass,h1>p,a:visited{color:blue}", rule.getMinifiedCssText());
@@ -86,7 +86,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSetCssTextStringInvalidRule2() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		String cssText = ".someclass, h1 > p, span[foo~='bar'], a:visited color: rgb(127, 23, 142); }p {border-top: 1px dashed yellow; }";
 		rule.setCssText(cssText);
 		assertEquals("p {border-top: 1px dashed yellow; }", rule.getCssText().replace("\n", ""));
@@ -94,7 +94,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSetCssTextStringInvalidRule3() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		assertEquals("", rule.getCssText());
 		String cssText = ".someclass, h1 > p, span[foo~='bar'], a:visited color: rgb(127, 23, 142); }";
 		rule.setCssText(cssText);
@@ -103,7 +103,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSetCssTextStringMultipleRule() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		sheet.addRule(rule);
 		String cssText = "p {border-top: 1px dashed yellow; }a:visited {color: orange; }";
 		try {
@@ -117,7 +117,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testCloneAbstractCSSStyleSheetInt() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		String cssText = "p {border-top: 1px dashed yellow; }";
 		rule.setCssText(cssText);
 		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null,
@@ -129,7 +129,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelector() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText(
 				"html:root + p:empty,span[foo~='bar'],span[foo='bar'],p:only-child,p:lang(en),p.someclass,a:link,span[class='example'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
@@ -160,7 +160,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelector2() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("ul li,h4[foo],a[hreflang|='en'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals("ul li,h4[foo],a[hreflang|='en']", rule.getSelectorText());
@@ -172,7 +172,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelector3() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("div ol>li p,p:first-line,p:hover {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals("div ol>li p,p::first-line,p:hover", rule.getSelectorText());
@@ -184,7 +184,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelector4() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText(".someclass, h1 > p, a:visited {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(3, list.getLength());
@@ -196,7 +196,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextAttributeSelector() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("span[class=\"example\"][foo=\"'bar\"],:rtl * {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals("span[class='example'][foo=\"'bar\"],:rtl *", rule.getSelectorText());
@@ -218,7 +218,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextAttributeSelector2() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("table[align=\"center\"] > caption[align=\"left\"] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
@@ -246,7 +246,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelector7() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText(
 				"*, p *, * p, p > *, * > p, * + p, * .foo, *:only-child, *[foo='bar'] {border-top-width: 1px; }");
 		assertEquals("*,p *,* p,p>*,*>p,* + p,* .foo,:only-child,[foo='bar']", rule.getSelectorText());
@@ -262,7 +262,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelectorNth() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("p:first-child {border-top-width: 1px; }");
 		assertEquals("p:first-child", rule.getSelectorText());
 		rule.setCssText("p:first-of-type {border-top-width: 1px; }");
@@ -315,7 +315,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelector9() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("h1~pre {border-top-width: 1px; }");
 		assertEquals("h1~pre", rule.getSelectorText());
 		rule.setCssText(":dir(rtl) {border-top-width: 1px; }");
@@ -330,7 +330,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelectorLang() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("p:lang(zh, \"*-hant\") {border-top-width: 1px; }");
 		assertEquals("p:lang(zh,\"*-hant\")", rule.getSelectorText());
 		rule.setCssText("p:lang(zh, '*-hant') {border-top-width: 1px; }");
@@ -344,7 +344,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextSelectorNot() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText(":not(:hover) {border-top-width: 1px; }");
 		assertEquals(":not(:hover)", rule.getSelectorText());
 		rule.setCssText("p:not(:hover) {border-top-width: 1px; }");
@@ -361,9 +361,9 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testEquals() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("p {border-top: 1px dashed yellow; }");
-		CSSStyleDeclarationRule rule2 = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule2 = sheet.createStyleRule();
 		rule2.setCssText("p {border-top: 1px dashed yellow; }");
 		assertTrue(rule.equals(rule2));
 		rule2.setCssText("p {border-top: 1px dashed; }");
@@ -372,9 +372,9 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testEquals2() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("p {border-top: 1px dashed yellow; }");
-		CSSStyleDeclarationRule rule2 = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule2 = sheet.createStyleRule();
 		rule2.setCssText("p {border-top: 1px dashed yellow; }");
 		assertTrue(rule.equals(rule2));
 		rule2.setCssText("p,div {border-top: 1px dashed yellow; }");
@@ -383,9 +383,9 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testEquals3() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText(".foo+::after {border-top-width: 1px}");
-		CSSStyleDeclarationRule rule2 = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule2 = sheet.createStyleRule();
 		rule2.setCssText(".foo+::after {border-top-width: 1px}");
 		assertTrue(rule.equals(rule2));
 		rule2.setCssText(".foo+::before {border-top-width: 1px}");
@@ -394,9 +394,9 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testEquals4() {
-		CSSStyleDeclarationRule rule = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText(".foo .bar #fooid, .foo+::after {border-top-width: 1px}");
-		CSSStyleDeclarationRule rule2 = sheet.createCSSStyleRule();
+		CSSStyleDeclarationRule rule2 = sheet.createStyleRule();
 		rule2.setCssText(".foo .bar #fooid,.foo+::after {border-top-width: 1px}");
 		assertTrue(rule.equals(rule2));
 		rule2.setCssText(".foo .bar #fooid, .foo+::before {border-top-width: 1px}");
@@ -411,7 +411,7 @@ public class CSSStyleDeclarationRuleTest {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.setFactoryFlag(flag);
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		return sheet.createCSSStyleRule();
+		return sheet.createStyleRule();
 	}
 
 }
