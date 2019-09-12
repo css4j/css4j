@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.CSSParseException;
@@ -34,6 +35,10 @@ import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.FontFeatureValuesHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
+import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -62,6 +67,10 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	@Override
 	public String[] getFontFamily() {
 		return fontFamily;
+	}
+
+	void setFontFamily(String[] fontFamily) {
+		this.fontFamily = fontFamily;
 	}
 
 	@Override
@@ -228,10 +237,10 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		for (int i = 0; i <= szm1; i++) {
 			String name = names[i];
 			buf.append(name).append(':');
-			int[] values = featureMap.featureMap.get(name);
-			buf.append(values[0]);
+			PrimitiveValue[] values = featureMap.featureMap.get(name);
+			buf.append(values[0].getMinifiedCssText(name));
 			for (int j = 1; j < values.length; j++) {
-				buf.append(' ').append(values[j]);
+				buf.append(' ').append(values[j].getMinifiedCssText(name));
 			}
 			if (i != szm1) {
 				buf.append(';');
@@ -303,17 +312,17 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			CSSFontFeatureValuesMapImpl featureMap) throws IOException {
 		context.deepenCurrentContext();
 		context.startStyleDeclaration(wri);
-		Iterator<Entry<String, int[]>> it = featureMap.featureMap.entrySet().iterator();
+		Iterator<Entry<String, PrimitiveValue[]>> it = featureMap.featureMap.entrySet().iterator();
 		while (it.hasNext()) {
 			context.startPropertyDeclaration(wri);
-			Entry<String, int[]> me = it.next();
+			Entry<String, PrimitiveValue[]> me = it.next();
 			wri.write(me.getKey());
 			context.writeColon(wri);
-			int[] values = me.getValue();
-			wri.write(values[0]);
+			PrimitiveValue[] values = me.getValue();
+			values[0].writeCssText(wri);
 			for (int i = 1; i < values.length; i++) {
 				wri.write(' ');
-				wri.write(values[i]);
+				values[i].writeCssText(wri);
 			}
 			context.writeSemiColon(wri);
 			context.endPropertyDeclaration(wri);
@@ -441,16 +450,29 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		@Override
 		public void property(String name, LexicalUnit value, boolean important) throws CSSException {
-			LinkedList<Integer> values = new LinkedList<Integer>();
-			while (value != null) {
-				if (value.getLexicalUnitType() == LexicalUnit.SAC_INTEGER) {
-					values.add(value.getIntegerValue());
-				} else {
-					throw new CSSException("Found non-integer value: " + value.toString());
+			LinkedList<PrimitiveValue> values = new LinkedList<PrimitiveValue>();
+			for (; value != null; value = value.getNextLexicalUnit()) {
+				short lutype = value.getLexicalUnitType();
+				if (lutype == LexicalUnit.SAC_INTEGER) {
+					NumberValue number = new NumberValue();
+					int ival = value.getIntegerValue();
+					number.setIntegerValue(ival);
+					values.add(number);
+					continue;
+				} else if (lutype == LexicalUnit.SAC_FUNCTION) {
+					String funcname = value.getFunctionName();
+					if ("calc".equalsIgnoreCase(funcname) || "var".equalsIgnoreCase(funcname)) {
+						ValueFactory valueFactory = new ValueFactory();
+						StyleValue cssval = valueFactory.createCSSValue(value);
+						PrimitiveValue pri = (PrimitiveValue) cssval;
+						pri.setExpectInteger();
+						values.add(pri);
+						continue;
+					}
 				}
-				value = value.getNextLexicalUnit();
+				throw new CSSException("Found non-integer value: " + value.toString());
 			}
-			int[] intvals = new int[values.size()];
+			PrimitiveValue[] intvals = new PrimitiveValue[values.size()];
 			for (int i = 0; i < intvals.length; i++) {
 				intvals[i] = values.get(i);
 			}
@@ -577,7 +599,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 	static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap {
 
-		private LinkedHashMap<String, int[]> featureMap = new LinkedHashMap<String, int[]>();
+		private LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
 		private List<String> precedingComments = null;
 
 		void addAll(CSSFontFeatureValuesMapImpl othermap) {
@@ -589,14 +611,20 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		@Override
-		public int[] get(String featureValueName) {
+		public PrimitiveValue[] get(String featureValueName) {
 			return featureMap.get(featureValueName);
 		}
 
 		@Override
-		public void set(String featureValueName, int... values) {
+		public void set(String featureValueName, PrimitiveValue... values) {
 			if (values == null) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Must provide at least one value");
+			}
+			for (PrimitiveValue pri : values) {
+				if (pri == null) {
+					throw new DOMException(DOMException.SYNTAX_ERR, "Null value supplied.");
+				}
+				pri.setExpectInteger();
 			}
 			featureMap.put(featureValueName, values);
 		}
@@ -617,8 +645,18 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		@Override
 		public int hashCode() {
 			final int prime = 31;
+			if (featureMap == null) {
+				return 0;
+			}
 			int result = 1;
-			result = prime * result + ((featureMap == null) ? 0 : featureMap.hashCode());
+			TreeSet<String> set = new TreeSet<String>();
+			set.addAll(featureMap.keySet());
+			Iterator<String> it = set.iterator();
+			while (it.hasNext()) {
+				String ffname = it.next();
+				result = prime * result + ffname.hashCode();
+				result = prime * result + Arrays.hashCode(featureMap.get(ffname));
+			}
 			return result;
 		}
 
@@ -638,8 +676,19 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				if (other.featureMap != null) {
 					return false;
 				}
-			} else if (!featureMap.equals(other.featureMap)) {
+			} else if (other.featureMap == null || featureMap.size() != other.featureMap.size()) {
 				return false;
+			} else {
+				Iterator<Entry<String, PrimitiveValue[]>> it = featureMap.entrySet().iterator();
+				while (it.hasNext()) {
+					Entry<String, PrimitiveValue[]> entry = it.next();
+					String ffname = entry.getKey();
+					PrimitiveValue[] values = entry.getValue();
+					PrimitiveValue[] ovalues = other.featureMap.get(ffname);
+					if (ovalues == null || !Arrays.equals(values, ovalues)) {
+						return false;
+					}
+				}
 			}
 			return true;
 		}

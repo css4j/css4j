@@ -24,10 +24,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesMap;
+import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
 
 public class FontFeatureValuesRuleTest {
 
@@ -52,7 +57,7 @@ public class FontFeatureValuesRuleTest {
 		assertEquals("Some Font", rule.getFontFamily()[0]);
 		assertEquals("Other Font", rule.getFontFamily()[1]);
 		CSSFontFeatureValuesMap swash = rule.getSwash();
-		assertEquals(1, swash.get("swishy")[0]);
+		assertEquals(1, swash.get("swishy")[0].getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, swash.getPrecedingComments().size());
 		assertEquals(" pre-swash ", swash.getPrecedingComments().get(0));
@@ -65,6 +70,23 @@ public class FontFeatureValuesRuleTest {
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());
 		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
+		//
+		NumberValue number;
+		number = new NumberValue();
+		number.setIntegerValue(4);
+		CSSFontFeatureValuesMap annot = rule.getAnnotation();
+		annot.set("boxed", number);
+		assertEquals(4f, annot.get("boxed")[0].getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
+		number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 4f);
+		annot.set("boxed", number);
+		assertEquals(4f, annot.get("boxed")[0].getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
+		number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 3.5f);
+		try {
+			annot.set("boxed", number);
+			fail("Must throw eception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
 	}
 
 	@Test
@@ -170,11 +192,54 @@ public class FontFeatureValuesRuleTest {
 	}
 
 	@Test
+	public void testStylesetSetStringPrimitiveValue() {
+		String[] ff = {"Arial", "Helvetica"};
+		CSSFontFeatureValuesRule rule = sheet.createFontFeatureValuesRule(ff);
+		NumberValue number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 14f);
+		rule.getStyleset().set("sharp-terminals", number);
+		assertEquals("@font-feature-values Arial,Helvetica{@styleset{sharp-terminals:14}}", rule.getMinifiedCssText());
+		//
+		NumberValue number2 = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 1f);
+		PrimitiveValue[] pvarray = {number, number2};
+		rule.getStyleset().set("sharp-terminals", pvarray);
+		assertEquals("@font-feature-values Arial,Helvetica{@styleset{sharp-terminals:14 1}}", rule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testStylesetSetStringPrimitiveValueError() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		NumberValue number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_PX, 14f);
+		try {
+			rule.getStyleset().set("sharp-terminals", number);
+			fail("Must throw exception");
+		} catch (DOMException e) {
+		}
+		//
+		PrimitiveValue[] pvarray = {null, null};
+		try {
+			rule.getStyleset().set("sharp-terminals", pvarray);
+			fail("Must throw exception");
+		} catch (DOMException e) {
+		}
+		//
+		try {
+			rule.getStyleset().set("sharp-terminals", new IdentifierValue("foo"));
+			fail("Must throw exception");
+		} catch (DOMException e) {
+		}
+	}
+
+	@Test
 	public void testEquals() {
 		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
 		FontFeatureValuesRule rule2 = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule2.setCssText("@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+		assertTrue(rule.equals(rule2));
+		assertTrue(rule.hashCode() == rule2.hashCode());
 		rule2.setCssText("@font-feature-values Some Font,Other {@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+		assertFalse(rule.equals(rule2));
+		rule2.setCssText("@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16}}");
 		assertFalse(rule.equals(rule2));
 	}
 
