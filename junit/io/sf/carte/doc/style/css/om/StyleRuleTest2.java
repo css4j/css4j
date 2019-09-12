@@ -29,7 +29,6 @@ import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleRule;
 
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.TestStyleDatabase;
 
 public class StyleRuleTest2 {
 
@@ -57,9 +56,8 @@ public class StyleRuleTest2 {
 			sheet = null;
 		}
 		myfactory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
-		styleRule = new StyleRule();
+		styleRule = (StyleRule) sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		emptyStyleDecl.setStyleDatabase(new TestStyleDatabase());
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		frameRule = styleRuleFor("frame", "display");
 		framesetRule = styleRuleFor("frameset", "display");

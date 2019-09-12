@@ -36,6 +36,7 @@ import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
@@ -82,8 +83,6 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	private ArrayList<String> priorities;
 
 	private LinkedList<String> shorthandSet;
-
-	private StyleDatabase styleDb = null;
 
 	/**
 	 * Constructor with parent CSS rule argument.
@@ -1508,20 +1507,26 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	/**
 	 * Gets the style database which is used to compute the style.
 	 * 
-	 * @return the style database, or null if no style database has been selected.
+	 * @return <code>null</code> the style database, or <code>null</code> if no
+	 *         style database is being used (like in the case of declared styles).
 	 */
 	public StyleDatabase getStyleDatabase() {
-		return styleDb;
-	}
-
-	/**
-	 * Sets the style database used to compute the style.
-	 * 
-	 * @param styleDb
-	 *            the style database.
-	 */
-	void setStyleDatabase(StyleDatabase styleDb) {
-		this.styleDb = styleDb;
+		if (parentRule != null) {
+			AbstractCSSStyleSheet pSheet = parentRule.getParentStyleSheet();
+			if (pSheet != null) {
+				Node node = pSheet.getOwnerNode();
+				if (node != null) {
+					StyleDatabase sdb;
+					if (node.getNodeType() != Node.DOCUMENT_NODE) {
+						sdb = ((CSSDocument) node.getOwnerDocument()).getStyleDatabase();
+					} else {
+						sdb = ((CSSDocument) node).getStyleDatabase();
+					}
+					return sdb;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -1567,6 +1572,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			value = getSystemDefaultValue("color");
 		} else {
 			value = (PrimitiveValue) sdb.getInitialColor();
+			value = new SafeSystemDefaultValue(value);
 		}
 		return value;
 	}
@@ -1579,6 +1585,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			value = getSystemDefaultValue("font-family");
 		} else {
 			value = getValueFactory().parseProperty(sdb.getDefaultGenericFontFamily());
+			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+				value = new SafeSystemDefaultValue((PrimitiveValue) value);
+			} else {
+				value = getSystemDefaultValue("font-family");
+			}
 		}
 		return value;
 	}

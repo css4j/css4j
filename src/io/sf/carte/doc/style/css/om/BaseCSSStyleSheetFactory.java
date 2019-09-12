@@ -27,11 +27,9 @@ import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.agent.HeadlessDeviceFactory;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -363,59 +361,19 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	@Override
 	public PrimitiveValue getSystemDefaultValue(String propertyName) {
 		if (lenientSystemValues) {
-			CSSPrimitiveValue2 value = null;
+			PrimitiveValue value = null;
 			propertyName = propertyName.toLowerCase(Locale.ROOT);
 			if ("color".equals(propertyName) || propertyName.endsWith("-color")) {
-				value = (CSSPrimitiveValue2) new ValueFactory().parseProperty("#000000");
+				value = (PrimitiveValue) new ValueFactory().parseProperty("#000000");
 				((ColorValue) value).setSystemDefault();
 			} else if ("font-family".equals(propertyName)) {
-				value = (CSSPrimitiveValue2) new ValueFactory().parseProperty("serif");
+				value = (PrimitiveValue) new ValueFactory().parseProperty("serif");
 			}
 			if (value != null) {
-				return new SafeSystemDefaultValue(value);
+				return new LenientSystemDefaultValue(value);
 			}
 		}
 		return SystemDefaultValue.getInstance();
-	}
-
-	private class SafeSystemDefaultValue extends SystemDefaultValue {
-
-		private CSSPrimitiveValue2 defvalue;
-
-		SafeSystemDefaultValue(CSSPrimitiveValue2 defvalue) {
-			super();
-			this.defvalue = defvalue;
-		}
-
-		@Override
-		public boolean isSystemDefault() {
-			return false;
-		}
-
-		@Override
-		public String getCssText() {
-			return defvalue.getCssText();
-		}
-
-		@Override
-		public short getPrimitiveType() {
-			return defvalue.getPrimitiveType();
-		}
-
-		@Override
-		public String getStringValue() throws DOMException {
-			return defvalue.getStringValue();
-		}
-
-		@Override
-		public RGBAColor getRGBColorValue() throws DOMException {
-			return defvalue.getRGBColorValue();
-		}
-
-		@Override
-		public float getFloatValue(short unitType) throws DOMException {
-			return defvalue.getFloatValue(unitType);
-		}
 	}
 
 	/**

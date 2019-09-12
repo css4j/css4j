@@ -59,8 +59,8 @@ abstract public class DOMComputedStyle extends ComputedCSSStyle {
 	/**
 	 * Gets the style database which is used to compute the style.
 	 * 
-	 * @return the style database, or null if no style database has been
-	 *         selected.
+	 * @return the style database, or <code>null</code> if no style database has
+	 *         been selected.
 	 */
 	@Override
 	public StyleDatabase getStyleDatabase() {

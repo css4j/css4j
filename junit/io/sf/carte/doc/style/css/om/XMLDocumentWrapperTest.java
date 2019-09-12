@@ -265,7 +265,7 @@ public class XMLDocumentWrapperTest {
 		style = elm.getComputedStyle(null);
 		color = (StyleValue) style.getPropertyCSSValue("color");
 		assertNotNull(color);
-		assertEquals("#000", color.getCssText());
+		assertEquals("initial", color.getCssText());
 		assertTrue(color.isSystemDefault());
 		assertEquals(0, style.getLength());
 	}

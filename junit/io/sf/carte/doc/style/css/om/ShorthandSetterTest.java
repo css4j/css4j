@@ -22,17 +22,24 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.css.CSSValueList;
 
-import io.sf.carte.doc.style.css.TestStyleDatabase;
+import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -46,10 +53,25 @@ public class ShorthandSetterTest {
 	AbstractCSSStyleSheet sheet;
 	BaseCSSStyleDeclaration emptyStyleDecl;
 
-	public ShorthandSetterTest(EnumSet<Parser2.Flag> flags) {
+	public ShorthandSetterTest(EnumSet<Parser2.Flag> flags) throws ParserConfigurationException, CSSMediaException {
 		super();
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(flags);
-		sheet = factory.createStyleSheet(null, null);
+		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
+		Element head = doc.createElement("head");
+		Element style = doc.createElement("style");
+		style.setAttribute("id", "styleId");
+		style.setIdAttribute("id", true);
+		style.setAttribute("type", "text/css");
+		doc.getDocumentElement().appendChild(head);
+		head.appendChild(style);
+		Element body = doc.createElement("body");
+		doc.getDocumentElement().appendChild(body);
+		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
+		cssdoc.setTargetMedium("screen");
+		CSSElement cssStyle = cssdoc.getElementById("styleId");
+		assertNotNull(cssStyle);
+		sheet = ((LinkStyleDefiner) cssStyle).getSheet();
 	}
 
 	@Parameters
@@ -4358,7 +4380,7 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("font-style: italic; font: smaller");
 		assertEquals("smaller", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-style").getCssText());
-		assertEquals("initial", emptyStyleDecl.getPropertyValue("font-family"));
+		assertEquals("Serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("initial", emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("font-size").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("font-family").isSubproperty());
@@ -4740,7 +4762,6 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testSystemFont() {
-		emptyStyleDecl.setStyleDatabase(new TestStyleDatabase());
 		emptyStyleDecl.setCssText("font: icon");
 		assertEquals("7pt", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("300", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -4756,7 +4777,6 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testFontLevel3() {
-		emptyStyleDecl.setStyleDatabase(new TestStyleDatabase());
 		emptyStyleDecl.setCssText("font: condensed 80% sans-serif");
 		assertEquals("font: condensed 80% sans-serif; ", emptyStyleDecl.getCssText());
 		assertEquals("condensed", emptyStyleDecl.getPropertyValue("font-stretch"));
