@@ -89,6 +89,9 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	 * @return the media list.
 	 */
 	public static MediaList createMediaList(String media) {
+		if (media == null) {
+			throw new NullPointerException("Null media.");
+		}
 		MediaList mlist = new MediaList();
 		mlist.setMediaText(media);
 		return mlist;
@@ -149,9 +152,8 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	 */
 	public static MediaList createMediaList(SACMediaList media) {
 		MediaList newlist = new MediaList();
-		if (media == null) {
-			newlist.allMedia = true;
-		} else {
+		newlist.allMedia = true;
+		if (media != null) {
 			int sz = media.getLength();
 			for (int i = 0; i < sz; i++) {
 				newlist.appendMedium(media.item(i));

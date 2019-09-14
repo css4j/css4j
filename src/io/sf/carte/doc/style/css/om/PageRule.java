@@ -125,6 +125,11 @@ public class PageRule extends CSSStyleDeclarationRule implements CSSPageRule, Ex
 	}
 
 	@Override
+	public void setSelectorText(String selectorText) throws DOMException {
+		super.setSelectorText(selectorText);
+	}
+
+	@Override
 	public void setCssText(String cssText) throws DOMException {
 		cssText = cssText.trim();
 		int len = cssText.length();

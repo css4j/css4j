@@ -187,4 +187,19 @@ public class BaseCSSStyleSheetTest2 {
 				css.toString());
 	}
 
+	@Test
+	public void testToStyleString() throws IOException {
+		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet(SACParserFactory.DEFAULT_PARSER);
+		sheet.setMedia(MediaQueryFactory.createMediaList("screen", null));
+		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
+		CharBuffer target = CharBuffer.allocate(600);
+		target.append("<styletype=\"text/css\"media=\"screen\">");
+		assertTrue(re.read(target) != -1);
+		re.close();
+		target.append("</style >");
+		target.flip();
+		String expected = target.toString().replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}", "}");
+		assertEquals(expected, sheet.toStyleString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+	}
+
 }

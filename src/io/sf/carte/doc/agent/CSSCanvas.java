@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.agent;
 
-import org.w3c.dom.css.CSSFontFaceRule;
-
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -30,24 +28,6 @@ public interface CSSCanvas {
 	 * @return the StyleDatabase.
 	 */
 	StyleDatabase getStyleDatabase();
-
-	/**
-	 * Try to load the font family according to the given font face rule.
-	 *
-	 * @param rule
-	 *            the font face rule.
-	 */
-	void loadFontFace(CSSFontFaceRule rule);
-
-	/**
-	 * Is <code>requestedFamily</code> an available font family loaded by a font
-	 * face rule?
-	 *
-	 * @param requestedFamily
-	 *            the font family name.
-	 * @return <code>true</code> if is an available font family, <code>false</code> otherwise.
-	 */
-	boolean isFontFaceName(String requestedFamily);
 
 	/**
 	 * Is the provided pseudo-class active in this canvas?

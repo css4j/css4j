@@ -12,8 +12,11 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URL;
 
+import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
@@ -35,9 +38,9 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 
 	private AbstractCSSStyleSheet importedSheet = null;
 
-	private final String styleSheetURI;
+	private String styleSheetURI;
 
-	private final MediaQueryList mediaList;
+	private MediaQueryList mediaList;
 
 	/**
 	 * Construct an import rule with the given parameters.
@@ -76,7 +79,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 			} catch (DOMException e) {
 				parent.getErrorHandler().badAtRule(e, getCssText());
 			} catch (IOException e) {
-				parent.getErrorHandler().ruleIOError(this, e);
+				parent.getErrorHandler().ruleIOError(styleSheetURI, e);
 			}
 		}
 		return importedSheet;
@@ -100,7 +103,40 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "@import rules must be created from a style sheet.");
+		AbstractCSSStyleSheet parentSS = getParentStyleSheet();
+		if (parentSS == null) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR,
+					"This rule must be added to a sheet first");
+		}
+		// Create, load & Parse
+		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this, null, null);
+		Reader re = new StringReader(cssText);
+		InputSource source = new InputSource(re);
+		try {
+			css.parseStyleSheet(source);
+		} catch (IOException e) {
+			// This should never happen!
+			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+		}
+		CSSRuleArrayList parsedRules = css.getCssRules();
+		int len = parsedRules.getLength();
+		if (len != 1) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+					"Exactly one rule must be parsed into this one, not " + len + '.');
+		}
+		AbstractCSSRule firstRule = parsedRules.item(0);
+		if (firstRule.getType() != getType()) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+					"Attempted to parse a rule of type " + firstRule.getType());
+		}
+		ImportRule imp = (ImportRule) firstRule;
+		this.styleSheetURI = imp.getHref();
+		this.mediaList = imp.getMedia();
+		this.precedingComments = imp.precedingComments;
+		this.importedSheet = null;
+		if (css.hasRuleErrorsOrWarnings()) {
+			parentSS.getErrorHandler().mergeState(css.getErrorHandler());
+		}
 	}
 
 	@Override

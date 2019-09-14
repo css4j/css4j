@@ -25,10 +25,10 @@ import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
@@ -42,7 +42,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	private LinkedList<String> unknownRules = null;
 	private LinkedList<String> ignoredImports = null;
 	private LinkedList<RuleParseError> ruleParseErrors = null;
-	private HashMap<CSSImportRule,IOException> importIOErrors = null;
+	private HashMap<String,IOException> ruleIOErrors = null;
 	private LinkedList<String> emptyRules = null;
 
 	private LinkedList<SACMediaList> badMediaLists = null;
@@ -137,12 +137,12 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		return ruleParseErrors;
 	}
 
-	public List<CSSParseException> getSacErrors() {
-		return sacErrors;
+	public HashMap<String, IOException> getRuleIOErrors() {
+		return ruleIOErrors;
 	}
 
-	public HashMap<CSSImportRule, IOException> getImportIOErrors() {
-		return importIOErrors;
+	public List<CSSParseException> getSacErrors() {
+		return sacErrors;
 	}
 
 	public List<CSSParseException> getSacWarnings() {
@@ -174,7 +174,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	@Override
 	public boolean hasOMErrors() {
 		return omErrorMergedState || unknownRules != null || ignoredImports != null || ruleParseErrors != null
-				|| importIOErrors != null || badMediaLists != null || badAtRules != null || badInlineStyles != null;
+				|| ruleIOErrors != null || badMediaLists != null || badAtRules != null || badInlineStyles != null;
 	}
 
 	@Override
@@ -269,6 +269,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		unknownRules = null;
 		ignoredImports = null;
 		ruleParseErrors = null;
+		ruleIOErrors = null;
 		emptyRules = null;
 		badMediaLists = null;
 		badAtRules = null;
@@ -291,11 +292,15 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	}
 
 	@Override
-	public void ruleIOError(CSSImportRule rule, IOException exception) {
-		if (importIOErrors == null) {
-			importIOErrors = new HashMap<CSSImportRule,IOException>();
+	public void ruleIOError(String uri, IOException exception) {
+		if (ruleIOErrors == null) {
+			ruleIOErrors = new HashMap<String,IOException>();
 		}
-		importIOErrors.put(rule, exception);
+		ruleIOErrors.put(uri, exception);
+	}
+
+	@Override
+	public void fontFormatError(ExtendedCSSFontFaceRule rule, Exception exception) {
 	}
 
 	@Override

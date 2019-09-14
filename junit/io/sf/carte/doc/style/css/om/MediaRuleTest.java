@@ -112,6 +112,25 @@ public class MediaRuleTest {
 	}
 
 	@Test
+	public void testParseAllMedia() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@media {nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
+		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
+		assertTrue(rule.getMedia().isAllMedia());
+		assertEquals("all", rule.getMedia().getMedia());
+		assertTrue(sheet == rule.getParentStyleSheet());
+		assertEquals(
+				"@media {\n    nav.foo {\n        display: none;\n    }\n    footer .footer .foo {\n        padding-left: 0;\n        padding-right: 0;\n    }\n    h4 {\n        font-size: 20px;\n    }\n}\n",
+				rule.getCssText());
+		assertEquals(
+				"@media{nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
+				rule.getMinifiedCssText());
+	}
+
+	@Test
 	public void testParseIgnoreBad() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}"));

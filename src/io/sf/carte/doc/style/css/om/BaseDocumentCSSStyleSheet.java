@@ -18,15 +18,12 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
 import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSRuleList;
 
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.CSSRuleListener;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
@@ -245,28 +242,17 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 				if (type != CSSRule.STYLE_RULE && type != CSSRule.PAGE_RULE) {
 					if (type == CSSRule.MEDIA_RULE) {
 						scanMediaRule(matcher, targetMedium, getCanvas(), (MediaRule) rule);
-					} else if (type == CSSRule.IMPORT_RULE) {
-						scanImportRule(matcher, targetMedium, getCanvas(), (ImportRule) rule);
 					} else if (type == CSSRule.FONT_FACE_RULE) {
-						processFontFaceRule((FontFaceRule) rule);
+						processFontFaceRule((FontFaceRule) rule, targetMedium);
 					} else if (type == ExtendedCSSRule.SUPPORTS_RULE) {
 						SupportsRule supports = (SupportsRule) rule;
 						DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
 						StyleDatabase sdb;
 						if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null && supports.supports(sdb)) {
 							CSSRuleArrayList rules = supports.getCssRules();
-							for (int i = 0; i < rules.getLength(); i++) {
-								ExtendedCSSRule supportedrule = rules.item(i);
-								if (supportedrule.getType() == CSSRule.STYLE_RULE) {
-									StyleRule stylerule = (StyleRule) supportedrule;
-									int selIdx = matcher.matches(stylerule.getSelectorList());
-									if (selIdx != -1) {
-										add(stylerule.getSpecifity(selIdx));
-									}
-								}
-							}
+							cascade(matcher, targetMedium, rules);
 						}
-					}
+					} // we find no @import rules here
 					continue;
 				}
 				StyleRule stylerule = (StyleRule) rule;
@@ -282,44 +268,18 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 			// If we target a specific media, account for matching @media rules,
 			// otherwise ignore them.
 			if (targetMedium != null && mediaList.matches(targetMedium, canvas)) {
-				CSSRuleList ruleList = mediaRule.getCssRules();
-				int rll = ruleList.getLength();
-				for (int i = 0; i < rll; i++) {
-					if (ruleList.item(i) instanceof StyleRule) {
-						StyleRule stylerule = (StyleRule) ruleList.item(i);
-						int selIdx = matcher.matches(stylerule.getSelectorList());
-						if (selIdx >= 0) {
-							add(stylerule.getSpecifity(selIdx));
-						}
-					}
-				}
+				CSSRuleArrayList ruleList = mediaRule.getCssRules();
+				cascade(matcher, targetMedium, ruleList);
 			}
 		}
 
-		private void scanImportRule(SelectorMatcher matcher, String targetMedium, CSSCanvas canvas, ImportRule importRule) {
-			MediaQueryList mediaList = importRule.getMedia();
-			if (mediaList.isAllMedia() || (targetMedium != null && mediaList.matches(targetMedium, canvas))) {
-				AbstractCSSStyleSheet sheet = importRule.getStyleSheet();
-				if (sheet != null) {
-					CSSRuleList ruleList = sheet.getCssRules();
-					int rll = ruleList.getLength();
-					for (int i = 0; i < rll; i++) {
-						if (ruleList.item(i) instanceof StyleRule) {
-							StyleRule stylerule = (StyleRule) ruleList.item(i);
-							int selIdx = matcher.matches(stylerule.getSelectorList());
-							if (selIdx >= 0) {
-								add(stylerule.getSpecifity(selIdx));
-							}
-						}
-					}
+		private void processFontFaceRule(FontFaceRule rule, String targetMedium) {
+			DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
+			if (df != null) {
+				StyleDatabase sdb = df.getStyleDatabase(targetMedium);
+				if (sdb != null) {
+					sdb.loadFontFaceRule(rule);
 				}
-			}
-		}
-
-		private void processFontFaceRule(FontFaceRule rule) {
-			Document doc = rule.getParentStyleSheet().getOwnerNode().getOwnerDocument();
-			if (doc instanceof CSSRuleListener) {
-				((CSSRuleListener) doc).onFontFaceRule(rule);
 			}
 		}
 

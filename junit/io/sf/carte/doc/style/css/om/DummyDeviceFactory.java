@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSFontFaceRule;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.agent.AbstractDeviceFactory;
@@ -27,6 +26,7 @@ import io.sf.carte.doc.style.css.AbstractStyleDatabase;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 import io.sf.carte.doc.style.css.StyleDatabase;
 
 /**
@@ -60,6 +60,8 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 	 * A dumb style database useful for testing.
 	 */
 	public static class DummyStyleDatabase extends AbstractStyleDatabase {
+
+		private final HashSet<String> fontfaceNames = new HashSet<String>();
 
 		@Override
 		public String getDefaultGenericFontFamily(String genericFamily) {
@@ -104,6 +106,21 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
+		public boolean isFontFaceName(String requestedFamily) {
+			return fontfaceNames.contains(requestedFamily);
+		}
+
+		@Override
+		public void loadFontFaceRule(ExtendedCSSFontFaceRule rule) {
+			String familyName = rule.getStyle().getPropertyValue("font-family");
+			if (familyName == null) {
+				rule.getStyleDeclarationErrorHandler().missingRequiredProperty(familyName);
+				return;
+			}
+			fontfaceNames.add(familyName);
+		}
+
+		@Override
 		public short getNaturalUnit() {
 			return CSSPrimitiveValue.CSS_PX;
 		}
@@ -141,37 +158,16 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 	 * A dumb canvas useful for testing.
 	 */
 	public class DummyCanvas extends AbstractCSSCanvas {
-		private final HashSet<String> fontfaceNames;
 		private final Map<CSSElement, List<String>> statePseudoclasses;
 
 		DummyCanvas(CSSDocument doc) {
 			super(doc);
-			fontfaceNames = new HashSet<String>();
 			statePseudoclasses = new HashMap<CSSElement, List<String>>();
 		}
 
 		@Override
 		public StyleDatabase getStyleDatabase() {
 			return dummyDatabase;
-		}
-
-		@Override
-		public boolean isFontFaceName(String requestedFamily) {
-			return fontfaceNames.contains(requestedFamily);
-		}
-
-		/**
-		 * Try to load the font family according to the given font face rule.
-		 * 
-		 * @param rule the font face rule.
-		 */
-		@Override
-		public void loadFontFace(CSSFontFaceRule rule) {
-			String familyName = rule.getStyle().getPropertyValue("font-family");
-			if (familyName == null) {
-				((CSSStyleDeclarationRule) rule).getStyleDeclarationErrorHandler().missingRequiredProperty(familyName);
-				return;
-			}
 		}
 
 		public void registerStatePseudoclasses(CSSElement element, List<String> statePseudoclasses) {

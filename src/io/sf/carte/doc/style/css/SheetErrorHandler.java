@@ -17,7 +17,6 @@ import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
-import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
 
 /**
@@ -99,14 +98,22 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	void ruleParseWarning(CSSRule rule, CSSParseException ex);
 
 	/**
-	 * A I/O error was produced when processing an import rule.
+	 * A I/O error was produced when processing a rule.
 	 * 
-	 * @param rule
-	 *            the import rule.
+	 * @param uri
+	 *            the uri.
 	 * @param exception
 	 *            the exception.
 	 */
-	void ruleIOError(CSSImportRule rule, IOException exception);
+	void ruleIOError(String uri, IOException exception);
+
+	/**
+	 * Found a font format error when loading a font-face rule.
+	 * 
+	 * @param rule the font-face rule.
+	 * @param exception the exception describing the error.
+	 */
+	void fontFormatError(ExtendedCSSFontFaceRule rule, Exception exception);
 
 	/**
 	 * Notify this handler that a rule of unknown type was found.

@@ -95,6 +95,25 @@ public interface StyleDatabase {
 	String getSystemFontDeclaration(String systemFontName);
 
 	/**
+	 * Is <code>requestedFamily</code> an available font family loaded by a font
+	 * face rule?
+	 *
+	 * @param requestedFamily
+	 *            the font family name in lower case.
+	 * @return <code>true</code> if is an available font family, <code>false</code> otherwise.
+	 */
+	boolean isFontFaceName(String requestedFamily);
+
+	/**
+	 * Try to load the font family according to the given font face rule, and
+	 * make it available to this object.
+	 *
+	 * @param rule
+	 *            the font face rule.
+	 */
+	void loadFontFaceRule(ExtendedCSSFontFaceRule rule);
+
+	/**
 	 * Gets the identifier of the device's natural unit.
 	 *
 	 * @return the unit identifier as in <code>CSSPrimitiveValue</code>.

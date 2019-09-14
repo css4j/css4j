@@ -11,6 +11,10 @@
 
 package io.sf.carte.doc.style.css;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
@@ -22,8 +26,11 @@ import org.w3c.dom.css.CSSPrimitiveValue;
  */
 public class TestStyleDatabase extends AbstractStyleDatabase {
 
+	private final HashSet<String> fontfaceNames;
+
 	public TestStyleDatabase() {
 		super();
+		fontfaceNames = new HashSet<String>();
 	}
 
 	@Override
@@ -106,6 +113,21 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 			return "700 10pt Statusbarfont";
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isFontFaceName(String requestedFamily) {
+		return fontfaceNames.contains(requestedFamily);
+	}
+
+	@Override
+	protected boolean loadFontFace(String familyName, FontFormat fontFormat, InputStream is,
+			ExtendedCSSFontFaceRule rule) throws IOException {
+		if (fontFormat != null) {
+			fontfaceNames.add(familyName);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

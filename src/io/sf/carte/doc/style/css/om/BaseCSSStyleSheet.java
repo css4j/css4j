@@ -112,7 +112,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	protected BaseCSSStyleSheet(String title, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
 		super(title);
 		this.ownerRule = ownerRule;
-		this.destinationMedia = media;
+		if (media == null) {
+			this.destinationMedia = MediaList.createUnmodifiable();
+		} else {
+			this.destinationMedia = media;
+		}
 		sheetOrigin = origin;
 	}
 
@@ -379,8 +383,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					getErrorHandler().badAtRule(ex, oRule.getCssText());
 					return;
 				}
-				// We clone with this as parent, to receive the errors
-				ImportRule imp = (ImportRule) oRule.clone(this);
+				// We clone with 'sheet' as parent, to receive the errors
+				ImportRule imp = (ImportRule) oRule.clone(sheet);
 				AbstractCSSStyleSheet impSheet = imp.getStyleSheet();
 				CSSRuleArrayList impRules = impSheet.getCssRules();
 				MediaQueryList media = imp.getMedia();
@@ -412,8 +416,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					getErrorHandler().badAtRule(ex, oRule.getCssText());
 					return;
 				}
-				// We clone with this as parent, to receive the errors
-				ImportRule imp = (ImportRule) oRule.clone(this);
+				// We clone with 'sheet' as parent, to receive the errors
+				ImportRule imp = (ImportRule) oRule.clone(sheet);
 				AbstractCSSStyleSheet impSheet = imp.getStyleSheet();
 				CSSRuleArrayList impRules = impSheet.getCssRules();
 				MediaQueryList media = imp.getMedia();
@@ -1066,7 +1070,10 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 		private final LinkedList<String> comments;
 
-		// switch for ignoring rules based on target media
+		/*
+		 * switch for ignoring rules if a media rule is inside the wrong place or the
+		 * query list is invalid.
+		 */
 		private boolean ignoreRulesForMedia = false;
 
 		private boolean ignoreImports = false;
@@ -1211,36 +1218,30 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			// Starting @media block for media
 			ignoreImports = true;
 			SheetErrorHandler eh;
-			if (media.getLength() != 0) {
-				MediaQueryList mlist = MediaQueryFactory.createMediaList(media);
-				if (mlist.hasErrors() && (eh = getErrorHandler()) != null) {
-					eh.badMediaList(media);
-				}
-				if (currentRule != null) {
-					if (currentRule.getType() == CSSRule.MEDIA_RULE) {
-						MediaRule rule = new MediaRule(BaseCSSStyleSheet.this, mlist, sheetOrigin);
-						((GroupingRule) currentRule).addRule(rule);
-						currentRule = rule;
-						setCommentsToRule(currentRule);
-						ignoreRulesForMedia = false;
-					} else if ((eh = getErrorHandler()) != null) {
-						eh.sacMalfunction("Unexpected media rule inside of: " + currentRule.getCssText());
-						ignoreRulesForMedia = true;
-						return;
-					}
-				} else {
-					if (mlist.isNotAllMedia() || mlist.hasErrors()) {
-						ignoreRulesForMedia = true;
-					} else {
-						currentRule = new MediaRule(BaseCSSStyleSheet.this, mlist, sheetOrigin);
-						setCommentsToRule(currentRule);
-						ignoreRulesForMedia = false; // this should not be needed - just in case
-					}
-					resetCommentStack();
+			MediaQueryList mlist = MediaQueryFactory.createMediaList(media);
+			if (mlist.hasErrors() && (eh = getErrorHandler()) != null) {
+				eh.badMediaList(media);
+			}
+			if (currentRule != null) {
+				if (currentRule.getType() == CSSRule.MEDIA_RULE) {
+					MediaRule rule = new MediaRule(BaseCSSStyleSheet.this, mlist, sheetOrigin);
+					((GroupingRule) currentRule).addRule(rule);
+					currentRule = rule;
+					setCommentsToRule(currentRule);
+					ignoreRulesForMedia = false;
+				} else if ((eh = getErrorHandler()) != null) {
+					eh.sacMalfunction("Unexpected media rule inside of: " + currentRule.getCssText());
+					ignoreRulesForMedia = true;
+					return;
 				}
 			} else {
-				// @media rule with empty media list
-				ignoreRulesForMedia = true;
+				if (mlist.isNotAllMedia()) {
+					ignoreRulesForMedia = true;
+				} else {
+					currentRule = new MediaRule(BaseCSSStyleSheet.this, mlist, sheetOrigin);
+					setCommentsToRule(currentRule);
+					ignoreRulesForMedia = false; // this should not be needed - just in case
+				}
 				resetCommentStack();
 			}
 		}

@@ -32,6 +32,10 @@ public class MockURLFactory {
 
 	private HashMap<String,String> referrerMap = new HashMap<String,String>();
 
+	/*
+	 * After adding a file here and in classpath, remember to refresh the IDE if you
+	 * are using one.
+	 */
 	static {
 		mockURLMap.put(SAMPLE_URL, "htmlsample.html");
 		mockURLMap.put("http://www.example.com/css/common.css", "common.css");
@@ -41,6 +45,7 @@ public class MockURLFactory {
 		mockURLMap.put("http://www.example.com/css/background.png", "background.png");
 		mockURLMap.put("http://www.example.com/media/print.css", "print.css");
 		mockURLMap.put("http://www.example.com/css/circular.css", "circular.css");
+		mockURLMap.put("http://www.example.com/fonts/OpenSans-Regular.ttf", "contrib/OpenSans-Regular.ttf");
 		mockURLMap.put("http://www.example.com/etc/fakepasswd", "fakepasswd");
 	}
 
@@ -68,7 +73,7 @@ public class MockURLFactory {
 			.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
 				@Override
 				public InputStream run() {
-					return this.getClass().getResourceAsStream(filename);
+					return getClass().getResourceAsStream(filename);
 				}
 			});
 		return is;
@@ -92,7 +97,7 @@ public class MockURLFactory {
 
 	class MockURLConnection extends HttpURLConnection {
 
-		private Map<String, List<String>> connheaders;
+		private final Map<String, List<String>> connheaders;
 
 		private InputStream inputStream = null;
 
@@ -178,9 +183,13 @@ public class MockURLFactory {
 				return "text/html";
 			} else if("xml".equals(ext)) {
 				return "text/xml";
-			} else {
-				return null;
+			} else if (ext != null) {
+				List<String> ctype = getHeaderFields().get("content-type");
+				if (ctype != null) {
+					return ctype.get(0);
+				}
 			}
+			return null;
 		}
 
 		@Override

@@ -94,9 +94,8 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad keyframe rule: " + cssText);
 		}
 		String selector = cssText.substring(0, idx).trim();
-		String declaration = cssText.substring(idx + 1, lenm1);
 		selector = getParentRule().keyframeSelector(selector);
-		super.setCssText(declaration);
+		super.setCssText(cssText);
 		// All seems OK, so we set the keyText
 		keyText = selector;
 	}

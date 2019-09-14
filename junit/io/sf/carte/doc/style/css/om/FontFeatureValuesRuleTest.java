@@ -28,6 +28,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesMap;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
@@ -71,6 +72,13 @@ public class FontFeatureValuesRuleTest {
 		assertEquals(1, rule.getPrecedingComments().size());
 		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
 		//
+		CSSFontFeatureValuesMap swash2 = rule.getFeatureValuesMap("swash");
+		assertTrue(swash == swash2);
+		assertTrue(rule.getAnnotation() == rule.getFeatureValuesMap("annotation"));
+		assertTrue(rule.getOrnaments() == rule.getFeatureValuesMap("ornaments"));
+		assertTrue(rule.getStyleset() == rule.getFeatureValuesMap("styleset"));
+		assertTrue(rule.getStylistic() == rule.getFeatureValuesMap("stylistic"));
+		//
 		NumberValue number;
 		number = new NumberValue();
 		number.setIntegerValue(4);
@@ -87,6 +95,29 @@ public class FontFeatureValuesRuleTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 		}
+	}
+
+	@Test
+	public void testParseRuleCalc() throws IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@font-feature-values Some Font {@swash { swishy: 1; flowing: calc(1 + 1); } @styleset { double-W: var(--doubleW, 2); sharp-terminals: 16 1; }}"));
+		assertTrue(sheet.parseStyleSheet(source));
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
+		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
+		assertEquals(1, rule.getFontFamily().length);
+		assertEquals("Some Font", rule.getFontFamily()[0]);
+		CSSFontFeatureValuesMap swash = rule.getSwash();
+		assertEquals(1, swash.get("swishy")[0].getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
+		PrimitiveValue primi = swash.get("flowing")[0];
+		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, primi.getPrimitiveType());
+		//
+		primi = rule.getStyleset().get("double-W")[0];
+		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, primi.getPrimitiveType());
+		//
+		assertEquals(
+				"@font-feature-values Some Font{@swash{swishy:1;flowing:calc(1 + 1)}@styleset{double-W:var(--doubleW,2);sharp-terminals:16 1}}",
+				rule.getMinifiedCssText());
 	}
 
 	@Test
@@ -186,6 +217,39 @@ public class FontFeatureValuesRuleTest {
 		try {
 			rule.setCssText(
 					"@font-feature-values myfont,+{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+		}
+	}
+
+	@Test
+	public void testSetCssTextStringErrorKeyword1() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText(
+					"@font-feature-values None{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+		}
+	}
+
+	@Test
+	public void testSetCssTextStringErrorKeyword2() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText(
+					"@font-feature-values inherit{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+		}
+	}
+
+	@Test
+	public void testSetCssTextStringErrorKeyword3() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText(
+					"@font-feature-values initial{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 		}

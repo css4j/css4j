@@ -11,18 +11,25 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Comparator;
 
+import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.CombinatorCondition;
 import org.w3c.css.sac.Condition;
 import org.w3c.css.sac.ConditionalSelector;
 import org.w3c.css.sac.DescendantSelector;
 import org.w3c.css.sac.ElementSelector;
+import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.NegativeCondition;
+import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.Selector;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.css.sac.SiblingSelector;
 import org.w3c.css.sac.SimpleSelector;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
@@ -37,6 +44,23 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 
 	public StyleRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.STYLE_RULE, origin);
+	}
+
+	@Override
+	public void setSelectorText(String selectorText) throws DOMException {
+		InputSource source = new InputSource();
+		Reader re = new StringReader(selectorText);
+		source.setCharacterStream(re);
+		Parser parser = createSACParser();
+		SelectorList selist;
+		try {
+			selist = parser.parseSelectors(source);
+		} catch (CSSException | IOException e) {
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		}
+		super.setSelectorList(selist);
 	}
 
 	/**

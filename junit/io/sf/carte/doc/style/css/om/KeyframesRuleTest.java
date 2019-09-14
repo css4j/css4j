@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -27,6 +28,7 @@ import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
+import io.sf.carte.doc.style.css.CSSKeyframesRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.nsac.Parser2;
@@ -106,6 +108,24 @@ public class KeyframesRuleTest {
 		assertEquals(
 				"@keyframes foo {\n    0,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
+		// findRule
+		CSSKeyframeRule kfrule = rule.findRule("0, 50%");
+		assertNotNull(kfrule);
+		assertEquals("0,50%", kfrule.getKeyText());
+		assertEquals("margin-left:100%;width:300%", kfrule.getStyle().getMinifiedCssText());
+		assertEquals("0,50%{margin-left:100%;width:300%}", kfrule.getMinifiedCssText());
+		// appendRule
+		rule.appendRule("75%{width:75%}");
+		assertEquals(3, rule.getCssRules().getLength());
+		kfrule = rule.findRule("75%");
+		assertNotNull(kfrule);
+		assertEquals("75%", kfrule.getKeyText());
+		assertEquals("width:75%", kfrule.getStyle().getMinifiedCssText());
+		assertEquals("75%{width:75%}", kfrule.getMinifiedCssText());
+		// deleteRule
+		rule.deleteRule("75%");
+		assertNull(rule.findRule("75%"));
+		assertEquals(2, rule.getCssRules().getLength());
 	}
 
 	@Test
@@ -247,6 +267,86 @@ public class KeyframesRuleTest {
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
+	/*
+	 * This one should be accepting part of the rule. Pending for 2.0 and the new API.
+	 */
+	@Test
+	public void testParseRuleError10() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; {} width: 100%;}}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(0, sheet.getCssRules().getLength()); // FIXME
+		/*
+		assertEquals(1, sheet.getCssRules().getLength());
+		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
+		CSSRuleArrayList kfrules = rule.getCssRules();
+		assertNotNull(kfrules);
+		assertEquals(1, kfrules.getLength());
+		*/
+	}
+
+	/*
+	 * This one should be accepting part of the rule. Pending for 2.0 and the new API.
+	 */
+	@Test
+	public void testParseRuleError11() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;{}}}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(0, sheet.getCssRules().getLength()); // FIXME
+		/*
+		assertEquals(1, sheet.getCssRules().getLength());
+		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
+		CSSRuleArrayList kfrules = rule.getCssRules();
+		assertNotNull(kfrules);
+		assertEquals(1, kfrules.getLength());
+		*/
+	}
+
+	@Test
+	public void testParseRuleError12() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}{}}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(1, sheet.getCssRules().getLength());
+		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
+		CSSRuleArrayList kfrules = rule.getCssRules();
+		assertNotNull(kfrules);
+		assertEquals(2, kfrules.getLength());
+	}
+
+	@Test
+	public void testParseRuleErrorKeyword1() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@keyframes initial {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
+	public void testParseRuleErrorKeyword2() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@keyframes None {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
+	public void testParseRuleErrorKeyword3() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@keyframes Inherit {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
+	public void testParseRuleErrorKeyword4() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@keyframes unset {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
 	@Test
 	public void testSetCssTextString() {
 		KeyframesRule rule = new KeyframesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
@@ -303,6 +403,20 @@ public class KeyframesRuleTest {
 	}
 
 	@Test
+	public void testCreateAndSetCssText() {
+		CSSKeyframesRule rule = sheet.createKeyframesRule("bar");
+		rule.setCssText("@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
+		assertEquals("foo", rule.getName());
+		assertEquals("@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				rule.getMinifiedCssText());
+		CSSKeyframeRule kfrule = rule.findRule("to");
+		kfrule.setCssText("100%{margin-left:10%;width:90%}");
+		assertEquals("100%{margin-left:10%;width:90%}", kfrule.getMinifiedCssText());
+		assertEquals("@keyframes foo{0,50%{margin-left:100%;width:300%}100%{margin-left:10%;width:90%}}",
+				rule.getMinifiedCssText());
+	}
+
+	@Test
 	public void testEquals() {
 		KeyframesRule rule = new KeyframesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
@@ -311,6 +425,12 @@ public class KeyframesRuleTest {
 		assertTrue(rule.equals(rule2));
 		assertTrue(rule.hashCode() == rule2.hashCode());
 		rule2.setCssText("@keyframes bar{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
+		assertFalse(rule.equals(rule2));
+		rule2.setCssText("@keyframes foo{0,50%{margin-left:100%}to{margin-left:0%;width:100%}}");
+		assertFalse(rule.equals(rule2));
+		rule2.setCssText("@keyframes foo{50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
+		assertFalse(rule.equals(rule2));
+		rule2.setCssText("@keyframes foo{0,50%{margin-left:100%;width:300%}}");
 		assertFalse(rule.equals(rule2));
 	}
 

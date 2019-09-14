@@ -78,6 +78,10 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		return agent;
 	}
 
+	public MockURLFactory getURLFactory() {
+		return urlFactory;
+	}
+
 	@Override
 	protected Parser createSACParser() throws DOMException {
 		if (parserClass == null) {

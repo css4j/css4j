@@ -76,7 +76,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		return selectorText;
 	}
 
-	public void setSelectorText(String selectorText) throws DOMException {
+	void setSelectorText(String selectorText) throws DOMException {
 		this.selectorText = selectorText;
 	}
 
@@ -91,7 +91,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		if (sz > 0) {
 			selectorListText(sb, selectorList, false, false);
 		}
-		setSelectorText(sb.toString());
+		this.selectorText = sb.toString();
 	}
 
 	SelectorList getSelectorList() {

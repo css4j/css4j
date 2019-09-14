@@ -64,6 +64,9 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * added at the end of the rule list, with the same origin as the rule with
 	 * a highest precedence origin.
 	 * <p>
+	 * Even if a specific media is set at the <code>InputSource</code>, this method
+	 * does not alter the sheet's current media attribute.
+	 * <p>
 	 * The comments preceding a rule will be available through
 	 * {@link AbstractCSSRule#getPrecedingComments()}.
 	 * <p>
@@ -89,6 +92,9 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * If the style sheet is not empty, the rules from the parsed source will be
 	 * added at the end of the rule list, with the same origin as the rule with
 	 * a highest precedence origin.
+	 * <p>
+	 * Even if a specific media is set at the <code>InputSource</code>, this method
+	 * does not alter the sheet's current media attribute.
 	 * <p>
 	 * If <code>ignoreComments</code> is false, the comments preceding a rule
 	 * will be available through {@link AbstractCSSRule#getPrecedingComments()}.

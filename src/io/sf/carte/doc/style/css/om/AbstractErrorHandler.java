@@ -170,15 +170,15 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 	}
 
 	public HashMap<String, CSSPropertyValueException> getComputedStyleErrors(CSSElement element) {
-		return computedStyleErrors.get(element);
+		return computedStyleErrors != null ? computedStyleErrors.get(element) : null;
 	}
 
 	public List<DOMException> getHintErrors(CSSElement element) {
-		return hintErrors.get(element);
+		return hintErrors != null ? hintErrors.get(element) : null;
 	}
 
 	public HashMap<String, CSSPropertyValueException> getComputedStyleWarnings(CSSElement element) {
-		return computedStyleWarnings.get(element);
+		return computedStyleWarnings != null ? computedStyleWarnings.get(element) : null;
 	}
 
 	@Override

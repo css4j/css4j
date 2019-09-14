@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.EnumSet;
@@ -53,6 +54,32 @@ public class StyleRuleTest {
 		assertEquals(2, rule.getStyle().getLength());
 		assertEquals("p {display: table-cell; filter: alpha(opacity=0); }", rule.getCssText());
 		assertEquals("p{display:table-cell;filter:alpha(opacity=0)}", rule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testEquals() {
+		CSSStyleDeclarationRule rule = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setSelectorText("p, div");
+		rule.getStyle().setCssText("margin-left: 1em; color: gray;");
+		assertEquals("p,div {margin-left: 1em; color: gray; }", rule.getCssText());
+		assertEquals("p,div{margin-left:1em;color:gray}", rule.getMinifiedCssText());
+		CSSStyleDeclarationRule rule2 = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule2.setSelectorText("p, div");
+		rule2.getStyle().setCssText("margin-left: 1em; color: gray;");
+		assertTrue(rule.equals(rule2));
+		assertTrue(rule.hashCode() == rule2.hashCode());
+		//
+		rule2.setSelectorText("p");
+		assertFalse(rule.equals(rule2));
+		//
+		rule2.setSelectorText("p, div");
+		assertTrue(rule.equals(rule2));
+		//
+		rule2.getStyle().setCssText("margin-left: 1em; color: blue;");
+		assertFalse(rule.equals(rule2));
+		//
+		rule2.getStyle().setCssText("margin-left: 1em");
+		assertFalse(rule.equals(rule2));
 	}
 
 	@Test

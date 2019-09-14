@@ -46,8 +46,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.TypeInfo;
-import org.w3c.dom.css.CSSFontFaceRule;
-import org.w3c.dom.css.CSSPageRule;
 import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.css.ElementCSSInlineStyle;
@@ -59,7 +57,6 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSNode;
-import io.sf.carte.doc.style.css.CSSRuleListener;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
@@ -77,7 +74,7 @@ import io.sf.carte.doc.style.css.StyleDatabase;
  * @author Carlos Amengual
  * 
  */
-abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocument, CSSRuleListener {
+abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocument {
 
 	// The raw document.
 	private final Document document;
@@ -1806,29 +1803,6 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	@Override
 	public boolean hasStyleIssues() {
 		return sheets.hasErrorsOrWarnings() || getErrorHandler().hasErrors() || getErrorHandler().hasWarnings();
-	}
-
-	/**
-	 * Try to load the font family according to the given font face rule, and
-	 * make it available to the canvas.
-	 * 
-	 * @param rule
-	 *            the font face rule.
-	 */
-	@Override
-	public void onFontFaceRule(CSSFontFaceRule rule) {
-		Iterator<CSSCanvas> it = canvases.values().iterator();
-		while (it.hasNext()) {
-			CSSCanvas canvas = it.next();
-			if (canvas != null) {
-				canvas.loadFontFace(rule);
-			}
-		}
-	}
-
-	@Override
-	public void onPageRule(CSSPageRule rule) {
-		// TODO
 	}
 
 	/**
