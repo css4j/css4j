@@ -1746,7 +1746,12 @@ public class CSSParser implements Parser2 {
 			}
 		}
 
-		abstract void processName(int index, String name);
+		void processName(int index, String name) {
+			if ("initial".equalsIgnoreCase(name) || "inherit".equalsIgnoreCase(name) || "unset".equalsIgnoreCase(name)
+					|| "none".equalsIgnoreCase(name) || "reset".equalsIgnoreCase(name)) {
+				handleError(index, ParseHelper.ERR_INVALID_IDENTIFIER, "A CSS keyword is not a valid custom ident.");
+			}
+		}
 
 		abstract void processSelector(int index);
 
@@ -1916,7 +1921,10 @@ public class CSSParser implements Parser2 {
 
 		@Override
 		void processName(int index, String name) {
-			((KeyframesHandler) handler).startKeyframes(name);
+			super.processName(index, name);
+			if (!parseError) {
+				((KeyframesHandler) handler).startKeyframes(name);
+			}
 		}
 
 		@Override
@@ -1960,7 +1968,12 @@ public class CSSParser implements Parser2 {
 		@Override
 		void processName(int index, String name) {
 			String[] familyName = name.split("\\s*,\\s*");
-			((FontFeatureValuesHandler) handler).startFontFeatures(familyName);
+			for (String fontName : familyName) {
+				super.processName(index, fontName);
+			}
+			if (!parseError) {
+				((FontFeatureValuesHandler) handler).startFontFeatures(familyName);
+			}
 		}
 
 		@Override
