@@ -163,12 +163,13 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	@Override
 	abstract public CSSPageRule createPageRule();
 
-	abstract public CSSUnknownRule createCSSUnknownRule();
+	@Override
+	abstract public CSSUnknownRule createUnknownRule();
 
 	@Override
 	abstract public AbstractCSSStyleDeclaration createStyleDeclaration();
 
-	abstract protected AbstractCSSStyleDeclaration createCSSStyleDeclaration(BaseCSSDeclarationRule rule);
+	abstract protected AbstractCSSStyleDeclaration createStyleDeclaration(BaseCSSDeclarationRule rule);
 
 	abstract protected void registerNamespace(CSSNamespaceRule nsrule);
 

@@ -575,12 +575,12 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public UnknownRule createCSSUnknownRule() {
+	public UnknownRule createUnknownRule() {
 		return new UnknownRule(this, getOrigin());
 	}
 
 	@Override
-	protected BaseCSSStyleDeclaration createCSSStyleDeclaration(BaseCSSDeclarationRule rule) {
+	protected BaseCSSStyleDeclaration createStyleDeclaration(BaseCSSDeclarationRule rule) {
 		if (rule.getType() == CSSRule.FONT_FACE_RULE) {
 			return new WrappedCSSStyleDeclaration(rule);
 		}
@@ -1132,7 +1132,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			} else if (firstchars.equals("@font-feature-values ")) {
 				rule = new FontFeatureValuesRule(BaseCSSStyleSheet.this, getOrigin());
 			} else {
-				rule = createCSSUnknownRule();
+				rule = createUnknownRule();
 				if (atRule.charAt(1) != '-') {
 					// Unknown non-custom rule
 					getErrorHandler().unknownRule(atRule);

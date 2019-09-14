@@ -47,7 +47,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 
 	protected BaseCSSDeclarationRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {
 		super(parentSheet, type, origin);
-		declaration = parentSheet.createCSSStyleDeclaration(this);
+		declaration = parentSheet.createStyleDeclaration(this);
 	}
 
 	/**

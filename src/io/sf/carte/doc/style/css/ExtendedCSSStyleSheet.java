@@ -22,6 +22,7 @@ import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSPageRule;
 import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleSheet;
+import org.w3c.dom.css.CSSUnknownRule;
 
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
@@ -189,6 +190,18 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @return a CSS style rule.
 	 */
 	CSSStyleDeclarationRule createStyleRule();
+
+	/**
+	 * Create a CSS unknown rule.
+	 * <p>
+	 * Its contents can be set with {@link ExtendedCSSRule#setCssText(String)}. Be
+	 * careful to set a text that is compatible with a CSS rule, with an ending
+	 * semicolon or balanced curly brackets, otherwise its serialization may break
+	 * the style sheet serialization.
+	 *
+	 * @return a CSS unknown rule.
+	 */
+	CSSUnknownRule createUnknownRule();
 
 	/**
 	 * Gets the error handler for this style sheet.
