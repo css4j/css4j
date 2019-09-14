@@ -47,7 +47,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 	private CSSRuleArrayList cssRules;
 
-	public KeyframesRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	protected KeyframesRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, ExtendedCSSRule.KEYFRAMES_RULE, origin);
 		this.cssRules = new CSSRuleArrayList();
 	}

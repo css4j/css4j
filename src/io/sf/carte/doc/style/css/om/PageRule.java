@@ -14,16 +14,14 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPageRule;
 import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.CSSMarginRule;
+import io.sf.carte.doc.style.css.ExtendedCSSPageRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -36,9 +34,9 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-public class PageRule extends CSSStyleDeclarationRule implements CSSPageRule, ExtendedCSSRule {
+public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPageRule {
 
-	LinkedList<CSSMarginRule> marginRules = null;
+	private MarginRuleList marginRules = null;
 
 	public PageRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.PAGE_RULE, origin);
@@ -72,7 +70,7 @@ public class PageRule extends CSSStyleDeclarationRule implements CSSPageRule, Ex
 				if (styleText.length() != 0) {
 					buf.append(';');
 				}
-				Iterator<CSSMarginRule> it = marginRules.iterator();
+				Iterator<MarginRule> it = marginRules.iterator();
 				while (it.hasNext()) {
 					buf.append(((ExtendedCSSRule) it.next()).getMinifiedCssText());
 				}
@@ -101,7 +99,7 @@ public class PageRule extends CSSStyleDeclarationRule implements CSSPageRule, Ex
 			context.endStyleDeclaration(wri);
 			if (marginRules != null) {
 				context.updateContext(this);
-				Iterator<CSSMarginRule> it = marginRules.iterator();
+				Iterator<MarginRule> it = marginRules.iterator();
 				while (it.hasNext()) {
 					ExtendedCSSRule rule = it.next();
 					rule.writeCssText(wri, context);
@@ -188,14 +186,15 @@ public class PageRule extends CSSStyleDeclarationRule implements CSSPageRule, Ex
 
 	}
 
-	void addMarginRule(CSSMarginRule marginRule) {
+	void addMarginRule(MarginRule marginRule) {
 		if (marginRules == null) {
-			marginRules = new LinkedList<CSSMarginRule>();
+			marginRules = new MarginRuleList(8);
 		}
 		marginRules.add(marginRule);
 	}
 
-	public LinkedList<CSSMarginRule> getMarginRules() {
+	@Override
+	public MarginRuleList getMarginRules() {
 		return marginRules;
 	}
 
@@ -231,7 +230,15 @@ public class PageRule extends CSSStyleDeclarationRule implements CSSPageRule, Ex
 
 	@Override
 	public PageRule clone(AbstractCSSStyleSheet parentSheet) {
-		return (PageRule) super.clone(parentSheet);
+		PageRule clon = (PageRule) super.clone(parentSheet);
+		if (this.marginRules != null) {
+			clon.marginRules = new MarginRuleList(this.marginRules.size());
+			Iterator<MarginRule> it = this.marginRules.iterator();
+			while (it.hasNext()) {
+				clon.marginRules.add(it.next().clone(parentSheet));
+			}
+		}
+		return clon;
 	}
 
 }

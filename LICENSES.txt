@@ -28,6 +28,8 @@ license information):
  File: src/io/sf/carte/doc/style/css/CSSNode.java
  File: src/io/sf/carte/doc/style/css/CSSSupportsRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSFontFaceRule.java
+ File: src/io/sf/carte/doc/style/css/ExtendedCSSMediaRule.java
+ File: src/io/sf/carte/doc/style/css/ExtendedCSSPageRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSRuleList.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSStyleRule.java

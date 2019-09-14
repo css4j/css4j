@@ -15,21 +15,18 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import org.w3c.dom.css.CSSRule;
-
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Stores a list of CSS rules, implementing CSSRuleList.
+ * Stores a list of CSS margin rules, implementing CSSRuleList.
  * 
  * @author Carlos Amengual
  * 
  */
-public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule>
-		implements RuleStore {
+public class MarginRuleList extends AbstractRuleList<MarginRule> {
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Constructs an empty rule list with the specified initial capacity.
@@ -38,39 +35,19 @@ public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule>
 	 * @throws IllegalArgumentException if the specified initial capacity is
 	 *                                  negative.
 	 */
-	public CSSRuleArrayList(int initialCapacity) {
+	public MarginRuleList(int initialCapacity) {
 		super(initialCapacity);
 	}
 
 	/**
 	 * Constructs an empty rule list with an initial capacity of 16.
 	 */
-	public CSSRuleArrayList() {
+	public MarginRuleList() {
 		super(16);
 	}
 
-	public CSSRuleArrayList(Collection<? extends AbstractCSSRule> c) {
+	public MarginRuleList(Collection<MarginRule> c) {
 		super(c);
-	}
-
-	/**
-	 * Insert the given CSS rule at the given index.
-	 * 
-	 * @param cssrule
-	 *            the rule.
-	 * @param index
-	 *            the index at which to insert the rule.
-	 * @return the index at which the rule was finally inserted.
-	 */
-	@Override
-	public int insertRule(CSSRule cssrule, int index) {
-		if (index > size()) {
-			index = size();
-		} else if (index < 0) {
-			index = 0;
-		}
-		add(index, (AbstractCSSRule) cssrule);
-		return index;
 	}
 
 	@Override

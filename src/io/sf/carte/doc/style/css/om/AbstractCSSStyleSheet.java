@@ -19,10 +19,7 @@ import java.net.URLConnection;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSFontFaceRule;
-import org.w3c.dom.css.CSSPageRule;
 import org.w3c.dom.css.CSSStyleSheet;
-import org.w3c.dom.css.CSSUnknownRule;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
@@ -149,10 +146,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	abstract public boolean loadStyleSheet(URL url, String referrerPolicy) throws DOMException, IOException;
 
 	@Override
-	abstract public CSSStyleDeclarationRule createStyleRule();
-
-	@Override
-	abstract public CSSFontFaceRule createFontFaceRule();
+	abstract public FontFaceRule createFontFaceRule();
 
 	@Override
 	abstract public ImportRule createImportRule(MediaQueryList mediaList, String href);
@@ -161,10 +155,19 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	abstract public MediaRule createMediaRule(MediaQueryList mediaList);
 
 	@Override
-	abstract public CSSPageRule createPageRule();
+	abstract public PageRule createPageRule();
 
 	@Override
-	abstract public CSSUnknownRule createUnknownRule();
+	abstract public CSSStyleDeclarationRule createStyleRule();
+
+	@Override
+	abstract public SupportsRule createSupportsRule();
+
+	@Override
+	abstract public UnknownRule createUnknownRule();
+
+	@Override
+	abstract public ViewportRule createViewportRule();
 
 	@Override
 	abstract public AbstractCSSStyleDeclaration createStyleDeclaration();

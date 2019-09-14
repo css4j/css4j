@@ -45,13 +45,11 @@ import org.w3c.css.sac.SelectorList;
 import org.w3c.css.sac.SiblingSelector;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSFontFaceRule;
 import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
 import io.sf.carte.doc.agent.AgentUtil;
 import io.sf.carte.doc.style.css.CSSDocument;
-import io.sf.carte.doc.style.css.CSSMarginRule;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
@@ -499,11 +497,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public StyleRule createStyleRule() {
-		return new StyleRule(this, getOrigin());
-	}
-
-	@Override
 	public CounterStyleRule createCounterStyleRule(String name) {
 		CounterStyleRule rule = new CounterStyleRule(this, getOrigin());
 		rule.setName(name);
@@ -511,7 +504,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public CSSFontFaceRule createFontFaceRule() {
+	public FontFaceRule createFontFaceRule() {
 		return new FontFaceRule(this, getOrigin());
 	}
 
@@ -562,6 +555,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	@Override
 	public PageRule createPageRule() {
 		return new PageRule(this, getOrigin());
+	}
+
+	@Override
+	public StyleRule createStyleRule() {
+		return new StyleRule(this, getOrigin());
 	}
 
 	@Override
@@ -1317,7 +1315,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 						}
 					} else { // else if (currentRule instanceof OMCSSMarginRule) {
 						PageRule pageRule = (PageRule) pRule;
-						pageRule.addMarginRule((CSSMarginRule) currentRule);
+						pageRule.addMarginRule((MarginRule) currentRule);
 						resetCommentStack();
 					}
 					currentRule = pRule;

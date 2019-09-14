@@ -43,7 +43,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		cssRules = new CSSRuleArrayList();
 	}
 
-	GroupingRule(AbstractCSSStyleSheet parentSheet, GroupingRule copyfrom) {
+	protected GroupingRule(AbstractCSSStyleSheet parentSheet, GroupingRule copyfrom) {
 		super(parentSheet, copyfrom.getType(), copyfrom.getOrigin());
 		if (copyfrom.precedingComments != null) {
 			this.precedingComments = new ArrayList<String>(copyfrom.precedingComments.size());

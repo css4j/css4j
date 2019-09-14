@@ -15,10 +15,9 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSMediaRule;
 import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.CSSGroupingRule;
+import io.sf.carte.doc.style.css.ExtendedCSSMediaRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -28,7 +27,7 @@ import io.sf.carte.util.SimpleWriter;
  * Implementation of CSSMediaRule.
  * 
  */
-public class MediaRule extends GroupingRule implements CSSMediaRule, CSSGroupingRule {
+public class MediaRule extends GroupingRule implements ExtendedCSSMediaRule {
 
 	private MediaQueryList mediaList = null;
 

@@ -30,7 +30,7 @@ public class MarginRule extends BaseCSSDeclarationRule implements CSSMarginRule 
 
 	private String ruleName = null;
 
-	MarginRule(AbstractCSSStyleSheet parentSheet, byte origin, String ruleName) {
+	protected MarginRule(AbstractCSSStyleSheet parentSheet, byte origin, String ruleName) {
 		super(parentSheet, MARGIN_RULE, origin);
 		this.ruleName = ruleName;
 	}
@@ -113,7 +113,11 @@ public class MarginRule extends BaseCSSDeclarationRule implements CSSMarginRule 
 
 	@Override
 	public MarginRule clone(AbstractCSSStyleSheet parentSheet) {
-		return new MarginRule(parentSheet, getOrigin(), ruleName);
+		MarginRule rule = new MarginRule(parentSheet, getOrigin(), ruleName);
+		rule.setParentRule(getParentRule());
+		String oldHrefContext = getParentStyleSheet().getHref();
+		rule.setWrappedStyle((BaseCSSStyleDeclaration) getStyle(), oldHrefContext);
+		return rule;
 	}
 
 }

@@ -22,7 +22,7 @@ import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Implementation of CSSFontFaceRule. Not expected to work with OpenType fonts.
+ * Implementation of CSSFontFaceRule.
  * 
  * @author Carlos Amengual
  * 

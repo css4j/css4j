@@ -35,7 +35,7 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 
 	private String keyText;
 
-	protected KeyframeRule(KeyframesRule parentRule) {
+	public KeyframeRule(KeyframesRule parentRule) {
 		super(parentRule.getParentStyleSheet(), ExtendedCSSRule.KEYFRAME_RULE, parentRule.getOrigin());
 		this.parentRule = parentRule;
 	}

@@ -4,7 +4,7 @@
  * Copyright © 2016 W3C® (MIT, ERCIM, Keio, Beihang).
  * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
  *
- * Copyright © 2005-2018 Carlos Amengual.
+ * Copyright © 2005-2019 Carlos Amengual.
  *
  * SPDX-License-Identifier: W3C-20150513
  */
@@ -17,9 +17,7 @@ import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Selector;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSFontFaceRule;
 import org.w3c.dom.css.CSSImportRule;
-import org.w3c.dom.css.CSSPageRule;
 import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.css.CSSUnknownRule;
@@ -27,7 +25,6 @@ import org.w3c.dom.css.CSSUnknownRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
-import io.sf.carte.doc.style.css.om.MediaRule;
 
 /**
  * A style sheet.
@@ -64,14 +61,16 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *
 	 * @return the list of all CSS rules contained within the style sheet.
 	 */
-	@Override ExtendedCSSRuleList<R> getCssRules();
+	@Override
+	ExtendedCSSRuleList<R> getCssRules();
 
 	/**
 	 * Get the destination media for this sheet.
 	 *
 	 * @return the media query list.
 	 */
-	@Override MediaQueryList getMedia();
+	@Override
+	MediaQueryList getMedia();
 
 	/**
 	 * Clone this style sheet.
@@ -94,7 +93,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *
 	 * @return a CSS Font Face rule object.
 	 */
-	CSSFontFaceRule createFontFaceRule();
+	ExtendedCSSFontFaceRule createFontFaceRule();
 
 	/**
 	 * Create a CSSFontFeatureValuesRule compatible with this implementation.
@@ -126,20 +125,22 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	CSSKeyframesRule createKeyframesRule(String keyframesName);
 
 	/**
+	 * Create a CSS margin rule compatible with this implementation.
+	 *
+	 * @param name
+	 *            the margin rule name.
+	 * @return a CSS margin rule.
+	 */
+	CSSMarginRule createMarginRule(String name);
+
+	/**
 	 * Create a CSS media rule.
 	 *
 	 * @param mediaList
 	 *            a list of media types for the new rule.
 	 * @return a CSS media rule.
 	 */
-	MediaRule createMediaRule(MediaQueryList mediaList);
-
-	/**
-	 * Create a CSS page rule compatible with this implementation.
-	 *
-	 * @return a CSS page rule.
-	 */
-	CSSPageRule createPageRule();
+	ExtendedCSSMediaRule createMediaRule(MediaQueryList mediaList);
 
 	/**
 	 * Create a CSS namespace rule compatible with this implementation.
@@ -155,13 +156,18 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	CSSNamespaceRule createNamespaceRule(String prefix, String namespaceUri);
 
 	/**
-	 * Create a CSS margin rule compatible with this implementation.
+	 * Create a CSS page rule compatible with this implementation.
 	 *
-	 * @param name
-	 *            the margin rule name.
-	 * @return a CSS margin rule.
+	 * @return a CSS page rule.
 	 */
-	CSSMarginRule createMarginRule(String name);
+	ExtendedCSSPageRule createPageRule();
+
+	/**
+	 * Create a CSS style rule.
+	 *
+	 * @return a CSS style rule.
+	 */
+	CSSStyleDeclarationRule createStyleRule();
 
 	/**
 	 * Create a CSSSupportsRule compatible with this implementation.
@@ -183,13 +189,6 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @return a CSS style declaration.
 	 */
 	CSSStyleDeclaration createStyleDeclaration();
-
-	/**
-	 * Create a CSS style rule.
-	 *
-	 * @return a CSS style rule.
-	 */
-	CSSStyleDeclarationRule createStyleRule();
 
 	/**
 	 * Create a CSS unknown rule.

@@ -522,6 +522,7 @@ public class SupportsRuleTest {
 		SupportsRule clon = rule.clone(sheet);
 		assertEquals(rule.getOrigin(), clon.getOrigin());
 		assertEquals(rule.getType(), clon.getType());
+		assertEquals(rule.getConditionText(), clon.getConditionText());
 		assertEquals(rule.getCssText(), clon.getCssText());
 		assertTrue(rule.equals(clon));
 		assertEquals(rule.hashCode(), clon.hashCode());

@@ -90,6 +90,9 @@ public class PageRuleTest {
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
+		MarginRuleList marginlist = pagerule.getMarginRules();
+		assertEquals(1, marginlist.getLength());
+		assertEquals("@top-left{content:'foo';color:blue}", marginlist.get(0).getMinifiedCssText());
 		assertEquals(
 				"@page :first {\n    margin-top: 20%;\n    @top-left {\n        content: 'foo';\n        color: blue;\n    }\n}\n",
 				pagerule.getCssText());
@@ -166,6 +169,20 @@ public class PageRuleTest {
 		assertEquals(rule.getCssText(), clon.getCssText());
 		assertTrue(rule.equals(clon));
 		assertEquals(rule.hashCode(), clon.hashCode());
+	}
+
+	@Test
+	public void testCloneAbstractCSSStyleSheet2() {
+		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("@page :first {margin-top: 20%;@top-left{content:'foo';color:blue}}");
+		PageRule clon = rule.clone(sheet);
+		assertEquals(rule.getOrigin(), clon.getOrigin());
+		assertEquals(rule.getType(), clon.getType());
+		assertNotNull(rule.getSelectorText());
+		assertTrue(rule.getMarginRules().equals(clon.getMarginRules()));
+		assertTrue(rule.equals(clon));
+		assertEquals(rule.hashCode(), clon.hashCode());
+		assertEquals(rule.getCssText(), clon.getCssText());
 	}
 
 }

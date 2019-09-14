@@ -39,7 +39,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 
 	private BooleanCondition condition = null;
 
-	public SupportsRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	protected SupportsRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, SUPPORTS_RULE, origin);
 	}
 

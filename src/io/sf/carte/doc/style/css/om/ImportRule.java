@@ -50,7 +50,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 	 * @param href        the URI from which to import the sheet.
 	 * @param origin      the origin of the rule.
 	 */
-	ImportRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, String href, byte origin) {
+	protected ImportRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, String href, byte origin) {
 		super(parentSheet, CSSRule.IMPORT_RULE, origin);
 		this.mediaList = mediaList;
 		this.styleSheetURI = href;
