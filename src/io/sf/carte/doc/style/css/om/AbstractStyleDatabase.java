@@ -9,7 +9,7 @@
 
  */
 
-package io.sf.carte.doc.style.css;
+package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +23,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.FunctionValue;
@@ -180,7 +188,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 
 	private boolean loadFont(String familyName, ValueList value, ExtendedCSSFontFaceRule rule) {
 		if (!value.isCommaSeparated()) {
-			ValueList list = (ValueList) value;
+			ValueList list = value;
 			Iterator<StyleValue> it = list.iterator();
 			PrimitiveValue uri = null;
 			String fontFormat = null;

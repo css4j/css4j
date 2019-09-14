@@ -22,7 +22,6 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import io.sf.carte.doc.agent.AbstractDeviceFactory;
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.Viewport;
-import io.sf.carte.doc.style.css.AbstractStyleDatabase;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;

@@ -9,7 +9,7 @@
 
  */
 
-package io.sf.carte.doc.style.css;
+package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -27,9 +27,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.stylesheets.LinkStyle;
 
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.FontFaceRule;
-import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSMediaException;
 
 public class AbstractStyleDatabaseTest {
 

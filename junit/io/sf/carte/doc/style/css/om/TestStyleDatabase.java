@@ -9,7 +9,7 @@
 
  */
 
-package io.sf.carte.doc.style.css;
+package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +17,8 @@ import java.util.HashSet;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
+
+import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 
 /**
  * Style database mock.

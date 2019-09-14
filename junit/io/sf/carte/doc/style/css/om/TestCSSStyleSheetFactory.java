@@ -27,7 +27,6 @@ import org.w3c.dom.Document;
 import io.sf.carte.doc.agent.MockURLFactory;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
-import io.sf.carte.doc.style.css.TestStyleDatabase;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 
 public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
