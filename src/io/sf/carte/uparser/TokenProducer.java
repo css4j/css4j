@@ -1605,9 +1605,11 @@ public class TokenProducer {
 							unprocessedIdx = -1;
 						}
 					} else if (ret == -1) {
+						rootIndex -= unprocessedIdx + 1;
 						for (int j = 0; j <= unprocessedIdx; j++) {
 							int oldcp = unprocessed[j];
 							processCodePoint(oldcp, true);
+							rootIndex++;
 							if (prevtype == Character.LOWERCASE_LETTER || prevtype == Character.UPPERCASE_LETTER) {
 								buffer.append(Character.toChars(oldcp));
 							}
@@ -1618,9 +1620,11 @@ public class TokenProducer {
 							buffer.append(Character.toChars(cp));
 						}
 					} else if (ret == -2) {
+						rootIndex -= unprocessedIdx + 1;
 						for (int j = 0; j <= unprocessedIdx; j++) {
 							int oldcp = unprocessed[j];
 							processCodePoint(oldcp, true);
+							rootIndex++;
 							if (prevtype == Character.LOWERCASE_LETTER || prevtype == Character.UPPERCASE_LETTER) {
 								buffer.append(Character.toChars(oldcp));
 							}
