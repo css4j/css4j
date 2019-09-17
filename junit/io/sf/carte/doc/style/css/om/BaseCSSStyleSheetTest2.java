@@ -27,6 +27,7 @@ import org.w3c.css.sac.Condition;
 import org.w3c.css.sac.ConditionalSelector;
 import org.w3c.css.sac.ElementSelector;
 import org.w3c.css.sac.InputSource;
+import org.w3c.css.sac.SACMediaList;
 import org.w3c.css.sac.Selector;
 import org.w3c.dom.css.CSSRule;
 
@@ -163,6 +164,77 @@ public class BaseCSSStyleSheetTest2 {
 	}
 
 	@Test
+	public void testMatchMediaQueryListSACMediaList() {
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
+		MediaList list = MediaList.createMediaList();
+		assertTrue(css.match(list, new MockSACMediaListAll()));
+		assertTrue(css.match(list, new MockSACMediaList()));
+		//
+		list.setMediaText("print, screen");
+		assertTrue(css.match(list, new MockSACMediaListAll()));
+		assertTrue(css.match(list, new MockSACMediaList()));
+		assertFalse(css.match(list, new MockSACMediaListHandheld()));
+	}
+
+	static class MockSACMediaListAll implements SACMediaList {
+
+		@Override
+		public int getLength() {
+			return 1;
+		}
+
+		@Override
+		public String item(int idx) {
+			if (idx == 0) {
+				return "all";
+			} else {
+				return null;
+			}
+		}
+
+	}
+
+	static class MockSACMediaListHandheld implements SACMediaList {
+
+		@Override
+		public int getLength() {
+			return 1;
+		}
+
+		@Override
+		public String item(int idx) {
+			if (idx == 0) {
+				return "handheld";
+			} else {
+				return null;
+			}
+		}
+
+	}
+
+	static class MockSACMediaList implements SACMediaList {
+
+		@Override
+		public int getLength() {
+			return 2;
+		}
+
+		@Override
+		public String item(int idx) {
+			switch (idx) {
+			case 0:
+				return "handheld";
+			case 1:
+				return "screen";
+			default:
+				return null;
+			}
+		}
+
+	}
+
+	@Test
 	public void testToString() throws IOException {
 		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet(SACParserFactory.DEFAULT_PARSER);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
@@ -190,7 +262,7 @@ public class BaseCSSStyleSheetTest2 {
 	@Test
 	public void testToStyleString() throws IOException {
 		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet(SACParserFactory.DEFAULT_PARSER);
-		sheet.setMedia(MediaQueryFactory.createMediaList("screen", null));
+		sheet.setMedia(MediaList.createMediaList("screen"));
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
 		CharBuffer target = CharBuffer.allocate(600);
 		target.append("<styletype=\"text/css\"media=\"screen\">");

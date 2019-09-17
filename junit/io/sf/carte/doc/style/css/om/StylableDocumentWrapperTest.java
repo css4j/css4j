@@ -220,6 +220,8 @@ public class StylableDocumentWrapperTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+		xhtmlDoc.getErrorHandler().reset();
 		// Check for non-existing property
 		assertNull(styledecl.getPropertyCSSValue("does-not-exist"));
 		assertEquals("", styledecl.getPropertyValue("does-not-exist"));
@@ -231,6 +233,7 @@ public class StylableDocumentWrapperTest {
 		// Error in inline style
 		style.setCssText("width:calc(80%-)");
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 		StyleDeclarationErrorHandler eh = xhtmlDoc.getErrorHandler().getInlineStyleErrorHandler(elm);
 		assertNotNull(eh);
 		assertTrue(eh.hasErrors());

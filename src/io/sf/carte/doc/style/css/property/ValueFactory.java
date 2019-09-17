@@ -28,6 +28,7 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
@@ -567,7 +568,19 @@ public class ValueFactory {
 	 * @throws DOMException if a problem was found parsing the feature.
 	 */
 	public PrimitiveValue parseMediaFeature(String feature) throws DOMException {
-		Parser parser = SACParserFactory.createSACParser();
+		return parseMediaFeature(feature, new CSSParser());
+	}
+
+	/**
+	 * Parses a feature value.
+	 * <p>
+	 * 
+	 * @param feature the string containing the feature value.
+	 * @param parser the parser used to parse values.
+	 * @return the CSSPrimitiveValue object containing the parsed value.
+	 * @throws DOMException if a problem was found parsing the feature.
+	 */
+	public PrimitiveValue parseMediaFeature(String feature, Parser2 parser) throws DOMException {
 		InputSource source = new InputSource();
 		Reader re = new StringReader(feature);
 		source.setCharacterStream(re);

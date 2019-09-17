@@ -16,7 +16,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 
 public class MediaListTest {
@@ -102,17 +101,6 @@ public class MediaListTest {
 	}
 
 	@Test
-	public void testMatchSACMediaList() {
-		MediaList list = MediaList.createMediaList();
-		assertTrue(list.match(new MockSACMediaListAll()));
-		assertTrue(list.match(new MockSACMediaList()));
-		list.setMediaText("print, screen");
-		assertTrue(list.match(new MockSACMediaListAll()));
-		assertTrue(list.match(new MockSACMediaList()));
-		assertFalse(list.match(new MockSACMediaListHandheld()));
-	}
-
-	@Test
 	public void testMatchString() {
 		MediaList list = MediaList.createMediaList();
 		assertTrue(list.matches("all", null));
@@ -164,63 +152,6 @@ public class MediaListTest {
 			pass = e.code == DOMException.NO_MODIFICATION_ALLOWED_ERR;
 		}
 		assertTrue(pass);
-	}
-
-	static class MockSACMediaListAll implements SACMediaList {
-
-		@Override
-		public int getLength() {
-			return 1;
-		}
-
-		@Override
-		public String item(int idx) {
-			if (idx == 0) {
-				return "all";
-			} else {
-				return null;
-			}
-		}
-
-	}
-
-	static class MockSACMediaListHandheld implements SACMediaList {
-
-		@Override
-		public int getLength() {
-			return 1;
-		}
-
-		@Override
-		public String item(int idx) {
-			if (idx == 0) {
-				return "handheld";
-			} else {
-				return null;
-			}
-		}
-
-	}
-
-	static class MockSACMediaList implements SACMediaList {
-
-		@Override
-		public int getLength() {
-			return 2;
-		}
-
-		@Override
-		public String item(int idx) {
-			switch (idx) {
-			case 0:
-				return "handheld";
-			case 1:
-				return "screen";
-			default:
-				return null;
-			}
-		}
-
 	}
 
 }

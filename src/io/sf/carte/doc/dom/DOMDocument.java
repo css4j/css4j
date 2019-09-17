@@ -65,7 +65,6 @@ import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.DOMUtil;
 import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
 import io.sf.carte.doc.style.css.om.MediaList;
-import io.sf.carte.doc.style.css.om.MediaQueryFactory;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
 import io.sf.carte.doc.xml.dtd.ContentModel;
 
@@ -553,7 +552,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		if (media.length() == 0) {
 			mediaList = MediaList.createMediaList();
 		} else {
-			mediaList = MediaQueryFactory.createMediaList(media, node);
+			mediaList = getStyleSheetFactory().createMediaList(media, node);
 			if (mediaList.isNotAllMedia() && mediaList.hasErrors()) {
 				return null;
 			}

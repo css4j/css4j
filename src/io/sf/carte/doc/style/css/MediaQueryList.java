@@ -63,6 +63,15 @@ public interface MediaQueryList extends MediaList {
 	boolean matches(String medium, CSSCanvas canvas);
 
 	/**
+	 * Does the given media list contain any media present in this list?
+	 * 
+	 * @param otherMedia the other media list to test.
+	 * @return <code>true</code> if the other media contains any media which applies
+	 *         to this list, <code>false</code> otherwise.
+	 */
+	boolean matches(MediaQueryList otherMedia);
+
+	/**
 	 * Did this media query list produce errors when being parsed ?
 	 * 
 	 * @return <code>true</code> if this list come from a media string that produced errors when

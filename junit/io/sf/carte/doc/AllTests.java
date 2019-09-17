@@ -38,6 +38,7 @@ import io.sf.carte.doc.style.css.om.AbstractStyleDatabaseTest;
 import io.sf.carte.doc.style.css.om.AnimationShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.BackgroundBuilderTest;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclarationTest;
+import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetTest1;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetTest2;
 import io.sf.carte.doc.style.css.om.BorderBuilderTest;
@@ -90,6 +91,7 @@ import io.sf.carte.doc.style.css.parser.AnBExpressionTest;
 import io.sf.carte.doc.style.css.parser.CSSParserTest;
 import io.sf.carte.doc.style.css.parser.DeclarationParserTest;
 import io.sf.carte.doc.style.css.parser.DeclarationRuleParserTest;
+import io.sf.carte.doc.style.css.parser.MediaQueryDatabaseTest;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactoryTest;
 import io.sf.carte.doc.style.css.parser.ParseHelperTest;
 import io.sf.carte.doc.style.css.parser.PropertyParserTest;
@@ -160,6 +162,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		AnimationShorthandBuilderTest.class,
 		BackgroundBuilderTest.class,
 		BaseCSSStyleDeclarationTest.class,
+		BaseCSSStyleSheetFactoryTest.class,
 		BaseCSSStyleSheetTest1.class,
 		BaseCSSStyleSheetTest2.class,
 		BorderBuilderTest.class,
@@ -212,6 +215,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		CSSParserTest.class,
 		DeclarationParserTest.class,
 		DeclarationRuleParserTest.class,
+		MediaQueryDatabaseTest.class,
 		NSACSelectorFactoryTest.class,
 		ParseHelperTest.class,
 		PropertyParserTest.class,

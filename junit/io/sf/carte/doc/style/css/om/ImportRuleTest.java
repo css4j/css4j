@@ -327,8 +327,9 @@ public class ImportRuleTest {
 		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
 		assertFalse(docsheet.getErrorHandler().hasSacErrors());
 		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
-		assertTrue(docsheet.getErrorHandler().hasOMErrors());
+		assertFalse(docsheet.getErrorHandler().hasOMErrors());
 		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
+		assertTrue(cssdoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
@@ -358,8 +359,9 @@ public class ImportRuleTest {
 		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
 		assertFalse(docsheet.getErrorHandler().hasSacErrors());
 		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
-		assertTrue(docsheet.getErrorHandler().hasOMErrors());
+		assertFalse(docsheet.getErrorHandler().hasOMErrors());
 		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
+		assertTrue(cssdoc.getErrorHandler().hasIOErrors());
 	}
 
 	/*
@@ -412,7 +414,7 @@ public class ImportRuleTest {
 	@Test
 	public void testSetCssText() {
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		MediaQueryList mql = MediaQueryFactory.createMediaList("all", null);
+		MediaQueryList mql = MediaList.createMediaList();
 		ImportRule imp = sheet.createImportRule(mql, "http://www.example.com/css/foo.css");
 		imp.setCssText("@import 'bar.css' screen;");
 		assertFalse(imp.getMedia().isAllMedia());
@@ -425,14 +427,14 @@ public class ImportRuleTest {
 	@Test
 	public void testEquals() {
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		MediaQueryList mql = MediaQueryFactory.createMediaList("all", null);
+		MediaQueryList mql = MediaList.createMediaList();
 		ImportRule imp = sheet.createImportRule(mql, "http://www.example.com/css/foo.css");
 		ImportRule imp2 = sheet.createImportRule(mql, "http://www.example.com/css/foo.css");
 		assertTrue(imp.equals(imp2));
 		assertTrue(imp.hashCode() == imp2.hashCode());
 		imp2 = sheet.createImportRule(mql, "http://www.example.com/css/bar.css");
 		assertFalse(imp.equals(imp2));
-		mql = MediaQueryFactory.createMediaList("screen", null);
+		mql = MediaList.createMediaList("screen");
 		imp2 = sheet.createImportRule(mql, "http://www.example.com/css/foo.css");
 		assertFalse(imp.equals(imp2));
 	}
@@ -440,7 +442,7 @@ public class ImportRuleTest {
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		MediaQueryList mql = MediaQueryFactory.createMediaList("all", null);
+		MediaQueryList mql = MediaList.createMediaList();
 		ImportRule rule = sheet.createImportRule(mql, "http://www.example.com/css/foo.css");
 		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null, null);
 		ImportRule cloned = rule.clone(newSheet);

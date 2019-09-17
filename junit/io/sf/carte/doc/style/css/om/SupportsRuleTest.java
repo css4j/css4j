@@ -35,7 +35,6 @@ import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.nsac.Parser2;
-import io.sf.carte.doc.style.css.om.DefaultSheetErrorHandler.RuleParseError;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
@@ -56,11 +55,11 @@ public class SupportsRuleTest {
 		CSSParser parser = new CSSParser();
 		BooleanCondition cond = parser.parseSupportsCondition(" ", rule);
 		assertNull(cond);
-		LinkedList<RuleParseError> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler()).getRuleParseErrors();
+		LinkedList<RuleParseException> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler()).getRuleParseErrors();
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
-		RuleParseError rpe = errors.getFirst();
-		CSSParseException ex = rpe.getException();
+		RuleParseException rpe = errors.getFirst();
+		CSSParseException ex = rpe.getCause();
 		assertNotNull(ex);
 		assertEquals(2, ex.getColumnNumber());
 	}
@@ -71,11 +70,11 @@ public class SupportsRuleTest {
 		CSSParser parser = new CSSParser();
 		BooleanCondition cond = parser.parseSupportsCondition("(", rule);
 		assertNull(cond);
-		LinkedList<RuleParseError> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler()).getRuleParseErrors();
+		LinkedList<RuleParseException> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler()).getRuleParseErrors();
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
-		RuleParseError rpe = errors.getFirst();
-		CSSParseException ex = rpe.getException();
+		RuleParseException rpe = errors.getFirst();
+		CSSParseException ex = rpe.getCause();
 		assertNotNull(ex);
 		assertEquals(2, ex.getColumnNumber());
 	}

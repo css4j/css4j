@@ -17,19 +17,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.CSSMediaException;
 
 abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 
 	private LinkedHashMap<Node, String> linkedStyleErrors = null;
 	private LinkedHashMap<Node, String> linkedStyleWarnings = null;
-	private LinkedHashMap<Node, CSSMediaException> mediaErrors = null;
 	private LinkedHashMap<Exception, String> inlineStyleErrors = null;
 	private LinkedHashMap<Exception, CSSStyleSheet> linkedSheetErrors = null;
 
 	@Override
 	public boolean hasErrors() {
-		return linkedStyleErrors != null || mediaErrors != null || inlineStyleErrors != null
+		return linkedStyleErrors != null || inlineStyleErrors != null
 				|| linkedSheetErrors != null || super.hasErrors();
 	}
 
@@ -55,14 +53,6 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void mediaQueryError(Node node, CSSMediaException exception) {
-		if (mediaErrors == null) {
-			mediaErrors = new LinkedHashMap<Node, CSSMediaException>();
-		}
-		mediaErrors.put(node, exception);
-	}
-
-	@Override
 	public void linkedSheetError(Exception e, CSSStyleSheet sheet) {
 		if (linkedSheetErrors == null) {
 			linkedSheetErrors = new LinkedHashMap<Exception, CSSStyleSheet>();
@@ -83,7 +73,6 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 		linkedStyleErrors = null;
 		linkedStyleWarnings = null;
 		inlineStyleErrors = null;
-		mediaErrors = null;
 		linkedSheetErrors = null;
 		super.reset();
 	}
@@ -94,10 +83,6 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 
 	public LinkedHashMap<Node, String> getLinkedStyleWarnings() {
 		return linkedStyleWarnings;
-	}
-
-	public LinkedHashMap<Node, CSSMediaException> getMediaErrors() {
-		return mediaErrors;
 	}
 
 	public LinkedHashMap<Exception, String> getInlineStyleErrors() {

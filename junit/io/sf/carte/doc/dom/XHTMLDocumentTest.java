@@ -624,6 +624,8 @@ public class XHTMLDocumentTest {
 		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasIOErrors());
+		xmlDoc.getErrorHandler().reset();
 		// Error in inline style
 		style.setCssText("width:calc(80%-)");
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
@@ -668,6 +670,7 @@ public class XHTMLDocumentTest {
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
 		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test

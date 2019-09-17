@@ -18,16 +18,26 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.EnumSet;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSRuleList;
+import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.nsac.Parser2;
 
 public class MediaRuleTest {
 
@@ -131,31 +141,75 @@ public class MediaRuleTest {
 	}
 
 	@Test
-	public void testParseIgnoreBad() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}"));
-		sheet.parseStyleSheet(source);
-		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
-		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
-		assertEquals("all", rule.getMedia().getMedia());
-		assertTrue(sheet == rule.getParentStyleSheet());
-		assertEquals("@media {\n    div.foo {\n        margin: 1em;\n    }\n}\n", rule.getCssText());
-		assertEquals("@media{div.foo{margin:1em;}}", rule.getMinifiedCssText());
+	public void testParseCompat() throws DOMException, IOException, ParserConfigurationException {
+		CSSElement cssStyle = styleElement(
+				"@media only screen and (min-width:0\\0){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}",
+				EnumSet.of(Parser2.Flag.IEVALUES));
+		AbstractCSSStyleSheet compatsheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		assertEquals(1, compatsheet.getCssRules().getLength());
+		assertEquals(CSSRule.MEDIA_RULE, compatsheet.getCssRules().item(0).getType());
+		MediaRule rule = (MediaRule) compatsheet.getCssRules().item(0);
+		assertEquals("only screen and (min-width: 0\\0)", rule.getMedia().getMedia());
+		assertTrue(rule.getMedia().isNotAllMedia());
+		assertTrue(compatsheet == rule.getParentStyleSheet());
+		assertEquals(
+				"@media only screen and (min-width: 0\\0) {nav.foo {display: none; }footer .footer .foo {padding-left: 0; padding-right: 0; }h4 {font-size: 20px; }}",
+				rule.getCssText());
+		assertEquals(
+				"@media only screen and (min-width:0\\0){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
+				rule.getMinifiedCssText());
+		assertTrue(compatsheet.getErrorHandler().hasOMErrors());
+		assertFalse(compatsheet.getErrorHandler().hasOMWarnings());
+		CSSDocument cssdoc = cssStyle.getOwnerDocument();
+		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
+		assertTrue(cssdoc.getErrorHandler().hasMediaWarnings());
 	}
 
 	@Test
-	public void testParseIgnoreBad2() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }}@media {div.foo{margin:1em}}"));
-		sheet.parseStyleSheet(source);
+	public void testParseBad() throws DOMException, ParserConfigurationException {
+		CSSElement cssStyle = styleElement(
+				"@media (max-width:1600px) and only screen {div.foo{margin:1em}}");
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
+		CSSDocument cssdoc = cssStyle.getOwnerDocument();
+		assertTrue(cssdoc.getErrorHandler().hasMediaErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
+	}
+
+	@Test
+	public void testParseIgnoreBad() throws DOMException, ParserConfigurationException {
+		CSSElement cssStyle = styleElement(
+				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
 		assertEquals("all", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
-		assertEquals("@media {\n    div.foo {\n        margin: 1em;\n    }\n}\n", rule.getCssText());
+		assertEquals("@media {div.foo {margin: 1em; }}", rule.getCssText());
 		assertEquals("@media{div.foo{margin:1em;}}", rule.getMinifiedCssText());
+		CSSDocument cssdoc = cssStyle.getOwnerDocument();
+		assertTrue(cssdoc.getErrorHandler().hasMediaErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
+	}
+
+	@Test
+	public void testParseIgnoreBad2() throws DOMException, ParserConfigurationException {
+		CSSElement cssStyle = styleElement(
+				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }}@media {div.foo{margin:1em}}");
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
+		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
+		assertEquals("all", rule.getMedia().getMedia());
+		assertTrue(sheet == rule.getParentStyleSheet());
+		assertEquals("@media {div.foo {margin: 1em; }}", rule.getCssText());
+		assertEquals("@media{div.foo{margin:1em;}}", rule.getMinifiedCssText());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
+		CSSDocument cssdoc = cssStyle.getOwnerDocument();
+		assertTrue(cssdoc.getErrorHandler().hasMediaErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
 	}
 
 	@Test
@@ -238,8 +292,7 @@ public class MediaRuleTest {
 		MediaRule rule = sheet.createMediaRule(mediaList);
 		rule.insertRule("p {border-top: 1px dashed yellow; }", 0);
 		rule.insertRule("span.reddish {color: red; }", 1);
-		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null,
-				null);
+		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null, null);
 		MediaRule cloned = rule.clone(newSheet);
 		assertFalse(rule == cloned);
 		int nrules = rule.getCssRules().getLength();
@@ -261,6 +314,28 @@ public class MediaRuleTest {
 				cloned.getCssText());
 		assertTrue(rule.equals(cloned));
 		assertEquals(rule.hashCode(), cloned.hashCode());
+	}
+
+	private static CSSElement styleElement(String sheetText) throws DOMException, ParserConfigurationException {
+		return styleElement(sheetText, EnumSet.noneOf(Parser2.Flag.class));
+	}
+
+	private static CSSElement styleElement(String sheetText, EnumSet<Parser2.Flag> flags)
+			throws DOMException, ParserConfigurationException {
+		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
+		Element head = doc.createElement("head");
+		Element style = doc.createElement("style");
+		style.setAttribute("id", "styleId");
+		style.setIdAttribute("id", true);
+		style.setAttribute("type", "text/css");
+		style.setAttribute("media", "screen");
+		style.setTextContent(sheetText);
+		doc.getDocumentElement().appendChild(head);
+		head.appendChild(style);
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(flags);
+		CSSDocument cssdoc = factory.createCSSDocument(doc);
+		return cssdoc.getElementById("styleId");
 	}
 
 }

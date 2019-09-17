@@ -39,6 +39,7 @@ import org.w3c.css.sac.SelectorFactory;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.css.sac.SimpleSelector;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.AgentUtil;
@@ -50,7 +51,6 @@ import io.sf.carte.doc.style.css.nsac.Condition2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.nsac.Selector2;
-import io.sf.carte.doc.style.css.om.MediaQueryFactory;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
 import io.sf.carte.doc.style.css.parser.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionImpl;
@@ -891,6 +891,16 @@ public class CSSParser implements Parser2 {
 			}
 		}
 
+		@Override
+		void handleWarning(int index, byte errCode, String message) {
+			if (!parseError) {
+				MediaQueryDelegateHandler mqhelper = getPredicateHandler();
+				CSSParseException ex = createException(index, errCode, message);
+				mqhelper.handler.compatQuery(ex);
+				super.handleWarning(index, errCode, message);
+			}
+		}
+
 		class MediaQueryDelegateHandler extends DelegateHandler {
 
 			private MediaQueryHandler handler;
@@ -1090,6 +1100,10 @@ public class CSSParser implements Parser2 {
 								handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 							} else {
 								handlePredicate(featureName, rangeType, value1);
+								if (value1.getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN) {
+									handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
+											"Probable hack in media feature.");
+								}
 							}
 						} else if (buffer.length() != 0) {
 							if (stage == 4) {
@@ -1098,6 +1112,10 @@ public class CSSParser implements Parser2 {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 								} else {
 									handlePredicate(featureName, (byte) 0, value);
+									if (value.getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN) {
+										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
+												"Probable hack in media feature.");
+									}
 								}
 							} else if (stage == 7) {
 								ExtendedCSSPrimitiveValue value1 = parseMediaFeature(firstValue);
@@ -1108,6 +1126,11 @@ public class CSSParser implements Parser2 {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 								} else {
 									handlePredicate(featureName, rangeType, value1, value2);
+									if (value1.getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN
+											|| value2.getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN) {
+										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
+												"Probable hack in media feature.");
+									}
 								}
 							} else if (stage == 3 && !spaceFound) {
 								handlePredicate(buffer.toString(), (byte) 0, null);
@@ -1387,10 +1410,10 @@ public class CSSParser implements Parser2 {
 
 	}
 
-	private static ExtendedCSSPrimitiveValue parseMediaFeature(String stringValue) {
+	private ExtendedCSSPrimitiveValue parseMediaFeature(String stringValue) {
 		ExtendedCSSPrimitiveValue value;
 		try {
-			value = new ValueFactory().parseMediaFeature(stringValue);
+			value = new ValueFactory().parseMediaFeature(stringValue, this);
 		} catch (RuntimeException e) {
 			value = null;
 		}
@@ -1404,7 +1427,7 @@ public class CSSParser implements Parser2 {
 	 * @return <code>true</code> if the string looks like a media feature.
 	 */
 	private static boolean isKnownFeature(String string) {
-		return string.startsWith("min-") || string.startsWith("max-") || MediaQueryFactory.isMediaFeature(string)
+		return string.startsWith("min-") || string.startsWith("max-") || MediaQueryDatabase.isMediaFeature(string)
 				|| string.startsWith("device-");
 	}
 

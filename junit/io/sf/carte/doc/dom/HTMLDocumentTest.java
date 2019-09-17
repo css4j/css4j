@@ -990,6 +990,8 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+		xhtmlDoc.getErrorHandler().reset();
 		// Check for non-existing property
 		assertNull(styledecl.getPropertyCSSValue("does-not-exist"));
 		assertEquals("", styledecl.getPropertyValue("does-not-exist"));
@@ -1037,6 +1039,7 @@ public class HTMLDocumentTest {
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
@@ -1075,6 +1078,7 @@ public class HTMLDocumentTest {
 		assertEquals(12.96f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		/*
 		 * attr() value in calc(), fallback.
@@ -1545,6 +1549,7 @@ public class HTMLDocumentTest {
 		assertEquals("", styledecl.getPropertyValue("does-not-exist"));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test

@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css;
 
+import java.io.IOException;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
@@ -47,9 +49,28 @@ public interface ErrorHandler {
 	boolean hasComputedStyleErrors(CSSElement element);
 
 	/**
-	 * Check whether this handler has processed any errors.
+	 * Check whether this handler has processed any media-related errors.
 	 * 
-	 * @return <code>true</code> if this handler processed any errors.
+	 * @return <code>true</code> if this handler processed any media-related errors.
+	 */
+	boolean hasMediaErrors();
+
+	/**
+	 * Check whether this handler has processed any I/O errors.
+	 * <p>
+	 * I/O errors are considered transient errors and do not show up in
+	 * {@link #hasErrors()}.
+	 * 
+	 * @return <code>true</code> if this handler processed any I/O errors.
+	 */
+	boolean hasIOErrors();
+
+	/**
+	 * Check whether this handler has processed any non-transient error.
+	 * <p>
+	 * I/O errors are not taken into account by this method.
+	 * 
+	 * @return <code>true</code> if this handler processed any non-transient errors.
 	 */
 	boolean hasErrors();
 
@@ -70,6 +91,13 @@ public interface ErrorHandler {
 	boolean hasComputedStyleWarnings(CSSElement element);
 
 	/**
+	 * Check whether this handler has processed any media-related warnings.
+	 * 
+	 * @return <code>true</code> if this handler processed any media-related warnings.
+	 */
+	boolean hasMediaWarnings();
+
+	/**
 	 * Check whether this handler has processed any warnings.
 	 * 
 	 * @return <code>true</code> if this handler processed any warnings.
@@ -81,24 +109,55 @@ public interface ErrorHandler {
 	 * sheet linked from <code>node</code> due to an issue with the given node or other node
 	 * in the document (as opposed to an issue with the linked style sheet itself).
 	 * 
-	 * @param node
-	 * @param message
+	 * @param node the node where the error happened.
+	 * @param message a message describing the error.
 	 */
 	void linkedStyleError(Node node, String message);
 
 	/**
-	 * Report a warning related to linked style, where it was not possible to create the style
-	 * sheet linked from <code>node</code> due to an issue with the given node or other node
-	 * in the document (as opposed to an issue with the linked style sheet itself).
+	 * Report a warning related to linked style, where it was not possible to create
+	 * the style sheet linked from <code>node</code> due to an issue with the given
+	 * node or other node in the document (as opposed to an issue with the linked
+	 * style sheet itself).
 	 * 
-	 * @param node
-	 * @param message
+	 * @param node    the node where the warning happened.
+	 * @param message a message describing the error.
 	 */
-	void linkedStyleWarning(Node node, String message);
+	void linkedStyleWarning(Node ownerNode, String message);
 
+	/**
+	 * Report a media query error.
+	 * 
+	 * @param ownerNode the node that ultimately owns the sheet or rule where the
+	 *                  media query appears (even if it is inside a nested
+	 *                  sheet/rule, the node responsible is the one that owns the
+	 *                  top-most style sheet).
+	 * @param exception the exception describing the error.
+	 */
 	void mediaQueryError(Node ownerNode, CSSMediaException exception);
 
+	/**
+	 * Report a media query warning.
+	 * 
+	 * @param ownerNode the node that ultimately owns the sheet or rule where the
+	 *                  media query appears (even if it is inside a nested
+	 *                  sheet/rule, the node responsible is the one that owns the
+	 *                  top-most style sheet).
+	 * @param exception the exception describing the issue.
+	 */
+	void mediaQueryWarning(Node ownerNode, CSSMediaException exception);
+
 	void linkedSheetError(Exception e, CSSStyleSheet sheet);
+
+	/**
+	 * A I/O error was produced when retrieving a resource while processing a rule,
+	 * generally an {@literal @}import or {@literal @}font-face rule.
+	 * 
+	 * @param uri
+	 *            the uri for the resource.
+	 * @param exception the exception describing the problem.
+	 */
+	void ruleIOError(String uri, IOException exception);
 
 	/**
 	 * Get the error handler for the given element's inline style.

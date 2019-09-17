@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
@@ -47,6 +49,15 @@ class MediaQuery {
 	public static final byte FEATURE_GT_AND_GE = 44; // a > foo >= b
 	public static final byte FEATURE_GE_AND_GE = 45; // a >= foo >= b
 
+	private static final HashSet<String> rangeFeatureSet;
+
+	static {
+		final String[] rangeFeatures = { "aspect-ratio", "color", "color-index", "height", "monochrome", "resolution",
+				"width" };
+		rangeFeatureSet = new HashSet<String>(rangeFeatures.length);
+		Collections.addAll(rangeFeatureSet, rangeFeatures);
+	}
+
 	private String mediaType = null;
 
 	private boolean negativeQuery = false;
@@ -69,6 +80,10 @@ class MediaQuery {
 
 	public BooleanCondition getCondition() {
 		return predicate;
+	}
+
+	void setFeaturePredicate(BooleanCondition predicate) {
+		this.predicate = predicate;
 	}
 
 	public boolean isNegative() {
@@ -166,7 +181,7 @@ class MediaQuery {
 				if (feature.startsWith("device-")) {
 					feature = feature.substring(7);
 				}
-				if (!MediaQueryFactory.isRangeFeature(feature)) {
+				if (!isRangeFeature(feature)) {
 					if (canvas.matchesFeature(feature, value)) {
 						return true;
 					}
@@ -182,8 +197,8 @@ class MediaQuery {
 		return false;
 	}
 
-	private boolean featureBooleanMatch(String feature, CSSCanvas canvas) {
-		if (MediaQueryFactory.isRangeFeature(feature)) {
+	private static boolean featureBooleanMatch(String feature, CSSCanvas canvas) {
+		if (isRangeFeature(feature)) {
 			ExtendedCSSPrimitiveValue featured = canvas.getFeatureValue(feature);
 			return !featured.isNumberZero();
 		}
@@ -246,7 +261,7 @@ class MediaQuery {
 		}
 	}
 
-	private float valueInUnit(CSSPrimitiveValue value, CSSCanvas canvas, short primitype) throws DOMException {
+	private static float valueInUnit(CSSPrimitiveValue value, CSSCanvas canvas, short primitype) throws DOMException {
 		float fval;
 		StyleDatabase sdb;
 		switch (value.getPrimitiveType()) {
@@ -301,7 +316,7 @@ class MediaQuery {
 		return Math.abs(value2 - value1) < 7e-6;
 	}
 
-	private class MQEvaluator extends Evaluator {
+	private static class MQEvaluator extends Evaluator {
 
 		private final CSSCanvas canvas;
 
@@ -323,6 +338,10 @@ class MediaQuery {
 			return partialValue;
 		}
 
+	}
+
+	private static boolean isRangeFeature(String string) {
+		return rangeFeatureSet.contains(string);
 	}
 
 	public String getMedia() {
@@ -362,10 +381,6 @@ class MediaQuery {
 	@Override
 	public String toString() {
 		return getMedia();
-	}
-
-	void setFeaturePredicate(BooleanCondition predicate) {
-		this.predicate = predicate;
 	}
 
 	@Override

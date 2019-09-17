@@ -17,10 +17,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.EnumSet;
 import java.util.Locale;
+import java.util.StringTokenizer;
 
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Parser;
+import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.agent.DeviceFactory;
@@ -36,6 +39,7 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.nsac.Parser2.Flag;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
@@ -444,6 +448,106 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	@Override
 	public SheetErrorHandler createSheetErrorHandler(ExtendedCSSStyleSheet<? extends ExtendedCSSRule> sheet) {
 		return new DefaultSheetErrorHandler(sheet);
+	}
+
+	/**
+	 * Creates a new media list for <code>mediaQueryString</code>.
+	 * 
+	 * @param mediaQueryString
+	 *            the media query string.
+	 * @param owner
+	 *            the node that would handle errors, if any.
+	 * @return a new media list for <code>mediaQueryString</code>, or
+	 *         <code>null</code> if the media query list could not be parsed for the
+	 *         given canvas.
+	 */
+	public MediaQueryList createMediaList(String mediaQueryString, Node owner) {
+		if (isPlainMediaList(mediaQueryString)) {
+			return MediaList.createMediaList(mediaQueryString);
+		}
+		return createMediaQueryList(mediaQueryString, owner);
+	}
+
+	/**
+	 * Create an unmodifiable media query list for the given media.
+	 * 
+	 * @param media
+	 *            the comma-separated list of media. If <code>null</code>, the
+	 *            media list will be for all media.
+	 * @param owner
+	 *            the node that would handle errors, if any.
+	 * @return the unmodifiable media list.
+	 */
+	public MediaQueryList createUnmodifiable(String media, Node owner) {
+		if (media == null) {
+			return MediaList.createUnmodifiable();
+		}
+		if (isPlainMediaList(media)) {
+			return MediaList.createUnmodifiable(media);
+		}
+		return ((MediaListAccess) createMediaQueryList(media, owner)).unmodifiable();
+	}
+
+	/**
+	 * Creates a new media query list for <code>mediaQueryString</code>.
+	 * 
+	 * @param mediaQueryString
+	 *            the media query string.
+	 * @param owner
+	 *            the node that would handle errors, if any.
+	 * @return a new media query list for <code>mediaQueryString</code>.
+	 */
+	MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) {
+		MediaQueryListImpl qlist = new MediaQueryListImpl();
+		CSSParser parser = new CSSParser();
+		if (getParserFlags().contains(Parser2.Flag.IEVALUES)) {
+			parser.setFlag(Parser2.Flag.IEVALUES);
+		}
+		qlist.parse(parser, mediaQueryString, owner);
+		return qlist;
+	}
+
+	/**
+	 * Create a media query list for the given SAC media list.
+	 * 
+	 * @param media
+	 *            the SAC media list.
+	 * @param owner
+	 *            the node that would handle errors, if any.
+	 * @return the media query list.
+	 */
+	public MediaQueryList createMediaList(SACMediaList media, Node owner) {
+		int sz = media.getLength();
+		boolean plainMedium = true;
+		for (int i = 0; i < sz; i++) {
+			if (!MediaList.isPlainMedium(media.item(i))) {
+				plainMedium = false;
+				break;
+			}
+		}
+		if (plainMedium) {
+			return MediaList.createMediaList(media);
+		} else {
+			CSSParser parser = new CSSParser();
+			if (getParserFlags().contains(Parser2.Flag.IEVALUES)) {
+				parser.setFlag(Parser2.Flag.IEVALUES);
+			}
+			MediaQueryListImpl qlist = new MediaQueryListImpl();
+			for (int i = 0; i < sz; i++) {
+				qlist.parse(parser, media.item(i), owner);
+			}
+			return qlist;
+		}
+	}
+
+	static boolean isPlainMediaList(String newMedium) {
+		StringTokenizer st = new StringTokenizer(newMedium, ",");
+		while (st.hasMoreTokens()) {
+			if (!MediaList.isPlainMedium(st.nextToken().trim())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

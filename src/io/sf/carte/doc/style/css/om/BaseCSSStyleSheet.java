@@ -1013,7 +1013,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 */
 	@Override
 	public boolean parseStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException {
-		getErrorHandler().reset();
+		if (sheetErrorHandler != null) {
+			sheetErrorHandler.reset();
+		}
 		// Find origin
 		byte origin = getOrigin();
 		// Scan rules for origins with higher priorities
@@ -1194,8 +1196,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				resetCommentStack();
 				return;
 			}
-			if (((MediaListAccess) destinationMedia).match(media)) {
-				MediaQueryList mql = MediaQueryFactory.createMediaList(media);
+			if (match(destinationMedia, media)) {
+				MediaQueryList mql = getStyleSheetFactory().createMediaList(media, getOwnerNode());
 				if (!mql.isNotAllMedia()) {
 					if (currentRule == null) { // That should be always true
 						// Importing rule from uri
@@ -1216,7 +1218,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			// Starting @media block for media
 			ignoreImports = true;
 			SheetErrorHandler eh;
-			MediaQueryList mlist = MediaQueryFactory.createMediaList(media);
+			MediaQueryList mlist = getStyleSheetFactory().createMediaList(media, getOwnerNode());
 			if (mlist.hasErrors() && (eh = getErrorHandler()) != null) {
 				eh.badMediaList(media);
 			}
@@ -1233,14 +1235,14 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					return;
 				}
 			} else {
-				if (mlist.isNotAllMedia()) {
+				if (mlist.isNotAllMedia() && !getStyleSheetFactory().hasCompatValueFlags()) {
+					resetCommentStack();
 					ignoreRulesForMedia = true;
 				} else {
 					currentRule = new MediaRule(BaseCSSStyleSheet.this, mlist, sheetOrigin);
 					setCommentsToRule(currentRule);
 					ignoreRulesForMedia = false; // this should not be needed - just in case
 				}
-				resetCommentStack();
 			}
 		}
 
@@ -1539,4 +1541,26 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 	}
+
+	/**
+	 * Does the given SAC media list contain any media present in this list?
+	 * 
+	 * @param sacMedia the SAC media list to test.
+	 * @return <code>true</code> if the SAC media contains any media which applies
+	 *         to this list, <code>false</code> otherwise.
+	 */
+	boolean match(MediaQueryList media, SACMediaList sacMedia) {
+		if (media.isAllMedia()) {
+			return true;
+		}
+		if (sacMedia == null) {
+			return !media.isNotAllMedia(); // null list handled as "all"
+		}
+		MediaQueryList otherqlist = getStyleSheetFactory().createMediaList(sacMedia, null);
+		if (otherqlist.isAllMedia()) {
+			return true;
+		}
+		return media.matches(otherqlist);
+	}
+
 }

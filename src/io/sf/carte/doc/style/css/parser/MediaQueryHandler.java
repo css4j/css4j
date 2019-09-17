@@ -27,6 +27,20 @@ public interface MediaQueryHandler {
 
 	void endQuery();
 
+	/**
+	 * Reports that the current media query is invalid.
+	 * 
+	 * @param queryError the exception describing the error.
+	 */
 	void invalidQuery(CSSParseException queryError);
+
+	/**
+	 * Reports that the current media query is invalid but probably compatible with
+	 * a legacy browser.
+	 * 
+	 * @param exception the exception describing the location where the issue was
+	 *                  found.
+	 */
+	void compatQuery(CSSParseException exception);
 
 }

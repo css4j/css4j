@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css;
 
-import java.io.IOException;
-
 import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
@@ -96,16 +94,6 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 *            the exception.
 	 */
 	void ruleParseWarning(CSSRule rule, CSSParseException ex);
-
-	/**
-	 * A I/O error was produced when processing a rule.
-	 * 
-	 * @param uri
-	 *            the uri.
-	 * @param exception
-	 *            the exception.
-	 */
-	void ruleIOError(String uri, IOException exception);
 
 	/**
 	 * Found a font format error when loading a font-face rule.

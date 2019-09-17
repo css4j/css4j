@@ -253,7 +253,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 			try {
 				url = doc.getURL(uri);
 			} catch (MalformedURLException e) {
-				rule.getParentStyleSheet().getErrorHandler().ruleIOError(uri, e);
+				doc.getErrorHandler().ruleIOError(uri, e);
 				return false;
 			}
 			InputStream is = null;
@@ -277,7 +277,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 				loadFontFace(familyName, fontFormat, is, rule);
 				return true;
 			} catch (IOException e) {
-				rule.getParentStyleSheet().getErrorHandler().ruleIOError(url.toExternalForm(), e);
+				doc.getErrorHandler().ruleIOError(url.toExternalForm(), e);
 			} finally {
 				try {
 					if (is != null) {

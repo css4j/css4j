@@ -29,7 +29,11 @@ import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
- * <code>MediaList</code> and <code>MediaQueryList</code> implementation.
+ * Old <code>MediaList</code> and <code>MediaQueryList</code> implementation,
+ * supporting lists of plain media types (not media queries).
+ * <p>
+ * You can use it as a faster {@link MediaQueryList} implementation when you
+ * know that the media does not involve media queries.
  * 
  * @author Carlos Amengual
  * 
@@ -325,43 +329,27 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	}
 
 	/**
-	 * Does the given SAC media list contain any media present in this list?
+	 * Does the given media list contain any media present in this list?
 	 * 
-	 * @param sacMedia
-	 *            the SAC media list to test.
-	 * @return <code>true</code> if the SAC media contains any media which applies to this
+	 * @param otherMedia
+	 *            the other media list to test.
+	 * @return <code>true</code> if the other media contains any media which applies to this
 	 *         list, <code>false</code> otherwise.
 	 */
 	@Override
-	public boolean match(SACMediaList sacMedia) {
-		if (allMedia || sacMedia == null) {
+	public boolean matches(MediaQueryList otherMedia) {
+		if (isAllMedia()) {
 			return true;
 		}
-		int sz = sacMedia.getLength();
-		for (int i = 0; i < sz; i++) {
-			String iitem = sacMedia.item(i).toLowerCase(Locale.ROOT);
-			if (mediastringList.contains(iitem) || "all".equals(iitem)) {
-				return true;
-			}
+		if (otherMedia == null) {
+			return !isNotAllMedia(); // null list handled as "all"
 		}
-		return false;
-	}
-
-	/**
-	 * Does the given DOM media list contain any media present in this list?
-	 * 
-	 * @param domMedia
-	 *            the DOM media list to test.
-	 * @return <code>true</code> if the supplied media list contains any media which applies
-	 *         to this list, <code>false</code> otherwise.
-	 */
-	public boolean matches(org.w3c.dom.stylesheets.MediaList domMedia) {
-		if (allMedia) {
+		if (otherMedia.isAllMedia()) {
 			return true;
 		}
-		int sz = domMedia.getLength();
+		int sz = otherMedia.getLength();
 		for (int i = 0; i < sz; i++) {
-			String iitem = domMedia.item(i).toLowerCase(Locale.ROOT);
+			String iitem = otherMedia.item(i).toLowerCase(Locale.ROOT);
 			if (mediastringList.contains(iitem) || "all".equals(iitem)) {
 				return true;
 			}
