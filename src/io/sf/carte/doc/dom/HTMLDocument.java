@@ -390,6 +390,8 @@ abstract public class HTMLDocument extends DOMDocument {
 								getErrorHandler().linkedStyleError(this, "Alternate sheet without title");
 							}
 						}
+					} else {
+						getErrorHandler().linkedStyleError(this, "Missing or void href attribute.");
 					}
 				} else {
 					definedSheet = null;

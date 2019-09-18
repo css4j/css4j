@@ -105,25 +105,15 @@ public interface ErrorHandler {
 	boolean hasWarnings();
 
 	/**
-	 * Report an error related to linked style, where it was not possible to create the style
-	 * sheet linked from <code>node</code> due to an issue with the given node or other node
-	 * in the document (as opposed to an issue with the linked style sheet itself).
-	 * 
-	 * @param node the node where the error happened.
-	 * @param message a message describing the error.
-	 */
-	void linkedStyleError(Node node, String message);
-
-	/**
-	 * Report a warning related to linked style, where it was not possible to create
+	 * Report an error related to linked style, where it was not possible to create
 	 * the style sheet linked from <code>node</code> due to an issue with the given
 	 * node or other node in the document (as opposed to an issue with the linked
 	 * style sheet itself).
 	 * 
-	 * @param node    the node where the warning happened.
-	 * @param message a message describing the error.
+	 * @param ownerNode the node where the error happened.
+	 * @param message   a message describing the error.
 	 */
-	void linkedStyleWarning(Node ownerNode, String message);
+	void linkedStyleError(Node ownerNode, String message);
 
 	/**
 	 * Report a media query error.
@@ -147,7 +137,15 @@ public interface ErrorHandler {
 	 */
 	void mediaQueryWarning(Node ownerNode, CSSMediaException exception);
 
-	void linkedSheetError(Exception e, CSSStyleSheet sheet);
+	/**
+	 * Report an error associated to a <code>LinkStyle</code> style sheet (i.e.
+	 * <code>LINK</code> or <code>STYLE</code> elements), that caused an exception
+	 * to be thrown.
+	 * 
+	 * @param exception the exception describing the problem.
+	 * @param sheet     the linked or embedded style sheet.
+	 */
+	void linkedSheetError(Exception exception, CSSStyleSheet sheet);
 
 	/**
 	 * A I/O error was produced when retrieving a resource while processing a rule,
@@ -169,7 +167,28 @@ public interface ErrorHandler {
 	 */
 	StyleDeclarationErrorHandler getInlineStyleErrorHandler(CSSElement owner);
 
-	void inlineStyleError(CSSElement owner, Exception e, String inlineStyle);
+	/**
+	 * Report a problem with setting an inline style, that caused an exception to be
+	 * thrown by lower-level parsing (SAC).
+	 * <p>
+	 * This method is triggered only in two (unlikely) cases:
+	 * <ol>
+	 * <li>If a problem appears when instantiating a SAC parser.</li>
+	 * <li>When the SAC parser throws a <code>CSSException</code>.</li>
+	 * </ol>
+	 * <p>
+	 * The NSAC parser does not throw a <code>CSSException</code> if there is an
+	 * error handler set (and in this implementation there is always one), although
+	 * other parsers may.
+	 * 
+	 * @param owner
+	 *            the element owning the inline style.
+	 * @param exception
+	 *            the exception describing the problem.
+	 * @param inlineStyle
+	 *            the inline style.
+	 */
+	void inlineStyleError(CSSElement owner, Exception exception, String inlineStyle);
 
 	/**
 	 * Error found in computed style declaration.

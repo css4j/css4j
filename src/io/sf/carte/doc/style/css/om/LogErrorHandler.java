@@ -52,12 +52,6 @@ abstract public class LogErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void linkedStyleWarning(Node node, String message) {
-		log.warn("Warning processing linked style: " + message);
-		warnings = true;
-	}
-
-	@Override
 	public void mediaQueryError(Node node, CSSMediaException exception) {
 		log.error("Error parsing media text.", exception);
 		errors = true;

@@ -414,6 +414,8 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 					if (disable && linkedSheet != null) {
 						linkedSheet.setDisabled(true);
 					}
+				} else {
+					getErrorHandler().linkedStyleError(this, "Missing or void href pseudo-attribute.");
 				}
 			}
 			return linkedSheet;
@@ -1084,9 +1086,11 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 								}
 							} else {
 								getErrorHandler().linkedStyleError(this,
-										"Alternate sheet without title");
+										"Alternate sheet without title.");
 							}
 						}
+					} else {
+						getErrorHandler().linkedStyleError(this, "Missing or void href attribute.");
 					}
 				} else {
 					definedSheet = null;

@@ -43,11 +43,6 @@ class StandAloneErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void linkedStyleWarning(Node node, String message) {
-		warnings = true;
-	}
-
-	@Override
 	public void mediaQueryError(Node node, CSSMediaException exception) {
 		errors = true;
 		throw new IllegalStateException("Media query error.", exception);

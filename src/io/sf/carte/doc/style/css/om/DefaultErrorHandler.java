@@ -21,7 +21,6 @@ import io.sf.carte.doc.style.css.CSSElement;
 abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 
 	private LinkedHashMap<Node, String> linkedStyleErrors = null;
-	private LinkedHashMap<Node, String> linkedStyleWarnings = null;
 	private LinkedHashMap<Exception, String> inlineStyleErrors = null;
 	private LinkedHashMap<Exception, CSSStyleSheet> linkedSheetErrors = null;
 
@@ -32,24 +31,11 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public boolean hasWarnings() {
-		return linkedStyleWarnings != null || super.hasWarnings();
-	}
-
-	@Override
 	public void linkedStyleError(Node node, String message) {
 		if (linkedStyleErrors == null) {
 			linkedStyleErrors = new LinkedHashMap<Node, String>();
 		}
 		linkedStyleErrors.put(node, message);
-	}
-
-	@Override
-	public void linkedStyleWarning(Node node, String message) {
-		if (linkedStyleWarnings == null) {
-			linkedStyleWarnings = new LinkedHashMap<Node, String>();
-		}
-		linkedStyleWarnings.put(node, message);
 	}
 
 	@Override
@@ -71,7 +57,6 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	@Override
 	public void reset() {
 		linkedStyleErrors = null;
-		linkedStyleWarnings = null;
 		inlineStyleErrors = null;
 		linkedSheetErrors = null;
 		super.reset();
@@ -79,10 +64,6 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 
 	public LinkedHashMap<Node, String> getLinkedStyleErrors() {
 		return linkedStyleErrors;
-	}
-
-	public LinkedHashMap<Node, String> getLinkedStyleWarnings() {
-		return linkedStyleWarnings;
 	}
 
 	public LinkedHashMap<Exception, String> getInlineStyleErrors() {

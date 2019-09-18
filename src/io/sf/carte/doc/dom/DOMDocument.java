@@ -518,6 +518,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					if (alternate && linkedSheet != null) {
 						linkedSheet.setDisabled(true);
 					}
+				} else {
+					getErrorHandler().linkedStyleError(this, "Missing or void href pseudo-attribute.");
 				}
 			}
 			return linkedSheet;
