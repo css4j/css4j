@@ -681,8 +681,13 @@ public class ValueFactory {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
 					}
 					ListValueItem listitem = parseBracketList(nlu, style, false);
-					value = listitem.getCSSValue();
-					nlu = listitem.getNextLexicalUnit();
+					if (listitem != null) {
+						value = listitem.getCSSValue();
+						nlu = listitem.getNextLexicalUnit();
+					} else {
+						nlu = nlu.getNextLexicalUnit();
+						continue;
+					}
 				}
 				if (nlu != null) {
 					if (nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
@@ -734,10 +739,11 @@ public class ValueFactory {
 	/**
 	 * Parse a bracket list.
 	 * 
-	 * @param nlu         the lexical unit containing the bracket list.
+	 * @param nlu         the lexical unit containing the first item in the bracket
+	 *                    list.
 	 * @param style       the style declaration to report issues to.
 	 * @param subproperty <code>true</code> if the value must be a subproperty.
-	 * @return the bracket list.
+	 * @return the bracket list, or <code>null</code> if the list was empty.
 	 */
 	public ListValueItem parseBracketList(LexicalUnit nlu, AbstractCSSStyleDeclaration style, boolean subproperty) {
 		ListValueItem listitem = new ListValueItem();
@@ -769,7 +775,11 @@ public class ValueFactory {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
 			}
 		}
-		listitem.nextLexicalUnit = nlu.getNextLexicalUnit();
+		if (listitem.list.getLength() != 0) {
+			listitem.nextLexicalUnit = nlu.getNextLexicalUnit();
+		} else {
+			listitem = null;
+		}
 		return listitem;
 	}
 
@@ -1077,9 +1087,14 @@ public class ValueFactory {
 			}
 			buf.append(cssText);
 		} else {
-			ListValueItem item = parseBracketList(lunit.getNextLexicalUnit(), null, false);
-			nlu = item.getNextLexicalUnit();
-			buf.append(item.getCSSValue().getCssText());
+			nlu = lunit.getNextLexicalUnit();
+			ListValueItem item = parseBracketList(nlu, null, false);
+			if (item != null) {
+				nlu = item.getNextLexicalUnit();
+				buf.append(item.getCSSValue().getCssText());
+			} else {
+				nlu = nlu.getNextLexicalUnit();
+			}
 		}
 		return nlu;
 	}
@@ -1105,9 +1120,14 @@ public class ValueFactory {
 			}
 			buf.append(cssText);
 		} else {
-			ListValueItem item = parseBracketList(lunit.getNextLexicalUnit(), null, false);
-			nlu = item.getNextLexicalUnit();
-			buf.append(item.getCSSValue().getMinifiedCssText(""));
+			nlu = lunit.getNextLexicalUnit();
+			ListValueItem item = parseBracketList(nlu, null, false);
+			if (item != null) {
+				nlu = item.getNextLexicalUnit();
+				buf.append(item.getCSSValue().getMinifiedCssText(""));
+			} else {
+				nlu = nlu.getNextLexicalUnit();
+			}
 		}
 		return nlu;
 	}

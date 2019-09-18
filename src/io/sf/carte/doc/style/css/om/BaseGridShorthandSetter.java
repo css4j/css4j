@@ -90,18 +90,22 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {
 					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
 				}
-				ListValueItem item = valueFactory.parseBracketList(currentValue.getNextLexicalUnit(), styleDeclaration,
-						true);
-				ValueList newLineNames = item.getCSSValue();
-				if (lineNames == null) {
-					lineNames = newLineNames;
-					gridTemplateRows.add(lineNames);
+				LexicalUnit nlu = currentValue.getNextLexicalUnit();
+				ListValueItem item = valueFactory.parseBracketList(nlu, styleDeclaration, true);
+				if (item != null) {
+					ValueList newLineNames = item.getCSSValue();
+					if (lineNames == null) {
+						lineNames = newLineNames;
+						gridTemplateRows.add(lineNames);
+					} else {
+						lineNames.addAll(newLineNames);
+					}
+					appendValueItemString(newLineNames);
+					currentValue = item.getNextLexicalUnit();
+					lasttype = type;
 				} else {
-					lineNames.addAll(newLineNames);
+					currentValue = nlu.getNextLexicalUnit();
 				}
-				appendValueItemString(newLineNames);
-				currentValue = item.getNextLexicalUnit();
-				lasttype = type;
 				break;
 			case LexicalUnit.SAC_STRING_VALUE:
 				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {

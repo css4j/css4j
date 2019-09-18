@@ -75,7 +75,7 @@ public class ValueFactoryTest {
 		value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		list = (ValueList) value;
-		assertEquals(3, list.getLength());
+		assertEquals(2, list.getLength());
 		assertTrue(list.isCommaSeparated());
 		assertEquals(CSSValue.CSS_VALUE_LIST, list.item(0).getCssValueType());
 		ValueList bracketlist = (ValueList) list.item(0);
@@ -90,11 +90,6 @@ public class ValueFactoryTest {
 		assertFalse(bracketlist.isCommaSeparated());
 		assertEquals("main-start", bracketlist.item(0).getCssText());
 		assertEquals("[main-start]", bracketlist.getCssText());
-		assertEquals(CSSValue.CSS_VALUE_LIST, list.item(2).getCssValueType());
-		bracketlist = (ValueList) list.item(2);
-		assertEquals(0, bracketlist.getLength());
-		assertFalse(bracketlist.isCommaSeparated());
-		assertEquals("[]", bracketlist.getCssText());
 	}
 
 	@Test

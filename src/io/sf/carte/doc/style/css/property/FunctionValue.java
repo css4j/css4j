@@ -84,8 +84,14 @@ public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 					item = subExpression(lu);
 					newval = item.getCSSValue();
 				} else if (type == LexicalUnit2.SAC_LEFT_BRACKET) {
-					item = factory.parseBracketList(lu.getNextLexicalUnit(), null, false);
-					newval = item.getCSSValue();
+					LexicalUnit nlu = lu.getNextLexicalUnit();
+					item = factory.parseBracketList(nlu, null, false);
+					if (item != null) {
+						newval = item.getCSSValue();
+					} else {
+						lu = nlu.getNextLexicalUnit();
+						continue;
+					}
 				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
 					if (list != null && list.getLength() == 1 && isOperand(list.item(0))) {
 						list = null;

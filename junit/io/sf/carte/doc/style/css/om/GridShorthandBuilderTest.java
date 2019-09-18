@@ -72,8 +72,14 @@ public class GridShorthandBuilderTest {
 
 	@Test
 	public void testGrid6() {
-		assertShorthandText("grid:[] \"a   a   a\" [header-bottom] [main-top] \"b   b   b\" 1fr [main-bottom]/1fr 2fr;",
+		assertShorthandText("grid:\"a   a   a\" [header-bottom] [main-top] \"b   b   b\" 1fr [main-bottom]/1fr 2fr;",
 				"grid: [] \"a   a   a\"     [header-bottom] [main-top] \"b   b   b\" 1fr [main-bottom] / 1fr 2fr; ");
+	}
+
+	@Test
+	public void testGrid6b() {
+		assertShorthandText("grid:\"a   a   a\" [header-bottom] [main-top] \"b   b   b\" 1fr [main-bottom]/1fr 2fr;",
+				"grid: \"a   a   a\"     [header-bottom] [main-top] \"b   b   b\" 1fr [main-bottom] / 1fr 2fr; ");
 	}
 
 	@Test

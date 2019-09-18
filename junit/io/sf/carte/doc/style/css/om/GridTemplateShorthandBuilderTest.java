@@ -149,6 +149,11 @@ public class GridTemplateShorthandBuilderTest {
 	}
 
 	@Test
+	public void testGridTemplate19() {
+		assertShorthandText("grid-template:repeat(1,10px)/auto;", "grid-template: repeat(1, [] 10px) / auto; ");
+	}
+
+	@Test
 	public void testGridTemplateFromLonghands() {
 		emptyStyleDecl.setCssText(
 				"grid-template-rows: auto; grid-template-areas: \"media-text-media media-text-content\"; grid-template-columns: 50% auto;");
