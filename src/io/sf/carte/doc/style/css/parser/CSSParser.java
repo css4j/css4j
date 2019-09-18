@@ -71,6 +71,11 @@ import io.sf.carte.uparser.TokenProducer;
 
 /**
  * CSS parser implementing the NSAC API.
+ * <p>
+ * Additionally to NSAC, it adds a few methods to parse media queries,
+ * <code>{@literal @}supports</code> conditions and the bodies of other rules
+ * (you probably want to use them through the Object Model instead of calling
+ * them directly).
  */
 public class CSSParser implements Parser2 {
 
@@ -1528,7 +1533,7 @@ public class CSSParser implements Parser2 {
 		return false;
 	}
 
-	public static boolean bufferEndsWithEscapedCharOrWS(StringBuilder buffer) {
+	static boolean bufferEndsWithEscapedCharOrWS(StringBuilder buffer) {
 		int len = buffer.length();
 		if (len != 0) {
 			int bufCp = buffer.codePointAt(len - 1);
