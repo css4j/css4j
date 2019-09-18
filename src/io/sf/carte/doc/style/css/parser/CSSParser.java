@@ -332,6 +332,18 @@ public class CSSParser implements Parser2 {
 		}
 	}
 
+	/**
+	 * Parse a media query.
+	 * 
+	 * @param media
+	 *            the media query text.
+	 * @param condFactory
+	 *            the condition factory.
+	 * @param mqhandler
+	 *            the media query handler.
+	 * @throws CSSException <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a
+	 *                      hard-coded limit in nested expressions was reached.
+	 */
 	public void parseMediaQuery(String media, MediaConditionFactory condFactory, MediaQueryHandler mqhandler)
 			throws CSSException {
 		int[] allowInWords = { 45, 46 }; // -.

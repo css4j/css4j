@@ -13,18 +13,45 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.css.sac.CSSParseException;
 
+/**
+ * Interface to be implemented by handlers that are passed to
+ * {@link CSSParser#parseMediaQuery(String, MediaConditionFactory, MediaQueryHandler)}.
+ */
 public interface MediaQueryHandler {
 
+	/**
+	 * A new media query starts being processed.
+	 */
 	void startQuery();
 
+	/**
+	 * A media type was found (e.g. <code>screen</code>) in the current query.
+	 * 
+	 * @param mediaType the media type.
+	 */
 	void mediaType(String mediaType);
 
+	/**
+	 * Reports that the current query is a negative query.
+	 */
 	void negativeQuery();
 
+	/**
+	 * The current query uses the <code>only</code> prefix.
+	 */
 	void onlyPrefix();
 
+	/**
+	 * If the current query contains a media (feature) condition, set it.
+	 * 
+	 * @param condition the media condition, which contains one or more media
+	 *                  feature predicates and an initial media type predicate.
+	 */
 	void condition(BooleanCondition condition);
 
+	/**
+	 * The current query ends.
+	 */
 	void endQuery();
 
 	/**
