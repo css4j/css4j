@@ -554,7 +554,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		if (media.length() == 0) {
 			mediaList = MediaList.createMediaList();
 		} else {
-			mediaList = getStyleSheetFactory().createMediaList(media, node);
+			mediaList = getStyleSheetFactory().createMediaQueryList(media, node);
 			if (mediaList.isNotAllMedia() && mediaList.hasErrors()) {
 				return null;
 			}

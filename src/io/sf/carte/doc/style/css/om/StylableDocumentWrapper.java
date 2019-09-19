@@ -1150,7 +1150,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		if (media.length() == 0) {
 			mediaList = MediaList.createMediaList();
 		} else {
-			mediaList = getStyleSheetFactory().createMediaList(media, ownerNode);
+			mediaList = getStyleSheetFactory().createMediaQueryList(media, ownerNode);
 			if (mediaList.isNotAllMedia() && mediaList.hasErrors()) {
 				return null;
 			}

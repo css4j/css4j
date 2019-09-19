@@ -32,7 +32,7 @@ public class BaseCSSStyleSheetFactoryTest {
 
 	@Test
 	public void testCreateUnmodifiable() {
-		MediaQueryList mql = factory.createUnmodifiable("screen", null);
+		MediaQueryList mql = factory.createUnmodifiableMediaQueryList("screen", null);
 		assertNotNull(mql);
 		assertEquals(1, mql.getLength());
 		assertEquals("screen", mql.getMedia());

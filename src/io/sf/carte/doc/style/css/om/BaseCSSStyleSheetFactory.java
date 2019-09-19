@@ -451,25 +451,24 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	}
 
 	/**
-	 * Creates a new media list for <code>mediaQueryString</code>.
+	 * Parses <code>mediaQueryString</code> and creates a new media query list.
 	 * 
 	 * @param mediaQueryString
 	 *            the media query string.
 	 * @param owner
 	 *            the node that would handle errors, if any.
-	 * @return a new media list for <code>mediaQueryString</code>, or
-	 *         <code>null</code> if the media query list could not be parsed for the
-	 *         given canvas.
+	 * @return a new media list for <code>mediaQueryString</code>.
 	 */
-	public MediaQueryList createMediaList(String mediaQueryString, Node owner) {
+	@Override
+	public MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) {
 		if (isPlainMediaList(mediaQueryString)) {
 			return MediaList.createMediaList(mediaQueryString);
 		}
-		return createMediaQueryList(mediaQueryString, owner);
+		return parseMediaQueryList(mediaQueryString, owner);
 	}
 
 	/**
-	 * Create an unmodifiable media query list for the given media.
+	 * Parses and creates an unmodifiable media query list for the given media.
 	 * 
 	 * @param media
 	 *            the comma-separated list of media. If <code>null</code>, the
@@ -478,18 +477,19 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 *            the node that would handle errors, if any.
 	 * @return the unmodifiable media list.
 	 */
-	public MediaQueryList createUnmodifiable(String media, Node owner) {
+	@Override
+	public MediaQueryList createUnmodifiableMediaQueryList(String media, Node owner) {
 		if (media == null) {
 			return MediaList.createUnmodifiable();
 		}
 		if (isPlainMediaList(media)) {
 			return MediaList.createUnmodifiable(media);
 		}
-		return ((MediaListAccess) createMediaQueryList(media, owner)).unmodifiable();
+		return ((MediaListAccess) parseMediaQueryList(media, owner)).unmodifiable();
 	}
 
 	/**
-	 * Creates a new media query list for <code>mediaQueryString</code>.
+	 * Parses and creates a new media query list for <code>mediaQueryString</code>.
 	 * 
 	 * @param mediaQueryString
 	 *            the media query string.
@@ -497,7 +497,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 *            the node that would handle errors, if any.
 	 * @return a new media query list for <code>mediaQueryString</code>.
 	 */
-	MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) {
+	MediaQueryList parseMediaQueryList(String mediaQueryString, Node owner) {
 		MediaQueryListImpl qlist = new MediaQueryListImpl();
 		CSSParser parser = new CSSParser();
 		if (getParserFlags().contains(Parser2.Flag.IEVALUES)) {

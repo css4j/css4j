@@ -152,6 +152,29 @@ public interface CSSStyleSheetFactory {
 	SheetErrorHandler createSheetErrorHandler(ExtendedCSSStyleSheet<? extends ExtendedCSSRule> sheet);
 
 	/**
+	 * Parses <code>mediaQueryString</code> and creates a new media query list.
+	 * 
+	 * @param mediaQueryString
+	 *            the media query string.
+	 * @param owner
+	 *            the node that would handle errors, if any.
+	 * @return a new media list for <code>mediaQueryString</code>.
+	 */
+	MediaQueryList createMediaQueryList(String mediaQueryString, Node owner);
+
+	/**
+	 * Parses and creates an unmodifiable media query list for the given media.
+	 * 
+	 * @param media
+	 *            the comma-separated list of media. If <code>null</code>, the
+	 *            media list will be for all media.
+	 * @param owner
+	 *            the node that would handle errors, if any.
+	 * @return the unmodifiable media list.
+	 */
+	MediaQueryList createUnmodifiableMediaQueryList(String media, Node owner);
+
+	/**
 	 * Get the style formatting factory to be used with this sheet factory.
 	 *
 	 * @return the style formatting factory.

@@ -395,7 +395,7 @@ public class MediaQueryTest {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser2.Flag.IEVALUES));
 		CSSDocument cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
-		MediaQueryList mql = factory.createMediaQueryList("screen and (min-width:0\\0)", cssStyle);
+		MediaQueryList mql = factory.parseMediaQueryList("screen and (min-width:0\\0)", cssStyle);
 		assertTrue(mql.isNotAllMedia());
 		assertTrue(mql.hasErrors());
 		assertEquals("screen and (min-width: 0\\0)", mql.getMedia());
@@ -461,7 +461,7 @@ public class MediaQueryTest {
 
 	@Test
 	public void testUnmodifiable() {
-		MediaQueryList mql = factory.createUnmodifiable("screen", null);
+		MediaQueryList mql = factory.createUnmodifiableMediaQueryList("screen", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
@@ -1213,7 +1213,7 @@ public class MediaQueryTest {
 	}
 
 	private MediaQueryList createMediaQueryList(String media) {
-		return factory.createMediaQueryList(media, null);
+		return factory.parseMediaQueryList(media, null);
 	}
 
 }
