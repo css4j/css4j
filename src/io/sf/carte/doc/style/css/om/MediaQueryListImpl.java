@@ -183,10 +183,15 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		} else {
 			otherqlist = ((UnmodifiableMediaQueryList) otherMedia).getEnclosingInstance();
 		}
-		int sz = otherMedia.getLength();
-		for (int i = 0; i < sz; i++) {
-			if (queryList.contains(otherqlist.queryList.get(i))) {
-				return true;
+		Iterator<MediaQuery> it = queryList.iterator();
+		while (it.hasNext()) {
+			MediaQuery query = it.next();
+			Iterator<MediaQuery> otherIt = otherqlist.queryList.iterator();
+			while (otherIt.hasNext()) {
+				MediaQuery othermq = otherIt.next();
+				if (query.matches(othermq)) {
+					return true;
+				}
 			}
 		}
 		return false;

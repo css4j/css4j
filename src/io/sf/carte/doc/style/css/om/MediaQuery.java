@@ -24,6 +24,7 @@ import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.parser.MediaPredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.CalcValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
@@ -119,7 +120,7 @@ class MediaQuery {
 		return true;
 	}
 
-	private boolean matchesCondition(BooleanCondition condition, CSSCanvas canvas) {
+	private static boolean matchesCondition(BooleanCondition condition, CSSCanvas canvas) {
 		switch (condition.getType()) {
 		case AND:
 			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
@@ -150,7 +151,7 @@ class MediaQuery {
 		return false;
 	}
 
-	private boolean matchesPredicate(MediaFeaturePredicate predicate, CSSCanvas canvas) {
+	private static boolean matchesPredicate(MediaFeaturePredicate predicate, CSSCanvas canvas) {
 		String feature = predicate.getName();
 		ExtendedCSSPrimitiveValue value = predicate.getValue();
 		predicate.getRangeSecondValue();
@@ -205,8 +206,8 @@ class MediaQuery {
 		return canvas.matchesFeature(feature, null);
 	}
 
-	private boolean featureRangeMatch(String feature, byte type, CSSPrimitiveValue value, CSSPrimitiveValue value2,
-			CSSCanvas canvas) {
+	private static boolean featureRangeMatch(String feature, byte type, CSSPrimitiveValue value,
+			CSSPrimitiveValue value2, CSSCanvas canvas) {
 		ExtendedCSSPrimitiveValue featured = canvas.getFeatureValue(feature);
 		if (featured == null) {
 			return false;
@@ -312,7 +313,7 @@ class MediaQuery {
 		return fval;
 	}
 
-	private boolean floatEquals(float value1, float value2) {
+	static boolean floatEquals(float value1, float value2) {
 		return Math.abs(value2 - value1) < 7e-6;
 	}
 
@@ -342,6 +343,66 @@ class MediaQuery {
 
 	private static boolean isRangeFeature(String string) {
 		return rangeFeatureSet.contains(string);
+	}
+
+	boolean matches(MediaQuery other) {
+		if (mediaType == null) {
+			if (other.mediaType != null)
+				return false;
+		} else if (!mediaType.equals(other.mediaType))
+			return false;
+		if (negativeQuery != other.negativeQuery)
+			return false;
+		if (predicate == null) {
+			return other.predicate == null;
+		} else if (other.predicate == null) {
+			return false;
+		}
+		return matches(predicate, other.predicate);
+	}
+
+	private static boolean matches(BooleanCondition condition, BooleanCondition otherCondition) {
+		if (condition.getType() != otherCondition.getType()) {
+			return false;
+		}
+		switch (condition.getType()) {
+		case AND:
+			HashSet<BooleanCondition> otherSet = new HashSet<BooleanCondition>(
+					((BooleanConditionImpl.GroupCondition) otherCondition).getSubConditions());
+			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions()
+					.iterator();
+			toploop: while (it.hasNext()) {
+				BooleanCondition subcond = it.next();
+				Iterator<BooleanCondition> otherIt = otherSet.iterator();
+				while (otherIt.hasNext()) {
+					if (matches(subcond, otherIt.next())) {
+						otherIt.remove();
+						continue toploop;
+					}
+				}
+				return false;
+			}
+			return true;
+		case NOT:
+			return matches(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(),
+					((BooleanConditionImpl.NotCondition) otherCondition).getNestedCondition());
+		case OR:
+			it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
+			while (it.hasNext()) {
+				BooleanCondition subcond = it.next();
+				Iterator<BooleanCondition> otherIt = ((BooleanConditionImpl.GroupCondition) otherCondition)
+						.getSubConditions().iterator();
+				while (otherIt.hasNext()) {
+					if (matches(subcond, otherIt.next())) {
+						return true;
+					}
+				}
+			}
+			break;
+		default:
+			return ((MediaPredicate) condition).matches((MediaPredicate) otherCondition);
+		}
+		return false;
 	}
 
 	public String getMedia() {

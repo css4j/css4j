@@ -11,13 +11,14 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import io.sf.carte.doc.style.css.parser.MediaPredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
  * Media type predicate.
  * 
  */
-class MediaTypePredicate extends BooleanConditionImpl.Predicate {
+class MediaTypePredicate extends BooleanConditionImpl.Predicate implements MediaPredicate {
 
 	MediaTypePredicate(String medium) {
 		super(medium);
@@ -26,6 +27,12 @@ class MediaTypePredicate extends BooleanConditionImpl.Predicate {
 	@Override
 	public short getPredicateType() {
 		return 1;
+	}
+
+	@Override
+	public boolean matches(MediaPredicate otherPredicate) {
+		BooleanConditionImpl.Predicate other = (BooleanConditionImpl.Predicate) otherPredicate;
+		return getPredicateType() == other.getPredicateType() && getName().equals(other.getName());
 	}
 
 	@Override

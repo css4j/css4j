@@ -276,6 +276,12 @@ abstract class BooleanConditionImpl implements BooleanCondition {
 			this.name = name;
 		}
 
+		/**
+		 * Get a name that identifies what this predicate is about, like the name of a
+		 * media feature or property.
+		 * 
+		 * @return a name representative of this predicate.
+		 */
 		public String getName() {
 			return name;
 		}
