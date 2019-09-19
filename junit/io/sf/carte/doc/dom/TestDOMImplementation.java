@@ -22,7 +22,7 @@ import org.w3c.dom.DocumentType;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import io.sf.carte.doc.agent.MockURLFactory;
+import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
@@ -36,7 +36,7 @@ import nu.validator.htmlparser.dom.HtmlDocumentBuilder;
 
 public class TestDOMImplementation extends CSSDOMImplementation {
 
-	private MockURLFactory urlFactory = new MockURLFactory();
+	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
 	public String parserClass;
 	private boolean xmlOnly = false;
 
@@ -57,7 +57,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		this.xmlOnly = xmlOnly;
 	}
 
-	public MockURLFactory getURLFactory() {
+	public MockURLConnectionFactory getConnectionFactory() {
 		return urlFactory;
 	}
 

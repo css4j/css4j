@@ -24,7 +24,7 @@ import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
-import io.sf.carte.doc.agent.MockURLFactory;
+import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser2;
@@ -32,7 +32,7 @@ import io.sf.carte.doc.style.css.nsac.Parser2;
 public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 
 	private WrapperUserAgent agent;
-	private MockURLFactory urlFactory = new MockURLFactory();
+	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
 	public String parserClass;
 
 	public TestCSSStyleSheetFactory() {
@@ -77,7 +77,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		return agent;
 	}
 
-	public MockURLFactory getURLFactory() {
+	public MockURLConnectionFactory getConnectionFactory() {
 		return urlFactory;
 	}
 

@@ -92,7 +92,7 @@ public class AbstractStyleDatabaseTest {
 		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')",
 				ffrule.getStyle().getPropertyValue("src"));
 		//
-		factory.getURLFactory().setHeader("ttf", "content-type", "application/font-ttf");
+		factory.getConnectionFactory().setHeader("ttf", "content-type", "application/font-ttf");
 		CSSElement body = cssdoc.getElementById("bodyId");
 		body.getComputedStyle(null);
 		assertTrue(factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("opensans regular"));

@@ -22,15 +22,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class MockURLFactory {
+public class MockURLConnectionFactory {
 
 	public static final String SAMPLE_URL = "http://www.example.com/xhtml/htmlsample.html";
 
-	private static Map<String,String> mockURLMap = new HashMap<String,String>();
+	private static final Map<String, String> mockURLMap = new HashMap<String, String>();
 
-	private Map<String,Map<String,List<String>>> headerMap = new HashMap<String,Map<String,List<String>>>();
+	private final Map<String, Map<String, List<String>>> headerMap = new HashMap<String, Map<String, List<String>>>();
 
-	private HashMap<String,String> referrerMap = new HashMap<String,String>();
+	private final HashMap<String, String> referrerMap = new HashMap<String, String>();
 
 	/*
 	 * After adding a file here and in classpath, remember to refresh the IDE if you

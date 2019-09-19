@@ -19,10 +19,10 @@ import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class TestEntityResolver extends DefaultEntityResolver {
 
-	private final MockURLFactory urlFactory;
+	private final MockURLConnectionFactory urlFactory;
 
 	public TestEntityResolver() {
-		urlFactory = new MockURLFactory();
+		urlFactory = new MockURLConnectionFactory();
 		addHostToWhiteList("www.example.com");
 	}
 

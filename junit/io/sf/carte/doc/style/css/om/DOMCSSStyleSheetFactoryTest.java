@@ -32,7 +32,7 @@ import org.w3c.dom.css.CSSStyleSheet;
 import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.DocumentException;
-import io.sf.carte.doc.agent.MockURLFactory;
+import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
@@ -164,7 +164,7 @@ public class DOMCSSStyleSheetFactoryTest {
 	}
 
 	public static CSSDocument sampleXHTML(DOMCSSStyleSheetFactory factory) throws IOException, DocumentException {
-		return wrapStreamForFactory(sampleHTMLStream(), null, MockURLFactory.SAMPLE_URL, factory);
+		return wrapStreamForFactory(sampleHTMLStream(), null, MockURLConnectionFactory.SAMPLE_URL, factory);
 	}
 
 	public static CSSDocument simpleBoxHTML() throws IOException, DocumentException {

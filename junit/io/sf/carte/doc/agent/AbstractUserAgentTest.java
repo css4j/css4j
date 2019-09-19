@@ -78,7 +78,7 @@ public class AbstractUserAgentTest {
 		AbstractUserAgent agent = factory.getUserAgent();
 		agent.setOriginPolicy(MockOriginPolicy.getInstance());
 		agent.getAgentControl().getCookieConfig().setAcceptAllCookies(true);
-		agent.readURL(new URL(MockURLFactory.SAMPLE_URL));
+		agent.readURL(new URL(MockURLConnectionFactory.SAMPLE_URL));
 		Set<Cookie> cookies = agent.getCookies(".example.com");
 		assertNotNull(cookies);
 		Cookie cookie = cookies.toArray(new Cookie[0])[0];

@@ -46,7 +46,7 @@ import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.stylesheets.LinkStyle;
 
-import io.sf.carte.doc.agent.MockURLFactory;
+import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.dom.HTMLDocument.LinkElement;
 import io.sf.carte.doc.dom.HTMLDocument.StyleElement;
@@ -1848,14 +1848,14 @@ public class HTMLDocumentTest {
 	@Test
 	public void testReferrerPolicy() throws IOException {
 		TestDOMImplementation impl = (TestDOMImplementation) xhtmlDoc.getImplementation();
-		MockURLFactory urlfac = impl.getURLFactory();
+		MockURLConnectionFactory urlfac = impl.getConnectionFactory();
 		ElementList linkels = xhtmlDoc.getElementsByTagName("link");
 		assertReferrer(urlfac, linkels.item(0), "http://www.example.com/");
 		assertReferrer(urlfac, linkels.item(1), "http://www.example.com/xhtml/htmlsample.html");
 		urlfac.clearAssertions();
 	}
 
-	private void assertReferrer(MockURLFactory urlfac, DOMElement link, String referrer) {
+	private void assertReferrer(MockURLConnectionFactory urlfac, DOMElement link, String referrer) {
 		urlfac.assertReferrer(link.getAttribute("href"), referrer);
 		BaseCSSStyleSheet sheet = (BaseCSSStyleSheet) ((LinkStyle) link).getSheet();
 		assertNotNull(sheet);
