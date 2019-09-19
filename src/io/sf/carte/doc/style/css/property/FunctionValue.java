@@ -36,7 +36,7 @@ public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 
 	private String functionName = null;
 
-	private LinkedCSSValueList arguments = new LinkedCSSValueList();
+	private final LinkedCSSValueList arguments = new LinkedCSSValueList();
 
 	public FunctionValue() {
 		super(CSSPrimitiveValue2.CSS_FUNCTION);

@@ -227,7 +227,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 	}
 
 	class Cascade {
-		private SortedMap<StyleRule.RuleSpecifity, LinkedList<StyleRule>> matchingStyles = new TreeMap<StyleRule.RuleSpecifity, LinkedList<StyleRule>>(
+		private final SortedMap<StyleRule.RuleSpecifity, LinkedList<StyleRule>> matchingStyles = new TreeMap<StyleRule.RuleSpecifity, LinkedList<StyleRule>>(
 				new StyleRule.SpecificityComparator());
 
 		Cascade() {
@@ -310,7 +310,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 
 		class RuleIterator implements Iterator<StyleRule> {
 
-			private Iterator<RuleSpecifity> keyit;
+			private final Iterator<RuleSpecifity> keyit;
 			private Iterator<StyleRule> currentList;
 
 			RuleIterator() {

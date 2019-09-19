@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class BufferSimpleWriter implements SimpleWriter {
 
-	private StringBuilder buffer;
+	private final StringBuilder buffer;
 
 	/**
 	 * Initializes a <code>BufferSimpleWriter</code> with an initial buffer capacity

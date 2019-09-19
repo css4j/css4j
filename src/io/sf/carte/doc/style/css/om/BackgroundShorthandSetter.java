@@ -39,13 +39,13 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	private StringBuilder layerBuffer = null, miniLayerBuffer = null;
 	private int layerCount = 0;
 
-	private ValueList lstImage = ValueList.createCSValueList();
-	private ValueList lstPosition = ValueList.createCSValueList();
-	private ValueList lstSize = ValueList.createCSValueList();
-	private ValueList lstRepeat = ValueList.createCSValueList();
-	private ValueList lstClip = ValueList.createCSValueList();
-	private ValueList lstOrigin = ValueList.createCSValueList();
-	private ValueList lstAttachment = ValueList.createCSValueList();
+	private final ValueList lstImage = ValueList.createCSValueList();
+	private final ValueList lstPosition = ValueList.createCSValueList();
+	private final ValueList lstSize = ValueList.createCSValueList();
+	private final ValueList lstRepeat = ValueList.createCSValueList();
+	private final ValueList lstClip = ValueList.createCSValueList();
+	private final ValueList lstOrigin = ValueList.createCSValueList();
+	private final ValueList lstAttachment = ValueList.createCSValueList();
 
 	BackgroundShorthandSetter(BaseCSSStyleDeclaration style) {
 		super(style, "background");

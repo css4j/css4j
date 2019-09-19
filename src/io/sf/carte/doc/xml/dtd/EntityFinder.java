@@ -33,7 +33,7 @@ import io.sf.carte.uparser.TokenProducer;
  */
 public class EntityFinder {
 
-	private EntityResolver2 resolver;
+	private final EntityResolver2 resolver;
 
 	public EntityFinder(EntityResolver2 resolver) {
 		super();
@@ -63,7 +63,7 @@ public class EntityFinder {
 
 	private class DTDTokenHandler implements TokenHandler {
 
-		private Map<Integer, String> codePoint2Entity;
+		private final Map<Integer, String> codePoint2Entity;
 		private int mapCount = 0;
 		private final int mapInitialSize;
 

@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 
 abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMap {
 
-	private short nodeType;
+	private final short nodeType;
 	private final HashMap<String, T> attributeMap;
 	private final AbstractDOMNode.RawNodeList attributes;
 

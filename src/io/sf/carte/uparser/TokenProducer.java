@@ -980,8 +980,8 @@ public class TokenProducer {
 	}
 
 	private class StringParser extends AbstractSequenceParser {
-		private String string;
-		private int len;
+		private final String string;
+		private final int len;
 
 		StringParser(String string) {
 			super();

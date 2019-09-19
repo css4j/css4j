@@ -31,7 +31,7 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 
-	private LinkedList<MediaQuery> queryList = new LinkedList<MediaQuery>();
+	private final LinkedList<MediaQuery> queryList = new LinkedList<MediaQuery>();
 
 	private LinkedList<CSSParseException> queryErrorList = null;
 

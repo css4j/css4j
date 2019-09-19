@@ -31,10 +31,10 @@ class TransitionShorthandSetter extends ShorthandSetter {
 	private String cssText = null, minifiedCssText = null;
 	private int transitionsCount = 0;
 
-	private ValueList lstProperty = ValueList.createCSValueList();
-	private ValueList lstDuration = ValueList.createCSValueList();
-	private ValueList lstTiming = ValueList.createCSValueList();
-	private ValueList lstDelay = ValueList.createCSValueList();
+	private final ValueList lstProperty = ValueList.createCSValueList();
+	private final ValueList lstDuration = ValueList.createCSValueList();
+	private final ValueList lstTiming = ValueList.createCSValueList();
+	private final ValueList lstDelay = ValueList.createCSValueList();
 
 	TransitionShorthandSetter(BaseCSSStyleDeclaration style) {
 		super(style, "transition");

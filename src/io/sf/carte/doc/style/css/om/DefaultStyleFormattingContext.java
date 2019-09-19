@@ -25,7 +25,7 @@ public class DefaultStyleFormattingContext implements StyleFormattingContext {
 
 	private static final String indentingUnit = "    ";
 
-	private StringBuilder indentString = new StringBuilder(48);
+	private final StringBuilder indentString = new StringBuilder(48);
 
 	private CSSRule parentContextRule = null;
 

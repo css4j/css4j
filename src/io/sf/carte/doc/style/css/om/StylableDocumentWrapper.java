@@ -80,7 +80,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	private final Document document;
 
 	// Maps original DOM nodes to CSS-enabled nodes.
-	private Map<Node, CSSNode> nodemap = new HashMap<Node, CSSNode>();
+	private final Map<Node, CSSNode> nodemap = new HashMap<Node, CSSNode>();
 
 	private DocumentCSSStyleSheet mergedStyleSheet = null;
 
@@ -95,7 +95,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	/*
 	 * Default style set according to 'Default-Style' meta.
 	 */
-	private String metaDefaultStyleSet = "";
+	private final String metaDefaultStyleSet = "";
 
 	/*
 	 * Default referrer policy according to 'Referrer-Policy' header/meta.

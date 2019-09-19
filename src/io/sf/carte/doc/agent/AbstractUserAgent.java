@@ -50,16 +50,16 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private final EnumSet<Parser2.Flag> parserFlags = EnumSet.noneOf(Parser2.Flag.class);
 
-	private UserAgentErrorHandler errorHandler = new LogUserAgentErrorHandler();
+	private final UserAgentErrorHandler errorHandler = new LogUserAgentErrorHandler();
 
 	// Hostname -> Cookies
-	private Map<String, Set<Cookie>> cookieMap = new HashMap<String, Set<Cookie>>();
+	private final Map<String, Set<Cookie>> cookieMap = new HashMap<String, Set<Cookie>>();
 
-	private SimpleDateFormat cookieDateFormat = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz", Locale.ROOT);
+	private final SimpleDateFormat cookieDateFormat = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz", Locale.ROOT);
 
-	private CookieConfig globalConfig = new GlobalCookieConfig();
+	private final CookieConfig globalConfig = new GlobalCookieConfig();
 
-	private Map<String, Set<AuthenticationCredentials>> credentialMap = new HashMap<String, Set<AuthenticationCredentials>>();
+	private final Map<String, Set<AuthenticationCredentials>> credentialMap = new HashMap<String, Set<AuthenticationCredentials>>();
 
 	private String userAgentId = "Mozilla/4.0 (compatible; CSS4J)";
 

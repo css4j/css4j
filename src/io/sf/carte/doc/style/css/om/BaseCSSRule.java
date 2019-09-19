@@ -42,7 +42,7 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 
 	private final short ruleType;
 
-	private byte ruleOrigin;
+	private final byte ruleOrigin;
 
 	List<String> precedingComments = null;
 

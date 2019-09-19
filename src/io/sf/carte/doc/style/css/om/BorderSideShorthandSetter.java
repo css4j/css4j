@@ -22,9 +22,9 @@ import io.sf.carte.doc.style.css.property.ValueFactory;
  * <code>border-left</code> properties.
  */
 class BorderSideShorthandSetter extends ShorthandSetter {
-	private String pnameWidth;
-	private String pnameStyle;
-	private String pnameColor;
+	private final String pnameWidth;
+	private final String pnameStyle;
+	private final String pnameColor;
 
 	BorderSideShorthandSetter(BaseCSSStyleDeclaration style, String shorthandName, String side) {
 		super(style, shorthandName);

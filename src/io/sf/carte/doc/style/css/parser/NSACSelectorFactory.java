@@ -471,7 +471,7 @@ class NSACSelectorFactory implements NamespaceMap {
 
 	static class SiblingSelectorImpl extends AbstractSelector implements SiblingSelector {
 
-		private short type;
+		private final short type;
 
 		SimpleSelector siblingSelector = null;
 		Selector selector;

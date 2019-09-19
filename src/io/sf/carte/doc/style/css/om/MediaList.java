@@ -44,9 +44,9 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 
 	private static final MediaList allMediaSingleton;
 
-	private List<String> mediastringList; // list of individual media, empty if 'all'
+	private final List<String> mediastringList; // list of individual media, empty if 'all'
 
-	private List<String> mediaList; // all of the individual media in this list
+	private final List<String> mediaList; // all of the individual media in this list
 
 	private boolean allMedia;
 

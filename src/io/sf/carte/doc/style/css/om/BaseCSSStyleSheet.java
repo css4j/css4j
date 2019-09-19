@@ -78,9 +78,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	private String href = null;
 
-	private AbstractCSSRule ownerRule = null;
+	private final AbstractCSSRule ownerRule;
 
-	private byte sheetOrigin;
+	private final byte sheetOrigin;
 
 	CSSRuleArrayList cssRules = new CSSRuleArrayList();
 
@@ -1066,7 +1066,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 		private AbstractCSSRule currentRule = null;
 
-		private byte sheetOrigin;
+		private final byte sheetOrigin;
 
 		private final LinkedList<String> comments;
 

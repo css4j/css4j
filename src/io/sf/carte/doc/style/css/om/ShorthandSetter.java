@@ -56,23 +56,23 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 
 	final ValueFactory valueFactory;
 
-	private HashMap<String, StyleValue> mypropValue = new HashMap<String, StyleValue>();
+	private final HashMap<String, StyleValue> mypropValue = new HashMap<String, StyleValue>();
 
-	private LinkedList<String> mypropertyList = new LinkedList<String>();
+	private final LinkedList<String> mypropertyList = new LinkedList<String>();
 
-	private LinkedList<String> mypriorities = new LinkedList<String>();
+	private final LinkedList<String> mypriorities = new LinkedList<String>();
 
 	protected LexicalUnit currentValue = null;
 
-	private StringBuilder valueBuffer = new StringBuilder(40);
+	private final StringBuilder valueBuffer = new StringBuilder(40);
 
-	private StringBuilder miniValueBuffer = new StringBuilder(40);
+	private final StringBuilder miniValueBuffer = new StringBuilder(40);
 
 	/**
 	 * The values in the shorthand are attempted to set subproperty values in a certain order.
 	 * The properties that failed to be set to the tested value are stored here.
 	 */
-	private ArrayList<String> unassignedProperties = new ArrayList<String>(6);
+	private final ArrayList<String> unassignedProperties = new ArrayList<String>(6);
 
 	ShorthandSetter(BaseCSSStyleDeclaration style, String shorthandName) {
 		super();

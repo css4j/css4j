@@ -45,7 +45,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 	private String name = null;
 
-	private CSSRuleArrayList cssRules;
+	private final CSSRuleArrayList cssRules;
 
 	protected KeyframesRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, ExtendedCSSRule.KEYFRAMES_RULE, origin);
@@ -266,7 +266,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 	private class MyKeyframesHandler extends PropertyDocumentHandler implements KeyframesHandler {
 
 		private String name = null;
-		private CSSRuleArrayList cssRules = new CSSRuleArrayList();
+		private final CSSRuleArrayList cssRules = new CSSRuleArrayList();
 
 		private KeyframeRule currentRule = null;
 

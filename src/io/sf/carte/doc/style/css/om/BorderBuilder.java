@@ -22,7 +22,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	private boolean fullBorderImage = false; // All the border-image properties are available
 	private boolean hasBorderImage = false; // At least one border-image property is available
 
-	private Set<String> unusedSet = new HashSet<String>();
+	private final Set<String> unusedSet = new HashSet<String>();
 
 	BorderBuilder(BaseCSSStyleDeclaration parentStyle) {
 		super("border", parentStyle);

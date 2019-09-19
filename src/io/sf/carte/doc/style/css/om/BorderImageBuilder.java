@@ -25,7 +25,7 @@ import io.sf.carte.doc.style.css.property.ValueList;
  */
 class BorderImageBuilder extends ShorthandBuilder {
 
-	private StringBuilder bibuf = new StringBuilder(64);
+	private final StringBuilder bibuf = new StringBuilder(64);
 	private boolean noslice = true;
 
 	BorderImageBuilder(BaseCSSStyleDeclaration parentStyle) {

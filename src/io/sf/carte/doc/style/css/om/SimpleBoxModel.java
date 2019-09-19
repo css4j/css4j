@@ -1109,9 +1109,9 @@ abstract class SimpleBoxModel {
 
 	private class BoxEvaluator extends Evaluator {
 
-		private ComputedCSSStyle styledecl;
+		private final ComputedCSSStyle styledecl;
 		private final String propertyName;
-		private boolean useDeviceDocumentWidth;
+		private final boolean useDeviceDocumentWidth;
 
 		private BoxEvaluator(ComputedCSSStyle styledecl, String propertyName, boolean useDeviceDocumentWidth) {
 			super();

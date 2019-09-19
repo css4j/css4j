@@ -106,7 +106,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	private String targetMedium = null;
 
-	private Map<String, CSSCanvas> canvases = new HashMap<String, CSSCanvas>(3);
+	private final Map<String, CSSCanvas> canvases = new HashMap<String, CSSCanvas>(3);
 
 	public DOMDocument(DocumentType documentType) {
 		super(Node.DOCUMENT_NODE);
@@ -1374,7 +1374,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyXMLElement extends DOMElement {
 
-		private HashMap<String, String> idAttrNameMap = new HashMap<String, String>();
+		private final HashMap<String, String> idAttrNameMap = new HashMap<String, String>();
 
 		MyXMLElement(String localName, String namespaceURI) {
 			super(localName, namespaceURI);

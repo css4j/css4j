@@ -241,7 +241,7 @@ abstract class DOMNode implements CSSNode {
 
 	protected class MyNodeList implements NodeList {
 
-		private NodeList nodelist;
+		private final NodeList nodelist;
 
 		public MyNodeList(NodeList nlist) {
 			super();
@@ -266,7 +266,7 @@ abstract class DOMNode implements CSSNode {
 
 	protected class MyNamedNodeMap implements NamedNodeMap {
 
-		private NamedNodeMap map;
+		private final NamedNodeMap map;
 
 		public MyNamedNodeMap(NamedNodeMap map) {
 			super();

@@ -60,7 +60,7 @@ public class DOMWriter {
 
 	private String indentingUnit = "  ";
 
-	private StringBuilder indentString = new StringBuilder(48);
+	private final StringBuilder indentString = new StringBuilder(48);
 
 	private HashMap<Integer, String> entityMap = null;
 	private EntityResolver2 resolver = null;

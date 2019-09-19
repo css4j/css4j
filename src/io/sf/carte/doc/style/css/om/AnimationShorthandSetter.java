@@ -34,14 +34,14 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	private StringBuilder layerBuffer = null, miniLayerBuffer = null;
 	private int layerCount = 0;
 
-	private ValueList lstDuration = ValueList.createCSValueList();
-	private ValueList lstTimingFunction = ValueList.createCSValueList();
-	private ValueList lstDelay = ValueList.createCSValueList();
-	private ValueList lstIterationCount = ValueList.createCSValueList();
-	private ValueList lstDirection= ValueList.createCSValueList();
-	private ValueList lstFillMode = ValueList.createCSValueList();
-	private ValueList lstPlayState = ValueList.createCSValueList();
-	private ValueList lstName = ValueList.createCSValueList();
+	private final ValueList lstDuration = ValueList.createCSValueList();
+	private final ValueList lstTimingFunction = ValueList.createCSValueList();
+	private final ValueList lstDelay = ValueList.createCSValueList();
+	private final ValueList lstIterationCount = ValueList.createCSValueList();
+	private final ValueList lstDirection= ValueList.createCSValueList();
+	private final ValueList lstFillMode = ValueList.createCSValueList();
+	private final ValueList lstPlayState = ValueList.createCSValueList();
+	private final ValueList lstName = ValueList.createCSValueList();
 
 	AnimationShorthandSetter(BaseCSSStyleDeclaration style) {
 		super(style, "animation");

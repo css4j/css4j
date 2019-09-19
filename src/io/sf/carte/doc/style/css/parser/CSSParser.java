@@ -411,7 +411,7 @@ public class CSSParser implements Parser2 {
 		/**
 		 * Number of unclosed left parentheses at each operation level (up to <code>opDepthIndex</code>).
 		 */
-		private short[] opParenDepth = new short[32]; // Limited to 32 nested expressions
+		private final short[] opParenDepth = new short[32]; // Limited to 32 nested expressions
 
 		private DelegateHandler predicateHandler;
 
@@ -920,7 +920,7 @@ public class CSSParser implements Parser2 {
 
 		class MediaQueryDelegateHandler extends DelegateHandler {
 
-			private MediaQueryHandler handler;
+			private final MediaQueryHandler handler;
 			private byte stage = 0;
 			private boolean negativeQuery = false;
 			private boolean spaceFound = false;
@@ -1637,8 +1637,8 @@ public class CSSParser implements Parser2 {
 
 	private static class SACMediaListWrapper {
 
-		private SACMediaList mediaList;
-		private SACMediaListWrapper parent;
+		private final SACMediaList mediaList;
+		private final SACMediaListWrapper parent;
 
 		SACMediaListWrapper(SACMediaList mediaList, SACMediaListWrapper parent) {
 			super();
@@ -1665,10 +1665,10 @@ public class CSSParser implements Parser2 {
 
 		private final String blockRuleName;
 		private final boolean singleName;
-		private int offset;
+		private final int offset;
 		private byte stage = STAGE_WAIT_NAME;
 		private int curlyBracketDepth = 0;
-		private DeclarationTokenHandler declarationHandler;
+		private final DeclarationTokenHandler declarationHandler;
 
 		private static final byte STAGE_WAIT_NAME = 1;
 		private static final byte STAGE_WAIT_BLOCK_LIST = 2;
@@ -2145,8 +2145,8 @@ public class CSSParser implements Parser2 {
 	class SheetTokenHandler extends CSSTokenHandler {
 
 		CSSTokenHandler contextHandler;
-		private DeclarationTokenHandler declarationHandler;
-		private SelectorTokenHandler selectorHandler;
+		private final DeclarationTokenHandler declarationHandler;
+		private final SelectorTokenHandler selectorHandler;
 
 		private String ruleFirstPart = null;
 		private String ruleSecondPart = null;
@@ -5755,7 +5755,7 @@ public class CSSParser implements Parser2 {
 		int escapedTokenIndex = -1;
 		boolean parseError = false;
 
-		private InputSource source;
+		private final InputSource source;
 
 		CSSTokenHandler(InputSource source) {
 			super();

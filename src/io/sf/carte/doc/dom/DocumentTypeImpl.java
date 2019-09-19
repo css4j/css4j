@@ -22,9 +22,9 @@ import org.w3c.dom.Node;
  */
 class DocumentTypeImpl extends AbstractDOMNode implements DocumentType {
 
-	private String qualifiedName;
-	private String publicId;
-	private String systemId;
+	private final String qualifiedName;
+	private final String publicId;
+	private final String systemId;
 
 	public DocumentTypeImpl(String qualifiedName, String publicId, String systemId) {
 		super(Node.DOCUMENT_TYPE_NODE);

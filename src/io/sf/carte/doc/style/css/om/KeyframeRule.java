@@ -31,7 +31,7 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeRule {
 
-	private KeyframesRule parentRule;
+	private final KeyframesRule parentRule;
 
 	private String keyText;
 

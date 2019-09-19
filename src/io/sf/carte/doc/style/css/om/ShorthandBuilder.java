@@ -46,10 +46,10 @@ abstract class ShorthandBuilder {
 
 	private static final ShorthandDatabase shorthandDb = ShorthandDatabase.getInstance();
 	private final String shorthandName;
-	private BaseCSSStyleDeclaration parentStyle;
-	private String[] subp;
-	private Set<String> impPtySet = new TreeSet<String>();
-	private Set<String> ptySet = new TreeSet<String>();
+	private final BaseCSSStyleDeclaration parentStyle;
+	private final String[] subp;
+	private final Set<String> impPtySet = new TreeSet<String>();
+	private final Set<String> ptySet = new TreeSet<String>();
 
 	ShorthandBuilder(String shorthandName, BaseCSSStyleDeclaration parentStyle) {
 		super();

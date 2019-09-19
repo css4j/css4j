@@ -49,7 +49,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 
 	public enum FontFormat {
 		TRUETYPE, OPENTYPE, EMBEDDED_OPENTYPE, SVG, WOFF, WOFF2
-	};
+	}
 
 	protected final String DEFAULT_GENERIC_FONT_FAMILY = "serif";
 

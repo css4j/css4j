@@ -30,7 +30,7 @@ import io.sf.carte.doc.style.css.SheetErrorHandler;
 
 public class DefaultSheetErrorHandler implements SheetErrorHandler {
 
-	private ExtendedCSSStyleSheet<?> sheet;
+	private final ExtendedCSSStyleSheet<?> sheet;
 
 	private LinkedList<String> unknownRules = null;
 	private LinkedList<String> ignoredImports = null;

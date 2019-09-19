@@ -36,7 +36,7 @@ import io.sf.carte.doc.style.css.StyleDatabase;
  */
 public class DummyDeviceFactory extends AbstractDeviceFactory {
 
-	private StyleDatabase dummyDatabase = new DummyStyleDatabase();
+	private final StyleDatabase dummyDatabase = new DummyStyleDatabase();
 
 	public DummyDeviceFactory() {
 		super();

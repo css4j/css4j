@@ -362,13 +362,13 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	private class MyFontFeatureValuesHandler extends EmptyDocumentHandler implements FontFeatureValuesHandler {
 
 		private String[] fontFamily = null;
-		private CSSFontFeatureValuesMapImpl annotation = new CSSFontFeatureValuesMapImpl();
-		private CSSFontFeatureValuesMapImpl ornaments = new CSSFontFeatureValuesMapImpl();
-		private CSSFontFeatureValuesMapImpl stylistic = new CSSFontFeatureValuesMapImpl();
-		private CSSFontFeatureValuesMapImpl swash = new CSSFontFeatureValuesMapImpl();
-		private CSSFontFeatureValuesMapImpl characterVariant = new CSSFontFeatureValuesMapImpl();
-		private CSSFontFeatureValuesMapImpl styleset = new CSSFontFeatureValuesMapImpl();
-		private HashMap<String, CSSFontFeatureValuesMapImpl> mapmap = null;
+		private final CSSFontFeatureValuesMapImpl annotation = new CSSFontFeatureValuesMapImpl();
+		private final CSSFontFeatureValuesMapImpl ornaments = new CSSFontFeatureValuesMapImpl();
+		private final CSSFontFeatureValuesMapImpl stylistic = new CSSFontFeatureValuesMapImpl();
+		private final CSSFontFeatureValuesMapImpl swash = new CSSFontFeatureValuesMapImpl();
+		private final CSSFontFeatureValuesMapImpl characterVariant = new CSSFontFeatureValuesMapImpl();
+		private final CSSFontFeatureValuesMapImpl styleset = new CSSFontFeatureValuesMapImpl();
+		private final HashMap<String, CSSFontFeatureValuesMapImpl> mapmap = null;
 
 		private CSSFontFeatureValuesMap currentMap = null;
 
@@ -599,7 +599,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 	static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap {
 
-		private LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
+		private final LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
 		private List<String> precedingComments = null;
 
 		void addAll(CSSFontFeatureValuesMapImpl othermap) {
