@@ -187,6 +187,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 			}
 			this.userImportantSheet = createDocumentStyleSheet(ORIGIN_USER_IMPORTANT);
 			this.userNormalSheet = createDocumentStyleSheet(ORIGIN_USER);
+			userNormalSheet.getCssRules().ensureCapacity(cssSheet.getCssRules().getLength());
 			prioritySplit(cssSheet, userImportantSheet, userNormalSheet);
 		} else {
 			this.userImportantSheet = null;

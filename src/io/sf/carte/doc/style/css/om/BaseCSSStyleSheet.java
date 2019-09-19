@@ -82,7 +82,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	private final byte sheetOrigin;
 
-	CSSRuleArrayList cssRules = new CSSRuleArrayList();
+	final CSSRuleArrayList cssRules;
 
 	private int currentInsertionIndex = 0;
 
@@ -97,6 +97,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	private static final int MAX_IMPORT_RECURSION = 8; // Allows 6 nested imports
 
 	/**
+	 * Constructs a style sheet.
 	 * 
 	 * @param title
 	 *            the advisory title.
@@ -116,6 +117,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			this.destinationMedia = media;
 		}
 		sheetOrigin = origin;
+		cssRules = new CSSRuleArrayList(64);
 	}
 
 	protected void copyAllTo(BaseCSSStyleSheet myCopy) {
@@ -133,7 +135,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	protected void copyRulesTo(BaseCSSStyleSheet myCopy) {
-		myCopy.cssRules = new CSSRuleArrayList(cssRules.getLength());
+		myCopy.cssRules.ensureCapacity(cssRules.getLength());
 		Iterator<AbstractCSSRule> it = cssRules.iterator();
 		while (it.hasNext()) {
 			myCopy.cssRules.add(it.next().clone(myCopy));

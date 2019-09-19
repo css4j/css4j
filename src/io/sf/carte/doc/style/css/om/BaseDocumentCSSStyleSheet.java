@@ -83,7 +83,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 			throw new IllegalArgumentException("Incompatible target medium: " + targetMedium);
 		}
 		copyFieldsTo(myCopy);
-		myCopy.cssRules = new CSSRuleArrayList(cssRules.getLength());
+		myCopy.cssRules.ensureCapacity(cssRules.getLength());
 		Iterator<AbstractCSSRule> it = cssRules.iterator();
 		while (it.hasNext()) {
 			AbstractCSSRule rule = it.next();

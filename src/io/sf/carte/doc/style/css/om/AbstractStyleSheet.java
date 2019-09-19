@@ -29,7 +29,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
  */
 abstract public class AbstractStyleSheet implements StyleSheet, Cloneable {
 
-	private String advisoryTitle = null;
+	private String advisoryTitle;
 
 	/*
 	 * The title is in the constructor because it being intern is part of the
