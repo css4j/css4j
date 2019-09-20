@@ -9,7 +9,7 @@
 
  */
 
-package io.sf.carte.doc.style.css.parser;
+package io.sf.carte.doc.style.css.om;
 
 /**
  * Media predicate.
@@ -17,7 +17,14 @@ package io.sf.carte.doc.style.css.parser;
  * Represents a predicate (any condition excluding booleans AND, OR, NOT)
  * present in a media query.
  */
-public interface MediaPredicate extends BooleanCondition {
+abstract class MediaPredicate extends BooleanConditionImpl.Predicate {
+
+	// static final int MEDIA_FEATURE = 0;
+	static final int MEDIA_TYPE = 1;
+
+	protected MediaPredicate(String name) {
+		super(name);
+	}
 
 	/**
 	 * Check whether the given predicate is partially or totaly contained by this
@@ -27,9 +34,13 @@ public interface MediaPredicate extends BooleanCondition {
 	 * The opposite may not be true.
 	 * 
 	 * @param otherPredicate the other predicate to check against.
+	 * @param negatedQuery   <code>0</code> if it is a direct match, <code>1</code>
+	 *                       if the this predicate is reverse (negated),
+	 *                       <code>2</code> if the given predicate is negated,
+	 *                       <code>3</code> if both are negated.
 	 * @return <code>true</code> if the other predicate is partially or totally
 	 *         contained by this one.
 	 */
-	boolean matches(MediaPredicate otherPredicate);
+	abstract boolean matches(MediaPredicate otherPredicate, byte negatedQuery);
 
 }

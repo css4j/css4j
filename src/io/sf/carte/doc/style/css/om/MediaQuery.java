@@ -24,7 +24,6 @@ import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
-import io.sf.carte.doc.style.css.parser.MediaPredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.CalcValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
@@ -345,64 +344,129 @@ class MediaQuery {
 		return rangeFeatureSet.contains(string);
 	}
 
+	/**
+	 * Check whether the given query is partially or totaly contained by this one.
+	 * <p>
+	 * If query A matches B, then if a medium matches B it will also match A. The
+	 * opposite may not be true.
+	 * 
+	 * @param other the other query to check against.
+	 * @return <code>true</code> if the other query is partially or totally
+	 *         contained by this one.
+	 */
 	boolean matches(MediaQuery other) {
-		if (mediaType == null) {
-			if (other.mediaType != null)
-				return false;
-		} else if (!mediaType.equals(other.mediaType))
+		boolean isAllMedia = mediaType == null || "all".equals(mediaType);
+		if (!isAllMedia && !mediaType.equals(other.mediaType)) {
 			return false;
+		}
 		if (negativeQuery != other.negativeQuery)
 			return false;
 		if (predicate == null) {
-			return other.predicate == null;
+			return other.predicate == null || (isAllMedia && !negativeQuery);
 		} else if (other.predicate == null) {
 			return false;
 		}
-		return matches(predicate, other.predicate);
+		byte negatedQuery;
+		if (negativeQuery) {
+			if (!other.negativeQuery) {
+				negatedQuery = 1;
+			} else {
+				negatedQuery = 0;
+			}
+		} else if (other.negativeQuery) {
+			negatedQuery = 2;
+		} else {
+			negatedQuery = 0;
+		}
+		return matches(predicate, other.predicate, negatedQuery);
 	}
 
-	private static boolean matches(BooleanCondition condition, BooleanCondition otherCondition) {
-		if (condition.getType() != otherCondition.getType()) {
-			return false;
-		}
+	private static boolean matches(BooleanCondition condition, BooleanCondition otherCondition, byte negatedQuery) {
 		switch (condition.getType()) {
 		case AND:
-			HashSet<BooleanCondition> otherSet = new HashSet<BooleanCondition>(
-					((BooleanConditionImpl.GroupCondition) otherCondition).getSubConditions());
 			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions()
 					.iterator();
-			toploop: while (it.hasNext()) {
+			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
-				Iterator<BooleanCondition> otherIt = otherSet.iterator();
-				while (otherIt.hasNext()) {
-					if (matches(subcond, otherIt.next())) {
-						otherIt.remove();
-						continue toploop;
-					}
+				if (!matches(subcond, otherCondition, negatedQuery)) {
+					return false;
 				}
-				return false;
 			}
 			return true;
-		case NOT:
-			return matches(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(),
-					((BooleanConditionImpl.NotCondition) otherCondition).getNestedCondition());
 		case OR:
 			it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
-				Iterator<BooleanCondition> otherIt = ((BooleanConditionImpl.GroupCondition) otherCondition)
-						.getSubConditions().iterator();
-				while (otherIt.hasNext()) {
-					if (matches(subcond, otherIt.next())) {
-						return true;
-					}
+				if (matches(subcond, otherCondition, negatedQuery)) {
+					return true;
 				}
 			}
 			break;
-		default:
-			return ((MediaPredicate) condition).matches((MediaPredicate) otherCondition);
+		case PREDICATE:
+			MediaPredicate predicate = (MediaPredicate) condition;
+			if (predicate.getPredicateType() == MediaPredicate.MEDIA_TYPE) {
+				// Ignore. We already checked this with the mediaType field.
+				return true;
+			}
+			switch (otherCondition.getType()) {
+			case PREDICATE:
+				return predicate.matches((MediaPredicate) otherCondition, negatedQuery);
+			case AND:
+				it = ((BooleanConditionImpl.GroupCondition) otherCondition).getSubConditions().iterator();
+				while (it.hasNext()) {
+					BooleanCondition subcond = it.next();
+					if (matches(condition, subcond, negatedQuery)) {
+						// left-side condition is met
+						return true;
+					}
+				}
+				break;
+			case OR:
+				it = ((BooleanConditionImpl.GroupCondition) otherCondition).getSubConditions().iterator();
+				while (it.hasNext()) {
+					BooleanCondition subcond = it.next();
+					if (!matches(condition, subcond, negatedQuery)) {
+						return false;
+					}
+				}
+				// All left-side conditions are met
+				return true;
+			case NOT:
+				if (negatedQuery == 0) {
+					negatedQuery = 2;
+				} else if (negatedQuery == 1) {
+					negatedQuery = 3;
+				} else if (negatedQuery == 2) {
+					negatedQuery = 0;
+				} else { // 3
+					negatedQuery = 1;
+				}
+				return matches(condition, ((BooleanConditionImpl.NotCondition) otherCondition).getNestedCondition(),
+						negatedQuery);
+			}
+			break;
+		case NOT:
+			if (negatedQuery == 0) {
+				negatedQuery = 1;
+			} else if (negatedQuery == 1) {
+				negatedQuery = 0;
+			} else if (negatedQuery == 2) {
+				negatedQuery = 3;
+			} else { // 3
+				negatedQuery = 2;
+			}
+			return matches(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(), otherCondition,
+					negatedQuery);
 		}
 		return false;
+	}
+
+	boolean isAllMedia() {
+		return (mediaType == null || "all".equalsIgnoreCase(mediaType)) && !negativeQuery && predicate == null;
+	}
+
+	boolean isNotAllMedia() {
+		return mediaType != null && "all".equalsIgnoreCase(mediaType) && negativeQuery && predicate == null;
 	}
 
 	public String getMedia() {

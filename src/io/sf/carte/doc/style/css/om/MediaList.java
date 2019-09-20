@@ -333,7 +333,7 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	 * 
 	 * @param otherMedia
 	 *            the other media list to test.
-	 * @return <code>true</code> if the other media contains any media which applies to this
+	 * @return <code>true</code> if the other list contains any media which belongs to this
 	 *         list, <code>false</code> otherwise.
 	 */
 	@Override
@@ -343,9 +343,6 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		}
 		if (otherMedia == null) {
 			return !isNotAllMedia(); // null list handled as "all"
-		}
-		if (otherMedia.isAllMedia()) {
-			return true;
 		}
 		int sz = otherMedia.getLength();
 		for (int i = 0; i < sz; i++) {

@@ -64,6 +64,9 @@ public interface MediaQueryList extends MediaList {
 
 	/**
 	 * Does the given media list contain any media present in this list?
+	 * <p>
+	 * If query A matches B, then if a medium matches B it will also match A. The
+	 * opposite may not be true.
 	 * 
 	 * @param otherMedia the other media list to test.
 	 * @return <code>true</code> if the other media contains any media which applies

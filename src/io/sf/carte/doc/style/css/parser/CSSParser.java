@@ -558,11 +558,12 @@ public class CSSParser implements Parser2 {
 						unexpectedCharError(index, codepoint);
 					}
 				}
-				if (opParenDepth[opDepthIndex] == 0 && currentCond != null
-						&& currentCond.getParentCondition() != null) {
+				if (opParenDepth[opDepthIndex] == 0 && currentCond != null) {
 					if (opDepthIndex != 0) {
 						opDepthIndex--;
-						currentCond = currentCond.getParentCondition();
+						if (currentCond.getParentCondition() != null) {
+							currentCond = currentCond.getParentCondition();
+						}
 					}
 				}
 				prevcp = codepoint;

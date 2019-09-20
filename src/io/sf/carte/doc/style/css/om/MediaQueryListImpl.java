@@ -11,8 +11,10 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import org.w3c.css.sac.CSSParseException;
 import org.w3c.dom.DOMException;
@@ -26,7 +28,6 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.parser.MediaQueryHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
@@ -161,6 +162,9 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 
 	/**
 	 * Does the given media list contain any media present in this list?
+	 * <p>
+	 * If query list A matches B, then if a medium matches B it will also match A.
+	 * The opposite may not be true.
 	 * 
 	 * @param otherMedia the other media list to test.
 	 * @return <code>true</code> if the other media contains any media which applies
@@ -174,14 +178,14 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		if (otherMedia == null) {
 			return !isNotAllMedia(); // null list handled as "all"
 		}
-		if (otherMedia.isAllMedia()) {
-			return true;
-		}
 		MediaQueryListImpl otherqlist;
 		if (otherMedia.getClass() == MediaQueryListImpl.class) {
 			otherqlist = (MediaQueryListImpl) otherMedia;
-		} else {
+		} else if (otherMedia.getClass() == UnmodifiableMediaQueryList.class) {
 			otherqlist = ((UnmodifiableMediaQueryList) otherMedia).getEnclosingInstance();
+		} else {
+			// Old implementation
+			return oldMatch(otherMedia);
 		}
 		Iterator<MediaQuery> it = queryList.iterator();
 		while (it.hasNext()) {
@@ -192,6 +196,23 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 				if (query.matches(othermq)) {
 					return true;
 				}
+			}
+		}
+		return false;
+	}
+
+	private boolean oldMatch(MediaQueryList otherMedia) {
+		int sz = getLength();
+		HashSet<String> mediastringList = new HashSet<String>(sz);
+		for (int i = 0; i < sz; i++) {
+			String item = item(i).toLowerCase(Locale.ROOT);
+			mediastringList.add(item);
+		}
+		int osz = otherMedia.getLength();
+		for (int i = 0; i < osz; i++) {
+			String item = otherMedia.item(i).toLowerCase(Locale.ROOT);
+			if (mediastringList.contains(item)) {
+				return true;
 			}
 		}
 		return false;
@@ -220,7 +241,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 
 	@Override
 	public boolean isNotAllMedia() {
-		return queryList.isEmpty() || invalidQueryList;
+		return queryList.isEmpty() || invalidQueryList || (queryList.size() == 1 && queryList.get(0).isNotAllMedia());
 	}
 
 	/**
@@ -424,8 +445,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 	 */
 	boolean parse(CSSParser parser, String mediaQueryString, Node owner) {
 		invalidQueryList = false;
-		MediaQueryHandler qhandler = new MyMediaQueryHandler(owner);
+		MyMediaQueryHandler qhandler = new MyMediaQueryHandler(owner);
 		parser.parseMediaQuery(mediaQueryString, new MediaConditionFactoryImpl(), qhandler);
+		if (qhandler.allMedia) {
+			queryList.clear();
+		}
 		return !invalidQueryList;
 	}
 
@@ -433,6 +457,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		private MediaQuery currentQuery;
 		private boolean invalidQuery = false;
 		private boolean compatQuery = false;
+		private boolean allMedia = false;
 		private final Node ownerNode;
 
 		MyMediaQueryHandler(Node ownerNode) {
@@ -477,6 +502,9 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 				queryList.add(currentQuery);
 				if (invalidQueryList && !compatQuery) {
 					invalidQueryList = false;
+				}
+				if (currentQuery.isAllMedia()) {
+					allMedia = true;
 				}
 			}
 			currentQuery = null;

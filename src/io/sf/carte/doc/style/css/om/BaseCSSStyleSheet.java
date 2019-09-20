@@ -1545,11 +1545,13 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Does the given SAC media list contain any media present in this list?
+	 * Does the given SAC media list contain any media present in
+	 * <code>media</code>?
 	 * 
+	 * @param media    the media list to match to.
 	 * @param sacMedia the SAC media list to test.
 	 * @return <code>true</code> if the SAC media contains any media which applies
-	 *         to this list, <code>false</code> otherwise.
+	 *         to <code>media</code> list, <code>false</code> otherwise.
 	 */
 	boolean match(MediaQueryList media, SACMediaList sacMedia) {
 		if (media.isAllMedia()) {

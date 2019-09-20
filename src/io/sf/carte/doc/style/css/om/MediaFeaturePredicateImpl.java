@@ -14,17 +14,17 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
+import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
-import io.sf.carte.doc.style.css.parser.MediaPredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
- * Media Feature predicate implementation.
+ * Media feature predicate implementation.
  * 
  */
-class MediaFeaturePredicateImpl extends BooleanConditionImpl.Predicate implements MediaFeaturePredicate {
+class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePredicate {
 
 	private ExtendedCSSPrimitiveValue value1;
 	private ExtendedCSSPrimitiveValue value2;
@@ -65,7 +65,7 @@ class MediaFeaturePredicateImpl extends BooleanConditionImpl.Predicate implement
 	}
 
 	@Override
-	public boolean matches(MediaPredicate otherPredicate) {
+	public boolean matches(MediaPredicate otherPredicate, byte negatedQuery) {
 		if (getPredicateType() != ((BooleanConditionImpl.Predicate) otherPredicate).getPredicateType()) {
 			return false;
 		}
@@ -93,7 +93,11 @@ class MediaFeaturePredicateImpl extends BooleanConditionImpl.Predicate implement
 				if (feature.startsWith("device-")) {
 					feature = feature.substring(7);
 				}
-				type = MediaQuery.FEATURE_EQ;
+				if (value1 != null) {
+					type = MediaQuery.FEATURE_EQ;
+				} else {
+					type = MediaQuery.FEATURE_GT;
+				}
 			}
 		}
 		if (oType == MediaQuery.FEATURE_PLAIN) {
@@ -114,17 +118,36 @@ class MediaFeaturePredicateImpl extends BooleanConditionImpl.Predicate implement
 				if (oFeature.startsWith("device-")) {
 					oFeature = oFeature.substring(7);
 				}
-				oType = MediaQuery.FEATURE_EQ;
+				if (other.value1 != null) {
+					oType = MediaQuery.FEATURE_EQ;
+				} else {
+					oType = MediaQuery.FEATURE_GT;
+				}
 			}
 		}
 		if (!feature.equals(oFeature)) {
 			return false;
+		}
+		// Negate condition?
+		if (negatedQuery == 2) {
+			oType = negateType(oType);
+		} else if (negatedQuery == 1) {
+			type = negateType(type);
 		}
 		// Normalize type
 		ExtendedCSSPrimitiveValue otherVal2 = other.value2;
 		boolean noeq1 = false;
 		boolean noeq2 = false;
 		switch (type) {
+		case MediaQuery.FEATURE_EQ:
+			if (value1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
+				if (other.value1 != null && other.value1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+						&& value1.getStringValue().equalsIgnoreCase(other.value1.getStringValue())) {
+					return negatedQuery == 0 || negatedQuery == 3;
+				}
+				return negatedQuery == 1;
+			}
+			break;
 		case MediaQuery.FEATURE_LT:
 			if (oType == MediaQuery.FEATURE_LE) {
 				oType = MediaQuery.FEATURE_LT;
@@ -286,38 +309,54 @@ class MediaFeaturePredicateImpl extends BooleanConditionImpl.Predicate implement
 			return false;
 		}
 		// Values
+		float fval1;
+		short pType = CSSPrimitiveValue.CSS_NUMBER;
 		if (value1 == null) {
 			// Boolean
-			return other.value1 == null;
-		} else if (other.value1 == null) {
-			return false;
+			if (other.value1 == null) {
+				boolean negated = negatedQuery == 1 || negatedQuery == 2;
+				return !negated;
+			}
+			fval1 = 0f;
+		} else {
+			pType = value1.getPrimitiveType();
+			fval1 = value1.getFloatValue(pType);
 		}
-		short pType = value1.getPrimitiveType();
-		float fval1 = value1.getFloatValue(pType);
 		float ofval1;
-		try {
-			ofval1 = other.value1.getFloatValue(pType);
-		} catch (DOMException e) {
-			return false;
+		if (other.value1 == null) {
+			ofval1 = 0f;
+		} else {
+			try {
+				ofval1 = other.value1.getFloatValue(pType);
+			} catch (DOMException e) {
+				boolean negated = negatedQuery == 1 || negatedQuery == 2;
+				return negated;
+			}
 		}
 		float fval2 = Float.NaN;
 		float ofval2 = Float.NaN;
 		if (value2 != null) {
 			if (otherVal2 == null) {
-				return false; // That should never happen
+				boolean negated = negatedQuery == 1 || negatedQuery == 2;
+				return negated; // That should never happen
 			}
 			pType = value2.getPrimitiveType();
 			fval2 = value2.getFloatValue(pType);
 			try {
 				ofval2 = otherVal2.getFloatValue(pType);
 			} catch (DOMException e) {
-				return false;
+				boolean negated = negatedQuery == 1 || negatedQuery == 2;
+				return negated;
 			}
 		}
 		//
 		switch (type) {
 		case MediaQuery.FEATURE_EQ:
-			return MediaQuery.floatEquals(fval1, ofval1);
+			boolean negated = negatedQuery == 1 || negatedQuery == 2;
+			if (MediaQuery.floatEquals(fval1, ofval1)) {
+				return !negated;
+			}
+			return negated;
 		case MediaQuery.FEATURE_LT:
 		case MediaQuery.FEATURE_LE:
 			return noeq1 ? fval1 > ofval1 : fval1 >= ofval1;
@@ -341,6 +380,48 @@ class MediaFeaturePredicateImpl extends BooleanConditionImpl.Predicate implement
 		default:
 			return false;
 		}
+	}
+
+	private static byte negateType(byte type) {
+		switch (type) {
+		case MediaQuery.FEATURE_LT:
+			type = MediaQuery.FEATURE_GE;
+			break;
+		case MediaQuery.FEATURE_LE:
+			type = MediaQuery.FEATURE_GT;
+			break;
+		case MediaQuery.FEATURE_GT:
+			type = MediaQuery.FEATURE_LE;
+			break;
+		case MediaQuery.FEATURE_GE:
+			type = MediaQuery.FEATURE_LT;
+			break;
+		case MediaQuery.FEATURE_LE_AND_LE:
+			type = MediaQuery.FEATURE_GT_AND_GT;
+			break;
+		case MediaQuery.FEATURE_LE_AND_LT:
+			type = MediaQuery.FEATURE_GT_AND_GE;
+			break;
+		case MediaQuery.FEATURE_LT_AND_LE:
+			type = MediaQuery.FEATURE_GE_AND_GT;
+			break;
+		case MediaQuery.FEATURE_LT_AND_LT:
+			type = MediaQuery.FEATURE_GE_AND_GE;
+			break;
+		case MediaQuery.FEATURE_GE_AND_GE:
+			type = MediaQuery.FEATURE_LT_AND_LT;
+			break;
+		case MediaQuery.FEATURE_GE_AND_GT:
+			type = MediaQuery.FEATURE_LT_AND_LE;
+			break;
+		case MediaQuery.FEATURE_GT_AND_GE:
+			type = MediaQuery.FEATURE_LE_AND_LT;
+			break;
+		case MediaQuery.FEATURE_GT_AND_GT:
+			type = MediaQuery.FEATURE_LE_AND_LE;
+			break;
+		}
+		return type;
 	}
 
 	@Override
