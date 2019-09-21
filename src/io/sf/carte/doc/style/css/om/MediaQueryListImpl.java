@@ -172,11 +172,14 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 	 */
 	@Override
 	public boolean matches(MediaQueryList otherMedia) {
-		if (isAllMedia()) {
-			return true;
-		}
 		if (otherMedia == null) {
 			return !isNotAllMedia(); // null list handled as "all"
+		}
+		if (otherMedia.isNotAllMedia()) {
+			return false;
+		}
+		if (isAllMedia()) {
+			return true;
 		}
 		MediaQueryListImpl otherqlist;
 		if (otherMedia.getClass() == MediaQueryListImpl.class) {
@@ -241,7 +244,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 
 	@Override
 	public boolean isNotAllMedia() {
-		return queryList.isEmpty() || invalidQueryList || (queryList.size() == 1 && queryList.get(0).isNotAllMedia());
+		return invalidQueryList || (queryList.size() == 1 && queryList.get(0).isNotAllMedia());
 	}
 
 	/**
@@ -499,7 +502,9 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		@Override
 		public void endQuery() {
 			if (!invalidQuery) {
-				queryList.add(currentQuery);
+				if (!currentQuery.isNotAllMedia() || !containsNotAll()) {
+					queryList.add(currentQuery);
+				}
 				if (invalidQueryList && !compatQuery) {
 					invalidQueryList = false;
 				}
@@ -510,6 +515,16 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 			currentQuery = null;
 			invalidQuery = false;
 			compatQuery = false;
+		}
+
+		private boolean containsNotAll() {
+			Iterator<MediaQuery> it = queryList.iterator();
+			while (it.hasNext()) {
+				if (it.next().isNotAllMedia()) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		@Override

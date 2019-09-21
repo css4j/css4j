@@ -101,13 +101,29 @@ public class MediaListTest {
 	}
 
 	@Test
-	public void testMatchString() {
+	public void testMatchesString() {
 		MediaList list = MediaList.createMediaList();
 		assertTrue(list.matches("all", null));
 		assertTrue(list.matches("screen", null));
 		list.setMediaText("print, screen");
 		assertTrue(list.matches("screen", null));
 		assertFalse(list.matches("handheld", null));
+	}
+
+	@Test
+	public void testMatchesMediaQuerList() {
+		MediaList list = MediaList.createMediaList();
+		MediaList otherList = MediaList.createMediaList();
+		assertTrue(list.matches(otherList));
+		otherList.setMediaText("all");
+		assertTrue(list.matches(otherList));
+		otherList.setMediaText("print, screen");
+		assertTrue(list.matches(otherList));
+		assertFalse(otherList.matches(list));
+		list.setMediaText("print, screen");
+		assertTrue(list.matches(otherList));
+		otherList.setMediaText("screen");
+		assertTrue(list.matches(otherList));
 	}
 
 	@Test

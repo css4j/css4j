@@ -60,6 +60,20 @@ public class MediaQueryTest {
 		assertEquals("not all", mql.getMedia());
 		assertEquals("not all", mql.getMinifiedMedia());
 		//
+		mql = createMediaQueryList("not all, not all");
+		assertFalse(mql.isAllMedia());
+		assertTrue(mql.isNotAllMedia());
+		assertFalse(mql.hasErrors());
+		assertEquals("not all", mql.getMedia());
+		assertEquals("not all", mql.getMinifiedMedia());
+		//
+		mql = createMediaQueryList("not all, screen");
+		assertFalse(mql.isAllMedia());
+		assertFalse(mql.isNotAllMedia());
+		assertFalse(mql.hasErrors());
+		assertEquals("not all,screen", mql.getMedia());
+		assertEquals("not all,screen", mql.getMinifiedMedia());
+		//
 		mql = createMediaQueryList("all");
 		assertTrue(mql.isAllMedia());
 		assertFalse(mql.hasErrors());
@@ -459,7 +473,15 @@ public class MediaQueryTest {
 	@Test
 	public void testMatch() {
 		MediaQueryList mql = createMediaQueryList("all");
-		MediaQueryList mql2 = createMediaQueryList("all and (color) and (min-width:600px)");
+		MediaQueryList mql2 = createMediaQueryList("all");
+		assertFalse(mql.isNotAllMedia());
+		assertTrue(mql.isAllMedia());
+		assertFalse(mql.hasErrors());
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		assertTrue(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("all and (color) and (min-width:600px)");
 		assertFalse(mql.equals(mql2));
 		assertTrue(mql.matches(mql2));
 		assertFalse(mql2.matches(mql));
@@ -470,6 +492,54 @@ public class MediaQueryTest {
 		assertFalse(mql2.matches(mql));
 		//
 		mql2 = createMediaQueryList("screen and (color) and (min-width:600px)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+	}
+
+	@Test
+	public void testMatchNotAll() {
+		MediaQueryList mql = createMediaQueryList("all");
+		MediaQueryList mql2 = createMediaQueryList("not all");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+		//
+		mql = createMediaQueryList("not all");
+		assertTrue(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("all");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("screen");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("not screen");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+	}
+
+	@Test
+	public void testMatchNotAll2() {
+		MediaQueryList mql = createMediaQueryList("not screen");
+		MediaQueryList mql2 = createMediaQueryList("not screen");
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		assertTrue(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("screen");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("print");
 		assertFalse(mql.equals(mql2));
 		assertTrue(mql.matches(mql2));
 		assertFalse(mql2.matches(mql));
@@ -2415,7 +2485,10 @@ public class MediaQueryTest {
 		assertTrue(BaseCSSStyleSheetFactory.isPlainMediaList("screen, tv"));
 		assertTrue(BaseCSSStyleSheetFactory.isPlainMediaList("print"));
 		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("not screen"));
+		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("not all"));
 		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("screen and (color)"));
+		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("(color)"));
+		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("(orientation:portrait)"));
 	}
 
 	private MediaQueryList createMediaQueryList(String media) {

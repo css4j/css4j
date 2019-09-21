@@ -355,14 +355,27 @@ class MediaQuery {
 	 *         contained by this one.
 	 */
 	boolean matches(MediaQuery other) {
-		boolean isAllMedia = mediaType == null || "all".equals(mediaType);
-		if (!isAllMedia && !mediaType.equals(other.mediaType)) {
+		if (other.isNotAllMedia()) {
 			return false;
 		}
-		if (negativeQuery != other.negativeQuery)
+		boolean isAllMedium = (mediaType == null || "all".equals(mediaType));
+		if (negativeQuery) {
+			if (isAllMedium) {
+				if (predicate == null) {
+					return false;
+				}
+			} else if (mediaType.equals(other.mediaType)) {
+				if (!other.negativeQuery) {
+					return false;
+				}
+			} else if (other.negativeQuery) {
+				return false;
+			}
+		} else if (!isAllMedium && (other.negativeQuery || !mediaType.equals(other.mediaType))) {
 			return false;
+		}
 		if (predicate == null) {
-			return other.predicate == null || (isAllMedia && !negativeQuery);
+			return true;
 		} else if (other.predicate == null) {
 			return false;
 		}

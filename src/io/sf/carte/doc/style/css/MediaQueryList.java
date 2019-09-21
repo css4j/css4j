@@ -23,30 +23,33 @@ import io.sf.carte.doc.agent.CSSCanvas;
 public interface MediaQueryList extends MediaList {
 
 	/**
-	 * Get the serialized form of the associated media query list.
+	 * Get the serialized form of this media query list.
 	 * 
-	 * @return the serialized form of the associated media query list.
+	 * @return the serialized form of this media query list.
 	 */
 	String getMedia();
 
 	/**
-	 * Get a minified serialized form of the associated media query list.
+	 * Get a minified serialized form of this media query list.
 	 * 
-	 * @return the minified serialized form of the associated media query list.
+	 * @return the minified serialized form of this media query list.
 	 */
 	String getMinifiedMedia();
 
 	/**
 	 * Is this an all-media list?
 	 * 
-	 * @return <code>true</code> if this list matches all media, <code>false</code> otherwise.
+	 * @return <code>true</code> if this list matches all media, <code>false</code>
+	 *         otherwise.
 	 */
 	boolean isAllMedia();
 
 	/**
-	 * Determine if this list is composed only of queries that evaluate to <code>not all</code>.
+	 * Determine if this list is composed only of queries that evaluate to
+	 * <code>not all</code>.
 	 * 
-	 * @return <code>true</code> if this list matches no media, <code>false</code> otherwise.
+	 * @return <code>true</code> if this list matches no media, <code>false</code>
+	 *         otherwise.
 	 */
 	boolean isNotAllMedia();
 
@@ -57,8 +60,8 @@ public interface MediaQueryList extends MediaList {
 	 *            the lowercase name of the medium to test for.
 	 * @param canvas
 	 *            the canvas where the document is to be rendered.
-	 * @return <code>true</code> if the associated media query list matches the state of the rendered
-	 *         Document and <code>false</code> if it does not.
+	 * @return <code>true</code> if the associated media query list matches the state
+	 *         of the rendered Document and <code>false</code> if it does not.
 	 */
 	boolean matches(String medium, CSSCanvas canvas);
 
@@ -77,8 +80,8 @@ public interface MediaQueryList extends MediaList {
 	/**
 	 * Did this media query list produce errors when being parsed ?
 	 * 
-	 * @return <code>true</code> if this list come from a media string that produced errors when
-	 *         parsed, <code>false</code> otherwise.
+	 * @return <code>true</code> if this list come from a media string that produced
+	 *         errors when parsed, <code>false</code> otherwise.
 	 */
 	boolean hasErrors();
 
@@ -91,8 +94,8 @@ public interface MediaQueryList extends MediaList {
 	List<CSSParseException> getExceptions();
 
 	/**
-	 * Appends a listener to the list of media query list listeners, unless it is already in
-	 * that list.
+	 * Appends a listener to the list of media query list listeners, unless it is
+	 * already in that list.
 	 * 
 	 * @param listener
 	 *            the listener to be appended.
