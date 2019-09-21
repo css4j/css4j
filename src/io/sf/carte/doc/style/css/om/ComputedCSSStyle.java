@@ -290,7 +290,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				try {
 					value = absoluteValue(property, value, false);
 				} catch (DOMException e) {
-					computedStyleError(property, value.getCssText(), e.getMessage());
+					computedStyleError(property, value.getCssText(), null, e);
 					value = null;
 				}
 				if (value == null) {
@@ -587,7 +587,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 			} else {
 				ValueFactory factory = new ValueFactory();
-				StyleValue value = factory.parseProperty(attrvalue);
+				StyleValue value;
+				try {
+					value = factory.parseProperty(attrvalue);
+				} catch (DOMException e) {
+					DOMException ex = new DOMException(e.code, "Error parsing attribute: " + attrvalue);
+					ex.initCause(e);
+					throw ex;
+				}
 				if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 					PrimitiveValue pri;
 					// Prevent circular dependencies.
@@ -683,7 +690,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		attrValueStack.clear();
 	}
 
-	private PrimitiveValue attrValueOfType(PrimitiveValue value, String type) {
+	private PrimitiveValue attrValueOfType(PrimitiveValue value, String type) throws DOMException {
 		if ("color".equalsIgnoreCase(type)) {
 			value = colorValue("", value);
 			if (value.getPrimitiveType() == CSSPrimitiveValue.CSS_RGBCOLOR) {
@@ -735,9 +742,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 							return NumberValue.createCSSNumberValue(expectedType, value.getFloatValue(ptype));
 						} else if (NumberValue.isAngleUnitType(expectedType)) {
 							return NumberValue.createCSSNumberValue(expectedType, value.getFloatValue(ptype));
-						} else if (expectedType == CSSPrimitiveValue.CSS_S || expectedType == CSSPrimitiveValue.CSS_MS) {
+						} else if (expectedType == CSSPrimitiveValue.CSS_S
+								|| expectedType == CSSPrimitiveValue.CSS_MS) {
 							return NumberValue.createCSSNumberValue(expectedType, value.getFloatValue(ptype));
-						} else if (expectedType == CSSPrimitiveValue.CSS_HZ || expectedType == CSSPrimitiveValue.CSS_KHZ) {
+						} else if (expectedType == CSSPrimitiveValue.CSS_HZ
+								|| expectedType == CSSPrimitiveValue.CSS_KHZ) {
 							return NumberValue.createCSSNumberValue(expectedType, value.getFloatValue(ptype));
 						}
 						return null;
@@ -1097,7 +1106,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			try {
 				cssSize.getFloatValue(CSSPrimitiveValue.CSS_PT);
 			} catch (DOMException e) {
-				reportFontSizeError(cssSize, "Error converting to points");
+				String cssText = cssSize.getCssText();
+				computedStyleError("font-size", cssText, "Error converting to points.", e);
 				sz = getInitialFontSize();
 				break;
 			}
@@ -1234,7 +1244,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				String familyName = getUsedFontFamily();
 				sz = getFontSizeFromIdentifier(familyName, sizeIdentifier);
 			} catch (DOMException e) {
-				computedStyleError("font-size", sizeIdentifier, "Unknown identifier");
+				computedStyleError("font-size", sizeIdentifier, "Unknown identifier", e);
 				sz = getInitialFontSize();
 			}
 			break;
@@ -1242,7 +1252,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			try {
 				sz = cssSize.getFloatValue(CSSPrimitiveValue.CSS_PT);
 			} catch (DOMException e) {
-				reportFontSizeError(cssSize, e.getMessage());
+				String cssText = cssSize.getCssText();
+				computedStyleError("font-size", cssText, null, e);
 				sz = getInitialFontSize();
 			}
 		}
@@ -1756,7 +1767,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private void computedStyleError(String propertyName, String propertyValue, String message) {
-		CSSPropertyValueException ex = new CSSPropertyValueException(message);
+		computedStyleError(propertyName, propertyValue, message, null);
+	}
+
+	private void computedStyleError(String propertyName, String propertyValue, String message, Throwable cause) {
+		if (message == null) {
+			message = cause.getMessage();
+		}
+		CSSPropertyValueException ex = new CSSPropertyValueException(message, cause);
 		ex.setValueText(propertyValue);
 		getOwnerNode().getOwnerDocument().getErrorHandler().computedStyleError(getOwnerNode(), propertyName, ex);
 	}
