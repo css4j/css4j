@@ -16,9 +16,12 @@ import java.util.Objects;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.RatioValue;
 
 /**
  * Media feature predicate implementation.
@@ -310,6 +313,8 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 		}
 		// Values
 		float fval1;
+		float denom = 1f;
+		boolean isRatio = false;
 		short pType = CSSPrimitiveValue.CSS_NUMBER;
 		if (value1 == null) {
 			// Boolean
@@ -320,33 +325,94 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			fval1 = 0f;
 		} else {
 			pType = value1.getPrimitiveType();
-			fval1 = value1.getFloatValue(pType);
+			if (pType != CSSPrimitiveValue2.CSS_RATIO) {
+				fval1 = value1.getFloatValue(pType);
+			} else {
+				RatioValue ratio = (RatioValue) value1;
+				PrimitiveValue ante = ratio.getAntecedentValue();
+				pType = ante.getPrimitiveType();
+				try {
+					fval1 = ante.getFloatValue(pType);
+					denom = ratio.getConsequentValue().getFloatValue(pType);
+				} catch (DOMException e) {
+					return false;
+				}
+				isRatio = true;
+			}
 		}
 		float ofval1;
 		if (other.value1 == null) {
 			ofval1 = 0f;
 		} else {
-			try {
-				ofval1 = other.value1.getFloatValue(pType);
-			} catch (DOMException e) {
-				boolean negated = negatedQuery == 1 || negatedQuery == 2;
-				return negated;
+			if (other.value1.getPrimitiveType() == CSSPrimitiveValue2.CSS_RATIO) {
+				RatioValue ratio = (RatioValue) other.value1;
+				PrimitiveValue ante = ratio.getAntecedentValue();
+				float odenom;
+				try {
+					ofval1 = ante.getFloatValue(pType);
+					odenom = ratio.getConsequentValue().getFloatValue(pType);
+				} catch (DOMException e) {
+					return false;
+				}
+				fval1 *= odenom;
+			} else {
+				try {
+					ofval1 = other.value1.getFloatValue(pType);
+				} catch (DOMException e) {
+					return false;
+				}
+			}
+			if (isRatio) {
+				ofval1 *= denom;
 			}
 		}
 		float fval2 = Float.NaN;
 		float ofval2 = Float.NaN;
 		if (value2 != null) {
 			if (otherVal2 == null) {
-				boolean negated = negatedQuery == 1 || negatedQuery == 2;
-				return negated; // That should never happen
+				return false; // That should never happen
 			}
+			//
+			boolean isRatio2 = false;
 			pType = value2.getPrimitiveType();
-			fval2 = value2.getFloatValue(pType);
-			try {
-				ofval2 = otherVal2.getFloatValue(pType);
-			} catch (DOMException e) {
-				boolean negated = negatedQuery == 1 || negatedQuery == 2;
-				return negated;
+			if (pType != CSSPrimitiveValue2.CSS_RATIO) {
+				try {
+					fval2 = value2.getFloatValue(pType);
+				} catch (DOMException e) {
+					return false;
+				}
+			} else {
+				RatioValue ratio = (RatioValue) value2;
+				PrimitiveValue ante = ratio.getAntecedentValue();
+				pType = ante.getPrimitiveType();
+				try {
+					fval2 = ante.getFloatValue(pType);
+					denom = ratio.getConsequentValue().getFloatValue(pType);
+				} catch (DOMException e) {
+					return false;
+				}
+				isRatio2 = true;
+			}
+			if (otherVal2.getPrimitiveType() == CSSPrimitiveValue2.CSS_RATIO) {
+				RatioValue ratio = (RatioValue) otherVal2;
+				PrimitiveValue ante = ratio.getAntecedentValue();
+				float odenom;
+				try {
+					ofval2 = ante.getFloatValue(pType);
+					odenom = ratio.getConsequentValue().getFloatValue(pType);
+				} catch (DOMException e) {
+					return false;
+				}
+				fval2 *= odenom;
+			} else {
+				try {
+					ofval2 = otherVal2.getFloatValue(pType);
+				} catch (DOMException e) {
+					return false;
+				}
+			}
+			if (isRatio2) {
+				ofval2 *= denom;
 			}
 		}
 		//

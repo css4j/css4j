@@ -30,12 +30,11 @@ class MediaTypePredicate extends MediaPredicate {
 
 	@Override
 	public boolean matches(MediaPredicate otherPredicate, byte negatedQuery) {
-		BooleanConditionImpl.Predicate other = (BooleanConditionImpl.Predicate) otherPredicate;
-		if (getPredicateType() == other.getPredicateType()) {
+		if (getPredicateType() == otherPredicate.getPredicateType()) {
 			return false;
 		}
 		boolean negated = negatedQuery == 1 || negatedQuery == 2;
-		if (getName().equals(other.getName()) || "all".equals(getName())) {
+		if (getName().equals(otherPredicate.getName()) || "all".equals(getName())) {
 			return negated;
 		}
 		return !negated;

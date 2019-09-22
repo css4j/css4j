@@ -752,6 +752,38 @@ public class MediaQueryTest {
 	}
 
 	@Test
+	public void testMatchEQRatio() {
+		MediaQueryList mql = createMediaQueryList("all and (aspect-ratio:16/9)");
+		MediaQueryList mql2 = createMediaQueryList("all and (aspect-ratio:16/9)");
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio=16/9)");
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		assertTrue(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio <= 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertTrue(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio < 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio > 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio < 16/10)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+	}
+
+	@Test
 	public void testMatchEQDevicePrefix() {
 		MediaQueryList mql = createMediaQueryList("all and (width:1200px)");
 		MediaQueryList mql2 = createMediaQueryList("all and (device-width:1200px)");
@@ -897,6 +929,122 @@ public class MediaQueryTest {
 		assertTrue(mql.matches(mql2));
 		//
 		mql2 = createMediaQueryList("all and (max-color:1)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLERatio() {
+		MediaQueryList mql = createMediaQueryList("all and (aspect-ratio <= 16/9)");
+		MediaQueryList mql2 = createMediaQueryList("all and (aspect-ratio <= 16/9)");
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio < 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio <= 16/10)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio < 17/9)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio:1)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio:16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:16/7)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:16/10)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLERatio2() {
+		MediaQueryList mql = createMediaQueryList("all and (aspect-ratio <= 1.777778)");
+		MediaQueryList mql2 = createMediaQueryList("all and (aspect-ratio <= 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio < 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio <= 16/10)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio < 17/9)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio:1)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio:16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:16/7)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:16/10)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLERatio3() {
+		MediaQueryList mql = createMediaQueryList("all and (aspect-ratio <= 16/9)");
+		MediaQueryList mql2 = createMediaQueryList("all and (aspect-ratio <= 1.777778)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio < 1.777777)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio <= 1.777)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio < 1.7778)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio:1.77777)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:1.8)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:1.777778)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (max-aspect-ratio:1.7777)");
 		assertFalse(mql.equals(mql2));
 		assertTrue(mql.matches(mql2));
 	}
@@ -1051,6 +1199,46 @@ public class MediaQueryTest {
 	}
 
 	@Test
+	public void testMatchGERatio() {
+		MediaQueryList mql = createMediaQueryList("all and (aspect-ratio >= 16/9)");
+		MediaQueryList mql2 = createMediaQueryList("all and (aspect-ratio >= 16/9)");
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio > 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio >= 16/7)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio > 1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio:16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio:1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (min-aspect-ratio:1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (min-aspect-ratio:16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (min-aspect-ratio:16/7)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+	}
+
+	@Test
 	public void testMatchGT() {
 		MediaQueryList mql = createMediaQueryList("all and (color > 1)");
 		MediaQueryList mql2 = createMediaQueryList("all and (color > 1)");
@@ -1192,6 +1380,90 @@ public class MediaQueryTest {
 		assertTrue(mql.matches(mql2));
 		//
 		mql2 = createMediaQueryList("all and (color: 6)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLevel4LELERatio() {
+		MediaQueryList mql = createMediaQueryList("tv,all and (4/3 <= aspect-ratio <= 16/9)");
+		MediaQueryList mql2 = createMediaQueryList("all and (4/3 <= aspect-ratio <= 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 <= aspect-ratio <= 16/10)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (3/2 <= aspect-ratio <= 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (1 <= aspect-ratio <= 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 <= aspect-ratio <= 16/7)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		// LE LT
+		mql2 = createMediaQueryList("all and (1 <= aspect-ratio < 16/10)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 <= aspect-ratio < 16/10)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 <= aspect-ratio < 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 <= aspect-ratio < 16/7)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		// LT LE
+		mql2 = createMediaQueryList("all and (4/3 < aspect-ratio <= 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 < aspect-ratio <= 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (1 < aspect-ratio <= 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 < aspect-ratio <= 16/7)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		// LT LT
+		mql2 = createMediaQueryList("all and (1 < aspect-ratio < 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 < aspect-ratio < 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (4/3 < aspect-ratio < 16/7)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		// EQ
+		mql2 = createMediaQueryList("all and (aspect-ratio: 1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio: 16/10)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio: 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio: 16/7)");
 		assertFalse(mql.equals(mql2));
 		assertFalse(mql.matches(mql2));
 	}
@@ -1501,6 +1773,94 @@ public class MediaQueryTest {
 		assertTrue(mql.matches(mql2));
 		//
 		mql2 = createMediaQueryList("all and (color: 6)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLevel4GEGERatio() {
+		MediaQueryList mql = createMediaQueryList("tv,all and (16/9 >= aspect-ratio >= 4/3)");
+		MediaQueryList mql2 = createMediaQueryList("all and (16/9 >= aspect-ratio >= 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 >= aspect-ratio >= 1.3333333)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/10 >= aspect-ratio >= 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 >= aspect-ratio >= 3/2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 >= aspect-ratio >= 1.2)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/7 >= aspect-ratio >= 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		// GE GT
+		mql2 = createMediaQueryList("all and (16/7 >= aspect-ratio > 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 >= aspect-ratio > 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 >= aspect-ratio > 1.2)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 >= aspect-ratio > 1.5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		// GT GE
+		mql2 = createMediaQueryList("all and (16/7 > aspect-ratio >= 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 > aspect-ratio >= 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 > aspect-ratio >= 1.2)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		// GT GT
+		mql2 = createMediaQueryList("all and (16/7 > aspect-ratio > 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 > aspect-ratio > 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (16/9 > aspect-ratio > 1.2)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		// EQ
+		mql2 = createMediaQueryList("all and (aspect-ratio: 1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio: 4/3)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio: 16/10)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio: 16/9)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("all and (aspect-ratio: 16/7)");
 		assertFalse(mql.equals(mql2));
 		assertFalse(mql.matches(mql2));
 	}
