@@ -56,6 +56,9 @@ public class AnBExpressionTest {
 		expr.parse("-n-1");
 		assertEquals(-1, expr.getOffset());
 		assertEquals(-1, expr.getStep());
+		expr.parse("+n+7");
+		assertEquals(7, expr.getOffset());
+		assertEquals(1, expr.getStep());
 		expr.parse("0n");
 		assertEquals(0, expr.getOffset());
 		assertEquals(0, expr.getStep());
@@ -80,6 +83,11 @@ public class AnBExpressionTest {
 		expr.parse("even");
 		assertEquals(0, expr.getOffset());
 		assertEquals(2, expr.getStep());
+	}
+
+	@Test
+	public void testParseError() {
+		AnBExpression expr = new MyAnBExpression();
 		// Example 10 from https://drafts.csswg.org/css-syntax-3/#anb-syntax
 		try {
 			expr.parse("+ 2n");
@@ -88,6 +96,11 @@ public class AnBExpressionTest {
 		}
 		try {
 			expr.parse("2 n");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("n 2");
 			fail("Must throw exception.");
 		} catch (IllegalArgumentException e) {
 		}
@@ -109,6 +122,16 @@ public class AnBExpressionTest {
 		}
 		try {
 			expr.parse("0n+1a");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("0-n");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("0 + 2");
 			fail("Must throw exception.");
 		} catch (IllegalArgumentException e) {
 		}

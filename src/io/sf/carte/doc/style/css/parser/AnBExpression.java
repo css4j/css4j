@@ -173,7 +173,9 @@ abstract public class AnBExpression {
 				if (negative) {
 					return "-" + numstr.subSequence(i, len);
 				} else {
-					return numstr.substring(i, len);
+					if (foundSign) {
+						return numstr.substring(i, len);
+					}
 				}
 			} else if (c == '+') {
 				if (foundSign) {

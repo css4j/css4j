@@ -3359,6 +3359,144 @@ public class SelectorParserTest {
 		} catch (CSSParseException e) {}
 	}
 
+	/*
+	 * web-platform-tests/wpt/master/css/selectors/anplusb-selector-parsing.html
+	 */
+	@Test
+	public void testParseSelectorPseudoClassNthChildError2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n - 1 2)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError3() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n - b1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError4() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n-+1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError5() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n+-1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError6() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n +-1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError7() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n +- 1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError8() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n -+ 1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError9() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n + - 1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError10() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n - + 1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError11() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n -1n)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError12() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n - +b1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError13() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n -b1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError14() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n b1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError15() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(n 1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthChildError16() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(- - 1)"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {}
+	}
+
 	@Test
 	public void testParseSelectorPseudoClassNthEven() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(":nth-child(even)"));
@@ -3467,6 +3605,44 @@ public class SelectorParserTest {
 		assertEquals(10, ((PositionalCondition2) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).getTypeNode());
 		assertEquals(":nth-child(10n+9)", sel.toString());
+		assertTrue(((PositionalCondition2) cond).isForwardCondition());
+		assertFalse(((PositionalCondition) cond).getType());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthAnBcr() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(10n\n+9)"));
+		SelectorList selist = parser.parseSelectors(source);
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(0, ((PositionalCondition) cond).getPosition());
+		assertEquals(9, ((PositionalCondition2) cond).getOffset());
+		assertEquals(10, ((PositionalCondition2) cond).getFactor());
+		assertTrue(((PositionalCondition) cond).getTypeNode());
+		assertEquals(":nth-child(10n+9)", sel.toString());
+		assertTrue(((PositionalCondition2) cond).isForwardCondition());
+		assertFalse(((PositionalCondition) cond).getType());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNthAnBzero() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(":nth-child(10n+0)"));
+		SelectorList selist = parser.parseSelectors(source);
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(0, ((PositionalCondition) cond).getPosition());
+		assertEquals(0, ((PositionalCondition2) cond).getOffset());
+		assertEquals(10, ((PositionalCondition2) cond).getFactor());
+		assertTrue(((PositionalCondition) cond).getTypeNode());
+		assertEquals(":nth-child(10n)", sel.toString());
 		assertTrue(((PositionalCondition2) cond).isForwardCondition());
 		assertFalse(((PositionalCondition) cond).getType());
 	}
