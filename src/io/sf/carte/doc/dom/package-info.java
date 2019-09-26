@@ -9,20 +9,19 @@
  * <ol>
  * <li>On elements and attributes, <code>Node.getLocalName()</code> returns the
  * tag name instead of <code>null</code>, when the node was created with a DOM
- * Level 1 method such as Document.createElement(). In the current
- * implementation all elements are HTML, and all of them have implicitly the
- * HTML namespace.</li>
+ * Level 1 method such as Document.createElement(). In HTML documents, all the
+ * elements have implicitly the HTML namespace unless they have a different one.</li>
  * <li>As all the HTML elements have an implicit namespace and the idea is to
  * handle HTML and XHTML in the same way,
  * {@link io.sf.carte.doc.dom.DOMElement#getTagName() DOMElement.getTagName()}
- * does not return an upper-cased <code>localName</code> regardless of how that
- * element was created.</li>
- * <li>Only in HTML documents, the methods <code>Element.setIdAttribute</code>,
+ * does not return an upper-cased name.</li>
+ * <li>The methods <code>Element.setIdAttribute</code>,
  * <code>Element.setIdAttributeNS</code> and
- * <code>Element.setIdAttributeNode</code> only allow case changes to the 'id'
- * attribute (like 'ID' or 'Id'), and any change has Document-wide effects.
- * According to the HTML specification, there is only one ID attribute in
- * HTML.</li>
+ * <code>Element.setIdAttributeNode</code> are now deprecated by W3C, but they do
+ * work in this implementation. In HTML documents, only case changes to the 'id'
+ * attribute (like 'ID' or 'Id') are allowed, and any change has Document-wide
+ * effects (according to the HTML specification, there is only one ID attribute in
+ * HTML).</li>
  * <li>Entity references are allowed as a last-resort solution in case that an
  * entity is unknown. No known current parser uses that, though. This limited
  * support for entity references may be dropped in future versions.</li>

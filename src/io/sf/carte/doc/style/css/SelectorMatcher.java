@@ -30,7 +30,7 @@ import org.w3c.css.sac.SelectorList;
  * for all the computed style infrastructure, providing universal support for any document
  * backend; it also packs two <code>matches</code> methods inside it. Modern DOM versions
  * (and subsequently also this library's {@link CSSElement}) directly have
- * <code>matches</code> methods, which make the {@link CSSElement#getSelectorMatcher()}
+ * <code>matches</code> methods, which makes the {@link CSSElement#getSelectorMatcher()}
  * method a bit superfluous, although it is being kept for now.
  *
  * @author Carlos Amengual
@@ -55,7 +55,7 @@ public interface SelectorMatcher {
 	void setPseudoElement(String pseudoElt);
 
 	/**
-	 * Does this selector match the given selector list?
+	 * Does this object match the given selector list?
 	 *
 	 * @param selist
 	 *            the list of selectors to which this matcher will compare.
@@ -66,12 +66,12 @@ public interface SelectorMatcher {
 	int matches(SelectorList selist);
 
 	/**
-	 * Does this matcher match the given selector?
+	 * Does this object match the given selector?
 	 *
 	 * @param selector
 	 *            the selector to be tested.
 	 *
-	 * @return <code>true</code> if the given selector matches this object, <code>false</code> otherwise.
+	 * @return <code>true</code> if this matcher matches this object, <code>false</code> otherwise.
 	 */
 	boolean matches(Selector selector);
 }

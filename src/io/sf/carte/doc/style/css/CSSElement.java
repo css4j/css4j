@@ -26,7 +26,7 @@ public interface CSSElement extends Element, CSSNode, ElementCSSInlineStyle {
 	 * Gets the computed style declaration that applies to this element.
 	 *
 	 * @param pseudoElt
-	 *            the pseudo-element name.
+	 *            the pseudo-element name (<code>null</code> if no pseudo-element).
 	 * @return the computed style declaration.
 	 */
 	CSSComputedProperties getComputedStyle(String pseudoElt);
@@ -58,6 +58,10 @@ public interface CSSElement extends Element, CSSNode, ElementCSSInlineStyle {
 	/**
 	 * Check whether this element has an override style declaration for the given
 	 * pseudo-element.
+	 * <p>
+	 * This method allows checking for override styles without the overhead of
+	 * producing and retrieving one with {@link #getOverrideStyle(String)} and
+	 * checking its length.
 	 *
 	 * @param pseudoElt
 	 *            the pseudo-element, or <code>null</code> if none.
@@ -72,7 +76,8 @@ public interface CSSElement extends Element, CSSNode, ElementCSSInlineStyle {
 	 * @return the inline style specified by the <code>style</code> attribute, or
 	 *         <code>null</code> if that attribute is not present.
 	 */
-	@Override ExtendedCSSStyleDeclaration getStyle();
+	@Override
+	ExtendedCSSStyleDeclaration getStyle();
 
 	/**
 	 * Does this element (with the provided pseudo-element, if any) match the provided

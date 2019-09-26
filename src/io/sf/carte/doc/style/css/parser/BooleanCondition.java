@@ -23,6 +23,11 @@ import java.util.List;
  */
 public interface BooleanCondition {
 
+	/**
+	 * The types of condition. A <code>PREDICATE</code> is the fundamental condition
+	 * that is carried by the other condition types (<code>AND</code>,
+	 * <code>OR</code>, <code>NOT</code>).
+	 */
 	public enum Type {
 		PREDICATE, OR, AND, NOT
 	}
@@ -35,7 +40,10 @@ public interface BooleanCondition {
 	Type getType();
 
 	/**
-	 * If this condition is composed of a list of conditions, return them.
+	 * If this condition is composed by a set of conditions (forming an
+	 * <code>AND</code> or <code>OR</code> expression), return it.
+	 * <p>
+	 * The set of sub-conditions is returned as a list in specified order.
 	 * 
 	 * @return the list of sub-conditions, or <code>null</code> if this condition
 	 *         contains no sub-conditions.
@@ -58,7 +66,7 @@ public interface BooleanCondition {
 	BooleanCondition getParentCondition();
 
 	/**
-	 * Set the parent condition.
+	 * Set the parent condition, if this condition is nested into another.
 	 * 
 	 * @param parent
 	 *            the parent condition.
@@ -67,11 +75,18 @@ public interface BooleanCondition {
 
 	/**
 	 * Add a condition to a boolean condition.
+	 * <p>
+	 * On a <code>NOT</code> condition this adds the negated condition, for grouping
+	 * conditions (<code>AND</code>, <code>OR</code>), adds a condition to the set
+	 * of sub-conditions.
+	 * <p>
+	 * On a <code>PREDICATE</code>, should either do nothing or throw a runtime
+	 * exception (behaviour is implementation-dependent).
 	 * 
-	 * @param nestedCondition
-	 *            the nested condition.
+	 * @param subCondition
+	 *            the sub-condition.
 	 */
-	void addCondition(BooleanCondition nestedCondition);
+	void addCondition(BooleanCondition subCondition);
 
 	/**
 	 * Replace the last condition added.
