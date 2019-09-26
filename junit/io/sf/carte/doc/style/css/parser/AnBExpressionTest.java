@@ -35,6 +35,9 @@ public class AnBExpressionTest {
 		expr.parse("2n+1");
 		assertEquals(1, expr.getOffset());
 		assertEquals(2, expr.getStep());
+		expr.parse("2N+1");
+		assertEquals(1, expr.getOffset());
+		assertEquals(2, expr.getStep());
 		expr.parse("+2n+1");
 		assertEquals(1, expr.getOffset());
 		assertEquals(2, expr.getStep());
@@ -77,6 +80,9 @@ public class AnBExpressionTest {
 		expr.parse("-2n - 1");
 		assertEquals(-1, expr.getOffset());
 		assertEquals(-2, expr.getStep());
+		expr.parse("-20n - 10");
+		assertEquals(-10, expr.getOffset());
+		assertEquals(-20, expr.getStep());
 		expr.parse("odd");
 		assertEquals(1, expr.getOffset());
 		assertEquals(2, expr.getStep());
@@ -105,6 +111,36 @@ public class AnBExpressionTest {
 		} catch (IllegalArgumentException e) {
 		}
 		try {
+			expr.parse("++n+2");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("--n+2");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("++n");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("++ n");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("n++2");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("n--2");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
 			expr.parse("+ 2");
 			fail("Must throw exception.");
 		} catch (IllegalArgumentException e) {
@@ -112,6 +148,16 @@ public class AnBExpressionTest {
 		// Other cases of bad syntax
 		try {
 			expr.parse("0n+-1");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("n +- 1");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("n + - 1");
 			fail("Must throw exception.");
 		} catch (IllegalArgumentException e) {
 		}
@@ -127,6 +173,11 @@ public class AnBExpressionTest {
 		}
 		try {
 			expr.parse("0-n");
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			expr.parse("2 + 2");
 			fail("Must throw exception.");
 		} catch (IllegalArgumentException e) {
 		}
