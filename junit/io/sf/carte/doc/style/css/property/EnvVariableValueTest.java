@@ -22,9 +22,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
+import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSEnvVariableValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -71,6 +73,7 @@ public class EnvVariableValueTest {
 		CSSEnvVariableValue val = (CSSEnvVariableValue) cssval;
 		assertEquals("env(safe-area-inset-left)", val.getCssText());
 		assertEquals("safe-area-inset-left", val.getStringValue());
+		assertNull(val.getFallback());
 	}
 
 	@Test
@@ -85,6 +88,11 @@ public class EnvVariableValueTest {
 		CSSEnvVariableValue val = (CSSEnvVariableValue) cssval;
 		assertEquals("env(safe-area-inset-left, 1px)", val.getCssText());
 		assertEquals("safe-area-inset-left", val.getStringValue());
+		ExtendedCSSValue fb = val.getFallback();
+		assertNotNull(fb);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, fb.getCssValueType());
+		assertEquals(CSSPrimitiveValue.CSS_PX, ((CSSPrimitiveValue) fb).getPrimitiveType());
+		assertEquals("1px", fb.getCssText());
 	}
 
 	@Test
@@ -126,6 +134,7 @@ public class EnvVariableValueTest {
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getStringValue(), clon.getStringValue());
 		assertEquals(value.getCssText(), clon.getCssText());
+		assertTrue(value.getFallback().equals(clon.getFallback()));
 		assertTrue(value.equals(clon));
 	}
 

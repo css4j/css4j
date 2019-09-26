@@ -39,7 +39,9 @@ public class EnvVariableValue extends PrimitiveValue implements CSSEnvVariableVa
 	protected EnvVariableValue(EnvVariableValue copied) {
 		super(copied);
 		this.name = copied.name;
-		this.fallback = copied.fallback;
+		if (copied.fallback != null) {
+			this.fallback = copied.fallback.clone();
+		}
 	}
 
 	@Override
