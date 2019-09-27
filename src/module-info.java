@@ -25,5 +25,5 @@ module io.sf.carte.css4j {
 	requires io.sf.jclf;
 	requires org.apache.commons.codec;
 	requires transitive sac;
-	requires transitive slf4j.api;
+	requires transitive org.slf4j;
 }
