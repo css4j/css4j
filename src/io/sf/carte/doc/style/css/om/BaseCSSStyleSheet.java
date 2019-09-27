@@ -380,7 +380,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				if (importCount == MAX_IMPORT_RECURSION) {
 					DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 							"Too many nested imports");
-					getErrorHandler().badAtRule(ex, oRule.getCssText());
+					String cssText = oRule.getCssText();
+					sheet.getErrorHandler().badAtRule(ex, cssText);
+					getErrorHandler().badAtRule(ex, cssText);
 					return;
 				}
 				// We clone with 'sheet' as parent, to receive the errors
@@ -413,7 +415,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				if (importCount == MAX_IMPORT_RECURSION) {
 					DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 							"Too many nested imports");
-					getErrorHandler().badAtRule(ex, oRule.getCssText());
+					String cssText = oRule.getCssText();
+					sheet.getErrorHandler().badAtRule(ex, cssText);
+					getErrorHandler().badAtRule(ex, cssText);
 					return;
 				}
 				// We clone with 'sheet' as parent, to receive the errors
@@ -640,7 +644,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		if (owner != null) {
 			eh = ((CSSDocument) owner.getOwnerDocument()).getErrorHandler();
 		} else {
-			eh = new StandAloneErrorHandler();
+			// Stand-alone sheet.
+			eh = StandAloneErrorHandler.getInstance(this);
 		}
 		return eh;
 	}

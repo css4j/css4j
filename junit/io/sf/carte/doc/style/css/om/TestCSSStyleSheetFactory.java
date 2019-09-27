@@ -23,15 +23,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import io.sf.carte.doc.agent.MockURLConnectionFactory;
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 
 public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 
-	private WrapperUserAgent agent;
+	private final WrapperUserAgent agent;
 	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
 	public String parserClass;
 
@@ -70,6 +72,34 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 	@Override
 	public StylableDocumentWrapper createCSSDocument(Document document) {
 		return new MyStylableDocumentWrapper(document);
+	}
+
+	@Override
+	protected DOMCSSStyleSheet createRuleStyleSheet(AbstractCSSRule ownerRule, String title, MediaQueryList mediaList) {
+		return new MockStyleSheet(title, null, mediaList, ownerRule, ownerRule.getOrigin());
+	}
+
+	BaseCSSStyleSheet createMockStyleSheet(String title, MediaQueryList mediaList, byte origin) {
+		return new MockStyleSheet(title, null, mediaList, null, origin);
+	}
+
+	class MockStyleSheet extends MyDOMCSSStyleSheet {
+
+		MockStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
+			super(title, ownerNode, media, ownerRule, origin);
+		}
+
+		@Override
+		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
+				AbstractCSSRule ownerRule, byte origin) {
+			return new MockStyleSheet(title, ownerNode, media, ownerRule, origin);
+		}
+
+		@Override
+		public URLConnection openConnection(URL url, String referrerPolicy) throws IOException {
+			return urlFactory.createConnection(url);
+		}
+
 	}
 
 	@Override
@@ -150,4 +180,5 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 			return urlFactory.createConnection(url);
 		}
 	}
+
 }

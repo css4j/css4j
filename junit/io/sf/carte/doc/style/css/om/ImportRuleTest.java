@@ -34,6 +34,7 @@ import org.w3c.dom.stylesheets.LinkStyle;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
@@ -324,12 +325,23 @@ public class ImportRuleTest {
 		assertEquals(2, list.getLength());
 		assertEquals("@import url('http://www.example.com/css/circular.css'); ", imp.getCssText());
 		assertEquals("@import 'http://www.example.com/css/circular.css';", imp.getMinifiedCssText());
+		//
 		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasSacWarnings());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(imported.getErrorHandler().hasSacErrors());
+		assertFalse(imported.getErrorHandler().hasSacWarnings());
+		assertTrue(imported.getErrorHandler().hasOMErrors());
+		assertFalse(imported.getErrorHandler().hasOMWarnings());
+		//
 		assertFalse(docsheet.getErrorHandler().hasSacErrors());
 		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
-		assertFalse(docsheet.getErrorHandler().hasOMErrors());
+		assertTrue(docsheet.getErrorHandler().hasOMErrors());
 		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
-		assertTrue(cssdoc.getErrorHandler().hasIOErrors());
+		assertFalse(cssdoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
@@ -356,12 +368,92 @@ public class ImportRuleTest {
 		assertEquals(2, list.getLength());
 		assertEquals("@import url('http://www.example.com/css/circular.css') screen; ", imp.getCssText());
 		assertEquals("@import 'http://www.example.com/css/circular.css' screen;", imp.getMinifiedCssText());
+		//
 		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasSacWarnings());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(imported.getErrorHandler().hasSacErrors());
+		assertFalse(imported.getErrorHandler().hasSacWarnings());
+		assertTrue(imported.getErrorHandler().hasOMErrors());
+		assertFalse(imported.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(docsheet.getErrorHandler().hasSacErrors());
+		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
+		assertTrue(docsheet.getErrorHandler().hasOMErrors());
+		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
+		assertFalse(cssdoc.getErrorHandler().hasIOErrors());
+	}
+
+	@Test
+	public void testIOError() throws DOMException, ParserConfigurationException {
+		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
+		Element head = doc.createElement("head");
+		Element style = doc.createElement("style");
+		style.setAttribute("id", "styleId");
+		style.setIdAttribute("id", true);
+		style.setAttribute("type", "text/css");
+		style.setTextContent("@import 'http://www.example.com/css/nonexistent.css';");
+		doc.getDocumentElement().appendChild(head);
+		head.appendChild(style);
+		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
+		CSSElement cssStyle = cssdoc.getElementById("styleId");
+		assertNotNull(cssStyle);
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		assertEquals(1, sheet.getCssRules().getLength());
+		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
+		AbstractCSSStyleSheet imported = imp.getStyleSheet();
+		assertNotNull(imported);
+		CSSRuleArrayList list = imported.getCssRules();
+		assertEquals(0, list.getLength());
+		//
+		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasSacWarnings());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(imported.getErrorHandler().hasSacErrors());
+		assertFalse(imported.getErrorHandler().hasSacWarnings());
+		assertFalse(imported.getErrorHandler().hasOMErrors());
+		assertFalse(imported.getErrorHandler().hasOMWarnings());
+		//
 		assertFalse(docsheet.getErrorHandler().hasSacErrors());
 		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
 		assertFalse(docsheet.getErrorHandler().hasOMErrors());
 		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
 		assertTrue(cssdoc.getErrorHandler().hasIOErrors());
+	}
+
+	@Test
+	public void testStandAloneIOError() throws DOMException, IOException {
+		AbstractCSSStyleSheet sheet = factory.createMockStyleSheet(null, null, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		sheet.parseStyleSheet(new InputSource(new StringReader(
+				"@import 'http://www.example.com/css/nonexistent.css';")));
+		assertEquals(1, sheet.getCssRules().getLength());
+		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
+		AbstractCSSStyleSheet imported = imp.getStyleSheet();
+		assertNotNull(imported);
+		assertEquals(0, imported.getCssRules().getLength());
+		//
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasSacWarnings());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(imported.getErrorHandler().hasSacErrors());
+		assertFalse(imported.getErrorHandler().hasSacWarnings());
+		assertFalse(imported.getErrorHandler().hasOMErrors());
+		assertFalse(imported.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasSacWarnings());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		assertTrue(sheet.getDocumentErrorHandler().hasIOErrors());
 	}
 
 	/*

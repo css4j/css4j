@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.util.WeakHashMap;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
 
@@ -20,7 +22,22 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 
 class StandAloneErrorHandler extends AbstractErrorHandler {
 
+	private static final WeakHashMap<AbstractCSSStyleSheet, StandAloneErrorHandler> handlerMap = new WeakHashMap<AbstractCSSStyleSheet, StandAloneErrorHandler>(4);
+
+	static StandAloneErrorHandler getInstance(AbstractCSSStyleSheet sheet) {
+		StandAloneErrorHandler handler = handlerMap.get(sheet);
+		if (handler == null) {
+			handler = new StandAloneErrorHandler();
+			handlerMap.put(sheet, handler);
+		}
+		return handler;
+	}
+
 	private boolean errors = false, warnings = false;
+
+	private StandAloneErrorHandler() {
+		super();
+	}
 
 	@Override
 	public boolean hasComputedStyleErrors(CSSElement element) {
