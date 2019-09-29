@@ -275,7 +275,8 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 		}
 		String s = null;
 		try {
-			s = new String(org.apache.commons.codec.binary.Base64.encodeBase64(sb.toString().getBytes()), "ISO-8859-1");
+			s = new String(org.apache.commons.codec.binary.Base64.encodeBase64(sb.toString().getBytes("ISO-8859-1")),
+					"ISO-8859-1");
 		} catch (UnsupportedEncodingException e) {
 		}
 		int i = s.indexOf('=');
