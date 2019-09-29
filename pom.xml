@@ -22,13 +22,6 @@
 		<optional>false</optional>
     </dependency>
 	<dependency>
-		<groupId>commons-codec</groupId>
-		<artifactId>commons-codec</artifactId>
-		<version>[1.10,)</version>
-		<scope>compile</scope>
-		<optional>false</optional>
-	</dependency>
-	<dependency>
 		<groupId>org.w3c.css</groupId>
 		<artifactId>sac</artifactId>
 		<version>1.3</version>

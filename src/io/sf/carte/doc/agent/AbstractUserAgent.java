@@ -12,13 +12,14 @@
 package io.sf.carte.doc.agent;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -273,11 +274,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 		if (creds.getPassword() != null) {
 			sb.append(creds.getPassword());
 		}
-		String s = null;
-		try {
-			s = new String(org.apache.commons.codec.binary.Base64.encodeBase64(sb.toString().getBytes()), "ISO-8859-1");
-		} catch (UnsupportedEncodingException e) {
-		}
+		String s = Base64.getEncoder().encodeToString(sb.toString().getBytes(StandardCharsets.ISO_8859_1));
 		int i = s.indexOf('=');
 		if (i != -1) {
 			return s.substring(0, i);
