@@ -23,7 +23,6 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 
 import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -31,8 +30,9 @@ import org.w3c.dom.Node;
 import io.sf.carte.doc.DOMTokenList;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
+import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
  * Base class for DOMDocument's non-DTD DOM nodes.
@@ -198,7 +198,7 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 	}
 
 	static ElementList querySelectorAll(String selectors, Node firstChild) {
-		Parser parser = SACParserFactory.createSACParser();
+		Parser2 parser = new CSSParser();
 		InputSource source = new InputSource(new StringReader(selectors));
 		SelectorList selist;
 		try {

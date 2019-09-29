@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.EnumSet;
 
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
@@ -99,7 +98,7 @@ abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFacto
 	 * @throws DOMException
 	 *             NOT_SUPPORTED_ERR if the Parser could not be instantiated.
 	 */
-	abstract protected Parser createSACParser() throws DOMException;
+	abstract protected Parser2 createSACParser() throws DOMException;
 
 	/**
 	 * Get the parser flags that should be used by NSAC parsers.

@@ -175,7 +175,7 @@ public class DOMWriterTest {
 
 	private DOMDocument parseDocument(Reader re) throws IOException {
 		InputSource is = new InputSource(re);
-		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(false, null));
+		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(false));
 		builder.setIgnoreElementContentWhitespace(true);
 		builder.setEntityResolver(new DefaultEntityResolver());
 		DOMDocument xhtmlDoc;

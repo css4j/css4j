@@ -43,10 +43,6 @@ import io.sf.carte.util.Diff;
 
 public class BaseCSSStyleDeclarationTest {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	BaseCSSStyleDeclaration emptyStyleDecl;
 
 	@Before

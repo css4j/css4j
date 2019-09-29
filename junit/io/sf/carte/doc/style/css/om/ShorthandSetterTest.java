@@ -46,10 +46,6 @@ import io.sf.carte.doc.style.css.property.ValueList;
 @RunWith(Parameterized.class)
 public class ShorthandSetterTest {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	AbstractCSSStyleSheet sheet;
 	BaseCSSStyleDeclaration emptyStyleDecl;
 

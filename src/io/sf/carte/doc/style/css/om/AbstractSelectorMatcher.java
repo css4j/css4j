@@ -25,7 +25,6 @@ import org.w3c.css.sac.DescendantSelector;
 import org.w3c.css.sac.ElementSelector;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LangCondition;
-import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.Selector;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.css.sac.SiblingSelector;
@@ -33,14 +32,15 @@ import org.w3c.css.sac.SimpleSelector;
 
 import io.sf.carte.doc.DOMTokenSetImpl;
 import io.sf.carte.doc.style.css.CSSDocument;
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition2;
 import io.sf.carte.doc.style.css.nsac.Condition2;
+import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.nsac.PositionalCondition2;
 import io.sf.carte.doc.style.css.nsac.Selector2;
 import io.sf.carte.doc.style.css.parser.AnBExpression;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
  * CSS Selector matcher.
@@ -779,7 +779,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		if (selText.length() == 0) {
 			return null;
 		}
-		Parser parser = SACParserFactory.createSACParser();
+		Parser2 parser = new CSSParser();
 		InputSource source = new InputSource(new StringReader(selText));
 		SelectorList list;
 		try {

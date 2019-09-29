@@ -32,10 +32,6 @@ import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 
 public class StyleRuleTest2 {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	AbstractCSSStyleSheet sheet;
 	StyleRule styleRule;
 	BaseCSSStyleDeclaration emptyStyleDecl;

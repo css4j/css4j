@@ -29,13 +29,8 @@ import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.StyleRule;
-import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 
 public class CalcValueTest {
-
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
 
 	@Test
 	public void testEquals() {

@@ -45,10 +45,6 @@ public class CompatInlineDeclarationTest {
 
 	static DOMCSSStyleSheetFactory factory;
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	BaseCSSStyleDeclaration emptyStyleDecl;
 	StylableDocumentWrapper document;
 

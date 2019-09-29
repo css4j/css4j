@@ -33,7 +33,7 @@ public class TreeWalkerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		domImpl = new TestDOMImplementation(false, null);
+		domImpl = new TestDOMImplementation(false);
 	}
 
 	@Before

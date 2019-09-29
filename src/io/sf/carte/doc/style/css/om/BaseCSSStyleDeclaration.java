@@ -27,7 +27,6 @@ import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSS2Properties;
@@ -45,11 +44,12 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.doc.style.css.ExtendedCSSValueList;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
@@ -504,7 +504,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	public void setCssText(String cssText) throws DOMException {
 		// The following may cause a DOMException.NOT_SUPPORTED_ERR
 		// (documented above) but the W3C API does not allow for that.
-		Parser parser = createSACParser();
+		Parser2 parser = createSACParser();
 		StyleDeclarationDocumentHandler handler = new StyleDeclarationDocumentHandler();
 		parser.setErrorHandler(handler);
 		InputSource source = new InputSource();
@@ -525,13 +525,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	private Parser createSACParser() throws DOMException {
-		Parser parser;
+	private Parser2 createSACParser() throws DOMException {
+		Parser2 parser;
 		AbstractCSSStyleSheetFactory factory = getStyleSheetFactory();
 		if (factory != null) {
 			parser = factory.createSACParser();
 		} else {
-			parser = SACParserFactory.createSACParser();
+			parser = new CSSParser();
 		}
 		return parser;
 	}
@@ -1084,7 +1084,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			removeProperty(propertyName);
 			return;
 		}
-		Parser parser;
+		Parser2 parser;
 		try {
 			parser = createSACParser();
 		} catch (DOMException e) {

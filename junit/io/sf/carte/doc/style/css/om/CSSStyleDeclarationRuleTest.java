@@ -26,10 +26,6 @@ import io.sf.carte.doc.style.css.nsac.Parser2;
 
 public class CSSStyleDeclarationRuleTest {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	private AbstractCSSStyleSheet sheet;
 
 	@Before

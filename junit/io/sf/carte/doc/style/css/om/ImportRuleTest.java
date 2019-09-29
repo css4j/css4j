@@ -42,10 +42,6 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 
 public class ImportRuleTest {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	private static TestCSSStyleSheetFactory factory;
 
 	@BeforeClass

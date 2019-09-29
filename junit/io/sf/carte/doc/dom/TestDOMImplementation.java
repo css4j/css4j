@@ -16,7 +16,6 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentType;
 import org.xml.sax.InputSource;
@@ -37,16 +36,14 @@ import nu.validator.htmlparser.dom.HtmlDocumentBuilder;
 public class TestDOMImplementation extends CSSDOMImplementation {
 
 	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
-	public String parserClass;
 	private boolean xmlOnly = false;
 
 	public TestDOMImplementation() {
-		this(true, null);
+		this(true);
 	}
 
-	public TestDOMImplementation(boolean defaultStyleSheet, String parserClass) {
+	public TestDOMImplementation(boolean defaultStyleSheet) {
 		super();
-		this.parserClass = parserClass;
 		setDeviceFactory(new TestDeviceFactory());
 		if (defaultStyleSheet) {
 			setDefaultHTMLUserAgentSheet();
@@ -97,27 +94,10 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		return document;
 	}
 
-	@Override
-	protected Parser createSACParser() throws DOMException {
-		if (parserClass == null) {
-			return super.createSACParser();
-		}
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Parser>() {
-			@Override
-			public Parser run() {
-				try {
-					return (Parser) Class.forName(parserClass).getConstructor().newInstance();
-				} catch (Exception e) {
-					throw new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
-				}
-			}
-		});
-	}
-
 	public static HTMLDocument sampleHTMLDocument() throws IOException {
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleHTMLReader();
 		InputSource is = new InputSource(re);
-		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(new TestDOMImplementation(true, null));
+		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(new TestDOMImplementation(true));
 		HTMLDocument xhtmlDoc;
 		try {
 			xhtmlDoc = (HTMLDocument) builder.parse(is);
@@ -133,7 +113,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	public static HTMLDocument sampleXHTMLDocument() throws IOException {
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleXHTMLReader();
 		InputSource is = new InputSource(re);
-		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true, null));
+		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
 		builder.setIgnoreElementContentWhitespace(true);
 		builder.setEntityResolver(new DefaultEntityResolver());
 		HTMLDocument xhtmlDoc;
@@ -151,7 +131,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	public static HTMLDocument sampleIEDocument() throws IOException {
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleIEReader();
 		InputSource is = new InputSource(re);
-		TestDOMImplementation domImpl = new TestDOMImplementation(true, null);
+		TestDOMImplementation domImpl = new TestDOMImplementation(true);
 		domImpl.getParserFlags().add(Parser2.Flag.STARHACK);
 		domImpl.getParserFlags().add(Parser2.Flag.IEVALUES);
 		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(domImpl);

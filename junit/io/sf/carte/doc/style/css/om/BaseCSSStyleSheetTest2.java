@@ -32,7 +32,6 @@ import org.w3c.css.sac.Selector;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 
 public class BaseCSSStyleSheetTest2 {
@@ -236,7 +235,7 @@ public class BaseCSSStyleSheetTest2 {
 
 	@Test
 	public void testToString() throws IOException {
-		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet(SACParserFactory.DEFAULT_PARSER);
+		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet();
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
 		CharBuffer target = CharBuffer.allocate(600);
 		assertTrue(re.read(target) != -1);
@@ -261,7 +260,7 @@ public class BaseCSSStyleSheetTest2 {
 
 	@Test
 	public void testToStyleString() throws IOException {
-		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet(SACParserFactory.DEFAULT_PARSER);
+		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet();
 		sheet.setMedia(MediaList.createMediaList("screen"));
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
 		CharBuffer target = CharBuffer.allocate(600);

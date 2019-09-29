@@ -49,10 +49,6 @@ import io.sf.carte.doc.style.css.property.StyleValue;
 
 public class ComputedCSSStyleTest {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	static CSSStyleSheet sheet;
 
 	static CSSDocument xhtmlDoc;
@@ -688,7 +684,7 @@ public class ComputedCSSStyleTest {
 
 	@Test
 	public void getComputedStyleMediumScreenNoDb() throws CSSMediaException, IOException, DocumentException {
-		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(true, null);
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(true);
 		factory.setDeviceFactory(null);
 		xhtmlDoc = DOMCSSStyleSheetFactoryTest.sampleXHTML(factory);
 		CSSElement elm = xhtmlDoc.getElementById("div1");
@@ -726,7 +722,7 @@ public class ComputedCSSStyleTest {
 
 	@Test
 	public void getComputedStyleMediumPrintNoDb() throws CSSMediaException, IOException, DocumentException {
-		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(true, null);
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(true);
 		factory.setDeviceFactory(null);
 		xhtmlDoc = DOMCSSStyleSheetFactoryTest.sampleXHTML(factory);
 		CSSElement elm = xhtmlDoc.getElementById("div1");

@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
@@ -61,10 +60,11 @@ import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
  * <p>
@@ -905,7 +905,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public boolean matches(String selectorString, String pseudoElement) throws DOMException {
-			Parser parser = SACParserFactory.createSACParser();
+			Parser2 parser = new CSSParser();
 			InputSource source = new InputSource(new StringReader(selectorString));
 			SelectorList list;
 			try {

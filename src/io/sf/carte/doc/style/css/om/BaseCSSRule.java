@@ -16,11 +16,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
  * Base implementation class for CSS rules.
@@ -78,12 +78,12 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 		this.parentSheet = parentSheet;
 	}
 
-	protected Parser createSACParser() throws DOMException {
-		Parser parser;
+	protected Parser2 createSACParser() throws DOMException {
+		Parser2 parser;
 		if (getParentStyleSheet() != null) {
 			parser = getParentStyleSheet().getStyleSheetFactory().createSACParser();
 		} else {
-			parser = SACParserFactory.createSACParser();
+			parser = new CSSParser();
 		}
 		return parser;
 	}

@@ -61,7 +61,7 @@ public class XMLDocumentTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		TestDOMImplementation impl = new TestDOMImplementation(false, null);
+		TestDOMImplementation impl = new TestDOMImplementation(false);
 		impl.setXmlOnly(true);
 		builder = new XMLDocumentBuilder(impl);
 		builder.setIgnoreElementContentWhitespace(true);
@@ -138,7 +138,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void appendChild2() throws DOMException {
-		DOMDocument document = new TestDOMImplementation(false, null).createDocument(null, null, null);
+		DOMDocument document = new TestDOMImplementation(false).createDocument(null, null, null);
 		document.appendChild(document.getImplementation().createDocumentType(null, null, null));
 		try {
 			document.appendChild(document.getImplementation().createDocumentType(null, null, null));

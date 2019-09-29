@@ -19,13 +19,11 @@ import java.util.Locale;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
 import io.sf.carte.doc.style.css.nsac.Parser2;
@@ -453,7 +451,7 @@ public class ValueFactory {
 	 *             if a problem was found parsing the property.
 	 */
 	public StyleValue parseProperty(String value) throws DOMException {
-		return parseProperty(value, SACParserFactory.createSACParser());
+		return parseProperty(value, new CSSParser());
 	}
 
 	/**
@@ -462,12 +460,12 @@ public class ValueFactory {
 	 * @param value
 	 *            the string containing the property value.
 	 * @param parser
-	 *            the SAC parser.
+	 *            the NSAC parser.
 	 * @return the CSSValue object containing the parsed value.
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
 	 */
-	public StyleValue parseProperty(String value, Parser parser) throws DOMException {
+	public StyleValue parseProperty(String value, Parser2 parser) throws DOMException {
 		return parseProperty("", value, parser);
 	}
 
@@ -515,7 +513,7 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
 	 */
-	public StyleValue parseProperty(String propertyName, String value, Parser parser) throws DOMException {
+	public StyleValue parseProperty(String propertyName, String value, Parser2 parser) throws DOMException {
 		InputSource source = new InputSource();
 		Reader re = new StringReader(value);
 		source.setCharacterStream(re);

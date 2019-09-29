@@ -18,10 +18,6 @@ import org.junit.Test;
 
 public class BackgroundBuilderTest {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	BaseCSSStyleDeclaration emptyStyleDecl;
 
 	@Before

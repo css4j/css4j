@@ -40,10 +40,6 @@ import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 
 public class DOMCSSStyleSheetTest {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	private BaseCSSStyleSheet sheet = null;
 
 	@Before

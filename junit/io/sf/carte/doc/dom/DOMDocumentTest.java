@@ -45,7 +45,7 @@ public class DOMDocumentTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		domImpl = new TestDOMImplementation(false, null);
+		domImpl = new TestDOMImplementation(false);
 	}
 
 	@Test

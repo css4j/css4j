@@ -25,10 +25,6 @@ import io.sf.carte.doc.style.css.CSSNamespaceRule;
 
 public class NamespaceRuleTest {
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	private AbstractCSSStyleSheet sheet;
 
 	@Before

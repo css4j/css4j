@@ -29,8 +29,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class ValueFactoryTest {
 
@@ -38,7 +38,7 @@ public class ValueFactoryTest {
 
 	@Before
 	public void setUp() {
-		parser = SACParserFactory.createSACParser();
+		parser = new CSSParser();
 	}
 
 	@Test

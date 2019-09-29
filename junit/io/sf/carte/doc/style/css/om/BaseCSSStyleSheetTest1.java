@@ -13,49 +13,27 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Parser;
 
-@RunWith(Parameterized.class)
+import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.parser.CSSParser;
+
 public class BaseCSSStyleSheetTest1 {
 
-	Parser cssParser;
+	private Parser2 cssParser;
 
-	public BaseCSSStyleSheetTest1(Parser cssParser) {
-		super();
-		this.cssParser = cssParser;
-	}
-
-	@Parameters
-	public static Collection<Object[]> data() {
-		List<Object[]> parsers = new LinkedList<Object[]>();
-		parsers.add(new Object[] { new io.sf.carte.doc.style.css.parser.CSSParser() });
-		parsers.add(new Object[] { new org.apache.batik.css.parser.Parser() });
-		try {
-			Parser p = (Parser) Class.forName("org.w3c.flute.parser.Parser").getConstructor().newInstance();
-			parsers.add(new Object[] { p });
-		} catch (Exception e) {
-		}
-		/* steadystate parser */
-		try {
-			Parser p = (Parser) Class.forName("com.steadystate.css.parser.SACParserCSS3").getConstructor()
-					.newInstance();
-			parsers.add(new Object[] { p });
-		} catch (Exception e) {
-		}
-		return parsers;
+	@Before
+	public void setUp() {
+		this.cssParser = new CSSParser();
 	}
 
 	@Test
@@ -70,11 +48,10 @@ public class BaseCSSStyleSheetTest1 {
 		CSSRuleArrayList rules = css.getCssRules();
 		assertEquals(DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS, rules.getLength());
 		assertFalse(css.getErrorHandler().hasSacErrors());
-		/*
-		 * DOMStringList comments = rules.item(3).getPrecedingComments(); assertNotNull(comments);
-		 * assertEquals(1, comments.getLength()); assertEquals("Comment before li",
-		 * comments.item(0).trim());
-		 */
+		List<String> comments = rules.item(3).getPrecedingComments();
+		assertNotNull(comments);
+		assertEquals(1, comments.size()); assertEquals("Comment before li",
+		comments.get(0).trim());
 	}
 
 }

@@ -32,7 +32,6 @@ import io.sf.carte.doc.dom.TreeWalkerTest;
 import io.sf.carte.doc.dom.XHTMLDocumentTest;
 import io.sf.carte.doc.dom.XMLDocumentBuilderTest;
 import io.sf.carte.doc.dom.XMLDocumentTest;
-import io.sf.carte.doc.style.css.SACParserFactoryTest;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetTest;
 import io.sf.carte.doc.style.css.om.AbstractStyleDatabaseTest;
 import io.sf.carte.doc.style.css.om.AnimationShorthandBuilderTest;
@@ -157,7 +156,6 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 	XMLDocumentBuilderTest.class,
 	XMLDocumentTest.class,
 	AbstractStyleDatabaseTest.class,
-	SACParserFactoryTest.class,
 		AbstractCSSStyleSheetTest.class,
 		AnimationShorthandBuilderTest.class,
 		BackgroundBuilderTest.class,

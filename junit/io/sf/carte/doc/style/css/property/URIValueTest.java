@@ -18,13 +18,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
-
 public class URIValueTest {
-
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
 
 	@Test
 	public void testSetStringValueShortString() {

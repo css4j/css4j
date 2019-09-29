@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -33,7 +32,6 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
@@ -382,26 +380,18 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	}
 
 	/**
-	 * Create a SAC Parser specified by the system property
-	 * <code>org.w3c.css.sac.parser</code>.
-	 * <p>
-	 * If that property is not set, the instantiation of a default parser will be attempted.
-	 * <p>
-	 * If the parser is NSAC 1.1 compliant, the NSAC flags will be enabled.
+	 * Create a NSAC Parser with the NSAC flags enabled.
 	 * 
-	 * @return the SAC parser.
+	 * @return the NSAC parser.
 	 * @throws DOMException
 	 *             NOT_SUPPORTED_ERR if the Parser could not be instantiated.
 	 */
 	@Override
-	protected Parser createSACParser() throws DOMException {
-		Parser parser = SACParserFactory.createSACParser();
-		if (parser instanceof Parser2) {
-			Parser2 parser2 = (Parser2) parser;
-			EnumSet<Parser2.Flag> flags = getParserFlags();
-			for (Parser2.Flag flag : flags) {
-				parser2.setFlag(flag);
-			}
+	protected Parser2 createSACParser() throws DOMException {
+		Parser2 parser = new CSSParser();
+		EnumSet<Parser2.Flag> flags = getParserFlags();
+		for (Parser2.Flag flag : flags) {
+			parser.setFlag(flag);
 		}
 		return parser;
 	}

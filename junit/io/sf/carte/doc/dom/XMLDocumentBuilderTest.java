@@ -48,7 +48,7 @@ public class XMLDocumentBuilderTest {
 
 	@Before
 	public void setUp() {
-		domImpl = new TestDOMImplementation(false, null);
+		domImpl = new TestDOMImplementation(false);
 		builder = new XMLDocumentBuilder(domImpl);
 		builder.setIgnoreElementContentWhitespace(true);
 		builder.setEntityResolver(new DefaultEntityResolver());

@@ -51,7 +51,7 @@ public class CollectionsTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		TestDOMImplementation impl = new TestDOMImplementation(false, null);
+		TestDOMImplementation impl = new TestDOMImplementation(false);
 		impl.setXmlOnly(true);
 		builder = new XMLDocumentBuilder(impl);
 		builder.getSAXParserFactory().setNamespaceAware(true);

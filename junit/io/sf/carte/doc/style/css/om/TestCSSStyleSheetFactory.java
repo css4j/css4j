@@ -20,8 +20,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.css.sac.Parser;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -35,7 +33,6 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 
 	private final WrapperUserAgent agent;
 	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
-	public String parserClass;
 
 	public TestCSSStyleSheetFactory() {
 		this(EnumSet.noneOf(Parser2.Flag.class));
@@ -56,9 +53,8 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		setDeviceFactory(new TestDeviceFactory());
 	}
 
-	public TestCSSStyleSheetFactory(boolean defaultStyleSheet, String parserClass) {
+	public TestCSSStyleSheetFactory(boolean defaultStyleSheet) {
 		this();
-		this.parserClass = parserClass;
 		if (defaultStyleSheet) {
 			setDefaultHTMLUserAgentSheet();
 		}
@@ -109,27 +105,6 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 
 	public MockURLConnectionFactory getConnectionFactory() {
 		return urlFactory;
-	}
-
-	@Override
-	protected Parser createSACParser() throws DOMException {
-		if (parserClass == null) {
-			return super.createSACParser();
-		}
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Parser>() {
-			@Override
-			public Parser run() {
-				try {
-					return (Parser) Class.forName(parserClass).getConstructor().newInstance();
-				} catch (Exception e) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
-				}
-			}
-		});
-	}
-
-	public static void setTestSACParser() {
-		System.setProperty("org.w3c.css.sac.parser", "io.sf.carte.doc.style.css.parser.CSSParser");
 	}
 
 	private class TestDeviceFactory extends DummyDeviceFactory {

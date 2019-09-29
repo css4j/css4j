@@ -40,12 +40,8 @@ public class DOMCSSStyleSheetFactoryTest {
 
 	public static final int RULES_IN_SAMPLE_CSS = 9;
 
-	static {
-		TestCSSStyleSheetFactory.setTestSACParser();
-	}
-
 	private static DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
-	private static DOMCSSStyleSheetFactory factoryDef = new TestCSSStyleSheetFactory(true, null);
+	private static DOMCSSStyleSheetFactory factoryDef = new TestCSSStyleSheetFactory(true);
 
 	@Test
 	public void countHTMLSheetRules() throws IOException {
@@ -94,17 +90,7 @@ public class DOMCSSStyleSheetFactoryTest {
 	}
 
 	public static AbstractCSSStyleSheet loadSampleSheet() throws DOMException {
-		return loadSampleSheet(null);
-	}
-
-	public static AbstractCSSStyleSheet loadSampleSheet(String parserClass) throws DOMException {
-		AbstractCSSStyleSheet sheet;
-		if (parserClass != null) {
-			DOMCSSStyleSheetFactory myfactory = new TestCSSStyleSheetFactory(false, parserClass);
-			sheet = myfactory.createStyleSheet(null, null);
-		} else {
-			sheet = factory.createStyleSheet(null, null);
-		}
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
 		Reader re = loadSampleCSSReader();
 		try {
 			sheet.parseStyleSheet(new InputSource(re));

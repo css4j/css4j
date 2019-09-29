@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
@@ -36,10 +35,11 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.SelectorMatcher;
+import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
 import io.sf.carte.doc.style.css.om.DOMSelectorMatcher;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
  * A bare DOM element node.
@@ -713,7 +713,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	 */
 	@Override
 	public boolean matches(String selectorString, String pseudoElement) throws DOMException {
-		Parser parser = SACParserFactory.createSACParser();
+		Parser2 parser = new CSSParser();
 		InputSource source = new InputSource(new StringReader(selectorString));
 		SelectorList list;
 		try {

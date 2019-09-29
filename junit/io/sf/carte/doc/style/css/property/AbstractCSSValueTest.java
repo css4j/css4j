@@ -15,47 +15,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.css.CSSValueList;
 
-@RunWith(Parameterized.class)
+import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.parser.CSSParser;
+
 public class AbstractCSSValueTest {
 
-	private Parser cssParser;
+	private Parser2 cssParser;
 
-	public AbstractCSSValueTest(Parser cssParser) {
-		super();
-		this.cssParser = cssParser;
-	}
-
-	@Parameters
-	public static Collection<Object[]> data() {
-		List<Object[]> parsers = new LinkedList<Object[]>();
-		parsers.add(new Object[] { new io.sf.carte.doc.style.css.parser.CSSParser() });
-		parsers.add(new Object[] { new org.apache.batik.css.parser.Parser() });
-		try {
-			Parser p = (Parser) Class.forName("com.steadystate.css.parser.SACParserCSS3").getConstructor()
-					.newInstance();
-			parsers.add(new Object[] { p });
-		} catch (Exception e) {
-		}
-		try {
-			Parser p = (Parser) Class.forName("com.steadystate.css.parser.SACParserCSS3").getConstructor()
-					.newInstance();
-			parsers.add(new Object[] { p });
-		} catch (Exception e) {
-		}
-		return parsers;
+	@Before
+	public void setUp() {
+		this.cssParser = new CSSParser();
 	}
 
 	@Test

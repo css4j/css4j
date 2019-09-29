@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -41,13 +40,14 @@ import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.SelectorMatcher;
+import io.sf.carte.doc.style.css.nsac.Parser2;
 import io.sf.carte.doc.style.css.om.DummyDeviceFactory.DummyCanvas;
 
 public class SelectorMatcherTest {
 
-	Parser cssParser;
+	private Parser2 cssParser;
 
-	static CSSDocument doc;
+	private static CSSDocument doc;
 
 	@Before
 	public void setUp() {
@@ -61,7 +61,7 @@ public class SelectorMatcherTest {
 	}
 
 	private DOMDocument createDocumentWithMode(CSSDocument.ComplianceMode mode) {
-		TestDOMImplementation impl = new TestDOMImplementation(false, cssParser.getClass().getCanonicalName());
+		TestDOMImplementation impl = new TestDOMImplementation(false);
 		DocumentType doctype = null;
 		if (mode == CSSDocument.ComplianceMode.STRICT) {
 			doctype = impl.createDocumentType("html", null, null);

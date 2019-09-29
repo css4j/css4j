@@ -19,10 +19,9 @@ import java.io.StringReader;
 
 import org.junit.Test;
 import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.SelectorList;
 
-import io.sf.carte.doc.style.css.SACParserFactory;
+import io.sf.carte.doc.style.css.nsac.Parser2;
 
 public class AnBExpressionTest {
 
@@ -195,7 +194,7 @@ public class AnBExpressionTest {
 			if (selText.length() == 0) {
 				return null;
 			}
-			Parser parser = SACParserFactory.createSACParser();
+			Parser2 parser = new CSSParser();
 			InputSource source = new InputSource(new StringReader(selText));
 			SelectorList list;
 			try {
