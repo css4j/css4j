@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -382,7 +383,7 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 			try {
 				is = con.getInputStream();
 				InputSource source = new InputSource(
-						AgentUtil.inputStreamToReader(is, conType, contentEncoding, "utf-8"));
+						AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8));
 				xdoc = docbuilder.parse(source);
 			} catch (IOException e) {
 				throw e;

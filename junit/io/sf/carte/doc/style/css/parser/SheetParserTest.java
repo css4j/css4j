@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -2063,12 +2063,7 @@ public class SheetParserTest {
 			});
 		Reader re = null;
 		if(is != null) {
-			try {
-				re = new InputStreamReader(is, "utf-8");
-			} catch (UnsupportedEncodingException e) {
-				// Should not happen, but...
-				re = new InputStreamReader(is);
-			}
+			re = new InputStreamReader(is, StandardCharsets.UTF_8);
 		}
 		return re;
 	}

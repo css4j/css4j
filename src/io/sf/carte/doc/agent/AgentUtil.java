@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -60,7 +61,7 @@ public class AgentUtil {
 	}
 
 	public static Reader inputStreamToReader(InputStream is, String conType, String contentEncoding,
-			String defaultCharset) throws IOException {
+			Charset defaultCharset) throws IOException {
 		if (contentEncoding != null && contentEncoding.equalsIgnoreCase("gzip")) {
 			is = new GZIPInputStream(is);
 		}
@@ -72,11 +73,14 @@ public class AgentUtil {
 				charset = AgentUtil.findCharset(conType, sepidx + 1);
 			}
 		}
+		InputStreamReader isre;
 		if (charset == null) {
-			charset = defaultCharset;
+			isre = new InputStreamReader(is, defaultCharset);
+		} else {
+			isre = new InputStreamReader(is, charset);
 		}
 		// Handle UTF-8 BOM
-		PushbackReader re = new PushbackReader(new InputStreamReader(is, charset), 1);
+		PushbackReader re = new PushbackReader(isre, 1);
 		int iread = re.read();
 		if (iread == -1 || iread != 0xefbbbf) {
 			re.unread(iread);

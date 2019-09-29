@@ -19,6 +19,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -180,7 +182,7 @@ public class CSSParser implements Parser2 {
 		is = new BufferedInputStream(is);
 		String contentEncoding = ucon.getContentEncoding();
 		String conType = ucon.getContentType();
-		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, "utf-8");
+		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
 		InputSource source = new InputSource(re);
 		source.setURI(uri);
 		SheetTokenHandler handler = new SheetTokenHandler(source, null);
@@ -217,9 +219,12 @@ public class CSSParser implements Parser2 {
 		if (re == null) {
 			InputStream is = source.getByteStream();
 			if (is != null) {
-				String charset = source.getEncoding();
-				if ( charset == null) {
-					charset = "utf-8";
+				String encoding = source.getEncoding();
+				Charset charset;
+				if (encoding == null) {
+					charset = StandardCharsets.UTF_8;
+				} else {
+					charset = Charset.forName(encoding);
 				}
 				re = new InputStreamReader(is, charset);
 			} else {
@@ -232,9 +237,12 @@ public class CSSParser implements Parser2 {
 					is = new BufferedInputStream(is);
 					String contentEncoding = con.getContentEncoding();
 					String conType = con.getContentType();
-					String charset = source.getEncoding();
-					if (charset == null) {
-						charset = "utf-8";
+					String encoding = source.getEncoding();
+					Charset charset;
+					if (encoding == null) {
+						charset = StandardCharsets.UTF_8;
+					} else {
+						charset = Charset.forName(encoding);
 					}
 					re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, charset);
 				}

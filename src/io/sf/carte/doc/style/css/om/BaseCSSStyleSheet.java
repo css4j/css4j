@@ -18,6 +18,7 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -742,7 +743,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		InputStream is = ucon.getInputStream();
 		String contentEncoding = ucon.getContentEncoding();
 		String conType = ucon.getContentType();
-		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, "utf-8");
+		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
 		InputSource source = new InputSource(re);
 		// Parse
 		boolean result;

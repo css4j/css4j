@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -149,12 +149,7 @@ public class DOMCSSStyleSheetFactoryTest {
 		});
 		Reader re = null;
 		if (is != null) {
-			try {
-				re = new InputStreamReader(is, "utf-8");
-			} catch (UnsupportedEncodingException e) {
-				// Should not happen, but...
-				re = new InputStreamReader(is);
-			}
+			re = new InputStreamReader(is, StandardCharsets.UTF_8);
 		}
 		return re;
 	}
@@ -164,37 +159,29 @@ public class DOMCSSStyleSheetFactoryTest {
 	}
 
 	public static CSSDocument sampleXHTML(DOMCSSStyleSheetFactory factory) throws IOException, DocumentException {
-		return wrapStreamForFactory(sampleHTMLStream(), null, MockURLConnectionFactory.SAMPLE_URL, factory);
+		return wrapStreamForFactory(sampleHTMLStream(), MockURLConnectionFactory.SAMPLE_URL, factory);
 	}
 
 	public static CSSDocument simpleBoxHTML() throws IOException, DocumentException {
-		return wrapStreamDefaultSheet(xhtmlClasspathStream("/io/sf/carte/doc/agent/simplebox.html"), null, null);
+		return wrapStreamDefaultSheet(xhtmlClasspathStream("/io/sf/carte/doc/agent/simplebox.html"), null);
 	}
 
 	private static Reader xhtmlClasspathReader(final String filename) {
 		InputStream is = xhtmlClasspathStream(filename);
 		Reader re = null;
 		if (is != null) {
-			try {
-				re = new InputStreamReader(is, "utf-8");
-			} catch (UnsupportedEncodingException e) {
-				// Should not happen, but...
-				re = new InputStreamReader(is);
-			}
+			re = new InputStreamReader(is, StandardCharsets.UTF_8);
 		}
 		return re;
 	}
 
-	public static CSSDocument wrapStreamDefaultSheet(InputStream is, String charset, String documentURI)
+	public static CSSDocument wrapStreamDefaultSheet(InputStream is, String documentURI)
 			throws IOException, DocumentException {
-		return wrapStreamForFactory(is, charset, documentURI, factoryDef);
+		return wrapStreamForFactory(is, documentURI, factoryDef);
 	}
 
-	static CSSDocument wrapStreamForFactory(InputStream is, String charset, String documentURI,
+	static CSSDocument wrapStreamForFactory(InputStream is, String documentURI,
 			DOMCSSStyleSheetFactory factory) throws IOException, DocumentException {
-		if (charset == null) {
-			charset = "utf-8";
-		}
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docb;
 		try {
