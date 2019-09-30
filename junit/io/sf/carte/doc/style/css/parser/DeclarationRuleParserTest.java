@@ -137,10 +137,10 @@ public class DeclarationRuleParserTest {
 
 	@Test
 	public void testParseDeclarationRuleBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@viewport{orientation:landscape"));
-		parser.parseStyleDeclaration(source);
-		assertEquals(0, handler.ruleNames.size());
-		assertEquals(0, handler.selectorNames.size());
+		InputSource source = new InputSource(new StringReader("@viewport{orientation;landscape}"));
+		parser.parseDeclarationRule(source);
+		assertEquals(1, handler.ruleNames.size());
+		assertEquals(1, handler.selectorNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
 	}
