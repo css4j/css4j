@@ -392,6 +392,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 					&& matchCondition(comb.getSecondCondition(), simple);
 		case Condition.SAC_ONLY_CHILD_CONDITION: // Only NSAC parser uses this
 			return matches(simple) && isOnlyChild();
+		case Condition.SAC_ONLY_TYPE_CONDITION: // Only NSAC parser uses this
+			return matches(simple) && isOnlyOfType();
 		case Condition.SAC_POSITIONAL_CONDITION:
 			// SS and Batik use SAC_PSEUDO_CLASS_CONDITION instead of this
 			if (matches(simple)) {
