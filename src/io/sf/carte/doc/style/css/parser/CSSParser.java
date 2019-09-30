@@ -3900,6 +3900,12 @@ public class CSSParser implements Parser2 {
 						return;
 					}
 					condition = factory.createCondition(Condition.SAC_ONLY_CHILD_CONDITION);
+				} else if ("only-of-type".equals(lcname)) {
+					if (triggerCp == '(') {
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
+						return;
+					}
+					condition = factory.createCondition(Condition.SAC_ONLY_TYPE_CONDITION);
 				} else if ("not".equals(lcname) || "is".equals(lcname) || "has".equals(lcname)
 						|| "where".equals(lcname)) {
 					if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
