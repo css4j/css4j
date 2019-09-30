@@ -5139,6 +5139,8 @@ public class CSSParser implements Parser2 {
 					}
 				}
 				propertyName = null;
+			} else if (buffer.length() != 0) {
+				unexpectedTokenError(index, buffer);
 			}
 			// Reset other state fields
 			resetHandler();
