@@ -33,6 +33,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
+import io.sf.carte.doc.style.css.nsac.Condition2;
 
 /**
  * CSS style rule.
@@ -157,6 +158,9 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 			case Condition.SAC_POSITIONAL_CONDITION:
 				sp.attrib_classes_count++;
 				break;
+			case Condition2.SAC_PSEUDO_ELEMENT_CONDITION:
+				sp.names_pseudoelements_count++;
+			break;
 			case Condition.SAC_ID_CONDITION:
 				sp.id_count++;
 				break;
