@@ -1467,9 +1467,13 @@ public class CSSParser implements Parser2 {
 	@Override
 	public SelectorList parseSelectors(InputSource source) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
+		Reader re = getReaderFromSource(source);
+		if (re == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
 		SelectorTokenHandler handler = new SelectorTokenHandler(source, null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		tp.parse(source.getCharacterStream(), "/*", "*/");
+		tp.parse(re, "/*", "*/");
 		return handler.getSelectorList();
 	}
 
@@ -1500,9 +1504,13 @@ public class CSSParser implements Parser2 {
 	@Override
 	public LexicalUnit2 parsePropertyValue(InputSource source) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
+		Reader re = getReaderFromSource(source);
+		if (re == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
 		PropertyTokenHandler handler = new PropertyTokenHandler(source);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		tp.parse(source.getCharacterStream(), "/*", "*/");
+		tp.parse(re, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
 
@@ -1516,7 +1524,10 @@ public class CSSParser implements Parser2 {
 
 	@Override
 	public boolean parsePriority(InputSource source) throws CSSException, IOException {
-		Reader re = source.getCharacterStream();
+		Reader re = getReaderFromSource(source);
+		if (re == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
 		int cp = re.read();
 		if (cp != -1) {
 			short count = 0;
