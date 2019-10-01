@@ -19,7 +19,7 @@ import java.util.List;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
@@ -78,8 +78,8 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 		this.parentSheet = parentSheet;
 	}
 
-	protected Parser2 createSACParser() throws DOMException {
-		Parser2 parser;
+	protected Parser createSACParser() throws DOMException {
+		Parser parser;
 		if (getParentStyleSheet() != null) {
 			parser = getParentStyleSheet().getStyleSheetFactory().createSACParser();
 		} else {

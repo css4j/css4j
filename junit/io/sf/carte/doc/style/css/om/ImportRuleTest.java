@@ -24,7 +24,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -427,8 +426,7 @@ public class ImportRuleTest {
 	@Test
 	public void testStandAloneIOError() throws DOMException, IOException {
 		AbstractCSSStyleSheet sheet = factory.createMockStyleSheet(null, null, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		sheet.parseStyleSheet(new InputSource(new StringReader(
-				"@import 'http://www.example.com/css/nonexistent.css';")));
+		sheet.parseStyleSheet(new StringReader("@import 'http://www.example.com/css/nonexistent.css';"));
 		assertEquals(1, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		AbstractCSSStyleSheet imported = imp.getStyleSheet();
@@ -458,9 +456,8 @@ public class ImportRuleTest {
 	@Test
 	public void testParseVariant() throws DOMException, IOException {
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		InputSource source = new InputSource(
-				new StringReader("@import url('http://www.example.com/css/default.css');p{margin-left:1em;}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader("@import url('http://www.example.com/css/default.css');p{margin-left:1em;}");
+		sheet.parseStyleSheet(re);
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
@@ -480,9 +477,9 @@ public class ImportRuleTest {
 	@Test
 	public void testParseVariantMedia() throws DOMException, IOException {
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		InputSource source = new InputSource(new StringReader(
-				"@import url('http://www.example.com/css/default.css') screen and (min-width: 600px);p{margin-left:1em;}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@import url('http://www.example.com/css/default.css') screen and (min-width: 600px);p{margin-left:1em;}");
+		sheet.parseStyleSheet(re);
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());

@@ -66,7 +66,8 @@ public class URIValueTest {
 		value.setCssText("url('http://www.example.com/app?param=\\\'foo\\\'&param2=\"bar\"')");
 		assertEquals("http://www.example.com/app?param='foo'&param2=\"bar\"", value.getStringValue());
 		assertEquals("url('http://www.example.com/app?param=\\\'foo\\\'&param2=\"bar\"')", value.getCssText());
-		assertEquals("url('http://www.example.com/app?param=\\\'foo\\\'&param2=\"bar\"')", value.getMinifiedCssText(""));
+		assertEquals("url('http://www.example.com/app?param=\\\'foo\\\'&param2=\"bar\"')",
+				value.getMinifiedCssText(""));
 		URIValue wrapped = new URIValueWrapper(value, null, "http://www.example.com/");
 		assertEquals(value.getCssText(), wrapped.getCssText());
 		assertEquals(value.getMinifiedCssText(""), wrapped.getMinifiedCssText(""));

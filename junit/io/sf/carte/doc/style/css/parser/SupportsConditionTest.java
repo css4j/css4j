@@ -18,7 +18,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.w3c.css.sac.CSSParseException;
+
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 public class SupportsConditionTest {
 
@@ -29,7 +30,8 @@ public class SupportsConditionTest {
 				"((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)))",
 				null);
 		assertNotNull(cond);
-		assertEquals("(-webkit-backdrop-filter:saturate(180%) blur(20px)) or (backdrop-filter:saturate(180%) blur(20px))",
+		assertEquals(
+				"(-webkit-backdrop-filter:saturate(180%) blur(20px)) or (backdrop-filter:saturate(180%) blur(20px))",
 				toMinifiedText(cond));
 		assertEquals(
 				"(-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px))",
@@ -82,7 +84,8 @@ public class SupportsConditionTest {
 				"(display: table-cell) and (display: list-item) and (not (display: run-in) or (display: table-cell))",
 				null);
 		assertNotNull(cond);
-		assertEquals("(display:table-cell) and (display:list-item) and ((not (display:run-in)) or (display:table-cell))",
+		assertEquals(
+				"(display:table-cell) and (display:list-item) and ((not (display:run-in)) or (display:table-cell))",
 				toMinifiedText(cond));
 		assertEquals(
 				"(display: table-cell) and (display: list-item) and ((not (display: run-in)) or (display: table-cell))",
@@ -141,7 +144,8 @@ public class SupportsConditionTest {
 				"(display: table-cell) and ((display: list-item) or (not ((display: run-in) or (display: table-cell))))",
 				null);
 		assertNotNull(cond);
-		assertEquals("(display:table-cell) and ((display:list-item) or (not ((display:run-in) or (display:table-cell))))",
+		assertEquals(
+				"(display:table-cell) and ((display:list-item) or (not ((display:run-in) or (display:table-cell))))",
 				toMinifiedText(cond));
 		assertEquals(
 				"(display: table-cell) and ((display: list-item) or (not ((display: run-in) or (display: table-cell))))",
@@ -355,7 +359,8 @@ public class SupportsConditionTest {
 				null);
 		assertTrue(cond.equals(other));
 		assertEquals(cond.hashCode(), other.hashCode());
-		assertEquals("(display:table-cell) and (display:list-item) and (not ((display:run-in) or (display:table-cell)))",
+		assertEquals(
+				"(display:table-cell) and (display:list-item) and (not ((display:run-in) or (display:table-cell)))",
 				toMinifiedText(cond));
 		other = parser.parseSupportsCondition(
 				"(display: table-cell) and (display: list-item) and (not (display: run-in) or (display: table-cell))",

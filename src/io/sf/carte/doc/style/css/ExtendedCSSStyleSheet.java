@@ -12,16 +12,16 @@
 package io.sf.carte.doc.style.css;
 
 import java.io.IOException;
+import java.io.Reader;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Selector;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.css.CSSUnknownRule;
 
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -260,8 +260,8 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * The comments preceding a rule will be available through
 	 * {@link AbstractCSSRule#getPrecedingComments()}.
 	 *
-	 * @param source
-	 *            the SAC input source.
+	 * @param reader
+	 *            the character stream containing the CSS sheet.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, <code>false</code> otherwise.
 	 * @throws DOMException
 	 *             if a DOM problem is found parsing the sheet.
@@ -270,7 +270,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @throws IOException
 	 *             if a problem is found reading the sheet.
 	 */
-	boolean parseStyleSheet(InputSource source) throws DOMException, IOException;
+	boolean parseStyleSheet(Reader reader) throws DOMException, IOException;
 
 	/**
 	 * Parses a style sheet.
@@ -286,13 +286,15 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 *
-	 * @param source         the SAC input source.
-	 * @param ignoreComments true if comments have to be ignored.
+	 * @param reader
+	 *            the character stream containing the CSS sheet.
+	 * @param ignoreComments
+	 *            true if comments have to be ignored.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal
 	 *         errors, <code>false</code> otherwise.
 	 * @throws DOMException if a problem is found parsing the sheet.
 	 * @throws IOException  if a problem is found reading the sheet.
 	 */
-	boolean parseStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException;
+	boolean parseStyleSheet(Reader reader, boolean ignoreComments) throws DOMException, IOException;
 
 }

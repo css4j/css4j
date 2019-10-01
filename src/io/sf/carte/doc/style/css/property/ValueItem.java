@@ -11,9 +11,8 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import org.w3c.css.sac.LexicalUnit;
-
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
  * This interface provides information about the processing of one (or more) CSS lexical

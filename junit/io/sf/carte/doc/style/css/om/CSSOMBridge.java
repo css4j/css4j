@@ -11,16 +11,14 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.css.sac.DocumentHandler;
-import org.w3c.css.sac.SelectorList;
-
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 public class CSSOMBridge {
 
-	public static StyleValue getInitialValue(String propertyName, BaseCSSStyleDeclaration style,
-			PropertyDatabase pdb) {
+	public static StyleValue getInitialValue(String propertyName, BaseCSSStyleDeclaration style, PropertyDatabase pdb) {
 		return style.defaultPropertyValue(propertyName, pdb);
 	}
 
@@ -32,7 +30,7 @@ public class CSSOMBridge {
 		return rule.getSelectorList();
 	}
 
-	public static DocumentHandler createDocumentHandler(BaseCSSStyleSheet css, boolean ignoreComments) {
+	public static CSSHandler createDocumentHandler(BaseCSSStyleSheet css, boolean ignoreComments) {
 		return css.createDocumentHandler(css.getOrigin(), ignoreComments);
 	}
 

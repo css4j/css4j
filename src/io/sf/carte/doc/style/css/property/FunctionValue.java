@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
@@ -22,7 +21,7 @@ import org.w3c.dom.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -83,7 +82,7 @@ public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 				if (type == LexicalUnit.SAC_SUB_EXPRESSION) {
 					item = subExpression(lu);
 					newval = item.getCSSValue();
-				} else if (type == LexicalUnit2.SAC_LEFT_BRACKET) {
+				} else if (type == LexicalUnit.SAC_LEFT_BRACKET) {
 					LexicalUnit nlu = lu.getNextLexicalUnit();
 					item = factory.parseBracketList(nlu, null, false);
 					if (item != null) {

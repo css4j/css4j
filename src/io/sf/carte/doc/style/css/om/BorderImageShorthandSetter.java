@@ -13,9 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Locale;
 
-import org.w3c.css.sac.LexicalUnit;
-
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;

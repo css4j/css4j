@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 
 /**
  * Abstract base class for User Agents, with cookie handling.
@@ -49,7 +49,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private OriginPolicy originPolicy = null;
 
-	private final EnumSet<Parser2.Flag> parserFlags = EnumSet.noneOf(Parser2.Flag.class);
+	private final EnumSet<Parser.Flag> parserFlags = EnumSet.noneOf(Parser.Flag.class);
 
 	private final UserAgentErrorHandler errorHandler = new LogUserAgentErrorHandler();
 
@@ -66,7 +66,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private int timeout = 100000; // Connection timeout
 
-	protected AbstractUserAgent(EnumSet<Parser2.Flag> parserFlags) {
+	protected AbstractUserAgent(EnumSet<Parser.Flag> parserFlags) {
 		super();
 		this.parserFlags.addAll(parserFlags);
 	}
@@ -98,20 +98,20 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 		return cookieMap.get(host);
 	}
 
-	protected EnumSet<Parser2.Flag> getParserFlags() {
+	protected EnumSet<Parser.Flag> getParserFlags() {
 		return parserFlags;
 	}
 
 	@Override
 	public String getProperty(String propertyName) {
 		if (propertyName.equals("parser.starhack")) {
-			return Boolean.toString(parserFlags.contains(Parser2.Flag.STARHACK));
+			return Boolean.toString(parserFlags.contains(Parser.Flag.STARHACK));
 		} else if (propertyName.equals("parser.ievalues")) {
-			return Boolean.toString(parserFlags.contains(Parser2.Flag.IEVALUES));
+			return Boolean.toString(parserFlags.contains(Parser.Flag.IEVALUES));
 		} else if (propertyName.equals("parser.ieprio")) {
-			return Boolean.toString(parserFlags.contains(Parser2.Flag.IEPRIO));
+			return Boolean.toString(parserFlags.contains(Parser.Flag.IEPRIO));
 		} else if (propertyName.equals("parser.iepriochar")) {
-			return Boolean.toString(parserFlags.contains(Parser2.Flag.IEPRIOCHAR));
+			return Boolean.toString(parserFlags.contains(Parser.Flag.IEPRIOCHAR));
 		}
 		return null;
 	}
@@ -128,15 +128,15 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 	public void setProperty(String propertyName, String value) {
 		if (propertyName.equals("parser.starhack")) {
 			if ("true".equalsIgnoreCase(value)) {
-				parserFlags.add(Parser2.Flag.STARHACK);
+				parserFlags.add(Parser.Flag.STARHACK);
 			} else {
-				parserFlags.remove(Parser2.Flag.STARHACK);
+				parserFlags.remove(Parser.Flag.STARHACK);
 			}
 		} else if (propertyName.equals("parser.ievalues")) {
 			if ("true".equalsIgnoreCase(value)) {
-				parserFlags.add(Parser2.Flag.IEVALUES);
+				parserFlags.add(Parser.Flag.IEVALUES);
 			} else {
-				parserFlags.remove(Parser2.Flag.IEVALUES);
+				parserFlags.remove(Parser.Flag.IEVALUES);
 			}
 		}
 	}

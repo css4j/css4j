@@ -21,12 +21,12 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.css.CSSValueList;
 
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class AbstractCSSValueTest {
 
-	private Parser2 cssParser;
+	private Parser cssParser;
 
 	@Before
 	public void setUp() {

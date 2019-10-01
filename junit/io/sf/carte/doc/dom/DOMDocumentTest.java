@@ -742,8 +742,7 @@ public class DOMDocumentTest {
 	@Test
 	public void testProcessingInstruction() {
 		DOMDocument document = domImpl.createDocument(null, null, null);
-		ProcessingInstruction pi = document.createProcessingInstruction("xml-foo",
-				"pseudoattr=\"value\"");
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-foo", "pseudoattr=\"value\"");
 		assertEquals("<?xml-foo pseudoattr=\"value\"?>", pi.toString());
 		assertFalse(pi instanceof LinkStyle);
 		assertNull(pi.getNextSibling());
@@ -1102,7 +1101,8 @@ public class DOMDocumentTest {
 		assertTrue(dtd == document.getDoctype());
 		assertTrue(document == dtd.getParentNode());
 		assertNull(dtd2.getParentNode());
-		// Try to replace a different node type to add more than one DTD or document element
+		// Try to replace a different node type to add more than one DTD or document
+		// element
 		try {
 			document.replaceChild(element, dtd);
 		} catch (DOMException e) {

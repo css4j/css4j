@@ -19,8 +19,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -36,7 +34,8 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.SelectorMatcher;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
 import io.sf.carte.doc.style.css.om.DOMSelectorMatcher;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -713,11 +712,10 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	 */
 	@Override
 	public boolean matches(String selectorString, String pseudoElement) throws DOMException {
-		Parser2 parser = new CSSParser();
-		InputSource source = new InputSource(new StringReader(selectorString));
+		Parser parser = new CSSParser();
 		SelectorList list;
 		try {
-			list = parser.parseSelectors(source);
+			list = parser.parseSelectors(new StringReader(selectorString));
 		} catch (Exception e) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unable to parse selector in: " + selectorString);
 		}

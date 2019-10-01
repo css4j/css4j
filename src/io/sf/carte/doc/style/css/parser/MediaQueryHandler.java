@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import org.w3c.css.sac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 /**
  * Interface to be implemented by handlers that are passed to

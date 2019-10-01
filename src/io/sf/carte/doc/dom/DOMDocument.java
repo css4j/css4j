@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
@@ -606,11 +605,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 		sheet.setHref(getBaseURI());
 		if (styleText.length() != 0) {
-			InputSource source = new InputSource();
 			Reader re = new StringReader(styleText);
-			source.setCharacterStream(re);
 			try {
-				sheet.parseStyleSheet(source);
+				sheet.parseStyleSheet(re);
 			} catch (Exception e) {
 				getErrorHandler().linkedSheetError(e, sheet);
 			}

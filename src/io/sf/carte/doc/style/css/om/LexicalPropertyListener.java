@@ -11,8 +11,9 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
+
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
  * This interface listens to properties found by SAC event handlers.

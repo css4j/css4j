@@ -19,12 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
 public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErrorHandler {
@@ -44,9 +43,8 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	private LinkedList<String> valueWarnings = null;
 	private Map<String, String> unassignedValue = null;
 	// SAC Errors
-	private List<Short> sacWarnings = null;
-	private List<Short> sacErrors = null;
-	private List<Short> sacFatalErrors = null;
+	private List<CSSParseException> sacWarnings = null;
+	private List<CSSParseException> sacErrors = null;
 
 	@Override
 	public void malformedURIValue(String uri) {
@@ -165,7 +163,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	public boolean hasErrors() {
 		return malformedURIs != null || noDefault != null || seShorthands != null || wrongCount != null
 				|| missingReq != null || unknownIdent != null || wrongValue != null || unassignedValue != null
-				|| sacErrors != null || sacFatalErrors != null;
+				|| sacErrors != null;
 	}
 
 	@Override
@@ -231,70 +229,30 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 		unassignedValue = null;
 		sacWarnings = null;
 		sacErrors = null;
-		sacFatalErrors = null;
 	}
 
 	@Override
 	public void sacWarning(CSSParseException exception, int previousIndex) {
 		if (sacWarnings == null) {
-			sacWarnings = new LinkedList<Short>();
+			sacWarnings = new LinkedList<CSSParseException>();
 		}
-		switch (exception.getCode()) {
-		case CSSException.SAC_NOT_SUPPORTED_ERR:
-			sacWarnings.add(CSSException.SAC_NOT_SUPPORTED_ERR);
-			break;
-		case CSSException.SAC_SYNTAX_ERR:
-			sacWarnings.add(CSSException.SAC_SYNTAX_ERR);
-			break;
-		default:
-			sacWarnings.add(CSSException.SAC_UNSPECIFIED_ERR);
-		}
+		sacWarnings.add(exception);
 	}
 
 	@Override
 	public void sacError(CSSParseException exception, int previousIndex) {
 		if (sacErrors == null) {
-			sacErrors = new LinkedList<Short>();
+			sacErrors = new LinkedList<CSSParseException>();
 		}
-		switch (exception.getCode()) {
-		case CSSException.SAC_NOT_SUPPORTED_ERR:
-			sacErrors.add(CSSException.SAC_NOT_SUPPORTED_ERR);
-			break;
-		case CSSException.SAC_SYNTAX_ERR:
-			sacErrors.add(CSSException.SAC_SYNTAX_ERR);
-			break;
-		default:
-			sacErrors.add(CSSException.SAC_UNSPECIFIED_ERR);
-		}
+		sacErrors.add(exception);
 	}
 
-	@Override
-	public void sacFatalError(CSSParseException exception, int previousIndex) {
-		if (sacFatalErrors == null) {
-			sacFatalErrors = new LinkedList<Short>();
-		}
-		switch (exception.getCode()) {
-		case CSSException.SAC_NOT_SUPPORTED_ERR:
-			sacFatalErrors.add(CSSException.SAC_NOT_SUPPORTED_ERR);
-			break;
-		case CSSException.SAC_SYNTAX_ERR:
-			sacFatalErrors.add(CSSException.SAC_SYNTAX_ERR);
-			break;
-		default:
-			sacFatalErrors.add(CSSException.SAC_UNSPECIFIED_ERR);
-		}
-	}
-
-	public List<Short> getSACWarnings() {
+	public List<CSSParseException> getSACWarnings() {
 		return sacWarnings;
 	}
 
-	public List<Short> getSACErrors() {
+	public List<CSSParseException> getSACErrors() {
 		return sacErrors;
-	}
-
-	public List<Short> getSACFatalErrors() {
-		return sacFatalErrors;
 	}
 
 	public void errorSummary(StringBuilder buf) {
@@ -371,9 +329,6 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 		}
 		if (sacErrors != null) {
 			buf.append("There were ").append(sacErrors.size()).append(" SAC errors.\n");
-		}
-		if (sacFatalErrors != null) {
-			buf.append("There were ").append(sacFatalErrors.size()).append(" SAC fatal errors.\n");
 		}
 	}
 

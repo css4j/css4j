@@ -24,14 +24,13 @@ import java.util.EnumSet;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSKeyframesRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class KeyframesRuleTest {
 
@@ -48,9 +47,9 @@ public class KeyframesRuleTest {
 	public void testParseRule() throws DOMException, IOException {
 		// Rule taken from mozilla website
 		// https://developer.mozilla.org/en-US/docs/Web/CSS/@counter-style
-		InputSource source = new InputSource(new StringReader(
-				"/* pre-rule */@keyframes /* skip 1 */ foo /* skip 2 */ {  /* pre-from */ from /* skip 3 */ { margin-left: 100%;  width: 300%;} /* pre-50% */ 50% {margin-left: 50%;    width: 50%; }  to {margin-left: 0%;    width: 100%; }/* skip 4 */}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"/* pre-rule */@keyframes /* skip 1 */ foo /* skip 2 */ {  /* pre-from */ from /* skip 3 */ { margin-left: 100%;  width: 300%;} /* pre-50% */ 50% {margin-left: 50%;    width: 50%; }  to {margin-left: 0%;    width: 100%; }/* skip 4 */}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -96,9 +95,9 @@ public class KeyframesRuleTest {
 
 	@Test
 	public void testParseRule2() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes foo {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes foo {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -130,9 +129,9 @@ public class KeyframesRuleTest {
 
 	@Test
 	public void testParseRule3() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes \"My Animation\" {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes \"My Animation\" {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -146,9 +145,9 @@ public class KeyframesRuleTest {
 
 	@Test
 	public void testParseRuleEscapedFF() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes \\66 00 {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes \\66 00 {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -162,12 +161,12 @@ public class KeyframesRuleTest {
 
 	@Test
 	public void testParseRuleCompat() throws DOMException, IOException {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser2.Flag.IEVALUES));
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
 		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
 		sheet = factory.createStyleSheet(null, null);
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes animate-opacity{0%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes animate-opacity{0%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -179,13 +178,13 @@ public class KeyframesRuleTest {
 
 	@Test
 	public void testParseRuleCompatSQ() throws DOMException, IOException {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser2.Flag.IEVALUES));
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
 		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
 		factory.setFactoryFlag(AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE);
 		sheet = factory.createStyleSheet(null, null);
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes animate-opacity{0%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes animate-opacity{0%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -197,117 +196,117 @@ public class KeyframesRuleTest {
 
 	@Test
 	public void testParseRuleError() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes $varname{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes $varname{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleError2() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes Name, Other {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes Name, Other {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleError3() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes Name, Other Name {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes Name, Other Name {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleError4() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes 'Name', Other {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes 'Name', Other {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleError5() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes My name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes My name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleError6() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes \\61'My name'{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes \\61'My name'{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleError7() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes +name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes +name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleError8() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes name+{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes name+{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleError9() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes \\61  name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes \\61  name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	/*
-	 * This one should be accepting part of the rule. Pending for 2.0 and the new API.
+	 * This one should be accepting part of the rule. Pending for 2.0 and the new
+	 * API.
 	 */
 	@Test
 	public void testParseRuleError10() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; {} width: 100%;}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; {} width: 100%;}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength()); // FIXME
 		/*
-		assertEquals(1, sheet.getCssRules().getLength());
-		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
-		CSSRuleArrayList kfrules = rule.getCssRules();
-		assertNotNull(kfrules);
-		assertEquals(1, kfrules.getLength());
-		*/
+		 * assertEquals(1, sheet.getCssRules().getLength()); KeyframesRule rule =
+		 * (KeyframesRule) sheet.getCssRules().item(0); CSSRuleArrayList kfrules =
+		 * rule.getCssRules(); assertNotNull(kfrules); assertEquals(1,
+		 * kfrules.getLength());
+		 */
 	}
 
 	/*
-	 * This one should be accepting part of the rule. Pending for 2.0 and the new API.
+	 * This one should be accepting part of the rule. Pending for 2.0 and the new
+	 * API.
 	 */
 	@Test
 	public void testParseRuleError11() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;{}}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;{}}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength()); // FIXME
 		/*
-		assertEquals(1, sheet.getCssRules().getLength());
-		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
-		CSSRuleArrayList kfrules = rule.getCssRules();
-		assertNotNull(kfrules);
-		assertEquals(1, kfrules.getLength());
-		*/
+		 * assertEquals(1, sheet.getCssRules().getLength()); KeyframesRule rule =
+		 * (KeyframesRule) sheet.getCssRules().item(0); CSSRuleArrayList kfrules =
+		 * rule.getCssRules(); assertNotNull(kfrules); assertEquals(1,
+		 * kfrules.getLength());
+		 */
 	}
 
 	@Test
 	public void testParseRuleError12() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}{}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}{}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		CSSRuleArrayList kfrules = rule.getCssRules();
@@ -317,33 +316,33 @@ public class KeyframesRuleTest {
 
 	@Test
 	public void testParseRuleErrorKeyword1() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes initial {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes initial {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleErrorKeyword2() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes None {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes None {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleErrorKeyword3() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes Inherit {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes Inherit {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
 	public void testParseRuleErrorKeyword4() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@keyframes unset {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@keyframes unset {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
 

@@ -13,12 +13,11 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSUnicodeRangeValue;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -146,7 +145,7 @@ public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRange
 				UnicodeValue val = new UnicodeValue();
 				val.setCodePoint(lu.getIntegerValue());
 				return val;
-			} else if (type == LexicalUnit2.SAC_UNICODE_WILDCARD) {
+			} else if (type == LexicalUnit.SAC_UNICODE_WILDCARD) {
 				UnicodeWildcardValue val = new UnicodeWildcardValue();
 				val.setWildcard(lu.getStringValue());
 				return val;

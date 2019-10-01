@@ -22,7 +22,6 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
@@ -41,8 +40,8 @@ public class PageRuleTest {
 
 	@Test
 	public void testParsePageRule() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader("@page {margin-top: 20%;}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader("@page {margin-top: 20%;}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
@@ -52,9 +51,8 @@ public class PageRuleTest {
 
 	@Test
 	public void testParsePageRuleNested() throws DOMException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("@media print {@page {margin-top: 20%;}h3 {width: 80%}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader("@media print {@page {margin-top: 20%;}h3 {width: 80%}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		AbstractCSSRule rule = sheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
@@ -73,8 +71,8 @@ public class PageRuleTest {
 
 	@Test
 	public void testParsePageRulePseudoPage() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader("@page :first {margin-top: 20%;}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader("@page :first {margin-top: 20%;}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
@@ -84,9 +82,8 @@ public class PageRuleTest {
 
 	@Test
 	public void testParsePageRuleWithMargin() throws DOMException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("@page :first {margin-top: 20%;@top-left {content: 'foo'; color: blue;}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader("@page :first {margin-top: 20%;@top-left {content: 'foo'; color: blue;}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
@@ -131,7 +128,8 @@ public class PageRuleTest {
 	public void testSetCssTextStringWrongRule2() {
 		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {
-			rule.setCssText("@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}");
+			rule.setCssText(
+					"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);

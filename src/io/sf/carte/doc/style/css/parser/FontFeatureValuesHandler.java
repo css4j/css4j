@@ -13,15 +13,15 @@
  */
 package io.sf.carte.doc.style.css.parser;
 
-import org.w3c.css.sac.DocumentHandler;
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
 
 /**
- * DocumentHandler for {@literal @}font-feature-values rule body.
+ * Handler for {@literal @}font-feature-values rule body.
  * <p>
- * It is likely to be moved to a new DocumentHandler2 interface in NSAC 1.1.
+ * It is likely to be moved to a new CSSHandler interface in NSAC 2.
  *
  */
-public interface FontFeatureValuesHandler extends DocumentHandler {
+public interface FontFeatureValuesHandler extends CSSHandler {
 
 	void startFontFeatures(String[] familyName);
 

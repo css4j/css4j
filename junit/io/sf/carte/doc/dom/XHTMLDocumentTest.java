@@ -131,7 +131,8 @@ public class XHTMLDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"sheet.css\"");
+		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"sheet.css\"");
 		try {
 			text.appendChild(pi);
 			fail("Must throw exception.");
@@ -364,7 +365,8 @@ public class XHTMLDocumentTest {
 		assertEquals(1, tablelist.getLength());
 		CSSElement elem = tablelist.item(0);
 		assertEquals("table", elem.getNodeName());
-		ElementList list = ((HTMLElement) elem.getElementsByTagName("tr").item(0)).getElementsByClassName("tablecclass");
+		ElementList list = ((HTMLElement) elem.getElementsByTagName("tr").item(0))
+				.getElementsByClassName("tablecclass");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		list = xmlDoc.getElementsByClassName("liclass");
@@ -543,8 +545,7 @@ public class XHTMLDocumentTest {
 
 	@Test
 	public void getStyleSheet() {
-		DocumentCSSStyleSheet defsheet = xmlDoc.getStyleSheetFactory()
-				.getDefaultStyleSheet(xmlDoc.getComplianceMode());
+		DocumentCSSStyleSheet defsheet = xmlDoc.getStyleSheetFactory().getDefaultStyleSheet(xmlDoc.getComplianceMode());
 		assertNotNull(defsheet);
 		// Obtain the number of rules in the default style sheet, to use it
 		// as a baseline.
@@ -679,7 +680,9 @@ public class XHTMLDocumentTest {
 		assertNotNull(elm);
 		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("10px", style.getPropertyValue("margin-top"));
-		assertEquals("display: table-row; vertical-align: middle; border-top-color: #808080; border-right-color: #808080; border-bottom-color: #808080; border-left-color: #808080; unicode-bidi: embed; margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px; ", style.getCssText());
+		assertEquals(
+				"display: table-row; vertical-align: middle; border-top-color: #808080; border-right-color: #808080; border-bottom-color: #808080; border-left-color: #808080; unicode-bidi: embed; margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px; ",
+				style.getCssText());
 		elm.getOverrideStyle(null).setCssText("margin: 16pt; color: red");
 		assertEquals("red", elm.getOverrideStyle(null).getPropertyValue("color"));
 		assertEquals("margin: 16pt; color: red; ", elm.getOverrideStyle(null).getCssText());
@@ -687,9 +690,11 @@ public class XHTMLDocumentTest {
 		assertNotNull(style);
 		assertEquals("16pt", style.getPropertyValue("margin-top"));
 		assertEquals("#f00", style.getPropertyValue("color"));
-		assertEquals("display: table-row; vertical-align: middle; border-top-color: #808080; border-right-color: #808080; border-bottom-color: #808080; border-left-color: #808080; unicode-bidi: embed; margin-top: 16pt; margin-right: 16pt; margin-bottom: 16pt; margin-left: 16pt; color: #f00; ",
+		assertEquals(
+				"display: table-row; vertical-align: middle; border-top-color: #808080; border-right-color: #808080; border-bottom-color: #808080; border-left-color: #808080; unicode-bidi: embed; margin-top: 16pt; margin-right: 16pt; margin-bottom: 16pt; margin-left: 16pt; color: #f00; ",
 				style.getCssText());
-		assertEquals("display:table-row;vertical-align:middle;border-color:#808080;unicode-bidi:embed;margin:16pt;color:#f00;",
+		assertEquals(
+				"display:table-row;vertical-align:middle;border-color:#808080;unicode-bidi:embed;margin:16pt;color:#f00;",
 				style.getMinifiedCssText());
 	}
 

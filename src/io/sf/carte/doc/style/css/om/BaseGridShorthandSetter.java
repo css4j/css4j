@@ -13,10 +13,9 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Iterator;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
@@ -85,7 +84,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			StyleValue value;
 			short type;
 			switch (type = currentValue.getLexicalUnitType()) {
-			case LexicalUnit2.SAC_LEFT_BRACKET:
+			case LexicalUnit.SAC_LEFT_BRACKET:
 				// Line name
 				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {
 					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());

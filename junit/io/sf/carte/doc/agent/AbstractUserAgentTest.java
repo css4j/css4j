@@ -99,21 +99,18 @@ public class AbstractUserAgentTest {
 		cookie.setDomain("www.example.com");
 		cookie.addPort(80);
 		cookie.setPath("/mypath");
-		assertTrue(AbstractUserAgent.match(cookie, url, 
-				url.getHost().toLowerCase(Locale.ROOT), creationDate));
+		assertTrue(AbstractUserAgent.match(cookie, url, url.getHost().toLowerCase(Locale.ROOT), creationDate));
 		cookie = new DefaultCookie();
 		cookie.setDomain("www.example.com");
 		cookie.addPort(80);
 		cookie.setPath("/mypath");
 		cookie.setExpiryTime(creationDate - 1L);
-		assertFalse(AbstractUserAgent.match(cookie, url, 
-				url.getHost().toLowerCase(Locale.ROOT), creationDate));
+		assertFalse(AbstractUserAgent.match(cookie, url, url.getHost().toLowerCase(Locale.ROOT), creationDate));
 		cookie = new DefaultCookie();
 		cookie.setDomain("www.foo.com");
 		cookie.addPort(80);
 		cookie.setPath("/mypath");
-		assertFalse(AbstractUserAgent.match(cookie, url, 
-				url.getHost().toLowerCase(Locale.ROOT), creationDate));
+		assertFalse(AbstractUserAgent.match(cookie, url, url.getHost().toLowerCase(Locale.ROOT), creationDate));
 	}
 
 	@Test

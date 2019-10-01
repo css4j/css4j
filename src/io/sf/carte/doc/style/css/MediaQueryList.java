@@ -12,10 +12,10 @@ package io.sf.carte.doc.style.css;
 
 import java.util.List;
 
-import org.w3c.css.sac.CSSParseException;
 import org.w3c.dom.stylesheets.MediaList;
 
 import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 /**
  * Based on W3C's MediaQueryList interface.

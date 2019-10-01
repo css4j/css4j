@@ -141,7 +141,8 @@ public class CollectionsTest {
 		compareNodeIterators(refdoc, refdoc.getDocumentElement().getElementsByTagName("head").item(0), xmlDoc,
 				xmlDoc.getDocumentElement().getFirstElementChild(), NodeFilter.SHOW_ELEMENT, null);
 		compareNodeIterators(refdoc, refdoc.getDocumentElement().getElementsByTagName("head").item(0), xmlDoc,
-				xmlDoc.getDocumentElement().getFirstElementChild(), NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, null);
+				xmlDoc.getDocumentElement().getFirstElementChild(), NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+				null);
 		compareNodeIterators(refdoc, refdoc.getDocumentElement().getElementsByTagName("head").item(0), xmlDoc,
 				xmlDoc.getDocumentElement().getFirstElementChild(), NodeFilter.SHOW_COMMENT, null);
 		NodeFilter filter = new ElementNameFilter("ul");
@@ -251,7 +252,7 @@ public class CollectionsTest {
 			//
 			// a) Attributes do not always follow the specified order in Xerces.
 			// b) Its iterator of attributes only traverses the root node
-			//    (different interpretation of the specification).
+			// (different interpretation of the specification).
 		}
 		assertNull(refit.nextNode());
 		while (it.hasPrevious()) {

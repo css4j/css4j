@@ -51,17 +51,17 @@ public class MockURLConnectionFactory {
 
 	public void setHeader(String ext, String headerName, String value) {
 		Map<String, List<String>> extheaders = headerMap.get(ext);
-		if(extheaders == null) {
+		if (extheaders == null) {
 			extheaders = new HashMap<String, List<String>>();
 			headerMap.put(ext, extheaders);
 		}
 		List<String> hdrs = extheaders.get(headerName);
-		if(hdrs == null) {
+		if (hdrs == null) {
 			hdrs = new ArrayList<String>(4);
 			extheaders.put(headerName, hdrs);
 		}
 		int idx = hdrs.indexOf(headerName);
-		if(idx < 0) {
+		if (idx < 0) {
 			hdrs.add(value);
 		} else {
 			hdrs.set(idx, value);
@@ -69,13 +69,12 @@ public class MockURLConnectionFactory {
 	}
 
 	private static InputStream inputStreamFromClasspath(final String filename) {
-		InputStream is = java.security.AccessController
-			.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-				@Override
-				public InputStream run() {
-					return getClass().getResourceAsStream(filename);
-				}
-			});
+		InputStream is = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
+			@Override
+			public InputStream run() {
+				return getClass().getResourceAsStream(filename);
+			}
+		});
 		return is;
 	}
 
@@ -154,7 +153,7 @@ public class MockURLConnectionFactory {
 			String path = getURL().getPath();
 			int pathlen = path.length();
 			int dot = path.lastIndexOf('.', pathlen - 2);
-			if(dot == -1) {
+			if (dot == -1) {
 				return null;
 			}
 			return path.substring(dot + 1, pathlen);
@@ -163,7 +162,7 @@ public class MockURLConnectionFactory {
 		@Override
 		public String getHeaderField(String name) {
 			List<String> hdrs = getHeaderFields().get(name);
-			if(hdrs == null) {
+			if (hdrs == null) {
 				return null;
 			}
 			return hdrs.get(hdrs.size() - 1);
@@ -177,11 +176,11 @@ public class MockURLConnectionFactory {
 		@Override
 		public String getContentType() {
 			String ext = getExtension();
-			if("css".equals(ext)) {
+			if ("css".equals(ext)) {
 				return "text/css";
-			} else if("html".equals(ext)) {
+			} else if ("html".equals(ext)) {
 				return "text/html";
-			} else if("xml".equals(ext)) {
+			} else if ("xml".equals(ext)) {
 				return "text/xml";
 			} else if (ext != null) {
 				List<String> ctype = getHeaderFields().get("content-type");

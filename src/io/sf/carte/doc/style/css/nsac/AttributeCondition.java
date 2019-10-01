@@ -6,24 +6,24 @@
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
  *
- * Copyright © 2017 Carlos Amengual.
+ * Copyright © 2017-2019 Carlos Amengual.
  *
  * SPDX-License-Identifier: W3C-19980720
  *
  */
 package io.sf.carte.doc.style.css.nsac;
 
-import org.w3c.css.sac.AttributeCondition;
-
 /**
- * Refines SAC's <code>AttributeCondition</code> interface.
+ * Based on SAC's <code>AttributeCondition</code> interface by Philippe Le Hegaret.
  */
-public interface AttributeCondition2 extends AttributeCondition {
+public interface AttributeCondition extends Condition {
 
 	/**
 	 * Returns the <a href="http://www.w3.org/TR/REC-xml-names/#NT-LocalPart">local part</a>
 	 * of the <a href="http://www.w3.org/TR/REC-xml-names/#ns-qualnames">qualified name</a> of
 	 * this attribute.
+	 * <p>
+	 * If this condition represents a pseudo-class, it returns the pseudo-class name.
 	 *
 	 * @return the local name of the attribute specified by this condition, or
 	 *         <code>null</code> if :
@@ -39,15 +39,29 @@ public interface AttributeCondition2 extends AttributeCondition {
 	 *         this attribute is an id attribute.
 	 *         </ul>
 	 */
-	@Override
 	String getLocalName();
 
+    /**
+     * Returns the
+     * <a href="http://www.w3.org/TR/REC-xml-names/#dt-NSName">namespace
+     * URI</a> of this attribute condition.
+     * <p><code>NULL</code> if :
+     * <ul>
+     * <li>this attribute condition can match any namespace.
+     * <li>this attribute is an id attribute.
+     * </ul>
+     */    
+    String getNamespaceURI();
+
 	/**
-	 * If this attribute is a class attribute, you'll get the class name without the '.'.
+	 * If this attribute is a class attribute, you'll get the class name without the
+	 * '.'.
+	 * <p>
+	 * If this condition represents a pseudo-class with an argument (in
+	 * parentheses), it returns the argument.
 	 *
-	 * @return the value of the attribute.
+	 * @return the value of the attribute (or the pseudo-class argument).
 	 */
-	@Override
 	String getValue();
 
 	/**

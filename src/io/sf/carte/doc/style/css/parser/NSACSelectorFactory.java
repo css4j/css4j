@@ -15,24 +15,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CombinatorCondition;
-import org.w3c.css.sac.Condition;
-import org.w3c.css.sac.ConditionalSelector;
-import org.w3c.css.sac.DescendantSelector;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.LangCondition;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SiblingSelector;
-import org.w3c.css.sac.SimpleSelector;
-
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
-import io.sf.carte.doc.style.css.nsac.AttributeCondition2;
-import io.sf.carte.doc.style.css.nsac.Condition2;
-import io.sf.carte.doc.style.css.nsac.Parser2.NamespaceMap;
-import io.sf.carte.doc.style.css.nsac.PositionalCondition2;
-import io.sf.carte.doc.style.css.nsac.Selector2;
+import io.sf.carte.doc.style.css.nsac.AttributeCondition;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
+import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.LangCondition;
+import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
+import io.sf.carte.doc.style.css.nsac.PositionalCondition;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.jclf.text.TokenParser;
 
 /**
@@ -76,18 +72,11 @@ class NSACSelectorFactory implements NamespaceMap {
 		return new ElementSelectorImpl();
 	}
 
-	DescendantSelectorImpl createDescendantSelector(short type, Selector ancestorSelector) {
-		if (ancestorSelector == null) {
-			ancestorSelector = getUniversalSelector();
-		}
-		return new DescendantSelectorImpl(type, ancestorSelector);
-	}
-
-	SiblingSelectorImpl createSiblingSelector(short type, Selector firstSelector) {
+	CombinatorSelectorImpl createCombinatorSelector(short type, Selector firstSelector) {
 		if (firstSelector == null) {
 			firstSelector = getUniversalSelector();
 		}
-		return new SiblingSelectorImpl(type, firstSelector);
+		return new CombinatorSelectorImpl(type, firstSelector);
 	}
 
 	/**
@@ -136,7 +125,7 @@ class NSACSelectorFactory implements NamespaceMap {
 		return null;
 	}
 
-	static abstract class AbstractSelector implements Selector2 {
+	static abstract class AbstractSelector implements Selector {
 
 		@Override
 		public int hashCode() {
@@ -163,7 +152,7 @@ class NSACSelectorFactory implements NamespaceMap {
 
 		@Override
 		public short getSelectorType() {
-			return Selector.SAC_ANY_NODE_SELECTOR;
+			return Selector.SAC_UNIVERSAL_SELECTOR;
 		}
 
 		@Override
@@ -203,7 +192,7 @@ class NSACSelectorFactory implements NamespaceMap {
 
 		@Override
 		public short getSelectorType() {
-			return Selector.SAC_ANY_NODE_SELECTOR;
+			return Selector.SAC_UNIVERSAL_SELECTOR;
 		}
 
 		@Override
@@ -364,21 +353,18 @@ class NSACSelectorFactory implements NamespaceMap {
 
 	}
 
-	static class DescendantSelectorImpl extends AbstractSelector implements DescendantSelector {
+	static class CombinatorSelectorImpl extends AbstractSelector implements CombinatorSelector {
 
 		private short type;
 
-		Selector ancestorSelector;
 		SimpleSelector simpleSelector = null;
 
-		DescendantSelectorImpl(short type, Selector ancestorSelector) {
+		Selector selector;
+
+		CombinatorSelectorImpl(short type, Selector selector) {
 			super();
 			this.type = type;
-			this.ancestorSelector = ancestorSelector;
-		}
-
-		void setSelectorType(short newType) {
-			this.type = newType;
+			this.selector = selector;
 		}
 
 		@Override
@@ -386,13 +372,17 @@ class NSACSelectorFactory implements NamespaceMap {
 			return type;
 		}
 
-		@Override
-		public Selector getAncestorSelector() {
-			return ancestorSelector;
+		void setSelectorType(short newType) {
+			this.type = newType;
 		}
 
 		@Override
-		public SimpleSelector getSimpleSelector() {
+		public Selector getSelector() {
+			return selector;
+		}
+
+		@Override
+		public SimpleSelector getSecondSelector() {
 			return simpleSelector;
 		}
 
@@ -400,7 +390,7 @@ class NSACSelectorFactory implements NamespaceMap {
 		public int hashCode() {
 			final int prime = 31;
 			int result = super.hashCode();
-			result = prime * result + ((ancestorSelector == null) ? 0 : ancestorSelector.hashCode());
+			result = prime * result + ((selector == null) ? 0 : selector.hashCode());
 			result = prime * result + ((simpleSelector == null) ? 0 : simpleSelector.hashCode());
 			result = prime * result + type;
 			return result;
@@ -417,12 +407,12 @@ class NSACSelectorFactory implements NamespaceMap {
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			DescendantSelectorImpl other = (DescendantSelectorImpl) obj;
-			if (ancestorSelector == null) {
-				if (other.ancestorSelector != null) {
+			CombinatorSelectorImpl other = (CombinatorSelectorImpl) obj;
+			if (selector == null) {
+				if (other.selector != null) {
 					return false;
 				}
-			} else if (!ancestorSelector.equals(other.ancestorSelector)) {
+			} else if (!selector.equals(other.selector)) {
 				return false;
 			}
 			if (simpleSelector == null) {
@@ -441,19 +431,25 @@ class NSACSelectorFactory implements NamespaceMap {
 		@Override
 		public String toString() {
 			StringBuilder buf = new StringBuilder();
-			buf.append(ancestorSelector.toString());
+			buf.append(selector.toString());
 			switch (this.type) {
+			case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
+				buf.append('+');
+			break;
+			case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+				buf.append('~');
+				break;
 			case Selector.SAC_CHILD_SELECTOR:
 				buf.append('>');
 			break;
 			case Selector.SAC_DESCENDANT_SELECTOR:
-				if (ancestorSelector.getSelectorType() != Selector2.SAC_SCOPE_SELECTOR) {
+				if (selector.getSelectorType() != Selector.SAC_SCOPE_SELECTOR) {
 					buf.append(' ');
 				} else {
 					buf.append(">>");
 				}
 			break;
-			case Selector2.SAC_COLUMN_COMBINATOR_SELECTOR:
+			case Selector.SAC_COLUMN_COMBINATOR_SELECTOR:
 				buf.append("||");
 			break;
 			default:
@@ -469,110 +465,11 @@ class NSACSelectorFactory implements NamespaceMap {
 
 	}
 
-	static class SiblingSelectorImpl extends AbstractSelector implements SiblingSelector {
-
-		private final short type;
-
-		SimpleSelector siblingSelector = null;
-		Selector selector;
-
-		SiblingSelectorImpl(short type, Selector selector) {
-			super();
-			this.type = type;
-			this.selector = selector;
-		}
-
-		@Override
-		public short getSelectorType() {
-			return type;
-		}
-
-		@Override
-		public short getNodeType() {
-			return SiblingSelector.ANY_NODE;
-		}
-
-		@Override
-		public Selector getSelector() {
-			return selector;
-		}
-
-		@Override
-		public SimpleSelector getSiblingSelector() {
-			return siblingSelector;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = super.hashCode();
-			result = prime * result + ((selector == null) ? 0 : selector.hashCode());
-			result = prime * result + ((siblingSelector == null) ? 0 : siblingSelector.hashCode());
-			result = prime * result + type;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (!super.equals(obj)) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			SiblingSelectorImpl other = (SiblingSelectorImpl) obj;
-			if (selector == null) {
-				if (other.selector != null) {
-					return false;
-				}
-			} else if (!selector.equals(other.selector)) {
-				return false;
-			}
-			if (siblingSelector == null) {
-				if (other.siblingSelector != null) {
-					return false;
-				}
-			} else if (!siblingSelector.equals(other.siblingSelector)) {
-				return false;
-			}
-			if (type != other.type) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			buf.append(selector.toString());
-			switch (this.type) {
-			case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-				buf.append('+');
-			break;
-			case Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR:
-				buf.append('~');
-				break;
-			default:
-				throw new IllegalStateException("Unknown type: " + type);
-			}
-			if (siblingSelector != null) {
-				buf.append(siblingSelector.toString());
-			} else {
-				buf.append('?');
-			}
-			return buf.toString();
-		}
-
-	}
-
-	Condition createPositionalCondition() {
+	PositionalConditionImpl createPositionalCondition() {
 		return new PositionalConditionImpl(false);
 	}
 
-	Condition createPositionalCondition(boolean needsArgument) {
+	PositionalConditionImpl createPositionalCondition(boolean needsArgument) {
 		PositionalConditionImpl cond = new PositionalConditionImpl(needsArgument);
 		return cond;
 	}
@@ -585,20 +482,20 @@ class NSACSelectorFactory implements NamespaceMap {
 		case Condition.SAC_ATTRIBUTE_CONDITION:
 		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
 		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-		case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
-		case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
-		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
+		case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
+		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
 		case Condition.SAC_ID_CONDITION:
 		case Condition.SAC_PSEUDO_CLASS_CONDITION:
 		case Condition.SAC_ONLY_CHILD_CONDITION:
 		case Condition.SAC_ONLY_TYPE_CONDITION:
-		case Condition2.SAC_PSEUDO_ELEMENT_CONDITION:
+		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
 			return new AttributeConditionImpl(type);
 		case Condition.SAC_LANG_CONDITION:
 			return new LangConditionImpl();
 		case Condition.SAC_AND_CONDITION:
 			return new CombinatorConditionImpl();
-		case Condition2.SAC_SELECTOR_ARGUMENT_CONDITION:
+		case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
 			return new SelectorArgumentConditionImpl();
 		case Condition.SAC_POSITIONAL_CONDITION:
 			return createPositionalCondition();
@@ -673,7 +570,7 @@ class NSACSelectorFactory implements NamespaceMap {
 		public String toString() {
 			StringBuilder buf = new StringBuilder();
 			short simpletype = selector.getSelectorType();
-			if (simpletype != Selector.SAC_ANY_NODE_SELECTOR
+			if (simpletype != Selector.SAC_UNIVERSAL_SELECTOR
 					|| ((ElementSelector) selector).getNamespaceURI() != null) {
 				buf.append(selector.toString());
 			}
@@ -682,7 +579,7 @@ class NSACSelectorFactory implements NamespaceMap {
 		}
 	}
 
-	class AttributeConditionImpl implements AttributeCondition2 {
+	class AttributeConditionImpl implements AttributeCondition {
 
 		short type;
 		String namespaceURI = null;
@@ -708,11 +605,6 @@ class NSACSelectorFactory implements NamespaceMap {
 		@Override
 		public String getLocalName() {
 			return localName;
-		}
-
-		@Override
-		public boolean getSpecified() {
-			return value != null;
 		}
 
 		@Override
@@ -791,7 +683,7 @@ class NSACSelectorFactory implements NamespaceMap {
 			case Condition.SAC_ATTRIBUTE_CONDITION:
 				buf.append('[');
 				appendEscapedQName(buf);
-				if (getSpecified()) {
+				if (value != null) {
 					buf.append('=').append('"')
 						.append(getControlEscapedValue()).append('"');
 					if (flag == Flag.CASE_I) {
@@ -816,21 +708,21 @@ class NSACSelectorFactory implements NamespaceMap {
 					.append(getControlEscapedValue()).append('"');
 				buf.append(']');
 			break;
-			case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
+			case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
 				buf.append('[');
 				appendEscapedQName(buf);
 				buf.append('^').append('=').append('"')
 					.append(getControlEscapedValue()).append('"');
 				buf.append(']');
 			break;
-			case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
+			case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
 				buf.append('[');
 				appendEscapedQName(buf);
 				buf.append('$').append('=').append('"')
 					.append(getControlEscapedValue()).append('"');
 				buf.append(']');
 			break;
-			case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+			case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
 				buf.append('[');
 				appendEscapedQName(buf);
 				buf.append('*').append('=').append('"')
@@ -859,7 +751,7 @@ class NSACSelectorFactory implements NamespaceMap {
 			case Condition.SAC_ONLY_TYPE_CONDITION:
 				buf.append(":only-of-type");
 			break;
-			case Condition2.SAC_PSEUDO_ELEMENT_CONDITION:
+			case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
 				buf.append(':').append(':').append(getEscapedLocalName());
 			break;
 			default:
@@ -983,7 +875,7 @@ class NSACSelectorFactory implements NamespaceMap {
 
 	}
 
-	static class PositionalConditionImpl implements PositionalCondition2 {
+	static class PositionalConditionImpl implements PositionalCondition {
 
 		int offset = 1; // By default, set to :first-child or :first-of-type
 		int slope = 0;
@@ -1014,17 +906,6 @@ class NSACSelectorFactory implements NamespaceMap {
 		}
 
 		@Override
-		public int getPosition() {
-			if (slope != 0) {
-				return 0;
-			} else if (!forwardCondition) {
-				return -offset;
-			} else {
-				return offset;
-			}
-		}
-
-		@Override
 		public int getFactor() {
 			return slope;
 		}
@@ -1032,16 +913,6 @@ class NSACSelectorFactory implements NamespaceMap {
 		@Override
 		public int getOffset() {
 			return offset;
-		}
-
-		@Override
-		public boolean getTypeNode() {
-			return true;
-		}
-
-		@Override
-		public boolean getType() {
-			return oftype;
 		}
 
 		@Override
@@ -1221,7 +1092,7 @@ class NSACSelectorFactory implements NamespaceMap {
 			}
 			for (int i = 0; i < ofList.getLength(); i++) {
 				Selector sel = ofList.item(i);
-				if (sel.getSelectorType() == Selector.SAC_ANY_NODE_SELECTOR
+				if (sel.getSelectorType() == Selector.SAC_UNIVERSAL_SELECTOR
 						&& ((ElementSelector) sel).getNamespaceURI() == null) {
 					return true;
 				}
@@ -1318,7 +1189,7 @@ class NSACSelectorFactory implements NamespaceMap {
 
 		@Override
 		public short getConditionType() {
-			return Condition2.SAC_SELECTOR_ARGUMENT_CONDITION;
+			return Condition.SAC_SELECTOR_ARGUMENT_CONDITION;
 		}
 
 		@Override
@@ -1393,7 +1264,7 @@ class NSACSelectorFactory implements NamespaceMap {
 
 		@Override
 		public short getSelectorType() {
-			return Selector2.SAC_SCOPE_SELECTOR;
+			return Selector.SAC_SCOPE_SELECTOR;
 		}
 
 		@Override

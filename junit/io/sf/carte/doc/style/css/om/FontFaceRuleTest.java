@@ -22,7 +22,6 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSRule;
@@ -46,9 +45,8 @@ public class FontFaceRuleTest {
 
 	@Test
 	public void testParseFontFaceRule() throws IOException {
-		InputSource source = new InputSource(
-				new StringReader("@font-face{font-family:'Mechanical Bold';src:url(font/MechanicalBd.otf)}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader("@font-face{font-family:'Mechanical Bold';src:url(font/MechanicalBd.otf)}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
 		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
@@ -60,9 +58,9 @@ public class FontFaceRuleTest {
 
 	@Test
 	public void testParseFontFaceRule2() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@font-face{font-family:'Mechanical Bold';src:url(font/MechanicalBd.otf); font-feature-settings: normal; font-variation-settings: normal; font-stretch: extra-expanded;}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"@font-face{font-family:'Mechanical Bold';src:url(font/MechanicalBd.otf); font-feature-settings: normal; font-variation-settings: normal; font-stretch: extra-expanded;}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
 		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
@@ -78,9 +76,9 @@ public class FontFaceRuleTest {
 
 	@Test
 	public void testParseFontFaceRule3() throws IOException {
-		InputSource source = new InputSource(new StringReader("@font-face {font-family: 'Glyphicons Halflings';\n"
-				+ " src: url('fonts/glyphicons-halflings-regular.eot') format('embedded-opentype'), url('fonts/glyphicons-halflings-regular.woff') format('woff'), url('fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader("@font-face {font-family: 'Glyphicons Halflings';\n"
+				+ " src: url('fonts/glyphicons-halflings-regular.eot') format('embedded-opentype'), url('fonts/glyphicons-halflings-regular.woff') format('woff'), url('fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
 		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
@@ -95,9 +93,9 @@ public class FontFaceRuleTest {
 
 	@Test
 	public void testParseFontFaceRule4() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
 		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
@@ -109,9 +107,9 @@ public class FontFaceRuleTest {
 
 	@Test
 	public void testParseFontFaceRuleFormat() throws IOException {
-		InputSource source = new InputSource(
-				new StringReader("@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
 		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
@@ -134,9 +132,9 @@ public class FontFaceRuleTest {
 
 	@Test
 	public void testParseFontFaceRuleWrongChar() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"\ufeff@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}"));
-		assertFalse(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"\ufeff@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
+		assertFalse(sheet.parseStyleSheet(re));
 		assertEquals(0, sheet.getCssRules().getLength());
 		SheetErrorHandler eh = sheet.getErrorHandler();
 		assertTrue(eh.hasSacErrors());
@@ -144,9 +142,9 @@ public class FontFaceRuleTest {
 
 	@Test
 	public void testParseFontFaceRuleErrorRecovery() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@;@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}"));
-		assertFalse(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"@;@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
+		assertFalse(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
 		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
@@ -171,9 +169,9 @@ public class FontFaceRuleTest {
 
 	@Test
 	public void testParseFontFaceRuleUnicodeRange() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@font-face{font-family:Montserrat;font-style:normal;font-weight:700;src:local('Montserrat-Bold'),url(//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2) format(\"woff2\");unicode-range:u+00??,u+0131,u+0152-0153,u+02c6,u+02da,u+02dc,u+2000-206f,u+2074,u+20ac,u+2212,u+2215,u+e0ff,u+effd,u+f000}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"@font-face{font-family:Montserrat;font-style:normal;font-weight:700;src:local('Montserrat-Bold'),url(//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2) format(\"woff2\");unicode-range:u+00??,u+0131,u+0152-0153,u+02c6,u+02da,u+02dc,u+2000-206f,u+2074,u+20ac,u+2212,u+2215,u+e0ff,u+effd,u+f000}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
 		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
@@ -212,7 +210,8 @@ public class FontFaceRuleTest {
 	public void testSetCssTextString() {
 		FontFaceRule rule = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
-		assertEquals("@font-face{font-family:'FooSans';src:url('font/FooSans.woff2') format('woff2')}", rule.getMinifiedCssText());
+		assertEquals("@font-face{font-family:'FooSans';src:url('font/FooSans.woff2') format('woff2')}",
+				rule.getMinifiedCssText());
 		assertEquals(2, rule.getStyle().getLength());
 	}
 
@@ -224,7 +223,8 @@ public class FontFaceRuleTest {
 		rule2.setCssText("@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
 		assertTrue(rule.equals(rule2));
 		assertEquals(rule.hashCode(), rule2.hashCode());
-		rule2.setCssText("@font-face{font-family:'FooSans';font-style: normal;src:url(font/FooSans.woff2) format('woff2')}");
+		rule2.setCssText(
+				"@font-face{font-family:'FooSans';font-style: normal;src:url(font/FooSans.woff2) format('woff2')}");
 		assertFalse(rule.equals(rule2));
 	}
 
@@ -276,7 +276,8 @@ public class FontFaceRuleTest {
 	public void testCloneAbstractCSSStyleSheet3() {
 		sheet.setHref("http://www.example.com/");
 		FontFaceRule rule = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText("@font-face{font-family:'Mechanical Bold';src:url(http://www.example.org/font/MechanicalBd.otf)}");
+		rule.setCssText(
+				"@font-face{font-family:'Mechanical Bold';src:url(http://www.example.org/font/MechanicalBd.otf)}");
 		BaseCSSDeclarationRule clon = rule.clone(sheet);
 		assertTrue(rule.getParentStyleSheet() == clon.getParentStyleSheet());
 		assertTrue(rule.getParentRule() == clon.getParentRule());

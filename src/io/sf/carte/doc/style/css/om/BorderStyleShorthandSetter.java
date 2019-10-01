@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.css.sac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 class BorderStyleShorthandSetter extends BoxShorthandSetter {
 	BorderStyleShorthandSetter(BaseCSSStyleDeclaration style) {

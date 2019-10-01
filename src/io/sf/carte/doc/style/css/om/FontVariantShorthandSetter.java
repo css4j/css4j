@@ -11,9 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.css.sac.LexicalUnit;
-
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 

@@ -65,9 +65,8 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 
 	@Override
 	protected boolean isFontFamilyAvailable(String fontFamily) {
-		if(fontFamily.equalsIgnoreCase("Courier") || fontFamily.equalsIgnoreCase("Helvetica")
-				|| fontFamily.equalsIgnoreCase("Times New Roman") ||
-				fontFamily.equalsIgnoreCase("Lucida Typewriter")) {
+		if (fontFamily.equalsIgnoreCase("Courier") || fontFamily.equalsIgnoreCase("Helvetica")
+				|| fontFamily.equalsIgnoreCase("Times New Roman") || fontFamily.equalsIgnoreCase("Lucida Typewriter")) {
 			return true;
 		} else {
 			return false;
@@ -75,8 +74,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	}
 
 	@Override
-	public float getFontSizeFromIdentifier(String familyName,
-			String fontSizeIdentifier) throws DOMException {
+	public float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException {
 		float sz;
 		if (fontSizeIdentifier.equals("medium")) {
 			sz = 12f;
@@ -93,25 +91,24 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 		} else if (fontSizeIdentifier.equals("xx-large")) {
 			sz = 24f;
 		} else {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-					"Unknown size identifier: " + fontSizeIdentifier);
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Unknown size identifier: " + fontSizeIdentifier);
 		}
 		return sz;
 	}
 
 	@Override
 	public String getSystemFontDeclaration(String systemFontName) {
-		if("caption".equals(systemFontName)) {
+		if ("caption".equals(systemFontName)) {
 			return "600 9pt Captionfont";
-		} else if("icon".equals(systemFontName)) {
+		} else if ("icon".equals(systemFontName)) {
 			return "300 7pt Iconfont";
-		} else if("menu".equals(systemFontName)) {
+		} else if ("menu".equals(systemFontName)) {
 			return "800 12pt Menufont";
-		} else if("message-box".equals(systemFontName)) {
+		} else if ("message-box".equals(systemFontName)) {
 			return "500 8pt Messageboxfont";
-		} else if("small-caption".equals(systemFontName)) {
+		} else if ("small-caption".equals(systemFontName)) {
 			return "500 8pt Smallcaptionfont";
-		} else if("status-bar".equals(systemFontName)) {
+		} else if ("status-bar".equals(systemFontName)) {
 			return "700 10pt Statusbarfont";
 		}
 		return null;
@@ -133,8 +130,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	}
 
 	@Override
-	public float getWidthSize(String widthIdentifier, float fontSize)
-			throws DOMException {
+	public float getWidthSize(String widthIdentifier, float fontSize) throws DOMException {
 		float factor = 0.62f;
 		if ("thin".equals(widthIdentifier)) {
 			return 0.5f * factor;
@@ -143,8 +139,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 		} else if ("medium".equals(widthIdentifier)) {
 			return 1f * factor;
 		} else {
-			throw new DOMException(DOMException.SYNTAX_ERR,
-					"Unknown identifier " + widthIdentifier);
+			throw new DOMException(DOMException.SYNTAX_ERR, "Unknown identifier " + widthIdentifier);
 		}
 	}
 

@@ -14,8 +14,8 @@ package io.sf.carte.doc.style.css.parser;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 class SelectorListImpl extends LinkedList<Selector> implements SelectorList {
 

@@ -27,9 +27,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
@@ -40,12 +37,14 @@ import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.SelectorMatcher;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.DummyDeviceFactory.DummyCanvas;
 
 public class SelectorMatcherTest {
 
-	private Parser2 cssParser;
+	private Parser cssParser;
 
 	private static CSSDocument doc;
 
@@ -1229,8 +1228,7 @@ public class SelectorMatcherTest {
 		elm.appendChild(span);
 		doc.getDocumentElement().appendChild(body);
 		doc.setTargetMedium("screen");
-		assertEquals("p:hover {text-decoration-line: underline; text-align: center; }",
-				doc.getStyleSheet().toString());
+		assertEquals("p:hover {text-decoration-line: underline; text-align: center; }", doc.getStyleSheet().toString());
 		CSSComputedProperties styledecl = doc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(styledecl);
 		assertEquals("none", styledecl.getPropertyValue("text-decoration-line"));
@@ -1302,9 +1300,8 @@ public class SelectorMatcherTest {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		StringReader re = new StringReader(style);
-		InputSource source = new InputSource(re);
 		cssParser.setDocumentHandler(css.createDocumentHandler(css.getOrigin(), true));
-		cssParser.parseStyleSheet(source);
+		cssParser.parseStyleSheet(re);
 		return css;
 	}
 

@@ -18,10 +18,9 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.SelectorList;
 
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class AnBExpressionTest {
 
@@ -194,11 +193,10 @@ public class AnBExpressionTest {
 			if (selText.length() == 0) {
 				return null;
 			}
-			Parser2 parser = new CSSParser();
-			InputSource source = new InputSource(new StringReader(selText));
+			Parser parser = new CSSParser();
 			SelectorList list;
 			try {
-				list = parser.parseSelectors(source);
+				list = parser.parseSelectors(new StringReader(selText));
 			} catch (IOException e) {
 				list = null;
 			} catch (RuntimeException e) {

@@ -17,30 +17,25 @@ import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.w3c.css.sac.AttributeCondition;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.CombinatorCondition;
-import org.w3c.css.sac.Condition;
-import org.w3c.css.sac.ConditionalSelector;
-import org.w3c.css.sac.DescendantSelector;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LangCondition;
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.NegativeCondition;
-import org.w3c.css.sac.Parser;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SiblingSelector;
-import org.w3c.css.sac.SimpleSelector;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
-import io.sf.carte.doc.style.css.nsac.Condition2;
-import io.sf.carte.doc.style.css.nsac.PositionalCondition2;
-import io.sf.carte.doc.style.css.nsac.Selector2;
+import io.sf.carte.doc.style.css.nsac.AttributeCondition;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
+import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.LangCondition;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.PositionalCondition;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -104,15 +99,13 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		selectorList = null;
 		selectorText = "";
 		Parser parser = createSACParser();
-		InputSource source = new InputSource();
 		Reader re = new StringReader(cssText);
-		source.setCharacterStream(re);
 		PropertyDocumentHandler handler = createDocumentHandler();
 		handler.setLexicalPropertyListener(getLexicalPropertyListener());
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler(handler);
 		try {
-			parser.parseRule(source);
+			parser.parseRule(re);
 		} catch (CSSException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
@@ -243,7 +236,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+		public void property(String name, LexicalUnit value, boolean important) {
 			try {
 				super.property(name, value, important);
 			} catch (DOMException e) {
@@ -254,7 +247,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		}
 
 		@Override
-		public void warning(CSSParseException exception) throws CSSException {
+		public void warning(CSSParseException exception) throws CSSParseException {
 			if (selectorList != null) {
 				super.warning(exception);
 			} else {
@@ -266,21 +259,9 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		}
 
 		@Override
-		public void error(CSSParseException exception) throws CSSException {
+		public void error(CSSParseException exception) throws CSSParseException {
 			if (selectorList != null) {
 				super.error(exception);
-			} else {
-				AbstractCSSStyleSheet sheet = getParentStyleSheet();
-				if (sheet != null) {
-					sheet.getErrorHandler().ruleParseError(CSSStyleDeclarationRule.this, exception);
-				}
-			}
-		}
-
-		@Override
-		public void fatalError(CSSParseException exception) throws CSSException {
-			if (selectorList != null) {
-				super.fatalError(exception);
 			} else {
 				AbstractCSSStyleSheet sheet = getParentStyleSheet();
 				if (sheet != null) {
@@ -297,7 +278,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 
 	private String selectorText(Selector sel, boolean omitUniversal, boolean scoped) {
 		switch (sel.getSelectorType()) {
-		case Selector.SAC_ANY_NODE_SELECTOR:
+		case Selector.SAC_UNIVERSAL_SELECTOR:
 			return omitUniversal ? "" : "*";
 		case Selector.SAC_ELEMENT_NODE_SELECTOR:
 			ElementSelector esel = (ElementSelector) sel;
@@ -323,54 +304,46 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 				return lname != null ? lname : (omitUniversal ? "" : "*");
 			}
 		case Selector.SAC_CHILD_SELECTOR:
-			DescendantSelector dsel = (DescendantSelector) sel;
-			Selector ancsel = dsel.getAncestorSelector();
+			CombinatorSelector dsel = (CombinatorSelector) sel;
+			Selector ancsel = dsel.getSelector();
 			String anctext;
-			if (!scoped || ancsel.getSelectorType() != Selector.SAC_ANY_NODE_SELECTOR) {
+			if (!scoped || ancsel.getSelectorType() != Selector.SAC_UNIVERSAL_SELECTOR) {
 				anctext = selectorText(ancsel, false, scoped);
 			} else {
 				anctext = "";
 			}
-			String desctext = selectorText(dsel.getSimpleSelector(), false, scoped);
+			String desctext = selectorText(dsel.getSecondSelector(), false, scoped);
 			StringBuilder buf = new StringBuilder(anctext.length() + desctext.length() + 3);
 			buf.append(anctext);
-			short stype = dsel.getSimpleSelector().getSelectorType();
-			// First condition is SS parser hack
-			if (stype != Selector.SAC_PSEUDO_ELEMENT_SELECTOR && stype != Selector.SAC_NEGATIVE_SELECTOR) {
-				buf.append(">");
-			}
+			buf.append('>');
 			buf.append(desctext);
 			return buf.toString();
 		case Selector.SAC_CONDITIONAL_SELECTOR:
 			ConditionalSelector csel = (ConditionalSelector) sel;
 			return conditionalSelectorText(csel.getCondition(), csel.getSimpleSelector());
 		case Selector.SAC_DESCENDANT_SELECTOR:
-			dsel = (DescendantSelector) sel;
-			anctext = selectorText(dsel.getAncestorSelector(), false, scoped);
-			desctext = selectorText(dsel.getSimpleSelector(), false, scoped);
+			dsel = (CombinatorSelector) sel;
+			Selector ancestor = dsel.getSelector();
+			anctext = selectorText(ancestor, false, scoped);
+			desctext = selectorText(dsel.getSecondSelector(), false, scoped);
 			buf = new StringBuilder(anctext.length() + desctext.length() + 1);
 			buf.append(anctext);
-			// Check for cssparser's handling of pseudo-elements
-			if (dsel.getSimpleSelector().getSelectorType() != Selector.SAC_PSEUDO_ELEMENT_SELECTOR) {
-				buf.append(' ');
-			}
+			buf.append(' ');
 			buf.append(desctext);
 			return buf.toString();
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-			SiblingSelector asel = (SiblingSelector) sel;
+			CombinatorSelector asel = (CombinatorSelector) sel;
 			return selectorText(asel.getSelector(), omitUniversal, scoped) + " + "
-					+ selectorText(asel.getSiblingSelector(), false, scoped);
-		case Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR:
-			asel = (SiblingSelector) sel;
+					+ selectorText(asel.getSecondSelector(), false, scoped);
+		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+			asel = (CombinatorSelector) sel;
 			return selectorText(asel.getSelector(), omitUniversal, scoped) + "~"
-					+ selectorText(asel.getSiblingSelector(), false, scoped);
-		case Selector2.SAC_COLUMN_COMBINATOR_SELECTOR:
-			dsel = (DescendantSelector) sel;
-			return selectorText(dsel.getAncestorSelector(), omitUniversal, scoped) + "||"
-					+ selectorText(dsel.getSimpleSelector(), false, scoped);
-		case Selector.SAC_ROOT_NODE_SELECTOR:
-			return ":root";
-		case Selector2.SAC_SCOPE_SELECTOR:
+					+ selectorText(asel.getSecondSelector(), false, scoped);
+		case Selector.SAC_COLUMN_COMBINATOR_SELECTOR:
+			dsel = (CombinatorSelector) sel;
+			return selectorText(dsel.getSelector(), omitUniversal, scoped) + "||"
+					+ selectorText(dsel.getSecondSelector(), false, scoped);
+		case Selector.SAC_SCOPE_SELECTOR:
 			return "";
 		default:
 			return null;
@@ -385,19 +358,16 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			return "#" + ParseHelper.escape(((AttributeCondition) condition).getValue(), false, false);
 		case Condition.SAC_ATTRIBUTE_CONDITION:
 			return attributeText((AttributeCondition) condition, simpleSelector);
-		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
+		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
 			return attributeBeginsText((AttributeCondition) condition, simpleSelector);
 		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
 			return attributeBeginHyphenText((AttributeCondition) condition, simpleSelector);
-		case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
+		case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
 			return attributeEndsText((AttributeCondition) condition, simpleSelector);
-		case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
 			return attributeSubstringText((AttributeCondition) condition, simpleSelector);
 		case Condition.SAC_LANG_CONDITION:
 			return langText((LangCondition) condition, simpleSelector);
-		case Condition.SAC_NEGATIVE_CONDITION: // Nobody implements this
-			return ":not(" + conditionalSelectorText(((NegativeCondition) condition).getCondition(), simpleSelector)
-					+ ")";
 		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
 			return attributeOneOfText((AttributeCondition) condition, simpleSelector);
 		case Condition.SAC_ONLY_CHILD_CONDITION:
@@ -418,9 +388,9 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 				appendSimpleSelector(simpleSelector, buf);
 			}
 			// Nobody else implements PositionalCondition, so we just cast
-			PositionalCondition2 pcond = (PositionalCondition2) condition;
+			PositionalCondition pcond = (PositionalCondition) condition;
 			buf.append(':');
-			if (pcond.getType()) {
+			if (pcond.isOfType()) {
 				appendPositionalOfType(pcond, buf);
 			} else {
 				appendPositional(pcond, buf);
@@ -428,15 +398,13 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			return buf.toString();
 		case Condition.SAC_PSEUDO_CLASS_CONDITION:
 			return pseudoClassText((AttributeCondition) condition, simpleSelector);
-		case Condition2.SAC_PSEUDO_ELEMENT_CONDITION:
+		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
 			return pseudoElementText((AttributeCondition) condition, simpleSelector);
-		case Condition.SAC_OR_CONDITION: // Nobody implements this
-			return conditionOrDeprecated(simpleSelector, (CombinatorCondition) condition);
 		case Condition.SAC_AND_CONDITION:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
 			return conditionalSelectorText(ccond.getFirstCondition(), simpleSelector)
 					+ conditionalSelectorText(ccond.getSecondCondition(), null);
-		case Condition2.SAC_SELECTOR_ARGUMENT_CONDITION:
+		case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
 			return selectorArgumentText((ArgumentCondition) condition, simpleSelector);
 		default:
 			// return null to ease the identification of unhandled cases.
@@ -631,7 +599,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		return buf.append(')').toString();
 	}
 
-	private void appendPositional(PositionalCondition2 pcond, StringBuilder buf) {
+	private void appendPositional(PositionalCondition pcond, StringBuilder buf) {
 		int slope = pcond.getFactor();
 		int offset = pcond.getOffset();
 		SelectorList ofList = pcond.getOfList();
@@ -670,7 +638,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		}
 	}
 
-	private void appendPositionalOfType(PositionalCondition2 pcond, StringBuilder buf) {
+	private void appendPositionalOfType(PositionalCondition pcond, StringBuilder buf) {
 		int slope = pcond.getFactor();
 		int offset = pcond.getOffset();
 		SelectorList ofList = pcond.getOfList();
@@ -736,21 +704,11 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			return true;
 		}
 		for (int i = 0; i < selist.getLength(); i++) {
-			if (selist.item(i).getSelectorType() == Selector.SAC_ANY_NODE_SELECTOR) {
+			if (selist.item(i).getSelectorType() == Selector.SAC_UNIVERSAL_SELECTOR) {
 				return true;
 			}
 		}
 		return false;
-	}
-
-	private String conditionOrDeprecated(SimpleSelector simpleSelector, CombinatorCondition ccond) {
-		StringBuilder buf = new StringBuilder(96);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
-		buf.append(":matches(").append(conditionalSelectorText(ccond.getFirstCondition(), null)).append(',')
-				.append(conditionalSelectorText(ccond.getSecondCondition(), null)).append(')');
-		return buf.toString();
 	}
 
 }

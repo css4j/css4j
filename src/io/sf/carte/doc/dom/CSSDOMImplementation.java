@@ -26,7 +26,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
@@ -66,7 +66,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	 * 
 	 */
 	public CSSDOMImplementation() {
-		this(EnumSet.noneOf(Parser2.Flag.class));
+		this(EnumSet.noneOf(Parser.Flag.class));
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	 * @param parserFlags
 	 *            the NSAC parser flags.
 	 */
-	public CSSDOMImplementation(EnumSet<Parser2.Flag> parserFlags) {
+	public CSSDOMImplementation(EnumSet<Parser.Flag> parserFlags) {
 		super(parserFlags);
 	}
 

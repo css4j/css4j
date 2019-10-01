@@ -13,15 +13,13 @@
  */
 package io.sf.carte.doc.style.css.nsac;
 
-import org.w3c.css.sac.SelectorList;
-
 /**
  * A condition is applied to a list of selectors that is supplied as an argument to the
  * selector name.
  * <p>
  * Represents selectors like <code>:has(...)</code> and <code>:not(...)</code>.
  */
-public interface ArgumentCondition extends Condition2 {
+public interface ArgumentCondition extends Condition {
 
 	/**
 	 * Get the list of selectors that were supplied as argument.

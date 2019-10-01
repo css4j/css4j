@@ -21,15 +21,14 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
 
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class BaseCSSStyleSheetTest1 {
 
-	private Parser2 cssParser;
+	private Parser cssParser;
 
 	@Before
 	public void setUp() {
@@ -41,17 +40,16 @@ public class BaseCSSStyleSheetTest1 {
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
-		InputSource source = new InputSource(re);
 		cssParser.setDocumentHandler(css.createDocumentHandler(css.getOrigin(), false));
-		cssParser.parseStyleSheet(source);
+		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
 		assertEquals(DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS, rules.getLength());
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		List<String> comments = rules.item(3).getPrecedingComments();
 		assertNotNull(comments);
-		assertEquals(1, comments.size()); assertEquals("Comment before li",
-		comments.get(0).trim());
+		assertEquals(1, comments.size());
+		assertEquals("Comment before li", comments.get(0).trim());
 	}
 
 }

@@ -14,12 +14,11 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -45,7 +44,7 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 
 	@Override
 	protected void setLonghandProperty(String propertyName, LexicalUnit value, String priority) throws DOMException {
-		if (value.getLexicalUnitType() != LexicalUnit2.SAC_COMPAT_PRIO) {
+		if (value.getLexicalUnitType() != LexicalUnit.SAC_COMPAT_PRIO) {
 			super.setLonghandProperty(propertyName, value, priority);
 		} else {
 			ValueFactory factory = getValueFactory();

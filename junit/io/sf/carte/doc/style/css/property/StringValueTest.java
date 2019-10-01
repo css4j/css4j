@@ -22,12 +22,11 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
 
@@ -134,8 +133,8 @@ public class StringValueTest {
 	@Test
 	public void testLexicalSetter() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
-		InputSource source = new InputSource(new StringReader("\"\\\\5FAE\\8F6F\""));
-		LexicalUnit lu = parser.parsePropertyValue(source);
+		StringReader re = new StringReader("\"\\\\5FAE\\8F6F\"");
+		LexicalUnit lu = parser.parsePropertyValue(re);
 		assertNotNull(lu);
 		StringValue value = createCSSStringValue();
 		LexicalSetter setter = value.newLexicalSetter();

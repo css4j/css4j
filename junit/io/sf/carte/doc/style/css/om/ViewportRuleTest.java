@@ -20,7 +20,6 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
@@ -39,8 +38,8 @@ public class ViewportRuleTest {
 
 	@Test
 	public void testParseRule() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader("@viewport {\norientation: landscape;\n}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader("@viewport {\norientation: landscape;\n}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
 		ViewportRule rule = (ViewportRule) sheet.getCssRules().item(0);
@@ -50,8 +49,8 @@ public class ViewportRuleTest {
 
 	@Test
 	public void testParseRuleMinified() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader("@viewport{orientation:landscape}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader("@viewport{orientation:landscape}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
 		ViewportRule rule = (ViewportRule) sheet.getCssRules().item(0);

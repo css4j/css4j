@@ -6,37 +6,41 @@
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
  * 
- * Copyright © 2017,2018 Carlos Amengual.
+ * Copyright © 2017-2019 Carlos Amengual.
  * 
  * SPDX-License-Identifier: W3C-19980720
  * 
  */
 package io.sf.carte.doc.style.css.nsac;
 
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.Locator;
-
 /**
  * Namespace-related parse exception.
  */
 public class CSSNamespaceParseException extends CSSParseException {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
-	public CSSNamespaceParseException(String message, Locator locator, Exception e) {
-		super(message, locator, e);
+	/**
+	 * Construct a CSS namespace parse exception that has a cause, a location and a
+	 * descriptive message.
+	 * 
+	 * @param message the descriptive message.
+	 * @param locator the location where the error was triggered.
+	 * @param cause   the cause.
+	 */
+	public CSSNamespaceParseException(String message, Locator locator, Throwable cause) {
+		super(message, locator, cause);
 	}
 
+	/**
+	 * Construct a CSS namespace parse exception that has a location and a
+	 * descriptive message.
+	 * 
+	 * @param message the descriptive message.
+	 * @param locator the location where the error was triggered.
+	 */
 	public CSSNamespaceParseException(String message, Locator locator) {
 		super(message, locator);
-	}
-
-	public CSSNamespaceParseException(String message, String uri, int lineNumber, int columnNumber, Exception e) {
-		super(message, uri, lineNumber, columnNumber, e);
-	}
-
-	public CSSNamespaceParseException(String message, String uri, int lineNumber, int columnNumber) {
-		super(message, uri, lineNumber, columnNumber);
 	}
 
 }

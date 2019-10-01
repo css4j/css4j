@@ -18,9 +18,6 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Locale;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSPrimitiveValue;
@@ -42,6 +39,8 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.AttrValue;
@@ -159,13 +158,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			 * Shorthand builders often use multiple declarations for more
 			 * efficiency in the full style serialization. Skip those cases.
 			 */
-			InputSource source = new InputSource(new StringReader(declaration));
+			StringReader re = new StringReader(declaration);
 			CSSParser parser = new CSSParser();
 			PropertyCounterDocumentHandler handler = new PropertyCounterDocumentHandler();
 			parser.setDocumentHandler(handler);
 			parser.setErrorHandler(handler);
 			try {
-				parser.parseStyleDeclaration(source);
+				parser.parseStyleDeclaration(re);
 			} catch (CSSException | IOException e) {
 				return "";
 			}

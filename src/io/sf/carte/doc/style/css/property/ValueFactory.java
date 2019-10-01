@@ -16,17 +16,15 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Locale;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
@@ -90,20 +88,20 @@ public class ValueFactory {
 		case LexicalUnit.SAC_DIMENSION:
 		case LexicalUnit.SAC_INCH:
 		case LexicalUnit.SAC_MILLIMETER:
-		case LexicalUnit2.SAC_CAP:
-		case LexicalUnit2.SAC_CH:
-		case LexicalUnit2.SAC_IC:
-		case LexicalUnit2.SAC_LH:
-		case LexicalUnit2.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit2.SAC_REM:
-		case LexicalUnit2.SAC_RLH:
-		case LexicalUnit2.SAC_TURN:
-		case LexicalUnit2.SAC_VB:
-		case LexicalUnit2.SAC_VH:
-		case LexicalUnit2.SAC_VI:
-		case LexicalUnit2.SAC_VMAX:
-		case LexicalUnit2.SAC_VMIN:
-		case LexicalUnit2.SAC_VW:
+		case LexicalUnit.SAC_CAP:
+		case LexicalUnit.SAC_CH:
+		case LexicalUnit.SAC_IC:
+		case LexicalUnit.SAC_LH:
+		case LexicalUnit.SAC_QUARTER_MILLIMETER:
+		case LexicalUnit.SAC_REM:
+		case LexicalUnit.SAC_RLH:
+		case LexicalUnit.SAC_TURN:
+		case LexicalUnit.SAC_VB:
+		case LexicalUnit.SAC_VH:
+		case LexicalUnit.SAC_VI:
+		case LexicalUnit.SAC_VMAX:
+		case LexicalUnit.SAC_VMIN:
+		case LexicalUnit.SAC_VW:
 			return type;
 		case LexicalUnit.SAC_INTEGER:
 			return unit.getIntegerValue() == 0 ? type : 0;
@@ -125,9 +123,9 @@ public class ValueFactory {
 			type = firstArgumentUnit(unit);
 		}
 		switch (type) {
-		case LexicalUnit2.SAC_DOTS_PER_CENTIMETER:
-		case LexicalUnit2.SAC_DOTS_PER_INCH:
-		case LexicalUnit2.SAC_DOTS_PER_PIXEL:
+		case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
+		case LexicalUnit.SAC_DOTS_PER_INCH:
+		case LexicalUnit.SAC_DOTS_PER_PIXEL:
 			return true;
 		default:
 			return false;
@@ -160,19 +158,19 @@ public class ValueFactory {
 		case LexicalUnit.SAC_DIMENSION:
 		case LexicalUnit.SAC_INCH:
 		case LexicalUnit.SAC_MILLIMETER:
-		case LexicalUnit2.SAC_CAP:
-		case LexicalUnit2.SAC_CH:
-		case LexicalUnit2.SAC_IC:
-		case LexicalUnit2.SAC_LH:
-		case LexicalUnit2.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit2.SAC_REM:
-		case LexicalUnit2.SAC_RLH:
-		case LexicalUnit2.SAC_VB:
-		case LexicalUnit2.SAC_VH:
-		case LexicalUnit2.SAC_VI:
-		case LexicalUnit2.SAC_VMAX:
-		case LexicalUnit2.SAC_VMIN:
-		case LexicalUnit2.SAC_VW:
+		case LexicalUnit.SAC_CAP:
+		case LexicalUnit.SAC_CH:
+		case LexicalUnit.SAC_IC:
+		case LexicalUnit.SAC_LH:
+		case LexicalUnit.SAC_QUARTER_MILLIMETER:
+		case LexicalUnit.SAC_REM:
+		case LexicalUnit.SAC_RLH:
+		case LexicalUnit.SAC_VB:
+		case LexicalUnit.SAC_VH:
+		case LexicalUnit.SAC_VI:
+		case LexicalUnit.SAC_VMAX:
+		case LexicalUnit.SAC_VMIN:
+		case LexicalUnit.SAC_VW:
 			return utype == LexicalUnit.SAC_FUNCTION || unit.getFloatValue() > 0f;
 		default:
 			return false;
@@ -205,19 +203,19 @@ public class ValueFactory {
 		case LexicalUnit.SAC_MILLIMETER:
 		case LexicalUnit.SAC_INTEGER:
 		case LexicalUnit.SAC_REAL:
-		case LexicalUnit2.SAC_CAP:
-		case LexicalUnit2.SAC_CH:
-		case LexicalUnit2.SAC_IC:
-		case LexicalUnit2.SAC_LH:
-		case LexicalUnit2.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit2.SAC_REM:
-		case LexicalUnit2.SAC_RLH:
-		case LexicalUnit2.SAC_VB:
-		case LexicalUnit2.SAC_VH:
-		case LexicalUnit2.SAC_VI:
-		case LexicalUnit2.SAC_VMAX:
-		case LexicalUnit2.SAC_VMIN:
-		case LexicalUnit2.SAC_VW:
+		case LexicalUnit.SAC_CAP:
+		case LexicalUnit.SAC_CH:
+		case LexicalUnit.SAC_IC:
+		case LexicalUnit.SAC_LH:
+		case LexicalUnit.SAC_QUARTER_MILLIMETER:
+		case LexicalUnit.SAC_REM:
+		case LexicalUnit.SAC_RLH:
+		case LexicalUnit.SAC_VB:
+		case LexicalUnit.SAC_VH:
+		case LexicalUnit.SAC_VI:
+		case LexicalUnit.SAC_VMAX:
+		case LexicalUnit.SAC_VMIN:
+		case LexicalUnit.SAC_VW:
 			return true;
 		default:
 			return false;
@@ -277,23 +275,23 @@ public class ValueFactory {
 		case LexicalUnit.SAC_SECOND:
 		case LexicalUnit.SAC_COUNTER_FUNCTION:
 		case LexicalUnit.SAC_COUNTERS_FUNCTION:
-		case LexicalUnit2.SAC_CAP:
-		case LexicalUnit2.SAC_CH:
-		case LexicalUnit2.SAC_IC:
-		case LexicalUnit2.SAC_LH:
-		case LexicalUnit2.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit2.SAC_REM:
-		case LexicalUnit2.SAC_RLH:
-		case LexicalUnit2.SAC_TURN:
-		case LexicalUnit2.SAC_VB:
-		case LexicalUnit2.SAC_VH:
-		case LexicalUnit2.SAC_VI:
-		case LexicalUnit2.SAC_VMAX:
-		case LexicalUnit2.SAC_VMIN:
-		case LexicalUnit2.SAC_VW:
-		case LexicalUnit2.SAC_DOTS_PER_CENTIMETER:
-		case LexicalUnit2.SAC_DOTS_PER_INCH:
-		case LexicalUnit2.SAC_DOTS_PER_PIXEL:
+		case LexicalUnit.SAC_CAP:
+		case LexicalUnit.SAC_CH:
+		case LexicalUnit.SAC_IC:
+		case LexicalUnit.SAC_LH:
+		case LexicalUnit.SAC_QUARTER_MILLIMETER:
+		case LexicalUnit.SAC_REM:
+		case LexicalUnit.SAC_RLH:
+		case LexicalUnit.SAC_TURN:
+		case LexicalUnit.SAC_VB:
+		case LexicalUnit.SAC_VH:
+		case LexicalUnit.SAC_VI:
+		case LexicalUnit.SAC_VMAX:
+		case LexicalUnit.SAC_VMIN:
+		case LexicalUnit.SAC_VW:
+		case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
+		case LexicalUnit.SAC_DOTS_PER_INCH:
+		case LexicalUnit.SAC_DOTS_PER_PIXEL:
 			return true;
 		default:
 			return false;
@@ -319,7 +317,7 @@ public class ValueFactory {
 		case LexicalUnit.SAC_DEGREE:
 		case LexicalUnit.SAC_RADIAN:
 		case LexicalUnit.SAC_GRADIAN:
-		case LexicalUnit2.SAC_TURN:
+		case LexicalUnit.SAC_TURN:
 			return true;
 		case LexicalUnit.SAC_INTEGER:
 			if (unit.getIntegerValue() == 0) {
@@ -465,7 +463,7 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
 	 */
-	public StyleValue parseProperty(String value, Parser2 parser) throws DOMException {
+	public StyleValue parseProperty(String value, Parser parser) throws DOMException {
 		return parseProperty("", value, parser);
 	}
 
@@ -513,13 +511,11 @@ public class ValueFactory {
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
 	 */
-	public StyleValue parseProperty(String propertyName, String value, Parser2 parser) throws DOMException {
-		InputSource source = new InputSource();
+	public StyleValue parseProperty(String propertyName, String value, Parser parser) throws DOMException {
 		Reader re = new StringReader(value);
-		source.setCharacterStream(re);
 		LexicalUnit lunit = null;
 		try {
-			lunit = parser.parsePropertyValue(source);
+			lunit = parser.parsePropertyValue(re);
 		} catch (CSSException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
@@ -578,13 +574,11 @@ public class ValueFactory {
 	 * @return the CSSPrimitiveValue object containing the parsed value.
 	 * @throws DOMException if a problem was found parsing the feature.
 	 */
-	public PrimitiveValue parseMediaFeature(String feature, Parser2 parser) throws DOMException {
-		InputSource source = new InputSource();
+	public PrimitiveValue parseMediaFeature(String feature, Parser parser) throws DOMException {
 		Reader re = new StringReader(feature);
-		source.setCharacterStream(re);
 		LexicalUnit lunit = null;
 		try {
-			lunit = parser.parsePropertyValue(source);
+			lunit = parser.parsePropertyValue(re);
 		} catch (CSSException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
@@ -658,7 +652,7 @@ public class ValueFactory {
 			do {
 				StyleValue value;
 				// Check for bracket list.
-				if (nlu.getLexicalUnitType() != LexicalUnit2.SAC_LEFT_BRACKET) {
+				if (nlu.getLexicalUnitType() != LexicalUnit.SAC_LEFT_BRACKET) {
 					ValueItem item = createCSSValueItem(nlu, false);
 					if (item.hasWarnings() && style != null) {
 						StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
@@ -746,7 +740,7 @@ public class ValueFactory {
 	public ListValueItem parseBracketList(LexicalUnit nlu, AbstractCSSStyleDeclaration style, boolean subproperty) {
 		ListValueItem listitem = new ListValueItem();
 		listitem.list = ValueList.createBracketValueList();
-		while (nlu.getLexicalUnitType() != LexicalUnit2.SAC_RIGHT_BRACKET) {
+		while (nlu.getLexicalUnitType() != LexicalUnit.SAC_RIGHT_BRACKET) {
 			ValueItem item = createCSSValueItem(nlu, subproperty);
 			if (item.hasWarnings() && style != null) {
 				StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
@@ -926,19 +920,19 @@ public class ValueFactory {
 			case LexicalUnit.SAC_PICA:
 			case LexicalUnit.SAC_PIXEL:
 			case LexicalUnit.SAC_POINT:
-			case LexicalUnit2.SAC_CAP:
-			case LexicalUnit2.SAC_CH:
-			case LexicalUnit2.SAC_IC:
-			case LexicalUnit2.SAC_LH:
-			case LexicalUnit2.SAC_QUARTER_MILLIMETER:
-			case LexicalUnit2.SAC_REM:
-			case LexicalUnit2.SAC_RLH:
-			case LexicalUnit2.SAC_VB:
-			case LexicalUnit2.SAC_VH:
-			case LexicalUnit2.SAC_VI:
-			case LexicalUnit2.SAC_VMAX:
-			case LexicalUnit2.SAC_VMIN:
-			case LexicalUnit2.SAC_VW:
+			case LexicalUnit.SAC_CAP:
+			case LexicalUnit.SAC_CH:
+			case LexicalUnit.SAC_IC:
+			case LexicalUnit.SAC_LH:
+			case LexicalUnit.SAC_QUARTER_MILLIMETER:
+			case LexicalUnit.SAC_REM:
+			case LexicalUnit.SAC_RLH:
+			case LexicalUnit.SAC_VB:
+			case LexicalUnit.SAC_VH:
+			case LexicalUnit.SAC_VI:
+			case LexicalUnit.SAC_VMAX:
+			case LexicalUnit.SAC_VMIN:
+			case LexicalUnit.SAC_VW:
 				primi = new NumberValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				((NumberValue) primi).lengthUnitType = true;
@@ -947,15 +941,15 @@ public class ValueFactory {
 			case LexicalUnit.SAC_DEGREE:
 			case LexicalUnit.SAC_GRADIAN:
 			case LexicalUnit.SAC_RADIAN:
-			case LexicalUnit2.SAC_TURN:
+			case LexicalUnit.SAC_TURN:
 			case LexicalUnit.SAC_HERTZ:
 			case LexicalUnit.SAC_KILOHERTZ:
 			case LexicalUnit.SAC_MILLISECOND:
 			case LexicalUnit.SAC_SECOND:
-			case LexicalUnit2.SAC_DOTS_PER_CENTIMETER:
-			case LexicalUnit2.SAC_DOTS_PER_INCH:
-			case LexicalUnit2.SAC_DOTS_PER_PIXEL:
-			case LexicalUnit2.SAC_FR:
+			case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
+			case LexicalUnit.SAC_DOTS_PER_INCH:
+			case LexicalUnit.SAC_DOTS_PER_PIXEL:
+			case LexicalUnit.SAC_FR:
 				primi = new NumberValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
@@ -1005,7 +999,7 @@ public class ValueFactory {
 				primi = new UnicodeRangeValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit2.SAC_UNICODE_WILDCARD:
+			case LexicalUnit.SAC_UNICODE_WILDCARD:
 				primi = new UnicodeWildcardValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
@@ -1021,7 +1015,7 @@ public class ValueFactory {
 				primi = new CountersValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit2.SAC_ELEMENT_REFERENCE:
+			case LexicalUnit.SAC_ELEMENT_REFERENCE:
 				primi = new ElementReferenceValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
@@ -1075,7 +1069,7 @@ public class ValueFactory {
 		} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
 			nlu = lunit.getNextLexicalUnit();
 			buf.append(' ').append('/');
-		} else if (type != LexicalUnit2.SAC_LEFT_BRACKET) {
+		} else if (type != LexicalUnit.SAC_LEFT_BRACKET) {
 			ValueItem item = createCSSValueItem(lunit, true);
 			nlu = item.getNextLexicalUnit();
 			StyleValue cssValue = item.getCSSValue();
@@ -1106,7 +1100,7 @@ public class ValueFactory {
 		} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
 			nlu = lunit.getNextLexicalUnit();
 			buf.append('/');
-		} else if (type != LexicalUnit2.SAC_LEFT_BRACKET) {
+		} else if (type != LexicalUnit.SAC_LEFT_BRACKET) {
 			ValueItem item = createCSSValueItem(lunit, true);
 			nlu = item.getNextLexicalUnit();
 			StyleValue cssValue = item.getCSSValue();
@@ -1248,67 +1242,67 @@ public class ValueFactory {
 		case LexicalUnit.SAC_RGBCOLOR:
 			primiType = CSSPrimitiveValue.CSS_RGBCOLOR;
 			break;
-		case LexicalUnit2.SAC_CAP:
+		case LexicalUnit.SAC_CAP:
 			primiType = CSSPrimitiveValue2.CSS_CAP;
 			break;
-		case LexicalUnit2.SAC_CH:
+		case LexicalUnit.SAC_CH:
 			primiType = CSSPrimitiveValue2.CSS_CH;
 			break;
-		case LexicalUnit2.SAC_IC:
+		case LexicalUnit.SAC_IC:
 			primiType = CSSPrimitiveValue2.CSS_IC;
 			break;
-		case LexicalUnit2.SAC_LH:
+		case LexicalUnit.SAC_LH:
 			primiType = CSSPrimitiveValue2.CSS_LH;
 			break;
-		case LexicalUnit2.SAC_QUARTER_MILLIMETER:
+		case LexicalUnit.SAC_QUARTER_MILLIMETER:
 			primiType = CSSPrimitiveValue2.CSS_QUARTER_MM;
 			break;
-		case LexicalUnit2.SAC_REM:
+		case LexicalUnit.SAC_REM:
 			primiType = CSSPrimitiveValue2.CSS_REM;
 			break;
-		case LexicalUnit2.SAC_RLH:
+		case LexicalUnit.SAC_RLH:
 			primiType = CSSPrimitiveValue2.CSS_RLH;
 			break;
-		case LexicalUnit2.SAC_TURN:
+		case LexicalUnit.SAC_TURN:
 			primiType = CSSPrimitiveValue2.CSS_TURN;
 			break;
-		case LexicalUnit2.SAC_VB:
+		case LexicalUnit.SAC_VB:
 			primiType = CSSPrimitiveValue2.CSS_VB;
 			break;
-		case LexicalUnit2.SAC_VH:
+		case LexicalUnit.SAC_VH:
 			primiType = CSSPrimitiveValue2.CSS_VH;
 			break;
-		case LexicalUnit2.SAC_VI:
+		case LexicalUnit.SAC_VI:
 			primiType = CSSPrimitiveValue2.CSS_VI;
 			break;
-		case LexicalUnit2.SAC_VMAX:
+		case LexicalUnit.SAC_VMAX:
 			primiType = CSSPrimitiveValue2.CSS_VMAX;
 			break;
-		case LexicalUnit2.SAC_VMIN:
+		case LexicalUnit.SAC_VMIN:
 			primiType = CSSPrimitiveValue2.CSS_VMIN;
 			break;
-		case LexicalUnit2.SAC_VW:
+		case LexicalUnit.SAC_VW:
 			primiType = CSSPrimitiveValue2.CSS_VW;
 			break;
-		case LexicalUnit2.SAC_DOTS_PER_CENTIMETER:
+		case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
 			primiType = CSSPrimitiveValue2.CSS_DPCM;
 			break;
-		case LexicalUnit2.SAC_DOTS_PER_INCH:
+		case LexicalUnit.SAC_DOTS_PER_INCH:
 			primiType = CSSPrimitiveValue2.CSS_DPI;
 			break;
-		case LexicalUnit2.SAC_DOTS_PER_PIXEL:
+		case LexicalUnit.SAC_DOTS_PER_PIXEL:
 			primiType = CSSPrimitiveValue2.CSS_DPPX;
 			break;
-		case LexicalUnit2.SAC_FR:
+		case LexicalUnit.SAC_FR:
 			primiType = CSSPrimitiveValue2.CSS_FR;
 			break;
 		case LexicalUnit.SAC_UNICODERANGE:
 			primiType = CSSPrimitiveValue2.CSS_UNICODE_RANGE;
 			break;
-		case LexicalUnit2.SAC_UNICODE_WILDCARD:
+		case LexicalUnit.SAC_UNICODE_WILDCARD:
 			primiType = CSSPrimitiveValue2.CSS_UNICODE_WILDCARD;
 			break;
-		case LexicalUnit2.SAC_ELEMENT_REFERENCE:
+		case LexicalUnit.SAC_ELEMENT_REFERENCE:
 			primiType = CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE;
 			break;
 		case LexicalUnit.SAC_RECT_FUNCTION:

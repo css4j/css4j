@@ -13,7 +13,7 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.Locale;
 
-import org.w3c.css.sac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
  * AnB expression. @see <a href="https://www.w3.org/TR/css-syntax-3/#anb">The An+B microsyntax</a>.

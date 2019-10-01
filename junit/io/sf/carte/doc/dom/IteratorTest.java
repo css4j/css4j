@@ -46,7 +46,8 @@ public class IteratorTest {
 		DocumentType doctype = domImpl.createDocumentType("html", null, null);
 		document = domImpl.createDocument(null, "html", doctype);
 		DOMElement docelm = document.getDocumentElement();
-		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"sheet.css\"");
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"sheet.css\"");
 		document.insertBefore(pi, docelm);
 		Comment comment = document.createComment(" Comment ");
 		document.insertBefore(comment, pi);
@@ -639,7 +640,7 @@ public class IteratorTest {
 		assertTrue(it.hasNext());
 		it.next();
 		it.remove();
-		Comment foo = document.createComment(" foo" );
+		Comment foo = document.createComment(" foo");
 		try {
 			it.set(foo);
 			fail("Must throw exception");
@@ -656,7 +657,7 @@ public class IteratorTest {
 		assertTrue(it.hasPrevious());
 		it.previous();
 		it.remove();
-		Comment foo = document.createComment(" foo" );
+		Comment foo = document.createComment(" foo");
 		try {
 			it.set(foo);
 			fail("Must throw exception");
@@ -689,7 +690,7 @@ public class IteratorTest {
 			Node node = it.next();
 			assertTrue(list.item(i) == node);
 			assertEquals(i, it.previousIndex());
-			Comment foo = document.createComment(" foo" );
+			Comment foo = document.createComment(" foo");
 			it.set(foo);
 			assertNull(node.getNextSibling());
 			assertNull(node.getPreviousSibling());
@@ -739,7 +740,7 @@ public class IteratorTest {
 			Node node = it.previous();
 			assertTrue(list.item(i) == node);
 			assertEquals(i, it.nextIndex());
-			Comment foo = document.createComment(" foo" );
+			Comment foo = document.createComment(" foo");
 			it.set(foo);
 			assertEquals(i, it.nextIndex());
 			assertNull(node.getNextSibling());
@@ -762,7 +763,7 @@ public class IteratorTest {
 		NodeListIterator it = document.listIterator();
 		assertTrue(it.hasNext());
 		it.next();
-		Comment foo = document.createComment(" foo" );
+		Comment foo = document.createComment(" foo");
 		it.set(foo);
 		try {
 			it.remove();
@@ -779,7 +780,7 @@ public class IteratorTest {
 		}
 		assertTrue(it.hasPrevious());
 		it.previous();
-		Comment foo = document.createComment(" foo" );
+		Comment foo = document.createComment(" foo");
 		it.set(foo);
 		try {
 			it.remove();
@@ -815,7 +816,7 @@ public class IteratorTest {
 			assertEquals(i, it.previousIndex());
 			assertTrue(foo != node);
 			assertTrue(list.item(i) == node);
-			foo = document.createComment(" foo" );
+			foo = document.createComment(" foo");
 			it.add(foo);
 			assertEquals(i + 1, it.previousIndex());
 			assertEquals(i + 2, it.nextIndex());
@@ -873,7 +874,7 @@ public class IteratorTest {
 			assertTrue(list.item(i) == node);
 			assertTrue(foo != node);
 			assertEquals(i, it.nextIndex());
-			foo = document.createComment(" foo" );
+			foo = document.createComment(" foo");
 			it.add(foo);
 			assertEquals(i + 1, it.nextIndex());
 			assertEquals(i, it.previousIndex());

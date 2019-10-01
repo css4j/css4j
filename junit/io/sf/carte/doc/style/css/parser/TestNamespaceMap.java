@@ -13,9 +13,9 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.HashMap;
 
-import io.sf.carte.doc.style.css.nsac.Parser2.NamespaceMap;
+import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 
-public class TestNamespaceMap extends HashMap<String,String> implements NamespaceMap {
+public class TestNamespaceMap extends HashMap<String, String> implements NamespaceMap {
 
 	private static final long serialVersionUID = 1L;
 

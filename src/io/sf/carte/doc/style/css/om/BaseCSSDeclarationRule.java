@@ -17,15 +17,13 @@ import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -73,16 +71,14 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		} catch (ClassCastException e) {
 			parser = new CSSParser();
 		}
-		InputSource source = new InputSource();
 		Reader re = new StringReader(cssText);
-		source.setCharacterStream(re);
 		PropertyDocumentHandler handler = createPropertyDocumentHandler();
 		handler.setLexicalPropertyListener(getLexicalPropertyListener());
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler(handler);
 		try {
-			parser.parseDeclarationRule(source);
-		} catch (CSSException e) {
+			parser.parseDeclarationRule(re);
+		} catch (CSSParseException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
@@ -248,7 +244,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+		public void property(String name, LexicalUnit value, boolean important) {
 			try {
 				super.property(name, value, important);
 			} catch (DOMException e) {
@@ -261,18 +257,13 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		}
 
 		@Override
-		public void warning(CSSParseException exception) throws CSSException {
+		public void warning(CSSParseException exception) throws CSSParseException {
 			getStyleDeclarationErrorHandler().sacWarning(exception, getStyle().getLength() - 1);
 		}
 
 		@Override
-		public void error(CSSParseException exception) throws CSSException {
+		public void error(CSSParseException exception) throws CSSParseException {
 			getStyleDeclarationErrorHandler().sacError(exception, getStyle().getLength() - 1);
-		}
-
-		@Override
-		public void fatalError(CSSParseException exception) throws CSSException {
-			getStyleDeclarationErrorHandler().sacFatalError(exception, getStyle().getLength() - 1);
 		}
 
 	}

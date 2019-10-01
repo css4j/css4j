@@ -135,13 +135,17 @@ public class GradientValueTest {
 
 	@Test
 	public void testGetCssTextLinearNonStandard2() {
-		style.setCssText("background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff));");
+		style.setCssText(
+				"background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff));");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
 		assertNotNull(cssval);
 		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, ((CSSPrimitiveValue) cssval).getPrimitiveType());
-		assertEquals("-webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff))", style.getPropertyValue("background-image"));
-		assertEquals("background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff)); ", style.getCssText());
-		assertEquals("background-image:-webkit-gradient(linear,left top,left bottom,from(transparent),to(#fff))", style.getMinifiedCssText());
+		assertEquals("-webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff))",
+				style.getPropertyValue("background-image"));
+		assertEquals("background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff)); ",
+				style.getCssText());
+		assertEquals("background-image:-webkit-gradient(linear,left top,left bottom,from(transparent),to(#fff))",
+				style.getMinifiedCssText());
 		FunctionValue val = (FunctionValue) cssval;
 		assertEquals(5, val.getArguments().getLength());
 		assertEquals("to(#fff)", val.getArguments().item(4).getCssText());
@@ -238,28 +242,39 @@ public class GradientValueTest {
 
 	@Test
 	public void testGetCssTextRadial2() {
-		style.setCssText("background-image: radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%); ");
+		style.setCssText(
+				"background-image: radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%); ");
 		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
 		assertNotNull(val);
 		assertEquals(CSSPrimitiveValue2.CSS_GRADIENT, val.getPrimitiveType());
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
-		assertEquals("radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%)", style.getPropertyValue("background-image"));
-		assertEquals("background-image: radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%); ", style.getCssText());
-		assertEquals("background-image:radial-gradient(center,ellipse cover,rgb(0 0 0/.4) 0,rgb(0 0 0/.9) 100%)", style.getMinifiedCssText());
+		assertEquals("radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%)",
+				style.getPropertyValue("background-image"));
+		assertEquals(
+				"background-image: radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%); ",
+				style.getCssText());
+		assertEquals("background-image:radial-gradient(center,ellipse cover,rgb(0 0 0/.4) 0,rgb(0 0 0/.9) 100%)",
+				style.getMinifiedCssText());
 	}
 
 	@Test
 	public void testGetCssTextRadial3() {
-		style.setCssText("background-image: radial-gradient(circle at 40% 40%,rgb(255 255 255/.8),rgb(255 200 200/.6),#111 60%); ");
+		style.setCssText(
+				"background-image: radial-gradient(circle at 40% 40%,rgb(255 255 255/.8),rgb(255 200 200/.6),#111 60%); ");
 		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
 		assertNotNull(val);
 		assertEquals(CSSPrimitiveValue2.CSS_GRADIENT, val.getPrimitiveType());
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
-		assertEquals("radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.8), rgb(255 200 200 / 0.6), #111 60%)", style.getPropertyValue("background-image"));
-		assertEquals("background-image: radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.8), rgb(255 200 200 / 0.6), #111 60%); ", style.getCssText());
-		assertEquals("background-image:radial-gradient(circle at 40% 40%,rgb(255 255 255/.8),rgb(255 200 200/.6),#111 60%)", style.getMinifiedCssText());
+		assertEquals("radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.8), rgb(255 200 200 / 0.6), #111 60%)",
+				style.getPropertyValue("background-image"));
+		assertEquals(
+				"background-image: radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.8), rgb(255 200 200 / 0.6), #111 60%); ",
+				style.getCssText());
+		assertEquals(
+				"background-image:radial-gradient(circle at 40% 40%,rgb(255 255 255/.8),rgb(255 200 200/.6),#111 60%)",
+				style.getMinifiedCssText());
 	}
 
 	@Test
@@ -270,9 +285,12 @@ public class GradientValueTest {
 		assertEquals(CSSPrimitiveValue2.CSS_GRADIENT, val.getPrimitiveType());
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
-		assertEquals("radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%)", style.getPropertyValue("background-image"));
-		assertEquals("background-image: radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%); ", style.getCssText());
-		assertEquals("background-image:radial-gradient(circle,#e6e7e0 40%,rgb(43 42 161/.6) 110%)", style.getMinifiedCssText());
+		assertEquals("radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%)",
+				style.getPropertyValue("background-image"));
+		assertEquals("background-image: radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%); ",
+				style.getCssText());
+		assertEquals("background-image:radial-gradient(circle,#e6e7e0 40%,rgb(43 42 161/.6) 110%)",
+				style.getMinifiedCssText());
 	}
 
 	@Test
@@ -283,7 +301,8 @@ public class GradientValueTest {
 		assertEquals(CSSPrimitiveValue2.CSS_GRADIENT, val.getPrimitiveType());
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
-		assertEquals("radial-gradient(40%, circle, #d4a9af 55%, #000 150%)", style.getPropertyValue("background-image"));
+		assertEquals("radial-gradient(40%, circle, #d4a9af 55%, #000 150%)",
+				style.getPropertyValue("background-image"));
 		assertEquals("background-image: radial-gradient(40%, circle, #d4a9af 55%, #000 150%); ", style.getCssText());
 		assertEquals("background-image:radial-gradient(40%,circle,#d4a9af 55%,#000 150%)", style.getMinifiedCssText());
 	}

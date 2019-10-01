@@ -68,7 +68,7 @@ public class HTMLDocumentTest {
 	HTMLDocument xhtmlDoc;
 
 	@Before
-	public void setUp() throws IOException{
+	public void setUp() throws IOException {
 		xhtmlDoc = TestDOMImplementation.sampleHTMLDocument();
 		xhtmlDoc.normalizeDocument();
 	}
@@ -692,8 +692,7 @@ public class HTMLDocumentTest {
 		assertEquals(1, tablelist.getLength());
 		DOMElement elem = tablelist.item(0);
 		assertEquals("table", elem.getNodeName());
-		ElementList list = ((HTMLElement) elem.getElementsByTagName("tr").item(0))
-				.getElementsByClassName("tableclass");
+		ElementList list = ((HTMLElement) elem.getElementsByTagName("tr").item(0)).getElementsByClassName("tableclass");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		list = xhtmlDoc.getElementsByClassName("liclass");
@@ -780,7 +779,8 @@ public class HTMLDocumentTest {
 	@Test
 	public void testQuerySelectorAllNS() {
 		// From the spec:
-		// 'Support for namespaces within selectors is not planned and will not be added'
+		// 'Support for namespaces within selectors is not planned and will not be
+		// added'
 		try {
 			xhtmlDoc.querySelectorAll("svg|*");
 			fail("Must throw exception");
@@ -1511,8 +1511,8 @@ public class HTMLDocumentTest {
 		/*
 		 * attr() recursive with custom property (I).
 		 */
-		elm.getOverrideStyle(null).setCssText(
-			"margin-left:attr(noattr length,var(--foo));--foo:attr(noattr,var(margin-left))");
+		elm.getOverrideStyle(null)
+				.setCssText("margin-left:attr(noattr length,var(--foo));--foo:attr(noattr,var(margin-left))");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
@@ -1604,7 +1604,8 @@ public class HTMLDocumentTest {
 		assertEquals(szp1, rules.getLength());
 		assertEquals(ExtendedCSSRule.NAMESPACE_RULE, rules.item(0).getType());
 		// Replace
-		Text text2 = xhtmlDoc.createTextNode("@font-feature-values Some Font, Other Font {@swash{swishy:1;flowing:2;}@styleset{double-W:14;sharp-terminals:16 1;}}\n");
+		Text text2 = xhtmlDoc.createTextNode(
+				"@font-feature-values Some Font, Other Font {@swash{swishy:1;flowing:2;}@styleset{double-W:14;sharp-terminals:16 1;}}\n");
 		style.replaceChild(text2, text);
 		assertEquals(szp1, sheet.getCssRules().getLength());
 		sheet = style.getSheet();

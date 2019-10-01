@@ -19,35 +19,37 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.SACMediaList;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
+
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class RuleParserTest {
 
-	static CSSParser parser;
+	CSSParser parser;
+	TestDocumentHandler handler;
+	TestRuleErrorHandler errorHandler;
 
 	@Before
 	public void setUp() {
 		parser = new CSSParser();
+		handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		errorHandler = new TestRuleErrorHandler();
+		parser.setErrorHandler(errorHandler);
 	}
 
 	@Test
 	public void testParseRule() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader("p.myclass,:first-child{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}"));
-		parser.parseRule(source);
+		parseRule("p.myclass,:first-child{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
 		assertEquals(1, handler.selectors.size());
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.get(0));
@@ -64,13 +66,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseRule2() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"hr[align=\"left\"]    {margin-left : 0 ;margin-right : auto;}"));
-		parser.parseRule(source);
+		parseRule("hr[align=\"left\"]    {margin-left : 0 ;margin-right : auto;}");
 		assertEquals(1, handler.selectors.size());
 		assertEquals("hr[align=\"left\"]", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -89,13 +85,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseRule3() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"input:not(){}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}"));
-		parser.parseRule(source);
+		parseRule("input:not(){}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -114,13 +104,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseRuleSelectorError() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"!,p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}"));
-		parser.parseRule(source);
+		parseRule("!,p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -130,15 +114,9 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseRuleNS() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"svg|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}"));
 		TestNamespaceMap nsmap = new TestNamespaceMap();
 		nsmap.put("svg", "http://www.w3.org/2000/svg");
-		parser.parseRule(source, nsmap);
+		parseRule("svg|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}", nsmap);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("svg|p", handler.selectors.getFirst().toString());
 		assertEquals(3, handler.propertyNames.size());
@@ -156,13 +134,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseRuleSelectorErrorBadNSPrefix() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"foo|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}"));
-		parser.parseRule(source);
+		parseRule("foo|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -172,12 +144,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseRuleDuplicateSelector() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader("p, p {width: 80%}"));
-		parser.parseRule(source);
+		parseRule("p, p {width: 80%}");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
@@ -193,14 +160,8 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseRuleCommentWDoubleStar() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
 		// An asterisk before the '*/' may confuse the parser
-		InputSource source = new InputSource(new StringReader(
-				".foo {\n/**just a comment**/margin-left:auto}"));
-		parser.parseRule(source);
+		parseRule(".foo {\n/**just a comment**/margin-left:auto}");
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -217,14 +178,9 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseRuleCommentWDoubleStar2() throws CSSException, IOException {
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		// An asterisk before the '*/' may confuse the parser
-		InputSource source = new InputSource(new StringReader(
-				".foo {  /**just a comment**/margin-left:auto}"));
-		parser.parseRule(source);
+		parseRule(".foo {  /**just a comment**/margin-left:auto}");
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -241,12 +197,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseDefaultNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace url(\"https://www.w3.org/1999/xhtml/\");"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace url(\"https://www.w3.org/1999/xhtml/\");");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
@@ -254,12 +205,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseDefaultNSEOF() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace url(\"https://www.w3.org/1999/xhtml/\")"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace url(\"https://www.w3.org/1999/xhtml/\")");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
@@ -267,36 +213,21 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseDefaultNSBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace url(;"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace url(;");
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseDefaultNSBad2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace url();"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace url();");
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseDefaultNSDQ() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace \"\" url(\"https://www.w3.org/1999/xhtml/\");"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace \"\" url(\"https://www.w3.org/1999/xhtml/\");");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
@@ -304,12 +235,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseDefaultNSNoURL() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace \"https://www.w3.org/1999/xhtml/\";"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace \"https://www.w3.org/1999/xhtml/\";");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
@@ -317,12 +243,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseNSNoURL() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace xhtml \"https://www.w3.org/1999/xhtml/\";"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace xhtml \"https://www.w3.org/1999/xhtml/\";");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
@@ -330,12 +251,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseNSNoURLEOF() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace xhtml \"https://www.w3.org/1999/xhtml/\""));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace xhtml \"https://www.w3.org/1999/xhtml/\"");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
@@ -343,12 +259,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseNSEOF() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace xhtml url(\"https://www.w3.org/1999/xhtml/\")"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace xhtml url(\"https://www.w3.org/1999/xhtml/\")");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
@@ -356,13 +267,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseSimpleNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-			"@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("http://www.w3.org/2000/svg", handler.namespaceMaps.get("svg"));
 		assertEquals(2, handler.selectors.size());
@@ -384,12 +289,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseStyleSheetMediaRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@media {div.foo{margin:1em}}"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@media {div.foo{margin:1em}}");
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("all", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.endMediaCount);
@@ -406,13 +306,8 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseStyleSheetMediaRuleErrorRecovery() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule(
+				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("handheld,only screen and (max-width:1600px) .foo", handler.mediaRuleLists.get(0).toString());
 		assertEquals("all", handler.mediaRuleLists.get(1).toString());
@@ -430,13 +325,7 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseStyleSheetNestedMediaRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}");
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals("(max-width:1600px)", handler.mediaRuleLists.get(1).toString());
@@ -459,20 +348,14 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseStyleSheetPageRuleNestedOnMediaRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media print {@page {margin-top: 20%;}h3 {width: 80%}}"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@media print {@page {margin-top: 20%;}h3 {width: 80%}}");
 		assertEquals(1, handler.pageRuleNames.size());
 		assertNull(handler.pageRuleNames.getFirst());
 		assertEquals(1, handler.endPageCount);
 		assertEquals(1, handler.mediaRuleLists.size());
-		SACMediaList medialist = handler.mediaRuleLists.getFirst();
-		assertEquals(1, medialist.getLength());
-		assertEquals("print", medialist.item(0));
+		List<String> medialist = handler.mediaRuleLists.getFirst();
+		assertEquals(1, medialist.size());
+		assertEquals("print", medialist.get(0));
 		assertEquals(1, handler.endMediaCount);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("h3", handler.selectors.getFirst().toString());
@@ -495,207 +378,136 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseImportRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url('foo.css');"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import url('foo.css');");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRule2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url(foo.css);"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import url(foo.css);");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleMedia() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url(foo.css) print;"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import url(foo.css) print;");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("print", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("print", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
+
 	@Test
 	public void testParseImportRuleMedia2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url(foo.css) screen, tv;"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import url(foo.css) screen, tv;");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(2, list.getLength());
-		assertEquals("screen", list.item(0));
-		assertEquals("tv", list.item(1));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(2, list.size());
+		assertEquals("screen", list.get(0));
+		assertEquals("tv", list.get(1));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleMediaQuery() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url('foo.css') (orientation:landscape);"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import url('foo.css') (orientation:landscape);");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("(orientation:landscape)", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("(orientation:landscape)", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleMediaQuery2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url('foo.css') screen and (orientation:landscape);"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import url('foo.css') screen and (orientation:landscape);");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("screen and (orientation:landscape)", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("screen and (orientation:landscape)", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleMediaQueryBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url('foo.css') screen and ((orientation:landscape);"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import url('foo.css') screen and ((orientation:landscape);");
 		assertEquals(0, handler.importURIs.size());
 		assertTrue(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleNoUrl() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import 'foo.css';"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import 'foo.css';");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleNoUrlMedia() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import 'foo.css' print;"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import 'foo.css' print;");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("print", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("print", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleNoUrlDQ() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import \"foo.css\";"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import \"foo.css\";");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleNoUrlDQMedia() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import \"foo.css\" screen, tv;"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@import \"foo.css\" screen, tv;");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(2, list.getLength());
-		assertEquals("screen", list.item(0));
-		assertEquals("tv", list.item(1));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(2, list.size());
+		assertEquals("screen", list.get(0));
+		assertEquals("tv", list.get(1));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"foo@import url('bar.css');"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("foo@import url('bar.css');");
 		assertEquals(0, handler.importURIs.size());
 		assertEquals(0, handler.importMedias.size());
 		assertEquals(0, handler.selectors.size());
@@ -705,19 +517,13 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseImportRuleErrorRecovery() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				";@import url('bar.css');"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule(";@import url('bar.css');");
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("bar.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.endSelectors.size());
 		assertTrue(errorHandler.hasError());
@@ -725,29 +531,18 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseCounterStyleRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}");
 		assertEquals(1, handler.atRules.size());
-		assertEquals("@counter-style foo {symbols: \\1F44D; suffix: \" \"; }",
-				handler.atRules.get(0));
+		assertEquals("@counter-style foo {symbols: \\1F44D; suffix: \" \"; }", handler.atRules.get(0));
 	}
 
 	@Test
 	public void testParseNestedSupportsRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen {@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}}"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule(
+				"@media screen {@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}}");
 		assertEquals(1, handler.atRules.size());
-		assertEquals("@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}",
+		assertEquals(
+				"@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}",
 				handler.atRules.get(0));
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.getFirst().toString());
@@ -758,36 +553,32 @@ public class RuleParserTest {
 
 	@Test
 	public void testParsePseudoClassNotEmpty() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"foo:not() {td {display: table-cell; } li {display: list-item; }}"));
-		TestDocumentHandler handler = new TestDocumentHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		parser.parseRule(source);
+		parseRule("foo:not() {td {display: table-cell; } li {display: list-item; }}");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.selectors.size());
 	}
 
 	@Test
 	public void testParseStyleSheetAsteriskHack() throws CSSException, IOException {
-		TestDeclarationHandler handler = new TestDeclarationHandler();
-		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
-		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(".foo{*width: 80%}"));
-		parser.parseRule(source);
+		parseRule(".foo{*width: 80%}");
 		assertTrue(errorHandler.hasError());
 		errorHandler.reset();
 		parser.setFlag(CSSParser.Flag.STARHACK);
-		source = new InputSource(new StringReader(".foo{*width: 80%}"));
-		parser.parseRule(source);
+		parseRule(".foo{*width: 80%}");
 		assertFalse(errorHandler.hasError());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("*width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(80, lu.getFloatValue(), 0.01);
+	}
+
+	private void parseRule(String string) throws CSSParseException, IOException {
+		parser.parseRule(new StringReader(string));
+	}
+
+	private void parseRule(String string, NamespaceMap nsmap) throws CSSParseException, IOException {
+		parser.parseRule(new StringReader(string), nsmap);
 	}
 
 	static class TestRuleErrorHandler extends TestErrorHandler {
@@ -798,14 +589,6 @@ public class RuleParserTest {
 				throw new IllegalStateException("More than one error reported for single rule", exception);
 			}
 			super.error(exception);
-		}
-
-		@Override
-		public void fatalError(CSSParseException exception) throws CSSException {
-			if (this.exception != null) {
-				throw new IllegalStateException("More than one fatal error reported for single rule", exception);
-			}
-			super.fatalError(exception);
 		}
 
 	}

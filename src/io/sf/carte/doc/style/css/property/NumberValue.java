@@ -15,11 +15,11 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**

@@ -15,8 +15,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,6 +25,7 @@ import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 public class DefaultSheetErrorHandler implements SheetErrorHandler {
 
@@ -37,7 +36,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	private LinkedList<RuleParseException> ruleParseErrors = null;
 	private LinkedList<String> emptyRules = null;
 
-	private LinkedList<SACMediaList> badMediaLists = null;
+	private LinkedList<List<String>> badMediaLists = null;
 	private LinkedList<String> badAtRules = null;
 	private LinkedList<String> badInlineStyles = null;
 	private List<AbstractCSSRule> ruleList = null;
@@ -68,9 +67,9 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	}
 
 	@Override
-	public void badMediaList(SACMediaList media) {
+	public void badMediaList(List<String> media) {
 		if (badMediaLists == null) {
-			badMediaLists = new LinkedList<SACMediaList>();
+			badMediaLists = new LinkedList<List<String>>();
 		}
 		badMediaLists.add(media);
 	}
@@ -181,7 +180,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		return badInlineStyles;
 	}
 
-	public LinkedList<SACMediaList> getBadMediaLists() {
+	public LinkedList<List<String>> getBadMediaLists() {
 		return badMediaLists;
 	}
 

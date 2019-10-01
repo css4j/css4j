@@ -13,11 +13,9 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.Locale;
 
-import org.w3c.css.sac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-
-class LexicalUnitImpl implements LexicalUnit2 {
+class LexicalUnitImpl implements LexicalUnit {
 
 	private short unitType;
 
@@ -160,11 +158,11 @@ class LexicalUnitImpl implements LexicalUnit2 {
 			case LexicalUnit.SAC_OPERATOR_MULTIPLY:
 			case LexicalUnit.SAC_OPERATOR_SLASH:
 			case LexicalUnit.SAC_OPERATOR_TILDE:
-			case LexicalUnit2.SAC_LEFT_BRACKET:
+			case LexicalUnit.SAC_LEFT_BRACKET:
 				needSpaces = false;
 			case LexicalUnit.SAC_OPERATOR_COMMA:
 				break;
-			case LexicalUnit2.SAC_RIGHT_BRACKET:
+			case LexicalUnit.SAC_RIGHT_BRACKET:
 				needSpaces = true;
 				break;
 			default:
@@ -202,24 +200,24 @@ class LexicalUnitImpl implements LexicalUnit2 {
 		case LexicalUnit.SAC_MILLISECOND:
 		case LexicalUnit.SAC_RADIAN:
 		case LexicalUnit.SAC_SECOND:
-		case LexicalUnit2.SAC_CAP:
-		case LexicalUnit2.SAC_CH:
-		case LexicalUnit2.SAC_DOTS_PER_CENTIMETER:
-		case LexicalUnit2.SAC_DOTS_PER_INCH:
-		case LexicalUnit2.SAC_DOTS_PER_PIXEL:
-		case LexicalUnit2.SAC_IC:
-		case LexicalUnit2.SAC_LH:
-		case LexicalUnit2.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit2.SAC_REM:
-		case LexicalUnit2.SAC_RLH:
-		case LexicalUnit2.SAC_TURN:
-		case LexicalUnit2.SAC_VB:
-		case LexicalUnit2.SAC_VH:
-		case LexicalUnit2.SAC_VI:
-		case LexicalUnit2.SAC_VMAX:
-		case LexicalUnit2.SAC_VMIN:
-		case LexicalUnit2.SAC_VW:
-		case LexicalUnit2.SAC_FR:
+		case LexicalUnit.SAC_CAP:
+		case LexicalUnit.SAC_CH:
+		case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
+		case LexicalUnit.SAC_DOTS_PER_INCH:
+		case LexicalUnit.SAC_DOTS_PER_PIXEL:
+		case LexicalUnit.SAC_IC:
+		case LexicalUnit.SAC_LH:
+		case LexicalUnit.SAC_QUARTER_MILLIMETER:
+		case LexicalUnit.SAC_REM:
+		case LexicalUnit.SAC_RLH:
+		case LexicalUnit.SAC_TURN:
+		case LexicalUnit.SAC_VB:
+		case LexicalUnit.SAC_VH:
+		case LexicalUnit.SAC_VI:
+		case LexicalUnit.SAC_VMAX:
+		case LexicalUnit.SAC_VMIN:
+		case LexicalUnit.SAC_VW:
+		case LexicalUnit.SAC_FR:
 			StringBuilder buf = new StringBuilder();
 			if(floatValue % 1 != 0) {
 			    buf.append(String.format(Locale.ROOT, "%s", floatValue));
@@ -268,7 +266,7 @@ class LexicalUnitImpl implements LexicalUnit2 {
 				quri = ParseHelper.quote(value, '\'');
 			}
 			return "url(" + quri + ")";
-		case LexicalUnit2.SAC_ELEMENT_REFERENCE:
+		case LexicalUnit.SAC_ELEMENT_REFERENCE:
 			if (value == null) {
 				return "element(#)";
 			}
@@ -296,7 +294,7 @@ class LexicalUnitImpl implements LexicalUnit2 {
 				}
 			}
 			return buf.toString();
-		case LexicalUnit2.SAC_UNICODE_WILDCARD:
+		case LexicalUnit.SAC_UNICODE_WILDCARD:
 			return getStringValue();
 		case LexicalUnit.SAC_OPERATOR_COMMA:
 			return ",";
@@ -322,12 +320,12 @@ class LexicalUnitImpl implements LexicalUnit2 {
 			return "/";
 		case LexicalUnit.SAC_OPERATOR_TILDE:
 			return "~";
-		case LexicalUnit2.SAC_LEFT_BRACKET:
+		case LexicalUnit.SAC_LEFT_BRACKET:
 			return "[";
-		case LexicalUnit2.SAC_RIGHT_BRACKET:
+		case LexicalUnit.SAC_RIGHT_BRACKET:
 			return "]";
-		case LexicalUnit2.SAC_COMPAT_IDENT:
-		case LexicalUnit2.SAC_COMPAT_PRIO:
+		case LexicalUnit.SAC_COMPAT_IDENT:
+		case LexicalUnit.SAC_COMPAT_PRIO:
 			return ParseHelper.escapeControl(value);
 		}
 		return "";

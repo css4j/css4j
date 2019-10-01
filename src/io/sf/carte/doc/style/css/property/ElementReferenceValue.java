@@ -14,13 +14,11 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.util.SimpleWriter;
 
@@ -58,11 +56,10 @@ class ElementReferenceValue extends PrimitiveValue {
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		checkModifiableProperty();
-		InputSource source = new InputSource(new StringReader(cssText));
 		CSSParser parser = new CSSParser();
 		LexicalUnit lu;
 		try {
-			lu = parser.parsePropertyValue(source);
+			lu = parser.parsePropertyValue(new StringReader(cssText));
 		} catch (IOException e) {
 			lu = null;
 		} catch (CSSException e) {
@@ -70,7 +67,7 @@ class ElementReferenceValue extends PrimitiveValue {
 			ex.initCause(e);
 			throw ex;
 		}
-		if (lu.getLexicalUnitType() != LexicalUnit2.SAC_ELEMENT_REFERENCE || lu.getNextLexicalUnit() != null) {
+		if (lu.getLexicalUnitType() != LexicalUnit.SAC_ELEMENT_REFERENCE || lu.getNextLexicalUnit() != null) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an element reference: " + cssText);
 		}
 		LexicalSetter setter = newLexicalSetter();

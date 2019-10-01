@@ -16,7 +16,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
 
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
@@ -111,9 +110,8 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 		// Create, load & Parse
 		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this, null, null);
 		Reader re = new StringReader(cssText);
-		InputSource source = new InputSource(re);
 		try {
-			css.parseStyleSheet(source);
+			css.parseStyleSheet(re);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());

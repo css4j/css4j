@@ -105,7 +105,8 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImage7() {
-		assertShorthandText("border:8px;border-image:repeating-conic-gradient(gold,#f06 20deg) 25% 30% 12% 20% fill/2pt/1 round;",
+		assertShorthandText(
+				"border:8px;border-image:repeating-conic-gradient(gold,#f06 20deg) 25% 30% 12% 20% fill/2pt/1 round;",
 				"border:8px; border-image: repeating-conic-gradient(gold, #f06 20deg) 25% 30% 12% 20% fill / 2pt / 1 round;");
 	}
 

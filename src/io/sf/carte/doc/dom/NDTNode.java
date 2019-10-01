@@ -22,8 +22,6 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
@@ -31,7 +29,8 @@ import io.sf.carte.doc.DOMTokenList;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
@@ -198,11 +197,10 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 	}
 
 	static ElementList querySelectorAll(String selectors, Node firstChild) {
-		Parser2 parser = new CSSParser();
-		InputSource source = new InputSource(new StringReader(selectors));
+		Parser parser = new CSSParser();
 		SelectorList selist;
 		try {
-			selist = parser.parseSelectors(source);
+			selist = parser.parseSelectors(new StringReader(selectors));
 		} catch (CSSNamespaceParseException e) {
 			throw createDOMException(DOMException.NAMESPACE_ERR, "Namespaces inside the selectors are not supported: " + selectors, e);
 		} catch (Exception e) {

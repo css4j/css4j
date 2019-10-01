@@ -17,10 +17,10 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;

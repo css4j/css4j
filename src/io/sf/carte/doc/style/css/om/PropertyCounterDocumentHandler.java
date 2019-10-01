@@ -11,9 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 class PropertyCounterDocumentHandler extends EmptyDocumentHandler {
 
@@ -26,17 +25,12 @@ class PropertyCounterDocumentHandler extends EmptyDocumentHandler {
 	}
 
 	@Override
-	public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+	public void property(String name, LexicalUnit value, boolean important) {
 		count++;
 	}
 
 	@Override
-	public void error(CSSParseException exception) throws CSSException {
-		error = true;
-	}
-
-	@Override
-	public void fatalError(CSSParseException exception) throws CSSException {
+	public void error(CSSParseException exception) throws CSSParseException {
 		error = true;
 	}
 

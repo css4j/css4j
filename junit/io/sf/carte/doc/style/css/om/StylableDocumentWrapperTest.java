@@ -64,7 +64,7 @@ public class StylableDocumentWrapperTest {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docb = dbFac.newDocumentBuilder();
 		docb.setEntityResolver(new DefaultEntityResolver());
-        InputSource source = new InputSource(is);
+		InputSource source = new InputSource(is);
 		Document doc = docb.parse(source);
 		is.close();
 		doc.getDocumentElement().normalize();

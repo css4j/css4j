@@ -22,7 +22,6 @@ import java.util.StringTokenizer;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSRuleList;
 import org.w3c.dom.css.CSSStyleDeclaration;
@@ -45,7 +44,7 @@ public class StyleRuleTest2 {
 		sheet = myfactory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
 		try {
-			sheet.parseStyleSheet(new InputSource(re));
+			sheet.parseStyleSheet(re);
 			re.close();
 		} catch (IOException e) {
 			e.printStackTrace();

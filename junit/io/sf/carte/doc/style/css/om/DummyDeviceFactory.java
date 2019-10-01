@@ -247,13 +247,11 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		/**
-		 * Gives the width, in typographic points, for showing the given text
-		 * with the given style.
+		 * Gives the width, in typographic points, for showing the given text with the
+		 * given style.
 		 * 
-		 * @param text
-		 *            the text to measure.
-		 * @param style
-		 *            the style that applies.
+		 * @param text  the text to measure.
+		 * @param style the style that applies.
 		 * @return the advance width for showing the text with the given font.
 		 */
 		@Override

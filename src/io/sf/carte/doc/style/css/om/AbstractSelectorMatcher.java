@@ -11,36 +11,25 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
-
-import org.w3c.css.sac.AttributeCondition;
-import org.w3c.css.sac.CombinatorCondition;
-import org.w3c.css.sac.Condition;
-import org.w3c.css.sac.ConditionalSelector;
-import org.w3c.css.sac.DescendantSelector;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LangCondition;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SiblingSelector;
-import org.w3c.css.sac.SimpleSelector;
 
 import io.sf.carte.doc.DOMTokenSetImpl;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
-import io.sf.carte.doc.style.css.nsac.AttributeCondition2;
-import io.sf.carte.doc.style.css.nsac.Condition2;
-import io.sf.carte.doc.style.css.nsac.Parser2;
-import io.sf.carte.doc.style.css.nsac.PositionalCondition2;
-import io.sf.carte.doc.style.css.nsac.Selector2;
-import io.sf.carte.doc.style.css.parser.AnBExpression;
-import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.nsac.AttributeCondition;
+import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
+import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.LangCondition;
+import io.sf.carte.doc.style.css.nsac.PositionalCondition;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 /**
  * CSS Selector matcher.
@@ -164,52 +153,43 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		case Selector.SAC_CONDITIONAL_SELECTOR:
 			ConditionalSelector condsel = (ConditionalSelector) selector;
 			return matchCondition(condsel.getCondition(), condsel.getSimpleSelector());
-		case Selector.SAC_ANY_NODE_SELECTOR:
-		case Selector2.SAC_SCOPE_SELECTOR:
+		case Selector.SAC_UNIVERSAL_SELECTOR:
+		case Selector.SAC_SCOPE_SELECTOR:
 			return true;
 		case Selector.SAC_CHILD_SELECTOR:
-			SimpleSelector desc = ((DescendantSelector) selector).getSimpleSelector();
+			SimpleSelector desc = ((CombinatorSelector) selector).getSecondSelector();
 			if (matches(desc)) {
-				Selector ancestor = ((DescendantSelector) selector).getAncestorSelector();
+				Selector ancestor = ((CombinatorSelector) selector).getSelector();
 				SelectorMatcher parentSM;
-				if (desc.getSelectorType() != Selector.SAC_PSEUDO_ELEMENT_SELECTOR) {
-					parentSM = getParentSelectorMatcher();
-				} else {
-					return matches(ancestor);
-				}
+				parentSM = getParentSelectorMatcher();
 				if (parentSM != null && parentSM.matches(ancestor)) {
 					return true;
 				}
 			}
 			break;
 		case Selector.SAC_DESCENDANT_SELECTOR:
-			desc = ((DescendantSelector) selector).getSimpleSelector();
+			desc = ((CombinatorSelector) selector).getSecondSelector();
 			if (matches(desc)) {
-				Selector ancestor = ((DescendantSelector) selector).getAncestorSelector();
-				AbstractSelectorMatcher parentSM;
-				if (desc.getSelectorType() == Selector.SAC_PSEUDO_ELEMENT_SELECTOR) {
-					return matches(ancestor);
-				} else {
-					parentSM = getParentSelectorMatcher();
-					while (parentSM != null) {
-						if (parentSM.matches(ancestor)) {
-							return true;
-						}
-						parentSM = parentSM.getParentSelectorMatcher();
+				Selector ancestor = ((CombinatorSelector) selector).getSelector();
+				AbstractSelectorMatcher parentSM = getParentSelectorMatcher();
+				while (parentSM != null) {
+					if (parentSM.matches(ancestor)) {
+						return true;
 					}
+					parentSM = parentSM.getParentSelectorMatcher();
 				}
 			}
 			break;
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-			if (matches(((SiblingSelector) selector).getSiblingSelector())) {
-				Selector sel = ((SiblingSelector) selector).getSelector();
+			if (matches(((CombinatorSelector) selector).getSecondSelector())) {
+				Selector sel = ((CombinatorSelector) selector).getSelector();
 				SelectorMatcher siblingSM = getPreviousSiblingSelectorMatcher();
 				return siblingSM == null ? false : siblingSM.matches(sel);
 			}
 			break;
-		case Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR:
-			SiblingSelector sibling = (SiblingSelector) selector;
-			if (matches(sibling.getSiblingSelector())) {
+		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+			CombinatorSelector sibling = (CombinatorSelector) selector;
+			if (matches(sibling.getSecondSelector())) {
 				Selector sel = sibling.getSelector();
 				AbstractSelectorMatcher siblingSM = getPreviousSiblingSelectorMatcher();
 				while (siblingSM != null) {
@@ -226,17 +206,19 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	boolean matchCondition(Condition cond, SimpleSelector simple) {
 		switch (cond.getConditionType()) {
 		case Condition.SAC_CLASS_CONDITION:
-			String cond_value = ((AttributeCondition) cond).getValue();
+			AttributeCondition attrcond = (AttributeCondition) cond;
+			String cond_value = attrcond.getValue();
 			return matchesClass(cond_value) && matches(simple);
 		case Condition.SAC_ID_CONDITION:
 			return matchesId(((AttributeCondition) cond).getValue());
 		case Condition.SAC_ATTRIBUTE_CONDITION:
-			String attrName = ((AttributeCondition) cond).getLocalName();
+			attrcond = (AttributeCondition) cond;
+			String attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
-				cond_value = ((AttributeCondition) cond).getValue();
-				if (((AttributeCondition) cond).getSpecified() || cond_value != null) {
+				cond_value = attrcond.getValue();
+				if (cond_value != null) {
 					String attribValue = getAttributeValue(attrName);
-					if (cond instanceof AttributeCondition2 && ((AttributeCondition2) cond).hasFlag(AttributeCondition2.Flag.CASE_I)) {
+					if (attrcond.hasFlag(AttributeCondition.Flag.CASE_I)) {
 						return attribValue.equalsIgnoreCase(cond_value);
 					}
 					return attribValue.equals(cond_value);
@@ -246,24 +228,27 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			}
 			break;
 		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
+			attrcond = (AttributeCondition) cond;
+			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
+				cond_value = attrcond.getValue();
 				String attrValue = getAttributeValue(attrName);
 				StringTokenizer tok = new StringTokenizer(attrValue, " ");
 				while (tok.hasMoreElements()) {
 					String token = tok.nextToken();
-					if (token.equals(((AttributeCondition) cond).getValue())) {
+					if (token.equals(cond_value)) {
 						return true;
 					}
 				}
 			}
 			break;
 		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
+			attrcond = (AttributeCondition) cond;
+			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
 				String attrValue = getAttributeValue(attrName);
 				int attrlen = attrValue.length();
-				String condstr = ((AttributeCondition) cond).getValue();
+				String condstr = attrcond.getValue();
 				int condlen = condstr.length();
 				if (condlen == attrlen) {
 					return attrValue.equals(condstr);
@@ -272,22 +257,25 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
+		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
+			attrcond = (AttributeCondition) cond;
+			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).startsWith(((AttributeCondition) cond).getValue());
+				return getAttributeValue(attrName).startsWith(attrcond.getValue());
 			}
 			break;
-		case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
+		case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
+			attrcond = (AttributeCondition) cond;
+			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).endsWith(((AttributeCondition) cond).getValue());
+				return getAttributeValue(attrName).endsWith(attrcond.getValue());
 			}
 			break;
-		case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
+		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+			attrcond = (AttributeCondition) cond;
+			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).contains(((AttributeCondition) cond).getValue());
+				return getAttributeValue(attrName).contains(attrcond.getValue());
 			}
 			break;
 		case Condition.SAC_LANG_CONDITION:
@@ -298,38 +286,11 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			// Non-state pseudo-classes are generally more expensive than other
 			// selectors, so we evaluate the simple selector first.
 			if (matches(simple)) {
-				String pseudoClassName = ((AttributeCondition) cond).getLocalName();
-				cond_value = ((AttributeCondition) cond).getValue();
-				String argument = null;
-				if (pseudoClassName == null) {
-					// Batik or SS parser
-					int idxparen = cond_value.indexOf('(');
-					if (idxparen != -1) {
-						int lm1 = cond_value.length() - 1;
-						int idxp1 = idxparen + 1;
-						if (lm1 <= idxp1 || cond_value.charAt(lm1) != ')') {
-							break;
-						}
-						pseudoClassName = cond_value.substring(0, idxparen);
-						argument = cond_value.substring(idxp1, lm1);
-					} else {
-						pseudoClassName = cond_value;
-					}
-				} else if (cond_value != null) {
-					// Probably this implementation
-					argument = cond_value;
-				}
+				attrcond = (AttributeCondition) cond;
+				String pseudoClassName = attrcond.getLocalName();
 				pseudoClassName = pseudoClassName.toLowerCase(Locale.ROOT).intern();
-				if ("first-child".equals(pseudoClassName)) {
-					return isFirstChild();
-				} else if ("last-child".equals(pseudoClassName)) {
-					return isLastChild();
-				} else if ("only-child".equals(pseudoClassName)) {
+				if ("only-child".equals(pseudoClassName)) {
 					return isOnlyChild();
-				} else if ("first-of-type".equals(pseudoClassName)) {
-					return isFirstOfType();
-				} else if ("last-of-type".equals(pseudoClassName)) {
-					return isLastOfType();
 				} else if ("only-of-type".equals(pseudoClassName)) {
 					return isOnlyOfType();
 				} else if ("link".equals(pseudoClassName)) {
@@ -361,27 +322,10 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				} else if ("indeterminate".equals(pseudoClassName)) {
 					return isIndeterminate();
 				}
-				if (pseudoClassName.equals("is")) {
-					// Parse selector list
-					return matches(parseSelector(argument)) >= 0;
-				} else if (pseudoClassName.equals("not")) {
-					return !(matches(parseSelector(argument)) >= 0);
-				} else if (pseudoClassName.equals("has")) {
-					return scopeMatch(argument, simple) >= 0;
-				} else if (pseudoClassName.equals("nth-child")) {
-					return isNthChild(argument);
-				} else if (pseudoClassName.equals("nth-last-child")) {
-					return isNthLastChild(argument);
-				} else if (pseudoClassName.equals("nth-of-type")) {
-					return isNthOfType(argument);
-				} else if (pseudoClassName.equals("nth-last-of-type")) {
-					return isNthLastOfType(argument);
-				} else {
-					return isActivePseudoClass(pseudoClassName);
-				}
+				return isActivePseudoClass(pseudoClassName);
 			}
 			break;
-		case Condition2.SAC_PSEUDO_ELEMENT_CONDITION:
+		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
 			if (matches(simple)) {
 				return ((AttributeCondition) cond).getLocalName().equals(getPseudoElement());
 			}
@@ -390,17 +334,16 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			CombinatorCondition comb = (CombinatorCondition) cond;
 			return matchCondition(comb.getFirstCondition(), simple)
 					&& matchCondition(comb.getSecondCondition(), simple);
-		case Condition.SAC_ONLY_CHILD_CONDITION: // Only NSAC parser uses this
+		case Condition.SAC_ONLY_CHILD_CONDITION:
 			return matches(simple) && isOnlyChild();
-		case Condition.SAC_ONLY_TYPE_CONDITION: // Only NSAC parser uses this
+		case Condition.SAC_ONLY_TYPE_CONDITION:
 			return matches(simple) && isOnlyOfType();
 		case Condition.SAC_POSITIONAL_CONDITION:
-			// SS and Batik use SAC_PSEUDO_CLASS_CONDITION instead of this
 			if (matches(simple)) {
-				PositionalCondition2 pcond = (PositionalCondition2) cond;
+				PositionalCondition pcond = (PositionalCondition) cond;
 				int pos = pcond.getOffset();
 				int factor = pcond.getFactor();
-				if (pcond.getType()) {
+				if (pcond.isOfType()) {
 					// Of type
 					if (pcond.isForwardCondition()) {
 						return isNthOfType(factor, pos);
@@ -422,7 +365,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Condition2.SAC_SELECTOR_ARGUMENT_CONDITION:
+		case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
 			if (matches(simple)) {
 				String name = ((ArgumentCondition) cond).getName();
 				SelectorList selist = ((ArgumentCondition) cond).getSelectors();
@@ -445,10 +388,6 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Condition.SAC_OR_CONDITION:
-			comb = (CombinatorCondition) cond;
-			return matchCondition(comb.getFirstCondition(), simple)
-					|| matchCondition(comb.getSecondCondition(), simple);
 		// No more conditions: text-content selectors etc. were deprecated
 		}
 		return false;
@@ -466,15 +405,19 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		return idAttr.equals(value);
 	}
 
+	private String getQuirksId() {
+		String idAttr = getAttributeValue("id");
+		if (idAttr.length() == 0) {
+			idAttr = getAttributeValue("ID");
+			if (idAttr.length() == 0) {
+				idAttr = getAttributeValue("Id");
+			}
+		}
+		return idAttr;
+	}
+
 	/**
 	 * Verifies if the selector matches a given class name.
-	 * <p>
-	 * Per section 4.1.3 of CSS 2.1 spec, identifiers can contain only the characters [a-z0-9]
-	 * and ISO 10646 characters U+00A1 and higher, plus the hyphen (-) and the underscore (_).
-	 * This is confusing, since -for example- both upper and lower case accented characters
-	 * are accepted, but not uppercase ASCII letters. It also states that any ISO 10646
-	 * character is accepted if given as a numeric code.
-	 * </p>
 	 * <p>
 	 * A case-sensitive comparison is performed for <code>STRICT</code> mode, case-insensitive
 	 * for other modes.
@@ -515,50 +458,27 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		}
 	}
 
-	private int scopeMatch(String subselector, SimpleSelector scope) {
-		// This is intended for non-NSAC parsers. Parser's selectors must have
-		// a meaningful toString() method for this to work
-		SelectorList selist = parseSelector(scope.toString() + subselector);
-		if (selist == null) {
-			return -1;
-		}
-		int sz = selist.getLength();
-		StyleRule.Specifity matchedsp = null;
-		int matchedIdx = -1;
-		for (int i = 0; i < sz; i++) {
-			Selector sel = selist.item(i);
-			if (scopeMatch(sel, scope)) {
-				StyleRule.Specifity sp = new StyleRule.Specifity(sel);
-				if (matchedsp == null || StyleRule.Specifity.selectorCompare(matchedsp, sp) < 0) {
-					matchedsp = sp;
-					matchedIdx = i;
-				}
-			}
-		}
-		return matchedIdx;
-	}
-
 	private boolean scopeMatch(Selector selector, SimpleSelector scope) {
 		switch (selector.getSelectorType()) {
 		case Selector.SAC_ELEMENT_NODE_SELECTOR:
 		case Selector.SAC_CONDITIONAL_SELECTOR:
-			return scopeMatch(new DescendantSelectorImpl(scope, (SimpleSelector) selector), scope);
+			return scopeMatch(new CombinatorSelectorImpl(scope, (SimpleSelector) selector), scope);
 		case Selector.SAC_CHILD_SELECTOR:
 		case Selector.SAC_DESCENDANT_SELECTOR:
-			return scopeMatchChild((DescendantSelector) selector);
+			return scopeMatchChild((CombinatorSelector) selector);
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-		case Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR:
-			return scopeMatchDirectAdjacent((SiblingSelector) selector);
+		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+			return scopeMatchDirectAdjacent((CombinatorSelector) selector);
 		}
 		return false;
 	}
 
-	private class DescendantSelectorImpl implements DescendantSelector {
+	private class CombinatorSelectorImpl implements CombinatorSelector {
 
 		SimpleSelector simpleSelector;
 		Selector scope;
 
-		DescendantSelectorImpl(Selector scope, SimpleSelector simpleSelector) {
+		CombinatorSelectorImpl(Selector scope, SimpleSelector simpleSelector) {
 			super();
 			this.scope = scope;
 			this.simpleSelector = simpleSelector;
@@ -570,21 +490,30 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		}
 
 		@Override
-		public Selector getAncestorSelector() {
+		public Selector getSelector() {
 			return scope;
 		}
 
 		@Override
-		public SimpleSelector getSimpleSelector() {
+		public SimpleSelector getSecondSelector() {
 			return simpleSelector;
 		}
 	}
 
-	abstract protected CSSDocument.ComplianceMode getComplianceMode();
+	protected boolean isChecked() {
+		String tagname = getLocalName();
+		if ("input".equals(tagname)) {
+			String type = getAttributeValue("type");
+			return ("checkbox".equalsIgnoreCase(type) || "radio".equalsIgnoreCase(type)) && hasAttribute("checked");
+		} else if ("option".equals(tagname)) {
+			return hasAttribute("selected");
+		}
+		return false;
+	}
 
-	abstract protected boolean scopeMatchChild(DescendantSelector selector);
-
-	abstract protected boolean scopeMatchDirectAdjacent(SiblingSelector selector);
+	protected boolean isEnabled() {
+		return isFormElement() && !isDisabled();
+	}
 
 	protected boolean isFormElement() {
 		String tagname = getLocalName();
@@ -593,29 +522,39 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				|| tagname.equals("keygen") || tagname.equals("fieldset");
 	}
 
-	abstract protected boolean isNotVisitedLink();
+	protected boolean isIndeterminate() {
+		String s = getAttributeValue("indeterminate");
+		return s.length() != 0 && !s.equalsIgnoreCase("false");
+	}
 
-	abstract protected boolean isVisitedLink();
+	/**
+	 * The element in this matcher is the only child?
+	 * 
+	 * @return <code>true</code> if the element in this matcher is the only child, <code>false</code> if not.
+	 */
+	protected boolean isOnlyChild() {
+		return isFirstChild() && isLastChild();
+	}
 
-	abstract protected boolean isTarget();
+	/**
+	 * The element in this matcher is the only child of its type (tag name)?
+	 * 
+	 * @return <code>true</code> if the element in this matcher is the only child of its type, <code>false</code> if
+	 *         not.
+	 */
+	protected boolean isOnlyOfType() {
+		return isFirstOfType() && isLastOfType();
+	}
 
-	abstract protected boolean isRoot();
-
-	abstract protected boolean isEmpty();
-
-	abstract protected boolean isBlank();
-
-	abstract protected boolean isDisabled();
+	protected boolean isPlaceholderShown() {
+		return hasAttribute("placeholder");
+	}
 
 	protected boolean isReadWrite() {
 		if ("true".equalsIgnoreCase(getAttributeValue("contenteditable"))) {
 			return true;
 		}
 		return isEnabled();
-	}
-
-	protected boolean isPlaceholderShown() {
-		return hasAttribute("placeholder");
 	}
 
 	protected boolean isUIDefault() {
@@ -637,21 +576,19 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		return false;
 	}
 
-	protected boolean isChecked() {
-		String tagname = getLocalName();
-		if ("input".equals(tagname)) {
-			String type = getAttributeValue("type");
-			return ("checkbox".equalsIgnoreCase(type) || "radio".equalsIgnoreCase(type)) && hasAttribute("checked");
-		} else if ("option".equals(tagname)) {
-			return hasAttribute("selected");
-		}
-		return false;
-	}
+	abstract protected CSSDocument.ComplianceMode getComplianceMode();
 
-	protected boolean isIndeterminate() {
-		String s = getAttributeValue("indeterminate");
-		return s.length() != 0 && !s.equalsIgnoreCase("false");
-	}
+	/**
+	 * Gets the namespace URI of the element associated to this selector matcher.
+	 * 
+	 * @return the namespace URI, or null if the element belongs to no specific
+	 *         namespace.
+	 */
+	abstract protected String getNamespaceURI();
+
+	abstract protected boolean scopeMatchChild(CombinatorSelector selector);
+
+	abstract protected boolean scopeMatchDirectAdjacent(CombinatorSelector selector);
 
 	/**
 	 * Gets the selector matcher for the parent element.
@@ -667,148 +604,6 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	 *         sibling.
 	 */
 	abstract protected AbstractSelectorMatcher getPreviousSiblingSelectorMatcher();
-
-	/**
-	 * The element in this matcher is the first child?
-	 * 
-	 * @return <code>true</code> if the element in this matcher is a first child, <code>false</code> if not.
-	 */
-	abstract protected boolean isFirstChild();
-
-	/**
-	 * The element in this matcher is the last child?
-	 * 
-	 * @return <code>true</code> if the element in this matcher is the last child, <code>false</code> if not.
-	 */
-	abstract protected boolean isLastChild();
-
-	/**
-	 * The element in this matcher is the only child?
-	 * 
-	 * @return <code>true</code> if the element in this matcher is the only child, <code>false</code> if not.
-	 */
-	protected boolean isOnlyChild() {
-		return isFirstChild() && isLastChild();
-	}
-
-	/**
-	 * The element in this matcher is the first child of its type (tag name)?
-	 * 
-	 * @return <code>true</code> if the element in this matcher is a first child of its type, <code>false</code> if
-	 *         not.
-	 */
-	abstract protected boolean isFirstOfType();
-
-	/**
-	 * The element in this matcher is the last child of its type (tag name)?
-	 * 
-	 * @return <code>true</code> if the element in this matcher is the last child of its type, <code>false</code> if
-	 *         not.
-	 */
-	abstract protected boolean isLastOfType();
-
-	/**
-	 * The element in this matcher is the only child of its type (tag name)?
-	 * 
-	 * @return <code>true</code> if the element in this matcher is the only child of its type, <code>false</code> if
-	 *         not.
-	 */
-	protected boolean isOnlyOfType() {
-		return isFirstOfType() && isLastOfType();
-	}
-
-	private boolean isNthChild(String expression) {
-		AnBExpression expr = new MyAnBExpression();
-		try {
-			expr.parse(expression);
-		} catch (IllegalArgumentException e) {
-			return false;
-		}
-		int idx = indexOf(expr.getSelectorList());
-		if (idx == -1) {
-			return false;
-		}
-		idx -= expr.getOffset();
-		int step = expr.getStep();
-		return step == 0 ? idx == 0 : Math.floorMod(idx, step) == 0;
-	}
-
-	private boolean isNthLastChild(String expression) {
-		AnBExpression expr = new MyAnBExpression();
-		try {
-			expr.parse(expression);
-		} catch (IllegalArgumentException e) {
-			return false;
-		}
-		int idx = reverseIndexOf(expr.getSelectorList());
-		if (idx == -1) {
-			return false;
-		}
-		idx -= expr.getOffset();
-		int step = expr.getStep();
-		return step == 0 ? idx == 0 : Math.floorMod(idx, step) == 0;
-	}
-
-	private boolean isNthOfType(String expression) {
-		AnBExpression expr = new MyAnBExpression();
-		try {
-			expr.parse(expression);
-		} catch (IllegalArgumentException e) {
-			return false;
-		}
-		return isNthOfType(expr.getStep(), expr.getOffset());
-	}
-
-	private boolean isNthLastOfType(String expression) {
-		AnBExpression expr = new MyAnBExpression();
-		try {
-			expr.parse(expression);
-		} catch (IllegalArgumentException e) {
-			return false;
-		}
-		return isNthLastOfType(expr.getStep(), expr.getOffset());
-	}
-
-	private static class MyAnBExpression extends AnBExpression {
-
-		@Override
-		protected SelectorList parseSelector(String selText) {
-			return AbstractSelectorMatcher.parseSelector(selText);
-		}
-	}
-
-	private static SelectorList parseSelector(String selText) {
-		if (selText.length() == 0) {
-			return null;
-		}
-		Parser2 parser = new CSSParser();
-		InputSource source = new InputSource(new StringReader(selText));
-		SelectorList list;
-		try {
-			list = parser.parseSelectors(source);
-		} catch (IOException e) {
-			list = null;
-		} catch (RuntimeException e) {
-			list = null;
-		}
-		return list;
-	}
-
-	protected boolean isEnabled() {
-		return isFormElement() && !isDisabled();
-	}
-
-	abstract protected int indexOf(SelectorList list);
-
-	abstract protected int reverseIndexOf(SelectorList list);
-
-	abstract protected boolean isNthOfType(int step, int offset);
-
-	abstract protected boolean isNthLastOfType(int step, int offset);
-
-	abstract protected boolean isDefaultButton();
-
-	abstract protected String getNamespaceURI();
 
 	/**
 	 * Gets the value of the given attribute in the element associated to this selector
@@ -838,17 +633,6 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	 */
 	abstract protected String getId();
 
-	private String getQuirksId() {
-		String idAttr = getAttributeValue("id");
-		if (idAttr.length() == 0) {
-			idAttr = getAttributeValue("ID");
-			if (idAttr.length() == 0) {
-				idAttr = getAttributeValue("Id");
-			}
-		}
-		return idAttr;
-	}
-
 	/**
 	 * Gets the language of the element associated to this selector matcher.
 	 * 
@@ -859,6 +643,60 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	 * other XML.
 	 */
 	abstract protected String getLanguage();
+
+	/**
+	 * The element in this matcher is the first child?
+	 * 
+	 * @return <code>true</code> if the element in this matcher is a first child, <code>false</code> if not.
+	 */
+	abstract protected boolean isFirstChild();
+
+	/**
+	 * The element in this matcher is the last child?
+	 * 
+	 * @return <code>true</code> if the element in this matcher is the last child, <code>false</code> if not.
+	 */
+	abstract protected boolean isLastChild();
+
+	/**
+	 * The element in this matcher is the first child of its type (tag name)?
+	 * 
+	 * @return <code>true</code> if the element in this matcher is a first child of its type, <code>false</code> if
+	 *         not.
+	 */
+	abstract protected boolean isFirstOfType();
+
+	/**
+	 * The element in this matcher is the last child of its type (tag name)?
+	 * 
+	 * @return <code>true</code> if the element in this matcher is the last child of its type, <code>false</code> if
+	 *         not.
+	 */
+	abstract protected boolean isLastOfType();
+
+	abstract protected int indexOf(SelectorList list);
+
+	abstract protected int reverseIndexOf(SelectorList list);
+
+	abstract protected boolean isNthOfType(int step, int offset);
+
+	abstract protected boolean isNthLastOfType(int step, int offset);
+
+	abstract protected boolean isNotVisitedLink();
+
+	abstract protected boolean isVisitedLink();
+
+	abstract protected boolean isTarget();
+
+	abstract protected boolean isRoot();
+
+	abstract protected boolean isEmpty();
+
+	abstract protected boolean isBlank();
+
+	abstract protected boolean isDisabled();
+
+	abstract protected boolean isDefaultButton();
 
 	/**
 	 * Add to the list all the state pseudo-classes found in the selector.
@@ -906,11 +744,11 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			break;
 		case Selector.SAC_CHILD_SELECTOR:
 		case Selector.SAC_DESCENDANT_SELECTOR:
-			findStatePseudoClasses(((DescendantSelector) selector).getSimpleSelector(), statePseudoClasses);
-			findStatePseudoClasses(((DescendantSelector) selector).getAncestorSelector(), statePseudoClasses);
+			findStatePseudoClasses(((CombinatorSelector) selector).getSecondSelector(), statePseudoClasses);
+			findStatePseudoClasses(((CombinatorSelector) selector).getSelector(), statePseudoClasses);
 			break;
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-			findStatePseudoClasses(((SiblingSelector) selector).getSiblingSelector(), statePseudoClasses);
+			findStatePseudoClasses(((CombinatorSelector) selector).getSecondSelector(), statePseudoClasses);
 		}
 	}
 

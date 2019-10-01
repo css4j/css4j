@@ -37,7 +37,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 /**
@@ -74,7 +74,7 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 		super();
 	}
 
-	public DOMCSSStyleSheetFactory(EnumSet<Parser2.Flag> parserFlags) {
+	public DOMCSSStyleSheetFactory(EnumSet<Parser.Flag> parserFlags) {
 		super(parserFlags);
 	}
 

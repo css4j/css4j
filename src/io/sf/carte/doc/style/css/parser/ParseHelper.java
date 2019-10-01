@@ -11,13 +11,12 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.DOMCharacterException;
 import io.sf.carte.doc.DOMNullCharacterException;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
  * Methods that are useful for CSS parsing.
@@ -817,35 +816,35 @@ public class ParseHelper {
 		} else if (unit == "ex") {
 			return LexicalUnit.SAC_EX;
 		} else if (unit == "cap") {
-			return LexicalUnit2.SAC_CAP;
+			return LexicalUnit.SAC_CAP;
 		} else if (unit == "ch") {
-			return LexicalUnit2.SAC_CH;
+			return LexicalUnit.SAC_CH;
 		} else if (unit == "ic") {
-			return LexicalUnit2.SAC_IC;
+			return LexicalUnit.SAC_IC;
 		} else if (unit == "rem") {
-			return LexicalUnit2.SAC_REM;
+			return LexicalUnit.SAC_REM;
 		} else if (unit == "lh") {
-			return LexicalUnit2.SAC_LH;
+			return LexicalUnit.SAC_LH;
 		} else if (unit == "rlh") {
-			return LexicalUnit2.SAC_RLH;
+			return LexicalUnit.SAC_RLH;
 		} else if (unit == "vw") {
-			return LexicalUnit2.SAC_VW;
+			return LexicalUnit.SAC_VW;
 		} else if (unit == "vh") {
-			return LexicalUnit2.SAC_VH;
+			return LexicalUnit.SAC_VH;
 		} else if (unit == "vi") {
-			return LexicalUnit2.SAC_VI;
+			return LexicalUnit.SAC_VI;
 		} else if (unit == "vb") {
-			return LexicalUnit2.SAC_VB;
+			return LexicalUnit.SAC_VB;
 		} else if (unit == "vmin") {
-			return LexicalUnit2.SAC_VMIN;
+			return LexicalUnit.SAC_VMIN;
 		} else if (unit == "vmax") {
-			return LexicalUnit2.SAC_VMAX;
+			return LexicalUnit.SAC_VMAX;
 		} else if (unit == "cm") {
 			return LexicalUnit.SAC_CENTIMETER;
 		} else if (unit == "mm") {
 			return LexicalUnit.SAC_MILLIMETER;
 		} else if (unit == "q") {
-			return LexicalUnit2.SAC_QUARTER_MILLIMETER;
+			return LexicalUnit.SAC_QUARTER_MILLIMETER;
 		} else if (unit == "in") {
 			return LexicalUnit.SAC_INCH;
 		} else if (unit == "pt") {
@@ -861,7 +860,7 @@ public class ParseHelper {
 		} else if (unit == "rad") {
 			return LexicalUnit.SAC_RADIAN;
 		} else if (unit == "turn") {
-			return LexicalUnit2.SAC_TURN;
+			return LexicalUnit.SAC_TURN;
 		} else if (unit == "s") {
 			return LexicalUnit.SAC_SECOND;
 		} else if (unit == "ms") {
@@ -871,13 +870,13 @@ public class ParseHelper {
 		} else if (unit == "khz") {
 			return LexicalUnit.SAC_KILOHERTZ;
 		} else if (unit == "dpi") {
-			return LexicalUnit2.SAC_DOTS_PER_INCH;
+			return LexicalUnit.SAC_DOTS_PER_INCH;
 		} else if (unit == "dpcm") {
-			return LexicalUnit2.SAC_DOTS_PER_CENTIMETER;
+			return LexicalUnit.SAC_DOTS_PER_CENTIMETER;
 		} else if (unit == "dppx") {
-			return LexicalUnit2.SAC_DOTS_PER_PIXEL;
+			return LexicalUnit.SAC_DOTS_PER_PIXEL;
 		} else if (unit == "fr") {
-			return LexicalUnit2.SAC_FR;
+			return LexicalUnit.SAC_FR;
 		}
 		return LexicalUnit.SAC_DIMENSION;
 	}

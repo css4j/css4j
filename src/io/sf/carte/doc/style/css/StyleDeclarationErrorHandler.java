@@ -11,10 +11,10 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
 /**
@@ -179,18 +179,6 @@ public interface StyleDeclarationErrorHandler {
 	 *            property or before that.
 	 */
 	void sacError(CSSParseException exception, int previousIndex);
-
-	/**
-	 * Reports a SAC fatal error as per the SAC ErrorHandler.
-	 * 
-	 * @param exception
-	 *            the parse exception.
-	 * @param previousIndex
-	 *            the index for the previously set property in the properties
-	 *            collection, or -1 if the problem occurred with the first
-	 *            property or before that.
-	 */
-	void sacFatalError(CSSParseException exception, int previousIndex);
 
 	/**
 	 * Have errors been reported to this error handler?

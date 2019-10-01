@@ -23,27 +23,21 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.AttributeCondition;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.CombinatorCondition;
-import org.w3c.css.sac.Condition;
-import org.w3c.css.sac.ConditionalSelector;
-import org.w3c.css.sac.DescendantSelector;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LangCondition;
-import org.w3c.css.sac.PositionalCondition;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SiblingSelector;
-import org.w3c.css.sac.SimpleSelector;
 
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
-import io.sf.carte.doc.style.css.nsac.AttributeCondition2;
-import io.sf.carte.doc.style.css.nsac.Condition2;
-import io.sf.carte.doc.style.css.nsac.PositionalCondition2;
-import io.sf.carte.doc.style.css.nsac.Selector2;
+import io.sf.carte.doc.style.css.nsac.AttributeCondition;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
+import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.LangCondition;
+import io.sf.carte.doc.style.css.nsac.PositionalCondition;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.doc.style.css.parser.CSSParser.SelectorTokenHandler;
 import io.sf.carte.uparser.TokenProducer;
 
@@ -58,12 +52,11 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorUniversalNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|*"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|*");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ANY_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, sel.getSelectorType());
 		assertEquals("*", ((ElementSelector) sel).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) sel).getNamespaceURI());
 		assertEquals("svg|*", sel.toString());
@@ -71,8 +64,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElement() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -84,9 +76,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementError() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg | p"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("svg | p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -94,9 +85,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementError2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg| p"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("svg| p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -104,9 +94,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementError3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("svg|");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -114,9 +103,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementError4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|, p"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("svg|, p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -124,9 +112,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementErrorBadPrefix() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo|p"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("foo|p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -134,9 +121,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementErrorBadPrefix2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo|p div"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("foo|p div");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -144,9 +130,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementErrorBadPrefix3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo|p,div"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("foo|p,div");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -154,9 +139,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementErrorBadPrefixUniversal() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo|*"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("foo|*");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -164,9 +148,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementErrorBadIdentifier() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|9p"));
 		try {
-			parser.parseSelectors(source);
+			parser.parseSelectors("svg|9p");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}
@@ -174,8 +157,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementNoNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("|p"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("|p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -187,8 +169,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementNoNSDefaultNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("|p"));
-		SelectorList selist = parseSelectorsNS(source, "", "https://www.w3.org/1999/xhtml/");
+		SelectorList selist = parseSelectorsNS("|p", "", "https://www.w3.org/1999/xhtml/");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -200,8 +181,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementAllNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("*|p"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("*|p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -213,9 +193,8 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementDefaultNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("p"));
 		// Set XHTML namespace as default
-		SelectorList selist = parseSelectorsNS(source, "", "https://www.w3.org/1999/xhtml/");
+		SelectorList selist = parseSelectorsNS("p", "", "https://www.w3.org/1999/xhtml/");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -227,8 +206,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementList() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p, svg|span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p, svg|span");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
@@ -244,8 +222,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementList2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p, svg|p span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p, svg|p span");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
@@ -255,13 +232,13 @@ public class SelectorParserNSTest {
 		assertEquals("svg|p", sel.toString());
 		sel = selist.item(1);
 		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		DescendantSelector desc = (DescendantSelector) sel;
-		Selector anc = desc.getAncestorSelector();
+		CombinatorSelector desc = (CombinatorSelector) sel;
+		Selector anc = desc.getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, anc.getSelectorType());
 		assertEquals("p", ((ElementSelector) anc).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) anc).getNamespaceURI());
 		assertEquals("svg|p", anc.toString());
-		SimpleSelector simple = desc.getSimpleSelector();
+		SimpleSelector simple = desc.getSecondSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
@@ -269,8 +246,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorElementList3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("p, p svg|span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("p, p svg|span");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
@@ -280,13 +256,13 @@ public class SelectorParserNSTest {
 		assertEquals("p", sel.toString());
 		sel = selist.item(1);
 		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		DescendantSelector desc = (DescendantSelector) sel;
-		Selector anc = desc.getAncestorSelector();
+		CombinatorSelector desc = (CombinatorSelector) sel;
+		Selector anc = desc.getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, anc.getSelectorType());
 		assertEquals("p", ((ElementSelector) anc).getLocalName());
 		assertNull(((ElementSelector) anc).getNamespaceURI());
 		assertEquals("p", anc.toString());
-		SimpleSelector simple = desc.getSimpleSelector();
+		SimpleSelector simple = desc.getSecondSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
@@ -295,8 +271,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorAttribute2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[title]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[title]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -308,14 +283,12 @@ public class SelectorParserNSTest {
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertFalse(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[title]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeValue() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[title=\"hi\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -328,14 +301,12 @@ public class SelectorParserNSTest {
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[title=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeValueWS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[title = \"hi\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[title = \"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -348,14 +319,12 @@ public class SelectorParserNSTest {
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[title=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeValueCI() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[title=hi i]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[title=hi i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -364,21 +333,17 @@ public class SelectorParserNSTest {
 		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
-		if (cond instanceof AttributeCondition2) {
-			assertTrue(((AttributeCondition2) cond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
+		assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_I));
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[title=\"hi\" i]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeValueCI2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[title=\"hi\" i]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[title=\"hi\" i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -387,21 +352,17 @@ public class SelectorParserNSTest {
 		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
-		if (cond instanceof AttributeCondition2) {
-			assertTrue(((AttributeCondition2) cond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
+		assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_I));
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[title=\"hi\" i]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorCombinatorAttributeValueCI1() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|input[svg|type=text i][dir=auto]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|input[svg|type=text i][dir=auto]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -413,18 +374,12 @@ public class SelectorParserNSTest {
 		assertEquals("type", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) firstcond).getValue());
 		assertEquals("http://www.w3.org/2000/svg", ((AttributeCondition) firstcond).getNamespaceURI());
-		if (firstcond instanceof AttributeCondition2) {
-			assertTrue(((AttributeCondition2) firstcond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
-		assertTrue(((AttributeCondition) firstcond).getSpecified());
+		assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition2) {
-			assertFalse(((AttributeCondition2) secondcond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
-		assertTrue(((AttributeCondition) secondcond).getSpecified());
+		assertFalse(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
@@ -434,8 +389,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorCombinatorAttributeValueCI2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|input[type=text][svg|dir=auto i]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|input[type=text][svg|dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -446,19 +400,13 @@ public class SelectorParserNSTest {
 		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, firstcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) firstcond).getValue());
-		if (firstcond instanceof AttributeCondition2) {
-			assertFalse(((AttributeCondition2) firstcond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
-		assertTrue(((AttributeCondition) firstcond).getSpecified());
+		assertFalse(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		assertEquals("http://www.w3.org/2000/svg", ((AttributeCondition) secondcond).getNamespaceURI());
-		if (secondcond instanceof AttributeCondition2) {
-			assertTrue(((AttributeCondition2) secondcond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
-		assertTrue(((AttributeCondition) secondcond).getSpecified());
+		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
@@ -468,8 +416,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorCombinatorAttributeValueCI3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|input[svg|foo=bar i][type=text i][dir=auto i]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|input[svg|foo=bar i][type=text i][dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -481,29 +428,20 @@ public class SelectorParserNSTest {
 		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition2) {
-			assertTrue(((AttributeCondition2) secondcond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
-		assertTrue(((AttributeCondition) secondcond).getSpecified());
+		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		//
 		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
-		Condition firstcond = ((CombinatorCondition)cond).getFirstCondition();
+		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
 		assertEquals("http://www.w3.org/2000/svg", ((AttributeCondition) firstcond).getNamespaceURI());
-		if (firstcond instanceof AttributeCondition2) {
-			assertTrue(((AttributeCondition2) firstcond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
-		assertTrue(((AttributeCondition) firstcond).getSpecified());
+		assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition2) {
-			assertTrue(((AttributeCondition2) secondcond).hasFlag(AttributeCondition2.Flag.CASE_I));
-		}
-		assertTrue(((AttributeCondition) secondcond).getSpecified());
+		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
@@ -513,8 +451,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorAttributeNSValue() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("p[svg|title=\"hi\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("p[svg|title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -527,14 +464,12 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("p[svg|title=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeNSDefaultNSValue() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("p[title=\"hi\"]"));
-		SelectorList selist = parseSelectorsNS(source, "", "https://www.w3.org/1999/xhtml/");
+		SelectorList selist = parseSelectorsNS("p[title=\"hi\"]", "", "https://www.w3.org/1999/xhtml/");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -547,14 +482,12 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("p[title=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeNoNSValue() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("p[|title=\"hi\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("p[|title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -567,15 +500,13 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("p[|title=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeNoNSDefaultNSValue() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("p[|title=\"hi\"]"));
 		// Default namespaces should have no effect on attributes
-		SelectorList selist = parseSelectorsNS(source, "", "https://www.w3.org/1999/xhtml/");
+		SelectorList selist = parseSelectorsNS("p[|title=\"hi\"]", "", "https://www.w3.org/1999/xhtml/");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -588,14 +519,12 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("p[|title=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeAllNSValue() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("p[*|title=\"hi\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("p[*|title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -608,14 +537,12 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("p[title=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeValueOneOf() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[title~=\"hi\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[title~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -628,14 +555,12 @@ public class SelectorParserNSTest {
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[title~=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeValueOneOfWS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[title ~=\"hi\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[title ~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -648,14 +573,12 @@ public class SelectorParserNSTest {
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[title~=\"hi\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeHyphen() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[lang|=\"en\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[lang|=\"en\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -668,14 +591,12 @@ public class SelectorParserNSTest {
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[lang|=\"en\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeHyphenWS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[lang |=\"en\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[lang |=\"en\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -688,54 +609,48 @@ public class SelectorParserNSTest {
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[lang|=\"en\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeSubstring() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[lang*=\"CH\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[lang*=\"CH\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("CH", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[lang*=\"CH\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorAttributeSubstringWS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p[lang *=\"CH\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p[lang *=\"CH\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("CH", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
-		assertTrue(((AttributeCondition) cond).getSpecified());
 		assertEquals("svg|p[lang*=\"CH\"]", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorLang() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p:lang(en)"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p:lang(en)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -752,8 +667,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorLang2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p:lang(zh, \"*-hant\")"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p:lang(zh, \"*-hant\")");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -770,8 +684,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorClass2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p.exampleclass"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p.exampleclass");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -788,8 +701,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorClassEscaped() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div.foo\\(-\\.3\\)"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div.foo\\(-\\.3\\)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -806,8 +718,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorClassEscaped2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div.\\31 foo\\&-.bar"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div.\\31 foo\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -829,8 +740,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorClassEscaped3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div.\\31 jkl\\&-.bar"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div.\\31 jkl\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -852,8 +762,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorClassEscapedBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div.\\31jkl\\&-.bar"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div.\\31jkl\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -875,17 +784,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorChild() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div > span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div > span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
@@ -894,17 +802,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorChildNoSpaces() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div>span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div>span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
@@ -913,17 +820,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorChildAttribute() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div>[foo]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div>[foo]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
@@ -934,17 +840,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorChildAttributeWS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div> [foo]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div> [foo]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
@@ -955,17 +860,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorDescendant() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
@@ -974,17 +878,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorDescendant3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div>>span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div>>span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
@@ -993,17 +896,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorDescendant3WS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div >> span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div >> span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
@@ -1012,17 +914,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorNextSibling() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div + span:empty"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div + span:empty");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
-		Selector first = ((SiblingSelector) sel).getSelector();
+		Selector first = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, first.getSelectorType());
 		assertEquals("div", ((ElementSelector) first).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) first).getNamespaceURI());
-		SimpleSelector sibling = ((SiblingSelector) sel).getSiblingSelector();
+		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
 		Condition cond = ((ConditionalSelector) sibling).getCondition();
@@ -1036,17 +937,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorNextSiblingNoSpaces() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div+span:empty"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div+span:empty");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
-		Selector first = ((SiblingSelector) sel).getSelector();
+		Selector first = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, first.getSelectorType());
 		assertEquals("div", ((ElementSelector) first).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) first).getNamespaceURI());
-		SimpleSelector sibling = ((SiblingSelector) sel).getSiblingSelector();
+		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
 		Condition cond = ((ConditionalSelector) sibling).getCondition();
@@ -1060,19 +960,18 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorNextSiblingNoSpaces2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div.myclass:foo+.bar"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div.myclass:foo+.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
-		SimpleSelector sibling = ((SiblingSelector) sel).getSiblingSelector();
+		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
 		Condition cond = ((ConditionalSelector) sibling).getCondition();
 		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond).getValue());
-		Selector first = ((SiblingSelector) sel).getSelector();
+		Selector first = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, first.getSelectorType());
 		cond = ((ConditionalSelector) first).getCondition();
 		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
@@ -1091,17 +990,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorSubsequentSibling() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div ~ span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div ~ span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
-		Selector first = ((SiblingSelector) sel).getSelector();
+		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
+		Selector first = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, first.getSelectorType());
 		assertEquals("div", ((ElementSelector) first).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) first).getNamespaceURI());
-		SimpleSelector sibling = ((SiblingSelector) sel).getSiblingSelector();
+		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sibling.getSelectorType());
 		assertEquals("span", ((ElementSelector) sibling).getLocalName());
@@ -1110,17 +1008,16 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorSubsequentSiblingNoSpaces() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div~span"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div~span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
-		Selector first = ((SiblingSelector) sel).getSelector();
+		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
+		Selector first = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, first.getSelectorType());
 		assertEquals("div", ((ElementSelector) first).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) first).getNamespaceURI());
-		SimpleSelector sibling = ((SiblingSelector) sel).getSiblingSelector();
+		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sibling.getSelectorType());
 		assertEquals("span", ((ElementSelector) sibling).getLocalName());
@@ -1129,13 +1026,12 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorColumnCombinator() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|col.foo||td"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|col.foo||td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		assertEquals(Selector.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
 		Selector ancSimple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(ancSimple);
@@ -1145,7 +1041,7 @@ public class SelectorParserNSTest {
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
 		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("td", ((ElementSelector) simple).getLocalName());
@@ -1154,13 +1050,12 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorColumnCombinatorWS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|col.foo || td"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|col.foo || td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		assertEquals(Selector.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
 		Selector ancSimple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(ancSimple);
@@ -1170,7 +1065,7 @@ public class SelectorParserNSTest {
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
 		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("td", ((ElementSelector) simple).getLocalName());
@@ -1179,13 +1074,12 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorColumnCombinator2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("col.foo||svg|td"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("col.foo||svg|td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		assertEquals(Selector.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
 		Selector ancSimple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(ancSimple);
@@ -1194,7 +1088,7 @@ public class SelectorParserNSTest {
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
 		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("td", ((ElementSelector) simple).getLocalName());
@@ -1204,14 +1098,13 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoElement() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p::first-line"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p::first-line");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition2.SAC_PSEUDO_ELEMENT_CONDITION, cond.getConditionType());
+		assertEquals(Condition.SAC_PSEUDO_ELEMENT_CONDITION, cond.getConditionType());
 		assertEquals("first-line", ((AttributeCondition) cond).getLocalName());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
@@ -1223,14 +1116,13 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoElementOld() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p:first-line"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p:first-line");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition2.SAC_PSEUDO_ELEMENT_CONDITION, cond.getConditionType());
+		assertEquals(Condition.SAC_PSEUDO_ELEMENT_CONDITION, cond.getConditionType());
 		assertEquals("first-line", ((AttributeCondition) cond).getLocalName());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
@@ -1242,8 +1134,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoElementPseudoclassed() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p::first-letter:hover"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p::first-letter:hover");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -1252,7 +1143,7 @@ public class SelectorParserNSTest {
 		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
 		Condition first = ((CombinatorCondition) cond).getFirstCondition();
 		Condition second = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition2.SAC_PSEUDO_ELEMENT_CONDITION, first.getConditionType());
+		assertEquals(Condition.SAC_PSEUDO_ELEMENT_CONDITION, first.getConditionType());
 		assertEquals("first-letter", ((AttributeCondition) first).getLocalName());
 		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, second.getConditionType());
 		assertEquals("hover", ((AttributeCondition) second).getLocalName());
@@ -1266,8 +1157,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoClass() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div:blank"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div:blank");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -1286,8 +1176,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoClassArgument() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p:dir(ltr)"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p:dir(ltr)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -1306,19 +1195,17 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoClassFirstChild2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|p:first-child"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|p:first-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
-		assertEquals(1, ((PositionalCondition) cond).getPosition());
-		assertEquals(0, ((PositionalCondition2) cond).getFactor());
-		assertFalse(((PositionalCondition) cond).getType());
-		assertTrue(((PositionalCondition) cond).getTypeNode());
-		assertTrue(((PositionalCondition2) cond).isForwardCondition());
+		assertEquals(1, ((PositionalCondition) cond).getOffset());
+		assertEquals(0, ((PositionalCondition) cond).getFactor());
+		assertFalse(((PositionalCondition) cond).isOfType());
+		assertTrue(((PositionalCondition) cond).isForwardCondition());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
@@ -1329,22 +1216,20 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoClassFirstChild3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|*:first-child"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|*:first-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
-		assertEquals(1, ((PositionalCondition) cond).getPosition());
-		assertEquals(0, ((PositionalCondition2) cond).getFactor());
-		assertFalse(((PositionalCondition) cond).getType());
-		assertTrue(((PositionalCondition) cond).getTypeNode());
-		assertTrue(((PositionalCondition2) cond).isForwardCondition());
+		assertEquals(1, ((PositionalCondition) cond).getOffset());
+		assertEquals(0, ((PositionalCondition) cond).getFactor());
+		assertFalse(((PositionalCondition) cond).isOfType());
+		assertTrue(((PositionalCondition) cond).isForwardCondition());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ANY_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
 		assertEquals("svg|*:first-child", sel.toString());
@@ -1352,20 +1237,18 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoClassNthOf() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(":nth-child(5 of svg|p)"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors(":nth-child(5 of svg|p)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
-		assertEquals(5, ((PositionalCondition) cond).getPosition());
-		assertEquals(0, ((PositionalCondition2) cond).getFactor());
-		assertTrue(((PositionalCondition) cond).getTypeNode());
-		assertTrue(((PositionalCondition2) cond).isForwardCondition());
-		assertFalse(((PositionalCondition) cond).getType());
-		SelectorList oflist = ((PositionalCondition2) cond).getOfList();
+		assertEquals(5, ((PositionalCondition) cond).getOffset());
+		assertEquals(0, ((PositionalCondition) cond).getFactor());
+		assertTrue(((PositionalCondition) cond).isForwardCondition());
+		assertFalse(((PositionalCondition) cond).isOfType());
+		SelectorList oflist = ((PositionalCondition) cond).getOfList();
 		assertNotNull(oflist);
 		assertEquals(1, oflist.getLength());
 		Selector simple = oflist.item(0);
@@ -1377,24 +1260,22 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoClassNthOfUniversal() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(":nth-child(5 of svg|*)"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors(":nth-child(5 of svg|*)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
-		assertEquals(5, ((PositionalCondition) cond).getPosition());
-		assertEquals(0, ((PositionalCondition2) cond).getFactor());
-		assertTrue(((PositionalCondition) cond).getTypeNode());
-		assertTrue(((PositionalCondition2) cond).isForwardCondition());
-		assertFalse(((PositionalCondition) cond).getType());
-		SelectorList oflist = ((PositionalCondition2) cond).getOfList();
+		assertEquals(0, ((PositionalCondition) cond).getFactor());
+		assertEquals(5, ((PositionalCondition) cond).getOffset());
+		assertTrue(((PositionalCondition) cond).isForwardCondition());
+		assertFalse(((PositionalCondition) cond).isOfType());
+		SelectorList oflist = ((PositionalCondition) cond).getOfList();
 		assertNotNull(oflist);
 		assertEquals(1, oflist.getLength());
 		Selector simple = oflist.item(0);
-		assertEquals(Selector.SAC_ANY_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) simple).getNamespaceURI());
 		assertEquals(":nth-child(5 of svg|*)", sel.toString());
@@ -1402,14 +1283,13 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorPseudoClassNot() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(":not(p.foo, svg|span:first-child, div a)"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors(":not(p.foo, svg|span:first-child, div a)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition2.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList args = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(3, args.getLength());
@@ -1426,7 +1306,7 @@ public class SelectorParserNSTest {
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
 		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
-		assertEquals(1, ((PositionalCondition2) cond).getOffset());
+		assertEquals(1, ((PositionalCondition) cond).getOffset());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
@@ -1436,65 +1316,57 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testEquals() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("svg|div");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		source = new InputSource(new StringReader("svg|div"));
-		Selector sel2 = parseSelectors(source).item(0);
+		Selector sel2 = parseSelectors("svg|div").item(0);
 		assertTrue(sel.equals(sel2));
 		assertEquals(sel.hashCode(), sel2.hashCode());
-		source = new InputSource(new StringReader("div"));
-		sel2 = parseSelectors(source).item(0);
+		sel2 = parseSelectors("div").item(0);
 		assertFalse(sel.equals(sel2));
 	}
 
 	@Test
 	public void testEquals2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("div[svg|title ~=\"hi\"]"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors("div[svg|title ~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		source = new InputSource(new StringReader("div[svg|title ~=\"hi\"]"));
-		Selector sel2 = parseSelectors(source).item(0);
+		Selector sel2 = parseSelectors("div[svg|title ~=\"hi\"]").item(0);
 		assertTrue(sel.equals(sel2));
 		assertEquals(sel.hashCode(), sel2.hashCode());
-		source = new InputSource(new StringReader("div[title ~=\"hi\"]"));
-		sel2 = parseSelectors(source).item(0);
+		sel2 = parseSelectors("div[title ~=\"hi\"]").item(0);
 		assertFalse(sel.equals(sel2));
 	}
 
 	@Test
 	public void testEquals3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(":nth-child(5 of svg|p)"));
-		SelectorList selist = parseSelectors(source);
+		SelectorList selist = parseSelectors(":nth-child(5 of svg|p)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		source = new InputSource(new StringReader(":nth-child(5 of svg|p)"));
-		Selector sel2 = parseSelectors(source).item(0);
+		Selector sel2 = parseSelectors(":nth-child(5 of svg|p)").item(0);
 		assertTrue(sel.equals(sel2));
 		assertEquals(sel.hashCode(), sel2.hashCode());
-		source = new InputSource(new StringReader(":nth-child(5 of p)"));
-		sel2 = parseSelectors(source).item(0);
+		sel2 = parseSelectors(":nth-child(5 of p)").item(0);
 		assertFalse(sel.equals(sel2));
 	}
 
-	public SelectorList parseSelectors(InputSource source) throws CSSException, IOException {
-		return parseSelectorsNS(source, null, null);
+	public SelectorList parseSelectors(String selist) throws CSSException, IOException {
+		return parseSelectorsNS(selist, null, null);
 	}
 
-	public SelectorList parseSelectorsNS(InputSource source, String prefix, String nsuri) throws CSSException, IOException {
+	public SelectorList parseSelectorsNS(String selist, String prefix, String nsuri) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
-		SelectorTokenHandler handler = parser.new SelectorTokenHandler(source, null);
+		SelectorTokenHandler handler = parser.new SelectorTokenHandler();
 		if (prefix != null) {
 			handler.factory.registerNamespacePrefix(prefix, nsuri);
 		}
 		handler.factory.registerNamespacePrefix("svg", "http://www.w3.org/2000/svg");
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		tp.parse(source.getCharacterStream(), "/*", "*/");
+		StringReader re = new StringReader(selist);
+		tp.parse(re, "/*", "*/");
 		return handler.getSelectorList();
 	}
 

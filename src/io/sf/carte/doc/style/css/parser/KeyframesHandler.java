@@ -13,16 +13,16 @@
  */
 package io.sf.carte.doc.style.css.parser;
 
-import org.w3c.css.sac.DocumentHandler;
-import org.w3c.css.sac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
- * DocumentHandler for {@literal @}keyframes rule body.
+ * Handler for {@literal @}keyframes rule body.
  * <p>
- * It is likely to be moved to a new DocumentHandler2 interface in NSAC 1.1.
+ * It is likely to be moved to a new CSSHandler interface in NSAC 2.
  *
  */
-public interface KeyframesHandler extends DocumentHandler {
+public interface KeyframesHandler extends CSSHandler {
 
 	void startKeyframes(String name);
 

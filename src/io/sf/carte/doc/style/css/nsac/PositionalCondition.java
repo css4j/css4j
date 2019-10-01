@@ -6,20 +6,17 @@
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
  *
- * Copyright © 2017 Carlos Amengual.
+ * Copyright © 2017-2019 Carlos Amengual.
  *
  * SPDX-License-Identifier: W3C-19980720
  *
  */
 package io.sf.carte.doc.style.css.nsac;
 
-import org.w3c.css.sac.PositionalCondition;
-import org.w3c.css.sac.SelectorList;
-
 /**
- * Updates SAC's {@link PositionalCondition} interface.
+ * Based on SAC's {@code PositionalCondition} interface by Philippe Le Hegaret.
  */
-public interface PositionalCondition2 extends PositionalCondition {
+public interface PositionalCondition extends Condition {
 
 	/**
 	 * Is this a forward condition?

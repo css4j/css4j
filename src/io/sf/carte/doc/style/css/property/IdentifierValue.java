@@ -14,13 +14,11 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
@@ -65,11 +63,10 @@ public class IdentifierValue extends AbstractTextValue {
 		if (cssText == null || cssText.length() == 0) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null or empty value.");
 		}
-		InputSource source = new InputSource(new StringReader(cssText));
 		CSSParser parser = new CSSParser();
 		LexicalUnit lu;
 		try {
-			lu = parser.parsePropertyValue(source);
+			lu = parser.parsePropertyValue(new StringReader(cssText));
 		} catch (IOException e) {
 			lu = null;
 		} catch (CSSException e) {
@@ -128,8 +125,8 @@ public class IdentifierValue extends AbstractTextValue {
 		void setLexicalUnit(LexicalUnit lunit) {
 			String strval = lunit.getStringValue();
 			setStringValue(strval);
-			if (lunit instanceof LexicalUnit2) {
-				setPlainCssText(((LexicalUnit2) lunit).getCssText());
+			if (lunit instanceof LexicalUnit) {
+				setPlainCssText(lunit.getCssText());
 			} else {
 				setPlainCssText(escape(stringValue));
 			}

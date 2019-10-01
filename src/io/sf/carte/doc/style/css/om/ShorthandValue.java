@@ -15,11 +15,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.SimpleWriter;
@@ -52,7 +51,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 		super(CSSValue.CSS_CUSTOM);
 		this.lexicalUnit = lexicalUnit;
 		this.important = important;
-		priorityCompat = lexicalUnit.getLexicalUnitType() == LexicalUnit2.SAC_COMPAT_PRIO;
+		priorityCompat = lexicalUnit.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_PRIO;
 		this.longhands = new HashSet<String>(Arrays.asList(longhands));
 	}
 

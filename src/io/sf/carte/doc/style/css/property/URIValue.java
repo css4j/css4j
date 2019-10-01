@@ -16,13 +16,11 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
@@ -63,9 +61,9 @@ public class URIValue extends StringValue {
 		}
 		LexicalSetter setter = newLexicalSetter();
 		CSSParser parser = new CSSParser();
-		LexicalUnit2 lunit;
+		LexicalUnit lunit;
 		try {
-			lunit = parser.parsePropertyValue(new InputSource(new StringReader(cssText)));
+			lunit = parser.parsePropertyValue(new StringReader(cssText));
 		} catch (CSSException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Error parsing text: " + e.getMessage());
 			ex.initCause(e);

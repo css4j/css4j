@@ -11,8 +11,9 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.css.CSSStyleRule;
+
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
  * An extended CSS style rule.

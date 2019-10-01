@@ -4,10 +4,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.SortedSet;
 
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 class DOMElementLinkedList extends LinkedList<DOMElement> implements ElementList {
 	private static final long serialVersionUID = 1L;

@@ -127,7 +127,8 @@ public class XMLDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"sheet.xsl\"");
+		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/xsl\" href=\"sheet.xsl\"");
 		try {
 			text.appendChild(pi);
 			fail("Must throw exception.");
@@ -573,7 +574,8 @@ public class XMLDocumentTest {
 	@Test
 	public void testQuerySelectorAllNS() {
 		// From the spec:
-		// 'Support for namespaces within selectors is not planned and will not be added'
+		// 'Support for namespaces within selectors is not planned and will not be
+		// added'
 		try {
 			xmlDoc.querySelectorAll("svg|*");
 			fail("Must throw exception");
@@ -700,8 +702,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void getStyleSheet() {
-		DocumentCSSStyleSheet defsheet = xmlDoc.getStyleSheetFactory()
-				.getDefaultStyleSheet(xmlDoc.getComplianceMode());
+		DocumentCSSStyleSheet defsheet = xmlDoc.getStyleSheetFactory().getDefaultStyleSheet(xmlDoc.getComplianceMode());
 		assertNotNull(defsheet);
 		// Obtain the number of rules in the default style sheet, to use it
 		// as a baseline.
@@ -869,8 +870,8 @@ public class XMLDocumentTest {
 		link.setNodeValue("href=\"http://www.example.com/css/alter1.css\" media=\"screen\"");
 		sheet = link.getSheet();
 		assertFalse(sheet2.equals(sheet));
-		assertFalse(sheet.getCssRules().item(sheet.getCssRules().getLength() - 1).equals(
-				sheet2.getCssRules().item(sheet2.getCssRules().getLength() - 1)));
+		assertFalse(sheet.getCssRules().item(sheet.getCssRules().getLength() - 1)
+				.equals(sheet2.getCssRules().item(sheet2.getCssRules().getLength() - 1)));
 	}
 
 	@Test

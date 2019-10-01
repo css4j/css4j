@@ -21,25 +21,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.CombinatorCondition;
-import org.w3c.css.sac.Condition;
-import org.w3c.css.sac.ConditionFactory;
-import org.w3c.css.sac.DocumentHandler;
-import org.w3c.css.sac.ErrorHandler;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.Locator;
-import org.w3c.css.sac.SACMediaList;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorFactory;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SimpleSelector;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
@@ -47,23 +35,32 @@ import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.AgentUtil;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.nsac.AttributeCondition2;
+import io.sf.carte.doc.style.css.nsac.AttributeCondition;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
+import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
-import io.sf.carte.doc.style.css.nsac.Condition2;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.nsac.Parser2;
-import io.sf.carte.doc.style.css.nsac.Selector2;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.InputSource;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Locator;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
 import io.sf.carte.doc.style.css.parser.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorConditionImpl;
+import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ConditionalSelectorImpl;
-import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.DescendantSelectorImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ElementSelectorImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.LangConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.PositionalConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SelectorArgumentConditionImpl;
-import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SiblingSelectorImpl;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -79,10 +76,10 @@ import io.sf.carte.uparser.TokenProducer;
  * (you probably want to use them through the Object Model instead of calling
  * them directly).
  */
-public class CSSParser implements Parser2 {
+public class CSSParser implements Parser {
 
-	private DocumentHandler handler = null;
-	private ErrorHandler errorHandler = null;
+	private CSSHandler handler = null;
+	private CSSErrorHandler errorHandler = null;
 	private final EnumSet<Flag> parserFlags = EnumSet.noneOf(Flag.class);
 
 	public CSSParser() {
@@ -90,29 +87,12 @@ public class CSSParser implements Parser2 {
 	}
 
 	@Override
-	public void setLocale(Locale locale) throws CSSException {
-		if (!Locale.ROOT.equals(locale)) {
-			throw new CSSException("Locale not supported");
-		}
-	}
-
-	@Override
-	public void setDocumentHandler(DocumentHandler handler) {
+	public void setDocumentHandler(CSSHandler handler) {
 		this.handler = handler;
 	}
 
 	@Override
-	public void setSelectorFactory(SelectorFactory selectorFactory) {
-		throw new IllegalArgumentException();
-	}
-
-	@Override
-	public void setConditionFactory(ConditionFactory conditionFactory) {
-		throw new IllegalArgumentException();
-	}
-
-	@Override
-	public void setErrorHandler(ErrorHandler handler) {
+	public void setErrorHandler(CSSErrorHandler handler) {
 		this.errorHandler = handler;
 	}
 
@@ -142,10 +122,53 @@ public class CSSParser implements Parser2 {
 	}
 
 	@Override
-	public void parseStyleSheet(InputSource source) throws CSSException, IOException {
+	public void parseStyleSheet(Reader reader) throws CSSParseException, IOException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		final String[] opening = {"/*", "<!--"};
 		final String[] closing = {"*/", "-->"};
+		if (this.handler == null) {
+			throw new IllegalStateException("No document handler was set.");
+		}
+		if (reader == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		SheetTokenHandler handler = new SheetTokenHandler(null);
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.setAcceptEofEndingQuoted(true);
+		this.handler.startDocument();
+		tp.parseMultiComment(reader, opening, closing);
+	}
+
+	@Override
+	public void parseStyleSheet(String uri) throws CSSParseException, IOException {
+		URL url = new URL(uri);
+		URLConnection ucon = url.openConnection();
+		ucon.connect();
+		InputStream is = ucon.getInputStream();
+		is = new BufferedInputStream(is);
+		String contentEncoding = ucon.getContentEncoding();
+		String conType = ucon.getContentType();
+		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
+		SheetTokenHandler handler = new SheetTokenHandler(null);
+		int[] allowInWords = { 45, 95 }; // -_
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.setAcceptEofEndingQuoted(true);
+		this.handler.startDocument();
+		try {
+			tp.parse(re, "/*", "*/"); // We do not look for CDO-CDC comments here
+		} catch (IOException e) {
+			try {
+				re.close();
+			} catch (IOException e1) {
+				// Ignore e1
+			}
+			throw e;
+		}
+		re.close();
+	}
+
+	@Override
+	public void parseStyleSheet(InputSource source) throws CSSException, IOException {
 		Reader re = source.getCharacterStream();
 		if (re == null) {
 			InputStream is = source.getByteStream();
@@ -166,50 +189,36 @@ public class CSSParser implements Parser2 {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		SheetTokenHandler handler = new SheetTokenHandler(source, null);
+		final int[] allowInWords = { 45, 95 }; // -_
+		final String[] opening = {"/*", "<!--"};
+		final String[] closing = {"*/", "-->"};
+		SheetTokenHandler handler = new SheetTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.setAcceptEofEndingQuoted(true);
-		this.handler.startDocument(source);
+		this.handler.startDocument();
 		tp.parseMultiComment(re, opening, closing);
 	}
 
 	@Override
-	public void parseStyleSheet(String uri) throws CSSException, IOException {
-		URL url = new URL(uri);
-		URLConnection ucon = url.openConnection();
-		ucon.connect();
-		InputStream is = ucon.getInputStream();
-		is = new BufferedInputStream(is);
-		String contentEncoding = ucon.getContentEncoding();
-		String conType = ucon.getContentType();
-		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
-		InputSource source = new InputSource(re);
-		source.setURI(uri);
-		SheetTokenHandler handler = new SheetTokenHandler(source, null);
-		int[] allowInWords = { 45, 95 }; // -_
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		tp.setAcceptEofEndingQuoted(true);
-		this.handler.startDocument(source);
-		try {
-			tp.parse(re, "/*", "*/"); // We do not look for CDO-CDC comments here
-		} catch (IOException e) {
-			try {
-				re.close();
-			} catch (IOException e1) {
-				// Ignore e1
-			}
-			throw e;
+	public void parseStyleDeclaration(Reader reader) throws CSSParseException, IOException {
+		final int[] allowInWords = { 45, 95 }; // -_
+		if (this.handler == null) {
+			throw new IllegalStateException("No document handler was set.");
 		}
-		re.close();
+		if (reader == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(reader, "/*", "*/");
 	}
 
-	@Override
 	public void parseStyleDeclaration(InputSource source) throws CSSException, IOException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationTokenHandler(source, ShorthandDatabase.getInstance());
+		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(getReaderFromSource(source), "/*", "*/");
 	}
@@ -251,39 +260,53 @@ public class CSSParser implements Parser2 {
 		return re;
 	}
 
-	public void parseDeclarationRule(InputSource source) throws CSSException, IOException {
+	public void parseDeclarationRule(Reader reader) throws CSSParseException, IOException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(source, ShorthandDatabase.getInstance());
+		if (reader == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		Reader re = getReaderFromSource(source);
-		tp.parse(re, "/*", "*/");
+		tp.parse(reader, "/*", "*/");
 	}
 
 	@Override
+	public void parseRule(Reader reader) throws CSSParseException, IOException {
+		final int[] allowInWords = { 45, 95 }; // -_
+		if (this.handler == null) {
+			throw new IllegalStateException("No document handler was set.");
+		}
+		if (reader == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		RuleTokenHandler handler = new RuleTokenHandler(null);
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(reader, "/*", "*/");
+	}
+
+	@Override
+	public void parseRule(Reader reader, NamespaceMap nsmap) throws CSSParseException, IOException {
+		final int[] allowInWords = { 45, 95 }; // -_
+		if (this.handler == null) {
+			throw new IllegalStateException("No document handler was set.");
+		}
+		if (reader == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		RuleTokenHandler handler = new RuleTokenHandler(nsmap);
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(reader, "/*", "*/");
+	}
+
 	public void parseRule(InputSource source) throws CSSException, IOException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		RuleTokenHandler handler = new RuleTokenHandler(source, null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		Reader re = getReaderFromSource(source);
-		if (re == null) {
-			throw new IllegalArgumentException("Null character stream");
-		}
-		tp.parse(re, "/*", "*/");
-	}
-
-	@Override
-	public void parseRule(InputSource source, NamespaceMap nsmap) throws CSSException, IOException {
-		final int[] allowInWords = { 45, 95 }; // -_
-		if (this.handler == null) {
-			throw new IllegalStateException("No document handler was set.");
-		}
-		RuleTokenHandler handler = new RuleTokenHandler(source, nsmap);
+		RuleTokenHandler handler = new RuleTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		Reader re = getReaderFromSource(source);
 		if (re == null) {
@@ -331,7 +354,7 @@ public class CSSParser implements Parser2 {
 		try {
 			tp.parse(conditionText, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
-			throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested conditions exceed limit", e);
+			throw new CSSBudgetException("Nested conditions exceed limit", e);
 		}
 		if (handler.errorCode == 0) {
 			return handler.getCondition();
@@ -361,7 +384,7 @@ public class CSSParser implements Parser2 {
 		try {
 			tp.parse(media, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
-			throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested queries exceed limit", e);
+			throw new CSSBudgetException("Nested queries exceed limit", e);
 		}
 	}
 
@@ -429,7 +452,7 @@ public class CSSParser implements Parser2 {
 		boolean readingPredicate = false;
 
 		ConditionTokenHandler(BooleanConditionFactory conditionFactory) {
-			super(null);
+			super();
 			this.conditionFactory = conditionFactory;
 			buffer = new StringBuilder(64);
 		}
@@ -671,7 +694,7 @@ public class CSSParser implements Parser2 {
 		}
 
 		@Override
-		protected void handleError(int index, byte errCode, String message) {
+		protected void handleError(int index, byte errCode, String message) throws CSSParseException {
 			throw createException(index, errCode, message);
 		}
 
@@ -1468,16 +1491,23 @@ public class CSSParser implements Parser2 {
 	}
 
 	@Override
-	public String getParserVersion() {
-		return "http://www.w3.org/TR/REC-CSS2";
+	public SelectorList parseSelectors(Reader reader) throws CSSException, IOException {
+		int[] allowInWords = { 45, 95 }; // -_
+		SelectorTokenHandler handler = new SelectorTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(reader, "/*", "*/");
+		return handler.getSelectorList();
 	}
 
-	@Override
 	public SelectorList parseSelectors(InputSource source) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
-		SelectorTokenHandler handler = new SelectorTokenHandler(source, null);
+		Reader re = getReaderFromSource(source);
+		if (re == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		SelectorTokenHandler handler = new SelectorTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		tp.parse(source.getCharacterStream(), "/*", "*/");
+		tp.parse(re, "/*", "*/");
 		return handler.getSelectorList();
 	}
 
@@ -1506,15 +1536,18 @@ public class CSSParser implements Parser2 {
 	}
 
 	@Override
-	public LexicalUnit2 parsePropertyValue(InputSource source) throws CSSException, IOException {
+	public LexicalUnit parsePropertyValue(Reader reader) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
-		PropertyTokenHandler handler = new PropertyTokenHandler(source);
+		if (reader == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		PropertyTokenHandler handler = new PropertyTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		tp.parse(source.getCharacterStream(), "/*", "*/");
+		tp.parse(reader, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
 
-	public LexicalUnit2 parsePropertyValue(String propertyName, Reader reader) throws CSSException, IOException {
+	public LexicalUnit parsePropertyValue(String propertyName, Reader reader) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		PropertyTokenHandler handler = new PropertyTokenHandler(propertyName);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
@@ -1522,10 +1555,24 @@ public class CSSParser implements Parser2 {
 		return handler.getLexicalUnit();
 	}
 
+	public LexicalUnit parsePropertyValue(InputSource source) throws CSSException, IOException {
+		int[] allowInWords = { 45, 95 }; // -_
+		Reader re = getReaderFromSource(source);
+		if (re == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		PropertyTokenHandler handler = new PropertyTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(re, "/*", "*/");
+		return handler.getLexicalUnit();
+	}
+
 	@Override
-	public boolean parsePriority(InputSource source) throws CSSException, IOException {
-		Reader re = source.getCharacterStream();
-		int cp = re.read();
+	public boolean parsePriority(Reader reader) throws CSSException, IOException {
+		if (reader == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		int cp = reader.read();
 		if (cp != -1) {
 			short count = 0;
 			StringBuilder buf = new StringBuilder(9);
@@ -1535,7 +1582,7 @@ public class CSSParser implements Parser2 {
 				parsingWord = 1;
 				count = 1;
 			}
-			while ((cp = re.read()) != -1 && parsingWord != 2) {
+			while ((cp = reader.read()) != -1 && parsingWord != 2) {
 				if (isNotSeparator(cp)) {
 					buf.append(Character.toChars(cp));
 					count++;
@@ -1578,84 +1625,56 @@ public class CSSParser implements Parser2 {
 		return cp != 32 && cp != 9 && cp != 10 && cp != 12 && cp != 13;
 	}
 
-	static SACMediaList parseMediaList(String media) {
+	static List<String> parseMediaList(String media) {
 		return new MySACMediaList(media.split(","));
 	}
 
-	private static class MySACMediaList implements SACMediaList {
+	private static class MySACMediaList extends ArrayList<String> {
 
-		String[] list;
+		private static final long serialVersionUID = 1L;
+
+		MySACMediaList() {
+			super(1);
+			add("all");
+		}
 
 		MySACMediaList(String[] list) {
-			super();
-			this.list = list;
+			super(list.length);
+			Collections.addAll(this, list);
 		}
 
 		@Override
-		public int getLength() {
-			return list.length;
-		}
-
-		@Override
-		public String item(int index) {
-			if (index < 0 || index >= list.length) {
-				return null;
-			}
-			return list[index].trim();
+		public String get(int index) {
+			return super.get(index).trim();
 		}
 
 		@Override
 		public String toString() {
 			StringBuilder buf = new StringBuilder();
-			if (list.length != 0) {
-				buf.append(list[0].trim());
+			if (size() == 0) {
+				return "all";
 			}
-			for (int i = 1; i < list.length; i++) {
-				buf.append(',').append(list[i].trim());
+			buf.append(get(0).trim());
+			for (int i = 1; i < size(); i++) {
+				buf.append(',').append(get(i).trim());
 			}
 			return buf.toString();
 		}
 
 	}
 
-	private static class MySACAllMediaList implements SACMediaList {
-
-		MySACAllMediaList() {
-			super();
-		}
-
-		@Override
-		public int getLength() {
-			return 1;
-		}
-
-		@Override
-		public String item(int index) {
-			if (index != 0) {
-				return null;
-			}
-			return "all";
-		}
-
-		@Override
-		public String toString() {
-			return "all";
-		}
-
-	}
-
 	private static class SACMediaListWrapper {
 
-		private final SACMediaList mediaList;
+		private final List<String> mediaList;
 		private final SACMediaListWrapper parent;
 
-		SACMediaListWrapper(SACMediaList mediaList, SACMediaListWrapper parent) {
+		SACMediaListWrapper(List<String> mediaList, SACMediaListWrapper parent) {
 			super();
 			this.mediaList = mediaList;
 			this.parent = parent;
 		}
 
-		public SACMediaList getMediaList() {
+		public List<String> getMediaList() {
 			return mediaList;
 		}
 
@@ -1688,7 +1707,7 @@ public class CSSParser implements Parser2 {
 		static final byte STAGE_SELECTOR_ERROR = 9;
 
 		NestedRuleTH(int offset, int bufSize, String blockRuleName, boolean singleName) {
-			super(null);
+			super();
 			this.offset = offset;
 			this.blockRuleName = blockRuleName;
 			this.singleName = singleName;
@@ -1922,7 +1941,7 @@ public class CSSParser implements Parser2 {
 		private class NestedRuleDeclarationTokenHandler extends DeclarationTokenHandler {
 
 			private NestedRuleDeclarationTokenHandler() {
-				super(null, null);
+				super(null);
 			}
 
 			@Override
@@ -1954,10 +1973,9 @@ public class CSSParser implements Parser2 {
 		@Override
 		void processSelector(int index) {
 			String selector = rawBuffer();
-			InputSource source = new InputSource(new StringReader(selector));
 			LexicalUnit kfsel;
 			try {
-				kfsel = parsePropertyValue(source);
+				kfsel = parsePropertyValue(new StringReader(selector));
 				((KeyframesHandler) handler).startKeyframe(kfsel);
 			} catch (CSSException e) {
 				handleError(index, ParseHelper.ERR_WRONG_VALUE, e.getMessage());
@@ -2049,8 +2067,8 @@ public class CSSParser implements Parser2 {
 
 	private class RuleTokenHandler extends SheetTokenHandler {
 
-		RuleTokenHandler(InputSource source, NamespaceMap nsMap) {
-			super(source, nsMap);
+		RuleTokenHandler(NamespaceMap nsMap) {
+			super(nsMap);
 		}
 
 		@Override
@@ -2071,7 +2089,7 @@ public class CSSParser implements Parser2 {
 		private class RuleEndContentHandler extends CSSTokenHandler {
 
 			RuleEndContentHandler() {
-				super(null);
+				super();
 			}
 
 			@Override
@@ -2138,7 +2156,7 @@ public class CSSParser implements Parser2 {
 			@Override
 			protected void handleError(int index, byte errCode, String message) {
 				if (!parseError && errorHandler != null) {
-					errorHandler.fatalError(createException(index, errCode, message));
+					errorHandler.error(createException(index, errCode, message));
 				}
 				parseError = true;
 			}
@@ -2197,11 +2215,11 @@ public class CSSParser implements Parser2 {
 
 		private SACMediaListWrapper medialist = null;
 
-		SheetTokenHandler(InputSource source, NamespaceMap nsMap) {
-			super(source);
+		SheetTokenHandler(NamespaceMap nsMap) {
+			super();
 			buffer = new StringBuilder(512);
-			declarationHandler = new MyDeclarationTokenHandler(source);
-			selectorHandler = new MySelectorTokenHandler(source, nsMap);
+			declarationHandler = new MyDeclarationTokenHandler();
+			selectorHandler = new MySelectorTokenHandler(nsMap);
 			contextHandler = selectorHandler;
 		}
 
@@ -2609,7 +2627,7 @@ public class CSSParser implements Parser2 {
 		}
 
 		private SACMediaListWrapper newMediaListAll() {
-			return new SACMediaListWrapper(new MySACAllMediaList(), medialist);
+			return new SACMediaListWrapper(new MySACMediaList(), medialist);
 		}
 
 		private SACMediaListWrapper newMediaList(String media) {
@@ -2769,8 +2787,8 @@ public class CSSParser implements Parser2 {
 
 		private class MySelectorTokenHandler extends SelectorTokenHandler {
 
-			MySelectorTokenHandler(InputSource source, NamespaceMap nsMap) {
-				super(source, nsMap);
+			MySelectorTokenHandler( NamespaceMap nsMap) {
+				super(nsMap);
 			}
 
 			@Override
@@ -2906,8 +2924,8 @@ public class CSSParser implements Parser2 {
 
 		private class MyDeclarationTokenHandler extends DeclarationTokenHandler {
 
-			MyDeclarationTokenHandler(InputSource source) {
-				super(source, ShorthandDatabase.getInstance());
+			MyDeclarationTokenHandler() {
+				super(ShorthandDatabase.getInstance());
 			}
 
 			@Override
@@ -2993,7 +3011,7 @@ public class CSSParser implements Parser2 {
 			private int curlyBracketDepth = 1;
 
 			IgnoredDeclarationTokenHandler() {
-				super(null);
+				super();
 			}
 
 			@Override
@@ -3063,25 +3081,14 @@ public class CSSParser implements Parser2 {
 		}
 
 		@Override
-		protected void newDescendantSelector(int index, short type, int triggerCp) {
+		protected void newCombinatorSelector(int index, short type, int triggerCp) {
 			if (currentsel == null) {
 				currentsel = factory.createScopeSelector();
 			} else if (!isValidCurrentSelector()) {
 				unexpectedCharError(index, triggerCp);
 				return;
 			}
-			newDescendantSelector(type);
-		}
-
-		@Override
-		protected void newSiblingSelector(int index, short type, int triggerCp) {
-			if (currentsel == null) {
-				currentsel = factory.createScopeSelector();
-			} else if (!isValidCurrentSelector()) {
-				unexpectedCharError(index, triggerCp);
-				return;
-			}
-			newSiblingSelector(type);
+			newCombinatorSelector(type);
 		}
 
 	}
@@ -3112,8 +3119,8 @@ public class CSSParser implements Parser2 {
 			this(new NSACSelectorFactory());
 		}
 
-		SelectorTokenHandler(InputSource source, NamespaceMap nsMap) {
-			super(source);
+		SelectorTokenHandler(NamespaceMap nsMap) {
+			super();
 			factory = new NSACSelectorFactory();
 			if (nsMap == null) {
 				this.nsMap = factory;
@@ -3124,7 +3131,7 @@ public class CSSParser implements Parser2 {
 		}
 
 		SelectorTokenHandler(NSACSelectorFactory factory) {
-			super(null);
+			super();
 			this.factory = factory;
 			this.nsMap = factory;
 			buffer = new StringBuilder(64);
@@ -3147,15 +3154,15 @@ public class CSSParser implements Parser2 {
 					buffer.append(word);
 				} else if (stage == STAGE_COMBINATOR_OR_END) {
 					buffer.append(word);
-					newDescendantSelector(Selector.SAC_DESCENDANT_SELECTOR);
+					newCombinatorSelector(Selector.SAC_DESCENDANT_SELECTOR);
 					stage = 1;
 				} else if (stage == STAGE_ATTR_POST_SYMBOL && prevcp == 32) {
 					if (word.length() == 1) {
 						char c = word.charAt(0);
 						if (c == 'i' || c == 'I') {
-							setAttributeConditionFlag(AttributeCondition2.Flag.CASE_I);
+							setAttributeConditionFlag(AttributeCondition.Flag.CASE_I);
 						} else if (c == 's' || c == 'S') {
-							setAttributeConditionFlag(AttributeCondition2.Flag.CASE_S);
+							setAttributeConditionFlag(AttributeCondition.Flag.CASE_S);
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Expected 'i', found: '" + c + '\'');
 						}
@@ -3252,14 +3259,8 @@ public class CSSParser implements Parser2 {
 
 		private void setAttributeSelectorValue(int index, CharSequence value) {
 			Condition cond = null;
-			if (currentsel instanceof DescendantSelectorImpl) {
-				Selector simple = ((DescendantSelectorImpl) currentsel).getSimpleSelector();
-				if (!(simple instanceof ConditionalSelectorImpl)) {
-					throw new IllegalStateException("Descendant selector has no conditional simple selector");
-				}
-				cond = ((ConditionalSelectorImpl) simple).condition;
-			} else if (currentsel instanceof SiblingSelectorImpl) {
-				Selector simple = ((SiblingSelectorImpl) currentsel).getSiblingSelector();
+			if (currentsel instanceof CombinatorSelectorImpl) {
+				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				if (!(simple instanceof ConditionalSelectorImpl)) {
 					throw new IllegalStateException("Descendant selector has no conditional simple selector");
 				}
@@ -3289,7 +3290,7 @@ public class CSSParser implements Parser2 {
 			handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token in selector: <" + value + ">");
 		}
 
-		private void setAttributeConditionFlag(AttributeCondition2.Flag flag) {
+		private void setAttributeConditionFlag(AttributeCondition.Flag flag) {
 			Selector simple = getActiveSelector();
 			if (simple == null || simple.getSelectorType() != Selector.SAC_CONDITIONAL_SELECTOR) {
 				throw new IllegalStateException(
@@ -3367,7 +3368,7 @@ public class CSSParser implements Parser2 {
 							cond = getActiveCondition(cond);
 							short condtype = cond.getConditionType();
 							if (buffer.length() != 0) {
-								if (condtype == Condition2.SAC_SELECTOR_ARGUMENT_CONDITION) {
+								if (condtype == Condition.SAC_SELECTOR_ARGUMENT_CONDITION) {
 									try {
 										((SelectorArgumentConditionImpl) cond).arguments = parseSelectorArgument(
 												rawBuffer(), factory);
@@ -3417,7 +3418,7 @@ public class CSSParser implements Parser2 {
 								stage = 1;
 							} else {
 								if (condtype == Condition.SAC_LANG_CONDITION
-										|| condtype == Condition2.SAC_SELECTOR_ARGUMENT_CONDITION
+										|| condtype == Condition.SAC_SELECTOR_ARGUMENT_CONDITION
 										|| condtype == Condition.SAC_POSITIONAL_CONDITION) {
 									unexpectedCharError(index, codepoint);
 								} else {
@@ -3475,10 +3476,8 @@ public class CSSParser implements Parser2 {
 
 		private Selector getActiveSelector() {
 			Selector sel;
-			if (currentsel instanceof DescendantSelectorImpl) {
-				sel = ((DescendantSelectorImpl) currentsel).getSimpleSelector();
-			} else if (currentsel instanceof SiblingSelectorImpl) {
-				sel = ((SiblingSelectorImpl) currentsel).getSiblingSelector();
+			if (currentsel instanceof CombinatorSelectorImpl) {
+				sel = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 			} else {
 				sel = currentsel;
 			}
@@ -3510,12 +3509,12 @@ public class CSSParser implements Parser2 {
 
 		private void processBuffer(int index, int triggerCp, boolean lastStage) {
 			if (prevcp == 42) { // *
-				if (currentsel == null || currentsel.getSelectorType() != Selector.SAC_ANY_NODE_SELECTOR) {
+				if (currentsel == null || currentsel.getSelectorType() != Selector.SAC_UNIVERSAL_SELECTOR) {
 					setSimpleSelector(index, factory.getUniversalSelector(namespacePrefix));
 				}
 			} else if (stage == STAGE_COMBINATOR_OR_END) {
 				if (!lastStage) {
-					newDescendantSelector(Selector.SAC_DESCENDANT_SELECTOR);
+					newCombinatorSelector(Selector.SAC_DESCENDANT_SELECTOR);
 					if (buffer.length() != 0) {
 						// Type selectors are identifiers and could be escaped
 						ElementSelectorImpl sel = newElementSelector(index);
@@ -3568,7 +3567,7 @@ public class CSSParser implements Parser2 {
 					newConditionalSelector(index, triggerCp, Condition.SAC_PSEUDO_CLASS_CONDITION);
 					stage = 1;
 				} else if (stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
-					newConditionalSelector(index, triggerCp, Condition2.SAC_PSEUDO_ELEMENT_CONDITION);
+					newConditionalSelector(index, triggerCp, Condition.SAC_PSEUDO_ELEMENT_CONDITION);
 					stage = 1;
 				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 				} else if (stage == STAGE_ATTR_POST_SYMBOL) {
@@ -3654,13 +3653,13 @@ public class CSSParser implements Parser2 {
 							newConditionalSelector(index, codepoint, Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 36) { // $
-							newConditionalSelector(index, codepoint, Condition2.SAC_ENDS_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, Condition.SAC_ENDS_ATTRIBUTE_CONDITION);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 94) { // ^
-							newConditionalSelector(index, codepoint, Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, Condition.SAC_BEGINS_ATTRIBUTE_CONDITION);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 42) { // *
-							newConditionalSelector(index, codepoint, Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 65) {
 							newConditionalSelector(index, codepoint, Condition.SAC_ATTRIBUTE_CONDITION);
@@ -3678,8 +3677,8 @@ public class CSSParser implements Parser2 {
 					if (stage == 0) {
 						stage = 1;
 					} else if (stage == STAGE_COMBINATOR_OR_END) {
-						newDescendantSelector(Selector.SAC_DESCENDANT_SELECTOR);
-						((DescendantSelectorImpl) currentsel).simpleSelector = factory.getUniversalSelector(namespacePrefix);
+						newCombinatorSelector(Selector.SAC_DESCENDANT_SELECTOR);
+						((CombinatorSelectorImpl) currentsel).simpleSelector = factory.getUniversalSelector(namespacePrefix);
 						namespacePrefix = null;
 						stage = 1;
 					} else if (stage == 1 && namespacePrefix != null && prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
@@ -3693,7 +3692,7 @@ public class CSSParser implements Parser2 {
 					} else {
 						processBuffer(index, codepoint, false);
 					}
-					newSiblingSelector(index, Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR, codepoint);
+					newCombinatorSelector(index, Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, codepoint);
 				} else if (codepoint == 46) { // .
 					if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
 						processBuffer(index, codepoint, false);
@@ -3718,22 +3717,21 @@ public class CSSParser implements Parser2 {
 						stage = STAGE_EXPECT_PSEUDOCLASS_NAME;
 					}
 				} else if (codepoint == 62) { // >
-					if (prevcp != 62) {
-						if (stage == STAGE_COMBINATOR_OR_END) {
-							stage = 1;
-						}
-						processBuffer(index, codepoint, false);
-						newDescendantSelector(index, Selector.SAC_CHILD_SELECTOR, codepoint);
+					if (stage == STAGE_COMBINATOR_OR_END) {
+						stage = 1;
+					}
+					processBuffer(index, codepoint, false);
+					if (stage < 2) {
+						newCombinatorSelector(index, Selector.SAC_CHILD_SELECTOR, codepoint);
 					} else {
-						// Change to SAC_DESCENDANT_SELECTOR
-						((DescendantSelectorImpl) currentsel).setSelectorType(Selector.SAC_DESCENDANT_SELECTOR);
+						unexpectedCharError(index, codepoint);
 					}
 				} else if (codepoint == 43) { // +
 					if (stage == STAGE_COMBINATOR_OR_END) {
 						stage = 1;
 					}
 					processBuffer(index, codepoint, false);
-					newSiblingSelector(index, Selector.SAC_DIRECT_ADJACENT_SELECTOR, codepoint);
+					newCombinatorSelector(index, Selector.SAC_DIRECT_ADJACENT_SELECTOR, codepoint);
 				} else if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
 					// |
 					if (prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
@@ -3751,10 +3749,10 @@ public class CSSParser implements Parser2 {
 									return;
 								}
 							}
-							newDescendantSelector(index, Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, codepoint);
+							newCombinatorSelector(index, Selector.SAC_COLUMN_COMBINATOR_SELECTOR, codepoint);
 						} else if (stage == 0 && buffer.length() == 0 && currentsel == null) {
 							namespacePrefix = null;
-							newDescendantSelector(index, Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, codepoint);
+							newCombinatorSelector(index, Selector.SAC_COLUMN_COMBINATOR_SELECTOR, codepoint);
 						} else {
 							unexpectedCharError(index, codepoint);
 						}
@@ -3912,13 +3910,13 @@ public class CSSParser implements Parser2 {
 						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, buf.toString());
 						return;
 					}
-					condition = factory.createCondition(Condition2.SAC_SELECTOR_ARGUMENT_CONDITION);
+					condition = factory.createCondition(Condition.SAC_SELECTOR_ARGUMENT_CONDITION);
 					((SelectorArgumentConditionImpl) condition).setName(lcname);
 				} else { // Other pseudo-classes
 					if ("first-line".equals(lcname) || "first-letter".equals(lcname) || "before".equals(lcname)
 							|| "after".equals(lcname)) {
 						// Old-syntax pseudo-element
-						condtype = Condition2.SAC_PSEUDO_ELEMENT_CONDITION;
+						condtype = Condition.SAC_PSEUDO_ELEMENT_CONDITION;
 					}
 					condition = factory.createCondition(condtype);
 				}
@@ -3930,9 +3928,9 @@ public class CSSParser implements Parser2 {
 				case Condition.SAC_ATTRIBUTE_CONDITION:
 				case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
 				case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-				case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
-				case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
-				case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
+				case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
+				case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+				case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
 					if (namespacePrefix != null) {
 						((AttributeConditionImpl) condition).namespaceURI = getNamespaceURI(index);
 					}
@@ -3945,7 +3943,7 @@ public class CSSParser implements Parser2 {
 						return;
 					}
 					break;
-				case Condition2.SAC_PSEUDO_ELEMENT_CONDITION:
+				case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
 					if (!isValidIdentifier(name)) {
 						handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 								"Invalid pseudo-element: " + name);
@@ -3962,31 +3960,18 @@ public class CSSParser implements Parser2 {
 					((AttributeConditionImpl) condition).value = lcname;
 				}
 			}
-			if (currentsel instanceof DescendantSelectorImpl) {
-				Selector simple = ((DescendantSelectorImpl) currentsel).getSimpleSelector();
+			if (currentsel instanceof CombinatorSelectorImpl) {
+				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				if (simple != null && simple.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
 					CombinatorConditionImpl andcond = (CombinatorConditionImpl) factory
 							.createCondition(Condition.SAC_AND_CONDITION);
 					andcond.first = ((ConditionalSelectorImpl) simple).getCondition();
 					andcond.second = condition;
-					((DescendantSelectorImpl) currentsel).simpleSelector = factory
+					((CombinatorSelectorImpl) currentsel).simpleSelector = factory
 							.createConditionalSelector(((ConditionalSelectorImpl) simple).getSimpleSelector(), andcond);
 				} else {
-					((DescendantSelectorImpl) currentsel).simpleSelector = factory
-							.createConditionalSelector(((DescendantSelectorImpl) currentsel).simpleSelector, condition);
-				}
-			} else if (currentsel instanceof SiblingSelectorImpl) {
-				Selector simple = ((SiblingSelectorImpl) currentsel).getSiblingSelector();
-				if (simple != null && simple.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
-					CombinatorConditionImpl andcond = (CombinatorConditionImpl) factory
-							.createCondition(Condition.SAC_AND_CONDITION);
-					andcond.first = ((ConditionalSelectorImpl) simple).getCondition();
-					andcond.second = condition;
-					((SiblingSelectorImpl) currentsel).siblingSelector = factory
-							.createConditionalSelector(((ConditionalSelectorImpl) simple).getSimpleSelector(), andcond);
-				} else {
-					((SiblingSelectorImpl) currentsel).siblingSelector = factory
-							.createConditionalSelector(((SiblingSelectorImpl) currentsel).siblingSelector, condition);
+					((CombinatorSelectorImpl) currentsel).simpleSelector = factory
+							.createConditionalSelector(((CombinatorSelectorImpl) currentsel).simpleSelector, condition);
 				}
 			} else {
 				if (currentsel != null && currentsel.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
@@ -4061,10 +4046,8 @@ public class CSSParser implements Parser2 {
 		}
 
 		private void setSimpleSelector(int index, SimpleSelector simple) {
-			if (currentsel instanceof DescendantSelectorImpl) {
-				((DescendantSelectorImpl) currentsel).simpleSelector = simple;
-			} else if (currentsel instanceof SiblingSelectorImpl) {
-				((SiblingSelectorImpl) currentsel).siblingSelector = simple;
+			if (currentsel instanceof CombinatorSelectorImpl) {
+				((CombinatorSelectorImpl) currentsel).simpleSelector = simple;
 			} else if (currentsel != null) {
 				handleError(index - buffer.length(), ParseHelper.ERR_UNEXPECTED_TOKEN,
 						"Unexpected token after '" + currentsel.toString() + "': " + simple.toString());
@@ -4073,29 +4056,16 @@ public class CSSParser implements Parser2 {
 			}
 		}
 
-		protected void newDescendantSelector(int index, short type, int triggerCp) {
+		protected void newCombinatorSelector(int index, short type, int triggerCp) {
 			if (currentsel != null && isValidCurrentSelector()) {
-				newDescendantSelector(type);
+				newCombinatorSelector(type);
 			} else {
 				unexpectedCharError(index, triggerCp);
 			}
 		}
 
-		void newDescendantSelector(short type) {
-			currentsel = factory.createDescendantSelector(type, currentsel);
-			stage = 0;
-		}
-
-		protected void newSiblingSelector(int index, short type, int triggerCp) {
-			if (currentsel != null && isValidCurrentSelector()) {
-				newSiblingSelector(type);
-			} else {
-				unexpectedCharError(index, triggerCp);
-			}
-		}
-
-		void newSiblingSelector(short type) {
-			currentsel = factory.createSiblingSelector(type, currentsel);
+		void newCombinatorSelector(short type) {
+			currentsel = factory.createCombinatorSelector(type, currentsel);
 			stage = 0;
 		}
 
@@ -4111,7 +4081,7 @@ public class CSSParser implements Parser2 {
 					if (sel.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
 						Condition cond = ((ConditionalSelectorImpl) sel).condition;
 						cond = getActiveCondition(cond);
-						if (cond.getConditionType() == Condition2.SAC_SELECTOR_ARGUMENT_CONDITION) {
+						if (cond.getConditionType() == Condition.SAC_SELECTOR_ARGUMENT_CONDITION) {
 							buffer.append('\\');
 						}
 					}
@@ -4165,12 +4135,10 @@ public class CSSParser implements Parser2 {
 			switch (currentsel.getSelectorType()) {
 			case Selector.SAC_CHILD_SELECTOR:
 			case Selector.SAC_DESCENDANT_SELECTOR:
-			case Selector2.SAC_COLUMN_COMBINATOR_SELECTOR:
-				last = ((DescendantSelectorImpl) currentsel).getSimpleSelector();
-				break;
+			case Selector.SAC_COLUMN_COMBINATOR_SELECTOR:
 			case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-			case Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR:
-				last = ((SiblingSelectorImpl) currentsel).getSiblingSelector();
+			case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+				last = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				break;
 			case Selector.SAC_CONDITIONAL_SELECTOR:
 				Condition cond = ((ConditionalSelectorImpl) currentsel).getCondition();
@@ -4185,7 +4153,7 @@ public class CSSParser implements Parser2 {
 				switch (condtype) {
 				case Condition.SAC_ATTRIBUTE_CONDITION:
 				case Condition.SAC_PSEUDO_CLASS_CONDITION:
-				case Condition2.SAC_PSEUDO_ELEMENT_CONDITION:
+				case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
 					if (((AttributeConditionImpl) cond).getLocalName() == null) {
 						return false;
 					}
@@ -4193,9 +4161,9 @@ public class CSSParser implements Parser2 {
 				case Condition.SAC_CLASS_CONDITION:
 				case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
 				case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-				case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
-				case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
-				case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+				case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
+				case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
+				case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
 					if (((AttributeConditionImpl) cond).getValue() == null) {
 						return false;
 					}
@@ -4205,7 +4173,7 @@ public class CSSParser implements Parser2 {
 						return false;
 					}
 					break;
-				case Condition2.SAC_SELECTOR_ARGUMENT_CONDITION:
+				case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
 					if (((SelectorArgumentConditionImpl) cond).getSelectors() == null) {
 						return false;
 					}
@@ -4287,8 +4255,8 @@ public class CSSParser implements Parser2 {
 	class DeclarationRuleTokenHandler extends DeclarationTokenHandler {
 		private String ruleFirstPart = null;
 
-		DeclarationRuleTokenHandler(InputSource source, ShorthandDatabase propertyDatabase) {
-			super(source, propertyDatabase, 0);
+		DeclarationRuleTokenHandler(ShorthandDatabase propertyDatabase) {
+			super(propertyDatabase, 0);
 		}
 
 		@Override
@@ -4353,9 +4321,9 @@ public class CSSParser implements Parser2 {
 	}
 
 	/**
-	 * Small extension to SAC's {@link DocumentHandler} to deal with declaration rules.
+	 * Small extension to {@code CSSHandler} to deal with declaration rules.
 	 */
-	public interface DeclarationRuleHandler extends DocumentHandler {
+	public interface DeclarationRuleHandler extends CSSHandler {
 
 		/**
 		 * Marks the start of a declaration rule.
@@ -4377,13 +4345,13 @@ public class CSSParser implements Parser2 {
 	}
 
 	class PropertyTokenHandler extends DeclarationTokenHandler {
-		PropertyTokenHandler(InputSource source) {
-			super(source, null);
+		PropertyTokenHandler() {
+			super(null);
 			this.propertyName = "";
 		}
 
 		PropertyTokenHandler(String propertyName) {
-			super(null, ShorthandDatabase.getInstance());
+			super(ShorthandDatabase.getInstance());
 			this.propertyName = propertyName;
 		}
 
@@ -4434,19 +4402,19 @@ public class CSSParser implements Parser2 {
 		private boolean functionToken = false;
 		private final boolean flagIEValues;
 
-		DeclarationTokenHandler(InputSource source, ShorthandDatabase propertyDatabase) {
-			this(source, propertyDatabase, 1);
+		DeclarationTokenHandler(ShorthandDatabase propertyDatabase) {
+			this(propertyDatabase, 1);
 		}
 
-		DeclarationTokenHandler(InputSource source, ShorthandDatabase propertyDatabase, int initialCurlyBracketDepth) {
-			super(source);
+		DeclarationTokenHandler(ShorthandDatabase propertyDatabase, int initialCurlyBracketDepth) {
+			super();
 			this.curlyBracketDepth = initialCurlyBracketDepth;
 			flagIEValues = CSSParser.this.parserFlags.contains(Flag.IEVALUES);
 			buffer = new StringBuilder(128);
 			this.propertyDatabase = propertyDatabase;
 		}
 
-		LexicalUnit2 getLexicalUnit() {
+		LexicalUnit getLexicalUnit() {
 			return parseError ? null : lunit;
 		}
 
@@ -4511,7 +4479,7 @@ public class CSSParser implements Parser2 {
 				if (!parseError) {
 					if (propertyName != null) {
 						processBuffer(index);
-						newLexicalUnit(LexicalUnit2.SAC_LEFT_BRACKET);
+						newLexicalUnit(LexicalUnit.SAC_LEFT_BRACKET);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -4530,7 +4498,7 @@ public class CSSParser implements Parser2 {
 			} else if ("attr".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_ATTR);
 			} else if ("element".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit2.SAC_ELEMENT_REFERENCE);
+				lu = newLexicalUnit(LexicalUnit.SAC_ELEMENT_REFERENCE);
 				functionToken = true;
 				return;
 			} else if ("rect".equalsIgnoreCase(name)) {
@@ -4607,7 +4575,7 @@ public class CSSParser implements Parser2 {
 				if (!parseError) {
 					if (propertyName != null) {
 						processBuffer(index);
-						newLexicalUnit(LexicalUnit2.SAC_RIGHT_BRACKET);
+						newLexicalUnit(LexicalUnit.SAC_RIGHT_BRACKET);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -4619,7 +4587,7 @@ public class CSSParser implements Parser2 {
 		private void checkFunction(int index) {
 			String name;
 			short type = currentlu.getLexicalUnitType();
-			if (type != LexicalUnit.SAC_URI && type != LexicalUnit2.SAC_ELEMENT_REFERENCE
+			if (type != LexicalUnit.SAC_URI && type != LexicalUnit.SAC_ELEMENT_REFERENCE
 					&& (currentlu.parameters == null || !lastParamIsOperand())) {
 				unexpectedCharError(index, ')');
 			}
@@ -4785,7 +4753,7 @@ public class CSSParser implements Parser2 {
 
 		private boolean isAngleType(short type) {
 			return type == LexicalUnit.SAC_DEGREE || type == LexicalUnit.SAC_RADIAN || type == LexicalUnit.SAC_GRADIAN
-					|| type == LexicalUnit2.SAC_TURN;
+					|| type == LexicalUnit.SAC_TURN;
 		}
 
 		protected void handleRightCurlyBracket(int index) {
@@ -4835,7 +4803,7 @@ public class CSSParser implements Parser2 {
 					if (codepoint == 33 && priorityImportant && parserFlags.contains(Flag.IEPRIOCHAR)
 							&& (compatText = setFullIdentCompat()) != null) { // !
 						warnIdentCompat(index, compatText);
-						lunit.setUnitType(LexicalUnit2.SAC_COMPAT_PRIO);
+						lunit.setUnitType(LexicalUnit.SAC_COMPAT_PRIO);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -4880,13 +4848,13 @@ public class CSSParser implements Parser2 {
 						} else if (codepoint == 35) { // #
 							if (buffer.length() != 0) {
 								if (functionToken
-										&& currentlu.getLexicalUnitType() != LexicalUnit2.SAC_ELEMENT_REFERENCE) {
+										&& currentlu.getLexicalUnitType() != LexicalUnit.SAC_ELEMENT_REFERENCE) {
 									buffer.append('#');
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
 							} else if (currentlu == null
-									|| currentlu.getLexicalUnitType() != LexicalUnit2.SAC_ELEMENT_REFERENCE) {
+									|| currentlu.getLexicalUnitType() != LexicalUnit.SAC_ELEMENT_REFERENCE) {
 								hexColor = true;
 							} else if (currentlu.value == null) {
 								buffer.append('#');
@@ -4985,7 +4953,7 @@ public class CSSParser implements Parser2 {
 						if (escapedTokenIndex == -1) {
 							buffer.append('=');
 							String s = buffer.toString();
-							newLexicalUnit(LexicalUnit2.SAC_COMPAT_IDENT).value = s;
+							newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = s;
 							buffer.setLength(0);
 							hexColor = false;
 							warnIdentCompat(index - buflen, s);
@@ -4997,16 +4965,16 @@ public class CSSParser implements Parser2 {
 						// Add '=' to the last parameter if ident, or to buffer if not empty
 						short lutype = lu.getLexicalUnitType();
 						if (lutype == LexicalUnit.SAC_IDENT) {
-							lu.setUnitType(LexicalUnit2.SAC_COMPAT_IDENT);
+							lu.setUnitType(LexicalUnit.SAC_COMPAT_IDENT);
 							String s = lu.getStringValue();
 							lu.value += '=';
 							warnIdentCompat(index - s.length(), s);
 							return true;
-						} else if (lutype == LexicalUnit2.SAC_COMPAT_IDENT) {
+						} else if (lutype == LexicalUnit.SAC_COMPAT_IDENT) {
 							lu.value += '=';
 							return true;
-						} else if (lutype == LexicalUnit2.SAC_RIGHT_BRACKET) {
-							newLexicalUnit(LexicalUnit2.SAC_COMPAT_IDENT).value = "=";
+						} else if (lutype == LexicalUnit.SAC_RIGHT_BRACKET) {
+							newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = "=";
 							warnIdentCompat(index, "=");
 							return true;
 						}
@@ -5037,7 +5005,7 @@ public class CSSParser implements Parser2 {
 				LexicalUnitImpl lu = findLastValue(currentlu.parameters);
 				// Add buffer to the last parameter if ident
 				short lutype = lu.getLexicalUnitType();
-				if (lutype == LexicalUnit2.SAC_COMPAT_IDENT) {
+				if (lutype == LexicalUnit.SAC_COMPAT_IDENT) {
 					if (hexColor) {
 						lu.value += '#';
 						hexColor = false;
@@ -5058,7 +5026,7 @@ public class CSSParser implements Parser2 {
 			if (lu != null) {
 				lu = findLastValue(lu);
 				// Add buffer to the last parameter if compat ident
-				if (lu.getLexicalUnitType() == LexicalUnit2.SAC_COMPAT_IDENT) {
+				if (lu.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT) {
 					if (hexColor) {
 						lu.value += '#';
 						hexColor = false;
@@ -5191,7 +5159,7 @@ public class CSSParser implements Parser2 {
 					if (currentlu.getLexicalUnitType() == LexicalUnit.SAC_URI) {
 						// uri
 						currentlu.value = rawBuffer();
-					} else if (currentlu.getLexicalUnitType() == LexicalUnit2.SAC_ELEMENT_REFERENCE) {
+					} else if (currentlu.getLexicalUnitType() == LexicalUnit.SAC_ELEMENT_REFERENCE) {
 						String s = unescapeStringValue(index);
 						if (s.length() > 1 && s.charAt(0) == '#') {
 							currentlu.value = s.substring(1);
@@ -5321,7 +5289,7 @@ public class CSSParser implements Parser2 {
 					lu1 = new LexicalUnitImpl(LexicalUnit.SAC_INTEGER);
 					lu1.intValue = Integer.parseInt(s, 16);
 				} else if (check == 2) {
-					lu1 = new LexicalUnitImpl(LexicalUnit2.SAC_UNICODE_WILDCARD);
+					lu1 = new LexicalUnitImpl(LexicalUnit.SAC_UNICODE_WILDCARD);
 					lu1.value = s;
 				} else {
 					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
@@ -5718,9 +5686,9 @@ public class CSSParser implements Parser2 {
 				}
 				currentlu.reset();
 				currentlu.value = prev + ' ' + lastvalue;
-				currentlu.setUnitType(LexicalUnit2.SAC_COMPAT_IDENT);
+				currentlu.setUnitType(LexicalUnit.SAC_COMPAT_IDENT);
 			} else {
-				newLexicalUnit(LexicalUnit2.SAC_COMPAT_IDENT).value = lastvalue;
+				newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = lastvalue;
 			}
 			warnIdentCompat(index, lastvalue);
 			return true;
@@ -5749,9 +5717,9 @@ public class CSSParser implements Parser2 {
 					lunit.reset();
 				}
 				lunit.value = newval;
-				lunit.setUnitType(LexicalUnit2.SAC_COMPAT_IDENT);
+				lunit.setUnitType(LexicalUnit.SAC_COMPAT_IDENT);
 			} else {
-				newLexicalUnit(LexicalUnit2.SAC_COMPAT_IDENT).value = newval;
+				newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = newval;
 			}
 			return newval;
 		}
@@ -5772,11 +5740,8 @@ public class CSSParser implements Parser2 {
 		int escapedTokenIndex = -1;
 		boolean parseError = false;
 
-		private final InputSource source;
-
-		CSSTokenHandler(InputSource source) {
+		CSSTokenHandler() {
 			super();
-			this.source = source;
 		}
 
 		@Override
@@ -5913,11 +5878,11 @@ public class CSSParser implements Parser2 {
 			handleError(index, errCode, "Syntax error near " + context);
 		}
 
-		protected void handleError(int index, byte errCode, String message) {
+		protected void handleError(int index, byte errCode, String message) throws CSSParseException {
 			if (!parseError) {
 				if (errorHandler != null) {
 					if (prevcp == endcp) {
-						errorHandler.fatalError(createException(index, errCode, "Expected end of file"));
+						errorHandler.error(createException(index, errCode, "Expected end of file"));
 					} else {
 						errorHandler.error(createException(index, errCode, message));
 					}
@@ -5945,15 +5910,8 @@ public class CSSParser implements Parser2 {
 			}
 		}
 
-		protected String getSourceURI() {
-			if (source != null) {
-				return source.getURI();
-			}
-			return null;
-		}
-
 		CSSParseException createException(int index, byte errCode, String message) {
-			Locator locator = new LocatorImpl(line, index - prevlinelength, getSourceURI());
+			Locator locator = new LocatorImpl(line, index - prevlinelength);
 			if (errCode == ParseHelper.ERR_UNKNOWN_NAMESPACE) {
 				return new CSSNamespaceParseException(message, locator);
 			}
@@ -5962,7 +5920,7 @@ public class CSSParser implements Parser2 {
 
 		void endDocument() {
 			if (handler != null) {
-				handler.endDocument(source);
+				handler.endDocument();
 			}
 		}
 
@@ -5996,20 +5954,13 @@ public class CSSParser implements Parser2 {
 
 	static class LocatorImpl implements Locator {
 
-		int line;
-		int column;
-		String uri;
+		final int line;
+		final int column;
 
-		LocatorImpl(int line, int column, String uri) {
+		LocatorImpl(int line, int column) {
 			super();
 			this.line = line;
 			this.column = column;
-			this.uri = uri;
-		}
-
-		@Override
-		public String getURI() {
-			return uri;
 		}
 
 		@Override

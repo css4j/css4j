@@ -11,9 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
  * A SAC DocumentHandler that calls a <code>LexicalPropertyListener</code>.
@@ -34,7 +33,7 @@ class PropertyDocumentHandler extends EmptyDocumentHandler {
 	}
 
 	@Override
-	public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+	public void property(String name, LexicalUnit value, boolean important) {
 		if (important) {
 			listener.setProperty(name, value, "important");
 		} else {
@@ -43,12 +42,7 @@ class PropertyDocumentHandler extends EmptyDocumentHandler {
 	}
 
 	@Override
-	public void error(CSSParseException exception) throws CSSException {
-		throw exception;
-	}
-
-	@Override
-	public void fatalError(CSSParseException exception) throws CSSException {
+	public void error(CSSParseException exception) throws CSSParseException {
 		throw exception;
 	}
 

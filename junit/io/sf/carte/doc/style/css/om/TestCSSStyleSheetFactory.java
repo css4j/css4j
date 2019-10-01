@@ -27,7 +27,7 @@ import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 
@@ -35,10 +35,10 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
 
 	public TestCSSStyleSheetFactory() {
-		this(EnumSet.noneOf(Parser2.Flag.class));
+		this(EnumSet.noneOf(Parser.Flag.class));
 	}
 
-	public TestCSSStyleSheetFactory(EnumSet<Parser2.Flag> parserFlags) {
+	public TestCSSStyleSheetFactory(EnumSet<Parser.Flag> parserFlags) {
 		super(parserFlags);
 		setLenientSystemValues(false);
 		agent = new MockUserAgent();
@@ -129,11 +129,9 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		/**
 		 * Opens a connection for the given URL.
 		 * 
-		 * @param url
-		 *            the URL to open a connection to.
+		 * @param url the URL to open a connection to.
 		 * @return the URL connection.
-		 * @throws IOException
-		 *             if the connection could not be opened.
+		 * @throws IOException if the connection could not be opened.
 		 */
 		@Override
 		public URLConnection openConnection(URL url) throws IOException {

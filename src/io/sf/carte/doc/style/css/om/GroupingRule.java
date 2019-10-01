@@ -16,19 +16,18 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.DocumentHandler;
-import org.w3c.css.sac.ErrorHandler;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.Parser;
-import org.w3c.css.sac.SACMediaList;
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSGroupingRule;
+import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
  * Implementation of CSSGroupingRule.
@@ -83,9 +82,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		if (index < 0 || index > cssRules.size()) {
 			throw new DOMException(DOMException.INDEX_SIZE_ERR, "Index out of bounds in rule list");
 		}
-		InputSource source = new InputSource();
 		Reader re = new StringReader(rule);
-		source.setCharacterStream(re);
 		RuleDocumentHandler handler = new RuleDocumentHandler();
 		handler.setCurrentInsertionIndex(index);
 		RuleErrorHandler errorHandler = new RuleErrorHandler();
@@ -93,7 +90,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler(errorHandler);
 		try {
-			parser.parseRule(source);
+			parser.parseRule(re);
 		} catch (CSSException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
@@ -157,9 +154,8 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		// Create, load & Parse
 		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this, null, null);
 		Reader re = new StringReader(cssText);
-		InputSource source = new InputSource(re);
 		try {
-			css.parseStyleSheet(source);
+			css.parseStyleSheet(re);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
@@ -195,7 +191,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 	protected void setGroupingRule(GroupingRule rule) throws DOMException {
 	}
 
-	class RuleDocumentHandler implements DocumentHandler {
+	class RuleDocumentHandler implements CSSHandler {
 		private AbstractCSSRule currentRule = null;
 
 		private int currentInsertionIndex = 0;
@@ -211,45 +207,45 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void startDocument(InputSource source) throws CSSException {
+		public void startDocument() {
 			currentRule = null;
 			active = true;
 		}
 
 		@Override
-		public void endDocument(InputSource source) throws CSSException {
+		public void endDocument() {
 		}
 
 		@Override
-		public void comment(String text) throws CSSException {
+		public void comment(String text) {
 		}
 
 		@Override
-		public void ignorableAtRule(String atRule) throws CSSException {
+		public void ignorableAtRule(String atRule) {
 		}
 
 		@Override
-		public void namespaceDeclaration(String prefix, String uri) throws CSSException {
+		public void namespaceDeclaration(String prefix, String uri) {
 		}
 
 		@Override
-		public void importStyle(String uri, SACMediaList media, String defaultNamespaceURI) throws CSSException {
+		public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
 			// Ignore any '@import' rule that occurs inside a block (CSS 2.1 §4.1.5)
 		}
 
 		@Override
-		public void startMedia(SACMediaList media) throws CSSException {
+		public void startMedia(List<String> media) {
 			// Nested @media rule: ignore
 			active = false;
 		}
 
 		@Override
-		public void endMedia(SACMediaList media) throws CSSException {
+		public void endMedia(List<String> media) {
 			active = true;
 		}
 
 		@Override
-		public void startPage(String name, String pseudo_page) throws CSSException {
+		public void startPage(String name, String pseudo_page) {
 			if (active) {
 				currentRule = new PageRule(getParentStyleSheet(), getOrigin());
 				if (name != null) {
@@ -257,9 +253,9 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 				}
 				if (pseudo_page != null) {
 					Parser parser = createSACParser();
-					InputSource source = new InputSource(new StringReader(pseudo_page));
+					StringReader re = new StringReader(pseudo_page);
 					try {
-						((CSSStyleDeclarationRule) currentRule).setSelectorList(parser.parseSelectors(source));
+						((CSSStyleDeclarationRule) currentRule).setSelectorList(parser.parseSelectors(re));
 					} catch (IOException e) {
 					}
 				} else {
@@ -269,7 +265,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void endPage(String name, String pseudo_page) throws CSSException {
+		public void endPage(String name, String pseudo_page) {
 			if (active) {
 				currentInsertionIndex = insertRule(currentRule, currentInsertionIndex);
 				currentRule = null;
@@ -277,14 +273,14 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void startFontFace() throws CSSException {
+		public void startFontFace() {
 			if (active) {
 				currentRule = new FontFaceRule(getParentStyleSheet(), getOrigin());
 			}
 		}
 
 		@Override
-		public void endFontFace() throws CSSException {
+		public void endFontFace() {
 			if (active) {
 				currentInsertionIndex = insertRule(currentRule, currentInsertionIndex);
 				currentRule = null;
@@ -292,7 +288,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void startSelector(SelectorList selectors) throws CSSException {
+		public void startSelector(SelectorList selectors) {
 			if (active) {
 				if (currentRule == null) {
 					currentRule = getParentStyleSheet().createStyleRule();
@@ -302,7 +298,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void endSelector(SelectorList selectors) throws CSSException {
+		public void endSelector(SelectorList selectors) {
 			if (active) {
 				if (currentRule instanceof StyleRule) {
 					insertRule(currentRule, currentInsertionIndex);
@@ -312,7 +308,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+		public void property(String name, LexicalUnit value, boolean important) {
 			if (active) {
 				String importantString = null;
 				if (important) {
@@ -324,10 +320,10 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 	}
 
-	class RuleErrorHandler implements ErrorHandler {
+	class RuleErrorHandler implements CSSErrorHandler {
 
 		@Override
-		public void warning(CSSParseException exception) throws CSSException {
+		public void warning(CSSParseException exception) throws CSSParseException {
 			AbstractCSSStyleSheet sheet = getParentStyleSheet();
 			if (sheet != null) {
 				sheet.getErrorHandler().ruleParseWarning(GroupingRule.this, exception);
@@ -335,15 +331,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void error(CSSParseException exception) throws CSSException {
-			AbstractCSSStyleSheet sheet = getParentStyleSheet();
-			if (sheet != null) {
-				sheet.getErrorHandler().ruleParseError(GroupingRule.this, exception);
-			}
-		}
-
-		@Override
-		public void fatalError(CSSParseException exception) throws CSSException {
+		public void error(CSSParseException exception) throws CSSParseException {
 			AbstractCSSStyleSheet sheet = getParentStyleSheet();
 			if (sheet != null) {
 				sheet.getErrorHandler().ruleParseError(GroupingRule.this, exception);

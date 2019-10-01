@@ -23,10 +23,6 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSS2Properties;
@@ -47,8 +43,9 @@ import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
@@ -504,18 +501,16 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	public void setCssText(String cssText) throws DOMException {
 		// The following may cause a DOMException.NOT_SUPPORTED_ERR
 		// (documented above) but the W3C API does not allow for that.
-		Parser2 parser = createSACParser();
+		Parser parser = createSACParser();
 		StyleDeclarationDocumentHandler handler = new StyleDeclarationDocumentHandler();
 		parser.setErrorHandler(handler);
-		InputSource source = new InputSource();
 		Reader re = new StringReader(cssText);
-		source.setCharacterStream(re);
 		clear();
 		handler.setLexicalPropertyListener(this);
 		parser.setDocumentHandler(handler);
 		try {
-			parser.parseStyleDeclaration(source);
-		} catch (CSSException e) {
+			parser.parseStyleDeclaration(re);
+		} catch (CSSParseException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
@@ -525,8 +520,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	private Parser2 createSACParser() throws DOMException {
-		Parser2 parser;
+	private Parser createSACParser() throws DOMException {
+		Parser parser;
 		AbstractCSSStyleSheetFactory factory = getStyleSheetFactory();
 		if (factory != null) {
 			parser = factory.createSACParser();
@@ -1084,20 +1079,18 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			removeProperty(propertyName);
 			return;
 		}
-		Parser2 parser;
+		Parser parser;
 		try {
 			parser = createSACParser();
 		} catch (DOMException e) {
 			// Could not create parser.
 			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.getMessage());
 		}
-		InputSource source = new InputSource();
 		Reader re = new StringReader(value);
-		source.setCharacterStream(re);
 		LexicalUnit lunit;
 		try {
-			lunit = parser.parsePropertyValue(source);
-		} catch (CSSException e) {
+			lunit = parser.parsePropertyValue(re);
+		} catch (CSSParseException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
@@ -1720,13 +1713,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	private SubpropertySetter setSystemFont(String fontDecl, boolean important) throws DOMException {
-		InputSource source = new InputSource();
 		Reader re = new StringReader(fontDecl);
-		source.setCharacterStream(re);
 		LexicalUnit lunit = null;
 		try {
-			lunit = createSACParser().parsePropertyValue(source);
-		} catch (CSSException e) {
+			lunit = createSACParser().parsePropertyValue(re);
+		} catch (CSSParseException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
@@ -1989,10 +1980,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		case LexicalUnit.SAC_OPERATOR_TILDE:
 			s = "~";
 			break;
-		case LexicalUnit2.SAC_LEFT_BRACKET:
+		case LexicalUnit.SAC_LEFT_BRACKET:
 			s = "[";
 			break;
-		case LexicalUnit2.SAC_RIGHT_BRACKET:
+		case LexicalUnit.SAC_RIGHT_BRACKET:
 			s = "]";
 			break;
 		default:
@@ -2014,7 +2005,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+		public void property(String name, LexicalUnit value, boolean important) {
 			try {
 				super.property(name, value, important);
 			} catch (DOMException e) {
@@ -2027,7 +2018,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 
 		@Override
-		public void warning(CSSParseException exception) throws CSSException {
+		public void warning(CSSParseException exception) throws CSSParseException {
 			// This object only could have been passed as ErrorHandler if both parentRule
 			// and StyleDeclarationErrorHandler are not null, but are checked just in case
 			if (getStyleDeclarationErrorHandler() != null) {
@@ -2036,20 +2027,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 
 		@Override
-		public void error(CSSParseException exception) throws CSSException {
+		public void error(CSSParseException exception) throws CSSParseException {
 			// This object only could have been passed as ErrorHandler if both parentRule
 			// and StyleDeclarationErrorHandler are not null, but are checked just in case
 			if (getStyleDeclarationErrorHandler() != null) {
 				getStyleDeclarationErrorHandler().sacError(exception, propertyList.size() - 1);
-			}
-		}
-
-		@Override
-		public void fatalError(CSSParseException exception) throws CSSException {
-			// This object only could have been passed as ErrorHandler if both parentRule
-			// and StyleDeclarationErrorHandler are not null, but are checked just in case
-			if (getStyleDeclarationErrorHandler() != null) {
-				getStyleDeclarationErrorHandler().sacFatalError(exception, propertyList.size() - 1);
 			}
 		}
 

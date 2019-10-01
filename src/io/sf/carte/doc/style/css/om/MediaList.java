@@ -19,13 +19,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.SACMediaList;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
@@ -154,13 +153,13 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	 *            media.
 	 * @return the media list.
 	 */
-	public static MediaList createMediaList(SACMediaList media) {
+	public static MediaList createMediaList(List<String> media) {
 		MediaList newlist = new MediaList();
 		newlist.allMedia = true;
 		if (media != null) {
-			int sz = media.getLength();
+			int sz = media.size();
 			for (int i = 0; i < sz; i++) {
-				newlist.appendMedium(media.item(i));
+				newlist.appendMedium(media.get(i));
 			}
 		}
 		return newlist;

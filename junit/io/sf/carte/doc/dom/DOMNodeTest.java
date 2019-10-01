@@ -54,18 +54,26 @@ public class DOMNodeTest {
 		html.appendChild(div2);
 		assertEquals(Node.DOCUMENT_POSITION_PRECEDING, div1.compareDocumentPosition(div2));
 		assertEquals(Node.DOCUMENT_POSITION_FOLLOWING, div2.compareDocumentPosition(div1));
-		assertEquals(Node.DOCUMENT_POSITION_CONTAINS + Node.DOCUMENT_POSITION_PRECEDING, html.compareDocumentPosition(div1));
-		assertEquals(Node.DOCUMENT_POSITION_CONTAINS + Node.DOCUMENT_POSITION_PRECEDING, html.compareDocumentPosition(div2));
-		assertEquals(Node.DOCUMENT_POSITION_CONTAINED_BY + Node.DOCUMENT_POSITION_FOLLOWING, div1.compareDocumentPosition(html));
-		assertEquals(Node.DOCUMENT_POSITION_CONTAINED_BY + Node.DOCUMENT_POSITION_FOLLOWING, div2.compareDocumentPosition(html));
+		assertEquals(Node.DOCUMENT_POSITION_CONTAINS + Node.DOCUMENT_POSITION_PRECEDING,
+				html.compareDocumentPosition(div1));
+		assertEquals(Node.DOCUMENT_POSITION_CONTAINS + Node.DOCUMENT_POSITION_PRECEDING,
+				html.compareDocumentPosition(div2));
+		assertEquals(Node.DOCUMENT_POSITION_CONTAINED_BY + Node.DOCUMENT_POSITION_FOLLOWING,
+				div1.compareDocumentPosition(html));
+		assertEquals(Node.DOCUMENT_POSITION_CONTAINED_BY + Node.DOCUMENT_POSITION_FOLLOWING,
+				div2.compareDocumentPosition(html));
 		assertEquals(0, html.compareDocumentPosition(html));
 		assertEquals(0, div1.compareDocumentPosition(div1));
 		DOMElement p = xhtmlDoc.createElement("p");
 		div1.appendChild(p);
-		assertEquals(Node.DOCUMENT_POSITION_CONTAINS + Node.DOCUMENT_POSITION_PRECEDING, div1.compareDocumentPosition(p));
-		assertEquals(Node.DOCUMENT_POSITION_CONTAINED_BY + Node.DOCUMENT_POSITION_FOLLOWING, p.compareDocumentPosition(div1));
-		assertEquals(Node.DOCUMENT_POSITION_CONTAINS + Node.DOCUMENT_POSITION_PRECEDING, html.compareDocumentPosition(p));
-		assertEquals(Node.DOCUMENT_POSITION_CONTAINED_BY + Node.DOCUMENT_POSITION_FOLLOWING, p.compareDocumentPosition(html));
+		assertEquals(Node.DOCUMENT_POSITION_CONTAINS + Node.DOCUMENT_POSITION_PRECEDING,
+				div1.compareDocumentPosition(p));
+		assertEquals(Node.DOCUMENT_POSITION_CONTAINED_BY + Node.DOCUMENT_POSITION_FOLLOWING,
+				p.compareDocumentPosition(div1));
+		assertEquals(Node.DOCUMENT_POSITION_CONTAINS + Node.DOCUMENT_POSITION_PRECEDING,
+				html.compareDocumentPosition(p));
+		assertEquals(Node.DOCUMENT_POSITION_CONTAINED_BY + Node.DOCUMENT_POSITION_FOLLOWING,
+				p.compareDocumentPosition(html));
 		assertEquals(Node.DOCUMENT_POSITION_PRECEDING, p.compareDocumentPosition(div2));
 		assertEquals(Node.DOCUMENT_POSITION_FOLLOWING, div2.compareDocumentPosition(p));
 		DOMDocument otherdoc = impl.createDocument(null, "html", null);
@@ -213,7 +221,8 @@ public class DOMNodeTest {
 		EntityReference entref = xhtmlDoc.createEntityReference("amp");
 		assertEquals("amp", entref.getNodeName());
 		assertNull(entref.getNodeValue());
-		ProcessingInstruction pi = xhtmlDoc.createProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"sheet.css\"");
+		ProcessingInstruction pi = xhtmlDoc.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"sheet.css\"");
 		assertEquals("xml-stylesheet", pi.getNodeName());
 		assertEquals("type=\"text/css\" href=\"sheet.css\"", pi.getNodeValue());
 		DocumentType dt = impl.createDocumentType("xhtml", "-//W3C//DTD XHTML 1.1//EN", "w3c/xhtml11.dtd");

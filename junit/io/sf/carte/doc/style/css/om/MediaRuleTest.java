@@ -25,7 +25,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,7 +36,7 @@ import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class MediaRuleTest {
 
@@ -86,9 +85,9 @@ public class MediaRuleTest {
 
 	@Test
 	public void testParse() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -104,9 +103,9 @@ public class MediaRuleTest {
 
 	@Test
 	public void testParse2() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -119,9 +118,9 @@ public class MediaRuleTest {
 
 	@Test
 	public void testParseAllMedia() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media {nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@media {nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -140,7 +139,7 @@ public class MediaRuleTest {
 	public void testParseCompat() throws DOMException, IOException, ParserConfigurationException {
 		CSSElement cssStyle = styleElement(
 				"@media only screen and (min-width:0\\0){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}",
-				EnumSet.of(Parser2.Flag.IEVALUES));
+				EnumSet.of(Parser.Flag.IEVALUES));
 		AbstractCSSStyleSheet compatsheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
 		assertEquals(1, compatsheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, compatsheet.getCssRules().item(0).getType());
@@ -163,8 +162,7 @@ public class MediaRuleTest {
 
 	@Test
 	public void testParseBad() throws DOMException, ParserConfigurationException {
-		CSSElement cssStyle = styleElement(
-				"@media (max-width:1600px) and only screen {div.foo{margin:1em}}");
+		CSSElement cssStyle = styleElement("@media (max-width:1600px) and only screen {div.foo{margin:1em}}");
 		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getErrorHandler().hasOMErrors());
@@ -210,9 +208,9 @@ public class MediaRuleTest {
 
 	@Test
 	public void testParseNested() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -270,10 +268,10 @@ public class MediaRuleTest {
 
 	@Test
 	public void testEquals() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
+		StringReader re = new StringReader(
 				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}"
-						+ "@media print  {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}"));
-		sheet.parseStyleSheet(source);
+						+ "@media print  {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
@@ -313,10 +311,10 @@ public class MediaRuleTest {
 	}
 
 	private static CSSElement styleElement(String sheetText) throws DOMException, ParserConfigurationException {
-		return styleElement(sheetText, EnumSet.noneOf(Parser2.Flag.class));
+		return styleElement(sheetText, EnumSet.noneOf(Parser.Flag.class));
 	}
 
-	private static CSSElement styleElement(String sheetText, EnumSet<Parser2.Flag> flags)
+	private static CSSElement styleElement(String sheetText, EnumSet<Parser.Flag> flags)
 			throws DOMException, ParserConfigurationException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);

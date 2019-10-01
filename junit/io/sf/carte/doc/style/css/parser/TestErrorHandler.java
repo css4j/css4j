@@ -11,11 +11,10 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.ErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
-class TestErrorHandler implements ErrorHandler {
+class TestErrorHandler implements CSSErrorHandler {
 
 	CSSParseException exception = null;
 	CSSParseException warningException = null;
@@ -34,17 +33,12 @@ class TestErrorHandler implements ErrorHandler {
 	}
 
 	@Override
-	public void warning(CSSParseException exception) throws CSSException {
+	public void warning(CSSParseException exception) {
 		this.warningException = exception;
 	}
 
 	@Override
-	public void error(CSSParseException exception) throws CSSException {
-		this.exception = exception;
-	}
-
-	@Override
-	public void fatalError(CSSParseException exception) throws CSSException {
+	public void error(CSSParseException exception) {
 		this.exception = exception;
 	}
 

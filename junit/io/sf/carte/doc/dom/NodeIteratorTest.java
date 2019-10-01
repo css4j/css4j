@@ -139,8 +139,7 @@ public class NodeIteratorTest {
 	@Test
 	public void testIteratorShowAttributeRemove() throws DOMException {
 		DOMElement docelm = document.getDocumentElement();
-		NodeIterator it = document.createNodeIterator(docelm.getAttributes().item(0),
-				NodeFilter.SHOW_ATTRIBUTE, null);
+		NodeIterator it = document.createNodeIterator(docelm.getAttributes().item(0), NodeFilter.SHOW_ATTRIBUTE, null);
 		assertTrue(it.hasNext());
 		Attr attr = (Attr) it.next();
 		assertEquals("id", attr.getName());
@@ -181,8 +180,7 @@ public class NodeIteratorTest {
 	@Test
 	public void testIteratorShowAttributeAdd() throws DOMException {
 		DOMElement docelm = document.getDocumentElement();
-		NodeIterator it = document.createNodeIterator(docelm.getAttributes().item(0),
-				NodeFilter.SHOW_ATTRIBUTE, null);
+		NodeIterator it = document.createNodeIterator(docelm.getAttributes().item(0), NodeFilter.SHOW_ATTRIBUTE, null);
 		try {
 			it.add(document.createAttribute("foo"));
 			fail("Must throw exception");

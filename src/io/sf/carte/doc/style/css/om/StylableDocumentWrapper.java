@@ -24,8 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
@@ -63,7 +61,8 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDatabase;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
@@ -905,11 +904,10 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public boolean matches(String selectorString, String pseudoElement) throws DOMException {
-			Parser2 parser = new CSSParser();
-			InputSource source = new InputSource(new StringReader(selectorString));
+			Parser parser = new CSSParser();
 			SelectorList list;
 			try {
-				list = parser.parseSelectors(source);
+				list = parser.parseSelectors(new StringReader(selectorString));
 			} catch (Exception e) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Unable to parse selector in: " + selectorString);
 			}
@@ -1171,11 +1169,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			}
 			if (styleText.length() != 0) {
 				sheet.setHref(getBaseURI());
-				InputSource source = new InputSource();
 				Reader re = new StringReader(styleText);
-				source.setCharacterStream(re);
 				try {
-					sheet.parseStyleSheet(source);
+					sheet.parseStyleSheet(re);
 				} catch (Exception e) {
 					getErrorHandler().linkedSheetError(e, sheet);
 				}

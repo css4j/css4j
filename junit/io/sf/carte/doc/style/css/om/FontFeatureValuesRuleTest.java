@@ -22,7 +22,6 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
@@ -48,9 +47,9 @@ public class FontFeatureValuesRuleTest {
 
 	@Test
 	public void testParseRule() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"/* pre-rule */@font-feature-values /* skip 1 */ Some Font, Other Font /* skip 2 */ {/* pre-swash */@swash /* skip 3 */{ swishy: 1; flowing: 2; } /* pre-styleset */@styleset /* skip 4 */{ double-W: 14; sharp-terminals: 16 1; }}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"/* pre-rule */@font-feature-values /* skip 1 */ Some Font, Other Font /* skip 2 */ {/* pre-swash */@swash /* skip 3 */{ swishy: 1; flowing: 2; } /* pre-styleset */@styleset /* skip 4 */{ double-W: 14; sharp-terminals: 16 1; }}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
 		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
@@ -99,9 +98,9 @@ public class FontFeatureValuesRuleTest {
 
 	@Test
 	public void testParseRuleCalc() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@font-feature-values Some Font {@swash { swishy: 1; flowing: calc(1 + 1); } @styleset { double-W: var(--doubleW, 2); sharp-terminals: 16 1; }}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"@font-feature-values Some Font {@swash { swishy: 1; flowing: calc(1 + 1); } @styleset { double-W: var(--doubleW, 2); sharp-terminals: 16 1; }}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
 		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
@@ -122,9 +121,9 @@ public class FontFeatureValuesRuleTest {
 
 	@Test
 	public void testParseRuleQuotedFF() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@font-feature-values 'Some Font' {@swash { swishy: 1; flowing: 2; } @styleset { double-W: 14; sharp-terminals: 16 1; }}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"@font-feature-values 'Some Font' {@swash { swishy: 1; flowing: 2; } @styleset { double-W: 14; sharp-terminals: 16 1; }}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
 		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
@@ -140,9 +139,9 @@ public class FontFeatureValuesRuleTest {
 
 	@Test
 	public void testParseRuleQuotedFF2() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@font-feature-values 'Some Font', 'Other Font' {@swash { swishy: 1; flowing: 2; } @styleset { double-W: 14; sharp-terminals: 16 1; }}"));
-		assertTrue(sheet.parseStyleSheet(source));
+		StringReader re = new StringReader(
+				"@font-feature-values 'Some Font', 'Other Font' {@swash { swishy: 1; flowing: 2; } @styleset { double-W: 14; sharp-terminals: 16 1; }}");
+		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
 		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
@@ -159,9 +158,8 @@ public class FontFeatureValuesRuleTest {
 
 	@Test
 	public void testParseRuleBad() throws IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@font-feature-values Some Font, Other Font {@swash 'foo'}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader("@font-feature-values Some Font, Other Font {@swash 'foo'}");
+		sheet.parseStyleSheet(re);
 		assertTrue(sheet.getErrorHandler().hasOMErrors());
 		assertEquals(0, sheet.getCssRules().getLength());
 	}
@@ -257,16 +255,17 @@ public class FontFeatureValuesRuleTest {
 
 	@Test
 	public void testStylesetSetStringPrimitiveValue() {
-		String[] ff = {"Arial", "Helvetica"};
+		String[] ff = { "Arial", "Helvetica" };
 		CSSFontFeatureValuesRule rule = sheet.createFontFeatureValuesRule(ff);
 		NumberValue number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 14f);
 		rule.getStyleset().set("sharp-terminals", number);
 		assertEquals("@font-feature-values Arial,Helvetica{@styleset{sharp-terminals:14}}", rule.getMinifiedCssText());
 		//
 		NumberValue number2 = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 1f);
-		PrimitiveValue[] pvarray = {number, number2};
+		PrimitiveValue[] pvarray = { number, number2 };
 		rule.getStyleset().set("sharp-terminals", pvarray);
-		assertEquals("@font-feature-values Arial,Helvetica{@styleset{sharp-terminals:14 1}}", rule.getMinifiedCssText());
+		assertEquals("@font-feature-values Arial,Helvetica{@styleset{sharp-terminals:14 1}}",
+				rule.getMinifiedCssText());
 	}
 
 	@Test
@@ -279,7 +278,7 @@ public class FontFeatureValuesRuleTest {
 		} catch (DOMException e) {
 		}
 		//
-		PrimitiveValue[] pvarray = {null, null};
+		PrimitiveValue[] pvarray = { null, null };
 		try {
 			rule.getStyleset().set("sharp-terminals", pvarray);
 			fail("Must throw exception");
@@ -296,14 +295,18 @@ public class FontFeatureValuesRuleTest {
 	@Test
 	public void testEquals() {
 		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText("@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+		rule.setCssText(
+				"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
 		FontFeatureValuesRule rule2 = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule2.setCssText("@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+		rule2.setCssText(
+				"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
 		assertTrue(rule.equals(rule2));
 		assertTrue(rule.hashCode() == rule2.hashCode());
-		rule2.setCssText("@font-feature-values Some Font,Other {@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+		rule2.setCssText(
+				"@font-feature-values Some Font,Other {@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
 		assertFalse(rule.equals(rule2));
-		rule2.setCssText("@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16}}");
+		rule2.setCssText(
+				"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16}}");
 		assertFalse(rule.equals(rule2));
 	}
 

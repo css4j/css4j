@@ -16,23 +16,20 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Comparator;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CombinatorCondition;
-import org.w3c.css.sac.Condition;
-import org.w3c.css.sac.ConditionalSelector;
-import org.w3c.css.sac.DescendantSelector;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.NegativeCondition;
-import org.w3c.css.sac.Parser;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SiblingSelector;
-import org.w3c.css.sac.SimpleSelector;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
+import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 /**
  * CSS style rule.
@@ -48,13 +45,11 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 
 	@Override
 	public void setSelectorText(String selectorText) throws DOMException {
-		InputSource source = new InputSource();
 		Reader re = new StringReader(selectorText);
-		source.setCharacterStream(re);
 		Parser parser = createSACParser();
 		SelectorList selist;
 		try {
-			selist = parser.parseSelectors(source);
+			selist = parser.parseSelectors(re);
 		} catch (CSSException | IOException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
@@ -117,8 +112,6 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 					// "ignore the universal selector"
 					break;
 				}
-			case Selector.SAC_PSEUDO_ELEMENT_SELECTOR:
-			case Selector.SAC_ROOT_NODE_SELECTOR:
 				names_pseudoelements_count++;
 				break;
 			case Selector.SAC_CONDITIONAL_SELECTOR:
@@ -127,19 +120,9 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 				break;
 			case Selector.SAC_DESCENDANT_SELECTOR:
 			case Selector.SAC_CHILD_SELECTOR:
-				specifity(((DescendantSelector) selector).getSimpleSelector());
-				specifity(((DescendantSelector) selector).getAncestorSelector());
-				break;
 			case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-				specifity(((SiblingSelector) selector).getSiblingSelector());
-				specifity(((SiblingSelector) selector).getSelector());
-				break;
-			case Selector.SAC_ANY_NODE_SELECTOR:
-				if (selector instanceof SiblingSelector) {
-					// XXX Steadystate parser hack
-					specifity(((SiblingSelector) selector).getSiblingSelector());
-					specifity(((SiblingSelector) selector).getSelector());
-				}
+				specifity(((CombinatorSelector) selector).getSecondSelector());
+				specifity(((CombinatorSelector) selector).getSelector());
 				break;
 			}
 		}
@@ -157,12 +140,12 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 			case Condition.SAC_POSITIONAL_CONDITION:
 				sp.attrib_classes_count++;
 				break;
+			case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
+				sp.names_pseudoelements_count++;
+				break;
 			case Condition.SAC_ID_CONDITION:
 				sp.id_count++;
 				break;
-			case Condition.SAC_NEGATIVE_CONDITION:
-				conditionSpecificity(((NegativeCondition) cond).getCondition(), selector, sp);
-				return;
 			case Condition.SAC_AND_CONDITION:
 				CombinatorCondition comb = (CombinatorCondition) cond;
 				Specifity firstsp = new Specifity(selector);

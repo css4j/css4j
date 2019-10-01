@@ -23,15 +23,15 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesMap;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.FontFeatureValuesHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -449,7 +449,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+		public void property(String name, LexicalUnit value, boolean important) {
 			LinkedList<PrimitiveValue> values = new LinkedList<PrimitiveValue>();
 			for (; value != null; value = value.getNextLexicalUnit()) {
 				short lutype = value.getLexicalUnitType();
@@ -480,7 +480,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		@Override
-		public void comment(String text) throws CSSException {
+		public void comment(String text) {
 			if (currentMap == null) {
 				if (comments == null) {
 					comments = new LinkedList<String>();

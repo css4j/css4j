@@ -25,7 +25,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.css.CSSStyleSheet;
@@ -93,7 +92,7 @@ public class DOMCSSStyleSheetFactoryTest {
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
 		Reader re = loadSampleCSSReader();
 		try {
-			sheet.parseStyleSheet(new InputSource(re));
+			sheet.parseStyleSheet(re);
 			re.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -166,8 +165,8 @@ public class DOMCSSStyleSheetFactoryTest {
 		return wrapStreamForFactory(is, documentURI, factoryDef);
 	}
 
-	static CSSDocument wrapStreamForFactory(InputStream is, String documentURI,
-			DOMCSSStyleSheetFactory factory) throws IOException, DocumentException {
+	static CSSDocument wrapStreamForFactory(InputStream is, String documentURI, DOMCSSStyleSheetFactory factory)
+			throws IOException, DocumentException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docb;
 		try {

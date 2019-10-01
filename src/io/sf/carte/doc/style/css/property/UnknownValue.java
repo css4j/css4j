@@ -13,10 +13,9 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -121,9 +120,9 @@ public class UnknownValue extends AbstractTextValue {
 			case LexicalUnit.SAC_OPERATOR_TILDE:
 				text = "~";
 				break;
-			case LexicalUnit2.SAC_COMPAT_PRIO:
+			case LexicalUnit.SAC_COMPAT_PRIO:
 				priorityCompat = true;
-			case LexicalUnit2.SAC_COMPAT_IDENT:
+			case LexicalUnit.SAC_COMPAT_IDENT:
 				text = lunit.toString();
 				nextLexicalUnit = null;
 				break;

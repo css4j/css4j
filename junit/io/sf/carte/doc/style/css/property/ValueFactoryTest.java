@@ -21,15 +21,14 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class ValueFactoryTest {
@@ -44,24 +43,21 @@ public class ValueFactoryTest {
 	@Test
 	public void testCreateCSSValue() throws CSSException, IOException {
 		ValueFactory factory = new ValueFactory();
-		InputSource source = new InputSource(new StringReader("1, 2, 3, 4"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("1, 2, 3, 4");
 		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		ValueList list = (ValueList) value;
 		assertEquals(4, list.getLength());
 		assertTrue(list.isCommaSeparated());
 		//
-		source = new InputSource(new StringReader("1 2 3 4"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("1 2 3 4");
 		value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		list = (ValueList) value;
 		assertEquals(4, list.getLength());
 		assertFalse(list.isCommaSeparated());
 		//
-		source = new InputSource(new StringReader("[first header-start]"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("[first header-start]");
 		value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		list = (ValueList) value;
@@ -70,8 +66,7 @@ public class ValueFactoryTest {
 		assertEquals("first", list.item(0).getCssText());
 		assertEquals("header-start", list.item(1).getCssText());
 		//
-		source = new InputSource(new StringReader("[first header-start], [main-start],[]"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("[first header-start], [main-start],[]");
 		value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
 		list = (ValueList) value;
@@ -94,306 +89,234 @@ public class ValueFactoryTest {
 
 	@Test
 	public void testIsSizeSACUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("1px"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("1px");
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(3px)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("foo(3px)");
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("0"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("0");
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("calc(300px - 2%)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("calc(300px - 2%)");
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("calc((300px - 2%)/3)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("calc((300px - 2%)/3)");
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("-webkit-calc(100% - 16px)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("-webkit-calc(100% - 16px)");
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("3s"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("rgb(0, 0, 0, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("rgb(0, 0, 0, 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("rgb(0 0 0 / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("rgb(0 0 0 / 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("rgba(0, 0, 0, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("rgba(0, 0, 0, 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(120, 100%, 50%)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hsl(120, 100%, 50%)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(120, 100%, 50%, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hsla(120, 100%, 50%, 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(120 100% 50% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hsla(120 100% 50% / 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(0, 0%, 0%, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hsl(0, 0%, 0%, 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(0 0% 0% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hsl(0 0% 0% / 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(0, 0%, 0%, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hsla(0, 0%, 0%, 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(205, 19%, 14%)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hwb(205, 19%, 14%)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(0, 0%, 0%)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(0 0% 0% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("hwb(0 0% 0% / 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("linear-gradient(yellow, blue 20%, #0f0)"));
-		lunit = parser.parsePropertyValue(source);
+		//
+		lunit = parsePropertyValue("linear-gradient(yellow, blue 20%, #0f0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
 	}
 
 	@Test
 	public void testIsResolutionSACUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("1dpi"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("1dpi");
 		assertTrue(ValueFactory.isResolutionSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(3dpi)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3dpi)");
 		assertTrue(ValueFactory.isResolutionSACUnit(lunit));
-		source = new InputSource(new StringReader("2px"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("2px");
 		assertFalse(ValueFactory.isResolutionSACUnit(lunit));
-		source = new InputSource(new StringReader("0"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("0");
 		assertFalse(ValueFactory.isResolutionSACUnit(lunit));
 	}
 
 	@Test
 	public void testIsPositiveSizeSACUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("1px"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("1px");
 		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("1.2rem"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("1.2rem");
 		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(3px)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3px)");
 		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("calc(300px - 2%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("calc(300px - 2%)");
 		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("3s"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("0"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("0");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("-1"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("-1");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("-2px"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("-2px");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("0.6turn"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("0.6turn");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("rgb(0, 0, 0, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("rgb(0, 0, 0, 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("rgb(0 0 0 / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("rgb(0 0 0 / 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("rgba(0, 0, 0, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("rgba(0, 0, 0, 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("rgb(10 0 0 / 0.8)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("rgb(10 0 0 / 0.8)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(120, 100%, 50%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsl(120, 100%, 50%)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(120 100% 50%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsl(120 100% 50%)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(120, 100%, 50%, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsla(120, 100%, 50%, 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(120 100% 50% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsla(120 100% 50% / 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(0 0% 0% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsl(0 0% 0% / 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(0, 0%, 0%, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsla(0, 0%, 0%, 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(205, 19%, 14%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hwb(205, 19%, 14%)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(0, 0%, 0%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(0 0% 0% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hwb(0 0% 0% / 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
 	}
 
 	@Test
 	public void testIsSizeOrNumberSACUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("1px"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("1px");
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(3px)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3px)");
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("calc(300px - 2%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("calc(300px - 2%)");
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("3s"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("0"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("0");
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("120"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("120");
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("rgb(0, 0, 0, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("rgb(0, 0, 0, 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("rgb(0 0 0 / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("rgb(0 0 0 / 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("rgba(0, 0, 0, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("rgba(0, 0, 0, 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(120, 100%, 50%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsl(120, 100%, 50%)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(120, 100%, 50%, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsla(120, 100%, 50%, 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(120 100% 50% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsla(120 100% 50% / 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(0 0% 0% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsl(0 0% 0% / 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("hsla(0, 0%, 0%, 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsla(0, 0%, 0%, 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(205, 19%, 14%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hwb(205, 19%, 14%)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(0, 0%, 0%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		source = new InputSource(new StringReader("hwb(0 0% 0% / 0)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hwb(0 0% 0% / 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
 	}
 
 	@Test
 	public void testIsPlainNumberOrPercentSACUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("1px"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("1px");
 		assertFalse(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(3px)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3px)");
 		assertFalse(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
-		source = new InputSource(new StringReader("calc(300% - 1px)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("calc(300% - 1px)");
 		assertFalse(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
-		source = new InputSource(new StringReader("3s"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
-		source = new InputSource(new StringReader("0"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("0");
 		assertTrue(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
-		source = new InputSource(new StringReader("120"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("120");
 		assertTrue(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
-		source = new InputSource(new StringReader("10%"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("10%");
 		assertTrue(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
 	}
 
 	@Test
 	public void testIsAngleSACUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("1px"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("1px");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(3deg)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3deg)");
 		assertTrue(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(3px)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3px)");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("calc(300% - 1px)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("calc(300% - 1px)");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("3s"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("2rad"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("2rad");
 		assertTrue(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("0"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("0");
 		assertTrue(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("120"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("120");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("10%"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("10%");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(120deg, 100%, 50%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsl(120deg, 100%, 50%)");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("hsl(120deg 100% 50%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hsl(120deg 100% 50%)");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
-		source = new InputSource(new StringReader("linear-gradient(135deg, yellow, blue)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("linear-gradient(135deg, yellow, blue)");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
 	}
 
 	@Test
 	public void testIsTimeSACUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("1px"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("1px");
 		assertFalse(ValueFactory.isTimeSACUnit(lunit));
-		source = new InputSource(new StringReader("2s"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("2s");
 		assertTrue(ValueFactory.isTimeSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(2s)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(2s)");
 		assertTrue(ValueFactory.isTimeSACUnit(lunit));
-		source = new InputSource(new StringReader("foo(3px)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3px)");
 		assertFalse(ValueFactory.isTimeSACUnit(lunit));
-		source = new InputSource(new StringReader("calc(300% - 1px)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("calc(300% - 1px)");
 		assertFalse(ValueFactory.isTimeSACUnit(lunit));
 	}
 
 	@Test
 	public void testFirstDimensionArgumentUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo(3.2em,4)"));
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		LexicalUnit lunit = parsePropertyValue("foo(3.2em,4)");
 		assertEquals(LexicalUnit.SAC_EM, ValueFactory.functionDimensionArgumentUnit(lunit));
-		source = new InputSource(new StringReader("foo(3px,4)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3px,4)");
 		assertEquals(LexicalUnit.SAC_PIXEL, ValueFactory.functionDimensionArgumentUnit(lunit));
-		source = new InputSource(new StringReader("foo(3.2,4)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("foo(3.2,4)");
 		assertEquals(-1, ValueFactory.functionDimensionArgumentUnit(lunit));
-		source = new InputSource(new StringReader("hwb(0, 0%, 0%)"));
-		lunit = parser.parsePropertyValue(source);
+		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
 		assertEquals(-1, ValueFactory.functionDimensionArgumentUnit(lunit));
 	}
 
@@ -411,9 +334,8 @@ public class ValueFactoryTest {
 	@Test
 	public void testCreateCSSValueCompat() throws CSSException, IOException {
 		ValueFactory factory = new ValueFactory();
-		InputSource source = new InputSource(new StringReader("40pt\\9"));
-		((Parser2) parser).setFlag(Parser2.Flag.IEVALUES);
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		LexicalUnit lunit = parsePropertyValue("40pt\\9");
 		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
@@ -423,9 +345,8 @@ public class ValueFactoryTest {
 	@Test
 	public void testCreateCSSValueCompat2() throws CSSException, IOException {
 		ValueFactory factory = new ValueFactory();
-		InputSource source = new InputSource(new StringReader("foo 40pt\\9"));
-		((Parser2) parser).setFlag(Parser2.Flag.IEVALUES);
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		LexicalUnit lunit = parsePropertyValue("foo 40pt\\9");
 		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
@@ -435,9 +356,8 @@ public class ValueFactoryTest {
 	@Test
 	public void testCreateCSSValueCompatIEPrio() throws CSSException, IOException {
 		ValueFactory factory = new ValueFactory();
-		InputSource source = new InputSource(new StringReader("40pt!ie"));
-		((Parser2) parser).setFlag(Parser2.Flag.IEPRIO);
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		parser.setFlag(Parser.Flag.IEPRIO);
+		LexicalUnit lunit = parsePropertyValue("40pt!ie");
 		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
@@ -447,13 +367,16 @@ public class ValueFactoryTest {
 	@Test
 	public void testCreateCSSValueCompatIEPrio2() throws CSSException, IOException {
 		ValueFactory factory = new ValueFactory();
-		InputSource source = new InputSource(new StringReader("foo 40pt!ie"));
-		((Parser2) parser).setFlag(Parser2.Flag.IEPRIO);
-		LexicalUnit lunit = parser.parsePropertyValue(source);
+		parser.setFlag(Parser.Flag.IEPRIO);
+		LexicalUnit lunit = parsePropertyValue("foo 40pt!ie");
 		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
 		assertEquals("foo 40pt!ie", value.getCssText());
+	}
+
+	private LexicalUnit parsePropertyValue(String string) throws CSSParseException, IOException {
+		return parser.parsePropertyValue(new StringReader(string));
 	}
 
 }

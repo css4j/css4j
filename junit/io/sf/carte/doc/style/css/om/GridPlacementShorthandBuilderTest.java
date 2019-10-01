@@ -37,15 +37,13 @@ public class GridPlacementShorthandBuilderTest {
 		assertShorthandText("grid-row:foo;", "grid-row: foo");
 		assertShorthandText("grid-row:2 foo/bar;", "grid-row: 2 foo / bar;");
 		assertShorthandText("grid-row:1/3;", "grid-row: 1 / 3;");
-		assertShorthandText("grid-row:auto;",
-				"grid-row-start: auto; grid-row-end: auto;");
+		assertShorthandText("grid-row:auto;", "grid-row-start: auto; grid-row-end: auto;");
 		assertShorthandText("grid-row:span 2/3 foo;", "grid-row: span 2 / 3 foo");
 		assertShorthandText("grid-column:auto;", "grid-column: auto");
 		assertShorthandText("grid-column:foo;", "grid-column: foo");
 		assertShorthandText("grid-column:2 foo/bar;", "grid-column: 2 foo / bar;");
 		assertShorthandText("grid-column:1/3;", "grid-column: 1 / 3;");
-		assertShorthandText("grid-column:auto;",
-				"grid-column-start: auto; grid-column-end: auto;");
+		assertShorthandText("grid-column:auto;", "grid-column-start: auto; grid-column-end: auto;");
 		assertShorthandText("grid-column:span 2/3 foo;", "grid-column: span 2 / 3 foo");
 	}
 

@@ -93,10 +93,8 @@ public class NamespaceRuleTest {
 
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
-		NamespaceRule rule = (NamespaceRule) sheet.createNamespaceRule("svg",
-				"http://www.w3.org/2000/svg");
-		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null,
-				null);
+		NamespaceRule rule = (NamespaceRule) sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null, null);
 		CSSNamespaceRule cloned = rule.clone(newSheet);
 		assertFalse(rule == cloned);
 		assertEquals(rule.getPrefix(), cloned.getPrefix());

@@ -15,15 +15,13 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.ExtendedCSSPageRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -151,13 +149,12 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 		private MarginRule currentMarginRule = null;
 
 		@Override
-		public void startPage(String name, String pseudo_page) throws CSSException {
+		public void startPage(String name, String pseudo_page) {
 			if (name == null) {
 				if (pseudo_page != null) {
 					Parser parser = createSACParser();
-					InputSource source = new InputSource(new StringReader(pseudo_page));
 					try {
-						setSelectorList(parser.parseSelectors(source));
+						setSelectorList(parser.parseSelectors(new StringReader(pseudo_page)));
 					} catch (IOException e) {
 					}
 				} else {
@@ -171,7 +168,7 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 		}
 
 		@Override
-		public void endPage(String name, String pseudo_page) throws CSSException {
+		public void endPage(String name, String pseudo_page) {
 			if (name != null) {
 				addMarginRule(currentMarginRule);
 				currentMarginRule = null;

@@ -51,7 +51,8 @@ import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 /**
- * Similar to StylableDocumentWrapperTest, but processing the XML sample instead of XHTML.
+ * Similar to StylableDocumentWrapperTest, but processing the XML sample instead
+ * of XHTML.
  */
 public class XMLDocumentWrapperTest {
 	private static DocumentBuilder docb;

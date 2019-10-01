@@ -129,22 +129,44 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundIEHack() {
-		assertShorthandText("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat;background-size:auto \\9 ;",
+		assertShorthandText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat;background-size:auto \\9 ;",
 				"background: transparent url('image.svg') 15px 10px no-repeat;background-size: auto \\9;");
-		emptyStyleDecl.setCssText("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9 ;background-size:auto;");
-		assertEquals("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9 ;background-size:auto;", emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;");
-		assertEquals("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9 ;background-repeat:no-repeat;background-size:auto;", emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
-		assertEquals("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9 ;background-position:15px;background-repeat:no-repeat;background-size:auto;", emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
-		assertEquals("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9 ;background-position:15px;background-repeat:no-repeat;background-size:auto;", emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9 ;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
-		assertEquals("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9 ;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;", emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText("background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
-		assertEquals("background-attachment:scroll;background-clip:border-box;background-color:transparent\\9 ;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;", emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText("background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
-		assertEquals("background-attachment:scroll;background-clip:border-box;background-color:transparent \\9 ;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;", emptyStyleDecl.getOptimizedCssText());
+		emptyStyleDecl.setCssText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9 ;background-size:auto;");
+		assertEquals(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9 ;background-size:auto;",
+				emptyStyleDecl.getOptimizedCssText());
+		emptyStyleDecl.setCssText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;");
+		assertEquals(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9 ;background-repeat:no-repeat;background-size:auto;",
+				emptyStyleDecl.getOptimizedCssText());
+		emptyStyleDecl.setCssText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+		assertEquals(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9 ;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				emptyStyleDecl.getOptimizedCssText());
+		emptyStyleDecl.setCssText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+		assertEquals(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9 ;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				emptyStyleDecl.getOptimizedCssText());
+		emptyStyleDecl.setCssText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9 ;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+		assertEquals(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9 ;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				emptyStyleDecl.getOptimizedCssText());
+		emptyStyleDecl.setCssText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+		assertEquals(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9 ;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				emptyStyleDecl.getOptimizedCssText());
+		emptyStyleDecl.setCssText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+		assertEquals(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9 ;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				emptyStyleDecl.getOptimizedCssText());
 	}
 
 	@Test

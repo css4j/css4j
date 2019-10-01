@@ -22,16 +22,15 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class DeclarationParserTest {
 
-	private static Parser2 parser;
+	private static Parser parser;
 	private TestDeclarationHandler handler;
 	private TestErrorHandler errorHandler;
 
@@ -45,9 +44,8 @@ public class DeclarationParserTest {
 	}
 
 	@Test
-	public void testParseStyleDeclaration() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-family: Times New Roman"));
-		parser.parseStyleDeclaration(source);
+	public void testParseStyleDeclarationEOF() throws CSSException, IOException {
+		parseStyleDeclaration("font-family: Times New Roman");
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -57,9 +55,24 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationEOFBad() throws CSSException, IOException {
+		parseStyleDeclaration("color");
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertTrue(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationEOFBad2() throws CSSException, IOException {
+		parseStyleDeclaration("color:");
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertTrue(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseStyleDeclarationBadColor() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -67,8 +80,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -76,8 +88,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #x"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #x");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -85,8 +96,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #,"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #,");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -94,8 +104,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor5() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #:"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #:");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -103,8 +112,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor6() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #@charset"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #@charset");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -112,8 +120,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor7() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #-"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #-");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -121,8 +128,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor8() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #_"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #_");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -130,8 +136,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor9() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #."));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #.");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -139,8 +144,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor10() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: ##"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: ##");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -148,8 +152,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor11() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: foo #;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: foo #;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -157,8 +160,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadColor12() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: foo #"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: foo #");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -166,8 +168,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadCalc() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: calc(100% - 3em"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("width: calc(100% - 3em");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -175,8 +176,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadCalc2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: calc(100% - 3em;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("width: calc(100% - 3em;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -184,8 +184,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadCalc3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: calc(100% -"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("width: calc(100% -");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -193,8 +192,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadCalc4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: calc(100% -;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("width: calc(100% -;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -202,8 +200,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadUrl() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("background-image: url(http://www.example.com/"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("background-image: url(http://www.example.com/");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -211,8 +208,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadUrl2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("background-image: url(http://www.example.com/;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("background-image: url(http://www.example.com/;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -220,8 +216,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadUrl3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("background-image: url("));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("background-image: url(");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -229,8 +224,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadUrl4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("background-image: url(;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("background-image: url(;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -238,8 +232,23 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBad() throws IOException {
-		InputSource source = new InputSource(new StringReader("list-style: @"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style: @");
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertTrue(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationBad2() throws IOException {
+		parseStyleDeclaration("list-style;");
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertTrue(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationBad3() throws IOException {
+		parseStyleDeclaration("list-style:;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -247,8 +256,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadIdentifier() throws IOException {
-		InputSource source = new InputSource(new StringReader("list-style: -9foo_bar"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style: -9foo_bar");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -256,8 +264,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadIdentifier2() throws IOException {
-		InputSource source = new InputSource(new StringReader("list-style: 9foo_bar"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style: 9foo_bar");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -265,8 +272,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadIdentifier3() throws IOException {
-		InputSource source = new InputSource(new StringReader("list-style: foo\0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style: foo\0");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -274,8 +280,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadIdentifier4() throws IOException {
-		InputSource source = new InputSource(new StringReader("list-style: foo\u0000"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style: foo\u0000");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -283,8 +288,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadIdentifier5() throws IOException {
-		InputSource source = new InputSource(new StringReader("list-style: foo\u0007"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style: foo\u0007");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -292,8 +296,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedIdentifier() throws IOException {
-		InputSource source = new InputSource(new StringReader("padding-bottom: \\35 px\\9"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("padding-bottom: \\35 px\\9");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals(1, handler.lexicalValues.size());
 		assertEquals("padding-bottom", handler.propertyNames.getFirst());
@@ -307,8 +310,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclaration2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-family : Times New Roman ; color : yellow ; "));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-family : Times New Roman ; color : yellow ; ");
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		assertEquals("color", handler.propertyNames.get(1));
@@ -330,9 +332,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclaration3() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("font-family: Times New Roman; color: yellow; width: calc(100% - 3em);"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-family: Times New Roman; color: yellow; width: calc(100% - 3em);");
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		assertEquals("color", handler.propertyNames.get(1));
@@ -371,9 +371,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationComments() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"-moz-foo:moz-bar;/*!rtl:ignore*/-o-foo:o-bar;/*!rtl:ignore*/foo:bar/*(skipped)!rtl:ignore*/;/*!rtl:ignore*/"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration(
+				"-moz-foo:moz-bar;/*!rtl:ignore*/-o-foo:o-bar;/*!rtl:ignore*/foo:bar/*(skipped)!rtl:ignore*/;/*!rtl:ignore*/");
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("-moz-foo", handler.propertyNames.getFirst());
 		assertEquals("-o-foo", handler.propertyNames.get(1));
@@ -401,8 +400,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadImportant() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: calc(100% - 3em !important;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("width: calc(100% - 3em !important;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -410,8 +408,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadImportant2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: rgb(128, 0, 97 !important;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: rgb(128, 0, 97 !important;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -419,8 +416,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadImportant3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: # !important;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: # !important;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -428,8 +424,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadImportant4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #!important;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color: #!important;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -437,8 +432,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationRange() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("unicode-range: U+416"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("unicode-range: U+416");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("unicode-range", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -454,8 +448,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationRange2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("unicode-range: U+0025-00FF"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("unicode-range: U+0025-00FF");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("unicode-range", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -475,8 +468,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationRangeWildcard() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("unicode-range: U+4??"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("unicode-range: U+4??");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("unicode-range", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -484,7 +476,7 @@ public class DeclarationParserTest {
 		assertEquals("U+4??", lu.toString());
 		LexicalUnit subv = lu.getSubValues();
 		assertNotNull(subv);
-		assertEquals(LexicalUnit2.SAC_UNICODE_WILDCARD, subv.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_UNICODE_WILDCARD, subv.getLexicalUnitType());
 		assertEquals("4??", subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -492,8 +484,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationRangeList() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("unicode-range: U+022, U+0025-00FF, U+4??, U+FF00"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("unicode-range: U+022, U+0025-00FF, U+4??, U+FF00");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("unicode-range", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -526,7 +517,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalUnit.SAC_UNICODERANGE, lu.getLexicalUnitType());
 		subv = lu.getSubValues();
 		assertNotNull(subv);
-		assertEquals(LexicalUnit2.SAC_UNICODE_WILDCARD, subv.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_UNICODE_WILDCARD, subv.getLexicalUnitType());
 		assertEquals("4??", subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
 		lu = lu.getNextLexicalUnit();
@@ -543,8 +534,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationRangeWildcard2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("unicode-range: U+???"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("unicode-range: U+???");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("unicode-range", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -552,7 +542,7 @@ public class DeclarationParserTest {
 		assertEquals("U+???", lu.toString());
 		LexicalUnit subv = lu.getSubValues();
 		assertNotNull(subv);
-		assertEquals(LexicalUnit2.SAC_UNICODE_WILDCARD, subv.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_UNICODE_WILDCARD, subv.getLexicalUnitType());
 		assertEquals("???", subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -560,8 +550,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationRangeBadWildcard() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("unicode-range: U+??????"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("unicode-range: U+??????");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -569,8 +558,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedProperty() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("-\\31 zzz\\:_:1;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("-\\31 zzz\\:_:1;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("-1zzz:_", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -584,8 +572,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo:-\\31zzz\\:_"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("foo:-\\31zzz\\:_");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -597,8 +584,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("symbols: \\1F44D;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("symbols: \\1F44D;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("symbols", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -610,8 +596,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("filter: \\:foo;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("filter: \\:foo;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("filter", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -623,8 +608,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("display: block\\9"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("display: block\\9");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -636,8 +620,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("display: bl\\9 ock"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("display: bl\\9 ock");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -649,8 +632,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue5() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("display: -\\9 block"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("display: -\\9 block");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -662,9 +644,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue6() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -692,8 +672,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue7() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-family: \\\\5FAE\\8F6F\\96C5\\9ED1,Arial"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-family: \\\\5FAE\\8F6F\\96C5\\9ED1,Arial");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -711,8 +690,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue8() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-family: \"\u5b8b\u4f53\",Arial"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-family: \"\u5b8b\u4f53\",Arial");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -730,8 +708,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue9() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-family:file\\:\\/\\/\\/dir\\/file"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-family:file\\:\\/\\/\\/dir\\/file");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -744,9 +721,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue10() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("list-style-type:symbols('*' '\\2020' '\\2021' '\\A7');"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style-type:symbols('*' '\\2020' '\\2021' '\\A7');");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("list-style-type", handler.propertyNames.getFirst());
 		LexicalUnit lunit = handler.lexicalValues.getFirst();
@@ -774,8 +749,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackslashHackError() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: 600px\\9"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("width: 600px\\9");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -783,13 +757,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackslashHack() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: 600px\\9"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("width: 600px\\9");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("600px\\9", lu.getStringValue());
 		assertEquals("600px\\9", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -799,13 +772,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackslashHack2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: 600px\\0"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("width: 600px\\0");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("600px\\0", lu.getStringValue());
 		assertEquals("600px\\0", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -815,8 +787,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackslashHack3Error() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: calc(80% - 3cap)\\9"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("width: calc(80% - 3cap)\\9");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -824,13 +795,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackslashHack3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: calc(80% - 3cap)\\9"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("width: calc(80% - 3cap)\\9");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("calc(80% - 3cap)\\9", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("calc(80% - 3cap)\\9", lu.toString());
@@ -840,13 +810,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackslashHack4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color: #000\\9"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("color: #000\\9");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("color", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("#000\\9", lu.getStringValue());
 		assertEquals("#000\\9", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -856,8 +825,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationNoBackslashHack() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-family: Times New Roman\\9"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-family: Times New Roman\\9");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -878,8 +846,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackslashHackFontFamily() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-family: Times New Roman\\0/"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-family: Times New Roman\\0/");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -904,9 +871,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackslashHackFontFamily2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-family: Times New Roman\\0/"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("font-family: Times New Roman\\0/");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -915,7 +881,7 @@ public class DeclarationParserTest {
 		assertEquals("Times", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("New Roman\\0", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -927,8 +893,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameError() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color\0:#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color\0:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -936,8 +901,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameError2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color\u0007:#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color\u0007:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -945,8 +909,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameError3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color#:#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color#:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -954,8 +917,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameError4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("#color:#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("#color:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -964,8 +926,7 @@ public class DeclarationParserTest {
 	@Test
 	public void testParseStyleDeclarationPropertyNameError5() throws CSSException, IOException {
 		// Test the recovery from previous error
-		InputSource source = new InputSource(new StringReader("#color:#ff0;margin-right:0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("#color:#ff0;margin-right:0");
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-right", handler.propertyNames.getFirst());
@@ -978,8 +939,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameError6() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color color:#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color color:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -987,8 +947,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameStringError() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("\"color\":#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("\"color\":#ff0");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -996,8 +955,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameStringError2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("background-\"color\":#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("background-\"color\":#ff0");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1005,8 +963,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameWarning() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("\\30 color:#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("\\30 color:#ff0");
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 		assertEquals(1, handler.propertyNames.size());
@@ -1019,8 +976,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationPropertyNameBackslashHack() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("color\\9:#ff0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("color\\9:#ff0");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("color\u0009", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1046,8 +1002,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationStarHackError() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("*width:600px"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("*width:600px");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1055,13 +1010,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationStarHack() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("*width:60cap"));
-		parser.setFlag(Parser2.Flag.STARHACK);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.STARHACK);
+		parseStyleDeclaration("*width:60cap");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("*width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_CAP, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_CAP, lu.getLexicalUnitType());
 		assertEquals(60, lu.getFloatValue(), 0.001);
 		assertEquals("cap", lu.getDimensionUnitText());
 		assertEquals("60cap", lu.toString());
@@ -1072,9 +1026,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationStarHack2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("display:block;*width:600px"));
-		parser.setFlag(Parser2.Flag.STARHACK);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.STARHACK);
+		parseStyleDeclaration("display:block;*width:600px");
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
 		assertEquals("*width", handler.propertyNames.get(1));
@@ -1093,8 +1046,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEPrioError() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("display:block!ie"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("display:block!ie");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1102,13 +1054,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEPrio() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width:60cap!ie"));
-		parser.setFlag(Parser2.Flag.IEPRIO);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEPRIO);
+		parseStyleDeclaration("width:60cap!ie");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("60cap!ie", lu.getStringValue());
 		assertEquals("60cap!ie", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -1119,13 +1070,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEPrio2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width:calc(80% - 3cap) ! ie"));
-		parser.setFlag(Parser2.Flag.IEPRIO);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEPRIO);
+		parseStyleDeclaration("width:calc(80% - 3cap) ! ie");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("calc(80% - 3cap)!ie", lu.getStringValue());
 		assertEquals("calc(80% - 3cap)!ie", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -1136,13 +1086,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEPrio3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width:foo 60cap!ie"));
-		parser.setFlag(Parser2.Flag.IEPRIO);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEPRIO);
+		parseStyleDeclaration("width:foo 60cap!ie");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("foo 60cap!ie", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("foo 60cap!ie", lu.toString());
@@ -1153,8 +1102,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIECharPrioError() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("display:block!important!"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("display:block!important!");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1162,8 +1110,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIECharPrioError2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("display:block!important!;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("display:block!important!;");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1171,13 +1118,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIECharPrio() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width:60cap!important!"));
-		parser.setFlag(Parser2.Flag.IEPRIOCHAR);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEPRIOCHAR);
+		parseStyleDeclaration("width:60cap!important!");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_PRIO, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_PRIO, lu.getLexicalUnitType());
 		assertEquals("60cap", lu.getStringValue());
 		assertEquals("60cap", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -1188,13 +1134,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIECharPrio2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width:foo 60cap!important!"));
-		parser.setFlag(Parser2.Flag.IEPRIOCHAR);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEPRIOCHAR);
+		parseStyleDeclaration("width:foo 60cap!important!");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_PRIO, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_PRIO, lu.getLexicalUnitType());
 		assertEquals("foo 60cap", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("important", handler.priorities.getFirst());
@@ -1204,13 +1149,12 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIECharPrio3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width:calc(80% - 3cap)!important!"));
-		parser.setFlag(Parser2.Flag.IEPRIOCHAR);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEPRIOCHAR);
+		parseStyleDeclaration("width:calc(80% - 3cap)!important!");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_COMPAT_PRIO, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_PRIO, lu.getLexicalUnitType());
 		assertEquals("calc(80% - 3cap)", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("important", handler.priorities.getFirst());
@@ -1220,8 +1164,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationTab() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("font-size : larger\t;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("font-size : larger\t;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-size", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
@@ -1235,8 +1178,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedTab() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo : \\9;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("foo : \\9;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("foo", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
@@ -1250,8 +1192,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationUnit() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("margin-right: 1px;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("margin-right: 1px;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-right", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1265,8 +1206,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationUnitDimension() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("margin-right: 1foo;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("margin-right: 1foo;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-right", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1280,8 +1220,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationZero() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("margin-right:0;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("margin-right:0;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-right", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1294,8 +1233,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationOneFloat() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo:1.0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("foo:1.0");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1305,8 +1243,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationMinusOneFloat() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo:-1.0"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("foo:-1.0");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1316,8 +1253,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationDotOneFloat() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo:.1"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("foo:.1");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1327,8 +1263,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationMinusDotOneFloat() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo:-.1"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("foo:-.1");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1338,8 +1273,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationZIndex() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("z-index:1;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("z-index:1;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("z-index", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1351,8 +1285,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationMargin() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("margin: 0.5em auto;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("margin: 0.5em auto;");
 		assertEquals("margin", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_EM, lu.getLexicalUnitType());
@@ -1368,8 +1301,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBorderColor() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("border-color: blue #a7f31a green;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("border-color: blue #a7f31a green;");
 		assertEquals("border-color", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -1402,9 +1334,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBorderImage() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round;");
 		assertEquals("border-image", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_URI, lu.getLexicalUnitType());
@@ -1453,9 +1383,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackgroundImageNone() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("background-image: NONE;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("background-image: NONE;");
 		assertEquals("background-image", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -1465,9 +1393,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBackgroundClipIdent() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("background-clip: Content-Box;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("background-clip: Content-Box;");
 		assertEquals("background-clip", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -1477,9 +1403,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationListStyleTypeCustomIdent() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("list-style-type: MyStyle;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style-type: MyStyle;");
 		assertEquals("list-style-type", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -1489,9 +1413,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationListStyleCustomIdent() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("list-style: MyStyle;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style: MyStyle;");
 		assertEquals("list-style", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -1501,9 +1423,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationListStyleIdent() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("list-style: Upper-Roman;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("list-style: Upper-Roman;");
 		assertEquals("list-style", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -1513,8 +1433,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationContent() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("content: \\f435;"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("content: \\f435;");
 		assertEquals("content", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -1525,8 +1444,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationContentString() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("content: 'foo';"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("content: 'foo';");
 		assertEquals("content", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
@@ -1537,8 +1455,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationContentString2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("content: 'foo\\a bar';"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("content: 'foo\\a bar';");
 		assertEquals("content", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
@@ -1549,8 +1466,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationContentString3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("content: '\\\\5FAE\\8F6F';"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("content: '\\\\5FAE\\8F6F';");
 		assertEquals("content", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
@@ -1561,8 +1477,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationContentString4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("content:\"\\000A0-\\000A0\""));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("content:\"\\000A0-\\000A0\"");
 		assertEquals("content", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
@@ -1573,8 +1488,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationContentBackslash() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("content: '\\\\';"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("content: '\\\\';");
 		assertEquals("content", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
@@ -1585,8 +1499,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationContentBackslashBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("content: '\\';"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("content: '\\';");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -1594,8 +1507,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationCalc() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("width: calc(100% - 3em)"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("width: calc(100% - 3em)");
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals("calc", lu.getFunctionName());
@@ -1619,8 +1531,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBezier() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo:cubic-bezier(0.33, 0.1, 0.5, 1)"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("foo:cubic-bezier(0.33, 0.1, 0.5, 1)");
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals("cubic-bezier", lu.getFunctionName());
@@ -1658,8 +1569,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBezierNegativeArg() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("foo:cubic-bezier(-.33, -.1, -1, -.02)"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("foo:cubic-bezier(-.33, -.1, -1, -.02)");
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals("cubic-bezier", lu.getFunctionName());
@@ -1697,9 +1607,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationCustomFunction() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("filter: --my-function(min-color = 5)"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("filter: --my-function(min-color = 5)");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("filter", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
@@ -1710,7 +1619,7 @@ public class DeclarationParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		lu = lu.getParameters();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("min-color=5", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -1719,8 +1628,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationCustomFunction2Error() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("filter: --my-function(min-color =5)"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("filter: --my-function(min-color =5)");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1728,9 +1636,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationCustomFunction2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("filter: --my-function(min-color =5)"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("filter: --my-function(min-color =5)");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("filter", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
@@ -1741,7 +1648,7 @@ public class DeclarationParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		lu = lu.getParameters();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("min-color=5", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -1750,9 +1657,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgidError() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration(
+				"filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1760,21 +1666,19 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgid() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration(
+				"filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
 		assertEquals("filter", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
-		assertEquals(
-				"progid:DXImageTransform.Microsoft.gradient(startColorstr= '#bd0afa', endColorstr= '#d0df9f')",
+		assertEquals("progid:DXImageTransform.Microsoft.gradient(startColorstr= '#bd0afa', endColorstr= '#d0df9f')",
 				lu.toString());
 		assertEquals("progid:DXImageTransform.Microsoft.gradient", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
 		lu = lu.getParameters();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("startColorstr=", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -1785,7 +1689,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("endColorstr=", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -1797,9 +1701,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgid2Error() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#bd0afa,EndColorStr=#d0df9f);"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration(
+				"filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#bd0afa,EndColorStr=#d0df9f);");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1807,10 +1710,9 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgid2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#bd0afa,EndColorStr=#d0df9f);"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration(
+				"filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#bd0afa,EndColorStr=#d0df9f);");
 		assertEquals("filter", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
@@ -1818,21 +1720,21 @@ public class DeclarationParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		lu = lu.getParameters();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("GradientType=0", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("StartColorStr=#bd0afa", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("EndColorStr=#d0df9f", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -1841,9 +1743,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgid3Error() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("filter: progid:DXImageTransform.Microsoft.Blur(pixelradius=5)"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("filter: progid:DXImageTransform.Microsoft.Blur(pixelradius=5)");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1851,10 +1751,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgid3() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("filter: progid:DXImageTransform.Microsoft.Blur(pixelradius=5)"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("filter: progid:DXImageTransform.Microsoft.Blur(pixelradius=5)");
 		assertEquals("filter", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
@@ -1862,7 +1760,7 @@ public class DeclarationParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		lu = lu.getParameters();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("pixelradius=5", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -1871,9 +1769,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgid4Error() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale,src='http://www.example.com/images/myimage.png');"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration(
+				"_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale,src='http://www.example.com/images/myimage.png');");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1881,10 +1778,9 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgid4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale,src='http://www.example.com/images/myimage.png');"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration(
+				"_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale,src='http://www.example.com/images/myimage.png');");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("_filter", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1893,21 +1789,21 @@ public class DeclarationParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		lu = lu.getParameters();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("enabled=true", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("sizingMethod=scale", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("src=", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -1920,9 +1816,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgidEscaped() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("filter: progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("filter: progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");
 		assertEquals("filter", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
@@ -1934,28 +1828,23 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEExpressionError() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("top:expression(iequirk = (document.body.scrollTop) + \"px\" )"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("top:expression(iequirk = (document.body.scrollTop) + \"px\" )");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 	}
 
 	@Test
 	public void testParseStyleDeclarationIEExpressionError2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("top:expression(= (document.body.scrollTop) + \"px\" )"));
-		parser.setFlag(Parser2.Flag.IEVALUES); // Must throw exception despite the flag
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES); // Must throw exception despite the flag
+		parseStyleDeclaration("top:expression(= (document.body.scrollTop) + \"px\" )");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 	}
 
 	@Test
 	public void testParseStyleDeclarationIEExpression() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("top:expression(iequirk = (document.body.scrollTop) + \"px\" )"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("top:expression(iequirk = (document.body.scrollTop) + \"px\" )");
 		assertEquals("top", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
@@ -1963,7 +1852,7 @@ public class DeclarationParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		lu = lu.getParameters();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("iequirk=", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -1987,19 +1876,15 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEExpression2Error() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 	}
 
 	@Test
 	public void testParseStyleDeclarationIEExpression2() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("zoom:expression(this.runtimeStyle['zoom']='1',this.innerHTML='&#xe03a;')"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("zoom:expression(this.runtimeStyle['zoom']='1',this.innerHTML='&#xe03a;')");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("zoom", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -2013,17 +1898,17 @@ public class DeclarationParserTest {
 		assertEquals("this.runtimeStyle", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
 		assertEquals("zoom", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("=", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -2034,7 +1919,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("this.innerHTML=", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -2047,10 +1932,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEExpression2WS() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')"));
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		parser.parseStyleDeclaration(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		parseStyleDeclaration("zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("zoom", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -2064,17 +1947,17 @@ public class DeclarationParserTest {
 		assertEquals("this.runtimeStyle", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
 		assertEquals("zoom", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("=", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -2085,7 +1968,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("this.innerHTML=", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -2098,9 +1981,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEExpression3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"top:expression(eval(document.documentElement.scrollTop+(document.documentElement.clientHeight-this.offsetHeight)))"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration(
+				"top:expression(eval(document.documentElement.scrollTop+(document.documentElement.clientHeight-this.offsetHeight)))");
 		assertEquals("top", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
@@ -2132,12 +2014,11 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationSquareBrackets() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("grid-template-rows: [header-top]"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("grid-template-rows: [header-top]");
 		assertEquals("grid-template-rows", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit2.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
 		assertEquals("[header-top]", lu.toString());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -2145,15 +2026,14 @@ public class DeclarationParserTest {
 		assertEquals("header-top", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseStyleDeclarationSquareBrackets2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("grid-template-rows: repeat(1, [] 10px)"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("grid-template-rows: repeat(1, [] 10px)");
 		assertEquals("grid-template-rows", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -2169,10 +2049,10 @@ public class DeclarationParserTest {
 		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_LEFT_BRACKET, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit2.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_RIGHT_BRACKET, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalUnit.SAC_PIXEL, lu.getLexicalUnitType());
@@ -2183,19 +2063,21 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationSquareBracketsBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("[grid-template-rows: [header-top]"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("[grid-template-rows: [header-top]");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		errorHandler.reset();
-		source = new InputSource(new StringReader("grid-template-rows]: [header-top]"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("grid-template-rows]: [header-top]");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 		errorHandler.reset();
-		source = new InputSource(new StringReader("[grid-template-rows]: [header-top]"));
-		parser.parseStyleDeclaration(source);
+		parseStyleDeclaration("[grid-template-rows]: [header-top]");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.propertyNames.size());
 	}
+
+	private void parseStyleDeclaration(String string) throws CSSParseException, IOException {
+		parser.parseStyleDeclaration(new StringReader(string));
+	}
+
 }

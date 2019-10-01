@@ -11,86 +11,81 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.DocumentHandler;
-import org.w3c.css.sac.ErrorHandler;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.SACMediaList;
-import org.w3c.css.sac.SelectorList;
+import java.util.List;
 
-abstract class EmptyDocumentHandler implements DocumentHandler, ErrorHandler {
+import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+
+abstract class EmptyDocumentHandler implements CSSHandler, CSSErrorHandler {
 
 	EmptyDocumentHandler() {
 		super();
 	}
 
 	@Override
-	public void startDocument(InputSource source) throws CSSException {
+	public void startDocument() {
 	}
 
 	@Override
-	public void endDocument(InputSource source) throws CSSException {
+	public void endDocument() {
 	}
 
 	@Override
-	public void comment(String text) throws CSSException {
+	public void comment(String text) {
 	}
 
 	@Override
-	public void ignorableAtRule(String atRule) throws CSSException {
+	public void ignorableAtRule(String atRule) {
 	}
 
 	@Override
-	public void namespaceDeclaration(String prefix, String uri) throws CSSException {
+	public void namespaceDeclaration(String prefix, String uri) {
 	}
 
 	@Override
-	public void importStyle(String uri, SACMediaList media, String defaultNamespaceURI) throws CSSException {
+	public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
 	}
 
 	@Override
-	public void startMedia(SACMediaList media) throws CSSException {
+	public void startMedia(List<String> media) {
 	}
 
 	@Override
-	public void endMedia(SACMediaList media) throws CSSException {
+	public void endMedia(List<String> media) {
 	}
 
 	@Override
-	public void startPage(String name, String pseudo_page) throws CSSException {
+	public void startPage(String name, String pseudo_page) {
 	}
 
 	@Override
-	public void endPage(String name, String pseudo_page) throws CSSException {
+	public void endPage(String name, String pseudo_page) {
 	}
 
 	@Override
-	public void startFontFace() throws CSSException {
+	public void startFontFace() {
 	}
 
 	@Override
-	public void endFontFace() throws CSSException {
+	public void endFontFace() {
 	}
 
 	@Override
-	public void startSelector(SelectorList selectors) throws CSSException {
+	public void startSelector(SelectorList selectors) {
 	}
 
 	@Override
-	public void endSelector(SelectorList selectors) throws CSSException {
+	public void endSelector(SelectorList selectors) {
 	}
 
 	@Override
-	public void warning(CSSParseException exception) throws CSSException {
+	public void warning(CSSParseException exception) throws CSSParseException {
 	}
 
 	@Override
-	public void error(CSSParseException exception) throws CSSException {
-	}
-
-	@Override
-	public void fatalError(CSSParseException exception) throws CSSException {
+	public void error(CSSParseException exception) throws CSSParseException {
 	}
 
 }

@@ -20,13 +20,12 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class IdentifierValueTest {
@@ -141,8 +140,8 @@ public class IdentifierValueTest {
 	@Test
 	public void testSetLexicalUnit() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
-		InputSource source = new InputSource(new StringReader("\\1F44D"));
-		LexicalUnit lu = parser.parsePropertyValue(source);
+		StringReader re = new StringReader("\\1F44D");
+		LexicalUnit lu = parser.parsePropertyValue(re);
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
 		IdentifierValue value = new IdentifierValue();
 		assertEquals(CSSPrimitiveValue.CSS_IDENT, value.getPrimitiveType());
@@ -155,8 +154,8 @@ public class IdentifierValueTest {
 	@Test
 	public void testSetLexicalUnit2() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
-		InputSource source = new InputSource(new StringReader("a\\3d b"));
-		LexicalUnit lu = parser.parsePropertyValue(source);
+		StringReader re = new StringReader("a\\3d b");
+		LexicalUnit lu = parser.parsePropertyValue(re);
 		assertEquals("a=b", lu.getStringValue());
 		IdentifierValue value = new IdentifierValue();
 		value.newLexicalSetter().setLexicalUnit(lu);
@@ -168,8 +167,8 @@ public class IdentifierValueTest {
 	@Test
 	public void testSetLexicalUnit3() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
-		InputSource source = new InputSource(new StringReader("\\4f530"));
-		LexicalUnit lu = parser.parsePropertyValue(source);
+		StringReader re = new StringReader("\\4f530");
+		LexicalUnit lu = parser.parsePropertyValue(re);
 		assertEquals("\\4f530", lu.getStringValue());
 		IdentifierValue value = new IdentifierValue();
 		value.newLexicalSetter().setLexicalUnit(lu);
@@ -181,8 +180,8 @@ public class IdentifierValueTest {
 	@Test
 	public void testSetLexicalUnitIEHack() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
-		InputSource source = new InputSource(new StringReader("screen\\0"));
-		LexicalUnit lu = parser.parsePropertyValue(source);
+		StringReader re = new StringReader("screen\\0");
+		LexicalUnit lu = parser.parsePropertyValue(re);
 		assertEquals("screen\ufffd", lu.getStringValue());
 		IdentifierValue value = new IdentifierValue();
 		value.newLexicalSetter().setLexicalUnit(lu);

@@ -17,8 +17,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
+
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class NSACSelectorFactoryTest {
 

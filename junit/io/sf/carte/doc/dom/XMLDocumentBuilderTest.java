@@ -376,7 +376,8 @@ public class XMLDocumentBuilderTest {
 	}
 
 	@Test
-	public void testParseInputSourceNoEntityResolverXML() throws SAXException, ParserConfigurationException, IOException {
+	public void testParseInputSourceNoEntityResolverXML()
+			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
 			builder.getSAXParserFactory().setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",

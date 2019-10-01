@@ -13,12 +13,12 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.Rect;
 
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 

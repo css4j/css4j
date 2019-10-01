@@ -23,18 +23,17 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.SACMediaList;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
 
 import io.sf.carte.doc.TestConfig;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.parser.RuleParserTest.TestRuleErrorHandler;
 
@@ -49,15 +48,15 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseMediaList() {
-		SACMediaList list = CSSParser.parseMediaList("tv");
+		List<String> list = CSSParser.parseMediaList("tv");
 		assertNotNull(list);
-		assertEquals(1, list.getLength());
-		assertEquals("tv", list.item(0));
+		assertEquals(1, list.size());
+		assertEquals("tv", list.get(0));
 		list = CSSParser.parseMediaList("tv, screen");
 		assertNotNull(list);
-		assertEquals(2, list.getLength());
-		assertEquals("tv", list.item(0));
-		assertEquals("screen", list.item(1));
+		assertEquals(2, list.size());
+		assertEquals("tv", list.get(0));
+		assertEquals("screen", list.get(1));
 	}
 
 	@Test
@@ -66,8 +65,9 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader("p.myclass,:first-child{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(
+				"p.myclass,:first-child{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.get(0));
@@ -88,9 +88,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"hr[align=\"left\"]    {margin-left : 0 ;margin-right : auto;}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader("hr[align=\"left\"]    {margin-left : 0 ;margin-right : auto;}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("hr[align=\"left\"]", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -113,9 +112,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				".foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(".foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -140,9 +138,9 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"@media screen and (min-width: 768px){.foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(
+				"@media screen and (min-width: 768px){.foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen and (min-width: 768px)", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.endMediaCount);
@@ -170,9 +168,9 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"input:not(){}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(
+				"input:not(){}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -197,9 +195,9 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"p.myclass width:300px}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(
+				"p.myclass width:300px}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -224,9 +222,9 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"p.myclass color:rgb(120}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(
+				"p.myclass color:rgb(120}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -251,9 +249,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"!,p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader("!,p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -269,9 +266,9 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"@namespace svg \"http://www.w3.org/2000/svg\";svg|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(
+				"@namespace svg \"http://www.w3.org/2000/svg\";svg|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("svg|p", handler.selectors.getFirst().toString());
 		assertEquals(3, handler.propertyNames.size());
@@ -293,9 +290,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"foo|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader("foo|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -311,8 +307,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader("p, p {width: 80%}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader("p, p {width: 80%}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
@@ -333,9 +329,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		// An asterisk before the '*/' may confuse the parser
-		InputSource source = new InputSource(new StringReader(
-				".foo {\n/**just a comment**/margin-left:auto}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(".foo {\n/**just a comment**/margin-left:auto}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -357,9 +352,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		// An asterisk before the '*/' may confuse the parser
-		InputSource source = new InputSource(new StringReader(
-				".foo {  /**just a comment**/margin-left:auto}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(".foo {  /**just a comment**/margin-left:auto}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -380,9 +374,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				".foo {  /*Newline\nhere*/:;margin-left:auto}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(".foo {  /*Newline\nhere*/:;margin-left:auto}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -406,9 +399,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				".foo {\n:;margin-left:auto}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(".foo {\n:;margin-left:auto}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -432,9 +424,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		// An asterisk before the '*/' may confuse the parser
-		InputSource source = new InputSource(new StringReader(
-				".foo {  <!---just a --comment--->margin-left:auto}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(".foo {  <!---just a --comment--->margin-left:auto}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -454,9 +445,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		// An asterisk before the '*/' may confuse the parser
-		InputSource source = new InputSource(new StringReader(
-				".foo {  <!---just a --comment---->margin-left:auto}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(".foo {  <!---just a --comment---->margin-left:auto}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -471,12 +461,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseDefaultNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace url(\"https://www.w3.org/1999/xhtml/\");"));
+		Reader re = new StringReader("@namespace url(\"https://www.w3.org/1999/xhtml/\");");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
@@ -484,12 +474,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseDefaultNSEOF() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace url(\"https://www.w3.org/1999/xhtml/\")"));
+		Reader re = new StringReader("@namespace url(\"https://www.w3.org/1999/xhtml/\")");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
@@ -497,12 +487,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseDefaultNSBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace url(;"));
+		Reader re = new StringReader("@namespace url(;");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
@@ -511,12 +501,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseDefaultNSBad2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace url();"));
+		Reader re = new StringReader("@namespace url();");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
@@ -525,12 +515,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseDefaultNSDQ() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace \"\" url(\"https://www.w3.org/1999/xhtml/\");"));
+		Reader re = new StringReader("@namespace \"\" url(\"https://www.w3.org/1999/xhtml/\");");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
@@ -538,12 +528,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseDefaultNSNoURL() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace \"https://www.w3.org/1999/xhtml/\";"));
+		Reader re = new StringReader("@namespace \"https://www.w3.org/1999/xhtml/\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
@@ -551,12 +541,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseNSNoURL() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace xhtml \"https://www.w3.org/1999/xhtml/\";"));
+		Reader re = new StringReader("@namespace xhtml \"https://www.w3.org/1999/xhtml/\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
@@ -564,12 +554,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseNSNoURLEOF() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace xhtml \"https://www.w3.org/1999/xhtml/\""));
+		Reader re = new StringReader("@namespace xhtml \"https://www.w3.org/1999/xhtml/\"");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
@@ -577,12 +567,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseNSEOF() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace xhtml url(\"https://www.w3.org/1999/xhtml/\")"));
+		Reader re = new StringReader("@namespace xhtml url(\"https://www.w3.org/1999/xhtml/\")");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
@@ -590,13 +580,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseSimpleNS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-			"@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}"));
+		Reader re = new StringReader(
+				"@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("http://www.w3.org/2000/svg", handler.namespaceMaps.get("svg"));
 		assertEquals(2, handler.selectors.size());
@@ -618,12 +608,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseMinimalStyleSheet() throws CSSException, IOException {
-		InputSource source = new InputSource(DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader());
+		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader();
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("background-color", handler.propertyNames.get(0));
@@ -645,8 +635,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		Reader re = loadTestCSSReader("sheet1.css");
-		InputSource source = new InputSource(re);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.atRules.size());
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}",
@@ -687,12 +677,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetBadMedia() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("badmedia.css");
-		InputSource source = new InputSource(re);
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.atRules.size());
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}",
@@ -732,12 +722,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetMediaRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@media {div.foo{margin:1em}}"));
+		Reader re = new StringReader("@media {div.foo{margin:1em}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("all", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.endMediaCount);
@@ -754,13 +744,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetMediaRuleErrorRecovery() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}"));
+		Reader re = new StringReader(
+				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("handheld,only screen and (max-width:1600px) .foo", handler.mediaRuleLists.get(0).toString());
 		assertEquals("all", handler.mediaRuleLists.get(1).toString());
@@ -780,13 +770,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetNestedMediaRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}"));
+		Reader re = new StringReader(
+				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals("(max-width:1600px)", handler.mediaRuleLists.get(1).toString());
@@ -809,13 +799,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetNestedMediaFontFaceRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen{@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}"));
+		Reader re = new StringReader(
+				"@media screen{@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(0, handler.selectors.size());
@@ -837,12 +827,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetMediaRuleIEHack() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@media screen\\0 {.foo{margin:1em}}"));
+		Reader re = new StringReader("@media screen\\0 {.foo{margin:1em}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen\\0", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.endMediaCount);
@@ -862,13 +852,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetCommon() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("common.css");
-		InputSource source = new InputSource(re);
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
-		source.getCharacterStream().close();
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.comments.size());
 		assertEquals(108, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
@@ -908,31 +897,13 @@ public class SheetParserTest {
 	}
 
 	@Test
-	public void testParseStyleSheetRemoteInputSource() throws CSSException, IOException {
-		if (TestConfig.REMOTE_TESTS) {
-			TestDocumentHandler handler = new TestDocumentHandler();
-			parser.setDocumentHandler(handler);
-			TestErrorHandler errorHandler = new TestErrorHandler();
-			parser.setErrorHandler(errorHandler);
-			InputSource source = new InputSource();
-			source.setURI("https://raw.githubusercontent.com/necolas/normalize.css/master/normalize.css");
-			parser.parseStyleSheet(source);
-			assertTrue(handler.comments.size() != 0);
-			assertTrue(handler.selectors.size() != 0);
-			assertTrue(handler.propertyNames.size() != 0);
-			assertFalse(errorHandler.hasError());
-			handler.checkRuleEndings();
-		}
-	}
-
-	@Test
 	public void testParseStyleSheetFontFaceRule() throws CSSException, IOException {
-		InputSource source = new InputSource(loadCSSfromClasspath("/io/sf/carte/doc/agent/common.css"));
+		Reader re = loadCSSfromClasspath("/io/sf/carte/doc/agent/common.css");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(3, handler.propertyNames.size());
@@ -947,21 +918,20 @@ public class SheetParserTest {
 		assertNull(handler.priorities.get(0));
 		assertEquals(1, handler.fontFaceCount);
 		assertEquals(1, handler.atRules.size());
-		assertEquals("@font-feature-values Foo Sans, Bar { @styleset { my-style: 2; } }",
-				handler.atRules.getFirst());
+		assertEquals("@font-feature-values Foo Sans, Bar { @styleset { my-style: 2; } }", handler.atRules.getFirst());
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
 
 	@Test
 	public void testParseStyleSheetFontFaceRuleWrongChar() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"\ufeff@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}@import 'foo.css';"));
+		Reader re = new StringReader(
+				"\ufeff@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}@import 'foo.css';");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -970,9 +940,9 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertTrue(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
@@ -980,13 +950,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetPageRule() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("page.css");
-		InputSource source = new InputSource(re);
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
-		source.getCharacterStream().close();
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(6, handler.propertyNames.size());
@@ -1020,13 +989,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetPageRule2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}"));
+		Reader re = new StringReader("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(2, handler.pageRuleNames.size());
 		assertNull(handler.pageRuleNames.getFirst());
 		assertEquals("top-left", handler.pageRuleNames.get(1));
@@ -1054,13 +1022,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetPageRuleBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@page :first{margin-top:20%;myname@top-left{content:'foo';color:blue}}"));
+		Reader re = new StringReader("@page :first{margin-top:20%;myname@top-left{content:'foo';color:blue}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.pageRuleNames.size());
 		assertNull(handler.pageRuleNames.getFirst());
 		assertEquals(":first", handler.pseudoPages.getFirst());
@@ -1083,13 +1050,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetPageRuleBad2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@page :first{margin-top:20%;myname @top-left{content:'foo';color:blue}}"));
+		Reader re = new StringReader("@page :first{margin-top:20%;myname @top-left{content:'foo';color:blue}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.pageRuleNames.size());
 		assertNull(handler.pageRuleNames.getFirst());
 		assertEquals(":first", handler.pseudoPages.getFirst());
@@ -1112,13 +1078,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetPageRuleBad3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@page :first{margin-top:20%; top-left{content:'foo';color:blue}}"));
+		Reader re = new StringReader("@page :first{margin-top:20%; top-left{content:'foo';color:blue}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.pageRuleNames.size());
 		assertNull(handler.pageRuleNames.getFirst());
 		assertEquals(":first", handler.pseudoPages.getFirst());
@@ -1141,20 +1106,19 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetPageRuleNestedOnMediaRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media print {@page {margin-top: 20%;}h3 {width: 80%}}"));
+		Reader re = new StringReader("@media print {@page {margin-top: 20%;}h3 {width: 80%}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.pageRuleNames.size());
 		assertNull(handler.pageRuleNames.getFirst());
 		assertEquals(1, handler.endPageCount);
 		assertEquals(1, handler.mediaRuleLists.size());
-		SACMediaList medialist = handler.mediaRuleLists.getFirst();
-		assertEquals(1, medialist.getLength());
-		assertEquals("print", medialist.item(0));
+		List<String> medialist = handler.mediaRuleLists.getFirst();
+		assertEquals(1, medialist.size());
+		assertEquals("print", medialist.get(0));
 		assertEquals(1, handler.endMediaCount);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("h3", handler.selectors.getFirst().toString());
@@ -1178,13 +1142,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetOtherRules() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("other_rules.css");
-		InputSource source = new InputSource(re);
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
-		source.getCharacterStream().close();
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1194,18 +1157,15 @@ public class SheetParserTest {
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertEquals(5, handler.atRules.size());
-		assertEquals("@viewport { width: device-width; }",
-				handler.atRules.get(0));
-		assertEquals("@keyframes slide-right { " + 
-				"from {margin-left: 0px;} " + 
-				"50% {margin-left: 110px; opacity: 1;} " + 
-				"50% {opacity: 0.9;} " + 
-				"to {margin-left: 200px;} }", handler.atRules.get(1));
-		assertEquals("@keyframes important1 { from { margin-top: 50px; }" + 
-				" 50% { margin-top: 150px !important; } /* ignored */" + 
-				"to { margin-top: 100px; } }", handler.atRules.get(2));
-		assertEquals("@counter-style foo { symbols: \\1F44D; suffix: \" \"; }",
-				handler.atRules.get(3));
+		assertEquals("@viewport { width: device-width; }", handler.atRules.get(0));
+		assertEquals("@keyframes slide-right { " + "from {margin-left: 0px;} "
+				+ "50% {margin-left: 110px; opacity: 1;} " + "50% {opacity: 0.9;} " + "to {margin-left: 200px;} }",
+				handler.atRules.get(1));
+		assertEquals(
+				"@keyframes important1 { from { margin-top: 50px; }"
+						+ " 50% { margin-top: 150px !important; } /* ignored */" + "to { margin-top: 100px; } }",
+				handler.atRules.get(2));
+		assertEquals("@counter-style foo { symbols: \\1F44D; suffix: \" \"; }", handler.atRules.get(3));
 		assertEquals(
 				"@font-feature-values Some Font { @swash { swishy: 1; flowing: 2; } @styleset { double-W: 14; sharp-terminals: 16 1; } }",
 				handler.atRules.get(4));
@@ -1215,24 +1175,24 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseCharsetRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@charset \"utf-8\";"));
+		Reader re = new StringReader("@charset \"utf-8\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseCharsetRule2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("/* My sheet */\n@charset \"utf-8\";"));
+		Reader re = new StringReader("/* My sheet */\n@charset \"utf-8\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
 		assertEquals(1, handler.comments.size());
 		assertFalse(errorHandler.hasError());
@@ -1240,19 +1200,19 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseCharsetRuleBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@import url('foo.css');@charset \"utf-8\";"));
+		Reader re = new StringReader("@import url('foo.css');@charset \"utf-8\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
 		assertEquals(24, errorHandler.exception.getColumnNumber());
@@ -1260,13 +1220,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseCharsetRuleBad2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"p{display:block;}@charset \"utf-8\";"));
+		Reader re = new StringReader("p{display:block;}@charset \"utf-8\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
 		assertEquals(1, handler.selectors.size());
 		assertEquals("p", handler.selectors.get(0).item(0).toString());
@@ -1279,13 +1238,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseCharsetRuleBad3() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("@media print {@page {margin-top: 20%;}h3 {width: 80%}}@charset \"utf-8\";"));
+		Reader re = new StringReader("@media print {@page {margin-top: 20%;}h3 {width: 80%}}@charset \"utf-8\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
 		assertEquals(1, handler.pageRuleNames.size());
 		assertTrue(errorHandler.hasError());
@@ -1295,13 +1253,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseCharsetRuleBad4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf')}@charset \"utf-8\";"));
+		Reader re = new StringReader(
+				"@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf')}@charset \"utf-8\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
@@ -1310,13 +1268,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseCharsetRuleBad5() throws CSSException, IOException {
-		InputSource source = new InputSource(
-				new StringReader("@font-feature-values Foo Sans, Bar {@styleset {my-style: 2;}}@charset \"utf-8\";"));
+		Reader re = new StringReader(
+				"@font-feature-values Foo Sans, Bar {@styleset {my-style: 2;}}@charset \"utf-8\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.atRules.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
@@ -1329,13 +1287,12 @@ public class SheetParserTest {
 	 */
 	@Test
 	public void testParseCharsetRuleBadRecovery() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"p{display:block;}@charset \"utf-8\";span {color: blue;}"));
+		Reader re = new StringReader("p{display:block;}@charset \"utf-8\";span {color: blue;}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
 		assertEquals(2, handler.selectors.size());
 		assertEquals("p", handler.selectors.get(0).item(0).toString());
@@ -1351,120 +1308,115 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseImportRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@import url('foo.css');"));
+		Reader re = new StringReader("@import url('foo.css');");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRule2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url(foo.css);"));
+		Reader re = new StringReader("@import url(foo.css);");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleMedia() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url(foo.css) print;"));
+		Reader re = new StringReader("@import url(foo.css) print;");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("print", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("print", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
+
 	@Test
 	public void testParseImportRuleMedia2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url(foo.css) screen, tv;"));
+		Reader re = new StringReader("@import url(foo.css) screen, tv;");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(2, list.getLength());
-		assertEquals("screen", list.item(0));
-		assertEquals("tv", list.item(1));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(2, list.size());
+		assertEquals("screen", list.get(0));
+		assertEquals("tv", list.get(1));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleMediaQuery() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url('foo.css') (orientation:landscape);"));
+		Reader re = new StringReader("@import url('foo.css') (orientation:landscape);");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("(orientation:landscape)", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("(orientation:landscape)", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleMediaQuery2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url('foo.css') screen and (orientation:landscape);"));
+		Reader re = new StringReader("@import url('foo.css') screen and (orientation:landscape);");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("screen and (orientation:landscape)", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("screen and (orientation:landscape)", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleMediaQueryBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import url('foo.css') screen and ((orientation:landscape);"));
+		Reader re = new StringReader("@import url('foo.css') screen and ((orientation:landscape);");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.importURIs.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
@@ -1473,86 +1425,81 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseImportRuleNoUrl() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import 'foo.css';"));
+		Reader re = new StringReader("@import 'foo.css';");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleNoUrlMedia() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import 'foo.css' print;"));
+		Reader re = new StringReader("@import 'foo.css' print;");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("print", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("print", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleNoUrlDQ() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import \"foo.css\";"));
+		Reader re = new StringReader("@import \"foo.css\";");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleNoUrlDQMedia() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@import \"foo.css\" screen, tv;"));
+		Reader re = new StringReader("@import \"foo.css\" screen, tv;");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(2, list.getLength());
-		assertEquals("screen", list.item(0));
-		assertEquals("tv", list.item(1));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(2, list.size());
+		assertEquals("screen", list.get(0));
+		assertEquals("tv", list.get(1));
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseImportRuleBad() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"foo@import url('bar.css');"));
+		Reader re = new StringReader("foo@import url('bar.css');");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.importURIs.size());
 		assertEquals(0, handler.importMedias.size());
 		assertEquals(0, handler.selectors.size());
@@ -1564,13 +1511,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseEmptyAtRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@;"));
+		Reader re = new StringReader("@;");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(0, handler.importURIs.size());
 		assertEquals(0, handler.importMedias.size());
 		assertEquals(0, handler.selectors.size());
@@ -1582,29 +1528,28 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseCounterStyleRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}"));
+		Reader re = new StringReader("@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.atRules.size());
-		assertEquals("@counter-style foo {symbols: \\1F44D; suffix: \" \"; }",
-				handler.atRules.get(0));
+		assertEquals("@counter-style foo {symbols: \\1F44D; suffix: \" \"; }", handler.atRules.get(0));
 	}
 
 	@Test
 	public void testParseNestedSupportsRule() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen {@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}}"));
+		Reader re = new StringReader(
+				"@media screen {@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.atRules.size());
-		assertEquals("@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}",
+		assertEquals(
+				"@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}",
 				handler.atRules.get(0));
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.getFirst().toString());
@@ -1615,13 +1560,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParsePseudoClassNotEmpty() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"foo:not() {td {display: table-cell; } li {display: list-item; }}"));
+		Reader re = new StringReader("foo:not() {td {display: table-cell; } li {display: list-item; }}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.selectors.size());
 		assertEquals(1, errorHandler.exception.getLineNumber());
@@ -1630,12 +1574,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetDefaultUserAgentSheet() throws CSSException, IOException {
-		InputSource source = new InputSource(loadCSSfromClasspath("/io/sf/carte/doc/style/css/html.css"));
+		Reader re = loadCSSfromClasspath("/io/sf/carte/doc/style/css/html.css");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(16, handler.comments.size());
 		assertEquals("textarea", handler.selectors.get(73).toString());
 		assertEquals("hr[align=\"left\"]", handler.selectors.get(76).toString());
@@ -1655,12 +1600,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetDefaultUserAgentSheetQuirks() throws CSSException, IOException {
-		InputSource source = new InputSource(loadCSSfromClasspath("/io/sf/carte/doc/style/css/html-quirks.css"));
+		Reader re = loadCSSfromClasspath("/io/sf/carte/doc/style/css/html-quirks.css");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(18, handler.comments.size());
 		assertEquals("textarea", handler.selectors.get(74).toString());
 		assertEquals("hr[align=\"left\"]", handler.selectors.get(78).toString());
@@ -1680,12 +1626,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetUnexpectedChar() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("/** Comment 1 **/\\n@media {div.foo{margin:1em}}"));
+		Reader re = new StringReader("/** Comment 1 **/\\n@media {div.foo{margin:1em}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.comments.size());
 		assertEquals(0, handler.mediaRuleLists.size());
 		assertEquals(0, handler.endMediaCount);
@@ -1700,12 +1646,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetUnexpectedChar2() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("/** Comment 1 **/;@media {div.foo{margin:1em}}"));
+		Reader re = new StringReader("/** Comment 1 **/;@media {div.foo{margin:1em}}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.comments.size());
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("all", handler.mediaRuleLists.get(0).toString());
@@ -1725,13 +1671,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetUnexpectedCharHigh() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"/** Comment 1 **/\u7ff0@media {div.foo{margin:1em}}@import 'foo.css';"));
+		Reader re = new StringReader("/** Comment 1 **/\u7ff0@media {div.foo{margin:1em}}@import 'foo.css';");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.comments.size());
 		assertEquals(0, handler.mediaRuleLists.size());
 		assertEquals(0, handler.endMediaCount);
@@ -1742,9 +1687,9 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		SACMediaList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("all", list.item(0));
+		List<String> list = handler.importMedias.get(0);
+		assertEquals(1, list.size());
+		assertEquals("all", list.get(0));
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
 		handler.checkRuleEndings();
@@ -1752,12 +1697,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetUnexpectedChar3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("/** Comment 1 **/:first-child(){margin:1em}"));
+		Reader re = new StringReader("/** Comment 1 **/:first-child(){margin:1em}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.comments.size());
 		assertEquals(0, handler.mediaRuleLists.size());
 		assertEquals(0, handler.endMediaCount);
@@ -1773,12 +1718,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetUnexpectedChar4() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("/** Comment 1 **/:first-child(foo){margin:1em}"));
+		Reader re = new StringReader("/** Comment 1 **/:first-child(foo){margin:1em}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.comments.size());
 		assertEquals(0, handler.mediaRuleLists.size());
 		assertEquals(0, handler.endMediaCount);
@@ -1794,12 +1739,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetUnexpectedChar5() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("/** Comment 1 **/::first-line(){margin:1em}"));
+		Reader re = new StringReader("/** Comment 1 **/::first-line(){margin:1em}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.comments.size());
 		assertEquals(0, handler.mediaRuleLists.size());
 		assertEquals(0, handler.endMediaCount);
@@ -1815,12 +1760,12 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetUnexpectedChar6() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("/** Comment 1 **/:first-line(){margin:1em}"));
+		Reader re = new StringReader("/** Comment 1 **/:first-line(){margin:1em}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.comments.size());
 		assertEquals(0, handler.mediaRuleLists.size());
 		assertEquals(0, handler.endMediaCount);
@@ -1837,13 +1782,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetUnexpectedEOF1() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("unexpectedEOF1.css");
-		InputSource source = new InputSource(re);
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
-		source.getCharacterStream().close();
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1857,13 +1801,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetUnexpectedEOF2() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("unexpectedEOF2.css");
-		InputSource source = new InputSource(re);
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
-		source.getCharacterStream().close();
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("print", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1878,13 +1821,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetUnexpectedEOF3() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("unexpectedEOF3.css");
-		InputSource source = new InputSource(re);
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
-		source.getCharacterStream().close();
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.atRules.size());
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}",
@@ -1898,13 +1840,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetUnexpectedEOL1() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("unexpectedEOL1.css");
-		InputSource source = new InputSource(re);
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
-		source.getCharacterStream().close();
+		parser.parseStyleSheet(re);
+		re.close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -1924,13 +1865,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetUnexpectedEOLNL() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"body {\nbackground-color: red;\nfont-family: 'Times New\ncolor: blue;:;\nborder: none}"));
+		Reader re = new StringReader(
+				"body {\nbackground-color: red;\nfont-family: 'Times New\ncolor: blue;:;\nborder: none}");
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -1955,8 +1896,7 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		Reader re = loadTestCSSReader("comments.css");
-		InputSource source = new InputSource(re);
-		parser.parseStyleSheet(source);
+		parser.parseStyleSheet(re);
 		re.close();
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
@@ -1972,7 +1912,8 @@ public class SheetParserTest {
 		assertEquals(" pre-style-decl 1 ", handler.comments.get(2));
 		assertEquals(" post-style-decl 1 ", handler.comments.get(3));
 		assertEquals(1, handler.atRules.size());
-		assertEquals("@viewport /* skip-vw 1 */{/* pre-viewport-decl */ width: /* skip-vw 2 */device-width; /* post-viewport-decl */}",
+		assertEquals(
+				"@viewport /* skip-vw 1 */{/* pre-viewport-decl */ width: /* skip-vw 2 */device-width; /* post-viewport-decl */}",
 				handler.atRules.get(0));
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -1984,9 +1925,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"<!--/*--><![CDATA[/*><!--*/body{padding-top:2px}.foo {color:red}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader("<!--/*--><![CDATA[/*><!--*/body{padding-top:2px}.foo {color:red}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -2008,9 +1948,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"<!--/*--><!/*><!--*/body{padding-top:2px}.foo {color:red}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader("<!--/*--><!/*><!--*/body{padding-top:2px}.foo {color:red}");
+		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -2032,15 +1971,15 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(".foo{*width: 80%}"));
-		parser.parseStyleSheet(source);
+		Reader re = new StringReader(".foo{*width: 80%}");
+		parser.parseStyleSheet(re);
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
 		assertEquals(6, errorHandler.exception.getColumnNumber());
 		errorHandler.reset();
 		parser.setFlag(CSSParser.Flag.STARHACK);
-		source = new InputSource(new StringReader(".foo{*width: 80%}"));
-		parser.parseStyleSheet(source);
+		re = new StringReader(".foo{*width: 80%}");
+		parser.parseStyleSheet(re);
 		assertFalse(errorHandler.hasError());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("*width", handler.propertyNames.getFirst());
@@ -2054,15 +1993,14 @@ public class SheetParserTest {
 	}
 
 	private static Reader loadCSSfromClasspath(final String filename) {
-		InputStream is = java.security.AccessController
-			.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-				@Override
-				public InputStream run() {
-					return this.getClass().getResourceAsStream(filename);
-				}
-			});
+		InputStream is = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
+			@Override
+			public InputStream run() {
+				return this.getClass().getResourceAsStream(filename);
+			}
+		});
 		Reader re = null;
-		if(is != null) {
+		if (is != null) {
 			re = new InputStreamReader(is, StandardCharsets.UTF_8);
 		}
 		return re;

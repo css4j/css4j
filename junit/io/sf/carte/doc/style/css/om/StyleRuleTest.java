@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class StyleRuleTest {
 
@@ -42,7 +42,7 @@ public class StyleRuleTest {
 
 	@Test
 	public void testSetCssTextCompat() {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser2.Flag.IEVALUES));
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
 		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
 		sheet = factory.createStyleSheet(null, null);
 		CSSStyleDeclarationRule rule = sheet.createStyleRule();

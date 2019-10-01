@@ -13,10 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Locale;
 
-import org.w3c.css.sac.DescendantSelector;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SiblingSelector;
-import org.w3c.css.sac.SimpleSelector;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
@@ -25,6 +21,9 @@ import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.SelectorMatcher;
+import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 /**
  * CSS Selector matcher for DOM.
@@ -428,8 +427,8 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 	}
 
 	@Override
-	protected boolean scopeMatchChild(DescendantSelector selector) {
-		SimpleSelector desc = selector.getSimpleSelector();
+	protected boolean scopeMatchChild(CombinatorSelector selector) {
+		SimpleSelector desc = selector.getSecondSelector();
 		NodeList list = element.getChildNodes();
 		int sz = list.getLength();
 		for (int i=0; i<sz; i++) {
@@ -445,7 +444,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 	}
 
 	@Override
-	protected boolean scopeMatchDirectAdjacent(SiblingSelector selector) {
+	protected boolean scopeMatchDirectAdjacent(CombinatorSelector selector) {
 		SelectorMatcher siblingSM = null;
 		Node sibling = element.getNextSibling();
 		while (sibling != null) {
@@ -456,7 +455,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 			sibling = sibling.getNextSibling();
 		}
 		if (siblingSM != null) {
-			return siblingSM.matches(selector.getSiblingSelector());
+			return siblingSM.matches(selector.getSecondSelector());
 		}
 		return false;
 	}

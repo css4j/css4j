@@ -22,14 +22,6 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.ConditionalSelector;
-import org.w3c.css.sac.DescendantSelector;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SiblingSelector;
-import org.w3c.css.sac.SimpleSelector;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSMediaRule;
 import org.w3c.dom.css.CSSRule;
@@ -37,6 +29,12 @@ import org.w3c.dom.css.CSSRuleList;
 import org.w3c.dom.stylesheets.MediaList;
 
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
+import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 public class DOMCSSStyleSheetTest {
 
@@ -74,16 +72,14 @@ public class DOMCSSStyleSheetTest {
 		assertEquals(defSz, cloned.getCssRules().getLength());
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
 		assertNotNull(re);
-		InputSource source = new InputSource();
-		source.setCharacterStream(re);
-		assertTrue(sheet.parseStyleSheet(source));
+		assertTrue(sheet.parseStyleSheet(re));
 		re.close();
 		assertEquals(defSz + DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS, sheet.getCssRules().getLength());
 		assertEquals("li {margin-top: 1em; margin-bottom: 1em; }",
 				sheet.getCssRules().item(defSz + DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS - 6).getCssText());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet2 = factory.createStyleSheet("", null);
-		boolean parseok = sheet2.parseStyleSheet(new InputSource(new StringReader(sheet.toString())));
+		boolean parseok = sheet2.parseStyleSheet(new StringReader(sheet.toString()));
 		if (!parseok) {
 			System.err.println(sheet2.getErrorHandler().toString());
 		}
@@ -156,7 +152,6 @@ public class DOMCSSStyleSheetTest {
 		}
 		switch (stype) {
 		case Selector.SAC_ELEMENT_NODE_SELECTOR:
-		case Selector.SAC_PSEUDO_ELEMENT_SELECTOR:
 			String local = ((ElementSelector) s).getLocalName();
 			if (local != null) {
 				return local.equals(((ElementSelector) s2).getLocalName());
@@ -165,12 +160,12 @@ public class DOMCSSStyleSheetTest {
 			}
 		case Selector.SAC_CHILD_SELECTOR:
 		case Selector.SAC_DESCENDANT_SELECTOR:
-			DescendantSelector dsel = (DescendantSelector) s;
-			DescendantSelector dsel2 = (DescendantSelector) s2;
-			if (dsel.getAncestorSelector().getSelectorType() != dsel2.getAncestorSelector().getSelectorType()) {
+			CombinatorSelector dsel = (CombinatorSelector) s;
+			CombinatorSelector dsel2 = (CombinatorSelector) s2;
+			if (dsel.getSelector().getSelectorType() != dsel2.getSelector().getSelectorType()) {
 				return false;
 			}
-			return selectorEquals(dsel.getSimpleSelector(), dsel2.getSimpleSelector());
+			return selectorEquals(dsel.getSecondSelector(), dsel2.getSecondSelector());
 		case Selector.SAC_CONDITIONAL_SELECTOR:
 			ConditionalSelector csel = (ConditionalSelector) s;
 			ConditionalSelector csel2 = (ConditionalSelector) s2;
@@ -180,10 +175,10 @@ public class DOMCSSStyleSheetTest {
 			}
 			return csel.getCondition().getConditionType() == csel2.getCondition().getConditionType();
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-			SiblingSelector asel = (SiblingSelector) s;
-			SiblingSelector asel2 = (SiblingSelector) s2;
+			CombinatorSelector asel = (CombinatorSelector) s;
+			CombinatorSelector asel2 = (CombinatorSelector) s2;
 			return selectorEquals(asel.getSelector(), asel2.getSelector())
-					&& selectorEquals(asel.getSiblingSelector(), asel2.getSelector());
+					&& selectorEquals(asel.getSecondSelector(), asel2.getSecondSelector());
 		default:
 			return true;
 		}

@@ -13,11 +13,10 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
@@ -164,8 +163,8 @@ public class StringValue extends AbstractTextValue {
 			super.setLexicalUnit(lunit);
 			String strval = lunit.getStringValue();
 			setStringValue(strval);
-			if (isNoQuotePreferenceSet() && lunit instanceof LexicalUnit2) {
-				String text = ((LexicalUnit2) lunit).getCssText();
+			if (isNoQuotePreferenceSet() && lunit instanceof LexicalUnit) {
+				String text = lunit.getCssText();
 				if (text.length() != 0 && usesDoubleQuote(text)) {
 					quote = '"';
 				}

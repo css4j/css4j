@@ -19,17 +19,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSKeyframesRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.KeyframesHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -122,11 +121,10 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 	String keyframeSelector(String rawselector) {
 		Reader re = new StringReader(rawselector);
-		InputSource source = new InputSource(re);
 		Parser parser = createSACParser();
 		LexicalUnit selunit;
 		try {
-			selunit = parser.parsePropertyValue(source);
+			selunit = parser.parsePropertyValue(re);
 		} catch (CSSException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
@@ -297,7 +295,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+		public void property(String name, LexicalUnit value, boolean important) {
 			if (currentRule != null) {
 				if (important) {
 					// Declarations marked as important must be ignored
@@ -329,7 +327,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		}
 
 		@Override
-		public void comment(String text) throws CSSException {
+		public void comment(String text) {
 			if (currentRule == null) {
 				if (comments == null) {
 					comments = new LinkedList<String>();

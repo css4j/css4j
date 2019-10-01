@@ -43,22 +43,17 @@ public class FlexShorthandBuilderTest {
 		assertShorthandText("flex:content;", "flex: content; ");
 		assertShorthandText("flex:0;", "flex: initial; ");
 		assertShorthandText("flex:0 0 50%;", "flex: 0 0 50%; ");
-		assertShorthandText("flex:50%;flex-shrink:0!important;",
-				"flex: 0 0 50%; flex-shrink:0!important; ");
-		assertShorthandText("flex:1 50%;flex-shrink:0!important;",
-				"flex: 1 0 50%; flex-shrink:0!important; ");
-		assertShorthandText("flex:0 0 50%;flex-grow:0!important;",
-				"flex: 0 0 50%; flex-grow:0!important; ");
-		assertShorthandText("flex:2 2;flex-basis:3%!important;",
-				"flex: 2 2 3%; flex-basis:3%!important;");
+		assertShorthandText("flex:50%;flex-shrink:0!important;", "flex: 0 0 50%; flex-shrink:0!important; ");
+		assertShorthandText("flex:1 50%;flex-shrink:0!important;", "flex: 1 0 50%; flex-shrink:0!important; ");
+		assertShorthandText("flex:0 0 50%;flex-grow:0!important;", "flex: 0 0 50%; flex-grow:0!important; ");
+		assertShorthandText("flex:2 2;flex-basis:3%!important;", "flex: 2 2 3%; flex-basis:3%!important;");
 		assertShorthandText("flex:1 0px;", "flex-basis:0;flex-grow:1;flex-shrink:1");
 		assertShorthandText("flex:1 0px;", "flex-basis:0px;flex-grow:1;flex-shrink:1");
 	}
 
 	@Test
 	public void testFlexCalc() {
-		assertShorthandText("flex:0 0 calc(100% - 60px/3);",
-				"flex: 0 0 calc(100.0% - 60.0px / 3); ");
+		assertShorthandText("flex:0 0 calc(100% - 60px/3);", "flex: 0 0 calc(100.0% - 60.0px / 3); ");
 	}
 
 	@Test
@@ -70,8 +65,7 @@ public class FlexShorthandBuilderTest {
 
 	@Test
 	public void testBuilderBadBasis() {
-		assertShorthandText("flex-basis:5;flex-grow:2;flex-shrink:2;",
-				"flex: 2 2; flex-basis: 5; ");
+		assertShorthandText("flex-basis:5;flex-grow:2;flex-shrink:2;", "flex: 2 2; flex-basis: 5; ");
 	}
 
 	@Test

@@ -33,7 +33,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class MediaQueryTest {
 
@@ -430,7 +430,7 @@ public class MediaQueryTest {
 		style.setAttribute("media", "screen");
 		doc.getDocumentElement().appendChild(head);
 		head.appendChild(style);
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser2.Flag.IEVALUES));
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
 		CSSDocument cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		MediaQueryList mql = factory.parseMediaQueryList("screen and (min-width:0\\0)", cssStyle);

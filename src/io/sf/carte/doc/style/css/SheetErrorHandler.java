@@ -11,11 +11,13 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.SACMediaList;
+import java.util.List;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.css.CSSRule;
+
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 /**
  * Handle CSS errors at the style sheet level.
@@ -38,7 +40,7 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 * @param media
 	 *            the media list.
 	 */
-	void badMediaList(SACMediaList media);
+	void badMediaList(List<String> media);
 
 	/**
 	 * Notify this handler that an empty style rule (a style rule without property value

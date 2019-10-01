@@ -25,7 +25,7 @@ import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.DummyDeviceFactory;
 import io.sf.carte.doc.style.css.om.TestStyleDatabase;
@@ -132,8 +132,8 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleIEReader();
 		InputSource is = new InputSource(re);
 		TestDOMImplementation domImpl = new TestDOMImplementation(true);
-		domImpl.getParserFlags().add(Parser2.Flag.STARHACK);
-		domImpl.getParserFlags().add(Parser2.Flag.IEVALUES);
+		domImpl.getParserFlags().add(Parser.Flag.STARHACK);
+		domImpl.getParserFlags().add(Parser.Flag.IEVALUES);
 		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(domImpl);
 		HTMLDocument xhtmlDoc;
 		try {
@@ -190,11 +190,9 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		/**
 		 * Opens a connection for the given URL.
 		 * 
-		 * @param url
-		 *            the URL to open a connection to.
+		 * @param url the URL to open a connection to.
 		 * @return the URL connection.
-		 * @throws IOException
-		 *             if the connection could not be opened.
+		 * @throws IOException if the connection could not be opened.
 		 */
 		@Override
 		public URLConnection openConnection(URL url) throws IOException {

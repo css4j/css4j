@@ -24,26 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.w3c.css.sac.AttributeCondition;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.CombinatorCondition;
-import org.w3c.css.sac.Condition;
-import org.w3c.css.sac.ConditionalSelector;
-import org.w3c.css.sac.DescendantSelector;
-import org.w3c.css.sac.DocumentHandler;
-import org.w3c.css.sac.ElementSelector;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
-import org.w3c.css.sac.Parser;
-import org.w3c.css.sac.SACMediaList;
-import org.w3c.css.sac.Selector;
-import org.w3c.css.sac.SelectorList;
-import org.w3c.css.sac.SiblingSelector;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSRule;
@@ -58,12 +43,24 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
+import io.sf.carte.doc.style.css.nsac.AttributeCondition;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
+import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
-import io.sf.carte.doc.style.css.nsac.Condition2;
-import io.sf.carte.doc.style.css.nsac.Parser2;
-import io.sf.carte.doc.style.css.nsac.Parser2.NamespaceMap;
-import io.sf.carte.doc.style.css.nsac.PositionalCondition2;
-import io.sf.carte.doc.style.css.nsac.Selector2;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
+import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
+import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
+import io.sf.carte.doc.style.css.nsac.PositionalCondition;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.util.BufferSimpleWriter;
 
@@ -217,9 +214,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		if (index > getCssRules().getLength() || index < 0) {
 			throw new DOMException(DOMException.INDEX_SIZE_ERR, "Invalid index: " + index);
 		}
-		InputSource source = new InputSource();
 		Reader re = new StringReader(rule);
-		source.setCharacterStream(re);
 		// The following may cause an (undocumented)
 		// DOMException.NOT_SUPPORTED_ERR
 		Parser psr = getStyleSheetFactory().createSACParser();
@@ -228,11 +223,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		psr.setErrorHandler(handler);
 		currentInsertionIndex = index - 1;
 		try {
-			if (psr instanceof Parser2) {
-				((Parser2) psr).parseRule(source, handler);
-			} else {
-				psr.parseRule(source);
-			}
+			psr.parseRule(re, handler);
 		} catch (CSSNamespaceParseException e) {
 			DOMException ex = new DOMException(DOMException.NAMESPACE_ERR, e.getMessage());
 			ex.initCause(e);
@@ -450,7 +441,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	private static boolean selectorHasNamespace(Selector sel, String namespaceURI) {
 		switch (sel.getSelectorType()) {
 		case Selector.SAC_ELEMENT_NODE_SELECTOR:
-		case Selector.SAC_ANY_NODE_SELECTOR:
+		case Selector.SAC_UNIVERSAL_SELECTOR:
 			return namespaceURI.equals(((ElementSelector) sel).getNamespaceURI());
 		case Selector.SAC_CONDITIONAL_SELECTOR:
 			ConditionalSelector csel = (ConditionalSelector) sel;
@@ -458,15 +449,12 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					conditionHasNamespace(csel.getCondition(), namespaceURI);
 		case Selector.SAC_CHILD_SELECTOR:
 		case Selector.SAC_DESCENDANT_SELECTOR:
-		case Selector2.SAC_COLUMN_COMBINATOR_SELECTOR:
-			DescendantSelector dsel = (DescendantSelector) sel;
-			return selectorHasNamespace(dsel.getAncestorSelector(), namespaceURI) ||
-					selectorHasNamespace(dsel.getSimpleSelector(), namespaceURI);
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-		case Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR:
-			SiblingSelector ssel = (SiblingSelector) sel;
-			return selectorHasNamespace(ssel.getSelector(), namespaceURI) ||
-					selectorHasNamespace(ssel.getSiblingSelector(), namespaceURI);
+		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+		case Selector.SAC_COLUMN_COMBINATOR_SELECTOR:
+			CombinatorSelector dsel = (CombinatorSelector) sel;
+			return selectorHasNamespace(dsel.getSelector(), namespaceURI) ||
+					selectorHasNamespace(dsel.getSecondSelector(), namespaceURI);
 		default:
 			return false;
 		}
@@ -477,23 +465,22 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		case Condition.SAC_ATTRIBUTE_CONDITION:
 		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
 		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
-		case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
-		case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
+		case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
+		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
 			AttributeCondition acond = (AttributeCondition) condition;
 			return namespaceURI.equals(acond.getNamespaceURI());
 		case Condition.SAC_AND_CONDITION:
-		case Condition.SAC_OR_CONDITION:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
 			return conditionHasNamespace(ccond.getFirstCondition(), namespaceURI) ||
 					conditionHasNamespace(ccond.getSecondCondition(), namespaceURI);
 		case Condition.SAC_POSITIONAL_CONDITION:
-			SelectorList oflist = ((PositionalCondition2) condition).getOfList();
+			SelectorList oflist = ((PositionalCondition) condition).getOfList();
 			if (oflist != null) {
 				return selectorListHasNamespace(oflist, namespaceURI);
 			}
 			break;
-		case Condition2.SAC_SELECTOR_ARGUMENT_CONDITION:
+		case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
 			ArgumentCondition argcond = (ArgumentCondition) condition;
 			SelectorList selist = argcond.getSelectors();
 			if (selist != null) {
@@ -744,12 +731,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		String contentEncoding = ucon.getContentEncoding();
 		String conType = ucon.getContentType();
 		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
-		InputSource source = new InputSource(re);
 		// Parse
 		boolean result;
 		try {
 			setHref(url.toExternalForm());
-			result = parseStyleSheet(source);
+			result = parseStyleSheet(re);
 		} catch (DOMException e) {
 			getDocumentErrorHandler().linkedSheetError(e, this);
 			throw e;
@@ -978,8 +964,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
-	 * @param source
-	 *            the SAC input source.
+	 * @param reader
+	 *            the character stream containing the CSS sheet.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
 	 *         otherwise.
 	 * @throws DOMException
@@ -988,8 +974,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 *             if a problem is found reading the sheet.
 	 */
 	@Override
-	public boolean parseStyleSheet(InputSource source) throws DOMException, IOException {
-		return parseStyleSheet(source, false);
+	public boolean parseStyleSheet(Reader reader) throws DOMException, IOException {
+		return parseStyleSheet(reader, false);
 	}
 
 	/**
@@ -1008,8 +994,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
-	 * @param source
-	 *            the SAC input source.
+	 * @param reader
+	 *            the character stream containing the CSS sheet.
 	 * @param ignoreComments
 	 *            true if comments have to be ignored.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
@@ -1020,7 +1006,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 *             if a problem is found reading the sheet.
 	 */
 	@Override
-	public boolean parseStyleSheet(InputSource source, boolean ignoreComments) throws DOMException, IOException {
+	public boolean parseStyleSheet(Reader reader, boolean ignoreComments) throws DOMException, IOException {
 		if (sheetErrorHandler != null) {
 			sheetErrorHandler.reset();
 		}
@@ -1034,27 +1020,21 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			}
 		}
 		Parser parser = getStyleSheetFactory().createSACParser();
-		DocumentHandler handler = createDocumentHandler(origin, ignoreComments);
+		CSSHandler handler = createDocumentHandler(origin, ignoreComments);
 		parser.setDocumentHandler(handler);
-		parser.setErrorHandler((org.w3c.css.sac.ErrorHandler) handler);
+		parser.setErrorHandler((CSSErrorHandler) handler);
 		try {
-			parser.parseStyleSheet(source);
+			parser.parseStyleSheet(reader);
 		} catch (CSSNamespaceParseException e) {
 			DOMException ex = new DOMException(DOMException.NAMESPACE_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
+		} catch (CSSBudgetException e) {
+			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
 		} catch (CSSException e) {
-			DOMException ex;
-			switch (e.getCode()) {
-			case CSSException.SAC_NOT_SUPPORTED_ERR:
-				ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
-				break;
-			case CSSException.SAC_SYNTAX_ERR:
-				ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-				break;
-			default:
-				ex = new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
-			}
+			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
 		} catch (RuntimeException e) {
@@ -1070,7 +1050,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return !getErrorHandler().hasSacErrors();
 	}
 
-	class CSSDocumentHandler implements DocumentHandler, org.w3c.css.sac.ErrorHandler, NamespaceMap {
+	class CSSDocumentHandler implements CSSHandler, CSSErrorHandler, NamespaceMap {
 
 		private AbstractCSSRule currentRule = null;
 
@@ -1099,7 +1079,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void startDocument(InputSource source) throws CSSException {
+		public void startDocument() {
 			// Starting StyleSheet processing
 			currentRule = null;
 			ignoreRulesForMedia = false;
@@ -1108,20 +1088,20 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void endDocument(InputSource source) throws CSSException {
+		public void endDocument() {
 			// Ending StyleSheet processing
 			resetCommentStack();
 		}
 
 		@Override
-		public void comment(String text) throws CSSException {
+		public void comment(String text) {
 			if ((currentRule == null || currentRule instanceof GroupingRule) && comments != null) {
 				comments.add(text);
 			}
 		}
 
 		@Override
-		public void ignorableAtRule(String atRule) throws CSSException {
+		public void ignorableAtRule(String atRule) {
 			// Ignorable @-rule
 			AbstractCSSRule rule;
 			int tentNameLen = atRule.length();
@@ -1173,7 +1153,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void namespaceDeclaration(String prefix, String uri) throws CSSException {
+		public void namespaceDeclaration(String prefix, String uri) {
 			// Setting namespace uri
 			namespaces.put(uri, prefix);
 			if (!ignoreRulesForMedia) {
@@ -1191,8 +1171,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void importStyle(String uri, SACMediaList media, String defaultNamespaceURI)
-				throws CSSException, DOMException {
+		public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
 			// Ignore any '@import' rule that occurs inside a block or after any
 			// non-ignored statement other than an @charset or an @import rule
 			// (CSS 2.1 §4.1.5)
@@ -1222,7 +1201,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void startMedia(SACMediaList media) throws CSSException {
+		public void startMedia(List<String> media) {
 			// Starting @media block for media
 			ignoreImports = true;
 			SheetErrorHandler eh;
@@ -1255,7 +1234,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void endMedia(SACMediaList media) throws CSSException {
+		public void endMedia(List<String> media) {
 			if (ignoreRulesForMedia) {
 				ignoreRulesForMedia = false;
 				resetCommentStack();
@@ -1276,7 +1255,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void startPage(String name, String pseudo_page) throws CSSException {
+		public void startPage(String name, String pseudo_page) {
 			ignoreImports = true;
 			if (!ignoreRulesForMedia) {
 				if (currentRule instanceof PageRule) {
@@ -1293,9 +1272,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					}
 					if (pseudo_page != null) {
 						Parser parser = getStyleSheetFactory().createSACParser();
-						InputSource source = new InputSource(new StringReader(pseudo_page));
+						StringReader re = new StringReader(pseudo_page);
 						try {
-							pageRule.setSelectorList(parser.parseSelectors(source));
+							pageRule.setSelectorList(parser.parseSelectors(re));
 						} catch (IOException e) {
 						}
 					} else {
@@ -1309,7 +1288,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void endPage(String name, String pseudo_page) throws CSSException {
+		public void endPage(String name, String pseudo_page) {
 			if (!ignoreRulesForMedia) {
 				// Inserting @page rule into sheet
 				if (currentRule != null) {
@@ -1336,7 +1315,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void startFontFace() throws CSSException {
+		public void startFontFace() {
 			ignoreImports = true;
 			if (!ignoreRulesForMedia) {
 				FontFaceRule rule = new FontFaceRule(BaseCSSStyleSheet.this, sheetOrigin);
@@ -1347,7 +1326,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void endFontFace() throws CSSException {
+		public void endFontFace() {
 			if (!ignoreRulesForMedia) {
 				if (currentRule != null) {
 					AbstractCSSRule pRule = currentRule.getParentRule();
@@ -1378,7 +1357,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void startSelector(SelectorList selectors) throws CSSException {
+		public void startSelector(SelectorList selectors) {
 			ignoreImports = true;
 			if (!ignoreRulesForMedia) {
 				StyleRule styleRule = BaseCSSStyleSheet.this.createStyleRule();
@@ -1394,7 +1373,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void endSelector(SelectorList selectors) throws CSSException {
+		public void endSelector(SelectorList selectors) {
 			if (!ignoreRulesForMedia && currentRule != null && currentRule.getType() == CSSRule.STYLE_RULE) {
 				BaseCSSRule pRule = (BaseCSSRule) currentRule.getParentRule();
 				if (((StyleRule) currentRule).getStyle().getLength() == 0) {
@@ -1417,7 +1396,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) throws CSSException {
+		public void property(String name, LexicalUnit value, boolean important) {
 			if (!ignoreRulesForMedia) {
 				String importantString = null;
 				if (important) {
@@ -1481,7 +1460,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void warning(CSSParseException exception) throws CSSException {
+		public void warning(CSSParseException exception) throws CSSParseException {
 			if (currentRule != null && currentRule instanceof BaseCSSDeclarationRule
 					&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
 				int previousIndex = -1;
@@ -1497,7 +1476,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void error(CSSParseException exception) throws CSSException {
+		public void error(CSSParseException exception) throws CSSParseException {
 			if (currentRuleCanHandleError()) {
 				int previousIndex = -1;
 				CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
@@ -1505,23 +1484,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					previousIndex = style.getLength() - 1;
 				}
 				((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacError(exception, previousIndex);
-				BaseCSSStyleSheet.this.getErrorHandler().mapError(exception, currentRule);
-			} else {
-				// Handle as non-specific error
-				nonRuleErrorHandling(exception);
-			}
-		}
-
-		@Override
-		public void fatalError(CSSParseException exception) throws CSSException {
-			if (currentRuleCanHandleError()) {
-				int previousIndex = -1;
-				CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
-				if (style != null) {
-					previousIndex = style.getLength() - 1;
-				}
-				((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacFatalError(exception,
-						previousIndex);
 				BaseCSSStyleSheet.this.getErrorHandler().mapError(exception, currentRule);
 			} else {
 				// Handle as non-specific error
@@ -1559,7 +1521,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @return <code>true</code> if the SAC media contains any media which applies
 	 *         to <code>media</code> list, <code>false</code> otherwise.
 	 */
-	boolean match(MediaQueryList media, SACMediaList sacMedia) {
+	boolean match(MediaQueryList media, List<String> sacMedia) {
 		if (media.isAllMedia()) {
 			return true;
 		}

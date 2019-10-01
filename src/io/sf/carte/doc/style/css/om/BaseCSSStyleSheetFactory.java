@@ -16,12 +16,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.SACMediaList;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSRule;
 
@@ -35,8 +33,8 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
-import io.sf.carte.doc.style.css.nsac.Parser2;
-import io.sf.carte.doc.style.css.nsac.Parser2.Flag;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
@@ -64,7 +62,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 
 	private StyleFormattingFactory formattingFactory;
 
-	private final EnumSet<Parser2.Flag> parserFlags;
+	private final EnumSet<Parser.Flag> parserFlags;
 
 	private byte flags = 0;
 
@@ -77,10 +75,10 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	private DeviceFactory deviceFactory = null;
 
 	protected BaseCSSStyleSheetFactory() {
-		this(EnumSet.noneOf(Parser2.Flag.class));
+		this(EnumSet.noneOf(Parser.Flag.class));
 	}
 
-	protected BaseCSSStyleSheetFactory(EnumSet<Parser2.Flag> parserFlags) {
+	protected BaseCSSStyleSheetFactory(EnumSet<Parser.Flag> parserFlags) {
 		super();
 		this.parserFlags = parserFlags;
 		// An empty device factory is default
@@ -177,9 +175,8 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		if (re != null) {
 			AbstractCSSStyleSheet cssSheet;
 			try {
-				org.w3c.css.sac.InputSource source = new org.w3c.css.sac.InputSource(re);
 				cssSheet = createDocumentStyleSheet(ORIGIN_USER);
-				cssSheet.parseStyleSheet(source);
+				cssSheet.parseStyleSheet(re);
 			} catch (IOException e) {
 				throw e;
 			}
@@ -281,9 +278,8 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		Reader re = null;
 		try {
 			re = new InputStreamReader(is, "UTF-8");
-			InputSource source = new InputSource(re);
 			cssSheet = createDocumentStyleSheet(ORIGIN_USER_AGENT);
-			cssSheet.parseStyleSheet(source, true);
+			cssSheet.parseStyleSheet(re, true);
 		} catch (IOException e) {
 			throw e;
 		} finally {
@@ -379,18 +375,11 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		return SystemDefaultValue.getInstance();
 	}
 
-	/**
-	 * Create a NSAC Parser with the NSAC flags enabled.
-	 * 
-	 * @return the NSAC parser.
-	 * @throws DOMException
-	 *             NOT_SUPPORTED_ERR if the Parser could not be instantiated.
-	 */
 	@Override
-	protected Parser2 createSACParser() throws DOMException {
-		Parser2 parser = new CSSParser();
-		EnumSet<Parser2.Flag> flags = getParserFlags();
-		for (Parser2.Flag flag : flags) {
+	protected Parser createSACParser() {
+		Parser parser = new CSSParser();
+		EnumSet<Parser.Flag> flags = getParserFlags();
+		for (Parser.Flag flag : flags) {
 			parser.setFlag(flag);
 		}
 		return parser;
@@ -402,15 +391,15 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @return the NSAC parser flags.
 	 */
 	@Override
-	protected EnumSet<Parser2.Flag> getParserFlags() {
+	protected EnumSet<Parser.Flag> getParserFlags() {
 		return parserFlags;
 	}
 
 	@Override
 	protected boolean hasCompatValueFlags() {
 		EnumSet<Flag> flags = parserFlags;
-		return flags.contains(Parser2.Flag.IEVALUES) || flags.contains(Parser2.Flag.IEPRIO)
-				|| flags.contains(Parser2.Flag.IEPRIOCHAR);
+		return flags.contains(Parser.Flag.IEVALUES) || flags.contains(Parser.Flag.IEPRIO)
+				|| flags.contains(Parser.Flag.IEPRIOCHAR);
 	}
 
 	@Override
@@ -491,8 +480,8 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	MediaQueryList parseMediaQueryList(String mediaQueryString, Node owner) {
 		MediaQueryListImpl qlist = new MediaQueryListImpl();
 		CSSParser parser = new CSSParser();
-		if (getParserFlags().contains(Parser2.Flag.IEVALUES)) {
-			parser.setFlag(Parser2.Flag.IEVALUES);
+		if (getParserFlags().contains(Parser.Flag.IEVALUES)) {
+			parser.setFlag(Parser.Flag.IEVALUES);
 		}
 		qlist.parse(parser, mediaQueryString, owner);
 		return qlist;
@@ -507,11 +496,11 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 *            the node that would handle errors, if any.
 	 * @return the media query list.
 	 */
-	public MediaQueryList createMediaList(SACMediaList media, Node owner) {
-		int sz = media.getLength();
+	public MediaQueryList createMediaList(List<String> media, Node owner) {
+		int sz = media.size();
 		boolean plainMedium = true;
 		for (int i = 0; i < sz; i++) {
-			if (!MediaList.isPlainMedium(media.item(i))) {
+			if (!MediaList.isPlainMedium(media.get(i))) {
 				plainMedium = false;
 				break;
 			}
@@ -520,12 +509,12 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 			return MediaList.createMediaList(media);
 		} else {
 			CSSParser parser = new CSSParser();
-			if (getParserFlags().contains(Parser2.Flag.IEVALUES)) {
-				parser.setFlag(Parser2.Flag.IEVALUES);
+			if (getParserFlags().contains(Parser.Flag.IEVALUES)) {
+				parser.setFlag(Parser.Flag.IEVALUES);
 			}
 			MediaQueryListImpl qlist = new MediaQueryListImpl();
 			for (int i = 0; i < sz; i++) {
-				qlist.parse(parser, media.item(i), owner);
+				qlist.parse(parser, media.get(i), owner);
 			}
 			return qlist;
 		}

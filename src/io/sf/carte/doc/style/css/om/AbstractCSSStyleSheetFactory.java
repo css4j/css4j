@@ -13,14 +13,13 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.EnumSet;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -87,25 +86,18 @@ abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFacto
 	abstract public PrimitiveValue getSystemDefaultValue(String propertyName);
 
 	/**
-	 * Create a SAC Parser specified by the system property
-	 * <code>org.w3c.css.sac.parser</code>.
-	 * <p>
-	 * If that property is not set, the instantiation of a default parser will be attempted.
-	 * <p>
-	 * If the parser is NSAC 1.1 compliant, the NSAC flags will be enabled.
+	 * Create a NSAC Parser with the proper flags enabled.
 	 * 
 	 * @return the SAC parser.
-	 * @throws DOMException
-	 *             NOT_SUPPORTED_ERR if the Parser could not be instantiated.
 	 */
-	abstract protected Parser2 createSACParser() throws DOMException;
+	abstract protected Parser createSACParser();
 
 	/**
 	 * Get the parser flags that should be used by NSAC parsers.
 	 * 
 	 * @return the NSAC parser flags.
 	 */
-	abstract protected EnumSet<Parser2.Flag> getParserFlags();
+	abstract protected EnumSet<Parser.Flag> getParserFlags();
 
 	/**
 	 * Check for compat value flags.

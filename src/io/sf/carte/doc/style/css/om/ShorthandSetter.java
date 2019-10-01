@@ -19,13 +19,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
@@ -119,7 +118,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		LexicalUnit lu = currentValue;
 		while (lu != null) {
 			short type = lu.getLexicalUnitType();
-			if (type == LexicalUnit2.SAC_COMPAT_IDENT || type == LexicalUnit2.SAC_COMPAT_PRIO) {
+			if (type == LexicalUnit.SAC_COMPAT_IDENT || type == LexicalUnit.SAC_COMPAT_PRIO) {
 				return true;
 			}
 			lu = lu.getNextLexicalUnit();
@@ -445,7 +444,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	boolean isImage() {
 		short type = currentValue.getLexicalUnitType();
 		return type == LexicalUnit.SAC_URI || (type == LexicalUnit.SAC_FUNCTION && isImageFunctionOrGradientName())
-				|| type == LexicalUnit2.SAC_ELEMENT_REFERENCE;
+				|| type == LexicalUnit.SAC_ELEMENT_REFERENCE;
 	}
 
 	private boolean isImageFunctionOrGradientName() {

@@ -15,12 +15,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.w3c.css.sac.LexicalUnit;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit2;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.UnknownValue;
 import io.sf.carte.util.SimpleWriter;
@@ -81,7 +80,7 @@ class CompatDeclarationSet {
 	private static boolean containsIdentCompat(LexicalUnit value) {
 		while (value != null) {
 			short type = value.getLexicalUnitType();
-			if (type == LexicalUnit2.SAC_COMPAT_IDENT || type == LexicalUnit2.SAC_COMPAT_PRIO) {
+			if (type == LexicalUnit.SAC_COMPAT_IDENT || type == LexicalUnit.SAC_COMPAT_PRIO) {
 				return true;
 			} else if (type == LexicalUnit.SAC_FUNCTION) {
 				return containsIdentCompat(value.getParameters());

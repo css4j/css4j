@@ -47,7 +47,8 @@ public class FilteredIteratorTest {
 		DocumentType doctype = domImpl.createDocumentType("html", null, null);
 		document = domImpl.createDocument(null, "html", doctype);
 		DOMElement docelm = document.getDocumentElement();
-		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"sheet.css\"");
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"sheet.css\"");
 		document.insertBefore(pi, docelm);
 		Comment comment = document.createComment(" Comment ");
 		document.insertBefore(comment, pi);

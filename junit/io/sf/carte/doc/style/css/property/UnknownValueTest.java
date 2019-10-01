@@ -19,11 +19,10 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.junit.Test;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
-import org.w3c.css.sac.LexicalUnit;
 
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class UnknownValueTest {
@@ -52,9 +51,9 @@ public class UnknownValueTest {
 	@Test
 	public void testSetLexicalUnitIEHackFlag() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
-		parser.setFlag(Parser2.Flag.IEVALUES);
-		InputSource source = new InputSource(new StringReader("screen\\0"));
-		LexicalUnit lu = parser.parsePropertyValue(source);
+		parser.setFlag(Parser.Flag.IEVALUES);
+		StringReader re = new StringReader("screen\\0");
+		LexicalUnit lu = parser.parsePropertyValue(re);
 		assertEquals("screen\\0", lu.getStringValue());
 		UnknownValue value = new UnknownValue();
 		value.newLexicalSetter().setLexicalUnit(lu);

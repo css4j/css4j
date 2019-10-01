@@ -15,13 +15,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
 
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSSupportsRule;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
@@ -189,9 +188,8 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this,
 				null, null);
 		StringReader re = new StringReader(cssText.substring(idx + 1, lm1));
-		InputSource source = new InputSource(re);
 		try {
-			css.parseStyleSheet(source);
+			css.parseStyleSheet(re);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());

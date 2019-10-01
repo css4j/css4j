@@ -12,11 +12,11 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSStyleSheet;
@@ -71,8 +71,8 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
-	 * @param source
-	 *            the SAC input source.
+	 * @param reader
+	 *            the character stream containing the CSS sheet.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
 	 *         otherwise.
 	 * @throws DOMException
@@ -81,7 +81,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *             if a problem is found reading the sheet.
 	 */
 	@Override
-	abstract public boolean parseStyleSheet(InputSource source) throws DOMException, IOException;
+	abstract public boolean parseStyleSheet(Reader reader) throws DOMException, IOException;
 
 	/**
 	 * Parses a style sheet.
@@ -102,8 +102,8 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
-	 * @param source
-	 *            the SAC input source.
+	 * @param reader
+	 *            the character stream containing the CSS sheet.
 	 * @param ignoreComments
 	 *            true if comments have to be ignored.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
@@ -114,7 +114,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *             if a problem is found reading the sheet.
 	 */
 	@Override
-	abstract public boolean parseStyleSheet(InputSource source, boolean ignoreComments)
+	abstract public boolean parseStyleSheet(Reader reader, boolean ignoreComments)
 			throws DOMException, IOException;
 
 	/**

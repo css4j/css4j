@@ -18,11 +18,11 @@ import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class CSSStyleDeclarationRuleTest {
 
@@ -58,7 +58,7 @@ public class CSSStyleDeclarationRuleTest {
 	public void testSetCssTextStringIEHack() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheetlenient = factory.createStyleSheet(null, null);
-		factory.getParserFlags().add(Parser2.Flag.STARHACK);
+		factory.getParserFlags().add(Parser.Flag.STARHACK);
 		CSSStyleDeclarationRule rule = sheetlenient.createStyleRule();
 		String cssText = "p {*zoom: 1; }";
 		rule.setCssText(cssText);
@@ -116,8 +116,7 @@ public class CSSStyleDeclarationRuleTest {
 		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		String cssText = "p {border-top: 1px dashed yellow; }";
 		rule.setCssText(cssText);
-		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null,
-				null);
+		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null, null);
 		CSSStyleDeclarationRule cloned = rule.clone(newSheet);
 		assertEquals(cssText, cloned.getCssText().replace("\n", ""));
 		assertTrue(cloned == cloned.getStyle().getParentRule());
@@ -143,8 +142,7 @@ public class CSSStyleDeclarationRuleTest {
 	@Test
 	public void testSelectorTextSelectorDQ() {
 		CSSStyleDeclarationRule rule = createCSSStyleDeclarationRule(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
-		rule.setCssText(
-				"span[foo~='bar'],span[foo='bar'],span[class='example'] {border-top-width: 1px; }");
+		rule.setCssText("span[foo~='bar'],span[foo='bar'],span[class='example'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(3, list.getLength());
 		assertEquals("span[foo~=\"bar\"]", rule.selectorText(list.item(0), false));

@@ -40,10 +40,10 @@ public class BoxModelHelperTest {
 
 	@Test
 	public void testShrinkTo() {
-		float[] initial = {8f, 16f, 21f, 5f, 38f};
+		float[] initial = { 8f, 16f, 21f, 5f, 38f };
 		MyTableBoxValues box = new MyTableBoxValues();
 		box.colwidth = initial;
-		float[] minrcw = {8f, 12f, 10f, 5f, 9f};
+		float[] minrcw = { 8f, 12f, 10f, 5f, 9f };
 		float curwidth = 0f;
 		for (int i = 0; i < initial.length; i++) {
 			curwidth += initial[i];

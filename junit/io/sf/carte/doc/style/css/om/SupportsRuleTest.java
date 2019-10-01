@@ -25,8 +25,6 @@ import java.util.LinkedList;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSMediaRule;
 import org.w3c.dom.css.CSSRule;
@@ -34,7 +32,8 @@ import org.w3c.dom.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.nsac.Parser2;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
@@ -55,7 +54,8 @@ public class SupportsRuleTest {
 		CSSParser parser = new CSSParser();
 		BooleanCondition cond = parser.parseSupportsCondition(" ", rule);
 		assertNull(cond);
-		LinkedList<RuleParseException> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler()).getRuleParseErrors();
+		LinkedList<RuleParseException> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler())
+				.getRuleParseErrors();
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
 		RuleParseException rpe = errors.getFirst();
@@ -70,7 +70,8 @@ public class SupportsRuleTest {
 		CSSParser parser = new CSSParser();
 		BooleanCondition cond = parser.parseSupportsCondition("(", rule);
 		assertNull(cond);
-		LinkedList<RuleParseException> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler()).getRuleParseErrors();
+		LinkedList<RuleParseException> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler())
+				.getRuleParseErrors();
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
 		RuleParseException rpe = errors.getFirst();
@@ -81,9 +82,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule1() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"/* pre-rule */@supports /* skip 1 */ (display: table-cell) and (display: list-item) /* skip 2 */ {td {display: table-cell; } li {display: list-item; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"/* pre-rule */@supports /* skip 1 */ (display: table-cell) and (display: list-item) /* skip 2 */ {td {display: table-cell; } li {display: list-item; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -104,14 +105,15 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule1Minified() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: table-cell) and (display: list-item)", rule.getConditionText());
-		assertEquals("@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}",
+		assertEquals(
+				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}",
 				rule.getMinifiedCssText());
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
@@ -120,9 +122,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule2() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -134,9 +136,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule3() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports (display: table-cell) and (display: list-item) and (display: run-in) {td {display: table-cell; } li {display: list-item; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports (display: table-cell) and (display: list-item) and (display: run-in) {td {display: table-cell; } li {display: list-item; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -148,9 +150,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule4() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports ((display: table-cell) and (display: list-item) and (display: run-in)) or ((display: table-cell) and (not (display: inline-grid))) {td {display: table-cell; } li {display: list-item; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports ((display: table-cell) and (display: list-item) and (display: run-in)) or ((display: table-cell) and (not (display: inline-grid))) {td {display: table-cell; } li {display: list-item; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -164,9 +166,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule5() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports (display: table-cell) and (display: list-item) and (not ((display: run-in) or (display: table-cell))) {td {display: table-cell; } li {display: list-item; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports (display: table-cell) and (display: list-item) and (not ((display: run-in) or (display: table-cell))) {td {display: table-cell; } li {display: list-item; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -180,9 +182,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule6() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports (display: table-cell) and (display: list-item) and (not (display: run-in) or (display: table-cell)) {td {display: table-cell; } li {display: list-item; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports (display: table-cell) and (display: list-item) and (not (display: run-in) or (display: table-cell)) {td {display: table-cell; } li {display: list-item; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -196,9 +198,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule7() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports (text-decoration:underline dotted){abbr[title],.explain[title]{border-bottom:0;text-decoration:underline dotted}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports (text-decoration:underline dotted){abbr[title],.explain[title]{border-bottom:0;text-decoration:underline dotted}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -213,9 +215,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule7InsideMedia() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen {@supports (text-decoration:underline dotted){abbr[title],.explain[title]{border-bottom:0;text-decoration:underline dotted}}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@media screen {@supports (text-decoration:underline dotted){abbr[title],.explain[title]{border-bottom:0;text-decoration:underline dotted}}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		CSSMediaRule mediarule = (CSSMediaRule) sheet.getCssRules().item(0);
@@ -233,9 +235,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule8() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/0.7)}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/0.7)}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -250,9 +252,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule9() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/0.7)}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/0.7)}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -267,9 +269,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule10() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -283,9 +285,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRule11() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports ((position: -webkit-sticky) or (position: sticky)){html:not(.foo) body:not(.bar) .myclass{position:sticky;bottom:-0.08em}html:not(.foo) body:not(.bar) .myclass.otherclass{top:-0.06em}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports ((position: -webkit-sticky) or (position: sticky)){html:not(.foo) body:not(.bar) .myclass{position:sticky;bottom:-0.08em}html:not(.foo) body:not(.bar) .myclass.otherclass{top:-0.06em}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -297,9 +299,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRuleInsideMediaAndNestedPageRule() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@media screen {@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } @page {margin-top: 20%;} li {display: list-item; }}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@media screen {@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } @page {margin-top: 20%;} li {display: list-item; }}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		CSSMediaRule mediarule = (CSSMediaRule) sheet.getCssRules().item(0);
@@ -318,14 +320,15 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRuleOr() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: table-cell) or (display: list-item)", rule.getConditionText());
-		assertEquals("@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}",
+		assertEquals(
+				"@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}",
 				rule.getMinifiedCssText());
 		assertEquals(
 				"@supports (display: table-cell) or (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
@@ -334,9 +337,9 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRuleNot() throws DOMException, IOException {
-		InputSource source = new InputSource(new StringReader(
-				"@supports not((display:table-cell) or (display:list-item)){td{display:table-cell}li{display:list-item}}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports not((display:table-cell) or (display:list-item)){td{display:table-cell}li{display:list-item}}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
@@ -351,12 +354,12 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRuleCompat() throws DOMException, IOException {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser2.Flag.IEVALUES));
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
 		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
 		sheet = factory.createStyleSheet(null, null);
-		InputSource source = new InputSource(new StringReader(
-				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; filter:alpha(opacity=0); } li {display: list-item; }}"));
-		sheet.parseStyleSheet(source);
+		StringReader re = new StringReader(
+				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; filter:alpha(opacity=0); } li {display: list-item; }}");
+		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
