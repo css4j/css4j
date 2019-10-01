@@ -469,13 +469,6 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	/**
 	 * Verifies if the selector matches a given class name.
 	 * <p>
-	 * Per section 4.1.3 of CSS 2.1 spec, identifiers can contain only the characters [a-z0-9]
-	 * and ISO 10646 characters U+00A1 and higher, plus the hyphen (-) and the underscore (_).
-	 * This is confusing, since -for example- both upper and lower case accented characters
-	 * are accepted, but not uppercase ASCII letters. It also states that any ISO 10646
-	 * character is accepted if given as a numeric code.
-	 * </p>
-	 * <p>
 	 * A case-sensitive comparison is performed for <code>STRICT</code> mode, case-insensitive
 	 * for other modes.
 	 * </p>
