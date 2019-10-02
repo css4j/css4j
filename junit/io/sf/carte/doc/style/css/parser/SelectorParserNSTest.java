@@ -973,44 +973,6 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendant3() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div>>span"));
-		SelectorList selist = parseSelectors(source);
-		assertNotNull(selist);
-		assertEquals(1, selist.getLength());
-		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
-		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
-		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
-		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
-		assertEquals("span", ((ElementSelector) simple).getLocalName());
-		assertEquals("svg|div span", sel.toString());
-	}
-
-	@Test
-	public void testParseSelectorDescendant3WS() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("svg|div >> span"));
-		SelectorList selist = parseSelectors(source);
-		assertNotNull(selist);
-		assertEquals(1, selist.getLength());
-		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
-		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
-		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
-		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
-		assertEquals("span", ((ElementSelector) simple).getLocalName());
-		assertEquals("svg|div span", sel.toString());
-	}
-
-	@Test
 	public void testParseSelectorNextSibling() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("svg|div + span:empty"));
 		SelectorList selist = parseSelectors(source);

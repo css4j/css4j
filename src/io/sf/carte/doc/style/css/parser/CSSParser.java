@@ -3192,7 +3192,7 @@ public class CSSParser implements Parser2 {
 					buffer.append(' ');
 					return;
 				}
-				if (prevcp == ':' || prevcp == '.' || prevcp == '#') {
+				if (prevcp == ':' || prevcp == '.' || prevcp == '#' || (prevcp == TokenProducer.CHAR_VERTICAL_LINE && getActiveSelector() == null)) {
 					unexpectedCharError(index, codepoint);
 					return;
 				}
@@ -3643,7 +3643,8 @@ public class CSSParser implements Parser2 {
 							unexpectedCharError(index, codepoint);
 						}
 					} else if (codepoint == 61) { // =
-						// If we are in a '|=' case, we should have the attribute name in namespacePrefix
+						// If we are in a '|=' case, we should have the attribute name in
+						// namespacePrefix
 						if (prevcp == TokenProducer.CHAR_VERTICAL_LINE && namespacePrefix != null
 								&& buffer.length() == 0) {
 							buffer.append(namespacePrefix);
@@ -3681,126 +3682,114 @@ public class CSSParser implements Parser2 {
 					if (stage == 0) {
 						stage = 1;
 					} else if (stage == STAGE_COMBINATOR_OR_END) {
-						newDescendantSelector(Selector.SAC_DESCENDANT_SELECTOR);
+							newDescendantSelector(Selector.SAC_DESCENDANT_SELECTOR);
 						((DescendantSelectorImpl) currentsel).simpleSelector = factory.getUniversalSelector(namespacePrefix);
-						namespacePrefix = null;
+					namespacePrefix = null;
 						stage = 1;
 					} else if (stage == 1 && namespacePrefix != null && prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
 						setSimpleSelector(index, factory.createUniversalSelector(getNamespaceURI(index)));
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
-				} else if (codepoint == TokenProducer.CHAR_TILDE) { // ~
-					if (stage == STAGE_COMBINATOR_OR_END) {
-						stage = 1;
-					} else {
-						processBuffer(index, codepoint, false);
-					}
-					newSiblingSelector(index, Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR, codepoint);
-				} else if (codepoint == 46) { // .
-					if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
-						processBuffer(index, codepoint, false);
-						newConditionalSelector(index, codepoint, Condition.SAC_CLASS_CONDITION);
-						stage = STAGE_EXPECT_ID_OR_CLASSNAME;
-					} else {
+				} else {
+					if (prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
+						if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
+							handleColumnCombinator(index);
+							prevcp = 32;
+							return;
+						}
 						unexpectedCharError(index, codepoint);
+						return;
 					}
-				} else if (codepoint == 35) { // #
-					if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
-						processBuffer(index, codepoint, false);
-						newConditionalSelector(index, codepoint, Condition.SAC_ID_CONDITION);
-						stage = STAGE_EXPECT_ID_OR_CLASSNAME;
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (codepoint == 58) { // :
-					if (prevcp == 58) {
-						stage = STAGE_EXPECT_PSEUDOELEM_NAME;
-					} else {
-						processBuffer(index, codepoint, false);
-						stage = STAGE_EXPECT_PSEUDOCLASS_NAME;
-					}
-				} else if (codepoint == 62) { // >
-					if (prevcp != 62) {
+					if (codepoint == TokenProducer.CHAR_TILDE) { // ~
+						if (stage == STAGE_COMBINATOR_OR_END) {
+							stage = 1;
+						} else {
+							processBuffer(index, codepoint, false);
+						}
+						newSiblingSelector(index, Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR, codepoint);
+					} else if (codepoint == 46) { // .
+						if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
+							processBuffer(index, codepoint, false);
+							newConditionalSelector(index, codepoint, Condition.SAC_CLASS_CONDITION);
+							stage = STAGE_EXPECT_ID_OR_CLASSNAME;
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 35) { // #
+						if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
+							processBuffer(index, codepoint, false);
+							newConditionalSelector(index, codepoint, Condition.SAC_ID_CONDITION);
+							stage = STAGE_EXPECT_ID_OR_CLASSNAME;
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 58) { // :
+						if (prevcp == 58) {
+							stage = STAGE_EXPECT_PSEUDOELEM_NAME;
+						} else {
+							processBuffer(index, codepoint, false);
+							stage = STAGE_EXPECT_PSEUDOCLASS_NAME;
+						}
+					} else if (codepoint == 62) { // >
 						if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
 						}
 						processBuffer(index, codepoint, false);
-						newDescendantSelector(index, Selector.SAC_CHILD_SELECTOR, codepoint);
-					} else {
-						// Change to SAC_DESCENDANT_SELECTOR
-						((DescendantSelectorImpl) currentsel).setSelectorType(Selector.SAC_DESCENDANT_SELECTOR);
-					}
-				} else if (codepoint == 43) { // +
-					if (stage == STAGE_COMBINATOR_OR_END) {
-						stage = 1;
-					}
-					processBuffer(index, codepoint, false);
-					newSiblingSelector(index, Selector.SAC_DIRECT_ADJACENT_SELECTOR, codepoint);
-				} else if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
-					// |
-					if (prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
-						if (stage == 1) {
-							if (currentsel == null) {
-								ElementSelectorImpl sel = newElementSelector(index);
-								if (namespacePrefix != null) {
-									sel.localName = namespacePrefix;
-									namespacePrefix = null;
-								} else if (buffer.length() != 0) {
-									// Unclear whether this is reachable
-									sel.localName = unescapeBuffer(index);
+						if (stage < 2) {
+							newDescendantSelector(index, Selector.SAC_CHILD_SELECTOR, codepoint);
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 43) { // +
+						if (stage == STAGE_COMBINATOR_OR_END) {
+							stage = 1;
+						}
+						processBuffer(index, codepoint, false);
+						newSiblingSelector(index, Selector.SAC_DIRECT_ADJACENT_SELECTOR, codepoint);
+					} else if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
+						// |
+						if (stage == STAGE_EXPECT_ID_OR_CLASSNAME || stage == STAGE_EXPECT_PSEUDOCLASS_NAME
+								|| stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
+							processBuffer(index, codepoint, false);
+						} else if (stage == STAGE_COMBINATOR_OR_END) {
+							stage = 1;
+						} else if (stage == 1 && namespacePrefix == null) {
+							readNamespacePrefix(index, codepoint);
+						} else if (stage == 0 && namespacePrefix == null && buffer.length() == 0) {
+							namespacePrefix = "";
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 44) { // ,
+						if (functionToken) {
+							if (prevcp == 44) { // Consecutive commas
+								unexpectedCharError(index, codepoint);
+							} else {
+								// Probably happening inside [] TODO better error checking
+								buffer.append(',');
+							}
+						} else {
+							processBuffer(index, codepoint, true);
+							if (!parseError) {
+								if (addCurrentSelector(index)) {
+									stage = 0;
 								} else {
 									unexpectedCharError(index, codepoint);
-									return;
 								}
 							}
-							newDescendantSelector(index, Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, codepoint);
-						} else if (stage == 0 && buffer.length() == 0 && currentsel == null) {
-							namespacePrefix = null;
-							newDescendantSelector(index, Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, codepoint);
-						} else {
-							unexpectedCharError(index, codepoint);
 						}
-					} else if (stage == STAGE_EXPECT_ID_OR_CLASSNAME || stage == STAGE_EXPECT_PSEUDOCLASS_NAME
-							|| stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
-						processBuffer(index, codepoint, false);
-					} else if (stage == STAGE_COMBINATOR_OR_END) {
-						stage = 1;
-					} else if (stage == 1 && namespacePrefix == null) {
-						readNamespacePrefix(index, codepoint);
-					} else if (stage == 0 && namespacePrefix == null && buffer.length() == 0) {
-						namespacePrefix = "";
-					} else {
+					} else if (codepoint == 64) { // @
+						handleAtKeyword(index);
+					} else if (codepoint == 45) { // -
+						buffer.append('-');
+					} else if (codepoint == 95) { // _
+						buffer.append('_');
+					} else if (stage < 8 || isUnexpectedCharacter(codepoint)) {
 						unexpectedCharError(index, codepoint);
-					}
-				} else if (codepoint == 44) { // ,
-					if (functionToken) {
-						if (prevcp == 44) { // Consecutive commas
-							unexpectedCharError(index, codepoint);
-						} else {
-							// Probably happening inside [] TODO better error checking
-							buffer.append(',');
-						}
 					} else {
-						processBuffer(index, codepoint, true);
-						if (!parseError) {
-							if (addCurrentSelector(index)) {
-								stage = 0;
-							} else {
-								unexpectedCharError(index, codepoint);
-							}
-						}
+						bufferAppend(codepoint);
 					}
-				} else if (codepoint == 64) { // @
-					handleAtKeyword(index);
-				} else if (codepoint == 45) { // -
-					buffer.append('-');
-				} else if (codepoint == 95) { // _
-					buffer.append('_');
-				} else if (stage < 8 || isUnexpectedCharacter(codepoint)) {
-					unexpectedCharError(index, codepoint);
-				} else {
-					bufferAppend(codepoint);
 				}
 			}
 			prevcp = codepoint;
@@ -3808,6 +3797,30 @@ public class CSSParser implements Parser2 {
 
 		boolean skipCharacterHandling() {
 			return parseError;
+		}
+
+		private void handleColumnCombinator(int index) {
+			if (stage == 1) {
+				if (currentsel == null) {
+					ElementSelectorImpl sel = newElementSelector(index);
+					if (namespacePrefix != null) {
+						sel.localName = namespacePrefix;
+						namespacePrefix = null;
+					} else if (buffer.length() != 0) {
+						// Unclear whether this is reachable
+						sel.localName = unescapeBuffer(index);
+					} else {
+						unexpectedCharError(index, TokenProducer.CHAR_VERTICAL_LINE);
+						return;
+					}
+				}
+				newDescendantSelector(index, Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, TokenProducer.CHAR_VERTICAL_LINE);
+			} else if (stage == 0 && buffer.length() == 0 && currentsel == null) {
+				namespacePrefix = null;
+				newDescendantSelector(index, Selector2.SAC_COLUMN_COMBINATOR_SELECTOR, TokenProducer.CHAR_VERTICAL_LINE);
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_VERTICAL_LINE);
+			}
 		}
 
 		/**
