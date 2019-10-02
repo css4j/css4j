@@ -615,7 +615,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			buf.append(value1.getMinifiedCssText(""));
 			break;
 		case MediaQuery.FEATURE_LT_AND_LE:
-			buf.append(value1.getCssText());
+			buf.append(value1.getMinifiedCssText(""));
 			buf.append('<');
 			appendFeatureName(buf);
 			buf.append("<=");
