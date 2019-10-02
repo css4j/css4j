@@ -99,7 +99,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			DeclarationCondition declCond = (DeclarationCondition) condition;
 			return declCond.isParsable() && styleDatabase.supports(declCond.getName(), declCond.getValue());
 		case AND:
-			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions()
+			Iterator<BooleanCondition> it = condition.getSubConditions()
 					.iterator();
 			while (it.hasNext()) {
 				if (!supports(it.next(), styleDatabase)) {
@@ -108,9 +108,9 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			}
 			return true;
 		case NOT:
-			return supports(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(), styleDatabase);
+			return supports(condition.getNestedCondition(), styleDatabase);
 		case OR:
-			it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
+			it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				if (supports(it.next(), styleDatabase)) {
 					return true;

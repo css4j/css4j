@@ -116,7 +116,7 @@ abstract class BooleanConditionImpl implements BooleanCondition {
 	}
 
 	static abstract class GroupCondition extends BooleanConditionImpl {
-		LinkedList<BooleanCondition> nestedConditions;
+		final LinkedList<BooleanCondition> nestedConditions;
 
 		GroupCondition() {
 			super();
@@ -175,7 +175,6 @@ abstract class BooleanConditionImpl implements BooleanCondition {
 
 		AndCondition() {
 			super();
-			nestedConditions = new LinkedList<BooleanCondition>();
 		}
 
 		@Override

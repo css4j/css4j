@@ -122,7 +122,7 @@ class MediaQuery {
 	private static boolean matchesCondition(BooleanCondition condition, CSSCanvas canvas) {
 		switch (condition.getType()) {
 		case AND:
-			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
+			Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
 				if (!matchesCondition(subcond, canvas)) {
@@ -131,9 +131,9 @@ class MediaQuery {
 			}
 			return true;
 		case NOT:
-			return !matchesCondition(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(), canvas);
+			return !matchesCondition(condition.getNestedCondition(), canvas);
 		case OR:
-			it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
+			it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
 				if (matchesCondition(subcond, canvas)) {
@@ -397,8 +397,7 @@ class MediaQuery {
 	private static boolean matches(BooleanCondition condition, BooleanCondition otherCondition, byte negatedQuery) {
 		switch (condition.getType()) {
 		case AND:
-			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions()
-					.iterator();
+			Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
 				if (!matches(subcond, otherCondition, negatedQuery)) {
@@ -407,7 +406,7 @@ class MediaQuery {
 			}
 			return true;
 		case OR:
-			it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
+			it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
 				if (matches(subcond, otherCondition, negatedQuery)) {
@@ -425,7 +424,7 @@ class MediaQuery {
 			case PREDICATE:
 				return predicate.matches((MediaPredicate) otherCondition, negatedQuery);
 			case AND:
-				it = ((BooleanConditionImpl.GroupCondition) otherCondition).getSubConditions().iterator();
+				it = otherCondition.getSubConditions().iterator();
 				while (it.hasNext()) {
 					BooleanCondition subcond = it.next();
 					if (matches(condition, subcond, negatedQuery)) {
@@ -435,7 +434,7 @@ class MediaQuery {
 				}
 				break;
 			case OR:
-				it = ((BooleanConditionImpl.GroupCondition) otherCondition).getSubConditions().iterator();
+				it = otherCondition.getSubConditions().iterator();
 				while (it.hasNext()) {
 					BooleanCondition subcond = it.next();
 					if (!matches(condition, subcond, negatedQuery)) {
@@ -454,8 +453,7 @@ class MediaQuery {
 				} else { // 3
 					negatedQuery = 1;
 				}
-				return matches(condition, ((BooleanConditionImpl.NotCondition) otherCondition).getNestedCondition(),
-						negatedQuery);
+				return matches(condition, otherCondition.getNestedCondition(), negatedQuery);
 			}
 			break;
 		case NOT:
@@ -468,8 +466,7 @@ class MediaQuery {
 			} else { // 3
 				negatedQuery = 2;
 			}
-			return matches(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(), otherCondition,
-					negatedQuery);
+			return matches(condition.getNestedCondition(), otherCondition, negatedQuery);
 		}
 		return false;
 	}
