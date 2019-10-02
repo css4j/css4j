@@ -19,8 +19,8 @@ package io.sf.carte.doc.style.css.om;
  */
 abstract class MediaPredicate extends BooleanConditionImpl.Predicate {
 
-	// static final int MEDIA_FEATURE = 0;
-	static final int MEDIA_TYPE = 1;
+	// static final short MEDIA_FEATURE = 0;
+	static final short MEDIA_TYPE = 1;
 
 	protected MediaPredicate(String name) {
 		super(name);
