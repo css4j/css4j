@@ -405,6 +405,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		}
 
 		@Override
+		public String toString() {
+			return getMedia();
+		}
+
+		@Override
 		public void setMediaText(String mediaText) throws DOMException {
 			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
 					"Cannot modify target media: you must re-create the style sheet with a different media list.");
