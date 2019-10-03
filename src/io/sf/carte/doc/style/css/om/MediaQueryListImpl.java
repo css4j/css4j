@@ -181,6 +181,10 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		if (isAllMedia()) {
 			return true;
 		}
+		if (otherMedia.isAllMedia()) {
+			// If we are here, this is not "all".
+			return false;
+		}
 		MediaQueryListImpl otherqlist;
 		if (otherMedia.getClass() == MediaQueryListImpl.class) {
 			otherqlist = (MediaQueryListImpl) otherMedia;
@@ -190,15 +194,21 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 			// Old implementation
 			return oldMatch(otherMedia);
 		}
+		// Prepare a set of other media
+		HashSet<MediaQuery> otherList = new HashSet<MediaQuery>(otherqlist.queryList.size());
+		otherList.addAll(otherqlist.queryList);
 		Iterator<MediaQuery> it = queryList.iterator();
 		while (it.hasNext()) {
 			MediaQuery query = it.next();
-			Iterator<MediaQuery> otherIt = otherqlist.queryList.iterator();
+			Iterator<MediaQuery> otherIt = otherList.iterator();
 			while (otherIt.hasNext()) {
 				MediaQuery othermq = otherIt.next();
 				if (query.matches(othermq)) {
-					return true;
+					otherIt.remove();
 				}
+			}
+			if (otherList.isEmpty()) {
+				return true;
 			}
 		}
 		return false;

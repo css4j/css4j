@@ -138,14 +138,15 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			type = negateType(type);
 		}
 		// Normalize type
+		ExtendedCSSPrimitiveValue otherVal1 = other.value1;
 		ExtendedCSSPrimitiveValue otherVal2 = other.value2;
 		boolean noeq1 = false;
 		boolean noeq2 = false;
 		switch (type) {
 		case MediaQuery.FEATURE_EQ:
 			if (value1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-				if (other.value1 != null && other.value1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-						&& value1.getStringValue().equalsIgnoreCase(other.value1.getStringValue())) {
+				if (otherVal1 != null && otherVal1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+						&& value1.getStringValue().equalsIgnoreCase(otherVal1.getStringValue())) {
 					return negatedQuery == 0 || negatedQuery == 3;
 				}
 				return negatedQuery == 1;
@@ -158,6 +159,18 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_LT;
 				noeq1 = true;
+			} else if (oType == MediaQuery.FEATURE_GT_AND_GT || oType == MediaQuery.FEATURE_GT_AND_GE) {
+				oType = MediaQuery.FEATURE_LT;
+			} else if (oType == MediaQuery.FEATURE_GE_AND_GT || oType == MediaQuery.FEATURE_GE_AND_GE) {
+				oType = MediaQuery.FEATURE_LT;
+				noeq1 = true;
+			} else if (oType == MediaQuery.FEATURE_LE_AND_LT || oType == MediaQuery.FEATURE_LT_AND_LT) {
+				oType = MediaQuery.FEATURE_LT;
+				otherVal1 = otherVal2;
+			} else if (oType == MediaQuery.FEATURE_LE_AND_LE || oType == MediaQuery.FEATURE_LT_AND_LE) {
+				oType = MediaQuery.FEATURE_LT;
+				noeq1 = true;
+				otherVal1 = otherVal2;
 			}
 			break;
 		case MediaQuery.FEATURE_LE:
@@ -165,6 +178,18 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 				type = MediaQuery.FEATURE_LT;
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_LE;
+			} else if (oType == MediaQuery.FEATURE_GT_AND_GT || oType == MediaQuery.FEATURE_GT_AND_GE) {
+				type = MediaQuery.FEATURE_LT;
+				oType = MediaQuery.FEATURE_LT;
+			} else if (oType == MediaQuery.FEATURE_GE_AND_GT || oType == MediaQuery.FEATURE_GE_AND_GE) {
+				oType = MediaQuery.FEATURE_LE;
+			} else if (oType == MediaQuery.FEATURE_LE_AND_LT || oType == MediaQuery.FEATURE_LT_AND_LT) {
+				type = MediaQuery.FEATURE_LT;
+				oType = MediaQuery.FEATURE_LT;
+				otherVal1 = otherVal2;
+			} else if (oType == MediaQuery.FEATURE_LE_AND_LE || oType == MediaQuery.FEATURE_LT_AND_LE) {
+				oType = MediaQuery.FEATURE_LE;
+				otherVal1 = otherVal2;
 			}
 			break;
 		case MediaQuery.FEATURE_GT:
@@ -174,6 +199,18 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_GT;
 				noeq1 = true;
+			} else if (oType == MediaQuery.FEATURE_LT_AND_LT || oType == MediaQuery.FEATURE_LT_AND_LE) {
+				oType = MediaQuery.FEATURE_GT;
+			} else if (oType == MediaQuery.FEATURE_LE_AND_LT || oType == MediaQuery.FEATURE_LE_AND_LE) {
+				oType = MediaQuery.FEATURE_GT;
+				noeq1 = true;
+			} else if (oType == MediaQuery.FEATURE_GE_AND_GT || oType == MediaQuery.FEATURE_GT_AND_GT) {
+				oType = MediaQuery.FEATURE_GT;
+				otherVal1 = otherVal2;
+			} else if (oType == MediaQuery.FEATURE_GE_AND_GE || oType == MediaQuery.FEATURE_GT_AND_GE) {
+				oType = MediaQuery.FEATURE_GT;
+				noeq1 = true;
+				otherVal1 = otherVal2;
 			}
 			break;
 		case MediaQuery.FEATURE_GE:
@@ -181,6 +218,19 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 				type = MediaQuery.FEATURE_GT;
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_GE;
+			} else if (oType == MediaQuery.FEATURE_LT_AND_LT || oType == MediaQuery.FEATURE_LT_AND_LE) {
+				type = MediaQuery.FEATURE_GT;
+				oType = MediaQuery.FEATURE_GT;
+			} else if (oType == MediaQuery.FEATURE_LE_AND_LT || oType == MediaQuery.FEATURE_LE_AND_LE) {
+				type = MediaQuery.FEATURE_GT;
+				oType = MediaQuery.FEATURE_GT;
+			} else if (oType == MediaQuery.FEATURE_GE_AND_GT || oType == MediaQuery.FEATURE_GT_AND_GT) {
+				type = MediaQuery.FEATURE_GT;
+				oType = MediaQuery.FEATURE_GT;
+				otherVal1 = otherVal2;
+			} else if (oType == MediaQuery.FEATURE_GT_AND_GE || oType == MediaQuery.FEATURE_GE_AND_GE) {
+				oType = MediaQuery.FEATURE_GE;
+				otherVal1 = otherVal2;
 			}
 			break;
 		case MediaQuery.FEATURE_LT_AND_LT:
@@ -198,7 +248,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 				oType = MediaQuery.FEATURE_LT_AND_LT;
 				noeq1 = true;
 				noeq2 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
 		case MediaQuery.FEATURE_LE_AND_LT:
@@ -214,7 +264,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_LE_AND_LT;
 				noeq2 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
 		case MediaQuery.FEATURE_LT_AND_LE:
@@ -230,7 +280,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_LT_AND_LE;
 				noeq1 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
 		case MediaQuery.FEATURE_LE_AND_LE:
@@ -242,7 +292,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 				type = MediaQuery.FEATURE_LE_AND_LT;
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_LE_AND_LE;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
 		case MediaQuery.FEATURE_GT_AND_GT:
@@ -260,7 +310,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 				oType = MediaQuery.FEATURE_GT_AND_GT;
 				noeq1 = true;
 				noeq2 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
 		case MediaQuery.FEATURE_GE_AND_GT:
@@ -276,7 +326,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_GE_AND_GT;
 				noeq2 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
 		case MediaQuery.FEATURE_GT_AND_GE:
@@ -292,7 +342,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_GT_AND_GE;
 				noeq1 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
 		case MediaQuery.FEATURE_GE_AND_GE:
@@ -304,7 +354,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 				type = MediaQuery.FEATURE_GE_AND_GT;
 			} else if (oType == MediaQuery.FEATURE_EQ) {
 				oType = MediaQuery.FEATURE_GE_AND_GE;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
 		}
@@ -318,7 +368,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 		short pType = CSSPrimitiveValue.CSS_NUMBER;
 		if (value1 == null) {
 			// Boolean
-			if (other.value1 == null) {
+			if (otherVal1 == null) {
 				boolean negated = negatedQuery == 1 || negatedQuery == 2;
 				return !negated;
 			}
@@ -341,11 +391,11 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			}
 		}
 		float ofval1;
-		if (other.value1 == null) {
+		if (otherVal1 == null) {
 			ofval1 = 0f;
 		} else {
-			if (other.value1.getPrimitiveType() == CSSPrimitiveValue2.CSS_RATIO) {
-				RatioValue ratio = (RatioValue) other.value1;
+			if (otherVal1.getPrimitiveType() == CSSPrimitiveValue2.CSS_RATIO) {
+				RatioValue ratio = (RatioValue) otherVal1;
 				PrimitiveValue ante = ratio.getAntecedentValue();
 				float odenom;
 				try {
@@ -357,7 +407,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 				fval1 *= odenom;
 			} else {
 				try {
-					ofval1 = other.value1.getFloatValue(pType);
+					ofval1 = otherVal1.getFloatValue(pType);
 				} catch (DOMException e) {
 					return false;
 				}

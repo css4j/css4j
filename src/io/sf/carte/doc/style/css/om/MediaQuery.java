@@ -391,26 +391,26 @@ class MediaQuery {
 		} else {
 			negatedQuery = 0;
 		}
-		return matches(predicate, other.predicate, negatedQuery);
+		return matches(predicate, other.predicate, negatedQuery) != 0;
 	}
 
-	private static boolean matches(BooleanCondition condition, BooleanCondition otherCondition, byte negatedQuery) {
+	private static byte matches(BooleanCondition condition, BooleanCondition otherCondition, byte negatedQuery) {
 		switch (condition.getType()) {
 		case AND:
 			Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
-				if (!matches(subcond, otherCondition, negatedQuery)) {
-					return false;
+				if (matches(subcond, otherCondition, negatedQuery) == 0) {
+					return 0;
 				}
 			}
-			return true;
+			return 1;
 		case OR:
 			it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				BooleanCondition subcond = it.next();
-				if (matches(subcond, otherCondition, negatedQuery)) {
-					return true;
+				if (matches(subcond, otherCondition, negatedQuery) == 1) {
+					return 1;
 				}
 			}
 			break;
@@ -418,18 +418,26 @@ class MediaQuery {
 			MediaPredicate predicate = (MediaPredicate) condition;
 			if (predicate.getPredicateType() == MediaPredicate.MEDIA_TYPE) {
 				// Ignore. We already checked this with the mediaType field.
-				return true;
+				return 2;
 			}
 			switch (otherCondition.getType()) {
 			case PREDICATE:
-				return predicate.matches((MediaPredicate) otherCondition, negatedQuery);
+				MediaPredicate otherPredicate = (MediaPredicate) otherCondition;
+				if (otherPredicate.getPredicateType() == MediaPredicate.MEDIA_TYPE) {
+					// Ignore. We already checked this with the mediaType field.
+					return 2;
+				}
+				if (predicate.matches(otherPredicate, negatedQuery)) {
+					return 1;
+				}
+				return 0;
 			case AND:
 				it = otherCondition.getSubConditions().iterator();
 				while (it.hasNext()) {
 					BooleanCondition subcond = it.next();
-					if (matches(condition, subcond, negatedQuery)) {
+					if (matches(condition, subcond, negatedQuery) == 1) {
 						// left-side condition is met
-						return true;
+						return 1;
 					}
 				}
 				break;
@@ -437,12 +445,12 @@ class MediaQuery {
 				it = otherCondition.getSubConditions().iterator();
 				while (it.hasNext()) {
 					BooleanCondition subcond = it.next();
-					if (!matches(condition, subcond, negatedQuery)) {
-						return false;
+					if (matches(condition, subcond, negatedQuery) == 0) {
+						return 0;
 					}
 				}
 				// All left-side conditions are met
-				return true;
+				return 1;
 			case NOT:
 				if (negatedQuery == 0) {
 					negatedQuery = 2;
@@ -468,7 +476,7 @@ class MediaQuery {
 			}
 			return matches(condition.getNestedCondition(), otherCondition, negatedQuery);
 		}
-		return false;
+		return 0;
 	}
 
 	boolean isAllMedia() {
