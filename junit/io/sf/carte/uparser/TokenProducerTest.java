@@ -12,6 +12,7 @@
 package io.sf.carte.uparser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -33,6 +34,7 @@ public class TokenProducerTest {
 		assertEquals("display", handler.words.get(3));
 		assertEquals("list-item", handler.words.get(4));
 		assertEquals("(:)(:)", handler.punctbuffer.toString());
+		assertNotNull(handler.control);
 	}
 
 	@Test
