@@ -9,11 +9,10 @@
 
  */
 
-package io.sf.carte.doc.style.css.om;
+package io.sf.carte.doc.style.css.parser;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -25,19 +24,18 @@ import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
  * Old <code>MediaList</code> and <code>MediaQueryList</code> implementation,
  * supporting lists of plain media types (not media queries).
  * <p>
- * You can use it as a faster {@link MediaQueryList} implementation when you
- * know that the media does not involve media queries.
+ * Used for media query interoperability tests.
+ * </p>
  * 
  * @author Carlos Amengual
  * 
  */
-public class MediaList implements MediaQueryList, MediaListAccess, Serializable {
+public class MediaList implements MediaQueryList, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -49,13 +47,7 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 
 	private boolean allMedia;
 
-	private static final List<String> mediaTypes;
-
 	static {
-		// initialize media types (not currently used)
-		String[] mediaTypesArray = { "all", "braille", "embossed", "handheld", "print", "projection", "screen",
-				"speech", "tty", "tv" };
-		mediaTypes = Arrays.asList(mediaTypesArray);
 		// prepare singleton
 		allMediaSingleton = new UnmodifiableMediaList();
 		allMediaSingleton.allMedia = true;
@@ -178,10 +170,10 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		StringBuilder sb = new StringBuilder(mediastringList.size() * 8 + 2);
 		Iterator<String> it = mediastringList.iterator();
 		if (it.hasNext()) {
-			sb.append(MediaQuery.escapeIdentifier(it.next()));
+			sb.append(ParseHelper.escape(it.next()));
 		}
 		while (it.hasNext()) {
-			sb.append(',').append(MediaQuery.escapeIdentifier(it.next()));
+			sb.append(',').append(ParseHelper.escape(it.next()));
 		}
 		return sb.toString();
 	}
@@ -267,10 +259,6 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 		}
 	}
 
-	boolean isValidMedium(String lcmedia) {
-		return mediaTypes.contains(lcmedia);
-	}
-
 	private void addMedium(String newMedium) {
 		if ("all".equals(newMedium)) {
 			allMedia = true;
@@ -284,15 +272,6 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 			mediaList.add(newMedium);
 			allMedia = false;
 		}
-	}
-
-	static boolean isPlainMedium(String newMedium) {
-		for (int i = 0; i < newMedium.length(); i++) {
-			if (!Character.isLetter(newMedium.charAt(i))) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -389,7 +368,6 @@ public class MediaList implements MediaQueryList, MediaListAccess, Serializable 
 	 * 
 	 * @return an unmodifiable view of this media list.
 	 */
-	@Override
 	public MediaList unmodifiable() {
 		if (allMedia) {
 			return allMediaSingleton;

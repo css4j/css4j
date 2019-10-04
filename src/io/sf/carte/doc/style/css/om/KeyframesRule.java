@@ -247,12 +247,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		}
 		String body = cssText.substring(11, len);
 		PropertyDocumentHandler handler = new MyKeyframesHandler();
-		CSSParser parser;
-		try {
-			parser = (CSSParser) createSACParser();
-		} catch (ClassCastException e) {
-			parser = new CSSParser();
-		}
+		CSSParser parser = (CSSParser) createSACParser();
 		parser.setDocumentHandler(handler);
 		try {
 			parser.parseKeyFramesBody(body);

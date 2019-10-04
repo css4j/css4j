@@ -19,12 +19,12 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -190,15 +190,15 @@ public class DeclarationRuleParserTest {
 		}
 
 		@Override
-		public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
+		public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
 		}
 
 		@Override
-		public void startMedia(List<String> media) {
+		public void startMedia(MediaQueryList media) {
 		}
 
 		@Override
-		public void endMedia(List<String> media) {
+		public void endMedia(MediaQueryList media) {
 		}
 
 		@Override

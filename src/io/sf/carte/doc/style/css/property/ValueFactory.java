@@ -26,6 +26,7 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
 
@@ -449,7 +450,7 @@ public class ValueFactory {
 	 *             if a problem was found parsing the property.
 	 */
 	public StyleValue parseProperty(String value) throws DOMException {
-		return parseProperty(value, new CSSParser());
+		return parseProperty(value, new CSSOMParser());
 	}
 
 	/**
@@ -562,7 +563,7 @@ public class ValueFactory {
 	 * @throws DOMException if a problem was found parsing the feature.
 	 */
 	public PrimitiveValue parseMediaFeature(String feature) throws DOMException {
-		return parseMediaFeature(feature, new CSSParser());
+		return parseMediaFeature(feature, new CSSOMParser());
 	}
 
 	/**
@@ -587,27 +588,11 @@ public class ValueFactory {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		PrimitiveValue css;
-		try {
-			css = createCSSPrimitiveValue(lunit, false);
-		} catch (DOMException e) {
-			// Hack ?
-			return createUnknownValue(feature, lunit);
+		LexicalSetter item = createCSSPrimitiveValueItem(lunit, true, false);
+		if (item.getNextLexicalUnit() != null) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "Bad feature: " + feature);
 		}
-		LexicalUnit nlu = lunit.getNextLexicalUnit();
-		if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
-			nlu = nlu.getNextLexicalUnit();
-			if (nlu == null) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Ratio lacks second value.");
-			}
-			// ratio
-			PrimitiveValue css2 = createCSSPrimitiveValue(nlu, false);
-			RatioValue ratio = new RatioValue();
-			ratio.setAntecedentValue(css);
-			ratio.setConsequentValue(css2);
-			return ratio;
-		}
-		return css;
+		return item.getCSSValue();
 	}
 
 	/**
@@ -848,7 +833,7 @@ public class ValueFactory {
 				value = value.asSubproperty();
 			return value;
 		default:
-			return createCSSPrimitiveValueItem(lunit, subproperty);
+			return createCSSPrimitiveValueItem(lunit, !subproperty, subproperty);
 		}
 	}
 
@@ -868,7 +853,7 @@ public class ValueFactory {
 	 *             primitive.
 	 */
 	PrimitiveValue createCSSPrimitiveValue(LexicalUnit lunit, boolean subp) throws DOMException {
-		return createCSSPrimitiveValueItem(lunit, subp).getCSSValue();
+		return createCSSPrimitiveValueItem(lunit, !subp, subp).getCSSValue();
 	}
 
 	/**
@@ -879,13 +864,16 @@ public class ValueFactory {
 	 * 
 	 * @param lunit
 	 *            the lexical value.
+	 * @param ratioContext
+	 *            {@code true} if we are in a context where ratio values could be expected.
 	 * @param subp
 	 *            the flag marking whether it is a sub-property.
 	 * @return the LexicalSetter for the CSS primitive value.
 	 * @throws DOMException
 	 *             if a problem was found setting the lexical value to a CSS primitive.
 	 */
-	LexicalSetter createCSSPrimitiveValueItem(LexicalUnit lunit, boolean subp) throws DOMException {
+	LexicalSetter createCSSPrimitiveValueItem(LexicalUnit lunit, boolean ratioContext, boolean subp)
+			throws DOMException {
 		short unitType = lunit.getLexicalUnitType();
 		PrimitiveValue primi;
 		LexicalSetter setter;
@@ -938,6 +926,13 @@ public class ValueFactory {
 				((NumberValue) primi).lengthUnitType = true;
 				break;
 			case LexicalUnit.SAC_REAL:
+				primi = new NumberValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				if (ratioContext) {
+					// Check for ratio
+					return checkForRatio(setter, subp);
+				}
+				break;
 			case LexicalUnit.SAC_DEGREE:
 			case LexicalUnit.SAC_GRADIAN:
 			case LexicalUnit.SAC_RADIAN:
@@ -957,6 +952,10 @@ public class ValueFactory {
 				primi = new NumberValue();
 				((NumberValue) primi).setIntegerValue(lunit.getIntegerValue());
 				(setter = primi.newLexicalSetter()).nextLexicalUnit = lunit.getNextLexicalUnit();
+				if (ratioContext) {
+					// Check for ratio
+					return checkForRatio(setter, subp);
+				}
 				break;
 			case LexicalUnit.SAC_RGBCOLOR:
 				primi = new ColorValue();
@@ -964,11 +963,18 @@ public class ValueFactory {
 				break;
 			case LexicalUnit.SAC_FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-				if ("rgb".equals(func) || "rgba".equals(func) || "hsl".equals(func) || "hsla".equals(func)
+				if ("rgba".equals(func) || "hsl".equals(func) || "hsla".equals(func)
 						|| "hwb".equals(func)) {
 					primi = new ColorValue();
 				} else if ("calc".equals(func)) {
 					primi = new CalcValue();
+					setter = primi.newLexicalSetter();
+					setter.setLexicalUnit(lunit);
+					if (ratioContext) {
+						// Check for ratio
+						return checkForRatio(setter, subp);
+					}
+					break;
 				} else if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
 						|| func.endsWith("conic-gradient")) {
 					primi = new GradientValue();
@@ -1034,6 +1040,28 @@ public class ValueFactory {
 			throw ex;
 		}
 		primi.setSubproperty(subp);
+		return setter;
+	}
+
+	private LexicalSetter checkForRatio(LexicalSetter setter, boolean subp) throws DOMException {
+		LexicalUnit nlu = setter.getNextLexicalUnit();
+		if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
+			nlu = nlu.getNextLexicalUnit();
+			if (nlu != null) {
+				LexicalSetter consec = createCSSPrimitiveValueItem(nlu, false, false);
+				RatioValue ratio = new RatioValue();
+				try {
+					ratio.setAntecedentValue(setter.getCSSValue());
+					ratio.setConsequentValue(consec.getCSSValue());
+					setter = ratio.newLexicalSetter();
+					setter.setLexicalUnit(consec.getNextLexicalUnit());
+					ratio.setSubproperty(subp);
+				} catch (DOMException e) {
+				}
+			} else {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Invalid ratio.");
+			}
+		}
 		return setter;
 	}
 

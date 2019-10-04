@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class BaseCSSStyleSheetTest1 {
 
@@ -32,7 +31,7 @@ public class BaseCSSStyleSheetTest1 {
 
 	@Before
 	public void setUp() {
-		this.cssParser = new CSSParser();
+		this.cssParser = new CSSOMParser();
 	}
 
 	@Test

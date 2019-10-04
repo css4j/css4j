@@ -65,12 +65,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		clear();
-		CSSParser parser;
-		try {
-			parser = (CSSParser) createSACParser();
-		} catch (ClassCastException e) {
-			parser = new CSSParser();
-		}
+		CSSParser parser = (CSSParser) createSACParser();
 		Reader re = new StringReader(cssText);
 		PropertyDocumentHandler handler = createPropertyDocumentHandler();
 		handler.setLexicalPropertyListener(getLexicalPropertyListener());

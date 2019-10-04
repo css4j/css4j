@@ -16,6 +16,12 @@ package io.sf.carte.doc.style.css.nsac;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.w3c.dom.Node;
+
+import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.parser.MediaQueryFactory;
+import io.sf.carte.doc.style.css.parser.MediaQueryHandler;
+
 /**
  * A low-level CSS parser.
  * <p>
@@ -188,7 +194,6 @@ public interface Parser {
 	 *
 	 * @param reader     the character stream containing the CSS style declaration.
 	 * 
-	 * @param styleValue The declaration.
 	 * @throws CSSParseException   if an error was found and no error handler was
 	 *                             set.
 	 * @throws java.io.IOException if a I/O error was found while retrieving the
@@ -257,5 +262,30 @@ public interface Parser {
 		 */
 		String getNamespaceURI(String nsPrefix);
 	}
+
+	/**
+	 * Parse an individual list of media queries.
+	 * 
+	 * @param media the string representation of the list of media queries.
+	 * @param owner the node that owns the responsibility to handle the errors in
+	 *              the query list.
+	 * @throws CSSException
+	 */
+	MediaQueryList parseMediaQueryList(String media, Node owner) throws CSSException;
+
+	/**
+	 * Parse a media query string into the given handler.
+	 * 
+	 * @param media
+	 *            the media query text.
+	 * @param queryFactory
+	 *            the query factory.
+	 * @param mqhandler
+	 *            the media query list handler.
+	 * @throws CSSException <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a
+	 *                      hard-coded limit in nested expressions was reached.
+	 */
+	void parseMediaQueryList(String media, MediaQueryFactory queryFactory,
+			MediaQueryHandler mqhandler) throws CSSException;
 
 }

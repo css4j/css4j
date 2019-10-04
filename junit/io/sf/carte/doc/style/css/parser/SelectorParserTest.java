@@ -2022,6 +2022,86 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorChildError11() throws CSSException, IOException {
+		try {
+			parseSelectors("#id|>p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorChildError12() throws CSSException, IOException {
+		try {
+			parseSelectors("#id>>p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorChildError13() throws CSSException, IOException {
+		try {
+			parseSelectors("#id&>p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(4, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorChildError14() throws CSSException, IOException {
+		try {
+			parseSelectors("#id#>p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorChildError15() throws CSSException, IOException {
+		try {
+			parseSelectors("#id+>p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorChildError16() throws CSSException, IOException {
+		try {
+			parseSelectors("#id~>p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorChildError17() throws CSSException, IOException {
+		try {
+			parseSelectors("#id@>p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(4, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorChildError18() throws CSSException, IOException {
+		try {
+			parseSelectors("#id$>p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(4, e.getColumnNumber());
+		}
+	}
+
+	@Test
 	public void testParseSelectorDescendantElement() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("li span");
 		assertNotNull(selist);
@@ -2129,7 +2209,7 @@ public class SelectorParserTest {
 
 	@Test
 	public void testParseSelectorDescendant3() throws CSSException, IOException {
-		SelectorList selist = parseSelectors("#exampleid>>span");
+		SelectorList selist = parseSelectors(".foo  span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -2137,18 +2217,18 @@ public class SelectorParserTest {
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
-		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
+		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
-		assertEquals("#exampleid span", sel.toString());
+		assertEquals(".foo span", sel.toString());
 	}
 
 	@Test
 	public void testParseSelectorDescendant3WS() throws CSSException, IOException {
-		SelectorList selist = parseSelectors("#exampleid >> span");
+		SelectorList selist = parseSelectors("[myattr]  span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -2156,13 +2236,13 @@ public class SelectorParserTest {
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
-		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
+		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals("myattr", ((AttributeCondition) cond).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
-		assertEquals("#exampleid span", sel.toString());
+		assertEquals("[myattr] span", sel.toString());
 	}
 
 	@Test
@@ -2237,16 +2317,6 @@ public class SelectorParserTest {
 		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals("span *", sel.toString());
-	}
-
-	@Test
-	public void testParseSelectorDescendantError() throws CSSException, IOException {
-		try {
-			parseSelectors("#id>>~p");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(6, e.getColumnNumber());
-		}
 	}
 
 	@Test
@@ -2526,6 +2596,46 @@ public class SelectorParserTest {
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 			assertEquals(6, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorNextSiblingError2() throws CSSException, IOException {
+		try {
+			parseSelectors("#id|+p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorNextSiblingError3() throws CSSException, IOException {
+		try {
+			parseSelectors("#id@+p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(4, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorNextSiblingError4() throws CSSException, IOException {
+		try {
+			parseSelectors("#id>+p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorNextSiblingError5() throws CSSException, IOException {
+		try {
+			parseSelectors("#id+~p");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -4214,7 +4324,7 @@ public class SelectorParserTest {
 
 	@Test
 	public void testParseSelectorPseudoClassHas3() throws CSSException, IOException {
-		SelectorList selist = parseSelectors("html:has(>> img)");
+		SelectorList selist = parseSelectors("html:has(div>img)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
@@ -4228,14 +4338,15 @@ public class SelectorParserTest {
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, arg.getSelectorType());
+		assertEquals(Selector.SAC_CHILD_SELECTOR, arg.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) arg).getSelector();
-		assertEquals(Selector.SAC_SCOPE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		simple = ((CombinatorSelector) arg).getSecondSelector();
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("img", ((ElementSelector) simple).getLocalName());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
-		assertEquals("html:has(>>img)", sel.toString());
+		assertEquals("html:has(div>img)", sel.toString());
 	}
 
 	@Test

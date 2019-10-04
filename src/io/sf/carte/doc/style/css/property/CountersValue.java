@@ -83,7 +83,7 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 							if (lutype == LexicalUnit.SAC_IDENT || (lutype == LexicalUnit.SAC_FUNCTION
 									&& "symbols".equalsIgnoreCase(lu.getFunctionName()))) {
 								ValueFactory vf = new ValueFactory();
-								LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false);
+								LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, false);
 								setCounterStyle(item.getCSSValue());
 								if (item.getNextLexicalUnit() != null) {
 									badSyntax(lunit);

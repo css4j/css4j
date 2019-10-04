@@ -46,7 +46,8 @@ public interface BooleanCondition {
 	 * The set of sub-conditions is returned as a list in specified order.
 	 * 
 	 * @return the list of sub-conditions, or <code>null</code> if this condition
-	 *         contains no sub-conditions.
+	 *         contains no sub-conditions (i.e. <code>NOT</code> or
+	 *         <code>PREDICATE</code>).
 	 */
 	List<BooleanCondition> getSubConditions();
 

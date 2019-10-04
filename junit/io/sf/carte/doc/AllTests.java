@@ -66,7 +66,6 @@ import io.sf.carte.doc.style.css.om.ImportRuleTest;
 import io.sf.carte.doc.style.css.om.KeyframesRuleTest;
 import io.sf.carte.doc.style.css.om.ListStyleShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.MarginBuilderTest;
-import io.sf.carte.doc.style.css.om.MediaListTest;
 import io.sf.carte.doc.style.css.om.MediaQueryTest;
 import io.sf.carte.doc.style.css.om.MediaRuleTest;
 import io.sf.carte.doc.style.css.om.NamespaceRuleTest;
@@ -90,7 +89,9 @@ import io.sf.carte.doc.style.css.parser.AnBExpressionTest;
 import io.sf.carte.doc.style.css.parser.CSSParserTest;
 import io.sf.carte.doc.style.css.parser.DeclarationParserTest;
 import io.sf.carte.doc.style.css.parser.DeclarationRuleParserTest;
+import io.sf.carte.doc.style.css.parser.MediaListTest;
 import io.sf.carte.doc.style.css.parser.MediaQueryDatabaseTest;
+import io.sf.carte.doc.style.css.parser.NSACMediaQueryTest;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactoryTest;
 import io.sf.carte.doc.style.css.parser.ParseHelperTest;
 import io.sf.carte.doc.style.css.parser.PropertyParserTest;
@@ -189,7 +190,6 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		TransitionShorthandBuilderTest.class,
 		UnknownRuleTest.class,
 		ViewportRuleTest.class,
-		MediaListTest.class,
 		FlexShorthandBuilderTest.class,
 		FontBuilderTest.class,
 		FontVariantBuilderTest.class,
@@ -213,7 +213,9 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		CSSParserTest.class,
 		DeclarationParserTest.class,
 		DeclarationRuleParserTest.class,
+		MediaListTest.class,
 		MediaQueryDatabaseTest.class,
+		NSACMediaQueryTest.class,
 		NSACSelectorFactoryTest.class,
 		ParseHelperTest.class,
 		PropertyParserTest.class,

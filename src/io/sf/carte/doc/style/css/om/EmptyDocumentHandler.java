@@ -11,8 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.List;
-
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
@@ -45,15 +44,15 @@ abstract class EmptyDocumentHandler implements CSSHandler, CSSErrorHandler {
 	}
 
 	@Override
-	public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
+	public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
 	}
 
 	@Override
-	public void startMedia(List<String> media) {
+	public void startMedia(MediaQueryList media) {
 	}
 
 	@Override
-	public void endMedia(List<String> media) {
+	public void endMedia(MediaQueryList media) {
 	}
 
 	@Override

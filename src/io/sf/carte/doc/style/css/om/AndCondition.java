@@ -11,52 +11,36 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.Iterator;
-
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
+import io.sf.carte.doc.style.css.parser.BooleanConditionHelper;
 
 /**
  * AND condition.
  * 
  */
-class AndCondition extends BooleanConditionImpl.AndCondition {
+class AndCondition extends BooleanConditionImpl.GroupCondition {
 
 	AndCondition() {
 		super();
 	}
 
 	@Override
-	public void appendMinifiedText(StringBuilder buf) {
-		boolean hasparent = getParentCondition() != null;
-		if (hasparent) {
-			buf.append('(');
-		}
-		Iterator<BooleanCondition> it = nestedConditions.iterator();
-		it.next().appendMinifiedText(buf);
-		while (it.hasNext()) {
-			buf.append(" and ");
-			it.next().appendMinifiedText(buf);
-		}
-		if (hasparent) {
-			buf.append(')');
-		}
+	public Type getType() {
+		return Type.AND;
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode() * 31 + 13;
 	}
 
 	@Override
 	public void appendText(StringBuilder buf) {
-		boolean hasparent = getParentCondition() != null;
-		if (hasparent) {
-			buf.append('(');
-		}
-		Iterator<BooleanCondition> it = nestedConditions.iterator();
-		it.next().appendText(buf);
-		while (it.hasNext()) {
-			buf.append(" and ");
-			it.next().appendText(buf);
-		}
-		if (hasparent) {
-			buf.append(')');
-		}
+		BooleanConditionHelper.appendANDText(this, buf);
+	}
+
+	@Override
+	public void appendMinifiedText(StringBuilder buf) {
+		BooleanConditionHelper.appendANDMinifiedText(this, buf);
 	}
 
 }

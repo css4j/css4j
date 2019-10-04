@@ -19,6 +19,7 @@ import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSRatioValue;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -76,7 +77,15 @@ public class RatioValue extends PrimitiveValue implements CSSRatioValue {
 
 	@Override
 	LexicalSetter newLexicalSetter() {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This value needs special handling");
+		return new MyLexicalSetter();
+	}
+
+	class MyLexicalSetter extends LexicalSetter {
+
+		@Override
+		void setLexicalUnit(LexicalUnit nextUnit) {
+			nextLexicalUnit = nextUnit;
+		}
 	}
 
 	@Override

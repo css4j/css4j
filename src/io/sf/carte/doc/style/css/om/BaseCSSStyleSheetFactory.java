@@ -16,9 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSRule;
@@ -35,7 +33,6 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Parser.Flag;
-import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
@@ -117,7 +114,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	@Override
 	public AbstractCSSStyleSheet createStyleSheet(String title, MediaQueryList media) {
 		if (media == null) {
-			media = MediaList.createUnmodifiable();
+			media = MediaQueryListImpl.createUnmodifiable();
 		}
 		return createLinkedStyleSheet(null, title, media);
 	}
@@ -377,7 +374,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 
 	@Override
 	protected Parser createSACParser() {
-		Parser parser = new CSSParser();
+		Parser parser = new CSSOMParser();
 		EnumSet<Parser.Flag> flags = getParserFlags();
 		for (Parser.Flag flag : flags) {
 			parser.setFlag(flag);
@@ -441,8 +438,8 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 */
 	@Override
 	public MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) {
-		if (isPlainMediaList(mediaQueryString)) {
-			return MediaList.createMediaList(mediaQueryString);
+		if (mediaQueryString == null) {
+			return new MediaQueryListImpl();
 		}
 		return parseMediaQueryList(mediaQueryString, owner);
 	}
@@ -458,12 +455,9 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @return the unmodifiable media list.
 	 */
 	@Override
-	public MediaQueryList createUnmodifiableMediaQueryList(String media, Node owner) {
+	public MediaQueryList createImmutableMediaQueryList(String media, Node owner) {
 		if (media == null) {
-			return MediaList.createUnmodifiable();
-		}
-		if (isPlainMediaList(media)) {
-			return MediaList.createUnmodifiable(media);
+			return MediaQueryListImpl.createUnmodifiable();
 		}
 		return ((MediaListAccess) parseMediaQueryList(media, owner)).unmodifiable();
 	}
@@ -478,56 +472,11 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @return a new media query list for <code>mediaQueryString</code>.
 	 */
 	MediaQueryList parseMediaQueryList(String mediaQueryString, Node owner) {
-		MediaQueryListImpl qlist = new MediaQueryListImpl();
-		CSSParser parser = new CSSParser();
+		Parser parser = new CSSOMParser();
 		if (getParserFlags().contains(Parser.Flag.IEVALUES)) {
 			parser.setFlag(Parser.Flag.IEVALUES);
 		}
-		qlist.parse(parser, mediaQueryString, owner);
-		return qlist;
-	}
-
-	/**
-	 * Create a media query list for the given SAC media list.
-	 * 
-	 * @param media
-	 *            the SAC media list.
-	 * @param owner
-	 *            the node that would handle errors, if any.
-	 * @return the media query list.
-	 */
-	public MediaQueryList createMediaList(List<String> media, Node owner) {
-		int sz = media.size();
-		boolean plainMedium = true;
-		for (int i = 0; i < sz; i++) {
-			if (!MediaList.isPlainMedium(media.get(i))) {
-				plainMedium = false;
-				break;
-			}
-		}
-		if (plainMedium) {
-			return MediaList.createMediaList(media);
-		} else {
-			CSSParser parser = new CSSParser();
-			if (getParserFlags().contains(Parser.Flag.IEVALUES)) {
-				parser.setFlag(Parser.Flag.IEVALUES);
-			}
-			MediaQueryListImpl qlist = new MediaQueryListImpl();
-			for (int i = 0; i < sz; i++) {
-				qlist.parse(parser, media.get(i), owner);
-			}
-			return qlist;
-		}
-	}
-
-	static boolean isPlainMediaList(String newMedium) {
-		StringTokenizer st = new StringTokenizer(newMedium, ",");
-		while (st.hasMoreTokens()) {
-			if (!MediaList.isPlainMedium(st.nextToken().trim())) {
-				return false;
-			}
-		}
-		return true;
+		return parser.parseMediaQueryList(mediaQueryString, owner);
 	}
 
 	/**

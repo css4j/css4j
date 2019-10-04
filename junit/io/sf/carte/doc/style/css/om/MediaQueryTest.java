@@ -154,6 +154,11 @@ public class MediaQueryTest {
 		assertFalse(mql.hasErrors());
 		assertEquals("not (max-width: 500px)", mql.getMedia());
 		assertEquals("not (max-width:500px)", mql.getMinifiedMedia());
+		//
+		mql = createMediaQueryList("(print),(prefers-reduced-motion: reduce)");
+		assertFalse(mql.hasErrors());
+		assertEquals("print,(prefers-reduced-motion: reduce)", mql.getMedia());
+		assertEquals("print,(prefers-reduced-motion:reduce)", mql.getMinifiedMedia());
 	}
 
 	@Test
@@ -180,6 +185,17 @@ public class MediaQueryTest {
 	public void testGetMediaEscapedBad() {
 		MediaQueryList mql = createMediaQueryList("only \\9screen and (color)");
 		assertEquals("only \\9screen and (color)", mql.getMedia());
+		assertFalse(mql.hasErrors());
+	}
+
+	@Test
+	public void testGetMediaEscapedCompat() {
+		MediaQueryList mql = createMediaQueryList("screen\\0 ");
+		assertEquals("screen\\0", mql.getMedia());
+		assertFalse(mql.hasErrors());
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
+		mql = factory.createMediaQueryList("screen\\0 ", null);
+		assertEquals("screen\\0", mql.getMedia());
 		assertFalse(mql.hasErrors());
 	}
 
@@ -468,6 +484,29 @@ public class MediaQueryTest {
 		mql2.setMediaText(mql.getMedia());
 		assertTrue(mql.equals(mql2));
 		assertTrue(mql.hashCode() == mql2.hashCode());
+		//
+		mql.setMediaText("screen");
+		mql2.setMediaText("screen");
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql2.equals(mql));
+		assertTrue(mql.hashCode() == mql2.hashCode());
+		mql2 = ((MediaListAccess) mql2).unmodifiable();
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql2.equals(mql));
+		assertTrue(mql.hashCode() == mql2.hashCode());
+		mql = ((MediaListAccess) mql).unmodifiable();
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql2.equals(mql));
+		assertTrue(mql.hashCode() == mql2.hashCode());
+	}
+
+	@Test
+	public void testEquals2() {
+		MediaQueryList mql = createMediaQueryList("screen and (min-width:0)");
+		assertFalse(mql.equals(null));
+		MediaQueryList mql2 = createMediaQueryList("screen and (min-width:0)");
+		assertTrue(mql.equals(mql2));
+		assertTrue(mql.hashCode() == mql2.hashCode());
 	}
 
 	@Test
@@ -563,10 +602,12 @@ public class MediaQueryTest {
 		MediaQueryList mql2 = createMediaQueryList("screen and (color)");
 		assertFalse(mql.equals(mql2));
 		assertTrue(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
 		//
 		mql2 = createMediaQueryList("tv,all and (2 <= color < 5)");
 		assertFalse(mql.equals(mql2));
-		assertTrue(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
+		assertFalse(mql.matches(mql2));
 		assertEquals(mql.item(0), mql2.item(0));
 		//
 		mql2 = createMediaQueryList("all and (2 <= color < 4)");
@@ -580,6 +621,15 @@ public class MediaQueryTest {
 		mql2 = createMediaQueryList("screen and (min-width:600px)");
 		assertFalse(mql.equals(mql2));
 		assertFalse(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchList2() {
+		MediaQueryList mql = createMediaQueryList("tv,all and (color)");
+		MediaQueryList mql2 = createMediaQueryList("tv,screen and (2 <= color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		assertFalse(mql2.matches(mql));
 	}
 
 	@Test
@@ -1297,6 +1347,218 @@ public class MediaQueryTest {
 		//
 		mql = createMediaQueryList("all and (color > 1)");
 		mql2 = createMediaQueryList("all and (color)");
+		assertFalse(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLevel4Mix() {
+		MediaQueryList mql = createMediaQueryList("tv,all and (color)");
+		MediaQueryList mql2 = createMediaQueryList("screen and (2 <= color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLevel4MixGE() {
+		MediaQueryList mql = createMediaQueryList("tv,all and (color >= 2)");
+		MediaQueryList mql2 = createMediaQueryList("screen and (2 <= color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 <= color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (1 <= color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color >= 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color >= 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color > 1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color > 1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color >= 1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color >= 1)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLevel4MixGT() {
+		MediaQueryList mql = createMediaQueryList("tv,all and (color > 2)");
+		MediaQueryList mql2 = createMediaQueryList("screen and (2 < color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (3 <= color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (3 <= color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color >= 3)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color >= 3)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLevel4MixLE() {
+		MediaQueryList mql = createMediaQueryList("tv,all and (color <= 5)");
+		MediaQueryList mql2 = createMediaQueryList("screen and (2 <= color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 <= color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color < 6)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 <= color < 6)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color >= 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color >= 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (6 >= color >= 2)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (6 >= color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+	}
+
+	@Test
+	public void testMatchLevel4MixLT() {
+		MediaQueryList mql = createMediaQueryList("tv,all and (color < 5)");
+		MediaQueryList mql2 = createMediaQueryList("screen and (2 <= color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color < 5)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 <= color <= 4)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color <= 4)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 <= color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (2 < color <= 5)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color >= 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 > color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (4 >= color >= 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (4 >= color > 2)");
+		assertFalse(mql.equals(mql2));
+		assertTrue(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color >= 2)");
+		assertFalse(mql.equals(mql2));
+		assertFalse(mql.matches(mql2));
+		//
+		mql2 = createMediaQueryList("screen and (5 >= color > 2)");
+		assertFalse(mql.equals(mql2));
 		assertFalse(mql.matches(mql2));
 	}
 
@@ -2097,7 +2359,7 @@ public class MediaQueryTest {
 
 	@Test
 	public void testUnmodifiable() {
-		MediaQueryList mql = factory.createUnmodifiableMediaQueryList("screen", null);
+		MediaQueryList mql = factory.createImmutableMediaQueryList("screen", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
@@ -2106,7 +2368,6 @@ public class MediaQueryTest {
 			mql.appendMedium("tv");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
-
 		}
 		assertEquals(1, mql.getLength());
 		assertEquals("screen", mql.item(0));
@@ -2115,7 +2376,6 @@ public class MediaQueryTest {
 			mql.setMediaText("tv");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
-
 		}
 		assertEquals(1, mql.getLength());
 		assertEquals("screen", mql.item(0));
@@ -2133,16 +2393,18 @@ public class MediaQueryTest {
 			unmodif.appendMedium("tv");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
-
 		}
 		assertEquals(1, unmodif.getLength());
 		assertEquals("screen", unmodif.item(0));
+		assertEquals("screen", unmodif.getMedia());
+		assertEquals("screen", unmodif.getMediaText());
+		assertEquals("screen", unmodif.getMinifiedMedia());
+		assertEquals("screen", unmodif.toString());
 		//
 		try {
 			unmodif.setMediaText("tv");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
-
 		}
 		assertEquals(1, unmodif.getLength());
 		assertEquals("screen", unmodif.item(0));
@@ -2838,17 +3100,6 @@ public class MediaQueryTest {
 		mql = createMediaQueryList("screen and (calc(2*2)/calc(9/3) > aspect-ratio >= calc(8 - 1)/calc(2*3))");
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
-	}
-
-	@Test
-	public void testIsPlainMediaList() {
-		assertTrue(BaseCSSStyleSheetFactory.isPlainMediaList("screen, tv"));
-		assertTrue(BaseCSSStyleSheetFactory.isPlainMediaList("print"));
-		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("not screen"));
-		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("not all"));
-		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("screen and (color)"));
-		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("(color)"));
-		assertFalse(BaseCSSStyleSheetFactory.isPlainMediaList("(orientation:portrait)"));
 	}
 
 	private MediaQueryList createMediaQueryList(String media) {

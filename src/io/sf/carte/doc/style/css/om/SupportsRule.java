@@ -67,12 +67,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	 *            shall result in an exception.
 	 */
 	private void parseConditionText(String conditionText) throws DOMException {
-		CSSParser parser;
-		try {
-			parser = (CSSParser) createSACParser();
-		} catch (ClassCastException e) {
-			parser = new CSSParser();
-		}
+		CSSParser parser = (CSSParser) createSACParser();
 		try {
 			condition = parser.parseSupportsCondition(conditionText, null);
 		} catch (CSSException e) {
@@ -98,8 +93,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			DeclarationCondition declCond = (DeclarationCondition) condition;
 			return declCond.isParsable() && styleDatabase.supports(declCond.getName(), declCond.getValue());
 		case AND:
-			Iterator<BooleanCondition> it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions()
-					.iterator();
+			Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				if (!supports(it.next(), styleDatabase)) {
 					return false;
@@ -107,9 +101,9 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			}
 			return true;
 		case NOT:
-			return supports(((BooleanConditionImpl.NotCondition) condition).getNestedCondition(), styleDatabase);
+			return supports(condition.getNestedCondition(), styleDatabase);
 		case OR:
-			it = ((BooleanConditionImpl.GroupCondition) condition).getSubConditions().iterator();
+			it = condition.getSubConditions().iterator();
 			while (it.hasNext()) {
 				if (supports(it.next(), styleDatabase)) {
 					return true;

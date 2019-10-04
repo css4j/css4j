@@ -19,12 +19,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSMediaParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -309,14 +310,16 @@ public class RuleParserTest {
 		parseRule(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
 		assertEquals(2, handler.mediaRuleLists.size());
-		assertEquals("handheld,only screen and (max-width:1600px) .foo", handler.mediaRuleLists.get(0).toString());
-		assertEquals("all", handler.mediaRuleLists.get(1).toString());
+		MediaQueryList mql = handler.mediaRuleLists.get(0);
+		assertTrue(mql.hasErrors());
+		assertEquals("handheld", mql.getMedia());
+		assertEquals("all", handler.mediaRuleLists.get(1).getMedia());
 		assertEquals(2, handler.endMediaCount);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("1em", handler.lexicalValues.get(0).toString());
+		assertEquals("1em", handler.lexicalValues.get(0).getCssText());
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertTrue(errorHandler.hasError());
@@ -328,7 +331,7 @@ public class RuleParserTest {
 		parseRule("@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}");
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
-		assertEquals("(max-width:1600px)", handler.mediaRuleLists.get(1).toString());
+		assertEquals("(max-width: 1600px)", handler.mediaRuleLists.get(1).toString());
 		assertEquals(2, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.get(0).item(0).toString());
 		assertEquals("div.foo", handler.selectors.get(1).item(0).toString());
@@ -353,9 +356,9 @@ public class RuleParserTest {
 		assertNull(handler.pageRuleNames.getFirst());
 		assertEquals(1, handler.endPageCount);
 		assertEquals(1, handler.mediaRuleLists.size());
-		List<String> medialist = handler.mediaRuleLists.getFirst();
-		assertEquals(1, medialist.size());
-		assertEquals("print", medialist.get(0));
+		MediaQueryList medialist = handler.mediaRuleLists.getFirst();
+		assertEquals(1, medialist.getLength());
+		assertEquals("print", medialist.item(0));
 		assertEquals(1, handler.endMediaCount);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("h3", handler.selectors.getFirst().toString());
@@ -382,9 +385,10 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -394,9 +398,10 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -406,9 +411,9 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("print", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("print", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -418,10 +423,10 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(2, list.size());
-		assertEquals("screen", list.get(0));
-		assertEquals("tv", list.get(1));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(2, list.getLength());
+		assertEquals("screen", list.item(0));
+		assertEquals("tv", list.item(1));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -431,9 +436,9 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("(orientation:landscape)", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("(orientation: landscape)", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -443,9 +448,9 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("screen and (orientation:landscape)", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("screen and (orientation: landscape)", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -462,9 +467,10 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -474,9 +480,9 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("print", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("print", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -486,9 +492,10 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -498,10 +505,10 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(2, list.size());
-		assertEquals("screen", list.get(0));
-		assertEquals("tv", list.get(1));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(2, list.getLength());
+		assertEquals("screen", list.item(0));
+		assertEquals("tv", list.item(1));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -521,9 +528,10 @@ public class RuleParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("bar.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.endSelectors.size());
 		assertTrue(errorHandler.hasError());
@@ -585,7 +593,13 @@ public class RuleParserTest {
 
 		@Override
 		public void error(CSSParseException exception) throws CSSException {
-			if (this.exception != null) {
+			/*
+			 * Report if more than one exception is reported for a rule.
+			 * Errors related to media queries can legitimately appear several times,
+			 * so they are excluded.
+			 */
+			if (this.exception != null && exception.getClass() != CSSMediaParseException.class
+					&& this.exception.getClass() != CSSMediaParseException.class) {
 				throw new IllegalStateException("More than one error reported for single rule", exception);
 			}
 			super.error(exception);

@@ -20,7 +20,7 @@ class ColumnRuleShorthandSetter extends ShorthandSetter {
 	ColumnRuleShorthandSetter(BaseCSSStyleDeclaration style) {
 			super(style, "column-rule");
 		}
-		
+
 	@Override
 	protected boolean assignSubproperty(String subproperty) {
 		if ("column-rule-width".equals(subproperty)) {

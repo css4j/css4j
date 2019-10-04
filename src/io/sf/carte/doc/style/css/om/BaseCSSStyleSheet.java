@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -110,7 +109,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		super(title);
 		this.ownerRule = ownerRule;
 		if (media == null) {
-			this.destinationMedia = MediaList.createUnmodifiable();
+			this.destinationMedia = MediaQueryListImpl.createUnmodifiable();
 		} else {
 			this.destinationMedia = media;
 		}
@@ -1171,7 +1170,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
+		public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
 			// Ignore any '@import' rule that occurs inside a block or after any
 			// non-ignored statement other than an @charset or an @import rule
 			// (CSS 2.1 §4.1.5)
@@ -1184,11 +1183,10 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				return;
 			}
 			if (match(destinationMedia, media)) {
-				MediaQueryList mql = getStyleSheetFactory().createMediaList(media, getOwnerNode());
-				if (!mql.isNotAllMedia()) {
+				if (!media.isNotAllMedia()) {
 					if (currentRule == null) { // That should be always true
 						// Importing rule from uri
-						ImportRule imp = createImportRule(mql, uri);
+						ImportRule imp = createImportRule(media, uri);
 						setCommentsToRule(imp);
 						addLocalRule(imp);
 					}
@@ -1201,17 +1199,13 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void startMedia(List<String> media) {
+		public void startMedia(MediaQueryList media) {
 			// Starting @media block for media
 			ignoreImports = true;
 			SheetErrorHandler eh;
-			MediaQueryList mlist = getStyleSheetFactory().createMediaList(media, getOwnerNode());
-			if (mlist.hasErrors() && (eh = getErrorHandler()) != null) {
-				eh.badMediaList(media);
-			}
 			if (currentRule != null) {
 				if (currentRule.getType() == CSSRule.MEDIA_RULE) {
-					MediaRule rule = new MediaRule(BaseCSSStyleSheet.this, mlist, sheetOrigin);
+					MediaRule rule = new MediaRule(BaseCSSStyleSheet.this, media, sheetOrigin);
 					((GroupingRule) currentRule).addRule(rule);
 					currentRule = rule;
 					setCommentsToRule(currentRule);
@@ -1222,11 +1216,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					return;
 				}
 			} else {
-				if (mlist.isNotAllMedia() && !getStyleSheetFactory().hasCompatValueFlags()) {
+				if (media.isNotAllMedia() && !getStyleSheetFactory().hasCompatValueFlags()) {
 					resetCommentStack();
 					ignoreRulesForMedia = true;
 				} else {
-					currentRule = new MediaRule(BaseCSSStyleSheet.this, mlist, sheetOrigin);
+					currentRule = new MediaRule(BaseCSSStyleSheet.this, media, sheetOrigin);
 					setCommentsToRule(currentRule);
 					ignoreRulesForMedia = false; // this should not be needed - just in case
 				}
@@ -1234,7 +1228,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		@Override
-		public void endMedia(List<String> media) {
+		public void endMedia(MediaQueryList media) {
 			if (ignoreRulesForMedia) {
 				ignoreRulesForMedia = false;
 				resetCommentStack();
@@ -1521,18 +1515,17 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @return <code>true</code> if the SAC media contains any media which applies
 	 *         to <code>media</code> list, <code>false</code> otherwise.
 	 */
-	boolean match(MediaQueryList media, List<String> sacMedia) {
+	boolean match(MediaQueryList media, MediaQueryList sacMedia) {
 		if (media.isAllMedia()) {
 			return true;
 		}
 		if (sacMedia == null) {
 			return !media.isNotAllMedia(); // null list handled as "all"
 		}
-		MediaQueryList otherqlist = getStyleSheetFactory().createMediaList(sacMedia, null);
-		if (otherqlist.isAllMedia()) {
+		if (sacMedia.isAllMedia()) {
 			return true;
 		}
-		return media.matches(otherqlist);
+		return media.matches(sacMedia);
 	}
 
 }

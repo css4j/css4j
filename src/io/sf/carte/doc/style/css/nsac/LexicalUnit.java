@@ -13,6 +13,8 @@
  */
 package io.sf.carte.doc.style.css.nsac;
 
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
+
 /**
  * Based on SAC's {@code LexicalUnit} interface by Philippe Le Hegaret.
  */
@@ -510,6 +512,38 @@ public interface LexicalUnit {
 	 * @see #getStringValue
 	 */
 	short SAC_ELEMENT_REFERENCE = 73;
+
+	/**
+	 * <code>AND</code> condition.
+	 * <p>
+	 * Can be cast to a {@link BooleanCondition} of type <code>AND</code>.
+	 * </p>
+	 */
+	short SAC_CONDITION_AND = 100;
+
+	/**
+	 * <code>OR</code> condition.
+	 * <p>
+	 * Can be cast to a {@link BooleanCondition} of type <code>OR</code>.
+	 * </p>
+	 */
+	short SAC_CONDITION_OR = 101;
+
+	/**
+	 * <code>NOT</code> condition.
+	 * <p>
+	 * Can be cast to a {@link BooleanCondition} of type <code>NOT</code>.
+	 * </p>
+	 */
+	short SAC_CONDITION_NOT = 102;
+
+	/**
+	 * Fundamental <code>PREDICATE</code> inside a condition.
+	 * <p>
+	 * Can be cast to a {@link BooleanCondition} of type <code>PREDICATE</code>.
+	 * </p>
+	 */
+	short SAC_CONDITION_PREDICATE = 103;
 
 	/**
 	 * An integer indicating the type of <code>LexicalUnit</code>.

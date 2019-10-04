@@ -99,8 +99,6 @@ public class InputSource {
 	 * @param uri The URI as a string.
 	 * @see #setEncoding
 	 * @see #getURI
-	 * @see Locator#getURI
-	 * @see CSSParseException#getURI
 	 */
 	public void setURI(String uri) {
 		this.uri = uri;

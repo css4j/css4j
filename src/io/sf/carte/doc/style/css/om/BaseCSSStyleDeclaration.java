@@ -46,7 +46,6 @@ import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
@@ -526,7 +525,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		if (factory != null) {
 			parser = factory.createSACParser();
 		} else {
-			parser = new CSSParser();
+			parser = new CSSOMParser();
 		}
 		return parser;
 	}
@@ -1895,108 +1894,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		if (value == null) {
 			return "";
 		}
-		String s = null;
-		switch (value.getLexicalUnitType()) {
-		case LexicalUnit.SAC_STRING_VALUE:
-		case LexicalUnit.SAC_IDENT:
-			s = value.getStringValue();
-			break;
-		case LexicalUnit.SAC_URI:
-			s = "url('" + value.getStringValue() + "')";
-			break;
-		case LexicalUnit.SAC_ATTR:
-			s = "attr('" + value.getStringValue() + "')";
-			break;
-		case LexicalUnit.SAC_INHERIT:
-			s = "inherit";
-			break;
-		case LexicalUnit.SAC_FUNCTION:
-		case LexicalUnit.SAC_RGBCOLOR:
-		case LexicalUnit.SAC_RECT_FUNCTION:
-		case LexicalUnit.SAC_COUNTER_FUNCTION:
-		case LexicalUnit.SAC_COUNTERS_FUNCTION:
-			s = value.getFunctionName();
-			s += "(" + lexicalUnitToString(value.getParameters()) + ")";
-			break;
-		case LexicalUnit.SAC_CENTIMETER:
-		case LexicalUnit.SAC_DEGREE:
-		case LexicalUnit.SAC_DIMENSION:
-		case LexicalUnit.SAC_EM:
-		case LexicalUnit.SAC_EX:
-		case LexicalUnit.SAC_GRADIAN:
-		case LexicalUnit.SAC_HERTZ:
-		case LexicalUnit.SAC_INCH:
-		case LexicalUnit.SAC_KILOHERTZ:
-		case LexicalUnit.SAC_MILLIMETER:
-		case LexicalUnit.SAC_MILLISECOND:
-		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_PICA:
-		case LexicalUnit.SAC_PIXEL:
-		case LexicalUnit.SAC_POINT:
-		case LexicalUnit.SAC_RADIAN:
-		case LexicalUnit.SAC_REAL:
-		case LexicalUnit.SAC_SECOND:
-			s = Float.toString(value.getFloatValue()) + value.getDimensionUnitText();
-			break;
-		case LexicalUnit.SAC_INTEGER:
-			s = Integer.toString(value.getIntegerValue());
-			break;
-		case LexicalUnit.SAC_SUB_EXPRESSION:
-			s = lexicalUnitToString(value.getSubValues());
-			break;
-		case LexicalUnit.SAC_OPERATOR_COMMA:
-			s = ",";
-			break;
-		case LexicalUnit.SAC_OPERATOR_EXP:
-			s = "^";
-			break;
-		case LexicalUnit.SAC_OPERATOR_GE:
-			s = ">=";
-			break;
-		case LexicalUnit.SAC_OPERATOR_GT:
-			s = ">";
-			break;
-		case LexicalUnit.SAC_OPERATOR_LE:
-			s = "<=";
-			break;
-		case LexicalUnit.SAC_OPERATOR_LT:
-			s = "<";
-			break;
-		case LexicalUnit.SAC_OPERATOR_MINUS:
-			s = "-";
-			break;
-		case LexicalUnit.SAC_OPERATOR_MOD:
-			s = "%";
-			break;
-		case LexicalUnit.SAC_OPERATOR_MULTIPLY:
-			s = "*";
-			break;
-		case LexicalUnit.SAC_OPERATOR_PLUS:
-			s = "+";
-			break;
-		case LexicalUnit.SAC_OPERATOR_SLASH:
-			s = "/";
-			break;
-		case LexicalUnit.SAC_OPERATOR_TILDE:
-			s = "~";
-			break;
-		case LexicalUnit.SAC_LEFT_BRACKET:
-			s = "[";
-			break;
-		case LexicalUnit.SAC_RIGHT_BRACKET:
-			s = "]";
-			break;
-		default:
-			s = value.toString();
-		}
-		value = value.getNextLexicalUnit();
-		if (value != null) {
-			if (value.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
-				s += " ";
-			}
-			s += lexicalUnitToString(value);
-		}
-		return s;
+		return value.toString();
 	}
 
 	class StyleDeclarationDocumentHandler extends PropertyDocumentHandler {

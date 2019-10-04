@@ -20,12 +20,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.CharBuffer;
 import java.util.EnumSet;
-import java.util.LinkedList;
 
 import org.junit.Test;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
@@ -152,85 +152,11 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals(1, rules.getLength());
 		AbstractCSSRule rule = rules.item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
+		MediaRule mediarule = (MediaRule) rule;
+		MediaQueryList mql = mediarule.getMedia();
+		assertEquals("screen\\0", mql.getMedia());
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		assertEquals(csstext, rule.getCssText().replace('\n', ' ').replace("; }", "}"));
-	}
-
-	@Test
-	public void testMatchMediaQueryListSACMediaList() {
-		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
-		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
-		MediaList list = MediaList.createMediaList();
-		assertTrue(css.match(list, new MockSACMediaListAll()));
-		assertTrue(css.match(list, new MockSACMediaList()));
-		//
-		list.setMediaText("print, screen");
-		assertTrue(css.match(list, new MockSACMediaListAll()));
-		assertTrue(css.match(list, new MockSACMediaList()));
-		assertFalse(css.match(list, new MockSACMediaListHandheld()));
-	}
-
-	static class MockSACMediaListAll extends LinkedList<String> {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int size() {
-			return 1;
-		}
-
-		@Override
-		public String get(int idx) {
-			if (idx == 0) {
-				return "all";
-			} else {
-				return null;
-			}
-		}
-
-	}
-
-	static class MockSACMediaListHandheld extends LinkedList<String> {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int size() {
-			return 1;
-		}
-
-		@Override
-		public String get(int idx) {
-			if (idx == 0) {
-				return "handheld";
-			} else {
-				return null;
-			}
-		}
-
-	}
-
-	static class MockSACMediaList extends LinkedList<String> {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int size() {
-			return 2;
-		}
-
-		@Override
-		public String get(int idx) {
-			switch (idx) {
-			case 0:
-				return "handheld";
-			case 1:
-				return "screen";
-			default:
-				return null;
-			}
-		}
-
 	}
 
 	@Test
@@ -261,7 +187,7 @@ public class BaseCSSStyleSheetTest2 {
 	@Test
 	public void testToStyleString() throws IOException {
 		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet();
-		sheet.setMedia(MediaList.createMediaList("screen"));
+		sheet.setMedia(new MediaQueryListImpl("screen"));
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
 		CharBuffer target = CharBuffer.allocate(600);
 		target.append("<styletype=\"text/css\"media=\"screen\">");

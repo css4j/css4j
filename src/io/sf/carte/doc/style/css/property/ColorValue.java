@@ -171,7 +171,7 @@ public class ColorValue extends AbstractTextValue {
 			try {
 				if ("rgb".equalsIgnoreCase(func) || "rgba".equalsIgnoreCase(func)) {
 					// red
-					PrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					PrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					color.setRed(basiccolor);
 					// comma ?
 					lu = lu.getNextLexicalUnit();
@@ -179,7 +179,7 @@ public class ColorValue extends AbstractTextValue {
 						// green
 						lu = lu.getNextLexicalUnit();
 					}
-					basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					color.setGreen(basiccolor);
 					if (commaSyntax) {
 						// comma
@@ -187,20 +187,20 @@ public class ColorValue extends AbstractTextValue {
 					}
 					// blue
 					lu = lu.getNextLexicalUnit();
-					basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					color.setBlue(basiccolor);
 					// comma, slash or null
 					lu = lu.getNextLexicalUnit();
 					if (lu != null) {
 						// alpha
 						lu = lu.getNextLexicalUnit();
-						color.setAlpha(factory.createCSSPrimitiveValue(lu, false));
+						color.setAlpha(factory.createCSSPrimitiveValue(lu, true));
 						lu = lu.getNextLexicalUnit();
 					}
 					colorSpace = RGBAColor.ColorSpace.RGB;
 				} else if ("hsl".equalsIgnoreCase(func) || "hsla".equalsIgnoreCase(func)) {
 					// hue
-					CSSPrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					CSSPrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					float hue = basiccolor.getFloatValue(CSSPrimitiveValue.CSS_DEG) / 360f;
 					// comma
 					lu = lu.getNextLexicalUnit();
@@ -208,7 +208,7 @@ public class ColorValue extends AbstractTextValue {
 						// saturation
 						lu = lu.getNextLexicalUnit();
 					}
-					basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					float sat = basiccolor.getFloatValue(CSS_PERCENTAGE) / 100f;
 					if (commaSyntax) {
 						// comma
@@ -216,20 +216,20 @@ public class ColorValue extends AbstractTextValue {
 					}
 					// lightness
 					lu = lu.getNextLexicalUnit();
-					basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					float light = basiccolor.getFloatValue(CSS_PERCENTAGE) / 100f;
 					// comma, slash or null
 					lu = lu.getNextLexicalUnit();
 					if (lu != null) {
 						lu = lu.getNextLexicalUnit(); // Alpha
-						color.setAlpha(factory.createCSSPrimitiveValue(lu, false));
+						color.setAlpha(factory.createCSSPrimitiveValue(lu, true));
 						lu = lu.getNextLexicalUnit();
 					}
 					translateHSL(hue, sat, light);
 					colorSpace = RGBAColor.ColorSpace.HSL;
 				} else if ("hwb".equalsIgnoreCase(func)) {
 					// hue
-					CSSPrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					CSSPrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					float hue = basiccolor.getFloatValue(CSSPrimitiveValue.CSS_DEG) / 360f;
 					// comma
 					lu = lu.getNextLexicalUnit();
@@ -238,7 +238,7 @@ public class ColorValue extends AbstractTextValue {
 						// whiteness
 						lu = lu.getNextLexicalUnit();
 					}
-					basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					float whiteness = basiccolor.getFloatValue(CSS_PERCENTAGE) / 100f;
 					if (commaSyntax) {
 						// comma
@@ -246,13 +246,13 @@ public class ColorValue extends AbstractTextValue {
 					}
 					// blackness
 					lu = lu.getNextLexicalUnit();
-					basiccolor = factory.createCSSPrimitiveValue(lu, false);
+					basiccolor = factory.createCSSPrimitiveValue(lu, true);
 					float blackness = basiccolor.getFloatValue(CSS_PERCENTAGE) / 100f;
 					// comma, slash or null
 					lu = lu.getNextLexicalUnit();
 					if (lu != null) {
 						lu = lu.getNextLexicalUnit(); // Alpha
-						color.setAlpha(factory.createCSSPrimitiveValue(lu, false));
+						color.setAlpha(factory.createCSSPrimitiveValue(lu, true));
 						lu = lu.getNextLexicalUnit();
 					}
 					translateHWB(hue, whiteness, blackness);

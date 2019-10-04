@@ -155,7 +155,7 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 	void checkModifiableProperty() throws DOMException {
 		if (isSubproperty() || isReadOnly()) {
 			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"This property was set with a shorthand. Must modify at the style-declaration level.");
+					"This property was either set as a shorthand or as part of a more complex property. Must modify at a higher level (possibly at the style-declaration).");
 		}
 	}
 

@@ -116,7 +116,7 @@ abstract class BooleanConditionImpl implements BooleanCondition {
 	}
 
 	static abstract class GroupCondition extends BooleanConditionImpl {
-		LinkedList<BooleanCondition> nestedConditions;
+		final LinkedList<BooleanCondition> nestedConditions;
 
 		GroupCondition() {
 			super();
@@ -164,102 +164,6 @@ abstract class BooleanConditionImpl implements BooleanCondition {
 					return false;
 				}
 			} else if (!nestedConditions.equals(other.nestedConditions)) {
-				return false;
-			}
-			return true;
-		}
-
-	}
-
-	static abstract class AndCondition extends GroupCondition {
-
-		AndCondition() {
-			super();
-			nestedConditions = new LinkedList<BooleanCondition>();
-		}
-
-		@Override
-		public Type getType() {
-			return Type.AND;
-		}
-
-		@Override
-		public int hashCode() {
-			return super.hashCode() * 31 + 13;
-		}
-
-	}
-
-	static abstract class OrCondition extends GroupCondition {
-
-		OrCondition() {
-			super();
-		}
-
-		@Override
-		public Type getType() {
-			return Type.OR;
-		}
-
-		@Override
-		public int hashCode() {
-			return super.hashCode() * 31 + 7;
-		}
-
-	}
-
-	static abstract class NotCondition extends BooleanConditionImpl {
-		BooleanCondition nestedCondition;
-
-		NotCondition() {
-			super();
-		}
-
-		@Override
-		public void addCondition(BooleanCondition nestedCondition) {
-			nestedCondition.setParentCondition(this);
-			this.nestedCondition = nestedCondition;
-		}
-
-		@Override
-		public BooleanCondition replaceLast(BooleanCondition newCondition) {
-			BooleanCondition last = this.nestedCondition;
-			addCondition(newCondition);
-			return last;
-		}
-
-		@Override
-		public Type getType() {
-			return Type.NOT;
-		}
-
-		@Override
-		public BooleanCondition getNestedCondition() {
-			return nestedCondition;
-		}
-
-		@Override
-		public int hashCode() {
-			return ((nestedCondition == null) ? 0 : nestedCondition.hashCode());
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			NotCondition other = (NotCondition) obj;
-			if (nestedCondition == null) {
-				if (other.nestedCondition != null) {
-					return false;
-				}
-			} else if (!nestedCondition.equals(other.nestedCondition)) {
 				return false;
 			}
 			return true;

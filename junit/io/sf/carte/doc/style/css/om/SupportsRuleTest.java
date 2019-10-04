@@ -51,7 +51,7 @@ public class SupportsRuleTest {
 	@Test
 	public void testParseSupportsConditionBad() throws DOMException {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		CSSParser parser = new CSSParser();
+		CSSParser parser = new CSSOMParser();
 		BooleanCondition cond = parser.parseSupportsCondition(" ", rule);
 		assertNull(cond);
 		LinkedList<RuleParseException> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler())
@@ -67,7 +67,7 @@ public class SupportsRuleTest {
 	@Test
 	public void testParseSupportsConditionBad2() throws DOMException {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		CSSParser parser = new CSSParser();
+		CSSParser parser = new CSSOMParser();
 		BooleanCondition cond = parser.parseSupportsCondition("(", rule);
 		assertNull(cond);
 		LinkedList<RuleParseException> errors = ((DefaultSheetErrorHandler) sheet.getErrorHandler())

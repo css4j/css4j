@@ -112,7 +112,7 @@ public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 					item = expressionItem(lu);
 					newval = item.getCSSValue();
 				} else {
-					item = factory.createCSSPrimitiveValueItem(lu, false);
+					item = factory.createCSSPrimitiveValueItem(lu, false, false);
 					newval = item.getCSSValue();
 				}
 				lu = item.getNextLexicalUnit();

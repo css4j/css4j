@@ -62,7 +62,7 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 				throw new DOMException(DOMException.SYNTAX_ERR, "Void expression");
 			}
 		}
-	
+
 		private StyleExpression fillExpressionLevel(LexicalUnit lu, ValueFactory factory) {
 			StyleExpression expression = null;
 			short lastlutype = -1;
@@ -175,7 +175,7 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 					}
 				default:
 					PrimitiveValue primi;
-					LexicalSetter item = factory.createCSSPrimitiveValueItem(lu, false);
+					LexicalSetter item = factory.createCSSPrimitiveValueItem(lu, false, false);
 					if (item == null || isInvalidOperand(primi = item.getCSSValue(), lutype, lastlutype)) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
 					}

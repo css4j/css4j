@@ -29,7 +29,7 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.om.CSSOMParser;
 
 public class ValueFactoryTest {
 
@@ -37,7 +37,7 @@ public class ValueFactoryTest {
 
 	@Before
 	public void setUp() {
-		parser = new CSSParser();
+		parser = new CSSOMParser();
 	}
 
 	@Test

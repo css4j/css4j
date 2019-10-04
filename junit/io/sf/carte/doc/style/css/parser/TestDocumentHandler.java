@@ -16,8 +16,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
@@ -29,8 +29,8 @@ class TestDocumentHandler extends TestDeclarationHandler {
 	LinkedList<SelectorList> selectors = new LinkedList<SelectorList>();
 	LinkedList<SelectorList> endSelectors = new LinkedList<SelectorList>();
 	LinkedList<String> importURIs = new LinkedList<String>();
-	LinkedList<List<String>> importMedias = new LinkedList<List<String>>();
-	LinkedList<List<String>> mediaRuleLists = new LinkedList<List<String>>();
+	LinkedList<MediaQueryList> importMedias = new LinkedList<MediaQueryList>();
+	LinkedList<MediaQueryList> mediaRuleLists = new LinkedList<MediaQueryList>();
 	LinkedList<String> pageRuleNames = new LinkedList<String>();
 	LinkedList<String> pseudoPages = new LinkedList<String>();
 	LinkedList<String> comments = new LinkedList<String>();
@@ -62,20 +62,20 @@ class TestDocumentHandler extends TestDeclarationHandler {
 	}
 
 	@Override
-	public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
+	public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
 		importURIs.add(uri);
 		importMedias.add(media);
 		this.eventSeq.add("importStyle");
 	}
 
 	@Override
-	public void startMedia(List<String> media) {
+	public void startMedia(MediaQueryList media) {
 		mediaRuleLists.add(media);
 		this.eventSeq.add("startMedia");
 	}
 
 	@Override
-	public void endMedia(List<String> media) {
+	public void endMedia(MediaQueryList media) {
 		this.eventSeq.add("endMedia");
 		endMediaCount++;
 	}

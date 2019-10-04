@@ -877,42 +877,6 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendant3() throws CSSException, IOException {
-		SelectorList selist = parseSelectors("svg|div>>span");
-		assertNotNull(selist);
-		assertEquals(1, selist.getLength());
-		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
-		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
-		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
-		assertEquals("span", ((ElementSelector) simple).getLocalName());
-		assertEquals("svg|div span", sel.toString());
-	}
-
-	@Test
-	public void testParseSelectorDescendant3WS() throws CSSException, IOException {
-		SelectorList selist = parseSelectors("svg|div >> span");
-		assertNotNull(selist);
-		assertEquals(1, selist.getLength());
-		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
-		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
-		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
-		assertEquals("http://www.w3.org/2000/svg", ((ElementSelector) ancestor).getNamespaceURI());
-		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
-		assertEquals("span", ((ElementSelector) simple).getLocalName());
-		assertEquals("svg|div span", sel.toString());
-	}
-
-	@Test
 	public void testParseSelectorNextSibling() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("svg|div + span:empty");
 		assertNotNull(selist);

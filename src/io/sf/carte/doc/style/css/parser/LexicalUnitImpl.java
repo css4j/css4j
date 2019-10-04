@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.parser;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
@@ -178,7 +179,7 @@ class LexicalUnitImpl implements LexicalUnit {
 		return buf.toString();
 	}
 
-	private CharSequence currentToString() {
+	CharSequence currentToString() {
 		switch (unitType) {
 		case LexicalUnit.SAC_INTEGER:
 			return Integer.toString(intValue);
@@ -329,6 +330,30 @@ class LexicalUnitImpl implements LexicalUnit {
 			return ParseHelper.escapeControl(value);
 		}
 		return "";
+	}
+
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(dimensionUnitText, floatValue, identCssText, intValue, parameters, unitType, value);
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		LexicalUnitImpl other = (LexicalUnitImpl) obj;
+		return Objects.equals(dimensionUnitText, other.dimensionUnitText)
+				&& Float.floatToIntBits(floatValue) == Float.floatToIntBits(other.floatValue)
+				&& Objects.equals(identCssText, other.identCssText) && intValue == other.intValue
+				&& Objects.equals(ownerLexicalUnit, other.ownerLexicalUnit)
+				&& Objects.equals(parameters, other.parameters) && unitType == other.unitType
+				&& Objects.equals(value, other.value);
 	}
 
 }

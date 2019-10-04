@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css;
 
-import java.util.List;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.css.CSSRule;
@@ -40,7 +38,7 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 * @param media
 	 *            the media list.
 	 */
-	void badMediaList(List<String> media);
+	void badMediaList(MediaQueryList media);
 
 	/**
 	 * Notify this handler that an empty style rule (a style rule without property value

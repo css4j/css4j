@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -36,11 +37,20 @@ import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.parser.MediaQueryFactory;
 
 public class MediaRuleTest {
 
+	private static MediaQueryFactory mediaFactory;
+
 	private AbstractCSSStyleSheet sheet;
+
+	@BeforeClass
+	public static void setUpBeforeClass() {
+		mediaFactory = new MediaQueryFactoryImpl();
+	}
 
 	@Before
 	public void setUp() {
@@ -51,7 +61,7 @@ public class MediaRuleTest {
 
 	@Test
 	public void testInsertRuleStringInt() {
-		MediaList mediaList = MediaList.createMediaList("screen,print");
+		MediaQueryList mediaList = createMediaList("screen,print");
 		MediaRule rule = sheet.createMediaRule(mediaList);
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals(0, rule.insertRule("p {border-top: 1px dashed yellow; }", 0));
@@ -63,7 +73,7 @@ public class MediaRuleTest {
 
 	@Test
 	public void testGetCssText() {
-		MediaList mediaList = MediaList.createMediaList("screen,print");
+		MediaQueryList mediaList = createMediaList("screen,print");
 		MediaRule rule = sheet.createMediaRule(mediaList);
 		assertTrue(sheet == rule.getParentStyleSheet());
 		rule.insertRule("p {border-top: 1px dashed yellow; }", 0);
@@ -77,7 +87,7 @@ public class MediaRuleTest {
 
 	@Test
 	public void testGetCssText2() {
-		MediaList mediaList = MediaList.createMediaList("screen,print");
+		MediaQueryList mediaList = createMediaList("screen,print");
 		MediaRule rule = new MediaRule(sheet, mediaList, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		assertEquals("@media screen,print{}", rule.getMinifiedCssText());
 		assertEquals("@media screen,print {\n}\n", rule.getCssText());
@@ -153,11 +163,13 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media only screen and (min-width:0\\0){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
-		assertTrue(compatsheet.getErrorHandler().hasOMErrors());
+		assertFalse(compatsheet.getErrorHandler().hasSacErrors());
+		assertTrue(compatsheet.getErrorHandler().hasSacWarnings());
+		assertFalse(compatsheet.getErrorHandler().hasOMErrors());
 		assertFalse(compatsheet.getErrorHandler().hasOMWarnings());
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
-		assertTrue(cssdoc.getErrorHandler().hasMediaWarnings());
+		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
 	}
 
 	@Test
@@ -165,9 +177,10 @@ public class MediaRuleTest {
 		CSSElement cssStyle = styleElement("@media (max-width:1600px) and only screen {div.foo{margin:1em}}");
 		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
 		assertEquals(0, sheet.getCssRules().getLength());
-		assertTrue(sheet.getErrorHandler().hasOMErrors());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
-		assertTrue(cssdoc.getErrorHandler().hasMediaErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
 	}
 
@@ -183,8 +196,10 @@ public class MediaRuleTest {
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals("@media {div.foo {margin: 1em; }}", rule.getCssText());
 		assertEquals("@media{div.foo{margin:1em;}}", rule.getMinifiedCssText());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
-		assertTrue(cssdoc.getErrorHandler().hasMediaErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
 	}
 
@@ -200,9 +215,10 @@ public class MediaRuleTest {
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals("@media {div.foo {margin: 1em; }}", rule.getCssText());
 		assertEquals("@media{div.foo{margin:1em;}}", rule.getMinifiedCssText());
-		assertTrue(sheet.getErrorHandler().hasOMErrors());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
-		assertTrue(cssdoc.getErrorHandler().hasMediaErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
 	}
 
@@ -235,7 +251,7 @@ public class MediaRuleTest {
 
 	@Test
 	public void testSetCssText() throws DOMException {
-		MediaList mediaList = MediaList.createMediaList("screen,print");
+		MediaQueryList mediaList = createMediaList("screen,print");
 		MediaRule rule = new MediaRule(sheet, mediaList, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		String text = "@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}";
 		rule.setCssText(text);
@@ -251,7 +267,7 @@ public class MediaRuleTest {
 
 	@Test
 	public void testSetCssTextBadRule() throws DOMException {
-		MediaList mediaList = MediaList.createMediaList("screen,print");
+		MediaQueryList mediaList = createMediaList("screen,print");
 		MediaRule rule = new MediaRule(sheet, mediaList, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {
 			rule.setCssText(
@@ -282,7 +298,7 @@ public class MediaRuleTest {
 
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
-		MediaList mediaList = MediaList.createMediaList("screen,print");
+		MediaQueryList mediaList = createMediaList("screen,print");
 		MediaRule rule = sheet.createMediaRule(mediaList);
 		rule.insertRule("p {border-top: 1px dashed yellow; }", 0);
 		rule.insertRule("span.reddish {color: red; }", 1);
@@ -308,6 +324,12 @@ public class MediaRuleTest {
 				cloned.getCssText());
 		assertTrue(rule.equals(cloned));
 		assertEquals(rule.hashCode(), cloned.hashCode());
+	}
+
+	private MediaQueryList createMediaList(String media) {
+		MediaQueryList mql = mediaFactory.createAllMedia();
+		mql.appendMedium(media);
+		return mql;
 	}
 
 	private static CSSElement styleElement(String sheetText) throws DOMException, ParserConfigurationException {

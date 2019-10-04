@@ -20,7 +20,6 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
  * Base implementation class for CSS rules.
@@ -83,7 +82,7 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 		if (getParentStyleSheet() != null) {
 			parser = getParentStyleSheet().getStyleSheetFactory().createSACParser();
 		} else {
-			parser = new CSSParser();
+			parser = new CSSOMParser();
 		}
 		return parser;
 	}

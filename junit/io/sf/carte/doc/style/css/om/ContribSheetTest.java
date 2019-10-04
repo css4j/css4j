@@ -19,33 +19,21 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
-@RunWith(Parameterized.class)
 public class ContribSheetTest {
 
-	private Parser cssParser;
+	private static Parser cssParser;
 
-	public ContribSheetTest(Parser cssParser) {
-		super();
-		this.cssParser = cssParser;
-	}
-
-	@Parameters
-	public static Collection<Object[]> data() {
-		List<Object[]> parsers = new LinkedList<Object[]>();
-		parsers.add(new Object[] { new io.sf.carte.doc.style.css.parser.CSSParser() });
-		return parsers;
+	@BeforeClass
+	public static void setUpBeforeClass() {
+		cssParser = new CSSOMParser();
 	}
 
 	@Test
@@ -135,7 +123,9 @@ public class ContribSheetTest {
 		assertEquals(1, reparsedcomments.size());
 		assertEquals(comments.get(0), reparsedcomments.get(0));
 		for (int i = 0; i < len; i++) {
-			assertTrue(rules.item(i).equals(reparsedrules.item(i)));
+			AbstractCSSRule rule = rules.item(i);
+			AbstractCSSRule reparsedrule = reparsedrules.item(i);
+			assertTrue(rule.equals(reparsedrule));
 		}
 	}
 

@@ -23,16 +23,19 @@ import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
-import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 
-	private final LinkedList<MediaQuery> queryList = new LinkedList<MediaQuery>();
+	private static final MediaQueryList allMediaSingleton = new MediaQueryListImpl().unmodifiable();
+
+	private final LinkedList<MediaQueryImpl> queryList = new LinkedList<MediaQueryImpl>();
 
 	private LinkedList<CSSParseException> queryErrorList = null;
 
@@ -40,6 +43,27 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 
 	MediaQueryListImpl() {
 		super();
+	}
+
+	/**
+	 * Construct a media query list with a single query that has only a media type.
+	 * 
+	 * @param medium the media type.
+	 */
+	MediaQueryListImpl(String medium) {
+		super();
+		MediaQueryImpl query = new MediaQueryImpl();
+		query.setMediaType(medium);
+		queryList.add(query);
+	}
+
+	/**
+	 * Create an unmodifiable media list for all media.
+	 * 
+	 * @return the unmodifiable media list.
+	 */
+	static MediaQueryList createUnmodifiable() {
+		return allMediaSingleton;
 	}
 
 	@Override
@@ -51,7 +75,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 			return "all";
 		}
 		StringBuilder buf = new StringBuilder();
-		Iterator<MediaQuery> it = queryList.iterator();
+		Iterator<MediaQueryImpl> it = queryList.iterator();
 		buf.append(it.next().getMedia());
 		while (it.hasNext()) {
 			buf.append(',').append(it.next().getMedia());
@@ -68,7 +92,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 			return "all";
 		}
 		StringBuilder buf = new StringBuilder();
-		Iterator<MediaQuery> it = queryList.iterator();
+		Iterator<MediaQueryImpl> it = queryList.iterator();
 		buf.append(it.next().getMinifiedMedia());
 		while (it.hasNext()) {
 			buf.append(',').append(it.next().getMinifiedMedia());
@@ -151,7 +175,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 	 */
 	@Override
 	public boolean matches(String medium, CSSCanvas canvas) {
-		Iterator<MediaQuery> it = queryList.iterator();
+		Iterator<MediaQueryImpl> it = queryList.iterator();
 		while (it.hasNext()) {
 			if (it.next().matches(medium, canvas)) {
 				return true;
@@ -181,6 +205,10 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		if (isAllMedia()) {
 			return true;
 		}
+		if (otherMedia.isAllMedia()) {
+			// If we are here, this is not "all".
+			return false;
+		}
 		MediaQueryListImpl otherqlist;
 		if (otherMedia.getClass() == MediaQueryListImpl.class) {
 			otherqlist = (MediaQueryListImpl) otherMedia;
@@ -190,15 +218,21 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 			// Old implementation
 			return oldMatch(otherMedia);
 		}
-		Iterator<MediaQuery> it = queryList.iterator();
+		// Prepare a set of other media
+		HashSet<MediaQueryImpl> otherList = new HashSet<MediaQueryImpl>(otherqlist.queryList.size());
+		otherList.addAll(otherqlist.queryList);
+		Iterator<MediaQueryImpl> it = queryList.iterator();
 		while (it.hasNext()) {
-			MediaQuery query = it.next();
-			Iterator<MediaQuery> otherIt = otherqlist.queryList.iterator();
+			MediaQueryImpl query = it.next();
+			Iterator<MediaQueryImpl> otherIt = otherList.iterator();
 			while (otherIt.hasNext()) {
-				MediaQuery othermq = otherIt.next();
+				MediaQueryImpl othermq = otherIt.next();
 				if (query.matches(othermq)) {
-					return true;
+					otherIt.remove();
 				}
+			}
+			if (otherList.isEmpty()) {
+				return true;
 			}
 		}
 		return false;
@@ -395,6 +429,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		}
 
 		@Override
+		public String toString() {
+			return getMedia();
+		}
+
+		@Override
 		public void setMediaText(String mediaText) throws DOMException {
 			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
 					"Cannot modify target media: you must re-create the style sheet with a different media list.");
@@ -430,7 +469,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 	 *         <code>false</code>.
 	 */
 	boolean parse(String mediaQueryString, Node owner) {
-		CSSParser parser = new CSSParser();
+		Parser parser = new CSSOMParser();
 		return parse(parser, mediaQueryString, owner);
 	}
 
@@ -446,18 +485,15 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 	 *         query list already contains a valid query, it will never return
 	 *         <code>false</code>.
 	 */
-	boolean parse(CSSParser parser, String mediaQueryString, Node owner) {
+	boolean parse(Parser parser, String mediaQueryString, Node owner) {
 		invalidQueryList = false;
 		MyMediaQueryHandler qhandler = new MyMediaQueryHandler(owner);
-		parser.parseMediaQuery(mediaQueryString, new MediaConditionFactoryImpl(), qhandler);
-		if (qhandler.allMedia) {
-			queryList.clear();
-		}
+		parser.parseMediaQueryList(mediaQueryString, new MediaQueryFactoryImpl(), qhandler);
 		return !invalidQueryList;
 	}
 
 	class MyMediaQueryHandler implements io.sf.carte.doc.style.css.parser.MediaQueryHandler {
-		private MediaQuery currentQuery;
+		private MediaQueryImpl currentQuery;
 		private boolean invalidQuery = false;
 		private boolean compatQuery = false;
 		private boolean allMedia = false;
@@ -470,7 +506,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 
 		@Override
 		public void startQuery() {
-			currentQuery = new MediaQuery();
+			currentQuery = new MediaQueryImpl();
 		}
 
 		@Override
@@ -518,13 +554,30 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		}
 
 		private boolean containsNotAll() {
-			Iterator<MediaQuery> it = queryList.iterator();
+			Iterator<MediaQueryImpl> it = queryList.iterator();
 			while (it.hasNext()) {
 				if (it.next().isNotAllMedia()) {
 					return true;
 				}
 			}
 			return false;
+		}
+
+		@Override
+		public void endQueryList() {
+			if (allMedia) {
+				queryList.clear();
+			}
+		}
+
+		@Override
+		public MediaQueryList getMediaQueryList() {
+			return MediaQueryListImpl.this;
+		}
+
+		@Override
+		public boolean reportsErrors() {
+			return ownerNode != null;
 		}
 
 		@Override

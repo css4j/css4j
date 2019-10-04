@@ -1,0 +1,360 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://css4j.github.io/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.om;
+
+import java.util.Iterator;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.css.CSSPrimitiveValue;
+
+import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.parser.AbstractMediaQuery;
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
+import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.property.CalcValue;
+import io.sf.carte.doc.style.css.property.Evaluator;
+import io.sf.carte.doc.style.css.property.ExpressionValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.RatioValue;
+
+class MediaQueryImpl extends AbstractMediaQuery {
+
+	MediaQueryImpl() {
+		super();
+	}
+
+	@Override
+	protected void setMediaType(String mediaType) {
+		super.setMediaType(mediaType);
+	}
+
+	@Override
+	protected void setFeaturePredicate(BooleanCondition predicate) {
+		super.setFeaturePredicate(predicate);
+	}
+
+	@Override
+	protected void setNegative(boolean negative) {
+		super.setNegative(negative);
+	}
+
+	@Override
+	protected void setOnlyPrefix(boolean only) {
+		super.setOnlyPrefix(only);
+	}
+
+	@Override
+	protected boolean matches(AbstractMediaQuery other) {
+		return super.matches(other);
+	}
+
+	@Override
+	protected boolean matchesPredicate(BooleanCondition condition, CSSCanvas canvas) {
+		if (((BooleanConditionImpl.Predicate) condition).getPredicateType() == MediaPredicate.MEDIA_FEATURE) {
+			return matchesFeaturePredicate((MediaFeature) condition, canvas);
+		}
+		return true;
+	}
+
+	private static boolean matchesFeaturePredicate(MediaFeature predicate, CSSCanvas canvas) {
+		String feature = predicate.getName();
+		ExtendedCSSPrimitiveValue value = predicate.getValue();
+		predicate.getRangeSecondValue();
+		byte type = predicate.getRangeType();
+		if (type == 0 && value == null) {
+			return featureBooleanMatch(feature, canvas);
+		}
+		if (type == MediaFeaturePredicate.FEATURE_PLAIN) {
+			if (feature.startsWith("min-")) {
+				// >=
+				feature = feature.substring(4);
+				if (feature.startsWith("device-")) {
+					feature = feature.substring(7);
+				}
+				if (featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_GE, value, null, canvas)) {
+					return true;
+				}
+			} else if (feature.startsWith("max-")) {
+				// <=
+				feature = feature.substring(4);
+				if (feature.startsWith("device-")) {
+					feature = feature.substring(7);
+				}
+				if (featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_LE, value, null, canvas)) {
+					return true;
+				}
+			} else {
+				if (feature.startsWith("device-")) {
+					feature = feature.substring(7);
+				}
+				if (!isRangeFeature(feature)) {
+					if (canvas.matchesFeature(feature, value)) {
+						return true;
+					}
+				} else if (featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_EQ, value, null, canvas)) {
+					return true;
+				}
+			}
+		} else {
+			if (featureRangeMatch(feature, type, value, predicate.getRangeSecondValue(), canvas)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean featureBooleanMatch(String feature, CSSCanvas canvas) {
+		if (isRangeFeature(feature)) {
+			ExtendedCSSPrimitiveValue featured = canvas.getFeatureValue(feature);
+			return !featured.isNumberZero();
+		}
+		return canvas.matchesFeature(feature, null);
+	}
+
+	private static boolean featureRangeMatch(String feature, byte type, CSSPrimitiveValue value,
+			CSSPrimitiveValue value2, CSSCanvas canvas) {
+		ExtendedCSSPrimitiveValue featured = canvas.getFeatureValue(feature);
+		if (featured == null) {
+			return false;
+		}
+		short primitype = ((CSSPrimitiveValue) featured).getPrimitiveType();
+		float featureValue = ((CSSPrimitiveValue) featured).getFloatValue(primitype);
+		float fval1, fval2 = 0;
+		try {
+			fval1 = valueInUnit(value, canvas, primitype);
+		} catch (DOMException e) {
+			return false;
+		}
+		if (type >= 6) {
+			if (value2 == null) {
+				return false;
+			}
+			try {
+				fval2 = valueInUnit(value2, canvas, primitype);
+			} catch (DOMException e) {
+				return false;
+			}
+		}
+		switch (type) {
+		case MediaFeaturePredicate.FEATURE_EQ:
+			return floatEquals(fval1, featureValue);
+		case MediaFeaturePredicate.FEATURE_LT:
+			return fval1 > featureValue;
+		case MediaFeaturePredicate.FEATURE_LE:
+			return fval1 >= featureValue;
+		case MediaFeaturePredicate.FEATURE_GT:
+			return fval1 < featureValue;
+		case MediaFeaturePredicate.FEATURE_GE:
+			return fval1 <= featureValue;
+		case MediaFeaturePredicate.FEATURE_LT_AND_LT:
+			return fval1 < featureValue && featureValue < fval2;
+		case MediaFeaturePredicate.FEATURE_LE_AND_LT:
+			return fval1 <= featureValue && featureValue < fval2;
+		case MediaFeaturePredicate.FEATURE_LT_AND_LE:
+			return fval1 < featureValue && featureValue <= fval2;
+		case MediaFeaturePredicate.FEATURE_LE_AND_LE:
+			return fval1 <= featureValue && featureValue <= fval2;
+		case MediaFeaturePredicate.FEATURE_GT_AND_GT:
+			return fval1 > featureValue && featureValue > fval2;
+		case MediaFeaturePredicate.FEATURE_GE_AND_GT:
+			return fval1 >= featureValue && featureValue > fval2;
+		case MediaFeaturePredicate.FEATURE_GT_AND_GE:
+			return fval1 > featureValue && featureValue >= fval2;
+		case MediaFeaturePredicate.FEATURE_GE_AND_GE:
+			return fval1 >= featureValue && featureValue >= fval2;
+		default:
+			return false;
+		}
+	}
+
+	private static float valueInUnit(CSSPrimitiveValue value, CSSCanvas canvas, short primitype) throws DOMException {
+		float fval;
+		StyleDatabase sdb;
+		switch (value.getPrimitiveType()) {
+		case CSSPrimitiveValue.CSS_EMS:
+			fval = value.getFloatValue(CSSPrimitiveValue.CSS_EMS);
+			sdb = canvas.getStyleDatabase();
+			float fontSize = sdb.getFontSizeFromIdentifier(null, "medium");
+			fontSize = NumberValue.floatValueConversion(fontSize, sdb.getNaturalUnit(), primitype);
+			fval *= fontSize;
+			break;
+		case CSSPrimitiveValue.CSS_EXS:
+			fval = value.getFloatValue(CSSPrimitiveValue.CSS_EXS);
+			sdb = canvas.getStyleDatabase();
+			fontSize = sdb.getFontSizeFromIdentifier(null, "medium");
+			float exSize = sdb.getExSizeInPt(null, fontSize);
+			exSize = NumberValue.floatValueConversion(exSize, CSSPrimitiveValue.CSS_PT, primitype);
+			fval *= exSize;
+			break;
+		case CSSPrimitiveValue2.CSS_EXPRESSION:
+			ExpressionValue evalue = (ExpressionValue) value;
+			Evaluator ev = new MQEvaluator(canvas);
+			fval = ev.evaluateExpression(evalue).getFloatValue(primitype);
+			break;
+		case CSSPrimitiveValue2.CSS_RATIO:
+			float ffirst, fsecond;
+			RatioValue ratio = (RatioValue) value;
+			PrimitiveValue first = ratio.getAntecedentValue();
+			PrimitiveValue second = ratio.getConsequentValue();
+			if (first.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
+				ffirst = first.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+			} else {
+				// Calc
+				ev = new MQEvaluator(canvas);
+				ffirst = ev.evaluateExpression((CalcValue) first).getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+			}
+			if (second.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
+				fsecond = second.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+			} else {
+				// Calc
+				ev = new MQEvaluator(canvas);
+				fsecond = ev.evaluateExpression((CalcValue) second).getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+			}
+			fval = ffirst / fsecond;
+			break;
+		default:
+			fval = value.getFloatValue(primitype);
+		}
+		return fval;
+	}
+
+	static boolean floatEquals(float value1, float value2) {
+		return Math.abs(value2 - value1) < 7e-6;
+	}
+
+	private static class MQEvaluator extends Evaluator {
+
+		private final CSSCanvas canvas;
+
+		private final short expectedUnit;
+
+		private MQEvaluator(CSSCanvas canvas) {
+			this.canvas = canvas;
+			this.expectedUnit = canvas.getStyleDatabase().getNaturalUnit();
+		}
+
+		@Override
+		protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
+			if (partialValue.getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER) {
+				float fval = valueInUnit(partialValue, canvas, expectedUnit);
+				NumberValue number = new NumberValue();
+				number.setFloatValue(expectedUnit, fval);
+				return number;
+			}
+			return partialValue;
+		}
+
+	}
+
+	/**
+	 * Determine whether the two conditions match.
+	 * 
+	 * @param condition      the first condition.
+	 * @param otherCondition the second consdition.
+	 * @param negatedQuery   <code>0</code> if it is a direct match, <code>1</code>
+	 *                       if the this predicate is reverse (negated),
+	 *                       <code>2</code> if the given predicate is negated,
+	 *                       <code>3</code> if both are negated.
+	 * @return <code>1</code> if they match, <code>0</code> if don't, <code>2</code>
+	 *         if the match should not be taken into account.
+	 */
+	@Override
+	protected byte matches(BooleanCondition condition, BooleanCondition otherCondition, byte negatedQuery) {
+		switch (condition.getType()) {
+		case AND:
+			Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
+			while (it.hasNext()) {
+				BooleanCondition subcond = it.next();
+				if (matches(subcond, otherCondition, negatedQuery) == 0) {
+					return 0;
+				}
+			}
+			return 1;
+		case OR:
+			it = condition.getSubConditions().iterator();
+			while (it.hasNext()) {
+				BooleanCondition subcond = it.next();
+				if (matches(subcond, otherCondition, negatedQuery) == 1) {
+					return 1;
+				}
+			}
+			break;
+		case PREDICATE:
+			MediaPredicate predicate = (MediaPredicate) condition;
+			if (predicate.getPredicateType() == MediaPredicate.MEDIA_TYPE) {
+				// Ignore. We already checked this with the mediaType field.
+				return 2;
+			}
+			switch (otherCondition.getType()) {
+			case PREDICATE:
+				MediaPredicate otherPredicate = (MediaPredicate) otherCondition;
+				if (otherPredicate.getPredicateType() == MediaPredicate.MEDIA_TYPE) {
+					// Ignore. We already checked this with the mediaType field.
+					return 2;
+				}
+				if (predicate.matches(otherPredicate, negatedQuery)) {
+					return 1;
+				}
+				return 0;
+			case AND:
+				it = otherCondition.getSubConditions().iterator();
+				while (it.hasNext()) {
+					BooleanCondition subcond = it.next();
+					if (matches(condition, subcond, negatedQuery) == 1) {
+						// left-side condition is met
+						return 1;
+					}
+				}
+				break;
+			case OR:
+				it = otherCondition.getSubConditions().iterator();
+				while (it.hasNext()) {
+					BooleanCondition subcond = it.next();
+					if (matches(condition, subcond, negatedQuery) == 0) {
+						return 0;
+					}
+				}
+				// All left-side conditions are met
+				return 1;
+			case NOT:
+				if (negatedQuery == 0) {
+					negatedQuery = 2;
+				} else if (negatedQuery == 1) {
+					negatedQuery = 3;
+				} else if (negatedQuery == 2) {
+					negatedQuery = 0;
+				} else { // 3
+					negatedQuery = 1;
+				}
+				return matches(condition, otherCondition.getNestedCondition(), negatedQuery);
+			}
+			break;
+		case NOT:
+			if (negatedQuery == 0) {
+				negatedQuery = 1;
+			} else if (negatedQuery == 1) {
+				negatedQuery = 0;
+			} else if (negatedQuery == 2) {
+				negatedQuery = 3;
+			} else { // 3
+				negatedQuery = 2;
+			}
+			return matches(condition.getNestedCondition(), otherCondition, negatedQuery);
+		}
+		return 0;
+	}
+
+}

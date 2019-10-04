@@ -59,7 +59,7 @@ class OMCSSRectValue extends PrimitiveValue {
 			boolean commaFound = false;
 			LexicalUnit lu = lunit.getParameters();
 			// top
-			ExtendedCSSPrimitiveValue dimens = factory.createCSSPrimitiveValue(lu, false);
+			ExtendedCSSPrimitiveValue dimens = factory.createCSSPrimitiveValue(lu, true);
 			rect.setTop(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
@@ -68,7 +68,7 @@ class OMCSSRectValue extends PrimitiveValue {
 				commaFound = true;
 			}
 			// right
-			dimens = factory.createCSSPrimitiveValue(lu, false);
+			dimens = factory.createCSSPrimitiveValue(lu, true);
 			rect.setRight(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
@@ -83,7 +83,7 @@ class OMCSSRectValue extends PrimitiveValue {
 				lu = lu.getNextLexicalUnit();
 			}
 			// bottom
-			dimens = factory.createCSSPrimitiveValue(lu, false);
+			dimens = factory.createCSSPrimitiveValue(lu, true);
 			rect.setBottom(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
@@ -95,7 +95,7 @@ class OMCSSRectValue extends PrimitiveValue {
 				lu = lu.getNextLexicalUnit();
 			}
 			// left
-			dimens = factory.createCSSPrimitiveValue(lu, false);
+			dimens = factory.createCSSPrimitiveValue(lu, true);
 			rect.setLeft(dimens);
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}

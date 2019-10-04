@@ -837,7 +837,7 @@ public class BaseCSSStyleDeclarationTest {
 	public void testLexicalUnitToStringLexicalUnit() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
 		LexicalUnit value = parser.parsePropertyValue(new StringReader("#0f8 blue initial #45b6a0"));
-		assertEquals("rgb(0 255 136) blue initial rgb(69 182 160)", BaseCSSStyleDeclaration.lexicalUnitToString(value));
+		assertEquals("#0f8 blue initial #45b6a0", BaseCSSStyleDeclaration.lexicalUnitToString(value));
 	}
 
 	@Test

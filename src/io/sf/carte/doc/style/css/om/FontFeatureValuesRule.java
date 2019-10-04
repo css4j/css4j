@@ -345,12 +345,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 		String body = cssText.substring(21, len);
 		FontFeatureValuesHandler handler = new MyFontFeatureValuesHandler();
-		CSSParser parser;
-		try {
-			parser = (CSSParser) createSACParser();
-		} catch (ClassCastException e) {
-			parser = new CSSParser();
-		}
+		CSSParser parser = (CSSParser) createSACParser();
 		parser.setDocumentHandler(handler);
 		try {
 			parser.parseFontFeatureValuesBody(body);

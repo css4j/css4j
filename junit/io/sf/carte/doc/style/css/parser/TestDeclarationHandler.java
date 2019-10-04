@@ -12,8 +12,8 @@
 package io.sf.carte.doc.style.css.parser;
 
 import java.util.LinkedList;
-import java.util.List;
 
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
@@ -47,15 +47,15 @@ class TestDeclarationHandler implements CSSHandler {
 	}
 
 	@Override
-	public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
+	public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
 	}
 
 	@Override
-	public void startMedia(List<String> media) {
+	public void startMedia(MediaQueryList media) {
 	}
 
 	@Override
-	public void endMedia(List<String> media) {
+	public void endMedia(MediaQueryList media) {
 	}
 
 	@Override

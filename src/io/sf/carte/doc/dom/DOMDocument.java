@@ -63,7 +63,7 @@ import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.DOMUtil;
 import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
-import io.sf.carte.doc.style.css.om.MediaList;
+import io.sf.carte.doc.style.css.om.MediaFactory;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
 import io.sf.carte.doc.xml.dtd.ContentModel;
 
@@ -551,9 +551,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	MediaQueryList parseMediaList(String media, Node node) {
 		MediaQueryList mediaList;
 		if (media.length() == 0) {
-			mediaList = MediaList.createMediaList();
+			mediaList = MediaFactory.createImmutable();
 		} else {
-			mediaList = getStyleSheetFactory().createMediaQueryList(media, node);
+			mediaList = getStyleSheetFactory().createImmutableMediaQueryList(media, node);
 			if (mediaList.isNotAllMedia() && mediaList.hasErrors()) {
 				return null;
 			}

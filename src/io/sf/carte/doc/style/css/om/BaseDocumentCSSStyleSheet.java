@@ -40,7 +40,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 	private String targetMedium = null;
 
 	protected BaseDocumentCSSStyleSheet(String medium, byte origin) {
-		super(null, MediaList.createUnmodifiable(medium), null, origin);
+		super(null, new MediaQueryListImpl(medium), null, origin);
 		if ("all".equals(medium)) {
 			targetMedium = null;
 		} else {

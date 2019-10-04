@@ -23,12 +23,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import io.sf.carte.doc.TestConfig;
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -48,15 +48,16 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseMediaList() {
-		List<String> list = CSSParser.parseMediaList("tv");
+		NSACMediaQueryList list = new NSACMediaQueryList();
+		list.parse(parser, "tv", null);
 		assertNotNull(list);
-		assertEquals(1, list.size());
-		assertEquals("tv", list.get(0));
-		list = CSSParser.parseMediaList("tv, screen");
+		assertEquals(1, list.getLength());
+		assertEquals("tv", list.item(0));
+		list.setMediaText("tv, screen");
 		assertNotNull(list);
-		assertEquals(2, list.size());
-		assertEquals("tv", list.get(0));
-		assertEquals("screen", list.get(1));
+		assertEquals(2, list.getLength());
+		assertEquals("tv", list.item(0));
+		assertEquals("screen", list.item(1));
 	}
 
 	@Test
@@ -648,7 +649,7 @@ public class SheetParserTest {
 		assertEquals("print", handler.mediaRuleLists.get(0).toString());
 		assertEquals("screen", handler.mediaRuleLists.get(1).toString());
 		assertEquals(1, handler.importMedias.size());
-		assertEquals("tv,screen and (orientation:landscape)", handler.importMedias.get(0).toString());
+		assertEquals("tv,screen and (orientation: landscape)", handler.importMedias.get(0).toString());
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("tv.css", handler.importURIs.get(0));
 		assertEquals(5, handler.comments.size());
@@ -693,7 +694,7 @@ public class SheetParserTest {
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(1).toString());
 		assertEquals(1, handler.importMedias.size());
-		assertEquals("tv,screen and (orientation:landscape)", handler.importMedias.get(0).toString());
+		assertEquals("tv,screen and (orientation: landscape)", handler.importMedias.get(0).toString());
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("tv.css", handler.importURIs.get(0));
 		assertEquals(4, handler.comments.size());
@@ -752,7 +753,9 @@ public class SheetParserTest {
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(re);
 		assertEquals(2, handler.mediaRuleLists.size());
-		assertEquals("handheld,only screen and (max-width:1600px) .foo", handler.mediaRuleLists.get(0).toString());
+		MediaQueryList mq0 = handler.mediaRuleLists.get(0);
+		assertEquals("handheld", mq0.toString());
+		assertTrue(mq0.hasErrors());
 		assertEquals("all", handler.mediaRuleLists.get(1).toString());
 		assertEquals(2, handler.endMediaCount);
 		assertEquals(1, handler.selectors.size());
@@ -779,7 +782,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
-		assertEquals("(max-width:1600px)", handler.mediaRuleLists.get(1).toString());
+		assertEquals("(max-width: 1600px)", handler.mediaRuleLists.get(1).toString());
 		assertEquals(2, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.get(0).item(0).toString());
 		assertEquals("div.foo", handler.selectors.get(1).item(0).toString());
@@ -940,9 +943,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertTrue(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
@@ -1116,9 +1120,9 @@ public class SheetParserTest {
 		assertNull(handler.pageRuleNames.getFirst());
 		assertEquals(1, handler.endPageCount);
 		assertEquals(1, handler.mediaRuleLists.size());
-		List<String> medialist = handler.mediaRuleLists.getFirst();
-		assertEquals(1, medialist.size());
-		assertEquals("print", medialist.get(0));
+		MediaQueryList medialist = handler.mediaRuleLists.getFirst();
+		assertEquals(1, medialist.getLength());
+		assertEquals("print", medialist.item(0));
 		assertEquals(1, handler.endMediaCount);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("h3", handler.selectors.getFirst().toString());
@@ -1210,9 +1214,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
 		assertEquals(24, errorHandler.exception.getColumnNumber());
@@ -1317,9 +1322,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1334,9 +1340,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1351,9 +1358,9 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("print", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("print", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1368,10 +1375,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(2, list.size());
-		assertEquals("screen", list.get(0));
-		assertEquals("tv", list.get(1));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(2, list.getLength());
+		assertEquals("screen", list.item(0));
+		assertEquals("tv", list.item(1));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1386,9 +1393,9 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("(orientation:landscape)", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("(orientation: landscape)", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1403,9 +1410,9 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("screen and (orientation:landscape)", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("screen and (orientation: landscape)", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1434,9 +1441,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1451,9 +1459,9 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("print", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("print", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1468,9 +1476,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1485,10 +1494,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(2, list.size());
-		assertEquals("screen", list.get(0));
-		assertEquals("tv", list.get(1));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(2, list.getLength());
+		assertEquals("screen", list.item(0));
+		assertEquals("tv", list.item(1));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1687,9 +1696,10 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("foo.css", handler.importURIs.get(0));
 		assertEquals(1, handler.importMedias.size());
-		List<String> list = handler.importMedias.get(0);
-		assertEquals(1, list.size());
-		assertEquals("all", list.get(0));
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.exception.getLineNumber());
 		handler.checkRuleEndings();

@@ -11,52 +11,79 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
+import io.sf.carte.doc.style.css.parser.BooleanConditionHelper;
+
 /**
  * NOT condition.
  * 
  */
-class NotCondition extends BooleanConditionImpl.NotCondition {
+class NotCondition extends BooleanConditionImpl {
+
+	BooleanCondition nestedCondition;
 
 	NotCondition() {
 		super();
 	}
 
 	@Override
-	public void appendMinifiedText(StringBuilder buf) {
-		int buflen = buf.length();
-		boolean hasparent = getParentCondition() != null;
-		if (hasparent) {
-			buf.append("(not ");
-		} else {
-			if (buflen != 0) {
-				buf.append(" not ");
-			} else {
-				buf.append("not ");
-			}
-		}
-		nestedCondition.appendMinifiedText(buf);
-		if (hasparent) {
-			buf.append(')');
-		}
+	public void addCondition(BooleanCondition nestedCondition) {
+		nestedCondition.setParentCondition(this);
+		this.nestedCondition = nestedCondition;
+	}
+
+	@Override
+	public BooleanCondition replaceLast(BooleanCondition newCondition) {
+		BooleanCondition last = this.nestedCondition;
+		addCondition(newCondition);
+		return last;
+	}
+
+	@Override
+	public Type getType() {
+		return Type.NOT;
+	}
+
+	@Override
+	public BooleanCondition getNestedCondition() {
+		return nestedCondition;
 	}
 
 	@Override
 	public void appendText(StringBuilder buf) {
-		int buflen = buf.length();
-		boolean hasparent = getParentCondition() != null;
-		if (hasparent) {
-			buf.append("(not ");
-		} else {
-			if (buflen != 0) {
-				buf.append(" not ");
-			} else {
-				buf.append("not ");
+		BooleanConditionHelper.appendNOTText(this, buf);
+	}
+
+	@Override
+	public void appendMinifiedText(StringBuilder buf) {
+		BooleanConditionHelper.appendNOTMinifiedText(this, buf);
+	}
+
+	@Override
+	public int hashCode() {
+		return ((nestedCondition == null) ? 0 : nestedCondition.hashCode());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		NotCondition other = (NotCondition) obj;
+		if (nestedCondition == null) {
+			if (other.nestedCondition != null) {
+				return false;
 			}
+		} else if (!nestedCondition.equals(other.nestedCondition)) {
+			return false;
 		}
-		nestedCondition.appendText(buf);
-		if (hasparent) {
-			buf.append(')');
-		}
+		return true;
 	}
 
 }

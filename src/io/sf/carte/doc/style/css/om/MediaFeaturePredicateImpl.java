@@ -15,19 +15,23 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
+import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.RatioValue;
+import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
  * Media feature predicate implementation.
  * 
  */
-class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePredicate {
+class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 
 	private ExtendedCSSPrimitiveValue value1;
 	private ExtendedCSSPrimitiveValue value2;
@@ -35,6 +39,11 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 
 	MediaFeaturePredicateImpl(String featureName) {
 		super(featureName);
+	}
+
+	@Override
+	public short getPredicateType() {
+		return MediaPredicate.MEDIA_FEATURE;
 	}
 
 	@Override
@@ -53,8 +62,17 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 	}
 
 	@Override
-	public void setValue(ExtendedCSSPrimitiveValue value) {
-		this.value1 = value;
+	public void setValue(LexicalUnit value) {
+		if (value != null) {
+			StyleValue cssval = new ValueFactory().createCSSValue(value);
+			if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+						"Expected typed value, got: " + cssval.getCssValueType());
+			}
+			this.value1 = (ExtendedCSSPrimitiveValue) cssval;
+		} else {
+			this.value1 = null;
+		}
 	}
 
 	@Override
@@ -63,8 +81,20 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 	}
 
 	@Override
-	public void setRangeSecondValue(ExtendedCSSPrimitiveValue value) {
-		value2 = value;
+	public void setValueRange(LexicalUnit value1, LexicalUnit value2) {
+		StyleValue cssval = new ValueFactory().createCSSValue(value1);
+		if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Expected typed value, got: " + cssval.getCssValueType());
+		}
+		this.value1 = (ExtendedCSSPrimitiveValue) cssval;
+		//
+		cssval = new ValueFactory().createCSSValue(value2);
+		if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Expected typed value, got: " + cssval.getCssValueType());
+		}
+		this.value2 = (ExtendedCSSPrimitiveValue) cssval;
 	}
 
 	@Override
@@ -78,53 +108,53 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 		byte type = getRangeType();
 		byte oType = other.getRangeType();
 		// Canonicalize types and feature names
-		if (type == MediaQuery.FEATURE_PLAIN) {
+		if (type == MediaFeaturePredicate.FEATURE_PLAIN) {
 			if (feature.startsWith("min-")) {
 				feature = feature.substring(4);
 				if (feature.startsWith("device-")) {
 					feature = feature.substring(7);
 				}
-				type = MediaQuery.FEATURE_GE;
+				type = MediaFeaturePredicate.FEATURE_GE;
 			} else if (feature.startsWith("max-")) {
 				// <=
 				feature = feature.substring(4);
 				if (feature.startsWith("device-")) {
 					feature = feature.substring(7);
 				}
-				type = MediaQuery.FEATURE_LE;
+				type = MediaFeaturePredicate.FEATURE_LE;
 			} else {
 				if (feature.startsWith("device-")) {
 					feature = feature.substring(7);
 				}
 				if (value1 != null) {
-					type = MediaQuery.FEATURE_EQ;
+					type = MediaFeaturePredicate.FEATURE_EQ;
 				} else {
-					type = MediaQuery.FEATURE_GT;
+					type = MediaFeaturePredicate.FEATURE_GT;
 				}
 			}
 		}
-		if (oType == MediaQuery.FEATURE_PLAIN) {
+		if (oType == MediaFeaturePredicate.FEATURE_PLAIN) {
 			if (oFeature.startsWith("min-")) {
 				oFeature = oFeature.substring(4);
 				if (oFeature.startsWith("device-")) {
 					oFeature = oFeature.substring(7);
 				}
-				oType = MediaQuery.FEATURE_GE;
+				oType = MediaFeaturePredicate.FEATURE_GE;
 			} else if (oFeature.startsWith("max-")) {
 				// <=
 				oFeature = oFeature.substring(4);
 				if (oFeature.startsWith("device-")) {
 					oFeature = oFeature.substring(7);
 				}
-				oType = MediaQuery.FEATURE_LE;
+				oType = MediaFeaturePredicate.FEATURE_LE;
 			} else {
 				if (oFeature.startsWith("device-")) {
 					oFeature = oFeature.substring(7);
 				}
 				if (other.value1 != null) {
-					oType = MediaQuery.FEATURE_EQ;
+					oType = MediaFeaturePredicate.FEATURE_EQ;
 				} else {
-					oType = MediaQuery.FEATURE_GT;
+					oType = MediaFeaturePredicate.FEATURE_GT;
 				}
 			}
 		}
@@ -138,173 +168,223 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			type = negateType(type);
 		}
 		// Normalize type
+		ExtendedCSSPrimitiveValue otherVal1 = other.value1;
 		ExtendedCSSPrimitiveValue otherVal2 = other.value2;
 		boolean noeq1 = false;
 		boolean noeq2 = false;
 		switch (type) {
-		case MediaQuery.FEATURE_EQ:
+		case MediaFeaturePredicate.FEATURE_EQ:
 			if (value1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-				if (other.value1 != null && other.value1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-						&& value1.getStringValue().equalsIgnoreCase(other.value1.getStringValue())) {
+				if (otherVal1 != null && otherVal1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+						&& value1.getStringValue().equalsIgnoreCase(otherVal1.getStringValue())) {
 					return negatedQuery == 0 || negatedQuery == 3;
 				}
 				return negatedQuery == 1;
 			}
 			break;
-		case MediaQuery.FEATURE_LT:
-			if (oType == MediaQuery.FEATURE_LE) {
-				oType = MediaQuery.FEATURE_LT;
+		case MediaFeaturePredicate.FEATURE_LT:
+			if (oType == MediaFeaturePredicate.FEATURE_LE) {
+				oType = MediaFeaturePredicate.FEATURE_LT;
 				noeq1 = true;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_LT;
 				noeq1 = true;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GT || oType == MediaFeaturePredicate.FEATURE_GT_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GT || oType == MediaFeaturePredicate.FEATURE_GE_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_LT;
+				noeq1 = true;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LT || oType == MediaFeaturePredicate.FEATURE_LT_AND_LT) {
+				oType = MediaFeaturePredicate.FEATURE_LT;
+				otherVal1 = otherVal2;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LE || oType == MediaFeaturePredicate.FEATURE_LT_AND_LE) {
+				oType = MediaFeaturePredicate.FEATURE_LT;
+				noeq1 = true;
+				otherVal1 = otherVal2;
 			}
 			break;
-		case MediaQuery.FEATURE_LE:
-			if (oType == MediaQuery.FEATURE_LT) {
-				type = MediaQuery.FEATURE_LT;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_LE;
+		case MediaFeaturePredicate.FEATURE_LE:
+			if (oType == MediaFeaturePredicate.FEATURE_LT) {
+				type = MediaFeaturePredicate.FEATURE_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_LE;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GT || oType == MediaFeaturePredicate.FEATURE_GT_AND_GE) {
+				type = MediaFeaturePredicate.FEATURE_LT;
+				oType = MediaFeaturePredicate.FEATURE_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GT || oType == MediaFeaturePredicate.FEATURE_GE_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_LE;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LT || oType == MediaFeaturePredicate.FEATURE_LT_AND_LT) {
+				type = MediaFeaturePredicate.FEATURE_LT;
+				oType = MediaFeaturePredicate.FEATURE_LT;
+				otherVal1 = otherVal2;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LE || oType == MediaFeaturePredicate.FEATURE_LT_AND_LE) {
+				oType = MediaFeaturePredicate.FEATURE_LE;
+				otherVal1 = otherVal2;
 			}
 			break;
-		case MediaQuery.FEATURE_GT:
-			if (oType == MediaQuery.FEATURE_GE) {
-				oType = MediaQuery.FEATURE_GT;
+		case MediaFeaturePredicate.FEATURE_GT:
+			if (oType == MediaFeaturePredicate.FEATURE_GE) {
+				oType = MediaFeaturePredicate.FEATURE_GT;
 				noeq1 = true;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_GT;
 				noeq1 = true;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LT_AND_LT || oType == MediaFeaturePredicate.FEATURE_LT_AND_LE) {
+				oType = MediaFeaturePredicate.FEATURE_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LT || oType == MediaFeaturePredicate.FEATURE_LE_AND_LE) {
+				oType = MediaFeaturePredicate.FEATURE_GT;
+				noeq1 = true;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GT || oType == MediaFeaturePredicate.FEATURE_GT_AND_GT) {
+				oType = MediaFeaturePredicate.FEATURE_GT;
+				otherVal1 = otherVal2;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GE || oType == MediaFeaturePredicate.FEATURE_GT_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_GT;
+				noeq1 = true;
+				otherVal1 = otherVal2;
 			}
 			break;
-		case MediaQuery.FEATURE_GE:
-			if (oType == MediaQuery.FEATURE_GT) {
-				type = MediaQuery.FEATURE_GT;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_GE;
+		case MediaFeaturePredicate.FEATURE_GE:
+			if (oType == MediaFeaturePredicate.FEATURE_GT) {
+				type = MediaFeaturePredicate.FEATURE_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_GE;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LT_AND_LT || oType == MediaFeaturePredicate.FEATURE_LT_AND_LE) {
+				type = MediaFeaturePredicate.FEATURE_GT;
+				oType = MediaFeaturePredicate.FEATURE_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LT || oType == MediaFeaturePredicate.FEATURE_LE_AND_LE) {
+				type = MediaFeaturePredicate.FEATURE_GT;
+				oType = MediaFeaturePredicate.FEATURE_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GT || oType == MediaFeaturePredicate.FEATURE_GT_AND_GT) {
+				type = MediaFeaturePredicate.FEATURE_GT;
+				oType = MediaFeaturePredicate.FEATURE_GT;
+				otherVal1 = otherVal2;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GE || oType == MediaFeaturePredicate.FEATURE_GE_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_GE;
+				otherVal1 = otherVal2;
 			}
 			break;
-		case MediaQuery.FEATURE_LT_AND_LT:
-			if (oType == MediaQuery.FEATURE_LE_AND_LT) {
-				oType = MediaQuery.FEATURE_LT_AND_LT;
+		case MediaFeaturePredicate.FEATURE_LT_AND_LT:
+			if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LT) {
+				oType = MediaFeaturePredicate.FEATURE_LT_AND_LT;
 				noeq1 = true;
-			} else if (oType == MediaQuery.FEATURE_LT_AND_LE) {
-				oType = MediaQuery.FEATURE_LT_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LT_AND_LE) {
+				oType = MediaFeaturePredicate.FEATURE_LT_AND_LT;
 				noeq2 = true;
-			} else if (oType == MediaQuery.FEATURE_LE_AND_LE) {
-				oType = MediaQuery.FEATURE_LT_AND_LT;
-				noeq1 = true;
-				noeq2 = true;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_LT_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LE) {
+				oType = MediaFeaturePredicate.FEATURE_LT_AND_LT;
 				noeq1 = true;
 				noeq2 = true;
-				otherVal2 = other.value1;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_LT_AND_LT;
+				noeq1 = true;
+				noeq2 = true;
+				otherVal2 = otherVal1;
 			}
 			break;
-		case MediaQuery.FEATURE_LE_AND_LT:
-			if (oType == MediaQuery.FEATURE_LT_AND_LT) {
-				type = MediaQuery.FEATURE_LT_AND_LT;
-			} else if (oType == MediaQuery.FEATURE_LE_AND_LE) {
-				oType = MediaQuery.FEATURE_LE_AND_LT;
+		case MediaFeaturePredicate.FEATURE_LE_AND_LT:
+			if (oType == MediaFeaturePredicate.FEATURE_LT_AND_LT) {
+				type = MediaFeaturePredicate.FEATURE_LT_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LE) {
+				oType = MediaFeaturePredicate.FEATURE_LE_AND_LT;
 				noeq2 = true;
-			} else if (oType == MediaQuery.FEATURE_LT_AND_LE) {
-				type = MediaQuery.FEATURE_LT_AND_LT;
-				oType = MediaQuery.FEATURE_LT_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LT_AND_LE) {
+				type = MediaFeaturePredicate.FEATURE_LT_AND_LT;
+				oType = MediaFeaturePredicate.FEATURE_LT_AND_LT;
 				noeq2 = true;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_LE_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_LE_AND_LT;
 				noeq2 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
-		case MediaQuery.FEATURE_LT_AND_LE:
-			if (oType == MediaQuery.FEATURE_LT_AND_LT) {
-				type = MediaQuery.FEATURE_LT_AND_LT;
-			} else if (oType == MediaQuery.FEATURE_LE_AND_LE) {
-				oType = MediaQuery.FEATURE_LT_AND_LE;
+		case MediaFeaturePredicate.FEATURE_LT_AND_LE:
+			if (oType == MediaFeaturePredicate.FEATURE_LT_AND_LT) {
+				type = MediaFeaturePredicate.FEATURE_LT_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LE) {
+				oType = MediaFeaturePredicate.FEATURE_LT_AND_LE;
 				noeq1 = true;
-			} else if (oType == MediaQuery.FEATURE_LE_AND_LT) {
-				type = MediaQuery.FEATURE_LT_AND_LT;
-				oType = MediaQuery.FEATURE_LT_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LT) {
+				type = MediaFeaturePredicate.FEATURE_LT_AND_LT;
+				oType = MediaFeaturePredicate.FEATURE_LT_AND_LT;
 				noeq1 = true;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_LT_AND_LE;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_LT_AND_LE;
 				noeq1 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
-		case MediaQuery.FEATURE_LE_AND_LE:
-			if (oType == MediaQuery.FEATURE_LT_AND_LT) {
-				type = MediaQuery.FEATURE_LT_AND_LT;
-			} else if (oType == MediaQuery.FEATURE_LT_AND_LE) {
-				type = MediaQuery.FEATURE_LT_AND_LE;
-			} else if (oType == MediaQuery.FEATURE_LE_AND_LT) {
-				type = MediaQuery.FEATURE_LE_AND_LT;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_LE_AND_LE;
-				otherVal2 = other.value1;
+		case MediaFeaturePredicate.FEATURE_LE_AND_LE:
+			if (oType == MediaFeaturePredicate.FEATURE_LT_AND_LT) {
+				type = MediaFeaturePredicate.FEATURE_LT_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LT_AND_LE) {
+				type = MediaFeaturePredicate.FEATURE_LT_AND_LE;
+			} else if (oType == MediaFeaturePredicate.FEATURE_LE_AND_LT) {
+				type = MediaFeaturePredicate.FEATURE_LE_AND_LT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_LE_AND_LE;
+				otherVal2 = otherVal1;
 			}
 			break;
-		case MediaQuery.FEATURE_GT_AND_GT:
-			if (oType == MediaQuery.FEATURE_GE_AND_GT) {
-				oType = MediaQuery.FEATURE_GT_AND_GT;
+		case MediaFeaturePredicate.FEATURE_GT_AND_GT:
+			if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GT) {
+				oType = MediaFeaturePredicate.FEATURE_GT_AND_GT;
 				noeq1 = true;
-			} else if (oType == MediaQuery.FEATURE_GT_AND_GE) {
-				oType = MediaQuery.FEATURE_GT_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_GT_AND_GT;
 				noeq2 = true;
-			} else if (oType == MediaQuery.FEATURE_GE_AND_GE) {
-				oType = MediaQuery.FEATURE_GT_AND_GT;
-				noeq1 = true;
-				noeq2 = true;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_GT_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_GT_AND_GT;
 				noeq1 = true;
 				noeq2 = true;
-				otherVal2 = other.value1;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_GT_AND_GT;
+				noeq1 = true;
+				noeq2 = true;
+				otherVal2 = otherVal1;
 			}
 			break;
-		case MediaQuery.FEATURE_GE_AND_GT:
-			if (oType == MediaQuery.FEATURE_GT_AND_GT) {
-				type = MediaQuery.FEATURE_GT_AND_GT;
-			} else if (oType == MediaQuery.FEATURE_GE_AND_GE) {
-				oType = MediaQuery.FEATURE_GE_AND_GT;
+		case MediaFeaturePredicate.FEATURE_GE_AND_GT:
+			if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GT) {
+				type = MediaFeaturePredicate.FEATURE_GT_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_GE_AND_GT;
 				noeq2 = true;
-			} else if (oType == MediaQuery.FEATURE_GT_AND_GE) {
-				type = MediaQuery.FEATURE_GT_AND_GT;
-				oType = MediaQuery.FEATURE_GT_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GE) {
+				type = MediaFeaturePredicate.FEATURE_GT_AND_GT;
+				oType = MediaFeaturePredicate.FEATURE_GT_AND_GT;
 				noeq2 = true;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_GE_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_GE_AND_GT;
 				noeq2 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
-		case MediaQuery.FEATURE_GT_AND_GE:
-			if (oType == MediaQuery.FEATURE_GT_AND_GT) {
-				type = MediaQuery.FEATURE_GT_AND_GT;
-			} else if (oType == MediaQuery.FEATURE_GE_AND_GE) {
-				oType = MediaQuery.FEATURE_GT_AND_GE;
+		case MediaFeaturePredicate.FEATURE_GT_AND_GE:
+			if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GT) {
+				type = MediaFeaturePredicate.FEATURE_GT_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GE) {
+				oType = MediaFeaturePredicate.FEATURE_GT_AND_GE;
 				noeq1 = true;
-			} else if (oType == MediaQuery.FEATURE_GE_AND_GT) {
-				type = MediaQuery.FEATURE_GT_AND_GT;
-				oType = MediaQuery.FEATURE_GT_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GT) {
+				type = MediaFeaturePredicate.FEATURE_GT_AND_GT;
+				oType = MediaFeaturePredicate.FEATURE_GT_AND_GT;
 				noeq1 = true;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_GT_AND_GE;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_GT_AND_GE;
 				noeq1 = true;
-				otherVal2 = other.value1;
+				otherVal2 = otherVal1;
 			}
 			break;
-		case MediaQuery.FEATURE_GE_AND_GE:
-			if (oType == MediaQuery.FEATURE_GT_AND_GT) {
-				type = MediaQuery.FEATURE_GT_AND_GT;
-			} else if (oType == MediaQuery.FEATURE_GT_AND_GE) {
-				type = MediaQuery.FEATURE_GT_AND_GE;
-			} else if (oType == MediaQuery.FEATURE_GE_AND_GT) {
-				type = MediaQuery.FEATURE_GE_AND_GT;
-			} else if (oType == MediaQuery.FEATURE_EQ) {
-				oType = MediaQuery.FEATURE_GE_AND_GE;
-				otherVal2 = other.value1;
+		case MediaFeaturePredicate.FEATURE_GE_AND_GE:
+			if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GT) {
+				type = MediaFeaturePredicate.FEATURE_GT_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GT_AND_GE) {
+				type = MediaFeaturePredicate.FEATURE_GT_AND_GE;
+			} else if (oType == MediaFeaturePredicate.FEATURE_GE_AND_GT) {
+				type = MediaFeaturePredicate.FEATURE_GE_AND_GT;
+			} else if (oType == MediaFeaturePredicate.FEATURE_EQ) {
+				oType = MediaFeaturePredicate.FEATURE_GE_AND_GE;
+				otherVal2 = otherVal1;
 			}
 			break;
 		}
@@ -318,7 +398,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 		short pType = CSSPrimitiveValue.CSS_NUMBER;
 		if (value1 == null) {
 			// Boolean
-			if (other.value1 == null) {
+			if (otherVal1 == null) {
 				boolean negated = negatedQuery == 1 || negatedQuery == 2;
 				return !negated;
 			}
@@ -341,11 +421,11 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 			}
 		}
 		float ofval1;
-		if (other.value1 == null) {
+		if (otherVal1 == null) {
 			ofval1 = 0f;
 		} else {
-			if (other.value1.getPrimitiveType() == CSSPrimitiveValue2.CSS_RATIO) {
-				RatioValue ratio = (RatioValue) other.value1;
+			if (otherVal1.getPrimitiveType() == CSSPrimitiveValue2.CSS_RATIO) {
+				RatioValue ratio = (RatioValue) otherVal1;
 				PrimitiveValue ante = ratio.getAntecedentValue();
 				float odenom;
 				try {
@@ -357,7 +437,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 				fval1 *= odenom;
 			} else {
 				try {
-					ofval1 = other.value1.getFloatValue(pType);
+					ofval1 = otherVal1.getFloatValue(pType);
 				} catch (DOMException e) {
 					return false;
 				}
@@ -417,29 +497,29 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 		}
 		//
 		switch (type) {
-		case MediaQuery.FEATURE_EQ:
+		case MediaFeaturePredicate.FEATURE_EQ:
 			boolean negated = negatedQuery == 1 || negatedQuery == 2;
-			if (MediaQuery.floatEquals(fval1, ofval1)) {
+			if (MediaQueryImpl.floatEquals(fval1, ofval1)) {
 				return !negated;
 			}
 			return negated;
-		case MediaQuery.FEATURE_LT:
-		case MediaQuery.FEATURE_LE:
+		case MediaFeaturePredicate.FEATURE_LT:
+		case MediaFeaturePredicate.FEATURE_LE:
 			return noeq1 ? fval1 > ofval1 : fval1 >= ofval1;
-		case MediaQuery.FEATURE_GT:
-		case MediaQuery.FEATURE_GE:
+		case MediaFeaturePredicate.FEATURE_GT:
+		case MediaFeaturePredicate.FEATURE_GE:
 			return noeq1 ? fval1 < ofval1 : fval1 <= ofval1;
-		case MediaQuery.FEATURE_LT_AND_LT:
-		case MediaQuery.FEATURE_LE_AND_LT:
-		case MediaQuery.FEATURE_LT_AND_LE:
-		case MediaQuery.FEATURE_LE_AND_LE:
+		case MediaFeaturePredicate.FEATURE_LT_AND_LT:
+		case MediaFeaturePredicate.FEATURE_LE_AND_LT:
+		case MediaFeaturePredicate.FEATURE_LT_AND_LE:
+		case MediaFeaturePredicate.FEATURE_LE_AND_LE:
 			boolean first = noeq1 ? fval1 < ofval1 : fval1 <= ofval1;
 			boolean second = noeq2 ? ofval2 < fval2 : ofval2 <= fval2;
 			return first && second;
-		case MediaQuery.FEATURE_GT_AND_GT:
-		case MediaQuery.FEATURE_GE_AND_GT:
-		case MediaQuery.FEATURE_GT_AND_GE:
-		case MediaQuery.FEATURE_GE_AND_GE:
+		case MediaFeaturePredicate.FEATURE_GT_AND_GT:
+		case MediaFeaturePredicate.FEATURE_GE_AND_GT:
+		case MediaFeaturePredicate.FEATURE_GT_AND_GE:
+		case MediaFeaturePredicate.FEATURE_GE_AND_GE:
 			first = noeq1 ? fval1 > ofval1 : fval1 >= ofval1;
 			second = noeq2 ? ofval2 > fval2 : ofval2 >= fval2;
 			return first && second;
@@ -450,41 +530,41 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 
 	private static byte negateType(byte type) {
 		switch (type) {
-		case MediaQuery.FEATURE_LT:
-			type = MediaQuery.FEATURE_GE;
+		case MediaFeaturePredicate.FEATURE_LT:
+			type = MediaFeaturePredicate.FEATURE_GE;
 			break;
-		case MediaQuery.FEATURE_LE:
-			type = MediaQuery.FEATURE_GT;
+		case MediaFeaturePredicate.FEATURE_LE:
+			type = MediaFeaturePredicate.FEATURE_GT;
 			break;
-		case MediaQuery.FEATURE_GT:
-			type = MediaQuery.FEATURE_LE;
+		case MediaFeaturePredicate.FEATURE_GT:
+			type = MediaFeaturePredicate.FEATURE_LE;
 			break;
-		case MediaQuery.FEATURE_GE:
-			type = MediaQuery.FEATURE_LT;
+		case MediaFeaturePredicate.FEATURE_GE:
+			type = MediaFeaturePredicate.FEATURE_LT;
 			break;
-		case MediaQuery.FEATURE_LE_AND_LE:
-			type = MediaQuery.FEATURE_GT_AND_GT;
+		case MediaFeaturePredicate.FEATURE_LE_AND_LE:
+			type = MediaFeaturePredicate.FEATURE_GT_AND_GT;
 			break;
-		case MediaQuery.FEATURE_LE_AND_LT:
-			type = MediaQuery.FEATURE_GT_AND_GE;
+		case MediaFeaturePredicate.FEATURE_LE_AND_LT:
+			type = MediaFeaturePredicate.FEATURE_GT_AND_GE;
 			break;
-		case MediaQuery.FEATURE_LT_AND_LE:
-			type = MediaQuery.FEATURE_GE_AND_GT;
+		case MediaFeaturePredicate.FEATURE_LT_AND_LE:
+			type = MediaFeaturePredicate.FEATURE_GE_AND_GT;
 			break;
-		case MediaQuery.FEATURE_LT_AND_LT:
-			type = MediaQuery.FEATURE_GE_AND_GE;
+		case MediaFeaturePredicate.FEATURE_LT_AND_LT:
+			type = MediaFeaturePredicate.FEATURE_GE_AND_GE;
 			break;
-		case MediaQuery.FEATURE_GE_AND_GE:
-			type = MediaQuery.FEATURE_LT_AND_LT;
+		case MediaFeaturePredicate.FEATURE_GE_AND_GE:
+			type = MediaFeaturePredicate.FEATURE_LT_AND_LT;
 			break;
-		case MediaQuery.FEATURE_GE_AND_GT:
-			type = MediaQuery.FEATURE_LT_AND_LE;
+		case MediaFeaturePredicate.FEATURE_GE_AND_GT:
+			type = MediaFeaturePredicate.FEATURE_LT_AND_LE;
 			break;
-		case MediaQuery.FEATURE_GT_AND_GE:
-			type = MediaQuery.FEATURE_LE_AND_LT;
+		case MediaFeaturePredicate.FEATURE_GT_AND_GE:
+			type = MediaFeaturePredicate.FEATURE_LE_AND_LT;
 			break;
-		case MediaQuery.FEATURE_GT_AND_GT:
-			type = MediaQuery.FEATURE_LE_AND_LE;
+		case MediaFeaturePredicate.FEATURE_GT_AND_GT:
+			type = MediaFeaturePredicate.FEATURE_LE_AND_LE;
 			break;
 		}
 		return type;
@@ -494,84 +574,84 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 	public void appendText(StringBuilder buf) {
 		buf.append('(');
 		switch (rangeType) {
-		case MediaQuery.FEATURE_PLAIN:
-		case MediaQuery.FEATURE_EQ:
+		case MediaFeaturePredicate.FEATURE_PLAIN:
+		case MediaFeaturePredicate.FEATURE_EQ:
 			appendFeatureName(buf);
 			if (value1 != null) {
 				buf.append(": ");
 				buf.append(value1.getCssText());
 			}
 			break;
-		case MediaQuery.FEATURE_LT:
+		case MediaFeaturePredicate.FEATURE_LT:
 			appendFeatureName(buf);
 			buf.append(" < ");
 			buf.append(value1.getCssText());
 			break;
-		case MediaQuery.FEATURE_LE:
+		case MediaFeaturePredicate.FEATURE_LE:
 			appendFeatureName(buf);
 			buf.append(" <= ");
 			buf.append(value1.getCssText());
 			break;
-		case MediaQuery.FEATURE_GT:
+		case MediaFeaturePredicate.FEATURE_GT:
 			appendFeatureName(buf);
 			buf.append(" > ");
 			buf.append(value1.getCssText());
 			break;
-		case MediaQuery.FEATURE_GE:
+		case MediaFeaturePredicate.FEATURE_GE:
 			appendFeatureName(buf);
 			buf.append(" >= ");
 			buf.append(value1.getCssText());
 			break;
-		case MediaQuery.FEATURE_LT_AND_LE:
+		case MediaFeaturePredicate.FEATURE_LT_AND_LE:
 			buf.append(value1.getCssText());
 			buf.append(" < ");
 			appendFeatureName(buf);
 			buf.append(" <= ");
 			buf.append(value2.getCssText());
 			break;
-		case MediaQuery.FEATURE_LT_AND_LT:
+		case MediaFeaturePredicate.FEATURE_LT_AND_LT:
 			buf.append(value1.getCssText());
 			buf.append(" < ");
 			appendFeatureName(buf);
 			buf.append(" < ");
 			buf.append(value2.getCssText());
 			break;
-		case MediaQuery.FEATURE_LE_AND_LT:
+		case MediaFeaturePredicate.FEATURE_LE_AND_LT:
 			buf.append(value1.getCssText());
 			buf.append(" <= ");
 			appendFeatureName(buf);
 			buf.append(" < ");
 			buf.append(value2.getCssText());
 			break;
-		case MediaQuery.FEATURE_LE_AND_LE:
+		case MediaFeaturePredicate.FEATURE_LE_AND_LE:
 			buf.append(value1.getCssText());
 			buf.append(" <= ");
 			appendFeatureName(buf);
 			buf.append(" <= ");
 			buf.append(value2.getCssText());
 			break;
-		case MediaQuery.FEATURE_GT_AND_GT:
+		case MediaFeaturePredicate.FEATURE_GT_AND_GT:
 			buf.append(value1.getCssText());
 			buf.append(" > ");
 			appendFeatureName(buf);
 			buf.append(" > ");
 			buf.append(value2.getCssText());
 			break;
-		case MediaQuery.FEATURE_GE_AND_GT:
+		case MediaFeaturePredicate.FEATURE_GE_AND_GT:
 			buf.append(value1.getCssText());
 			buf.append(" >= ");
 			appendFeatureName(buf);
 			buf.append(" > ");
 			buf.append(value2.getCssText());
 			break;
-		case MediaQuery.FEATURE_GT_AND_GE:
+		case MediaFeaturePredicate.FEATURE_GT_AND_GE:
 			buf.append(value1.getCssText());
 			buf.append(" > ");
 			appendFeatureName(buf);
 			buf.append(" >= ");
 			buf.append(value2.getCssText());
 			break;
-		case MediaQuery.FEATURE_GE_AND_GE:
+		case MediaFeaturePredicate.FEATURE_GE_AND_GE:
 			buf.append(value1.getCssText());
 			buf.append(" >= ");
 			appendFeatureName(buf);
@@ -586,84 +666,84 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 	public void appendMinifiedText(StringBuilder buf) {
 		buf.append('(');
 		switch (rangeType) {
-		case MediaQuery.FEATURE_PLAIN:
-		case MediaQuery.FEATURE_EQ:
+		case MediaFeaturePredicate.FEATURE_PLAIN:
+		case MediaFeaturePredicate.FEATURE_EQ:
 			appendFeatureName(buf);
 			if (value1 != null) {
 				buf.append(':');
 				buf.append(value1.getMinifiedCssText(""));
 			}
 			break;
-		case MediaQuery.FEATURE_LT:
+		case MediaFeaturePredicate.FEATURE_LT:
 			appendFeatureName(buf);
 			buf.append('<');
 			buf.append(value1.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_LE:
+		case MediaFeaturePredicate.FEATURE_LE:
 			appendFeatureName(buf);
 			buf.append("<=");
 			buf.append(value1.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_GT:
+		case MediaFeaturePredicate.FEATURE_GT:
 			appendFeatureName(buf);
 			buf.append('>');
 			buf.append(value1.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_GE:
+		case MediaFeaturePredicate.FEATURE_GE:
 			appendFeatureName(buf);
 			buf.append(">=");
 			buf.append(value1.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_LT_AND_LE:
-			buf.append(value1.getCssText());
+		case MediaFeaturePredicate.FEATURE_LT_AND_LE:
+			buf.append(value1.getMinifiedCssText(""));
 			buf.append('<');
 			appendFeatureName(buf);
 			buf.append("<=");
 			buf.append(value2.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_LT_AND_LT:
+		case MediaFeaturePredicate.FEATURE_LT_AND_LT:
 			buf.append(value1.getMinifiedCssText(""));
 			buf.append('<');
 			appendFeatureName(buf);
 			buf.append('<');
 			buf.append(value2.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_LE_AND_LT:
+		case MediaFeaturePredicate.FEATURE_LE_AND_LT:
 			buf.append(value1.getMinifiedCssText(""));
 			buf.append("<=");
 			appendFeatureName(buf);
 			buf.append('<');
 			buf.append(value2.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_LE_AND_LE:
+		case MediaFeaturePredicate.FEATURE_LE_AND_LE:
 			buf.append(value1.getMinifiedCssText(""));
 			buf.append("<=");
 			appendFeatureName(buf);
 			buf.append("<=");
 			buf.append(value2.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_GT_AND_GT:
+		case MediaFeaturePredicate.FEATURE_GT_AND_GT:
 			buf.append(value1.getMinifiedCssText(""));
 			buf.append('>');
 			appendFeatureName(buf);
 			buf.append('>');
 			buf.append(value2.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_GE_AND_GT:
+		case MediaFeaturePredicate.FEATURE_GE_AND_GT:
 			buf.append(value1.getMinifiedCssText(""));
 			buf.append(">=");
 			appendFeatureName(buf);
 			buf.append('>');
 			buf.append(value2.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_GT_AND_GE:
+		case MediaFeaturePredicate.FEATURE_GT_AND_GE:
 			buf.append(value1.getMinifiedCssText(""));
 			buf.append('>');
 			appendFeatureName(buf);
 			buf.append(">=");
 			buf.append(value2.getMinifiedCssText(""));
 			break;
-		case MediaQuery.FEATURE_GE_AND_GE:
+		case MediaFeaturePredicate.FEATURE_GE_AND_GE:
 			buf.append(value1.getMinifiedCssText(""));
 			buf.append(">=");
 			appendFeatureName(buf);
@@ -681,9 +761,9 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 	@Override
 	public int hashCode() {
 		byte efftype;
-		if (rangeType == MediaQuery.FEATURE_PLAIN) {
+		if (rangeType == MediaFeaturePredicate.FEATURE_PLAIN) {
 			// We handle 'feature: value' effectively as 'feature = value'
-			efftype = MediaQuery.FEATURE_EQ;
+			efftype = MediaFeaturePredicate.FEATURE_EQ;
 		} else {
 			efftype = rangeType;
 		}
@@ -703,14 +783,14 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeaturePr
 		}
 		MediaFeaturePredicateImpl other = (MediaFeaturePredicateImpl) obj;
 		byte efftype, otherefftype;
-		if (rangeType == MediaQuery.FEATURE_PLAIN) {
+		if (rangeType == MediaFeaturePredicate.FEATURE_PLAIN) {
 			// We handle 'feature: value' effectively as 'feature = value'
-			efftype = MediaQuery.FEATURE_EQ;
+			efftype = MediaFeaturePredicate.FEATURE_EQ;
 		} else {
 			efftype = rangeType;
 		}
-		if (other.rangeType == MediaQuery.FEATURE_PLAIN) {
-			otherefftype = MediaQuery.FEATURE_EQ;
+		if (other.rangeType == MediaFeaturePredicate.FEATURE_PLAIN) {
+			otherefftype = MediaFeaturePredicate.FEATURE_EQ;
 		} else {
 			otherefftype = other.rangeType;
 		}

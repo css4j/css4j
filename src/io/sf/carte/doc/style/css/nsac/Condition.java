@@ -139,7 +139,7 @@ public interface Condition {
 	 *   [restart^="never"]
 	 * </pre>
 	 *
-	 * @see org.w3c.css.sac.AttributeCondition
+	 * @see AttributeCondition
 	 */
 	short SAC_BEGINS_ATTRIBUTE_CONDITION = 14;
 
@@ -150,7 +150,7 @@ public interface Condition {
 	 *   [restart$="never"]
 	 * </pre>
 	 *
-	 * @see org.w3c.css.sac.AttributeCondition
+	 * @see AttributeCondition
 	 */
 	short SAC_ENDS_ATTRIBUTE_CONDITION = 15;
 
@@ -161,7 +161,7 @@ public interface Condition {
 	 *   [restart*="never"]
 	 * </pre>
 	 *
-	 * @see org.w3c.css.sac.AttributeCondition
+	 * @see AttributeCondition
 	 */
 	short SAC_SUBSTRING_ATTRIBUTE_CONDITION = 16;
 
@@ -185,7 +185,7 @@ public interface Condition {
 	 *   ::first-letter
 	 * </pre>
 	 *
-	 * @see org.w3c.css.sac.AttributeCondition#getLocalName()
+	 * @see AttributeCondition#getLocalName()
 	 */
 	short SAC_PSEUDO_ELEMENT_CONDITION = 18;
 

@@ -24,11 +24,6 @@ class MediaTypePredicate extends MediaPredicate {
 	}
 
 	@Override
-	public short getPredicateType() {
-		return MediaPredicate.MEDIA_TYPE;
-	}
-
-	@Override
 	public boolean matches(MediaPredicate otherPredicate, byte negatedQuery) {
 		if (getPredicateType() == otherPredicate.getPredicateType()) {
 			return false;

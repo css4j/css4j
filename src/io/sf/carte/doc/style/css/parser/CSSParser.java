@@ -21,25 +21,25 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
+import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.AgentUtil;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
+import io.sf.carte.doc.style.css.nsac.CSSMediaParseException;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
@@ -71,19 +71,31 @@ import io.sf.carte.uparser.TokenProducer;
 /**
  * CSS parser implementing the NSAC API.
  * <p>
- * Additionally to NSAC, it adds a few methods to parse media queries,
- * <code>{@literal @}supports</code> conditions and the bodies of other rules
- * (you probably want to use them through the Object Model instead of calling
- * them directly).
+ * Additionally to NSAC, it includes a few other methods.
+ * </p>
  */
 public class CSSParser implements Parser {
 
-	private CSSHandler handler = null;
-	private CSSErrorHandler errorHandler = null;
-	private final EnumSet<Flag> parserFlags = EnumSet.noneOf(Flag.class);
+	private CSSHandler handler;
+	private CSSErrorHandler errorHandler;
 
+	private final EnumSet<Flag> parserFlags;
+
+	/**
+	 * Instantiate a parser instance with no flags.
+	 */
 	public CSSParser() {
 		super();
+		parserFlags = EnumSet.noneOf(Flag.class);
+		handler = null;
+		errorHandler = null;
+	}
+
+	protected CSSParser(CSSParser copyMe) {
+		super();
+		parserFlags = copyMe.parserFlags;
+		handler = copyMe.handler;
+		errorHandler = copyMe.errorHandler;
 	}
 
 	@Override
@@ -364,21 +376,22 @@ public class CSSParser implements Parser {
 	}
 
 	/**
-	 * Parse a media query.
+	 * Parse a media query string into the given handler.
 	 * 
 	 * @param media
 	 *            the media query text.
-	 * @param condFactory
-	 *            the condition factory.
+	 * @param queryFactory
+	 *            the query factory.
 	 * @param mqhandler
-	 *            the media query handler.
+	 *            the media query list handler.
 	 * @throws CSSException <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a
 	 *                      hard-coded limit in nested expressions was reached.
 	 */
-	public void parseMediaQuery(String media, MediaConditionFactory condFactory, MediaQueryHandler mqhandler)
+	@Override
+	public void parseMediaQueryList(String media, MediaQueryFactory queryFactory, MediaQueryHandler mqhandler)
 			throws CSSException {
 		int[] allowInWords = { 45, 46 }; // -.
-		ConditionTokenHandler handler = new MediaQueryTokenHandler(condFactory, mqhandler);
+		ConditionTokenHandler handler = new MediaQueryTokenHandler(queryFactory, mqhandler);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		mqhandler.startQuery();
 		try {
@@ -386,6 +399,59 @@ public class CSSParser implements Parser {
 		} catch (IndexOutOfBoundsException e) {
 			throw new CSSBudgetException("Nested queries exceed limit", e);
 		}
+		mqhandler.endQueryList();
+	}
+
+	/**
+	 * Parse a media query string.
+	 * 
+	 * @param media
+	 *            the media query text.
+	 * @param owner
+	 *            the node that owns the responsibility to handle the errors in
+	 *            the query list.
+	 * @throws CSSException <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a
+	 *                      hard-coded limit in nested expressions was reached.
+	 */
+	@Override
+	public MediaQueryList parseMediaQueryList(String media, Node owner) throws CSSException {
+		int[] allowInWords = { 45, 46 }; // -.
+		MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
+		MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(owner);
+		ConditionTokenHandler handler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler);
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		mqhandler.startQuery();
+		try {
+			tp.parse(media, "/*", "*/");
+		} catch (IndexOutOfBoundsException e) {
+			throw new CSSBudgetException("Nested queries exceed limit", e);
+		}
+		mqhandler.endQueryList();
+		return mqhandler.getMediaQueryList();
+	}
+
+	protected MediaQueryFactory getMediaQueryFactory() {
+		return new NSACMediaQueryFactory();
+	}
+
+	private MediaQueryList parseMediaQueryList(String media) throws CSSException {
+		int[] allowInWords = { 45, 46 }; // -.
+		MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
+		MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
+		ConditionTokenHandler handler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler);
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		mqhandler.startQuery();
+		try {
+			tp.parse(media, "/*", "*/");
+		} catch (IndexOutOfBoundsException e) {
+			CSSParseException ex = handler.createException(0, ParseHelper.ERR_UNSUPPORTED, "Nested queries exceed limit.");
+			mqhandler.invalidQuery(ex);
+			if (errorHandler != null) {
+				errorHandler.error(ex);
+			}
+		}
+		mqhandler.endQueryList();
+		return mqhandler.getMediaQueryList();
 	}
 
 	abstract private class DelegateHandler implements TokenHandler {
@@ -622,7 +688,6 @@ public class CSSParser implements Parser {
 				} else {
 					predicateHandler.character(index, codepoint);
 				}
-				prevcp = codepoint;
 			} else if (codepoint == 44) { // ',' may clear error
 				predicateHandler.character(index, codepoint);
 			}
@@ -843,6 +908,7 @@ public class CSSParser implements Parser {
 						bufferAppend(codepoint);
 					}
 				}
+				prevcp = codepoint;
 			}
 
 			@Override
@@ -893,9 +959,19 @@ public class CSSParser implements Parser {
 
 	private class MediaQueryTokenHandler extends ConditionTokenHandler {
 
-		MediaQueryTokenHandler(MediaConditionFactory conditionFactory, MediaQueryHandler mqhandler) {
+		private final HashSet<String> mediaTypes = new HashSet<String>(10);
+
+		MediaQueryTokenHandler(MediaQueryFactory conditionFactory, MediaQueryHandler mqhandler) {
 			super(conditionFactory);
 			setPredicateHandler(new MediaQueryDelegateHandler(mqhandler));
+			// initialize media types
+			String[] mediaTypesArray = { "all", "braille", "embossed", "handheld", "print", "projection", "screen",
+					"speech", "tty", "tv" };
+			Collections.addAll(mediaTypes, mediaTypesArray);
+		}
+
+		private boolean isValidMediaType(String lcmedia) {
+			return mediaTypes.contains(lcmedia);
 		}
 
 		@Override
@@ -915,7 +991,7 @@ public class CSSParser implements Parser {
 					return;
 				}
 			}
-			currentCond = ((MediaConditionFactory) conditionFactory).createMediaTypePredicate(medium);
+			currentCond = ((MediaQueryFactory) conditionFactory).createMediaTypePredicate(medium);
 			processOperation(index, BooleanCondition.Type.AND, "and");
 		}
 
@@ -936,6 +1012,9 @@ public class CSSParser implements Parser {
 				MediaQueryDelegateHandler mqhelper = getPredicateHandler();
 				CSSParseException ex = createException(index, errCode, message);
 				mqhelper.handler.invalidQuery(ex);
+				if (!mqhelper.handler.reportsErrors() && errorHandler != null) {
+					errorHandler.error(createException(index, errCode, message));
+				}
 				parseError = true;
 			}
 		}
@@ -948,6 +1027,11 @@ public class CSSParser implements Parser {
 				mqhelper.handler.compatQuery(ex);
 				super.handleWarning(index, errCode, message);
 			}
+		}
+
+		CSSParseException createException(int index, byte errCode, String message) {
+			Locator locator = new LocatorImpl(line, index - prevlinelength);
+			return new CSSMediaParseException(message, locator);
 		}
 
 		class MediaQueryDelegateHandler extends DelegateHandler {
@@ -1067,7 +1151,7 @@ public class CSSParser implements Parser {
 			 */
 			private void processMediaType(int index) {
 				if (mediaType == null && getCurrentParenDepth() == 0) {
-					mediaType = rawBuffer();
+					mediaType = rawBuffer().trim();
 					if (currentCond != null && isEmptyNotCondition()) {
 						currentCond = null;
 						negativeQuery = true;
@@ -1144,39 +1228,39 @@ public class CSSParser implements Parser {
 							} else {
 								reverseRangetype();
 							}
-							ExtendedCSSPrimitiveValue value1 = parseMediaFeature(firstValue);
+							LexicalUnit value1 = parseMediaFeature(index, firstValue);
 							if (value1 == null) {
 								handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 							} else {
 								handlePredicate(featureName, rangeType, value1);
-								if (value1.getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN) {
+								if (value1.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT) {
 									handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 											"Probable hack in media feature.");
 								}
 							}
 						} else if (buffer.length() != 0) {
 							if (stage == 4) {
-								ExtendedCSSPrimitiveValue value = parseMediaFeature(buffer.toString());
+								LexicalUnit value = parseMediaFeature(index, buffer.toString());
 								if (value == null) {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 								} else {
 									handlePredicate(featureName, (byte) 0, value);
-									if (value.getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN) {
+									if (value.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT) {
 										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 												"Probable hack in media feature.");
 									}
 								}
 							} else if (stage == 7) {
-								ExtendedCSSPrimitiveValue value1 = parseMediaFeature(firstValue);
-								ExtendedCSSPrimitiveValue value2 = parseMediaFeature(buffer.toString());
+								LexicalUnit value1 = parseMediaFeature(index, firstValue);
+								LexicalUnit value2 = parseMediaFeature(index, buffer.toString());
 								if (value1 == null) {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 								} else if (value2 == null) {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 								} else {
 									handlePredicate(featureName, rangeType, value1, value2);
-									if (value1.getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN
-											|| value2.getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN) {
+									if (value1.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT
+											|| value2.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT) {
 										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 												"Probable hack in media feature.");
 									}
@@ -1206,24 +1290,47 @@ public class CSSParser implements Parser {
 				prevcp = codepoint;
 			}
 
-			private void handlePredicate(String featureName, byte rangeType, ExtendedCSSPrimitiveValue value) {
-				MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory.createPredicate(featureName);
-				predicate.setRangeType(rangeType);
-				predicate.setValue(value);
-				if (currentCond == null) {
-					currentCond = predicate;
+			private LexicalUnit parseMediaFeature(int index, String feature) {
+				Reader re = new StringReader(feature);
+				LexicalUnit lunit;
+				try {
+					lunit = parsePropertyValue(re);
+				} catch (CSSException | IOException e) {
+					return null;
+				}
+				LexicalUnit nlu = lunit.getNextLexicalUnit();
+				if (nlu != null && (nlu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_SLASH
+						|| nlu.getNextLexicalUnit() == null)) {
+					handleError(index, ParseHelper.ERR_EXPR_SYNTAX, "Invalid feature value: " + feature);
+				}
+				return lunit;
+			}
+
+			private void handlePredicate(String featureName, byte rangeType, LexicalUnit value) {
+				String lcFeatureName;
+				if (value == null && currentCond == null && mediaType == null
+						&& isValidMediaType(lcFeatureName = featureName.toLowerCase(Locale.ROOT))) {
+					mediaType = lcFeatureName;
+					handler.mediaType(lcFeatureName);
 				} else {
-					currentCond.addCondition(predicate);
+					MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory
+							.createPredicate(featureName);
+					predicate.setRangeType(rangeType);
+					predicate.setValue(value);
+					if (currentCond == null) {
+						currentCond = predicate;
+					} else {
+						currentCond.addCondition(predicate);
+					}
 				}
 				clearPredicate();
 			}
 
-			private void handlePredicate(String featureName, byte rangeType, ExtendedCSSPrimitiveValue value1,
-					ExtendedCSSPrimitiveValue value2) {
+			private void handlePredicate(String featureName, byte rangeType, LexicalUnit value1,
+					LexicalUnit value2) {
 				MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory.createPredicate(featureName);
 				predicate.setRangeType(rangeType);
-				predicate.setValue(value1);
-				predicate.setRangeSecondValue(value2);
+				predicate.setValueRange(value1, value2);
 				if (currentCond == null) {
 					currentCond = predicate;
 				} else {
@@ -1459,16 +1566,6 @@ public class CSSParser implements Parser {
 
 	}
 
-	private ExtendedCSSPrimitiveValue parseMediaFeature(String stringValue) {
-		ExtendedCSSPrimitiveValue value;
-		try {
-			value = new ValueFactory().parseMediaFeature(stringValue, this);
-		} catch (RuntimeException e) {
-			value = null;
-		}
-		return value;
-	}
-
 	/**
 	 * Determine whether this looks like a media feature (rather than a value).
 	 * 
@@ -1625,60 +1722,28 @@ public class CSSParser implements Parser {
 		return cp != 32 && cp != 9 && cp != 10 && cp != 12 && cp != 13;
 	}
 
-	static List<String> parseMediaList(String media) {
-		return new MySACMediaList(media.split(","));
+	@Override
+	public CSSParser clone() {
+		CSSParser parser = new CSSParser(this);
+		return parser;
 	}
 
-	private static class MySACMediaList extends ArrayList<String> {
+	private static class MediaListWrapper {
 
-		private static final long serialVersionUID = 1L;
+		private final MediaQueryList mediaList;
+		private final MediaListWrapper parent;
 
-		MySACMediaList() {
-			super(1);
-			add("all");
-		}
-
-		MySACMediaList(String[] list) {
-			super(list.length);
-			Collections.addAll(this, list);
-		}
-
-		@Override
-		public String get(int index) {
-			return super.get(index).trim();
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			if (size() == 0) {
-				return "all";
-			}
-			buf.append(get(0).trim());
-			for (int i = 1; i < size(); i++) {
-				buf.append(',').append(get(i).trim());
-			}
-			return buf.toString();
-		}
-
-	}
-
-	private static class SACMediaListWrapper {
-
-		private final List<String> mediaList;
-		private final SACMediaListWrapper parent;
-
-		SACMediaListWrapper(List<String> mediaList, SACMediaListWrapper parent) {
+		MediaListWrapper(MediaQueryList mediaList, MediaListWrapper parent) {
 			super();
 			this.mediaList = mediaList;
 			this.parent = parent;
 		}
 
-		public List<String> getMediaList() {
+		public MediaQueryList getMediaList() {
 			return mediaList;
 		}
 
-		SACMediaListWrapper getParent() {
+		MediaListWrapper getParent() {
 			return parent;
 		}
 
@@ -2213,7 +2278,7 @@ public class CSSParser implements Parser {
 		// Next field is to check for @charset rules in bad place
 		private boolean rulesFound = false;
 
-		private SACMediaListWrapper medialist = null;
+		private MediaListWrapper medialist = null;
 
 		SheetTokenHandler(NamespaceMap nsMap) {
 			super();
@@ -2626,12 +2691,15 @@ public class CSSParser implements Parser {
 			rulesFound = true;
 		}
 
-		private SACMediaListWrapper newMediaListAll() {
-			return new SACMediaListWrapper(new MySACMediaList(), medialist);
+		private MediaListWrapper newMediaListAll() {
+			MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
+			MediaQueryList mqAll = mediaQueryFactory.createAllMedia();
+			return new MediaListWrapper(mqAll, medialist);
 		}
 
-		private SACMediaListWrapper newMediaList(String media) {
-			return new SACMediaListWrapper(parseMediaList(media), medialist);
+		private MediaListWrapper newMediaList(String media) {
+			MediaQueryList list = parseMediaQueryList(media);
+			return new MediaListWrapper(list, medialist);
 		}
 
 		void namespaceDeclaration(String prefix, String uri) {
@@ -3196,7 +3264,7 @@ public class CSSParser implements Parser {
 					buffer.append(' ');
 					return;
 				}
-				if (prevcp == ':' || prevcp == '.' || prevcp == '#') {
+				if (prevcp == ':' || prevcp == '.' || prevcp == '#' || (prevcp == TokenProducer.CHAR_VERTICAL_LINE && getActiveSelector() == null)) {
 					unexpectedCharError(index, codepoint);
 					return;
 				}
@@ -3639,7 +3707,8 @@ public class CSSParser implements Parser {
 							unexpectedCharError(index, codepoint);
 						}
 					} else if (codepoint == 61) { // =
-						// If we are in a '|=' case, we should have the attribute name in namespacePrefix
+						// If we are in a '|=' case, we should have the attribute name in
+						// namespacePrefix
 						if (prevcp == TokenProducer.CHAR_VERTICAL_LINE && namespacePrefix != null
 								&& buffer.length() == 0) {
 							buffer.append(namespacePrefix);
@@ -3678,7 +3747,8 @@ public class CSSParser implements Parser {
 						stage = 1;
 					} else if (stage == STAGE_COMBINATOR_OR_END) {
 						newCombinatorSelector(Selector.SAC_DESCENDANT_SELECTOR);
-						((CombinatorSelectorImpl) currentsel).simpleSelector = factory.getUniversalSelector(namespacePrefix);
+						((CombinatorSelectorImpl) currentsel).simpleSelector = factory
+								.getUniversalSelector(namespacePrefix);
 						namespacePrefix = null;
 						stage = 1;
 					} else if (stage == 1 && namespacePrefix != null && prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
@@ -3686,116 +3756,105 @@ public class CSSParser implements Parser {
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
-				} else if (codepoint == TokenProducer.CHAR_TILDE) { // ~
-					if (stage == STAGE_COMBINATOR_OR_END) {
-						stage = 1;
-					} else {
-						processBuffer(index, codepoint, false);
-					}
-					newCombinatorSelector(index, Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, codepoint);
-				} else if (codepoint == 46) { // .
-					if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
-						processBuffer(index, codepoint, false);
-						newConditionalSelector(index, codepoint, Condition.SAC_CLASS_CONDITION);
-						stage = STAGE_EXPECT_ID_OR_CLASSNAME;
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (codepoint == 35) { // #
-					if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
-						processBuffer(index, codepoint, false);
-						newConditionalSelector(index, codepoint, Condition.SAC_ID_CONDITION);
-						stage = STAGE_EXPECT_ID_OR_CLASSNAME;
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (codepoint == 58) { // :
-					if (prevcp == 58) {
-						stage = STAGE_EXPECT_PSEUDOELEM_NAME;
-					} else {
-						processBuffer(index, codepoint, false);
-						stage = STAGE_EXPECT_PSEUDOCLASS_NAME;
-					}
-				} else if (codepoint == 62) { // >
-					if (stage == STAGE_COMBINATOR_OR_END) {
-						stage = 1;
-					}
-					processBuffer(index, codepoint, false);
-					if (stage < 2) {
-						newCombinatorSelector(index, Selector.SAC_CHILD_SELECTOR, codepoint);
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (codepoint == 43) { // +
-					if (stage == STAGE_COMBINATOR_OR_END) {
-						stage = 1;
-					}
-					processBuffer(index, codepoint, false);
-					newCombinatorSelector(index, Selector.SAC_DIRECT_ADJACENT_SELECTOR, codepoint);
-				} else if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
-					// |
+				} else {
 					if (prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
-						if (stage == 1) {
-							if (currentsel == null) {
-								ElementSelectorImpl sel = newElementSelector(index);
-								if (namespacePrefix != null) {
-									sel.localName = namespacePrefix;
-									namespacePrefix = null;
-								} else if (buffer.length() != 0) {
-									// Unclear whether this is reachable
-									sel.localName = unescapeBuffer(index);
+						if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
+							handleColumnCombinator(index);
+							prevcp = 32;
+							return;
+						}
+						unexpectedCharError(index, codepoint);
+						return;
+					}
+					if (codepoint == TokenProducer.CHAR_TILDE) { // ~
+						if (stage == STAGE_COMBINATOR_OR_END) {
+							stage = 1;
+						} else {
+							processBuffer(index, codepoint, false);
+						}
+						newCombinatorSelector(index, Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, codepoint);
+					} else if (codepoint == 46) { // .
+						if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
+							processBuffer(index, codepoint, false);
+							newConditionalSelector(index, codepoint, Condition.SAC_CLASS_CONDITION);
+							stage = STAGE_EXPECT_ID_OR_CLASSNAME;
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 35) { // #
+						if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
+							processBuffer(index, codepoint, false);
+							newConditionalSelector(index, codepoint, Condition.SAC_ID_CONDITION);
+							stage = STAGE_EXPECT_ID_OR_CLASSNAME;
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 58) { // :
+						if (prevcp == 58) {
+							stage = STAGE_EXPECT_PSEUDOELEM_NAME;
+						} else {
+							processBuffer(index, codepoint, false);
+							stage = STAGE_EXPECT_PSEUDOCLASS_NAME;
+						}
+					} else if (codepoint == 62) { // >
+						if (stage == STAGE_COMBINATOR_OR_END) {
+							stage = 1;
+						}
+						processBuffer(index, codepoint, false);
+						if (stage < 2) {
+							newCombinatorSelector(index, Selector.SAC_CHILD_SELECTOR, codepoint);
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 43) { // +
+						if (stage == STAGE_COMBINATOR_OR_END) {
+							stage = 1;
+						}
+						processBuffer(index, codepoint, false);
+						newCombinatorSelector(index, Selector.SAC_DIRECT_ADJACENT_SELECTOR, codepoint);
+					} else if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
+						// |
+						if (stage == STAGE_EXPECT_ID_OR_CLASSNAME || stage == STAGE_EXPECT_PSEUDOCLASS_NAME
+								|| stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
+							processBuffer(index, codepoint, false);
+						} else if (stage == STAGE_COMBINATOR_OR_END) {
+							stage = 1;
+						} else if (stage == 1 && namespacePrefix == null) {
+							readNamespacePrefix(index, codepoint);
+						} else if (stage == 0 && namespacePrefix == null && buffer.length() == 0) {
+							namespacePrefix = "";
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint == 44) { // ,
+						if (functionToken) {
+							if (prevcp == 44) { // Consecutive commas
+								unexpectedCharError(index, codepoint);
+							} else {
+								// Probably happening inside [] TODO better error checking
+								buffer.append(',');
+							}
+						} else {
+							processBuffer(index, codepoint, true);
+							if (!parseError) {
+								if (addCurrentSelector(index)) {
+									stage = 0;
 								} else {
 									unexpectedCharError(index, codepoint);
-									return;
 								}
 							}
-							newCombinatorSelector(index, Selector.SAC_COLUMN_COMBINATOR_SELECTOR, codepoint);
-						} else if (stage == 0 && buffer.length() == 0 && currentsel == null) {
-							namespacePrefix = null;
-							newCombinatorSelector(index, Selector.SAC_COLUMN_COMBINATOR_SELECTOR, codepoint);
-						} else {
-							unexpectedCharError(index, codepoint);
 						}
-					} else if (stage == STAGE_EXPECT_ID_OR_CLASSNAME || stage == STAGE_EXPECT_PSEUDOCLASS_NAME
-							|| stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
-						processBuffer(index, codepoint, false);
-					} else if (stage == STAGE_COMBINATOR_OR_END) {
-						stage = 1;
-					} else if (stage == 1 && namespacePrefix == null) {
-						readNamespacePrefix(index, codepoint);
-					} else if (stage == 0 && namespacePrefix == null && buffer.length() == 0) {
-						namespacePrefix = "";
-					} else {
+					} else if (codepoint == 64) { // @
+						handleAtKeyword(index);
+					} else if (codepoint == 45) { // -
+						buffer.append('-');
+					} else if (codepoint == 95) { // _
+						buffer.append('_');
+					} else if (stage < 8 || isUnexpectedCharacter(codepoint)) {
 						unexpectedCharError(index, codepoint);
-					}
-				} else if (codepoint == 44) { // ,
-					if (functionToken) {
-						if (prevcp == 44) { // Consecutive commas
-							unexpectedCharError(index, codepoint);
-						} else {
-							// Probably happening inside [] TODO better error checking
-							buffer.append(',');
-						}
 					} else {
-						processBuffer(index, codepoint, true);
-						if (!parseError) {
-							if (addCurrentSelector(index)) {
-								stage = 0;
-							} else {
-								unexpectedCharError(index, codepoint);
-							}
-						}
+						bufferAppend(codepoint);
 					}
-				} else if (codepoint == 64) { // @
-					handleAtKeyword(index);
-				} else if (codepoint == 45) { // -
-					buffer.append('-');
-				} else if (codepoint == 95) { // _
-					buffer.append('_');
-				} else if (stage < 8 || isUnexpectedCharacter(codepoint)) {
-					unexpectedCharError(index, codepoint);
-				} else {
-					bufferAppend(codepoint);
 				}
 			}
 			prevcp = codepoint;
@@ -3803,6 +3862,30 @@ public class CSSParser implements Parser {
 
 		boolean skipCharacterHandling() {
 			return parseError;
+		}
+
+		private void handleColumnCombinator(int index) {
+			if (stage == 1) {
+				if (currentsel == null) {
+					ElementSelectorImpl sel = newElementSelector(index);
+					if (namespacePrefix != null) {
+						sel.localName = namespacePrefix;
+						namespacePrefix = null;
+					} else if (buffer.length() != 0) {
+						// Unclear whether this is reachable
+						sel.localName = unescapeBuffer(index);
+					} else {
+						unexpectedCharError(index, TokenProducer.CHAR_VERTICAL_LINE);
+						return;
+					}
+				}
+				newCombinatorSelector(index, Selector.SAC_COLUMN_COMBINATOR_SELECTOR, TokenProducer.CHAR_VERTICAL_LINE);
+			} else if (stage == 0 && buffer.length() == 0 && currentsel == null) {
+				namespacePrefix = null;
+				newCombinatorSelector(index, Selector.SAC_COLUMN_COMBINATOR_SELECTOR, TokenProducer.CHAR_VERTICAL_LINE);
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_VERTICAL_LINE);
+			}
 		}
 
 		/**
@@ -4005,7 +4088,7 @@ public class CSSParser implements Parser {
 
 			@Override
 			protected SelectorList parseSelector(String selText) {
-				CSSParser parser = new CSSParser();
+				CSSParser parser = CSSParser.this.clone();
 				return parser.parseSelectors(selText, factory);
 			}
 
@@ -5882,7 +5965,7 @@ public class CSSParser implements Parser {
 			if (!parseError) {
 				if (errorHandler != null) {
 					if (prevcp == endcp) {
-						errorHandler.error(createException(index, errCode, "Expected end of file"));
+						errorHandler.error(createException(index, errCode, "Unexpected end of file"));
 					} else {
 						errorHandler.error(createException(index, errCode, message));
 					}

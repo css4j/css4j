@@ -11,11 +11,13 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 /**
- * Interface to be implemented by handlers that are passed to
- * {@link CSSParser#parseMediaQuery(String, MediaConditionFactory, MediaQueryHandler)}.
+ * Interface to be implemented by handlers that are used inside
+ * {@link io.sf.carte.doc.style.css.nsac.Parser#parseMediaQueryList(String,org.w3c.dom.Node)
+ * Parser.parseMediaQueryList(String,Node)}.
  */
 public interface MediaQueryHandler {
 
@@ -55,6 +57,14 @@ public interface MediaQueryHandler {
 	void endQuery();
 
 	/**
+	 * Check whether this handler takes the responsibility of reporting errors to an
+	 * error handler.
+	 * 
+	 * @return true if this handler reports errors to an error handler.
+	 */
+	boolean reportsErrors();
+
+	/**
 	 * Reports that the current media query is invalid.
 	 * 
 	 * @param queryError the exception describing the error.
@@ -69,5 +79,17 @@ public interface MediaQueryHandler {
 	 *                  found.
 	 */
 	void compatQuery(CSSParseException exception);
+
+	/**
+	 * The query list ends.
+	 */
+	void endQueryList();
+
+	/**
+	 * Get the media query list that this object handles.
+	 * 
+	 * @return the media query list.
+	 */
+	MediaQueryList getMediaQueryList();
 
 }

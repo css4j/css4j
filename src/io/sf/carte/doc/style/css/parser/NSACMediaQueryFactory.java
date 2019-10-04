@@ -9,15 +9,16 @@
 
  */
 
-package io.sf.carte.doc.style.css.om;
+package io.sf.carte.doc.style.css.parser;
 
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
-import io.sf.carte.doc.style.css.parser.MediaConditionFactory;
+import org.w3c.dom.Node;
+
+import io.sf.carte.doc.style.css.MediaQueryList;
 
 /**
  * Contains methods related to media query conditions.
  */
-class MediaConditionFactoryImpl implements MediaConditionFactory {
+class NSACMediaQueryFactory implements MediaQueryFactory {
 
 	/**
 	 * Create a boolean condition of the <code>and</code> type.
@@ -26,7 +27,7 @@ class MediaConditionFactoryImpl implements MediaConditionFactory {
 	 */
 	@Override
 	public BooleanCondition createAndCondition() {
-		return new AndCondition();
+		return new BooleanConditionUnit.AndCondition();
 	}
 
 	/**
@@ -37,7 +38,7 @@ class MediaConditionFactoryImpl implements MediaConditionFactory {
 	 */
 	@Override
 	public BooleanCondition createOrCondition() {
-		return new OrCondition();
+		return new BooleanConditionUnit.OrCondition();
 	}
 
 	/**
@@ -47,7 +48,7 @@ class MediaConditionFactoryImpl implements MediaConditionFactory {
 	 */
 	@Override
 	public BooleanCondition createNotCondition() {
-		return new NotCondition();
+		return new BooleanConditionUnit.NotCondition();
 	}
 
 	/**
@@ -59,13 +60,24 @@ class MediaConditionFactoryImpl implements MediaConditionFactory {
 	 * @return the condition.
 	 */
 	@Override
-	public BooleanCondition createPredicate(String featureName) {
-		return new MediaFeaturePredicateImpl(featureName);
+	public MediaFeaturePredicate createPredicate(String featureName) {
+		return new MediaFeaturePredicateUnit(featureName);
 	}
 
 	@Override
 	public BooleanCondition createMediaTypePredicate(String medium) {
-		return new MediaTypePredicate(medium);
+		return new BooleanConditionUnit.Predicate(medium);
+	}
+
+	@Override
+	public MediaQueryHandler createMediaQueryHandler(Node owner) {
+		NSACMediaQueryList list = new NSACMediaQueryList();
+		return list.new MyMediaQueryHandler(owner);
+	}
+
+	@Override
+	public MediaQueryList createAllMedia() {
+		return new NSACMediaQueryList();
 	}
 
 }

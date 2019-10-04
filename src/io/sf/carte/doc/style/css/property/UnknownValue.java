@@ -127,40 +127,11 @@ public class UnknownValue extends AbstractTextValue {
 				nextLexicalUnit = null;
 				break;
 			default:
-				text = guessCssText(lunit);
-				if (text.length() == 0) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
-							"Unsuitable value: " + lunit.toString());
-				}
+				throw new DOMException(DOMException.SYNTAX_ERR,
+						"Unsuitable value: " + lunit.toString());
 			}
 			setPlainCssText(text);
 		}
-	}
-
-	private String guessCssText(LexicalUnit lunit) {
-		try {
-			return lunit.getStringValue();
-		} catch (DOMException e) {
-		}
-		String text = "";
-		try {
-			float fv = lunit.getFloatValue();
-			text = Float.toString(fv);
-		} catch (DOMException e1) {
-			try {
-				int iv = lunit.getIntegerValue();
-				text = Integer.toString(iv);
-			} catch (DOMException e2) {
-			}
-		}
-		try {
-			String unittext = lunit.getDimensionUnitText();
-			if (unittext.length() != 0) {
-				text += unittext;
-			}
-		} catch (DOMException e) {
-		}
-		return text;
 	}
 
 	@Override

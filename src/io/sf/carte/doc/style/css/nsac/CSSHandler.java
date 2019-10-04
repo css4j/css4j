@@ -13,7 +13,7 @@
  */
 package io.sf.carte.doc.style.css.nsac;
 
-import java.util.List;
+import io.sf.carte.doc.style.css.MediaQueryList;
 
 /**
  * A CSS event handler for low-level parsing.
@@ -68,13 +68,13 @@ public interface CSSHandler {
 	/**
 	 * Receive notification of a import statement in the style sheet.
 	 *
-	 * @param uri                The URI of the imported style sheet.
-	 * @param media              The intended destination media for style
-	 *                           information.
-	 * @param defaultNamepaceURI The default namespace URI for the imported style
-	 *                           sheet.
+	 * @param uri                 The URI of the imported style sheet.
+	 * @param media               The intended destination media for style
+	 *                            information.
+	 * @param defaultNamespaceURI The default namespace URI for the imported style
+	 *                            sheet.
 	 */
-	void importStyle(String uri, List<String> media, String defaultNamespaceURI);
+	void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI);
 
 	/**
 	 * Receive notification of the beginning of a media statement.
@@ -85,14 +85,14 @@ public interface CSSHandler {
 	 *
 	 * @param media The intended destination media for style information.
 	 */
-	void startMedia(List<String> media);
+	void startMedia(MediaQueryList media);
 
 	/**
 	 * Receive notification of the end of a media statement.
 	 *
 	 * @param media The intended destination media for style information.
 	 */
-	void endMedia(List<String> media);
+	void endMedia(MediaQueryList media);
 
 	/**
 	 * Receive notification of the beginning of a page statement.
@@ -109,7 +109,7 @@ public interface CSSHandler {
 	/**
 	 * Receive notification of the end of a media statement.
 	 *
-	 * @param media       The intended destination medium for style information.
+	 * @param name        the name of the page (if any, null otherwise)
 	 * @param pseudo_page the pseudo page (if any, null otherwise)
 	 */
 	void endPage(String name, String pseudo_page);

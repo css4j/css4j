@@ -24,6 +24,7 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
@@ -36,7 +37,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	private LinkedList<RuleParseException> ruleParseErrors = null;
 	private LinkedList<String> emptyRules = null;
 
-	private LinkedList<List<String>> badMediaLists = null;
+	private LinkedList<MediaQueryList> badMediaLists = null;
 	private LinkedList<String> badAtRules = null;
 	private LinkedList<String> badInlineStyles = null;
 	private List<AbstractCSSRule> ruleList = null;
@@ -67,9 +68,9 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	}
 
 	@Override
-	public void badMediaList(List<String> media) {
+	public void badMediaList(MediaQueryList media) {
 		if (badMediaLists == null) {
-			badMediaLists = new LinkedList<List<String>>();
+			badMediaLists = new LinkedList<MediaQueryList>();
 		}
 		badMediaLists.add(media);
 	}
@@ -180,7 +181,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		return badInlineStyles;
 	}
 
-	public LinkedList<List<String>> getBadMediaLists() {
+	public LinkedList<MediaQueryList> getBadMediaLists() {
 		return badMediaLists;
 	}
 

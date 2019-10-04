@@ -16,11 +16,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSGroupingRule;
+import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
@@ -229,18 +229,18 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void importStyle(String uri, List<String> media, String defaultNamespaceURI) {
+		public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
 			// Ignore any '@import' rule that occurs inside a block (CSS 2.1 §4.1.5)
 		}
 
 		@Override
-		public void startMedia(List<String> media) {
+		public void startMedia(MediaQueryList media) {
 			// Nested @media rule: ignore
 			active = false;
 		}
 
 		@Override
-		public void endMedia(List<String> media) {
+		public void endMedia(MediaQueryList media) {
 			active = true;
 		}
 
