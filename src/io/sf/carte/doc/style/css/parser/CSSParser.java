@@ -591,7 +591,6 @@ public class CSSParser implements Parser2 {
 				} else {
 					predicateHandler.character(index, codepoint);
 				}
-				prevcp = codepoint;
 			} else if (codepoint == 44) { // ',' may clear error
 				predicateHandler.character(index, codepoint);
 			}
@@ -812,6 +811,7 @@ public class CSSParser implements Parser2 {
 						bufferAppend(codepoint);
 					}
 				}
+				prevcp = codepoint;
 			}
 
 			@Override
