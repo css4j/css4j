@@ -20,7 +20,7 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 	ColumnsShorthandSetter(BaseCSSStyleDeclaration style) {
 			super(style, "columns");
 		}
-		
+
 		@Override
 		public boolean assignSubproperties() {
 			byte kwscan = scanForCssWideKeywords(currentValue);

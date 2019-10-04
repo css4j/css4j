@@ -278,11 +278,11 @@ class NSACSelectorFactory implements NamespaceMap {
 		void setNamespaceUri(String namespaceUri) {
 			this.namespaceUri = namespaceUri;
 		}
-	
+
 		void setLocalName(String localName) {
 			this.localName = localName;
 		}
-	
+
 		@Override
 		public short getSelectorType() {
 			return Selector.SAC_ELEMENT_NODE_SELECTOR;

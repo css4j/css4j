@@ -336,7 +336,7 @@ abstract public class PrimitiveValue extends StyleValue implements ExtendedCSSPr
 				throws DOMException {
 			setCSSUnitType(ValueFactory.domPrimitiveType(lunit));
 		}
-	
+
 		@Override
 		public LexicalUnit getNextLexicalUnit() {
 			return nextLexicalUnit;

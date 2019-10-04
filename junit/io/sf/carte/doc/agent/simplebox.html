@@ -179,7 +179,7 @@ function loopChild(parentElm, level, index, prefix){
 				buffer += 'elm = (CSSElement)node;\n';
 			}
 			buffer += loopChild(node, level + 1, i, prefix + i);
-		}	
+		}
 	}
 	if (!nlistNotPrinted) {
 		buffer += '// Return to parent level (' + parentElm.parentNode.localName + ')\n';

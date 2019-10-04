@@ -782,7 +782,7 @@ public class ValueFactory {
 		@Override
 		public void handleSyntaxWarnings(StyleDeclarationErrorHandler handler) {
 		}
-		
+
 	}
 
 	/**
