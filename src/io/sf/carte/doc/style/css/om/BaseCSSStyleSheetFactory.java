@@ -469,17 +469,17 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	}
 
 	/**
-	 * Parses and creates an unmodifiable media query list for the given media.
+	 * Parses and creates an immutable media query list for the given media.
 	 * 
 	 * @param media
 	 *            the comma-separated list of media. If <code>null</code>, the
 	 *            media list will be for all media.
 	 * @param owner
 	 *            the node that would handle errors, if any.
-	 * @return the unmodifiable media list.
+	 * @return the immutable media list.
 	 */
 	@Override
-	public MediaQueryList createUnmodifiableMediaQueryList(String media, Node owner) {
+	public MediaQueryList createImmutableMediaQueryList(String media, Node owner) {
 		if (media == null) {
 			return MediaList.createUnmodifiable();
 		}
@@ -487,6 +487,24 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 			return MediaList.createUnmodifiable(media);
 		}
 		return ((MediaListAccess) parseMediaQueryList(media, owner)).unmodifiable();
+	}
+
+	/**
+	 * Parses and creates an immutable media query list for the given media.
+	 * 
+	 * @param media
+	 *            the comma-separated list of media. If <code>null</code>, the
+	 *            media list will be for all media.
+	 * @param owner
+	 *            the node that would handle errors, if any.
+	 * @return the immutable media list.
+	 * @deprecated
+	 * @see #createImmutableMediaQueryList(String, Node)
+	 */
+	@Deprecated
+	@Override
+	public MediaQueryList createUnmodifiableMediaQueryList(String media, Node owner) {
+		return createImmutableMediaQueryList(media, owner);
 	}
 
 	/**

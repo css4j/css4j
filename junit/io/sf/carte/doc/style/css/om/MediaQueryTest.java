@@ -2320,7 +2320,7 @@ public class MediaQueryTest {
 
 	@Test
 	public void testUnmodifiable() {
-		MediaQueryList mql = factory.createUnmodifiableMediaQueryList("screen", null);
+		MediaQueryList mql = factory.createImmutableMediaQueryList("screen", null);
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
