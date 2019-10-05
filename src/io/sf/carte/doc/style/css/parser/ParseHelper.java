@@ -251,10 +251,6 @@ public class ParseHelper {
 						buf.append(text.subSequence(0, i));
 					}
 					buf.append('\\').append(Integer.toHexString(cp));
-					int ip1 = i + 1;
-					if (ip1 < len) {
-						
-					}
 					if (needsSpace(text, i + 1, len)) {
 						buf.append(' ');
 					}
