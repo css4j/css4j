@@ -1979,7 +1979,7 @@ public class TokenProducerTest {
 		}
 
 		@Override
-		public void tokenControl(TokenControl control) {
+		public void tokenStart(TokenControl control) {
 			this.control = control;
 		}
 
@@ -1988,7 +1988,7 @@ public class TokenProducerTest {
 	class DisableCommentsTokenHandler extends MyTokenHandler {
 
 		@Override
-		public void tokenControl(TokenControl control) {
+		public void tokenStart(TokenControl control) {
 			control.disableAllComments();
 		}
 

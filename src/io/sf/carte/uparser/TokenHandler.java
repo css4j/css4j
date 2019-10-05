@@ -24,7 +24,7 @@ public interface TokenHandler {
 	 * @param control
 	 *            the <code>TokenControl</code> object in charge of parsing.
 	 */
-	void tokenControl(TokenControl control);
+	void tokenStart(TokenControl control);
 
 	/**
 	 * A word was found by the parser (includes connector punctuation).

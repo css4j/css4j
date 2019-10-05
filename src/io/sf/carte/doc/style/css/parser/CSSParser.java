@@ -460,7 +460,7 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		public void tokenControl(TokenControl control) {
+		public void tokenStart(TokenControl control) {
 			// Not called
 		}
 
@@ -5828,7 +5828,7 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		public void tokenControl(TokenControl control) {
+		public void tokenStart(TokenControl control) {
 		}
 
 		@Override

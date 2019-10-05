@@ -173,7 +173,7 @@ public class TokenProducer {
 	 */
 	public static final int CHAR_TILDE = 126;
 
-	private final TokenHandler handler;
+	private TokenHandler handler;
 	private final CharacterCheck charCheck;
 	private boolean handleAllSeparators = true;
 	private boolean acceptNewlineEndingQuote = false;
@@ -573,7 +573,7 @@ public class TokenProducer {
 			int commentprevtype = 0;
 
 			void parse() throws IOException {
-				handler.tokenControl(this);
+				handler.tokenStart(this);
 			}
 
 			/**
@@ -605,6 +605,11 @@ public class TokenProducer {
 			@Override
 			public void setAcceptEofEndingQuoted(boolean accept) {
 				TokenProducer.this.setAcceptEofEndingQuoted(accept);
+			}
+
+			@Override
+			public void setTokenHandler(TokenHandler handler) {
+				TokenProducer.this.handler = handler;
 			}
 
 			/**

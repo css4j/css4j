@@ -208,7 +208,7 @@ public class ContentModel {
 		}
 
 		@Override
-		public void tokenControl(TokenControl control) {
+		public void tokenStart(TokenControl control) {
 		}
 
 		@Override

@@ -78,7 +78,7 @@ public class EntityFinder {
 		}
 
 		@Override
-		public void tokenControl(TokenControl control) {
+		public void tokenStart(TokenControl control) {
 		}
 
 		@Override

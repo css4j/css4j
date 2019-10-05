@@ -47,6 +47,14 @@ public interface TokenControl {
 	void setAcceptEofEndingQuoted(boolean accept);
 
 	/**
+	 * Set a new {@code TokenHandler}.
+	 * 
+	 * @param handler
+	 *            the new {@code TokenHandler}.
+	 */
+	void setTokenHandler(TokenHandler handler);
+
+	/**
 	 * Disable the handling of all types of comments.
 	 */
 	void disableAllComments();
@@ -70,4 +78,5 @@ public interface TokenControl {
 	 *            the <code>TokenHandler</code>.
 	 */
 	void disableComments(int type);
+
 }
