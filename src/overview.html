@@ -3,61 +3,341 @@
 <title>CSS4J Overview</title>
 </head>
 <body>
-CSS4J implements the W3C's 
-<a href="http://www.w3.org/TR/DOM-Level-2-Style/css.html" target="_blank">CSS
- Object Model API</a>.
-<h2>Requirements</h2>
-<p>
-Parsing requires a
-<a href="http://www.w3.org/TR/SAC/" target="_blank">SAC</a> parser
-implementation, and this library by default uses its own SAC implementation.
-Alternatively, you can use the System property <code>org.w3c.css.sac.parser</code>
-to specify a different parser.
-<p>
-The org.w3c.dom.css classes are already included in version 5 and later of
-the J2SE, so you do not need to put the CSS-DOM jarfile in the classpath.
-Read the release notes for more information about the package dependencies.
-</p>
-<h2>Usage Overview</h2>
-<p>
-This CSS implementation can be used in several ways: with stand-alone style sheets, with its
-own DOM implementation, combined with DOM4J, or by wrapping an already existing DOM document.
-</p>
-<p>You can play with independent style sheets created with the 
-<code>createStyleSheet("title", "media")</code> method of the 
-<code>DOMCSSStyleSheetFactory</code> class, or the <code>DOM4JCSSStyleSheetFactory</code> 
-if you use DOM4J. The resulting style sheets are empty, but you can load a style sheet 
-with the <code>AbstractCSSStyleSheet.parseStyleSheet(source)</code> method.
-</p>
-<h3>Computed properties for elements in the document tree</h3>
-<p>The usage with the native DOM implementation is recommended, and is described in more detail in the 
-<a href="https://css4j.github.io/usage.html">usage guide</a> available at the project's website.</p>
-<p>If you choose to build your own DOM Document instead of using DOM4J or the native DOM, you can use the
-<code>DOMCSSStyleSheetFactory.createCSSDocument</code> method to wrap a pre-existing DOM
-<code>Document</code>.</p>
-<h3>Media handling</h3>
-<p>By default, computed styles only take into account generic styles that are 
-common to all media. If you want to target a specific medium, you have to use 
-the <code>setTargetMedium()</code> method of the document, which in DOM4J can 
-be done with the <code>XHTMLDocument.setTargetMedium()</code> method.</p>
-<h3>Rendering with the help of CSS4J</h3>
-<p>
-CSS4J offers you more than an implementation of the W3C CSS OM 
-API, as it brings you closer to the actual style formatting for a 
-particular device, through the use of concepts like the style 
-database. With the information provided by the style database, the 
-CSS4J-specific interfaces automatically let you take into account 
-the particular formatting for the target device, including the 
-page size or the available fonts.</p>
-<p>
-For example, if your style declaration for the font family of 
-an element reads <i>"Helvetica, Arial"</i>, and you happen to have only 
-the second one available, on retrieving the font with the enhanced 
-interface you will get the correct result, <i>"Arial"</i>.
-</p>
-<p>You can read the descriptions of the individual packages for more information 
-on the use of CSS4J, although it is a good idea to read first the usage guide at
-the project's website. The package also has a number of unit tests that may also be 
-useful as examples.</p>
+<p>This project is an implementation of W3C's <a href="https://www.w3.org/TR/2000/REC-DOM-Level-2-Style-20001113/" target="_blank">CSS Object Model API</a>
+in the Java&trade; language, and also adds CSS support to the <a href="https://github.com/dom4j" target="_blank">DOM4J</a> package. It
+targets several different use cases, with functionalities from style sheet error detection to style computation.</p>
+<div style="margin: 2em 0 2.7em 0" id="overview">
+<h2>Overview</h2>
+<p>This implementation can be used in several ways: with stand-alone style sheets, with its own <a href="http://www.w3.org/DOM/" target="_blank">DOM</a>
+implementation, combined with DOM4J, or by wrapping a pre-existing DOM tree.</p>
+<p>You can play with independent style sheets created with the <code>createStyleSheet("<i>title</i>", "<i>media</i>")</code> method of the
+<a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html"><code>CSSStyleSheetFactory</code></a> interface.
+There are three implementations of that interface:</p>
+<ul>
+<li><a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/dom/CSSDOMImplementation.html"><code>CSSDOMImplementation</code></a>, the native DOM implementation.</li>
+<li><a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/DOMCSSStyleSheetFactory.html"><code>DOMCSSStyleSheetFactory</code></a> for the DOM Wrapper.</li>
+<li>If you use DOM4J, get it through <code>XHTMLDocumentFactory.getStyleSheetFactory()</code>.</li>
+</ul>
+<p>The document back-end is only important if you plan to use the sheets inside a document.
+The resulting style sheets are empty, but you can load a style sheet with the <code>AbstractCSSStyleSheet.parseStyleSheet(<i>source</i>)</code>
+method (see <a href="#sheetparsing">Parsing a Style Sheet</a>).</p>
+<p>One of the most important functionalities in the library is the ability to compute styles for a given element.
+In practice, to obtain the 'computed' or 'used' values required for actual rendering a box model implementation is needed, and also
+device information. The library provides a simple box model that could be used, but the details of the rendering device can be more difficult.</p>
+<p>Depending on the use case, the target device may not be the same one where the library is running (and some exact details hence not available).
+To help in the computation, the library defines the <code>DeviceFactory</code> interface to supply device and media-specific data (also provides
+the objects required by media queries to work).</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="sacparser">
+<h3>Prerequisite: Choose a SAC Parser</h3>
+<p>This library depends on a <a href="https://www.w3.org/TR/SAC/" target="_blank">SAC parser</a> to work. There are three active projects
+offering a SAC parser:</p>
+<ol>
+<li><a href="https://xmlgraphics.apache.org/batik/" target="_blank">Batik</a>'s SAC parser. Class name: <code>org.apache.batik.css.parser.Parser</code>.</li>
+<li><a href="http://cssparser.sourceforge.net/" target="_blank">Steadystate's cssparser</a> (<code>com.steadystate.css.parser.SACParserCSS3</code>).</li>
+<li>This library's own parser (<code>io.sf.carte.doc.style.css.parser.CSSParser</code>).</li>
+</ol>
+<p>Batik's parser used to be this library's default parser, but its functionality is now lagging behind and cannot be recommended to handle level 3 or 4 CSS.
+The Steadystate parser does better and mostly implements CSS3, but does not process <code>calc()</code> values nor supports SAC comments. Both handle some
+selectors in their own, undocumented way (example: pseudo-element support) that is not always easy to support.</p>
+<p>Finally, this project's own parser supports level 4 values and selectors; an extension to SAC called <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/nsac/package-summary.html" target="_blank">NSAC</a> was
+developed for that. This is the recommended parser.</p>
+<p>Once you have chosen your parser, set the <code>org.w3c.css.sac.parser</code> system property to its qualified class name, e.g.
+<code>com.steadystate.css.parser.SACParserCSS3</code>. If you decide to use this project's internal parser you do not need to set that property, as it is
+the default parser.</p>
+<p>Once you have the SAC parser and the rest of the dependencies (see the Release Notes) available in the classpath, and set the appropriate system property
+(if not using this library's own parser), you can start using the library. If you build it with Maven, beware that one of the dependencies (JCLF) is not
+available at any central repository and has to be <a href="https://sourceforge.net/projects/jclf/files/latest/download" target="_blank">manually downloaded</a> and
+installed to your local repository.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="nativedom">
+<h3>Using css4j's native DOM implementation</h3>
+<p>You can create a DOM document from scratch and use the related DOM methods to programatically build a document: just use the provided DOM implementation
+(<code>io.sf.carte.doc.dom.CSSDOMImplementation</code>). If you want to parse an existing document, the procedure depends on the type of document: to parse
+an XML document (including XHTML documents), you can use this library's <code>XMLDocumentBuilder</code>, while to parse an HTML one (or an
+XHTML document that does not use namespace prefixes) you can use the <a href="https://about.validator.nu/htmlparser/" target="_blank">validator.nu
+HTML5 parser</a>.</p>
+<p>An example with that parser follows:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+import java.io.Reader;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.w3c.dom.css.CSSPrimitiveValue;
+import io.sf.carte.doc.dom.CSSDOMImplementation;
+import io.sf.carte.doc.dom.DOMElement;
+import io.sf.carte.doc.dom.HTMLDocument;
+import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.RGBAColor;
+import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
+import nu.validator.htmlparser.dom.HtmlDocumentBuilder;
+[...]
+
+// Instantiate DOM implementation (with default settings: no IE hacks accepted)
+// and configure it
+CSSDOMImplementation impl = new CSSDOMImplementation();
+// Alternatively, impl = new CSSDOMImplementation(flags);
+// Now load default HTML user agent sheets
+impl.setDefaultHTMLUserAgentSheet();
+// Prepare builder
+HtmlDocumentBuilder builder = new HtmlDocumentBuilder(impl);
+// Read the document to parse, and prepare source object
+Reader re = ... [reader for HTML document]
+InputSource source = new InputSource(re);
+// Parse. If the document is not HTML, you want to use DOMDocument instead
+HTMLDocument document = (HTMLDocument) builder.parse(source);
+re.close();
+// Set document URI
+document.setDocumentURI("http://www.example.com/mydocument.html");
+</pre>
+<p>Then you have a CSS-enabled document. To compute styles, use <code>getComputedStyle</code>:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+DOMElement element = document.getElementById("someId");
+CSSComputedProperties style = element.getComputedStyle(null);
+
+// Next line could be 'String display = style.getDisplay();'
+String display = style.getPropertyValue("display");
+
+// If you use a factory that has been set to setLenientSystemValues(false), next
+// line may throw an exception if the 'color' property was not specified.
+// The default value for lenientSystemValues is TRUE.
+RGBAColor color = ((CSSPrimitiveValue2) style.getPropertyCSSValue("color")).getRGBColorValue();
+
+// CSSPrimitiveValue2 is an extension to W3C's <a href="https://www.w3.org/TR/2000/REC-DOM-Level-2-Style-20001113/css.html#CSS-CSSPrimitiveValue">CSSPrimitiveValue</a>
+
+// Suppose that the linked style sheet located at 'css/sheet.css' declares:
+// background-image: url('foo.png');
+
+String image_css = style.getPropertyValue("background-image");
+String image_uri = ((CSSPrimitiveValue) style.getPropertyCSSValue("background-image")).getStringValue();
+
+// Then, because we already set the document URI to "http://www.example.com/mydocument.html",
+// image_css will be set to "url('http://www.example.com/css/foo.png')",
+// and image_uri to "http://www.example.com/css/foo.png"
+</pre>
+<p>The <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSComputedProperties.html"><code>CSSComputedProperties</code></a> interface extends from W3C's <a href="https://www.w3.org/TR/cssom-1/#the-cssstyledeclaration-interface" target="_blank"><code>CSSStyleDeclaration</code></a>,
+adding methods like <code>getComputedFontSize()</code> or <code>getComputedLineHeight()</code>.</p>
+<p>If you are computing styles for a specific medium, tell the document about it (see "<a href="#mediahandling">Media Handling</a>"):</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+document.setTargetMedium("print");
+</pre>
+<h4 style="margin:1em 0 2em 0" id="conformance">Conformance with the DOM specification</h4>
+<p>This library's native DOM implementation has some minor behavior differences with what is written in the <a href="https://www.w3.org/TR/DOM-Level-3-Core/" target="_blank">DOM
+Level 3 Core Specification</a>. For example, on elements and attributes the <code>Node.getLocalName()</code> method returns the tag name instead of
+<code>null</code> when the node was created with a DOM Level 1 method such as Document.createElement(). Read the <code>io.sf.carte.doc.dom</code> package
+description for additional information.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="domwrapper">
+<h3>Usage with the DOM Wrapper</h3>
+<p>If you choose to build your document with your favorite DOM implementation instead of the CSS4J one or the DOM4J back-end, you can use the <code>DOMCSSStyleSheetFactory.createCSSDocument(document)</code>
+method to wrap a pre-existing DOM Document. Example:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
+CSSDocument document = factory.createCSSDocument(otherDOMdocument);
+</pre>
+<p>Unlike the native DOM or the DOM4J back-end, the DOM resulting from the DOM wrapper is read-only, although you can change the
+values of some nodes.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0">
+<h3>Consistency of different DOM implementations</h3>
+<p>Beware that the computed styles found by each method (native DOM, DOM4J back-end or DOM wrapper) may not be completely identical, due to differences in the
+underlying document DOM implementations. Behaviour may vary due to, for example, a pseudo-class like <code>:target</code> being used (DOM4J has no <code>documentURI</code> support so it never matches).</p>
+<p>Such cases would be rare, though (no real-world tests have shown that). If you find a difference in styles computed from different back-ends that you believe to be a bug, please report.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="mediahandling">
+<h3>Media Handling</h3>
+<p>By default, computed styles only take into account generic styles that are common to all media. If you want to target a more specific medium,
+you have to use the <code>CSSDocument.setTargetMedium("<i>medium</i>")</code> method. For example, if your document has the following style sheets linked:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+&lt;link href="http://www.example.com/css/sheet.css" rel="stylesheet" type="text/css" /&gt;
+&lt;link href="http://www.example.com/css/sheet_for_print.css" rel="stylesheet" media="print" type="text/css" /&gt;
+</pre>
+<p>Computed styles will initially take into account only the "sheet.css" style sheet. However, if you execute the following method:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+document.setTargetMedium("print");
+</pre>
+<p>Then all subsequently computed styles will account for the merged style sheet from "sheet.css" and "sheet_for_print.css".</p>
+<p>This way to tie a document with a medium is not totally standard, as the W3C APIs would probably expect a <code>DeviceFactory</code>-related object implementing the
+<a href="https://www.w3.org/2003/01/dom2-javadoc/org/w3c/dom/css/ViewCSS.html" target="_blank"><code>ViewCSS</code></a> interface and referencing the document,
+but this approach allows to isolate DOM logic inside DOM objects and keep the <code>DeviceFactory</code> for media-specific information only.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="sheetsets">
+<h3>Style Sheet Sets</h3>
+<p>The library supports alternative style sheets. Use CSSDocument's methods enableStyleSheetsForSet, getStyleSheetSets, getSelectedStyleSheetSet and
+setSelectedStyleSheetSet. For example, if you have a document with these linked sheets:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+&lt;link href="http://www.example.com/commonsheet.css" rel="stylesheet" type="text/css" /&gt;
+&lt;link href="http://www.example.com/alter1.css" rel="alternate stylesheet" type="text/css" title="Alter 1" /&gt;
+&lt;link href="http://www.example.com/alter2.css" rel="alternate stylesheet" type="text/css" title="Alter 2" /&gt;
+&lt;link href="http://www.example.com/default.css" rel="stylesheet" type="text/css" title="Default" /&gt;
+</pre>
+<p>Initially, sheets 'alter1.css' and 'alter2.css' will not be used to compute styles. But then you can write code like the following:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+String defset = document.getSelectedStyleSheetSet();  // Sets 'defset' to "Default"
+document.setSelectedStyleSheetSet("Alter 1");  // Selects the set with title "Alter 1"
+document.setSelectedStyleSheetSet("Alter 2");  // Selects the set with title "Alter 2"
+</pre>
+<p>These methods have been removed from the DOM standard unfortunately, but you can still read the specification at the <a href="https://www.w3.org/TR/2013/WD-cssom-20131205/#extensions-to-the-document-interface" target="_blank">CSSOM 5 December 2013 Working Draft</a>.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="errorchecking">
+<h3>Style Sheet Error Checking</h3>
+<p>You can check for errors and warnings in the document's sheets using the non-standard <code>getErrorHandler</code> method. Example:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+if (document.getStyleSheets().item(0).getErrorHandler().hasSacErrors())
+	... error processing / reporting
+</pre>
+<p>The merged style sheet obtained from the <code>getStyleSheet</code> method has the merged error/warning state from the document's active sheets.</p>
+<p>A typical source of errors are the non-compliant IE hacks, like prefixing property names with an asterisk (you may want to use the proper
+NSAC flags when creating the factory, see <a href="#legacycompat">Compatibility with legacy browsers</a>),
+or charset rules found in the wrong place. On the other hand, if you aren't using this library's own SAC parser some errors may mean that the parser
+did not recognize a valid syntax (e.g. <code>calc()</code> values), rather than an error in the style sheet.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="overridestyles">
+<h3>Override Styles</h3>
+<p>Override styles, that come after the author style sheet in the cascade algorithm, are supported. For example:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+document.getOverrideStyle(element, null).setCssText("padding: 6pt;");
+</pre>
+<p>The <code>getOverrideStyle</code> method is defined at the <a href="https://www.w3.org/TR/2000/REC-DOM-Level-2-Style-20001113/css.html#CSS-DocumentCSS" target="_blank">DocumentCSS interface</a>.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="sheetparsing">
+<h3>Parsing a Style Sheet</h3>
+<p>Although document's style sheet fetching and parsing is automatic with this library, it is possible to manually parse rules from a source stream with the <code>ExtendedCSSStyleSheet.parseStyleSheet(InputSource, boolean)</code> method:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+Reader re = ...
+org.w3c.css.sac.InputSource source = new org.w3c.css.sac.InputSource(re);
+sheet.parseStyleSheet(source, true);
+</pre>
+<p>The new css rules found in the source stream are added to the already present ones, i.e. the sheet is not reset by this method (although the error handler is).
+When the second argument is <code>true</code>, the comments in the source stream are ignored when parsing.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="legacycompat">
+<h3>Compatibility with legacy Browsers (NSAC-only)</h3>
+<p>This section only applies if you are using a NSAC parser, like this library's default one.</p>
+<p>Today's style sheets often contain non-conformant styles that target specific versions of old web browsers, like Internet Explorer.
+Several web sites contain information about that, including:</p>
+<ul>
+<li><a href="http://browserhacks.com/" target="_blank">browserhacks.com</a></li>
+<li><a href="http://www.webdevout.net/css-hacks" target="_blank">www.webdevout.net/css-hacks</a></li>
+</ul>
+<p>Although it could be argued whether those hacks should be used or not, the point is that actual style sheets do contain them, so this
+library supports them.</p>
+<p>By default, a factory is configured to use a flagless NSAC parser which would produce an error on any of those non-standard constructs,
+but a set of compatibility flags can be specified in the constructors for the factory implementations. The different flags
+are documented in the <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/nsac/package-summary.html">NSAC javadocs</a>.</p>
+<p>The flags available at the time of this guide's update are the following:</p>
+<ul>
+<li><code>STARHACK</code>. When set, the parser will handle asterisk-prefixed property names as accepted, normal names.</li>
+<li><code>IEVALUES</code> supports values ending with <code>\9</code> or <code>\0</code>, as well as
+<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/-ms-filter" target="_blank"><i>progid</i> filters</a> and
+<a href="https://blogs.msdn.microsoft.com/ie/2008/10/16/ending-expressions/" target="_blank">IE expressions</a>.</li>
+<li><code>IEPRIO</code> allows values ending with the <code>'!ie'</code> priority hack.</li>
+<li><code>IEPRIOCHAR</code> accepts values with an <code>'!important!'</code> priority hack (note the <code>'!'</code> at the end).</li>
+</ul>
+<p>The object model manages these compatibility values in parallel to standard ones. For example, after parsing this declaration
+with <code>IEVALUES</code> set:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+width: 900px; width: 890px\9;
+</pre>
+<p>its serialization would be identical (if the flag was set correctly):</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+width: 900px; width: 890px\9;
+</pre>
+<p>but the declaration's length shall be only <code>1</code>. And computed styles only use the standard values unless there are
+no alternatives (no standard value was set). The workings are similar for <code>IEPRIO</code> and <code>IEPRIOCHAR</code>:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+width: 890px !ie;
+width: 890px !important!;
+</pre>
+<p>with the last one being handled as of <code>important</code> priority. Values created by <code>IEPRIOCHAR</code> are never used
+in computed styles.</p>
+<p>Instead, declarations including asterisk-prefixed property names (created by <code>STARHACK</code>) always increase the declaration's
+length. For example, the length of the following declaration would be <code>2</code>:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+width: 890px;
+*width: 890px;
+</pre>
+<p>If you want to use these flags at the NSAC level (instead of the Object Model), you may want to read the 'Parser Flags' section in the
+NSAC package description, as well as the documentation for the individual flags in
+<a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/nsac/Parser2.Flag.html"><code>Parser2.Flag</code></a>.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="styleformatting">
+<h3>CSS Style Formatting</h3>
+<p>The serialization of the <code>cssText</code> attribute in <a href="https://www.w3.org/TR/cssom-1/#dom-cssrule-csstext" target="_blank">rules</a> and
+<a href="https://www.w3.org/TR/cssom-1/#dom-cssstyledeclaration-csstext" target="_blank">style declarations</a> can be customized with an implementation
+of the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleFormattingContext.html">StyleFormattingContext</a> interface.
+You can set your <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleFormattingFactory.html">StyleFormattingFactory</a>
+(which produces your customized formatting context) to the sheet factory with the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setStyleFormattingFactory-io.sf.carte.doc.style.css.StyleFormattingFactory-">CSSStyleSheetFactory.setStyleFormattingFactory</a>
+method, or subclass your base factory and override the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/BaseCSSStyleSheetFactory.html#createDefaultStyleFormattingFactory--">createDefaultStyleFormattingFactory</a> method.</p>
+<p>Look at the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/DefaultStyleFormattingContext.html">DefaultStyleFormattingContext</a> class for an example of a formatting context implementation.</p>
+<p>There is also the possibility to customize the default serialization of string values, with the <a href="api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setFactoryFlag(byte)">CSSStyleSheetFactory.setFactoryFlag(byte)</a>
+method. You can set two flags that govern which quotation you prefer, or keep the default behaviour:</p>
+<ul><li><b>Default:</b> Try to keep the original quotation (single or double quotes), unless the alternative is more efficient.</li>
+<li><b><a href="api/1.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_DOUBLE_QUOTE">STRING_DOUBLE_QUOTE</a>:</b>
+Use double quotes unless single quotes are more efficient (when the string contains more double quotes than single).</li>
+<li><b><a href="api/1.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_SINGLE_QUOTE">STRING_SINGLE_QUOTE</a>:</b>
+Use single quotes unless double quotes are more efficient (when the string contains more single quotes than double).</li>
+</ul>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="sheetcomments">
+<h3>Accessing Style Sheet Comments</h3>
+<p>There is no standard CSSOM API for accessing comments in style sheets, but the <code>AbstractCSSRule.getPrecedingComments()</code> method is provided for that:</p>
+<pre style="padding: 0.8em;background-color: #f8f5e1">
+List&lt;String&gt; comments = document.getStyleSheets().item(0).getCssRules().item(3).getPrecedingComments();
+</pre>
+<p>Other API models were considered for object-model comments, like having a special type of comment rule, but stylesheet-level comments
+are often related to a rule and if that rule is moved or deleted, those stand-alone comments would have the potential to create
+a lot of confusion.</p>
+<p>The comments preceding any rule will be included in the text returned by the sheet's <code>AbstractCSSStyleSheet.toString()</code> and <code>toStyleString()</code> methods,
+while other comments (located at places that cannot be easily related to a rule) are lost.</p>
+<p>BUG: comments that are intended to apply to the previous rule may be assigned to the next one.
+This is intended to be addressed in version 2.0, when SAC-based parsing is going to be partly replaced.</p>
+<p>Comments in the default HTML style sheet are not available, as the parser is instructed to ignore them when parsing.</p>
+</div>
+<div style="margin:2em 0 2.7em 0" id="css3">
+<h3>CSS level 3 and 4 Support</h3>
+<p>CSS level 3/4 is only partially supported by the library; the following table summarizes the basic support for setting/retrieving the main CSS3/4 features:</p>
+<table id="spectbl">
+<tr style="background-color:#f3f0e4"><th>CSS3 Spec Name</th><th>Support</th><th>Observations</th></tr>
+<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Background / Border</td><td style="text-align:center">Yes</td><td class="obsrv"></td></tr>
+<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Color</td><td style="text-align:center">Yes</td><td class="obsrv"></td></tr>
+<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Media Queries</td><td style="text-align:center">Partial</td><td class="obsrv">Event handling with addListener/removeListener is not supported.
+Relies on CSSCanvas implementations to match/unmatch media features.</td></tr>
+<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Selectors</td><td style="text-align:center">Yes</td><td class="obsrv">Only this library's own SAC/NSAC parser supports level 4 selectors.</td></tr>
+<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Transitions</td><td style="text-align:center">Yes</td><td class="obsrv"></td></tr>
+<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Values</td><td style="text-align:center">Yes</td><td class="obsrv">Only this library's own SAC/NSAC parser supports <code>calc()</code> values.</td></tr>
+<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Grid / Template / Alignment</td><td style="text-align:center">Partial</td><td class="obsrv">Legacy gap properties (<code>grid-row-gap</code>,
+<code>grid-column-gap</code>, and <code>grid-gap</code>) are not supported, although the longhands can be used if declared explicitly).</td></tr>
+</table>
+<h4 style="margin:1.8em 0 0.8em" id="pseudoclasses">Pseudo-classes</h4>
+<p>The following pseudo-classes are supported by the library (although they may not be supported by the SAC parser that you are using):
+<code>first-child</code>, <code>last-child</code>, <code>only-child</code>, <code>nth-child()</code>, <code>nth-last-child()</code>, <code>first-of-type</code>,
+<code>last-of-type</code>, <code>only-of-type</code>, <code>nth-of-type()</code>, <code>nth-last-of-type()</code>, <code>link</code>, <code>visited</code>,
+<code>target</code>, <code>root</code>, <code>empty</code>, <code>blank</code>, <code>disabled</code>, <code>enabled</code>, <code>read-write</code>,
+<code>read-only</code>, <code>is</code>, <code>has</code>, <code>not</code>, <code>placeholder-shown</code>, <code>default</code>, <code>checked</code>
+and <code>indeterminate</code>.</p>
+<p>State pseudo-classes like <code>hover</code> are supported through the <code>CSSCanvas.isActivePseudoClass(CSSElement, String)</code> method.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="renderinterfaces">
+<h3>Rendering-oriented interfaces</h3>
+<p>To help with the determination of 'used' values and the actual rendering, this library provides a few helper interfaces. The most important are:</p>
+<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/DeviceFactory.html">DeviceFactory</a>. It is not a "factory of devices",
+but instead the object that delivers the relevant abstractions for a requested medium: <code>StyleDatabase</code> and <code>CSSCanvas</code>.</li></ul>
+<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleDatabase.html">StyleDatabase</a>.
+Provides medium-specific information like available fonts and colors.</li></ul>
+<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/CSSCanvas.html">CSSCanvas</a>.
+Has knowledge of medium-specific information that depends (or may depend) on a specific viewport, like supported media features. It is linked
+to a viewport, if there is any. This interface is used to determine the state of active pseudo-classes.</li></ul>
+<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/Viewport.html">Viewport</a>. It represents a viewport defined
+as per the CSS specifications.</li></ul>
+<p>The differences between style databases and canvases can be subtle, and for some media features it could be argued that they belong to
+one or the other. The basic idea is that style databases should be relatively easy to implement for a given medium, while canvases are
+probably only going to exist if there is an actual rendering engine implemented.</p>
+</div>
+<div style="margin: 2em 0 2.7em 0" id="jrereq">
+<h3>Java&trade; Runtime Environment Requirements</h3>
+<p>The classes in the binary packages have been compiled with a Java SE compiler with 1.7 compiler compliance level,
+except for the <code>module-info</code> file which targets Java 11.</p>
+</div>
 </body>
 </html>
