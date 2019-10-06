@@ -154,6 +154,11 @@ public class MediaQueryTest {
 		assertFalse(mql.hasErrors());
 		assertEquals("not (max-width: 500px)", mql.getMedia());
 		assertEquals("not (max-width:500px)", mql.getMinifiedMedia());
+		//
+		mql = createMediaQueryList("(print),(prefers-reduced-motion: reduce)");
+		assertFalse(mql.hasErrors());
+		assertEquals("(print),(prefers-reduced-motion: reduce)", mql.getMedia());
+		assertEquals("(print),(prefers-reduced-motion:reduce)", mql.getMinifiedMedia());
 	}
 
 	@Test
