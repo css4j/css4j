@@ -16,8 +16,12 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 class TestErrorHandler implements CSSErrorHandler {
 
-	CSSParseException exception = null;
+	private CSSParseException exception = null;
 	CSSParseException warningException = null;
+
+	CSSParseException getLastException() {
+		return exception;
+	}
 
 	boolean hasError() {
 		return exception != null;

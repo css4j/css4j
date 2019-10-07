@@ -642,6 +642,10 @@ public class CSSParser implements Parser {
 			prevcp = codepoint;
 		}
 
+		void handleLeftCurlyBracket(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+		}
+
 		@Override
 		public void closeGroup(int index, int codepoint) {
 			if (codepoint == 41) {
@@ -751,10 +755,14 @@ public class CSSParser implements Parser {
 
 		@Override
 		public void endOfStream(int len) {
+			endOfCondition(len);
+		}
+
+		void endOfCondition(int index) {
 			if (opParenDepth[opDepthIndex] != 0) {
-				handleError(len, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
+				handleError(index, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
 			} else if (!parseError) {
-				predicateHandler.endOfStream(len);
+				predicateHandler.endOfStream(index);
 			}
 		}
 
@@ -837,7 +845,9 @@ public class CSSParser implements Parser {
 
 			@Override
 			public void openGroup(int index, int codepoint) {
-				if (readingValue) {
+				if (codepoint == TokenProducer.CHAR_LEFT_CURLY_BRACKET) {
+					handleLeftCurlyBracket(index);
+				} else if (readingValue) {
 					bufferAppend(codepoint);
 				} else if (codepoint != 40) {
 					unexpectedCharError(index, codepoint);
@@ -1006,6 +1016,10 @@ public class CSSParser implements Parser {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected 'OR'");
 		}
 
+		void emptyQuery(int index) {
+			handleError(index, ParseHelper.ERR_UNEXPECTED_EOF, "No valid query found");
+		}
+
 		@Override
 		protected void handleError(int index, byte errCode, String message) {
 			if (!parseError) {
@@ -1029,6 +1043,7 @@ public class CSSParser implements Parser {
 			}
 		}
 
+		@Override
 		CSSParseException createException(int index, byte errCode, String message) {
 			Locator locator = new LocatorImpl(line, index - prevlinelength);
 			return new CSSMediaParseException(message, locator);
@@ -1051,6 +1066,10 @@ public class CSSParser implements Parser {
 			private MediaQueryDelegateHandler(MediaQueryHandler handler) {
 				super();
 				this.handler = handler;
+			}
+
+			MediaQueryHandler getMediaQueryHandler() {
+				return handler;
 			}
 
 			@Override
@@ -1190,6 +1209,8 @@ public class CSSParser implements Parser {
 						}
 					}
 					parendepth++;
+				} else if (codepoint == TokenProducer.CHAR_LEFT_CURLY_BRACKET) {
+					handleLeftCurlyBracket(index);
 				} else {
 					unexpectedCharError(index, codepoint);
 				}
@@ -1545,6 +1566,8 @@ public class CSSParser implements Parser {
 						}
 						handler.endQuery();
 						clearQuery();
+					} else if (stage == 0) {
+						emptyQuery(len);
 					} else {
 						handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "No valid query found");
 					}
@@ -2248,10 +2271,10 @@ public class CSSParser implements Parser {
 
 		private byte ruleType = 0;
 
-		private final byte MEDIA_RULE = 4;
-		private final byte FONT_FACE_RULE = 5;
-		private final byte PAGE_RULE = 6;
-		private final byte MARGIN_RULE = 9;
+		private static final byte MEDIA_RULE = 4;
+		private static final byte FONT_FACE_RULE = 5;
+		private static final byte PAGE_RULE = 6;
+		private static final byte MARGIN_RULE = 9;
 
 		// @formatter:off
 		//
@@ -2264,10 +2287,10 @@ public class CSSParser implements Parser {
 		//             38 import (expecting first token)
 		//             39 import (expecting first token as url)
 		//             40 import (expecting second token or final)
-		// Stage 2: media, font-face, page
-		// Other rules (stage 5): supports, document
+		// Stage 2: media, font-face, page, supports
+		// Other rules (stage 5): document
 		// font-feature-values, counter-style, keyframes, viewport
-		// Stage 7: nested rule inside a stage-2 rule
+		// Stage 7: nested rule inside a stage-2 rule, unless:
 		// Stage 8: nested page rule inside a media rule
 		// Stage 9: nested media rule inside a media rule
 		// Stage 10: nested font-face rule inside a media rule
@@ -2312,6 +2335,7 @@ public class CSSParser implements Parser {
 							ruleType = MEDIA_RULE;
 							stage = 2;
 							buffer.setLength(0);
+							setMediaQueryHandler();
 						} else if (ParseHelper.equalsIgnoreCase(word, "font-face")) {
 							ruleType = FONT_FACE_RULE;
 							stage = 2;
@@ -2830,6 +2854,14 @@ public class CSSParser implements Parser {
 			endDocument();
 		}
 
+		private void setSelectorHandler(int prevcp) {
+			contextHandler = selectorHandler;
+			selectorHandler.parseError = false;
+			selectorHandler.prevcp = 32;
+			selectorHandler.stage = 0;
+			this.prevcp = prevcp;
+		}
+
 		@Override
 		public void commented(int index, int commentType, String comment) {
 			if (stage == 5 || stage == 7) {
@@ -2851,6 +2883,58 @@ public class CSSParser implements Parser {
 				buffer.setLength(0);
 				this.stage = 127;
 			}
+		}
+
+		private class MyMediaQueryTokenHandler extends MediaQueryTokenHandler {
+
+			MyMediaQueryTokenHandler(MediaQueryFactory conditionFactory, MediaQueryHandler mqhandler) {
+				super(conditionFactory, mqhandler);
+				mqhandler.startQuery();
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			void endOfCondition(int index) {
+				super.endOfCondition(index);
+				MediaQueryList mql = getPredicateHandler().getMediaQueryHandler().getMediaQueryList();
+				medialist = new MediaListWrapper(mql, medialist);
+				handler.startMedia(medialist.getMediaList());
+				contextHandler = selectorHandler;
+				selectorHandler.prevcp = 32;
+			}
+
+			@Override
+			void emptyQuery(int index) {
+			}
+
+			@Override
+			void handleLeftCurlyBracket(int index) {
+				endOfCondition(index);
+				SheetTokenHandler.this.curlyBracketDepth++;
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
+		private void setMediaQueryHandler() {
+			MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
+			MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
+			contextHandler = new MyMediaQueryTokenHandler(mediaQueryFactory, mqhandler);
 		}
 
 		private class MySelectorTokenHandler extends SelectorTokenHandler {
@@ -2963,7 +3047,8 @@ public class CSSParser implements Parser {
 				if (buffer.length() != 0) {
 					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
 				}
-				endDocument();
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
 			}
 
 			@Override
@@ -2998,11 +3083,7 @@ public class CSSParser implements Parser {
 
 			@Override
 			protected void handleRightCurlyBracket(int index) {
-				contextHandler = selectorHandler;
-				selectorHandler.parseError = false;
-				selectorHandler.prevcp = 32;
-				selectorHandler.stage = 0;
-				SheetTokenHandler.this.prevcp = 125;
+				setSelectorHandler(125);
 				if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
 					if (SheetTokenHandler.this.stage == 10) {
@@ -3110,11 +3191,7 @@ public class CSSParser implements Parser {
 				if (codePoint == 125) { // }
 					curlyBracketDepth--;
 					if (curlyBracketDepth == 0) {
-						contextHandler = selectorHandler;
-						selectorHandler.prevcp = 32;
-						selectorHandler.parseError = false;
-						selectorHandler.stage = 0;
-						SheetTokenHandler.this.prevcp = 125;
+						setSelectorHandler(125);
 					}
 				}
 			}
@@ -3134,7 +3211,7 @@ public class CSSParser implements Parser {
 
 			@Override
 			public void endOfStream(int len) {
-				contextHandler = null; // help gc
+				contextHandler = null; // avoid circular loop and help gc
 				SheetTokenHandler.this.endOfStream(len);
 			}
 

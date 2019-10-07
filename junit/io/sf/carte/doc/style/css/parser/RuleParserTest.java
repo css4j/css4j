@@ -25,7 +25,6 @@ import org.junit.Test;
 
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
-import io.sf.carte.doc.style.css.nsac.CSSMediaParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -589,7 +588,7 @@ public class RuleParserTest {
 		parser.parseRule(new StringReader(string), nsmap);
 	}
 
-	static class TestRuleErrorHandler extends TestErrorHandler {
+	class TestRuleErrorHandler extends TestErrorHandler {
 
 		@Override
 		public void error(CSSParseException exception) throws CSSException {
@@ -598,8 +597,7 @@ public class RuleParserTest {
 			 * Errors related to media queries can legitimately appear several times,
 			 * so they are excluded.
 			 */
-			if (this.exception != null && exception.getClass() != CSSMediaParseException.class
-					&& this.exception.getClass() != CSSMediaParseException.class) {
+			if (getLastException() != null && handler.mediaRuleLists.isEmpty()) {
 				throw new IllegalStateException("More than one error reported for single rule", exception);
 			}
 			super.error(exception);

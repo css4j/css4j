@@ -35,7 +35,6 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
-import io.sf.carte.doc.style.css.parser.RuleParserTest.TestRuleErrorHandler;
 
 public class SheetParserTest {
 
@@ -128,8 +127,8 @@ public class SheetParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(6, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(6, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -158,8 +157,8 @@ public class SheetParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(43, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(43, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -185,8 +184,8 @@ public class SheetParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(11, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(11, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -212,8 +211,8 @@ public class SheetParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(22, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(22, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -239,8 +238,8 @@ public class SheetParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(24, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(24, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -257,8 +256,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(1, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(1, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -298,15 +297,15 @@ public class SheetParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(1, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(1, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
 	public void testParseSheetDuplicateSelector() throws CSSException, IOException {
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
-		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
+		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		Reader re = new StringReader("p, p {width: 80%}");
 		parser.parseStyleSheet(re);
@@ -320,6 +319,7 @@ public class SheetParserTest {
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
+		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
 
@@ -388,9 +388,9 @@ public class SheetParserTest {
 		assertEquals(1, handler.comments.size());
 		assertEquals("Newline\nhere", handler.comments.getFirst());
 		assertTrue(errorHandler.hasError());
-		assertNotNull(errorHandler.exception);
-		assertEquals(2, errorHandler.exception.getLineNumber());
-		assertEquals(7, errorHandler.exception.getColumnNumber());
+		assertNotNull(errorHandler.getLastException());
+		assertEquals(2, errorHandler.getLastException().getLineNumber());
+		assertEquals(7, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -412,9 +412,9 @@ public class SheetParserTest {
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(0, handler.comments.size());
 		assertTrue(errorHandler.hasError());
-		assertNotNull(errorHandler.exception);
-		assertEquals(2, errorHandler.exception.getLineNumber());
-		assertEquals(1, errorHandler.exception.getColumnNumber());
+		assertNotNull(errorHandler.getLastException());
+		assertEquals(2, errorHandler.getLastException().getLineNumber());
+		assertEquals(1, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -496,8 +496,8 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(16, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(16, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -510,8 +510,8 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(16, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(16, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -691,8 +691,12 @@ public class SheetParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("svg", handler.namespaceMaps.keySet().iterator().next());
 		assertEquals("http://www.w3.org/2000/svg", handler.namespaceMaps.get("svg"));
-		assertEquals(2, handler.mediaRuleLists.size());
-		assertEquals("screen", handler.mediaRuleLists.get(1).toString());
+		assertEquals(3, handler.mediaRuleLists.size());
+		MediaQueryList mql = handler.mediaRuleLists.get(1);
+		assertTrue(mql.isNotAllMedia());
+		assertFalse(mql.isAllMedia());
+		assertEquals("not all", mql.getMedia());
+		assertEquals("screen", handler.mediaRuleLists.get(2).toString());
 		assertEquals(1, handler.importMedias.size());
 		assertEquals("tv,screen and (orientation: landscape)", handler.importMedias.get(0).toString());
 		assertEquals(1, handler.importURIs.size());
@@ -702,22 +706,24 @@ public class SheetParserTest {
 		assertEquals(" Comment before frame ", handler.comments.get(1));
 		assertEquals(" Comment before frameset ", handler.comments.get(2));
 		assertEquals(" Comment before noframes ", handler.comments.get(3));
-		assertEquals(19, handler.propertyNames.size());
+		assertEquals(20, handler.propertyNames.size());
 		assertEquals("font-weight", handler.propertyNames.get(1));
-		assertEquals("float", handler.propertyNames.get(16));
-		assertEquals("font-size", handler.propertyNames.get(17));
+		assertEquals("color", handler.propertyNames.get(12));
+		assertEquals("float", handler.propertyNames.get(17));
+		assertEquals("font-size", handler.propertyNames.get(18));
 		assertEquals("border", handler.propertyNames.getLast());
-		assertEquals(19, handler.lexicalValues.size());
+		assertEquals(20, handler.lexicalValues.size());
 		assertEquals("bold", handler.lexicalValues.get(1).toString());
-		assertEquals("left", handler.lexicalValues.get(16).toString());
-		assertEquals("12pt", handler.lexicalValues.get(17).toString());
+		assertEquals("yellow", handler.lexicalValues.get(12).toString());
+		assertEquals("left", handler.lexicalValues.get(17).toString());
+		assertEquals("12pt", handler.lexicalValues.get(18).toString());
 		assertEquals("solid orange", handler.lexicalValues.getLast().toString());
-		assertEquals(19, handler.priorities.size());
+		assertEquals(20, handler.priorities.size());
 		String prio = handler.priorities.get(11);
 		assertNotNull(prio);
 		assertEquals("important", prio);
 		assertTrue(errorHandler.hasError());
-		assertEquals(13, errorHandler.exception.getLineNumber());
+		assertEquals(13, errorHandler.getLastException().getLineNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -766,8 +772,8 @@ public class SheetParserTest {
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(64, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(64, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1047,8 +1053,8 @@ public class SheetParserTest {
 		assertEquals("property", handler.eventSeq.get(1));
 		assertEquals("endPage", handler.eventSeq.get(2));
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(35, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(35, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1075,8 +1081,8 @@ public class SheetParserTest {
 		assertEquals("property", handler.eventSeq.get(1));
 		assertEquals("endPage", handler.eventSeq.get(2));
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(36, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(36, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1103,8 +1109,8 @@ public class SheetParserTest {
 		assertEquals("property", handler.eventSeq.get(1));
 		assertEquals("endPage", handler.eventSeq.get(2));
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(38, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(38, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1219,8 +1225,8 @@ public class SheetParserTest {
 		assertTrue(list.isAllMedia());
 		assertEquals("all", list.getMedia());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(24, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(24, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1237,8 +1243,8 @@ public class SheetParserTest {
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals(1, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(18, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(18, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1252,8 +1258,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.atRules.size());
 		assertEquals(1, handler.pageRuleNames.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(55, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(55, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1267,8 +1273,8 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(75, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(75, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1282,8 +1288,8 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertEquals(1, handler.atRules.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(62, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(62, errorHandler.getLastException().getColumnNumber());
 	}
 
 	/*
@@ -1307,8 +1313,8 @@ public class SheetParserTest {
 		assertEquals("color", handler.propertyNames.get(1));
 		assertEquals(2, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(18, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(18, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1426,8 +1432,8 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertEquals(0, handler.importURIs.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(59, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(59, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1514,8 +1520,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.endSelectors.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(1, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(1, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1531,8 +1537,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.endSelectors.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(2, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(2, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1577,8 +1583,8 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.selectors.size());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(9, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(9, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1648,8 +1654,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(19, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(19, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1673,8 +1679,8 @@ public class SheetParserTest {
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(18, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(18, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1701,7 +1707,7 @@ public class SheetParserTest {
 		assertTrue(list.isAllMedia());
 		assertEquals("all", list.getMedia());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1721,8 +1727,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(30, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(30, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1742,8 +1748,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(30, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(30, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1763,8 +1769,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(30, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(30, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1784,8 +1790,8 @@ public class SheetParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(29, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(29, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1867,9 +1873,9 @@ public class SheetParserTest {
 		assertEquals(2, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertTrue(errorHandler.hasError());
-		assertNotNull(errorHandler.exception);
-		assertEquals(3, errorHandler.exception.getLineNumber());
-		assertEquals(25, errorHandler.exception.getColumnNumber());
+		assertNotNull(errorHandler.getLastException());
+		assertEquals(3, errorHandler.getLastException().getLineNumber());
+		assertEquals(25, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1893,9 +1899,9 @@ public class SheetParserTest {
 		assertEquals(2, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertTrue(errorHandler.hasError());
-		assertNotNull(errorHandler.exception);
-		assertEquals(4, errorHandler.exception.getLineNumber());
-		assertEquals(13, errorHandler.exception.getColumnNumber());
+		assertNotNull(errorHandler.getLastException());
+		assertEquals(4, errorHandler.getLastException().getLineNumber());
+		assertEquals(13, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1948,7 +1954,7 @@ public class SheetParserTest {
 		// The comments found do not apply to a valid rule
 		assertEquals(0, handler.comments.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(10, errorHandler.exception.getColumnNumber());
+		assertEquals(10, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1971,7 +1977,7 @@ public class SheetParserTest {
 		// The comments found do not apply to a valid rule
 		assertEquals(0, handler.comments.size());
 		assertTrue(errorHandler.hasError());
-		assertEquals(10, errorHandler.exception.getColumnNumber());
+		assertEquals(10, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 
@@ -1984,8 +1990,8 @@ public class SheetParserTest {
 		Reader re = new StringReader(".foo{*width: 80%}");
 		parser.parseStyleSheet(re);
 		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.exception.getLineNumber());
-		assertEquals(6, errorHandler.exception.getColumnNumber());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(6, errorHandler.getLastException().getColumnNumber());
 		errorHandler.reset();
 		parser.setFlag(CSSParser.Flag.STARHACK);
 		re = new StringReader(".foo{*width: 80%}");
