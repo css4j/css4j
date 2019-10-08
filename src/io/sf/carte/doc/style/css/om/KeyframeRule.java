@@ -149,7 +149,7 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 		return rule;
 	}
 
-	public class MyPropertyDocumentHandler extends DeclarationRuleDocumentHandler {
+	private class MyPropertyDocumentHandler extends DeclarationRuleDocumentHandler {
 		public MyPropertyDocumentHandler() {
 			super();
 		}
