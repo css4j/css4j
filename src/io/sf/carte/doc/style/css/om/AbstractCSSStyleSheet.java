@@ -183,7 +183,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * 
 	 * @param uri
 	 *            the namespace URI string.
-	 * @return the namespace prefix.
+	 * @return the namespace prefix, or null if the URI is not known.
 	 */
 	abstract protected String getNamespacePrefix(String uri);
 

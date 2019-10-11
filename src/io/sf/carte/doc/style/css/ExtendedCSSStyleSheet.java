@@ -85,8 +85,9 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @param name
 	 *            the counter-style name.
 	 * @return a CSSCounterStyleRule object.
+	 * @throws DOMException if the name is invalid.
 	 */
-	CSSCounterStyleRule createCounterStyleRule(String name);
+	CSSCounterStyleRule createCounterStyleRule(String name) throws DOMException;
 
 	/**
 	 * Create a CSS Font Face rule compatible with this implementation.

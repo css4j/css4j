@@ -660,7 +660,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * 
 	 * @param uri
 	 *            the namespace URI string.
-	 * @return the namespace prefix.
+	 * @return the namespace prefix, or null if the URI is not known.
 	 */
 	@Override
 	protected String getNamespacePrefix(String uri) {
@@ -1322,7 +1322,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 							resetCommentStack();
 							currentRule = pRule;
 						}
-					} else { // else if (currentRule instanceof OMCSSMarginRule) {
+					} else { // else if (currentRule instanceof MarginRule) {
 						PageRule pageRule = (PageRule) pRule;
 						pageRule.addMarginRule((MarginRule) currentRule);
 						resetCommentStack();
