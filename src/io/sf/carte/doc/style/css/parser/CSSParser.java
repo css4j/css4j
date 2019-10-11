@@ -2406,9 +2406,9 @@ public class CSSParser implements Parser2 {
 							}
 							buffer.setLength(0);
 						}
-					} else if (stage == 8 && curlyBracketDepth == 2) {
+					} else if (stage == 8 && curlyBracketDepth >= 2) {
 						startPageRule(index);
-					} else if (stage == 10 && curlyBracketDepth == 2) {
+					} else if (stage == 10 && curlyBracketDepth >= 2) {
 						startFontFaceRule(index);
 					} else {
 						buffer.append('{');
