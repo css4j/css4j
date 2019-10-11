@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -45,6 +46,7 @@ public class ViewportRuleTest {
 		ViewportRule rule = (ViewportRule) sheet.getCssRules().item(0);
 		assertEquals("@viewport {\n    orientation: landscape;\n}\n", rule.getCssText());
 		assertEquals("@viewport{orientation:landscape}", rule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -56,6 +58,15 @@ public class ViewportRuleTest {
 		ViewportRule rule = (ViewportRule) sheet.getCssRules().item(0);
 		assertEquals("@viewport {\n    orientation: landscape;\n}\n", rule.getCssText());
 		assertEquals("@viewport{orientation:landscape}", rule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
+	public void testParseRuleBad() throws DOMException, IOException {
+		StringReader re = new StringReader("@viewport foo{orientation: landscape; min-width: 640px;}");
+		sheet.parseStyleSheet(re);
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -63,6 +74,7 @@ public class ViewportRuleTest {
 		ViewportRule rule = new ViewportRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@viewport{orientation:landscape}");
 		assertEquals("@viewport{orientation:landscape}", rule.getMinifiedCssText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -71,6 +83,7 @@ public class ViewportRuleTest {
 		rule.setCssText("@viewport{@orientation: landscape; min-width: 640px;}");
 		assertEquals(1, rule.getStyle().getLength());
 		assertEquals("@viewport{min-width:640px}", rule.getMinifiedCssText());
+		assertTrue(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -83,6 +96,7 @@ public class ViewportRuleTest {
 		}
 		assertEquals("", rule.getMinifiedCssText());
 		assertEquals("", rule.getCssText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test

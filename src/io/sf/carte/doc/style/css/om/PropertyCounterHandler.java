@@ -13,19 +13,20 @@ package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.parser.EmptyCSSHandler;
 
-class PropertyCounterDocumentHandler extends EmptyDocumentHandler {
+class PropertyCounterHandler extends EmptyCSSHandler {
 
 	private int count = 0;
 
 	private boolean error = false;
 
-	PropertyCounterDocumentHandler() {
+	PropertyCounterHandler() {
 		super();
 	}
 
 	@Override
-	public void property(String name, LexicalUnit value, boolean important) {
+	public void property(String name, LexicalUnit value, boolean important, int index) {
 		count++;
 	}
 

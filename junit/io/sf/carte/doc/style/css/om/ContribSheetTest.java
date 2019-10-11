@@ -42,7 +42,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadFontAwesomeReader();
-		cssParser.setDocumentHandler(css.createDocumentHandler(css.getOrigin(), false));
+		cssParser.setDocumentHandler(css.createDocumentHandler(false));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -72,7 +72,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadNormalizeReader();
-		cssParser.setDocumentHandler(css.createDocumentHandler(css.getOrigin(), false));
+		cssParser.setDocumentHandler(css.createDocumentHandler(false));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -103,7 +103,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadAnimateReader();
-		cssParser.setDocumentHandler(css.createDocumentHandler(css.getOrigin(), false));
+		cssParser.setDocumentHandler(css.createDocumentHandler(false));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -135,7 +135,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadMetroReader();
-		cssParser.setDocumentHandler(css.createDocumentHandler(css.getOrigin(), false));
+		cssParser.setDocumentHandler(css.createDocumentHandler(false));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();

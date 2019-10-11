@@ -73,11 +73,11 @@ public class FontFaceRule extends BaseCSSDeclarationRule implements ExtendedCSSF
 	}
 
 	@Override
-	PropertyDocumentHandler createPropertyDocumentHandler() {
-		return new FFDeclarationRuleDocumentHandler();
+	PropertyCSSHandler createPropertyDocumentHandler() {
+		return new FFDeclarationRuleHandler();
 	}
 
-	class FFDeclarationRuleDocumentHandler extends DeclarationRuleDocumentHandler {
+	private class FFDeclarationRuleHandler extends DeclarationRuleCSSHandler {
 		@Override
 		public void startAtRule(String name, String pseudoSelector) {
 			if (!"font-face".equalsIgnoreCase(name)) {

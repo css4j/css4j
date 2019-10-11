@@ -47,9 +47,9 @@ abstract public class CompatInlineStyle extends InlineStyle {
 	 * CompatStyleDeclaration.
 	 */
 	@Override
-	protected void setLonghandProperty(String propertyName, LexicalUnit value, String priority) throws DOMException {
+	protected void setLonghandProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException {
 		if (value.getLexicalUnitType() != LexicalUnit.SAC_COMPAT_PRIO) {
-			super.setLonghandProperty(propertyName, value, priority);
+			super.setLonghandProperty(propertyName, value, important);
 		} else {
 			ValueFactory factory = getValueFactory();
 			StyleValue cssvalue;

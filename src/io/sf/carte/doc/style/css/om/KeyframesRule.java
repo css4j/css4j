@@ -30,7 +30,6 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.parser.KeyframesHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -136,7 +135,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		return keyframeSelector(selunit);
 	}
 
-	private static String keyframeSelector(LexicalUnit selunit) {
+	static String keyframeSelector(LexicalUnit selunit) {
 		StringBuilder buffer = new StringBuilder();
 		appendSelector(buffer, selunit);
 		LexicalUnit lu = selunit.getNextLexicalUnit();
@@ -246,7 +245,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @keyframes rule: " + cssText);
 		}
 		String body = cssText.substring(11, len);
-		PropertyDocumentHandler handler = new MyKeyframesHandler();
+		PropertyCSSHandler handler = new MyKeyframesHandler();
 		CSSParser parser = (CSSParser) createSACParser();
 		parser.setDocumentHandler(handler);
 		try {
@@ -256,7 +255,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		}
 	}
 
-	private class MyKeyframesHandler extends PropertyDocumentHandler implements KeyframesHandler {
+	private class MyKeyframesHandler extends PropertyCSSHandler {
 
 		private String name = null;
 		private final CSSRuleArrayList cssRules = new CSSRuleArrayList();
@@ -265,7 +264,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 		private LinkedList<String> comments = null;
 
-		MyKeyframesHandler() {
+		private MyKeyframesHandler() {
 			super();
 		}
 
@@ -290,7 +289,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
+		public void property(String name, LexicalUnit value, boolean important, int index) {
 			if (currentRule != null) {
 				if (important) {
 					// Declarations marked as important must be ignored
@@ -300,7 +299,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 					currentRule.getStyleDeclarationErrorHandler().wrongValue(name, ex);
 				} else {
 					try {
-						super.property(name, value, important);
+						super.property(name, value, important, index);
 					} catch (DOMException e) {
 						if (currentRule.getStyleDeclarationErrorHandler() != null) {
 							CSSPropertyValueException ex = new CSSPropertyValueException(e);

@@ -640,6 +640,12 @@ public interface LexicalUnit {
 	 * <p>
 	 * The serialization must only include this lexical unit, ignoring the next
 	 * units if they exist.
+	 * </p>
+	 * <p>
+	 * The text should be close to how the value was specified (for example,
+	 * preserving hex or functional notation in rgb colors) but must parse without
+	 * errors (except for compatibility values like <code>SAC_COMPAT_IDENT</code>).
+	 * </p>
 	 *
 	 * @return the parsable representation of this unit.
 	 */

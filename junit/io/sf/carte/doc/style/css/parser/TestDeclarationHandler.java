@@ -13,25 +13,17 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.LinkedList;
 
-import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-class TestDeclarationHandler implements CSSHandler {
+class TestDeclarationHandler extends EmptyCSSHandler implements CSSHandler {
 
 	LinkedList<String> propertyNames = new LinkedList<String>();
 	LinkedList<LexicalUnit> lexicalValues = new LinkedList<LexicalUnit>();
 	LinkedList<String> priorities = new LinkedList<String>();
 	LinkedList<String> comments = new LinkedList<String>();
 
-	@Override
-	public void startDocument() {
-	}
-
-	@Override
-	public void endDocument() {
-	}
+	boolean streamEnded = false;
 
 	@Override
 	public void comment(String text) {
@@ -39,51 +31,7 @@ class TestDeclarationHandler implements CSSHandler {
 	}
 
 	@Override
-	public void ignorableAtRule(String atRule) {
-	}
-
-	@Override
-	public void namespaceDeclaration(String prefix, String uri) {
-	}
-
-	@Override
-	public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
-	}
-
-	@Override
-	public void startMedia(MediaQueryList media) {
-	}
-
-	@Override
-	public void endMedia(MediaQueryList media) {
-	}
-
-	@Override
-	public void startPage(String name, String pseudo_page) {
-	}
-
-	@Override
-	public void endPage(String name, String pseudo_page) {
-	}
-
-	@Override
-	public void startFontFace() {
-	}
-
-	@Override
-	public void endFontFace() {
-	}
-
-	@Override
-	public void startSelector(SelectorList selectors) {
-	}
-
-	@Override
-	public void endSelector(SelectorList selectors) {
-	}
-
-	@Override
-	public void property(String name, LexicalUnit value, boolean important) {
+	public void property(String name, LexicalUnit value, boolean important, int index) {
 		propertyNames.add(name);
 		lexicalValues.add(value);
 		if (important) {
@@ -91,6 +39,11 @@ class TestDeclarationHandler implements CSSHandler {
 		} else {
 			priorities.add(null);
 		}
+	}
+
+	@Override
+	public void endOfStream() {
+		streamEnded = true;
 	}
 
 }

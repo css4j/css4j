@@ -176,7 +176,14 @@ public class MediaRuleTest {
 	public void testParseBad() throws DOMException, ParserConfigurationException {
 		CSSElement cssStyle = styleElement("@media (max-width:1600px) and only screen {div.foo{margin:1em}}");
 		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
-		assertEquals(0, sheet.getCssRules().getLength());
+		assertEquals(1, sheet.getCssRules().getLength());
+		AbstractCSSRule rule = sheet.getCssRules().item(0);
+		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
+		MediaRule mrule = (MediaRule) rule;
+		MediaQueryList mql = mrule.getMedia();
+		assertTrue(mql.isNotAllMedia());
+		assertFalse(mql.isAllMedia());
+		assertEquals(1, mrule.getCssRules().getLength());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
@@ -189,9 +196,17 @@ public class MediaRuleTest {
 		CSSElement cssStyle = styleElement(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
 		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
-		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(2, sheet.getCssRules().getLength());
+		//
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
+		assertEquals("handheld", rule.getMedia().getMedia());
+		assertTrue(sheet == rule.getParentStyleSheet());
+		assertEquals("@media handheld {}", rule.getCssText());
+		assertEquals("@media handheld{}", rule.getMinifiedCssText());
+		//
+		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(1).getType());
+		rule = (MediaRule) sheet.getCssRules().item(1);
 		assertEquals("all", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals("@media {div.foo {margin: 1em; }}", rule.getCssText());
@@ -208,9 +223,17 @@ public class MediaRuleTest {
 		CSSElement cssStyle = styleElement(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }}@media {div.foo{margin:1em}}");
 		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
-		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(2, sheet.getCssRules().getLength());
+		//
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
+		assertEquals("handheld", rule.getMedia().getMedia());
+		assertTrue(sheet == rule.getParentStyleSheet());
+		assertEquals("@media handheld {}", rule.getCssText());
+		assertEquals("@media handheld{}", rule.getMinifiedCssText());
+		//
+		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(1).getType());
+		rule = (MediaRule) sheet.getCssRules().item(1);
 		assertEquals("all", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals("@media {div.foo {margin: 1em; }}", rule.getCssText());

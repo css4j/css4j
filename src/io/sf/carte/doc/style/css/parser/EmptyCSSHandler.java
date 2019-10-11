@@ -9,26 +9,34 @@
 
  */
 
-package io.sf.carte.doc.style.css.om;
+package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-abstract class EmptyDocumentHandler implements CSSHandler, CSSErrorHandler {
+/**
+ * Handler that implements empty methods for all {@link CSSHandler} methods
+ * except
+ * {@link CSSHandler#property(String, io.sf.carte.doc.style.css.nsac.LexicalUnit, boolean)
+ * property(String, LexicalUnit, boolean)}.
+ */
+abstract public class EmptyCSSHandler implements CSSHandler, CSSErrorHandler {
 
-	EmptyDocumentHandler() {
+	protected EmptyCSSHandler() {
 		super();
 	}
 
 	@Override
-	public void startDocument() {
+	public void parseStart(ParserControl parserctl) {
 	}
 
 	@Override
-	public void endDocument() {
+	public void endOfStream() {
 	}
 
 	@Override
@@ -64,6 +72,14 @@ abstract class EmptyDocumentHandler implements CSSHandler, CSSErrorHandler {
 	}
 
 	@Override
+	public void startMargin(String name) {
+	}
+
+	@Override
+	public void endMargin(String name) {
+	}
+
+	@Override
 	public void startFontFace() {
 	}
 
@@ -72,11 +88,67 @@ abstract class EmptyDocumentHandler implements CSSHandler, CSSErrorHandler {
 	}
 
 	@Override
+	public void startCounterStyle(String name) {
+	}
+
+	@Override
+	public void endCounterStyle() {
+	}
+
+	@Override
+	public void startKeyframes(String name) {
+	}
+
+	@Override
+	public void endKeyframes() {
+	}
+
+	@Override
+	public void startKeyframe(LexicalUnit keyframeSelector) {
+	}
+
+	@Override
+	public void endKeyframe() {
+	}
+
+	@Override
+	public void startFontFeatures(String[] familyName) {
+	}
+
+	@Override
+	public void endFontFeatures() {
+	}
+
+	@Override
+	public void startFeatureMap(String mapName) {
+	}
+
+	@Override
+	public void endFeatureMap() {
+	}
+
+	@Override
+	public void startSupports(BooleanCondition condition) {
+	}
+
+	@Override
+	public void endSupports(BooleanCondition condition) {
+	}
+
+	@Override
 	public void startSelector(SelectorList selectors) {
 	}
 
 	@Override
 	public void endSelector(SelectorList selectors) {
+	}
+
+	@Override
+	public void startViewport() {
+	}
+
+	@Override
+	public void endViewport() {
 	}
 
 	@Override

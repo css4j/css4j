@@ -85,8 +85,9 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @param name
 	 *            the counter-style name.
 	 * @return a CSSCounterStyleRule object.
+	 * @throws DOMException if the name is invalid.
 	 */
-	CSSCounterStyleRule createCounterStyleRule(String name);
+	CSSCounterStyleRule createCounterStyleRule(String name) throws DOMException;
 
 	/**
 	 * Create a CSS Font Face rule compatible with this implementation.
@@ -121,8 +122,9 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @param keyframesName
 	 *            the name of the keyframes.
 	 * @return a CSSKeyframesRule object.
+	 * @throws DOMException if the name is invalid.
 	 */
-	CSSKeyframesRule createKeyframesRule(String keyframesName);
+	CSSKeyframesRule createKeyframesRule(String keyframesName) throws DOMException;
 
 	/**
 	 * Create a CSS margin rule compatible with this implementation.
@@ -153,7 +155,8 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @throws DOMException
 	 *             INVALID_ACCESS_ERR: if the prefix or the URI are null.
 	 */
-	CSSNamespaceRule createNamespaceRule(String prefix, String namespaceUri);
+	CSSNamespaceRule createNamespaceRule(String prefix, String namespaceUri)
+			throws DOMException;
 
 	/**
 	 * Create a CSS page rule compatible with this implementation.

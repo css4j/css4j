@@ -140,40 +140,43 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 	}
 
 	@Override
-	protected PropertyDocumentHandler createDocumentHandler() {
-		return new PageRuleDocumentHandler();
+	protected PropertyCSSHandler createDocumentHandler() {
+		return new PageRuleHandler();
 	}
 
-	class PageRuleDocumentHandler extends RuleDocumentHandler {
+	private class PageRuleHandler extends RuleHandler {
 
 		private MarginRule currentMarginRule = null;
 
 		@Override
 		public void startPage(String name, String pseudo_page) {
-			if (name == null) {
-				if (pseudo_page != null) {
-					Parser parser = createSACParser();
-					try {
-						setSelectorList(parser.parseSelectors(new StringReader(pseudo_page)));
-					} catch (IOException e) {
-					}
-				} else {
-					setSelectorText("");
+			if (pseudo_page != null) {
+				Parser parser = createSACParser();
+				try {
+					setSelectorList(parser.parseSelectors(new StringReader(pseudo_page)));
+				} catch (IOException e) {
 				}
 			} else {
-				currentMarginRule = new MarginRule(getParentStyleSheet(), getOrigin(), name);
-				currentMarginRule.setParentRule(PageRule.this);
-				setLexicalPropertyListener(currentMarginRule.getLexicalPropertyListener());
+				setSelectorText("");
 			}
 		}
 
 		@Override
 		public void endPage(String name, String pseudo_page) {
-			if (name != null) {
-				addMarginRule(currentMarginRule);
-				currentMarginRule = null;
-				setLexicalPropertyListener(getLexicalPropertyListener());
-			}
+		}
+
+		@Override
+		public void startMargin(String name) {
+			currentMarginRule = new MarginRule(getParentStyleSheet(), getOrigin(), name);
+			currentMarginRule.setParentRule(PageRule.this);
+			setLexicalPropertyListener(currentMarginRule.getLexicalPropertyListener());
+		}
+
+		@Override
+		public void endMargin(String name) {
+			addMarginRule(currentMarginRule);
+			currentMarginRule = null;
+			setLexicalPropertyListener(getLexicalPropertyListener());
 		}
 
 		@Override

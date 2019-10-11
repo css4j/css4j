@@ -22,7 +22,7 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-class TestDocumentHandler extends TestDeclarationHandler {
+class TestCSSHandler extends TestDeclarationHandler {
 
 	LinkedHashMap<String, String> namespaceMaps = new LinkedHashMap<String, String>();
 	LinkedList<String> atRules = new LinkedList<String>();
@@ -31,14 +31,30 @@ class TestDocumentHandler extends TestDeclarationHandler {
 	LinkedList<String> importURIs = new LinkedList<String>();
 	LinkedList<MediaQueryList> importMedias = new LinkedList<MediaQueryList>();
 	LinkedList<MediaQueryList> mediaRuleLists = new LinkedList<MediaQueryList>();
+	LinkedList<BooleanCondition> supportsRuleLists = new LinkedList<BooleanCondition>();
 	LinkedList<String> pageRuleNames = new LinkedList<String>();
 	LinkedList<String> pseudoPages = new LinkedList<String>();
-	LinkedList<String> comments = new LinkedList<String>();
+	LinkedList<String> marginRuleNames = new LinkedList<String>();
+	LinkedList<String> counterStyleNames = new LinkedList<String>();
+	LinkedList<String> keyframesNames = new LinkedList<String>();
+	LinkedList<LexicalUnit> keyframeSelectors = new LinkedList<LexicalUnit>();
+	LinkedList<String[]> fontFeaturesNames = new LinkedList<>();
+	LinkedList<String> featureMapNames = new LinkedList<String>();
 	LinkedList<String> eventSeq = new LinkedList<String>();
+
 	int fontFaceCount = 0;
+	int viewportCount = 0;
 	int endMediaCount = 0;
 	int endPageCount = 0;
 	int endFontFaceCount = 0;
+	int endSupportsCount = 0;
+	int endMarginCount = 0;
+	int endCounterStyleCount = 0;
+	int endKeyframesCount = 0;
+	int endKeyframeCount = 0;
+	int endFontFeaturesCount = 0;
+	int endFeatureMapCount = 0;
+	int endViewportCount = 0;
 
 	@Override
 	public void startSelector(SelectorList selectors) throws CSSException {
@@ -56,8 +72,8 @@ class TestDocumentHandler extends TestDeclarationHandler {
 	}
 
 	@Override
-	public void property(String name, LexicalUnit value, boolean important) {
-		super.property(name, value, important);
+	public void property(String name, LexicalUnit value, boolean important, int index) {
+		super.property(name, value, important, index);
 		this.eventSeq.add("property");
 	}
 
@@ -81,6 +97,18 @@ class TestDocumentHandler extends TestDeclarationHandler {
 	}
 
 	@Override
+	public void startSupports(BooleanCondition condition) {
+		supportsRuleLists.add(condition);
+		this.eventSeq.add("startSupports");
+	}
+
+	@Override
+	public void endSupports(BooleanCondition condition) {
+		this.eventSeq.add("endSupports");
+		endSupportsCount ++;
+	}
+
+	@Override
 	public void startPage(String name, String pseudo_page) {
 		pageRuleNames.add(name);
 		pseudoPages.add(pseudo_page);
@@ -94,6 +122,18 @@ class TestDocumentHandler extends TestDeclarationHandler {
 	}
 
 	@Override
+	public void startMargin(String name) {
+		marginRuleNames.add(name);
+		this.eventSeq.add("startMargin");
+	}
+
+	@Override
+	public void endMargin(String name) {
+		this.eventSeq.add("endMargin");
+		endMarginCount ++;
+	}
+
+	@Override
 	public void startFontFace() {
 		this.eventSeq.add("startFontFace");
 		fontFaceCount++;
@@ -103,6 +143,66 @@ class TestDocumentHandler extends TestDeclarationHandler {
 	public void endFontFace() {
 		this.eventSeq.add("endFontFace");
 		endFontFaceCount++;
+	}
+
+	@Override
+	public void startCounterStyle(String name) {
+		counterStyleNames.add(name);
+		this.eventSeq.add("startCounterStyle");
+	}
+
+	@Override
+	public void endCounterStyle() {
+		this.eventSeq.add("endCounterStyle");
+		endCounterStyleCount++;
+	}
+
+	@Override
+	public void startKeyframes(String name) {
+		keyframesNames.add(name);
+		this.eventSeq.add("startKeyframes");
+	}
+
+	@Override
+	public void endKeyframes() {
+		this.eventSeq.add("endKeyframes");
+		endKeyframesCount++;
+	}
+
+	@Override
+	public void startKeyframe(LexicalUnit keyframeSelector) {
+		keyframeSelectors.add(keyframeSelector);
+		this.eventSeq.add("startKeyframe");
+	}
+
+	@Override
+	public void endKeyframe() {
+		this.eventSeq.add("endKeyframe");
+		endKeyframeCount++;
+	}
+
+	@Override
+	public void startFontFeatures(String[] familyName) {
+		fontFeaturesNames.add(familyName);
+		this.eventSeq.add("startFontFeatures");
+	}
+
+	@Override
+	public void endFontFeatures() {
+		this.eventSeq.add("endFontFeatures");
+		endFontFeaturesCount++;
+	}
+
+	@Override
+	public void startFeatureMap(String mapName) {
+		featureMapNames.add(mapName);
+		this.eventSeq.add("startFeatureMap");
+	}
+
+	@Override
+	public void endFeatureMap() {
+		this.eventSeq.add("endFeatureMap");
+		endFeatureMapCount++;
 	}
 
 	@Override
@@ -123,6 +223,18 @@ class TestDocumentHandler extends TestDeclarationHandler {
 		this.eventSeq.add("namespaceDeclaration");
 	}
 
+	@Override
+	public void startViewport() {
+		this.eventSeq.add("startViewport");
+		viewportCount++;
+	}
+
+	@Override
+	public void endViewport() {
+		this.eventSeq.add("endViewport");
+		endViewportCount++;
+	}
+
 	void checkRuleEndings() {
 		int sz = selectors.size();
 		assertEquals(sz, endSelectors.size());
@@ -132,6 +244,13 @@ class TestDocumentHandler extends TestDeclarationHandler {
 		assertTrue(selectors.equals(endSelectors));
 		assertEquals(mediaRuleLists.size(), endMediaCount);
 		assertEquals(pageRuleNames.size(), endPageCount);
+		assertEquals(counterStyleNames.size(), endCounterStyleCount);
+		assertEquals(keyframesNames.size(), endKeyframesCount);
+		assertEquals(keyframeSelectors.size(), endKeyframeCount);
+		assertEquals(fontFeaturesNames.size(), endFontFeaturesCount);
+		assertEquals(featureMapNames.size(), endFeatureMapCount);
 		assertEquals(fontFaceCount, endFontFaceCount);
+		assertEquals(viewportCount, endViewportCount);
+		assertTrue(streamEnded);
 	}
 }

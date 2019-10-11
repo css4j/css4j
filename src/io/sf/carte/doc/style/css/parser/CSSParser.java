@@ -48,6 +48,7 @@ import io.sf.carte.doc.style.css.nsac.InputSource;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Locator;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
@@ -147,7 +148,7 @@ public class CSSParser implements Parser {
 		SheetTokenHandler handler = new SheetTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.setAcceptEofEndingQuoted(true);
-		this.handler.startDocument();
+		this.handler.parseStart(handler);
 		tp.parseMultiComment(reader, opening, closing);
 	}
 
@@ -165,7 +166,7 @@ public class CSSParser implements Parser {
 		int[] allowInWords = { 45, 95 }; // -_
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.setAcceptEofEndingQuoted(true);
-		this.handler.startDocument();
+		this.handler.parseStart(handler);
 		try {
 			tp.parse(re, "/*", "*/"); // We do not look for CDO-CDC comments here
 		} catch (IOException e) {
@@ -207,7 +208,7 @@ public class CSSParser implements Parser {
 		SheetTokenHandler handler = new SheetTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.setAcceptEofEndingQuoted(true);
-		this.handler.startDocument();
+		this.handler.parseStart(handler);
 		tp.parseMultiComment(re, opening, closing);
 	}
 
@@ -222,6 +223,7 @@ public class CSSParser implements Parser {
 		}
 		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -232,7 +234,12 @@ public class CSSParser implements Parser {
 		}
 		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		tp.parse(getReaderFromSource(source), "/*", "*/");
+		Reader reader = getReaderFromSource(source);
+		if (reader == null) {
+			throw new IllegalArgumentException("Null character stream");
+		}
+		this.handler.parseStart(handler);
+		tp.parse(reader, "/*", "*/");
 	}
 
 	private Reader getReaderFromSource(InputSource source) throws IOException {
@@ -282,6 +289,7 @@ public class CSSParser implements Parser {
 		}
 		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -296,6 +304,7 @@ public class CSSParser implements Parser {
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -310,6 +319,7 @@ public class CSSParser implements Parser {
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(nsmap);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -324,20 +334,23 @@ public class CSSParser implements Parser {
 		if (re == null) {
 			throw new IllegalArgumentException("Null character stream");
 		}
+		this.handler.parseStart(handler);
 		tp.parse(re, "/*", "*/");
 	}
 
 	public void parseKeyFramesBody(String blockList) throws CSSParseException {
 		int[] allowInWords = { 45, 95 }; // -_
-		KeyFrameBlockListTH handler = new KeyFrameBlockListTH(0, blockList.length());
+		KeyFrameBlockListTH handler = new KeyFrameBlockListTH(blockList.length());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		this.handler.parseStart(handler);
 		tp.parse(blockList, "/*", "*/");
 	}
 
 	public void parseFontFeatureValuesBody(String blockList) {
 		int[] allowInWords = { 45, 95 }; // -_
-		FontFeatureValuesTH handler = new FontFeatureValuesTH(0, blockList.length());
+		FontFeatureValuesTH handler = new FontFeatureValuesTH(blockList.length());
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		this.handler.parseStart(handler);
 		tp.parse(blockList, "/*", "*/");
 	}
 
@@ -1045,7 +1058,7 @@ public class CSSParser implements Parser {
 
 		@Override
 		CSSParseException createException(int index, byte errCode, String message) {
-			Locator locator = new LocatorImpl(line, index - prevlinelength);
+			Locator locator = createLocator(index);
 			return new CSSMediaParseException(message, locator);
 		}
 
@@ -1751,28 +1764,45 @@ public class CSSParser implements Parser {
 		return parser;
 	}
 
-	private static class MediaListWrapper {
+	private static class ConditionWrapper {
 
-		private final MediaQueryList mediaList;
-		private final MediaListWrapper parent;
+		private final Object condition;
+		private final ConditionWrapper parent;
+		private final boolean mediaCondition;
 
-		MediaListWrapper(MediaQueryList mediaList, MediaListWrapper parent) {
+		ConditionWrapper(MediaQueryList mediaList, ConditionWrapper parent) {
 			super();
-			this.mediaList = mediaList;
+			this.condition = mediaList;
 			this.parent = parent;
+			mediaCondition = true;
 		}
 
-		public MediaQueryList getMediaList() {
-			return mediaList;
+		ConditionWrapper(BooleanCondition cond, ConditionWrapper parent) {
+			super();
+			this.condition = cond;
+			this.parent = parent;
+			mediaCondition = false;
 		}
 
-		MediaListWrapper getParent() {
+		MediaQueryList getMediaList() {
+			return (MediaQueryList) condition;
+		}
+
+		BooleanCondition getCondition() {
+			return (BooleanCondition) condition;
+		}
+
+		ConditionWrapper getParent() {
 			return parent;
+		}
+
+		boolean isMediaCondition() {
+			return mediaCondition;
 		}
 
 		@Override
 		public String toString() {
-			return mediaList != null ? mediaList.toString() : "";
+			return condition != null ? condition.toString() : "";
 		}
 
 	}
@@ -1781,11 +1811,19 @@ public class CSSParser implements Parser {
 
 		private final String blockRuleName;
 		private final boolean singleName;
-		private final int offset;
 		private byte stage = STAGE_WAIT_NAME;
 		private int curlyBracketDepth = 0;
 		private final DeclarationTokenHandler declarationHandler;
 
+		/* @formatter:off
+		 * 
+		 * Stages
+		 * 
+		 * @rule name  { selector  {  declaration-list }  }
+		 *      1    2  3        4  5                   3  6
+		 * 
+		 * @formatter:on
+		 */
 		private static final byte STAGE_WAIT_NAME = 1;
 		private static final byte STAGE_WAIT_BLOCK_LIST = 2;
 		private static final byte STAGE_WAIT_SELECTOR = 3;
@@ -1794,9 +1832,8 @@ public class CSSParser implements Parser {
 		private static final byte STAGE_END_BLOCK_LIST = 6;
 		static final byte STAGE_SELECTOR_ERROR = 9;
 
-		NestedRuleTH(int offset, int bufSize, String blockRuleName, boolean singleName) {
+		NestedRuleTH(int bufSize, String blockRuleName, boolean singleName) {
 			super();
-			this.offset = offset;
 			this.blockRuleName = blockRuleName;
 			this.singleName = singleName;
 			declarationHandler = new NestedRuleDeclarationTokenHandler();
@@ -1828,7 +1865,7 @@ public class CSSParser implements Parser {
 		public void separator(int index, int codePoint) {
 			if (stage == STAGE_DECLARATION_LIST) {
 				declarationHandler.separator(index, codePoint);
-			} else {
+			} else if (!parseError) {
 				if (buffer.length() != 0) {
 					if (stage == STAGE_WAIT_NAME && singleName && (escapedTokenIndex == -1 || prevcp == 32)) {
 						stage = STAGE_WAIT_BLOCK_LIST;
@@ -1884,16 +1921,24 @@ public class CSSParser implements Parser {
 					if (stage == STAGE_WAIT_NAME || stage == STAGE_WAIT_BLOCK_LIST) {
 						if (buffer.length() != 0) {
 							processName(index, unescapeBuffer(index).trim());
-							prevcp = codePoint;
-							stage = STAGE_WAIT_SELECTOR;
+							if (!parseError) {
+								prevcp = codePoint;
+								stage = STAGE_WAIT_SELECTOR;
+							}
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, blockRuleName + " must have a name.");
 						}
+						return;
 					} else if (stage == STAGE_FOUND_SELECTOR) {
 						processSelector(index);
 						prevcp = codePoint;
 						declarationHandler.curlyBracketDepth = 1;
 						stage = STAGE_DECLARATION_LIST;
+						return;
+					} else if (!parseError) {
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Unexpected char: " + new String(Character.toChars(codePoint)));
+						stage = STAGE_SELECTOR_ERROR;
 					}
 					return;
 				}
@@ -1950,7 +1995,7 @@ public class CSSParser implements Parser {
 		public void character(int index, int codePoint) {
 			if (stage == STAGE_DECLARATION_LIST) {
 				declarationHandler.character(index, codePoint);
-			} else {
+			} else if (!parseError) {
 				char[] chars = Character.toChars(codePoint);
 				if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_FOUND_SELECTOR) {
 					if (isValidSelectorCharacter(codePoint)) {
@@ -1958,6 +2003,7 @@ public class CSSParser implements Parser {
 						prevcp = codePoint;
 						return;
 					} else {
+						unexpectedCharError(index, codePoint);
 						stage = STAGE_SELECTOR_ERROR;
 					}
 				} else if (stage == STAGE_WAIT_NAME && (isValidNameCharacter(codePoint)
@@ -1978,11 +2024,11 @@ public class CSSParser implements Parser {
 		public void escaped(int index, int codePoint) {
 			if (stage == STAGE_DECLARATION_LIST) {
 				declarationHandler.escaped(index, codePoint);
-			} else {
+			} else if (!parseError) {
 				char[] chars = Character.toChars(codePoint);
 				if (stage == STAGE_WAIT_BLOCK_LIST || stage == STAGE_END_BLOCK_LIST) {
 					unexpectedTokenError(index, new String(chars));
-				} else if (!parseError) {
+				} else {
 					if (ParseHelper.isHexCodePoint(codePoint)) {
 						setEscapedTokenStart(index);
 						buffer.append('\\');
@@ -2001,16 +2047,15 @@ public class CSSParser implements Parser {
 			if (curlyBracketDepth != 0) {
 				if (stage == STAGE_DECLARATION_LIST) {
 					declarationHandler.endOfStream(len);
+					endBlock();
+					endBlockList();
 				} else if (stage == STAGE_END_BLOCK_LIST) {
 					return;
+				} else if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_FOUND_SELECTOR) {
+					endBlockList();
 				}
-				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
+				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
 			}
-		}
-
-		@Override
-		public void control(int index, int codepoint) {
-			super.control(offset + index, codepoint);
 		}
 
 		@Override
@@ -2022,8 +2067,11 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		CSSParseException createException(int index, byte errCode, String message) {
-			return super.createException(offset + index, errCode, message);
+		protected void handleError(int index, byte errCode, String message) throws CSSParseException {
+			if (!parseError) {
+				super.handleError(index, errCode, message);
+				stage = 127;
+			}
 		}
 
 		private class NestedRuleDeclarationTokenHandler extends DeclarationTokenHandler {
@@ -2045,6 +2093,17 @@ public class CSSParser implements Parser {
 			}
 
 			@Override
+			protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
+					boolean priorityImportant) {
+				if (!priorityImportant) {
+					super.handleProperty(index, propertyName, lunit, priorityImportant);
+				} else {
+					handleError(index, ParseHelper.ERR_WRONG_VALUE, "Values with important priority are not accepted ("
+							+ propertyName + ':' + lunit.toString() + "!important).");
+				}
+			}
+
+			@Override
 			CSSParseException createException(int index, byte errCode, String message) {
 				return NestedRuleTH.this.createException(index, errCode, message);
 			}
@@ -2054,8 +2113,8 @@ public class CSSParser implements Parser {
 	}
 
 	private class KeyFrameBlockListTH extends NestedRuleTH {
-		KeyFrameBlockListTH(int offset, int bufSize) {
-			super(offset, bufSize, "@keyframes", true);
+		KeyFrameBlockListTH(int bufSize) {
+			super(bufSize, "@keyframes", true);
 		}
 
 		@Override
@@ -2064,7 +2123,7 @@ public class CSSParser implements Parser {
 			LexicalUnit kfsel;
 			try {
 				kfsel = parsePropertyValue(new StringReader(selector));
-				((KeyframesHandler) handler).startKeyframe(kfsel);
+				handler.startKeyframe(kfsel);
 			} catch (CSSException e) {
 				handleError(index, ParseHelper.ERR_WRONG_VALUE, e.getMessage());
 				setStage(STAGE_SELECTOR_ERROR);
@@ -2078,18 +2137,18 @@ public class CSSParser implements Parser {
 		void processName(int index, String name) {
 			super.processName(index, name);
 			if (!parseError) {
-				((KeyframesHandler) handler).startKeyframes(name);
+				handler.startKeyframes(name);
 			}
 		}
 
 		@Override
 		void endBlock() {
-			((KeyframesHandler) handler).endKeyframe();
+			handler.endKeyframe();
 		}
 
 		@Override
 		void endBlockList() {
-			((KeyframesHandler) handler).endKeyframes();
+			handler.endKeyframes();
 		}
 
 		@Override
@@ -2106,15 +2165,15 @@ public class CSSParser implements Parser {
 	}
 
 	private class FontFeatureValuesTH extends NestedRuleTH {
-		FontFeatureValuesTH(int offset, int bufSize) {
-			super(offset, bufSize, "@font-feature-values", false);
+		FontFeatureValuesTH(int bufSize) {
+			super(bufSize, "@font-feature-values", false);
 		}
 
 		@Override
 		void processSelector(int index) {
 			String selector = unescapeBuffer(index);
 			if (selector.length() > 1 && selector.charAt(0) == '@') {
-				((FontFeatureValuesHandler) handler).startFeatureMap(selector.substring(1).trim());
+				handler.startFeatureMap(selector.substring(1).trim());
 			} else {
 				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Bad feature name: " + selector);
 			}
@@ -2127,18 +2186,18 @@ public class CSSParser implements Parser {
 				super.processName(index, fontName);
 			}
 			if (!parseError) {
-				((FontFeatureValuesHandler) handler).startFontFeatures(familyName);
+				handler.startFontFeatures(familyName);
 			}
 		}
 
 		@Override
 		void endBlock() {
-			((FontFeatureValuesHandler) handler).endFeatureMap();
+			handler.endFeatureMap();
 		}
 
 		@Override
 		void endBlockList() {
-			((FontFeatureValuesHandler) handler).endFontFeatures();
+			handler.endFontFeatures();
 		}
 
 		@Override
@@ -2168,10 +2227,6 @@ public class CSSParser implements Parser {
 		protected void resetRuleState() {
 			super.resetRuleState();
 			contextHandler = new RuleEndContentHandler();
-		}
-
-		@Override
-		void endDocument() {
 		}
 
 		private class RuleEndContentHandler extends CSSTokenHandler {
@@ -2275,6 +2330,7 @@ public class CSSParser implements Parser {
 		private static final byte FONT_FACE_RULE = 5;
 		private static final byte PAGE_RULE = 6;
 		private static final byte MARGIN_RULE = 9;
+		private static final byte SUPPORTS_RULE = 12;
 
 		// @formatter:off
 		//
@@ -2292,7 +2348,6 @@ public class CSSParser implements Parser {
 		// font-feature-values, counter-style, keyframes, viewport
 		// Stage 7: nested rule inside a stage-2 rule, unless:
 		// Stage 8: nested page rule inside a media rule
-		// Stage 9: nested media rule inside a media rule
 		// Stage 10: nested font-face rule inside a media rule
 		//
 		// @formatter:on
@@ -2301,7 +2356,7 @@ public class CSSParser implements Parser {
 		// Next field is to check for @charset rules in bad place
 		private boolean rulesFound = false;
 
-		private MediaListWrapper medialist = null;
+		private ConditionWrapper currentCondition = null;
 
 		SheetTokenHandler(NamespaceMap nsMap) {
 			super();
@@ -2318,61 +2373,128 @@ public class CSSParser implements Parser {
 			} else {
 				if (prevcp == 64) { // Got an at-rule
 					if (stage == 0) {
-						if (ParseHelper.equalsIgnoreCase(word, "charset")) {
+						String ruleName = word.toString().toLowerCase(Locale.ROOT);
+						if ("charset".equals(ruleName)) {
 							if (!rulesFound) {
 								stage = 32;
 								buffer.setLength(0);
 							} else {
 								handleError(index - 1, ParseHelper.ERR_RULE_SYNTAX, "@charset must be the first rule");
 							}
-						} else if (ParseHelper.equalsIgnoreCase(word, "import")) {
+						} else if ("import".equals(ruleName)) {
 							stage = 38;
 							buffer.setLength(0);
-						} else if (ParseHelper.equalsIgnoreCase(word, "namespace")) {
+						} else if ("namespace".equals(ruleName)) {
 							stage = 34;
 							buffer.setLength(0);
-						} else if (ParseHelper.equalsIgnoreCase(word, "media")) {
+						} else if ("media".equals(ruleName)) {
 							ruleType = MEDIA_RULE;
 							stage = 2;
 							buffer.setLength(0);
 							setMediaQueryHandler();
-						} else if (ParseHelper.equalsIgnoreCase(word, "font-face")) {
+						} else if ("supports".equals(ruleName)) {
+							ruleType = SUPPORTS_RULE;
+							stage = 2;
+							buffer.setLength(0);
+							contextHandler = new MySupportsTokenHandler();
+						} else if ("font-face".equals(ruleName)) {
 							ruleType = FONT_FACE_RULE;
 							stage = 2;
 							buffer.setLength(0);
-						} else if (ParseHelper.equalsIgnoreCase(word, "page")) {
+						} else if ("page".equals(ruleName)) {
 							ruleType = PAGE_RULE;
 							stage = 2;
 							buffer.setLength(0);
+						} else if ("viewport".equals(ruleName)) {
+							buffer.setLength(0);
+							contextHandler = new ViewportTokenHandler();
+						} else if ("counter-style".equals(ruleName)) {
+							buffer.setLength(0);
+							contextHandler = new CounterStyleTokenHandler();
+						} else if ("keyframes".equals(ruleName)) {
+							buffer.setLength(0);
+							contextHandler = new MyKeyFrameBlockListTH();
+						} else if ("font-feature-values".equals(ruleName)) {
+							buffer.setLength(0);
+							contextHandler = new MyFontFeatureValuesTH();
 						} else {
 							buffer.append(word);
 							stage = 5;
 						}
 					} else if (stage == 2) {
+						// Check for possible unexpected buffer content
+						if (buffer.length() != 1) {
+							handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+									"Unexpected: " + buffer.toString());
+							buffer.setLength(0);
+							return;
+						}
+						// All seems fine, obtain a lowercase rule name
 						String ruleName = word.toString().toLowerCase(Locale.ROOT);
 						if (ruleType == PAGE_RULE) {
 							if (isMarginRuleName(ruleName)) {
 								ruleType = MARGIN_RULE;
 								marginRule = ruleName;
-								handler.startPage(ruleName, null);
+								handler.startMargin(ruleName);
 								buffer.setLength(0);
 							} else {
 								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
 										"Expected margin rule, got " + word);
 							}
-						} else if (ruleType == MEDIA_RULE && "page".equals(ruleName)) {
-							// Nested page rule inside @media
-							ruleType = PAGE_RULE;
-							stage = 8;
+						} else if ("page".equals(ruleName)) {
+							if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
+								// Nested page rule inside @media or @supports
+								ruleType = PAGE_RULE;
+								stage = 8;
+								buffer.setLength(0);
+							} else {
+								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+										"Unexpected rule: @page.");
+							}
+						} else if ("font-face".equals(ruleName)) {
+							if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
+								// Nested font-face rule inside @media or @supports
+								ruleType = FONT_FACE_RULE;
+								stage = 10;
+								buffer.setLength(0);
+							} else {
+								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+										"Unexpected rule: @font-face.");
+							}
+						} else if ("media".equals(ruleName)) {
+							// Nested media rule inside grouping rule?
+							if (ruleType == SUPPORTS_RULE) {
+								ruleType = MEDIA_RULE;
+							} else if (ruleType != MEDIA_RULE) {
+								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+										"Unexpected: @" + ruleName);
+								return;
+							}
 							buffer.setLength(0);
-						} else if (ruleType == MEDIA_RULE && "font-face".equals(ruleName)) {
-							// Nested font-face rule inside @media
-							ruleType = FONT_FACE_RULE;
-							stage = 10;
+							setMediaQueryHandler();
+						} else if ("supports".equals(ruleName)) {
+							// Nested supports rule inside grouping rule?
+							if (ruleType == MEDIA_RULE) {
+								ruleType = SUPPORTS_RULE;
+							} else if (ruleType != SUPPORTS_RULE) {
+								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+										"Unexpected: @" + ruleName);
+								return;
+							}
 							buffer.setLength(0);
-						} else if (ruleType == MEDIA_RULE && "media".equals(ruleName)) {
-							// Nested media rule inside @media
+							contextHandler = new MySupportsTokenHandler();
+						} else if ("viewport".equals(ruleName)) {
 							buffer.setLength(0);
+							contextHandler = new ViewportTokenHandler();
+						} else if ("counter-style".equals(ruleName)) {
+							buffer.setLength(0);
+							contextHandler = new CounterStyleTokenHandler();
+						} else if ("keyframes".equals(ruleName)) {
+							buffer.setLength(0);
+							contextHandler = new MyKeyFrameBlockListTH();
+						} else if ("font-feature-values".equals(ruleName)) {
+							buffer.setLength(0);
+							contextHandler = new MyFontFeatureValuesTH();
 						} else {
 							// Nested rule
 							stage = 7;
@@ -2467,33 +2589,7 @@ public class CSSParser implements Parser {
 				if (codepoint == 123) { // '{'
 					curlyBracketDepth++;
 					if (stage == 2) {
-						if (ruleType == MEDIA_RULE) {
-							// Body of media rule starts
-							if (parendepth == 0) {
-								if (buffer.length() != 0) {
-									medialist = newMediaList(buffer.toString());
-									buffer.setLength(0);
-								} else {
-									medialist = newMediaListAll();
-								}
-								handler.startMedia(medialist.getMediaList());
-								contextHandler = selectorHandler;
-								selectorHandler.prevcp = 32;
-							} else {
-								handleError(index - buffer.length(), ParseHelper.ERR_UNEXPECTED_TOKEN,
-										"Bad media query at @media rule: <" + buffer.toString() + ">");
-								if (medialist != null) {
-									medialist = medialist.getParent();
-								}
-								if (medialist == null) {
-									ruleType = 0;
-									stage = 0;
-								}
-								curlyBracketDepth--;
-								parendepth = 0;
-								contextHandler = new IgnoredDeclarationTokenHandler();
-							}
-						} else if (curlyBracketDepth == 1) {
+						if (curlyBracketDepth == 1) {
 							if (ruleType == FONT_FACE_RULE) {
 								startFontFaceRule(index);
 							} else if (ruleType == PAGE_RULE) {
@@ -2510,9 +2606,9 @@ public class CSSParser implements Parser {
 							}
 							buffer.setLength(0);
 						}
-					} else if (stage == 8 && curlyBracketDepth == 2) {
+					} else if (stage == 8 && curlyBracketDepth >= 2) {
 						startPageRule(index);
-					} else if (stage == 10 && curlyBracketDepth == 2) {
+					} else if (stage == 10 && curlyBracketDepth >= 2) {
 						startFontFaceRule(index);
 					} else {
 						buffer.append('{');
@@ -2617,13 +2713,17 @@ public class CSSParser implements Parser {
 		}
 
 		protected void endRuleBody() {
+			setSelectorHandler();
+		}
+
+		void setSelectorHandler() {
 			contextHandler = selectorHandler;
 			selectorHandler.prevcp = 32;
 			rulesFound = true;
 		}
 
 		private void switchContextToStage2() {
-			if (ruleType == MEDIA_RULE) {
+			if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
 				contextHandler = selectorHandler;
 				selectorHandler.prevcp = 32;
 			} else if (ruleType == FONT_FACE_RULE) {
@@ -2688,15 +2788,15 @@ public class CSSParser implements Parser {
 			}
 			if (stage == 40 || stage == 38) {
 				if (ruleSecondPart != null) {
-					medialist = newMediaList(ruleSecondPart);
+					currentCondition = newMediaList(ruleSecondPart);
 				} else {
-					medialist = null; // A dangling value may be there from a malformed rule
+					currentCondition = null; // A dangling value may be there from a malformed rule
 				}
 				if (ruleFirstPart != null) {
-					if (medialist == null) {
-						medialist = newMediaListAll();
+					if (currentCondition == null) {
+						currentCondition = newMediaListAll();
 					}
-					handler.importStyle(ruleFirstPart, medialist.getMediaList(), null);
+					handler.importStyle(ruleFirstPart, currentCondition.getMediaList(), null);
 				} else if (!parseError) {
 					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Malformed @-rule");
 				}
@@ -2715,15 +2815,15 @@ public class CSSParser implements Parser {
 			rulesFound = true;
 		}
 
-		private MediaListWrapper newMediaListAll() {
+		private ConditionWrapper newMediaListAll() {
 			MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
 			MediaQueryList mqAll = mediaQueryFactory.createAllMedia();
-			return new MediaListWrapper(mqAll, medialist);
+			return new ConditionWrapper(mqAll, currentCondition);
 		}
 
-		private MediaListWrapper newMediaList(String media) {
+		private ConditionWrapper newMediaList(String media) {
 			MediaQueryList list = parseMediaQueryList(media);
-			return new MediaListWrapper(list, medialist);
+			return new ConditionWrapper(list, currentCondition);
 		}
 
 		void namespaceDeclaration(String prefix, String uri) {
@@ -2733,10 +2833,14 @@ public class CSSParser implements Parser {
 
 		void resetRuleState() {
 			parseError = false;
-			if (medialist != null) {
-				medialist = medialist.getParent();
-				if (medialist == null) {
+			if (currentCondition != null) {
+				currentCondition = currentCondition.getParent();
+				if (currentCondition == null) {
 					stage = 0;
+				} else if (currentCondition.isMediaCondition()) {
+					ruleType = MEDIA_RULE;
+				} else {
+					ruleType = SUPPORTS_RULE;
 				}
 			} else {
 				stage = 0;
@@ -2818,25 +2922,22 @@ public class CSSParser implements Parser {
 				contextHandler.endOfStream(len);
 			} else {
 				if (ruleType == MARGIN_RULE) {
-					handler.endPage(marginRule, null);
+					handler.endMargin(marginRule);
 					ruleType = PAGE_RULE;
 				}
 				if (ruleType == PAGE_RULE) {
 					processBufferPageRule(len);
 					handler.endPage(ruleFirstPart, ruleSecondPart);
 					if (stage == 8) {
-						handler.endMedia(medialist.getMediaList());
+						closeGroupingRules();
 					}
 				} else if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
 					if (stage == 10) {
-						handler.endMedia(medialist.getMediaList());
+						closeGroupingRules();
 					}
-				} else if (ruleType == MEDIA_RULE) {
-					while (medialist != null) {
-						handler.endMedia(medialist.getMediaList());
-						medialist = medialist.getParent();
-					}
+				} else if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
+					closeGroupingRules();
 				} else if (stage != 0 && !parseError) {
 					if (curlyBracketDepth == 0) {
 						endOfAtRule(len);
@@ -2848,10 +2949,26 @@ public class CSSParser implements Parser {
 						// Body of rule ends
 						handler.ignorableAtRule(buffer.toString());
 						handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+						endDocument();
+						return;
 					}
 				}
 			}
+			if (curlyBracketDepth != 0 && !parseError) {
+				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+			}
 			endDocument();
+		}
+
+		private void closeGroupingRules() {
+			while (currentCondition != null) {
+				if (currentCondition.isMediaCondition()) {
+					handler.endMedia(currentCondition.getMediaList());
+				} else {
+					handler.endSupports(currentCondition.getCondition());
+				}
+				currentCondition = currentCondition.getParent();
+			}
 		}
 
 		private void setSelectorHandler(int prevcp) {
@@ -2885,6 +3002,213 @@ public class CSSParser implements Parser {
 			}
 		}
 
+		private class ViewportTokenHandler extends DeclarationRuleTokenHandler {
+
+			private ViewportTokenHandler() {
+				super(ShorthandDatabase.getInstance());
+				setRuleName("viewport");
+				setStage(STAGE_RULE_NAME_SELECTOR);
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
+				if (ruleSecondPart == null) {
+					handler.startViewport();
+				} else {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected token after @viewport: " + ruleSecondPart);
+					setStage(INVALID_RULE);
+				}
+			}
+
+			@Override
+			protected void endAtRule() {
+				handler.endViewport();
+				endRuleBody();
+			}
+
+			@Override
+			void skipDeclarationList() {
+				contextHandler = new MyIgnoredDeclarationTokenHandler();
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			protected void endDeclarationList() {
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
+		private class CounterStyleTokenHandler extends DeclarationRuleTokenHandler {
+
+			private CounterStyleTokenHandler() {
+				super(ShorthandDatabase.getInstance());
+				setRuleName("counter-style");
+				setStage(STAGE_RULE_NAME_SELECTOR);
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
+				try {
+					handler.startCounterStyle(ruleSecondPart);
+				} catch (DOMException e) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Counter-style rule could not be created.", e);
+					setStage(INVALID_RULE);
+				}
+			}
+
+			@Override
+			protected void endAtRule() {
+				handler.endCounterStyle();
+				endRuleBody();
+			}
+
+			@Override
+			void skipDeclarationList() {
+				contextHandler = new MyIgnoredDeclarationTokenHandler();
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			protected void endDeclarationList() {
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
+		private class MyKeyFrameBlockListTH extends KeyFrameBlockListTH {
+
+			MyKeyFrameBlockListTH() {
+				super(64);
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			void endBlockList() {
+				super.endBlockList();
+				endRuleBody();
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
+		private class MyFontFeatureValuesTH extends FontFeatureValuesTH {
+
+			MyFontFeatureValuesTH() {
+				super(64);
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			void endBlockList() {
+				super.endBlockList();
+				endRuleBody();
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
+		private class MySupportsTokenHandler extends SupportsTokenHandler {
+
+			MySupportsTokenHandler() {
+				super(null);
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			void endOfCondition(int index) {
+				super.endOfCondition(index);
+				BooleanCondition cond = getCondition();
+				currentCondition = new ConditionWrapper(cond, currentCondition);
+				handler.startSupports(cond);
+				setSelectorHandler();
+			}
+
+			@Override
+			void handleLeftCurlyBracket(int index) {
+				endOfCondition(index);
+				SheetTokenHandler.this.curlyBracketDepth++;
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
 		private class MyMediaQueryTokenHandler extends MediaQueryTokenHandler {
 
 			MyMediaQueryTokenHandler(MediaQueryFactory conditionFactory, MediaQueryHandler mqhandler) {
@@ -2901,10 +3225,9 @@ public class CSSParser implements Parser {
 			void endOfCondition(int index) {
 				super.endOfCondition(index);
 				MediaQueryList mql = getPredicateHandler().getMediaQueryHandler().getMediaQueryList();
-				medialist = new MediaListWrapper(mql, medialist);
-				handler.startMedia(medialist.getMediaList());
-				contextHandler = selectorHandler;
-				selectorHandler.prevcp = 32;
+				currentCondition = new ConditionWrapper(mql, currentCondition);
+				handler.startMedia(currentCondition.getMediaList());
+				setSelectorHandler();
 			}
 
 			@Override
@@ -2967,19 +3290,34 @@ public class CSSParser implements Parser {
 			private void ignoreRule() {
 				selist.clear();
 				currentsel = null;
-				contextHandler = new IgnoredDeclarationTokenHandler();
+				contextHandler = new MyIgnoredDeclarationTokenHandler();
 			}
 
 			@Override
 			protected void handleRightCurlyBracket(int index) {
 				if (SheetTokenHandler.this.stage == 2) {
-					byte ruleType = SheetTokenHandler.this.ruleType;
+					final byte ruleType = SheetTokenHandler.this.ruleType;
 					if (ruleType == MEDIA_RULE) {
-						handler.endMedia(medialist.getMediaList());
-						medialist = medialist.getParent();
-						if (medialist == null) {
+						handler.endMedia(currentCondition.getMediaList());
+						currentCondition = currentCondition.getParent();
+						if (currentCondition == null) {
 							resetSelectorHandler(true);
 						} else {
+							if (!currentCondition.isMediaCondition()) {
+								SheetTokenHandler.this.ruleType = SUPPORTS_RULE;
+							}
+							resetSelectorHandler(false);
+						}
+						return;
+					} else if (ruleType == SUPPORTS_RULE) {
+						handler.endSupports(currentCondition.getCondition());
+						currentCondition = currentCondition.getParent();
+						if (currentCondition == null) {
+							resetSelectorHandler(true);
+						} else {
+							if (currentCondition.isMediaCondition()) {
+								SheetTokenHandler.this.ruleType = MEDIA_RULE;
+							}
 							resetSelectorHandler(false);
 						}
 						return;
@@ -3087,7 +3425,11 @@ public class CSSParser implements Parser {
 				if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
 					if (SheetTokenHandler.this.stage == 10) {
-						ruleType = MEDIA_RULE;
+						if (currentCondition.isMediaCondition()) {
+							ruleType = MEDIA_RULE;
+						} else {
+							ruleType = SUPPORTS_RULE;
+						}
 						buffer.setLength(0);
 						SheetTokenHandler.this.stage = 2;
 						contextHandler = selectorHandler;
@@ -3101,7 +3443,11 @@ public class CSSParser implements Parser {
 					ruleFirstPart = null;
 					ruleSecondPart = null;
 					if (SheetTokenHandler.this.stage == 8) {
-						ruleType = MEDIA_RULE;
+						if (currentCondition.isMediaCondition()) {
+							ruleType = MEDIA_RULE;
+						} else {
+							ruleType = SUPPORTS_RULE;
+						}
 						buffer.setLength(0);
 						SheetTokenHandler.this.stage = 2;
 						contextHandler = selectorHandler;
@@ -3111,7 +3457,7 @@ public class CSSParser implements Parser {
 						SheetTokenHandler.this.stage = 0;
 					}
 				} else if (ruleType == MARGIN_RULE) {
-					handler.endPage(marginRule, null);
+					handler.endMargin(marginRule);
 					ruleType = PAGE_RULE;
 					marginRule = null;
 					contextHandler = declarationHandler;
@@ -3130,6 +3476,7 @@ public class CSSParser implements Parser {
 				if (propertyName == null && buffer.length() == 0 && getCurlyBracketDepth() == 1
 						&& SheetTokenHandler.this.selectorHandler.getSelectorList().getLength() == 0) {
 					contextHandler = null;
+					SheetTokenHandler.this.buffer.append('@');
 					SheetTokenHandler.this.prevcp = 64;
 				} else {
 					unexpectedCharError(index, 64);
@@ -3149,59 +3496,25 @@ public class CSSParser implements Parser {
 			}
 
 			@Override
+			protected void endDeclarationList() {
+			}
+
+			@Override
 			CSSParseException createException(int index, byte errCode, String message) {
 				return SheetTokenHandler.this.createException(index, errCode, message);
 			}
 
 		}
 
-		private class IgnoredDeclarationTokenHandler extends CSSTokenHandler {
+		private class MyIgnoredDeclarationTokenHandler extends IgnoredDeclarationTokenHandler {
 
-			private int curlyBracketDepth = 1;
-
-			IgnoredDeclarationTokenHandler() {
+			MyIgnoredDeclarationTokenHandler() {
 				super();
 			}
 
 			@Override
-			public void word(int index, CharSequence word) {
-			}
-
-			@Override
-			public void separator(int index, int codePoint) {
-			}
-
-			@Override
-			public void quoted(int index, CharSequence quoted, int quoteCp) {
-			}
-
-			@Override
-			public void quotedWithControl(int index, CharSequence quoted, int quote) {
-			}
-
-			@Override
-			public void openGroup(int index, int codePoint) {
-				if (codePoint == 123) { // '{'
-					curlyBracketDepth++;
-				}
-			}
-
-			@Override
-			public void closeGroup(int index, int codePoint) {
-				if (codePoint == 125) { // }
-					curlyBracketDepth--;
-					if (curlyBracketDepth == 0) {
-						setSelectorHandler(125);
-					}
-				}
-			}
-
-			@Override
-			public void character(int index, int codePoint) {
-			}
-
-			@Override
-			public void escaped(int index, int codePoint) {
+			protected void endDeclarationBlock() {
+				setSelectorHandler(125);
 			}
 
 			@Override
@@ -4413,61 +4726,118 @@ public class CSSParser implements Parser {
 	}
 
 	class DeclarationRuleTokenHandler extends DeclarationTokenHandler {
+		private TokenControl control = null;
+		//
 		private String ruleFirstPart = null;
+		private byte stage = 0;
+		//
+		static final byte STAGE_FOUND_AT_CHAR = 1;
+		static final byte STAGE_RULE_NAME_SELECTOR = 2;
+		static final byte STAGE_RULE_BODY = 3;
+		static final byte STAGE_RULE_END = 4;
+		static final byte INVALID_RULE = 127;
 
 		DeclarationRuleTokenHandler(ShorthandDatabase propertyDatabase) {
 			super(propertyDatabase, 0);
 		}
 
+		void setRuleName(String ruleName) {
+			this.ruleFirstPart = ruleName;
+		}
+
+		void setStage(byte stage) {
+			this.stage = stage;
+		}
+
+		@Override
+		public void tokenStart(TokenControl control) {
+			this.control = control;
+		}
+
 		@Override
 		void addWord(int index, CharSequence word) {
-			if (prevcp == 64) { // Got an at-rule
+			if (prevcp == 64 && stage == STAGE_FOUND_AT_CHAR) { // Got an at-rule
 				ruleFirstPart = word.toString().toLowerCase(Locale.ROOT);
 				buffer.setLength(0);
-			} else {
+				stage = STAGE_RULE_NAME_SELECTOR;
+			} else if (stage != INVALID_RULE) {
 				super.addWord(index, word);
+				if (stage < STAGE_RULE_NAME_SELECTOR) {
+					stage = STAGE_RULE_NAME_SELECTOR;
+				}
 			}
 		}
 
 		@Override
 		protected void handleAtKeyword(int index) {
-			if (propertyName != null || buffer.length() != 0) {
+			if (propertyName != null || buffer.length() != 0 || stage != 0) {
 				unexpectedCharError(index, 64);
-			} else {
+			} else if (stage != INVALID_RULE) {
 				// This should not be needed, but is done here to leave some 'trace'
 				// in case this is not dealt with properly
 				buffer.append('@');
+				stage = STAGE_FOUND_AT_CHAR;
+				prevcp = 64;
 			}
 		}
 
 		@Override
 		protected void handleLeftCurlyBracket(int index) {
-			if (!parseError) {
-				String ruleSecondPart = null;
-				if (buffer.length() != 0) {
-					ruleSecondPart = unescapeBuffer(index);
+			if (stage != INVALID_RULE) {
+				if (stage == STAGE_RULE_NAME_SELECTOR) {
+					String ruleSecondPart = null;
+					if (buffer.length() != 0) {
+						ruleSecondPart = unescapeBuffer(index);
+					}
+					prevcp = 32;
+					stage = STAGE_RULE_BODY;
+					startAtRule(index, ruleFirstPart, ruleSecondPart);
+					if (stage == INVALID_RULE) {
+						skipDeclarationList();
+					}
+				} else {
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
 				}
-				prevcp = 32;
-				((DeclarationRuleHandler) handler).startAtRule(ruleFirstPart, ruleSecondPart);
+			} else {
+				skipDeclarationList();
 			}
+		}
+
+		void skipDeclarationList() {
+			control.setTokenHandler(new IgnoredDeclarationRuleTokenHandler());
+		}
+
+		protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
+			((DeclarationRuleHandler) handler).startAtRule(ruleFirstPart, ruleSecondPart);
 		}
 
 		@Override
 		protected void handleRightCurlyBracket(int index) {
-			if (!parseError) {
-				((DeclarationRuleHandler) handler).endAtRule();
+			if (stage == STAGE_RULE_BODY) {
+				endAtRule();
 				resetHandler();
 				ruleFirstPart = null;
+				stage = STAGE_RULE_END;
+			} else if (stage != INVALID_RULE) {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
 			}
+		}
+
+		protected void endAtRule() {
+			((DeclarationRuleHandler) handler).endAtRule();
 		}
 
 		@Override
 		public void character(int index, int codepoint) {
-			if (getCurlyBracketDepth() != 0) {
-				super.character(index, codepoint);
-			} else {
-				bufferAppend(codepoint);
-				prevcp = codepoint;
+			if (stage != INVALID_RULE) {
+				if (getCurlyBracketDepth() != 0) {
+					super.character(index, codepoint);
+				} else if (codepoint == 64) {
+					handleAtKeyword(index);
+				} else {
+					bufferAppend(codepoint);
+					prevcp = codepoint;
+				}
 			}
 		}
 
@@ -4476,6 +4846,28 @@ public class CSSParser implements Parser {
 			if (getCurlyBracketDepth() != 0) {
 				super.processBuffer(index);
 			}
+		}
+
+		private class IgnoredDeclarationRuleTokenHandler extends IgnoredDeclarationTokenHandler {
+
+			IgnoredDeclarationRuleTokenHandler() {
+				super();
+			}
+
+			@Override
+			protected void endDeclarationBlock() {
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				DeclarationRuleTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				DeclarationRuleTokenHandler.this.endOfStream(len);
+			}
+
 		}
 
 	}
@@ -4535,6 +4927,10 @@ public class CSSParser implements Parser {
 					handleError(len, ParseHelper.ERR_EXPR_SYNTAX, "No value found");
 				}
 			}
+		}
+
+		@Override
+		protected void endDeclarationList() {
 		}
 
 		@Override
@@ -5263,7 +5659,7 @@ public class CSSParser implements Parser {
 				processBuffer(index);
 				if (!parseError) {
 					if (lunit != null) {
-						handler.property(propertyName, lunit, priorityImportant);
+						handleProperty(index, propertyName, lunit, priorityImportant);
 					} else {
 						handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
 								"Found property name (" + propertyName + ") but no value");
@@ -5275,6 +5671,11 @@ public class CSSParser implements Parser {
 			}
 			// Reset other state fields
 			resetHandler();
+		}
+
+		protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
+				boolean priorityImportant) {
+			handler.property(propertyName, lunit, priorityImportant, index);
 		}
 
 		@Override
@@ -5795,6 +6196,11 @@ public class CSSParser implements Parser {
 			} else if (buffer.length() != 0) {
 				handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
 			}
+			endDeclarationList();
+		}
+
+		protected void endDeclarationList() {
+			endDocument();
 		}
 
 		@Override
@@ -5890,9 +6296,62 @@ public class CSSParser implements Parser {
 
 	}
 
-	abstract class CSSTokenHandler implements TokenHandler {
-		int line = 1;
-		int prevlinelength = -1;
+	abstract private class IgnoredDeclarationTokenHandler extends CSSTokenHandler {
+
+		private int curlyBracketDepth = 1;
+
+		IgnoredDeclarationTokenHandler() {
+			super();
+		}
+
+		@Override
+		public void word(int index, CharSequence word) {
+		}
+
+		@Override
+		public void separator(int index, int codePoint) {
+		}
+
+		@Override
+		public void quoted(int index, CharSequence quoted, int quoteCp) {
+		}
+
+		@Override
+		public void quotedWithControl(int index, CharSequence quoted, int quote) {
+		}
+
+		@Override
+		public void openGroup(int index, int codePoint) {
+			if (codePoint == 123) { // '{'
+				curlyBracketDepth++;
+			}
+		}
+
+		@Override
+		public void closeGroup(int index, int codePoint) {
+			if (codePoint == 125) { // }
+				curlyBracketDepth--;
+				if (curlyBracketDepth == 0) {
+					endDeclarationBlock();
+				}
+			}
+		}
+
+		abstract protected void endDeclarationBlock();
+
+		@Override
+		public void character(int index, int codePoint) {
+		}
+
+		@Override
+		public void escaped(int index, int codePoint) {
+		}
+
+	}
+
+	abstract class CSSTokenHandler implements TokenHandler, ParserControl {
+		private int line = 1;
+		private int prevlinelength = -1;
 		int prevcp = 32;
 		int endcp = -1;
 		short parendepth = 0;
@@ -5902,6 +6361,26 @@ public class CSSParser implements Parser {
 
 		CSSTokenHandler() {
 			super();
+		}
+
+		@Override
+		public CSSErrorHandler getErrorHandler() {
+			return errorHandler;
+		}
+
+		@Override
+		public void setDocumentHandler(CSSHandler handler) {
+			CSSParser.this.setDocumentHandler(handler);
+		}
+
+		@Override
+		public void setErrorHandler(CSSErrorHandler handler) {
+			CSSParser.this.setErrorHandler(handler);
+		}
+
+		@Override
+		public Locator createLocator(int index) {
+			return new LocatorImpl(line, index - prevlinelength);
 		}
 
 		@Override
@@ -6040,14 +6519,29 @@ public class CSSParser implements Parser {
 
 		protected void handleError(int index, byte errCode, String message) throws CSSParseException {
 			if (!parseError) {
-				if (errorHandler != null) {
-					if (prevcp == endcp) {
-						errorHandler.error(createException(index, errCode, "Unexpected end of file"));
-					} else {
-						errorHandler.error(createException(index, errCode, message));
-					}
+				CSSParseException ex;
+				if (prevcp == endcp) {
+					ex = createException(index, errCode, "Unexpected end of file");
 				} else {
-					throw createException(index, errCode, message);
+					ex = createException(index, errCode, message);
+				}
+				if (errorHandler != null) {
+					errorHandler.error(ex);
+				} else {
+					throw ex;
+				}
+				parseError = true;
+			}
+		}
+
+		protected void handleError(int index, byte errCode, String message, Throwable cause) throws CSSParseException {
+			if (!parseError) {
+				CSSParseException ex = createException(index, errCode, message);
+				ex.initCause(cause);
+				if (errorHandler != null) {
+					errorHandler.error(ex);
+				} else {
+					throw ex;
 				}
 				parseError = true;
 			}
@@ -6071,7 +6565,7 @@ public class CSSParser implements Parser {
 		}
 
 		CSSParseException createException(int index, byte errCode, String message) {
-			Locator locator = new LocatorImpl(line, index - prevlinelength);
+			Locator locator = createLocator(index);
 			if (errCode == ParseHelper.ERR_UNKNOWN_NAMESPACE) {
 				return new CSSNamespaceParseException(message, locator);
 			}
@@ -6080,7 +6574,7 @@ public class CSSParser implements Parser {
 
 		void endDocument() {
 			if (handler != null) {
-				handler.endDocument();
+				handler.endOfStream();
 			}
 		}
 
@@ -6108,29 +6602,6 @@ public class CSSParser implements Parser {
 				return false;
 			}
 
-		}
-
-	}
-
-	static class LocatorImpl implements Locator {
-
-		final int line;
-		final int column;
-
-		LocatorImpl(int line, int column) {
-			super();
-			this.line = line;
-			this.column = column;
-		}
-
-		@Override
-		public int getLineNumber() {
-			return line;
-		}
-
-		@Override
-		public int getColumnNumber() {
-			return column;
 		}
 
 	}

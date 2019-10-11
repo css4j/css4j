@@ -200,6 +200,7 @@ public class KeyframesRuleTest {
 				"@keyframes $varname{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -208,6 +209,7 @@ public class KeyframesRuleTest {
 				"@keyframes Name, Other {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -216,6 +218,7 @@ public class KeyframesRuleTest {
 				"@keyframes Name, Other Name {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -224,6 +227,7 @@ public class KeyframesRuleTest {
 				"@keyframes 'Name', Other {0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -232,6 +236,7 @@ public class KeyframesRuleTest {
 				"@keyframes My name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -240,6 +245,7 @@ public class KeyframesRuleTest {
 				"@keyframes \\61'My name'{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -248,6 +254,7 @@ public class KeyframesRuleTest {
 				"@keyframes +name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -256,6 +263,7 @@ public class KeyframesRuleTest {
 				"@keyframes name+{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -264,42 +272,45 @@ public class KeyframesRuleTest {
 				"@keyframes \\61  name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	/*
-	 * This one should be accepting part of the rule. Pending for 2.0 and the new
-	 * API.
+	 * This one should be accepting part of the rule.
 	 */
 	@Test
 	public void testParseRuleError10() throws DOMException, IOException {
 		StringReader re = new StringReader(
 				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; {} width: 100%;}}");
 		sheet.parseStyleSheet(re);
-		assertEquals(0, sheet.getCssRules().getLength()); // FIXME
-		/*
-		 * assertEquals(1, sheet.getCssRules().getLength()); KeyframesRule rule =
-		 * (KeyframesRule) sheet.getCssRules().item(0); CSSRuleArrayList kfrules =
-		 * rule.getCssRules(); assertNotNull(kfrules); assertEquals(1,
-		 * kfrules.getLength());
-		 */
+		assertEquals(1, sheet.getCssRules().getLength());
+		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
+		CSSRuleArrayList kfrules = rule.getCssRules();
+		assertNotNull(kfrules);
+		assertEquals(2, kfrules.getLength());
+		KeyframeRule kf1 = (KeyframeRule) kfrules.item(1);
+		assertEquals(1, kf1.getStyle().getLength());
+		assertEquals("margin-left", kf1.getStyle().item(0));
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	/*
-	 * This one should be accepting part of the rule. Pending for 2.0 and the new
-	 * API.
+	 * This one should be accepting part of the rule.
 	 */
 	@Test
 	public void testParseRuleError11() throws DOMException, IOException {
 		StringReader re = new StringReader(
 				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;{}}}");
 		sheet.parseStyleSheet(re);
-		assertEquals(0, sheet.getCssRules().getLength()); // FIXME
-		/*
-		 * assertEquals(1, sheet.getCssRules().getLength()); KeyframesRule rule =
-		 * (KeyframesRule) sheet.getCssRules().item(0); CSSRuleArrayList kfrules =
-		 * rule.getCssRules(); assertNotNull(kfrules); assertEquals(1,
-		 * kfrules.getLength());
-		 */
+		assertEquals(1, sheet.getCssRules().getLength());
+		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
+		CSSRuleArrayList kfrules = rule.getCssRules();
+		assertNotNull(kfrules);
+		assertEquals(2, kfrules.getLength());
+		KeyframeRule kf1 = (KeyframeRule) kfrules.item(1);
+		assertEquals(2, kf1.getStyle().getLength());
+		assertEquals("width", kf1.getStyle().item(1));
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -312,6 +323,7 @@ public class KeyframesRuleTest {
 		CSSRuleArrayList kfrules = rule.getCssRules();
 		assertNotNull(kfrules);
 		assertEquals(2, kfrules.getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -320,6 +332,7 @@ public class KeyframesRuleTest {
 				"@keyframes initial {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -328,6 +341,7 @@ public class KeyframesRuleTest {
 				"@keyframes None {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -336,6 +350,7 @@ public class KeyframesRuleTest {
 				"@keyframes Inherit {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -344,6 +359,7 @@ public class KeyframesRuleTest {
 				"@keyframes unset {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test

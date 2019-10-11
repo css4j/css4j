@@ -35,13 +35,13 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 public class RuleParserTest {
 
 	CSSParser parser;
-	TestDocumentHandler handler;
+	TestCSSHandler handler;
 	TestRuleErrorHandler errorHandler;
 
 	@Before
 	public void setUp() {
 		parser = new CSSParser();
-		handler = new TestDocumentHandler();
+		handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		errorHandler = new TestRuleErrorHandler();
 		parser.setErrorHandler(errorHandler);
@@ -110,6 +110,7 @@ public class RuleParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
+		handler.checkRuleEndings();
 	}
 
 	@Test
@@ -140,6 +141,7 @@ public class RuleParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
+		handler.checkRuleEndings();
 	}
 
 	@Test
@@ -156,6 +158,7 @@ public class RuleParserTest {
 		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
 		assertTrue(errorHandler.hasWarning());
+		handler.checkRuleEndings();
 	}
 
 	@Test
@@ -201,6 +204,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -209,6 +213,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -216,6 +221,7 @@ public class RuleParserTest {
 		parseRule("@namespace url(;");
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -223,6 +229,7 @@ public class RuleParserTest {
 		parseRule("@namespace url();");
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -231,6 +238,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -239,6 +247,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -247,6 +256,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -255,6 +265,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -263,6 +274,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
 	}
 
 	@Test
@@ -496,6 +508,7 @@ public class RuleParserTest {
 		assertTrue(list.isAllMedia());
 		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
 	}
 
 	@Test
@@ -509,6 +522,7 @@ public class RuleParserTest {
 		assertEquals("screen", list.item(0));
 		assertEquals("tv", list.item(1));
 		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
 	}
 
 	@Test
@@ -519,6 +533,7 @@ public class RuleParserTest {
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.endSelectors.size());
 		assertTrue(errorHandler.hasError());
+		handler.checkRuleEndings();
 	}
 
 	@Test
@@ -534,23 +549,72 @@ public class RuleParserTest {
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.endSelectors.size());
 		assertTrue(errorHandler.hasError());
+		handler.checkRuleEndings();
 	}
 
 	@Test
 	public void testParseCounterStyleRule() throws CSSException, IOException {
 		parseRule("@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}");
-		assertEquals(1, handler.atRules.size());
-		assertEquals("@counter-style foo {symbols: \\1F44D; suffix: \" \"; }", handler.atRules.get(0));
+		assertEquals(1, handler.counterStyleNames.size());
+		assertEquals("foo", handler.counterStyleNames.get(0));
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("symbols", handler.propertyNames.get(0));
+		assertEquals("suffix", handler.propertyNames.get(1));
+		assertEquals(2, handler.lexicalValues.size());
+		assertEquals("\\1F44D", handler.lexicalValues.get(0).toString());
+		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
+		assertEquals(0, handler.atRules.size());
+		assertEquals(1, handler.endCounterStyleCount);
+		handler.checkRuleEndings();
+		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseNestedSupportsRule() throws CSSException, IOException {
 		parseRule(
 				"@media screen {@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}}");
+		assertEquals(0, handler.atRules.size());
+		assertEquals(1, handler.supportsRuleLists.size());
+		assertEquals("(display: flexbox) and (not (display: inline-grid))",
+				handler.supportsRuleLists.get(0).toString());
+		assertEquals(2, handler.selectors.size());
+		assertEquals("td", handler.selectors.get(0).toString());
+		assertEquals("li", handler.selectors.get(1).toString());
+		assertEquals(2, handler.endSelectors.size());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("display", handler.propertyNames.get(0));
+		assertEquals("display", handler.propertyNames.get(1));
+		assertEquals(2, handler.lexicalValues.size());
+		assertEquals("table-cell", handler.lexicalValues.get(0).toString());
+		assertEquals("list-item", handler.lexicalValues.get(1).toString());
+		assertEquals(1, handler.mediaRuleLists.size());
+		assertEquals("screen", handler.mediaRuleLists.getFirst().toString());
+		assertEquals(1, handler.endMediaCount);
+		handler.checkRuleEndings();
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseNestedSupportsAndCustomRule() throws CSSException, IOException {
+		parseRule(
+				"@media screen {@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}@-webkit-keyframes foo { from { background-position: 40px 0; } to { background-position: 0 0; } }}");
 		assertEquals(1, handler.atRules.size());
 		assertEquals(
-				"@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}",
-				handler.atRules.get(0));
+				"@-webkit-keyframes foo { from { background-position: 40px 0; } to { background-position: 0 0; } }",
+				handler.atRules.getFirst());
+		assertEquals(1, handler.supportsRuleLists.size());
+		assertEquals("(display: flexbox) and (not (display: inline-grid))",
+				handler.supportsRuleLists.get(0).toString());
+		assertEquals(2, handler.selectors.size());
+		assertEquals("td", handler.selectors.get(0).toString());
+		assertEquals("li", handler.selectors.get(1).toString());
+		assertEquals(2, handler.endSelectors.size());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("display", handler.propertyNames.get(0));
+		assertEquals("display", handler.propertyNames.get(1));
+		assertEquals(2, handler.lexicalValues.size());
+		assertEquals("table-cell", handler.lexicalValues.get(0).toString());
+		assertEquals("list-item", handler.lexicalValues.get(1).toString());
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.getFirst().toString());
 		assertEquals(1, handler.endMediaCount);
@@ -563,6 +627,7 @@ public class RuleParserTest {
 		parseRule("foo:not() {td {display: table-cell; } li {display: list-item; }}");
 		assertTrue(errorHandler.hasError());
 		assertEquals(0, handler.selectors.size());
+		handler.checkRuleEndings();
 	}
 
 	@Test
@@ -578,6 +643,7 @@ public class RuleParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.SAC_PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(80, lu.getFloatValue(), 0.01);
+		handler.checkRuleEndings();
 	}
 
 	private void parseRule(String string) throws CSSParseException, IOException {

@@ -21,5 +21,6 @@ noframes {display: none; border: none; }
 @media screen {
     body { font-size: 12pt }
 }
+@-webkit-viewport {width: device-width; height: device-height}
 p.someclass {border: solid orange; }
 @import "tv.css" tv, screen and (orientation:landscape);

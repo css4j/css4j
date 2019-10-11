@@ -1300,7 +1300,7 @@ public class SelectorMatcherTest {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		StringReader re = new StringReader(style);
-		cssParser.setDocumentHandler(css.createDocumentHandler(css.getOrigin(), true));
+		cssParser.setDocumentHandler(css.createDocumentHandler(true));
 		cssParser.parseStyleSheet(re);
 		return css;
 	}

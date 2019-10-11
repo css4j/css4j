@@ -160,7 +160,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			 */
 			StringReader re = new StringReader(declaration);
 			CSSParser parser = new CSSParser();
-			PropertyCounterDocumentHandler handler = new PropertyCounterDocumentHandler();
+			PropertyCounterHandler handler = new PropertyCounterHandler();
 			parser.setDocumentHandler(handler);
 			parser.setErrorHandler(handler);
 			try {

@@ -31,7 +31,7 @@ public class CSSOMBridge {
 	}
 
 	public static CSSHandler createDocumentHandler(BaseCSSStyleSheet css, boolean ignoreComments) {
-		return css.createDocumentHandler(css.getOrigin(), ignoreComments);
+		return css.createDocumentHandler(ignoreComments);
 	}
 
 }

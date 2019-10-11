@@ -6,7 +6,7 @@
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
  *
- * Copyright © 2017,2018 Carlos Amengual.
+ * Copyright © 2017-2019 Carlos Amengual.
  *
  * SPDX-License-Identifier: W3C-19980720
  *

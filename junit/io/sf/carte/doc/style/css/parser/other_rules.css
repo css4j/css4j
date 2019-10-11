@@ -27,6 +27,8 @@ to {margin-left: 200px;}
   @styleset { double-W: 14; sharp-terminals: 16 1; }
 }
 
+@-webkit-keyframes foo {from{margin-top: 50px; }to{margin-top: 100px;}}
+
 body {
 	background-color: red;
 }

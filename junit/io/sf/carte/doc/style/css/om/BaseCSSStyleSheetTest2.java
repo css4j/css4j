@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
 
 public class BaseCSSStyleSheetTest2 {
 
@@ -70,6 +72,44 @@ public class BaseCSSStyleSheetTest2 {
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
 		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
 		String csstext = "li.foo{color:rgb(12, 255); display: block;}";
+		Reader re = new StringReader(csstext);
+		css.parseStyleSheet(re);
+		CSSRuleArrayList rules = css.getCssRules();
+		assertEquals(1, rules.getLength());
+		assertEquals(CSSRule.STYLE_RULE, rules.item(0).getType());
+		StyleRule stylerule = (StyleRule) rules.item(0);
+		AbstractCSSStyleDeclaration style = stylerule.getStyle();
+		assertEquals(1, style.getLength());
+		assertTrue(css.getErrorHandler().hasSacErrors());
+		assertTrue(css.hasRuleErrorsOrWarnings()); // Accounts for SAC errors
+		assertEquals("li.foo {\n    display: block;\n}\n", css.toString());
+	}
+
+	@Test
+	public void testParseCSSStyleSheetInvalidValue2() throws CSSException, IOException {
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
+		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
+		String csstext = "li.foo{margin-left:calc(foo); display: block;}";
+		Reader re = new StringReader(csstext);
+		css.parseStyleSheet(re);
+		CSSRuleArrayList rules = css.getCssRules();
+		assertEquals(1, rules.getLength());
+		assertEquals(CSSRule.STYLE_RULE, rules.item(0).getType());
+		StyleRule stylerule = (StyleRule) rules.item(0);
+		AbstractCSSStyleDeclaration style = stylerule.getStyle();
+		assertEquals(1, style.getLength());
+		assertTrue(css.getErrorHandler().hasSacErrors());
+		assertTrue(css.hasRuleErrorsOrWarnings()); // Accounts for SAC errors
+		assertEquals("li.foo {\n    display: block;\n}\n", css.toString());
+	}
+
+	@Test
+	public void testParseCSSStyleSheetInvalidRatioValue() throws CSSException, IOException {
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
+		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
+		String csstext = "li.foo{aspect-ratio:1.68/; display: block;}";
 		Reader re = new StringReader(csstext);
 		css.parseStyleSheet(re);
 		CSSRuleArrayList rules = css.getCssRules();
@@ -128,6 +168,27 @@ public class BaseCSSStyleSheetTest2 {
 
 	@Test
 	public void testParseCSSStyleSheetSupportsRule() throws CSSException, IOException {
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
+		String csstext = "@supports(display:list-item) and (width:max-content){li.foo{width:max-content}}";
+		Reader re = new StringReader(csstext);
+		assertTrue(css.parseStyleSheet(re));
+		CSSRuleArrayList rules = css.getCssRules();
+		assertEquals(1, rules.getLength());
+		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, rules.item(0).getType());
+		SupportsRule rule = (SupportsRule) rules.item(0);
+		assertEquals("(display: list-item) and (width: max-content)", rule.getConditionText());
+		BooleanCondition cond = rule.getCondition();
+		assertNotNull(cond);
+		assertEquals(BooleanCondition.Type.AND, cond.getType());
+		assertEquals("(display: list-item) and (width: max-content)", cond.toString());
+		assertFalse(css.getErrorHandler().hasSacErrors());
+		assertFalse(css.getErrorHandler().hasOMErrors());
+		assertEquals(csstext.replace(" ", ""), css.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+	}
+
+	@Test
+	public void testParseCSSStyleSheetSupportsRuleBadConditionFix() throws CSSException, IOException {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
 		String csstext = "@supports(display:list-item)and(width:max-content){li.foo{width:max-content}}";

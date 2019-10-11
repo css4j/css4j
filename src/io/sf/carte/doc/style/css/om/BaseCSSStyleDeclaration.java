@@ -501,7 +501,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		// The following may cause a DOMException.NOT_SUPPORTED_ERR
 		// (documented above) but the W3C API does not allow for that.
 		Parser parser = createSACParser();
-		StyleDeclarationDocumentHandler handler = new StyleDeclarationDocumentHandler();
+		StyleDeclarationHandler handler = new StyleDeclarationHandler();
 		parser.setErrorHandler(handler);
 		Reader re = new StringReader(cssText);
 		clear();
@@ -819,23 +819,16 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return "";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.sf.carte.doc.style.css.om.LexicalPropertyListener#setProperty(java.
-	 * lang.String, org.w3c.css.sac.LexicalUnit, java.lang.String)
-	 */
 	@Override
-	public void setProperty(String propertyName, LexicalUnit value, String priority) throws DOMException {
+	public void setProperty(String propertyName, LexicalUnit value, boolean important, int index) throws DOMException {
 		propertyName = getCanonicalPropertyName(propertyName);
 		// Check for shorthand properties
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		if (sdb.isShorthand(propertyName)) {
 			// Shorthand case.
-			boolean important = priority == "important";
 			setShorthandProperty(sdb, propertyName, value, important);
 		} else {
-			setLonghandProperty(propertyName, value, priority);
+			setLonghandProperty(propertyName, value, important);
 		}
 	}
 
@@ -931,7 +924,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	protected void setLonghandProperty(String propertyName, LexicalUnit value, String priority) throws DOMException {
+	protected void setLonghandProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException {
 		ValueFactory factory = getValueFactory();
 		StyleValue cssvalue;
 		try {
@@ -988,7 +981,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				}
 			}
 		}
-		setProperty(propertyName, cssvalue, priority);
+		setProperty(propertyName, cssvalue, important ? "important" : null);
 	}
 
 	private void wrongBackgroundPositionError(String cssText) {
@@ -1097,10 +1090,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		if (priority != null) {
-			priority = priority.toLowerCase(Locale.ROOT).intern();
-		}
-		setProperty(propertyName, lunit, priority);
+		boolean important = "important".equalsIgnoreCase(priority);
+		setProperty(propertyName, lunit, important, 0);
 	}
 
 	/**
@@ -1829,13 +1820,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return diff;
 	}
 
-	class PropertyDiff implements Diff<String> {
+	private class PropertyDiff implements Diff<String> {
 
 		LinkedList<String> leftSide = new LinkedList<String>();
 		LinkedList<String> rightSide = new LinkedList<String>();
 		LinkedList<String> differentValues = new LinkedList<String>();
 
-		PropertyDiff() {
+		private PropertyDiff() {
 			super();
 		}
 
@@ -1897,15 +1888,15 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return value.toString();
 	}
 
-	class StyleDeclarationDocumentHandler extends PropertyDocumentHandler {
-		StyleDeclarationDocumentHandler() {
+	private class StyleDeclarationHandler extends PropertyCSSHandler {
+		private StyleDeclarationHandler() {
 			super();
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
+		public void property(String name, LexicalUnit value, boolean important, int index) {
 			try {
-				super.property(name, value, important);
+				super.property(name, value, important, index);
 			} catch (DOMException e) {
 				if (getStyleDeclarationErrorHandler() != null) {
 					CSSPropertyValueException ex = new CSSPropertyValueException(e);

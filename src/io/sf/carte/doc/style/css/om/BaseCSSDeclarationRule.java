@@ -67,7 +67,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		clear();
 		CSSParser parser = (CSSParser) createSACParser();
 		Reader re = new StringReader(cssText);
-		PropertyDocumentHandler handler = createPropertyDocumentHandler();
+		PropertyCSSHandler handler = createPropertyDocumentHandler();
 		handler.setLexicalPropertyListener(getLexicalPropertyListener());
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler(handler);
@@ -87,8 +87,8 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		declaration.clear();
 	}
 
-	PropertyDocumentHandler createPropertyDocumentHandler() {
-		return new DeclarationRuleDocumentHandler();
+	PropertyCSSHandler createPropertyDocumentHandler() {
+		return new DeclarationRuleCSSHandler();
 	}
 
 	LexicalPropertyListener getLexicalPropertyListener() {
@@ -225,8 +225,8 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 
 	}
 
-	class DeclarationRuleDocumentHandler extends PropertyDocumentHandler implements CSSParser.DeclarationRuleHandler {
-		DeclarationRuleDocumentHandler() {
+	class DeclarationRuleCSSHandler extends PropertyCSSHandler implements CSSParser.DeclarationRuleHandler {
+		DeclarationRuleCSSHandler() {
 			super();
 		}
 
@@ -239,9 +239,9 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
+		public void property(String name, LexicalUnit value, boolean important, int index) {
 			try {
-				super.property(name, value, important);
+				super.property(name, value, important, index);
 			} catch (DOMException e) {
 				if (getStyleDeclarationErrorHandler() != null) {
 					CSSPropertyValueException ex = new CSSPropertyValueException(e);

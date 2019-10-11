@@ -101,8 +101,8 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 	}
 
 	@Override
-	PropertyDocumentHandler createPropertyDocumentHandler() {
-		return new MyPropertyDocumentHandler();
+	PropertyCSSHandler createPropertyDocumentHandler() {
+		return new MyKFHandler();
 	}
 
 	@Override
@@ -149,13 +149,13 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 		return rule;
 	}
 
-	public class MyPropertyDocumentHandler extends DeclarationRuleDocumentHandler {
-		public MyPropertyDocumentHandler() {
+	private class MyKFHandler extends DeclarationRuleCSSHandler {
+		private MyKFHandler() {
 			super();
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
+		public void property(String name, LexicalUnit value, boolean important, int index) {
 			if (important) {
 				// Declarations marked as important must be ignored
 				CSSPropertyValueException ex = new CSSPropertyValueException(
@@ -163,7 +163,7 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 				ex.setValueText(value.toString() + " !important");
 				getStyleDeclarationErrorHandler().wrongValue(name, ex);
 			} else {
-				super.property(name, value, important);
+				super.property(name, value, important, index);
 			}
 		}
 	}

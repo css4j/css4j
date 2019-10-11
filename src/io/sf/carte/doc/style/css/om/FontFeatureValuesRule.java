@@ -30,10 +30,13 @@ import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Locator;
+import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.parser.FontFeatureValuesHandler;
+import io.sf.carte.doc.style.css.parser.EmptyCSSHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
@@ -344,7 +347,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 					"Not a @font-feature-values rule: " + cssText);
 		}
 		String body = cssText.substring(21, len);
-		FontFeatureValuesHandler handler = new MyFontFeatureValuesHandler();
+		CSSHandler handler = new MyFontFeatureValuesHandler();
 		CSSParser parser = (CSSParser) createSACParser();
 		parser.setDocumentHandler(handler);
 		try {
@@ -354,7 +357,12 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 	}
 
-	private class MyFontFeatureValuesHandler extends EmptyDocumentHandler implements FontFeatureValuesHandler {
+	CSSHandler createFontFeatureValuesHandler(CSSParentHandler parentHandler,
+			ParserControl parserctl) {
+		return new MyFontFeatureValuesHandler(parentHandler, parserctl);
+	}
+
+	private class MyFontFeatureValuesHandler extends EmptyCSSHandler {
 
 		private String[] fontFamily = null;
 		private final CSSFontFeatureValuesMapImpl annotation = new CSSFontFeatureValuesMapImpl();
@@ -369,8 +377,18 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		private LinkedList<String> comments = null;
 
-		MyFontFeatureValuesHandler() {
+		private final CSSParentHandler parentHandler;
+
+		private final ParserControl parserctl;
+
+		private MyFontFeatureValuesHandler() {
+			this(null, null);
+		}
+
+		private MyFontFeatureValuesHandler(CSSParentHandler parentHandler, ParserControl parserctl) {
 			super();
+			this.parentHandler = parentHandler;
+			this.parserctl = parserctl;
 		}
 
 		@Override
@@ -380,27 +398,34 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		@Override
 		public void endFontFeatures() {
-			FontFeatureValuesRule.this.fontFamily = fontFamily;
-			FontFeatureValuesRule.this.annotation.clear();
-			FontFeatureValuesRule.this.ornaments.clear();
-			FontFeatureValuesRule.this.stylistic.clear();
-			FontFeatureValuesRule.this.swash.clear();
-			FontFeatureValuesRule.this.characterVariant.clear();
-			FontFeatureValuesRule.this.styleset.clear();
-			FontFeatureValuesRule.this.annotation.addAll(annotation);
-			FontFeatureValuesRule.this.ornaments.addAll(ornaments);
-			FontFeatureValuesRule.this.stylistic.addAll(stylistic);
-			FontFeatureValuesRule.this.swash.addAll(swash);
-			FontFeatureValuesRule.this.characterVariant.addAll(characterVariant);
-			FontFeatureValuesRule.this.styleset.addAll(styleset);
-			FontFeatureValuesRule.this.mapmap = mapmap;
-			// Comments
-			FontFeatureValuesRule.this.annotation.setPrecedingComments(annotation.getPrecedingComments());
-			FontFeatureValuesRule.this.ornaments.setPrecedingComments(ornaments.getPrecedingComments());
-			FontFeatureValuesRule.this.stylistic.setPrecedingComments(stylistic.getPrecedingComments());
-			FontFeatureValuesRule.this.swash.setPrecedingComments(swash.getPrecedingComments());
-			FontFeatureValuesRule.this.characterVariant.setPrecedingComments(characterVariant.getPrecedingComments());
-			FontFeatureValuesRule.this.styleset.setPrecedingComments(styleset.getPrecedingComments());
+			if (fontFamily != null) {
+				FontFeatureValuesRule.this.fontFamily = fontFamily;
+				FontFeatureValuesRule.this.annotation.clear();
+				FontFeatureValuesRule.this.ornaments.clear();
+				FontFeatureValuesRule.this.stylistic.clear();
+				FontFeatureValuesRule.this.swash.clear();
+				FontFeatureValuesRule.this.characterVariant.clear();
+				FontFeatureValuesRule.this.styleset.clear();
+				FontFeatureValuesRule.this.annotation.addAll(annotation);
+				FontFeatureValuesRule.this.ornaments.addAll(ornaments);
+				FontFeatureValuesRule.this.stylistic.addAll(stylistic);
+				FontFeatureValuesRule.this.swash.addAll(swash);
+				FontFeatureValuesRule.this.characterVariant.addAll(characterVariant);
+				FontFeatureValuesRule.this.styleset.addAll(styleset);
+				FontFeatureValuesRule.this.mapmap = mapmap;
+				// Comments
+				FontFeatureValuesRule.this.annotation.setPrecedingComments(annotation.getPrecedingComments());
+				FontFeatureValuesRule.this.ornaments.setPrecedingComments(ornaments.getPrecedingComments());
+				FontFeatureValuesRule.this.stylistic.setPrecedingComments(stylistic.getPrecedingComments());
+				FontFeatureValuesRule.this.swash.setPrecedingComments(swash.getPrecedingComments());
+				FontFeatureValuesRule.this.characterVariant
+						.setPrecedingComments(characterVariant.getPrecedingComments());
+				FontFeatureValuesRule.this.styleset.setPrecedingComments(styleset.getPrecedingComments());
+			}
+			//
+			if (parentHandler != null) {
+				parentHandler.endSubHandler(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE);
+			}
 		}
 
 		@Override
@@ -444,7 +469,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
+		public void property(String name, LexicalUnit value, boolean important, int index) {
 			LinkedList<PrimitiveValue> values = new LinkedList<PrimitiveValue>();
 			for (; value != null; value = value.getNextLexicalUnit()) {
 				short lutype = value.getLexicalUnitType();
@@ -465,7 +490,14 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 						continue;
 					}
 				}
-				throw new CSSException("Found non-integer value: " + value.toString());
+				String msg = "Found non-integer value: " + value.toString();
+				if (parserctl != null) {
+					Locator locator = parserctl.createLocator(index);
+					CSSParseException ex = new CSSParseException(msg, locator);
+					parserctl.getErrorHandler().error(ex);
+				} else {
+					throw new CSSException(msg);
+				}
 			}
 			PrimitiveValue[] intvals = new PrimitiveValue[values.size()];
 			for (int i = 0; i < intvals.length; i++) {
@@ -592,7 +624,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		return rule;
 	}
 
-	static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap {
+	private static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap {
 
 		private final LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
 		private List<String> precedingComments = null;

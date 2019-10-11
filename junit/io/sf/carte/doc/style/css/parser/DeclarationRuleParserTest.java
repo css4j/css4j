@@ -24,11 +24,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class DeclarationRuleParserTest {
 
@@ -67,6 +65,7 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("blue", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -83,6 +82,7 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("landscape", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -105,6 +105,7 @@ public class DeclarationRuleParserTest {
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals("640px", lu.toString());
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -121,6 +122,7 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("landscape", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -145,6 +147,7 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
 		assertEquals(" ", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -155,78 +158,20 @@ public class DeclarationRuleParserTest {
 		assertNull(handler.selectorNames.get(0));
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
+		assertTrue(handler.streamEnded);
 	}
 
 	private void parseDeclarationRule(String string) throws CSSParseException, IOException {
 		parser.parseDeclarationRule(new StringReader(string));
 	}
 
-	static class TestDeclarationRuleHandler implements CSSParser.DeclarationRuleHandler {
+	static class TestDeclarationRuleHandler extends TestDeclarationHandler implements CSSParser.DeclarationRuleHandler {
 
 		private LinkedList<String> ruleNames = new LinkedList<String>();
 		private LinkedList<String> selectorNames = new LinkedList<String>();
-		private LinkedList<String> propertyNames = new LinkedList<String>();
-		private LinkedList<LexicalUnit> lexicalValues = new LinkedList<LexicalUnit>();
-		private LinkedList<String> priorities = new LinkedList<String>();
 
 		@Override
-		public void startDocument() {
-		}
-
-		@Override
-		public void endDocument() {
-		}
-
-		@Override
-		public void comment(String text) {
-		}
-
-		@Override
-		public void ignorableAtRule(String atRule) {
-		}
-
-		@Override
-		public void namespaceDeclaration(String prefix, String uri) {
-		}
-
-		@Override
-		public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
-		}
-
-		@Override
-		public void startMedia(MediaQueryList media) {
-		}
-
-		@Override
-		public void endMedia(MediaQueryList media) {
-		}
-
-		@Override
-		public void startPage(String name, String pseudo_page) {
-		}
-
-		@Override
-		public void endPage(String name, String pseudo_page) {
-		}
-
-		@Override
-		public void startFontFace() {
-		}
-
-		@Override
-		public void endFontFace() {
-		}
-
-		@Override
-		public void startSelector(SelectorList selectors) {
-		}
-
-		@Override
-		public void endSelector(SelectorList selectors) {
-		}
-
-		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
+		public void property(String name, LexicalUnit value, boolean important, int index) {
 			propertyNames.add(name);
 			lexicalValues.add(value);
 			if (important) {

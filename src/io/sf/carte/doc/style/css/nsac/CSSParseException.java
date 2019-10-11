@@ -50,7 +50,8 @@ public class CSSParseException extends CSSException {
 	 * @param locator the location where the error was triggered.
 	 */
 	public CSSParseException(String message, Locator locator) {
-		this(message, locator, null);
+		super(message);
+		this.locator = locator;
 	}
 
 	/**

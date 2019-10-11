@@ -20,18 +20,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedActionException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSStyleDeclaration;
 
 import io.sf.carte.doc.agent.AgentUtil;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -48,19 +45,15 @@ import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
-import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
-import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.util.BufferSimpleWriter;
 
 /**
@@ -85,6 +78,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	private MediaQueryList destinationMedia;
 
+	/**
+	 * URI-to-prefix map.
+	 */
 	private Map<String, String> namespaces = new HashMap<String, String>();
 
 	private boolean disabled = false;
@@ -217,7 +213,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		// The following may cause an (undocumented)
 		// DOMException.NOT_SUPPORTED_ERR
 		Parser psr = getStyleSheetFactory().createSACParser();
-		CSSDocumentHandler handler = createDocumentHandler(getOrigin(), true);
+		SheetHandler handler = createDocumentHandler(true);
 		psr.setDocumentHandler(handler);
 		psr.setErrorHandler(handler);
 		currentInsertionIndex = index - 1;
@@ -235,14 +231,14 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		if (currentInsertionIndex != index && handler.outOfRuleException != null) {
+		if (currentInsertionIndex != index && handler.getOutOfRuleException() != null) {
 			DOMException ex;
-			if (handler.outOfRuleException.getClass() == CSSNamespaceParseException.class) {
-				ex = new DOMException(DOMException.NAMESPACE_ERR, handler.outOfRuleException.getMessage());
+			if (handler.getOutOfRuleException().getClass() == CSSNamespaceParseException.class) {
+				ex = new DOMException(DOMException.NAMESPACE_ERR, handler.getOutOfRuleException().getMessage());
 			} else {
-				ex = new DOMException(DOMException.SYNTAX_ERR, handler.outOfRuleException.getMessage());
+				ex = new DOMException(DOMException.SYNTAX_ERR, handler.getOutOfRuleException().getMessage());
 			}
-			ex.initCause(handler.outOfRuleException);
+			ex.initCause(handler.getOutOfRuleException());
 			throw ex;
 		}
 		return currentInsertionIndex;
@@ -269,6 +265,10 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 		cssrule.setParentStyleSheet(this);
 		addLocalRule(cssrule);
+	}
+
+	void setNamespace(String prefix, String uri) {
+		namespaces.put(uri, prefix);
 	}
 
 	@Override
@@ -490,7 +490,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public CounterStyleRule createCounterStyleRule(String name) {
+	public CounterStyleRule createCounterStyleRule(String name) throws DOMException {
 		CounterStyleRule rule = new CounterStyleRule(this, getOrigin());
 		rule.setName(name);
 		return rule;
@@ -652,6 +652,18 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	@Override
 	protected String getNamespacePrefix(String uri) {
 		return namespaces.get(uri);
+	}
+
+	String getNamespaceURI(String nsPrefix) {
+		Iterator<Entry<String, String>> it = namespaces.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, String> entry = it.next();
+			String prefix = entry.getValue();
+			if (nsPrefix.equals(prefix)) {
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -942,14 +954,24 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Creates a SAC document handler implemented by this style sheet.
+	 * Creates a SAC document handler that fills this style sheet.
+	 * 
+	 * @param ignoreComments true if comments have to be ignored by the handler.
+	 * @return the new SAC document handler.
+	 */
+	SheetHandler createDocumentHandler(boolean ignoreComments) {
+		return new SheetHandler(this, getOrigin(), ignoreComments);
+	}
+
+	/**
+	 * Creates a SAC document handler that fills this style sheet.
 	 * 
 	 * @param origin the origin for this style sheet.
 	 * @param ignoreComments true if comments have to be ignored by the handler.
 	 * @return the new SAC document handler.
 	 */
-	CSSDocumentHandler createDocumentHandler(byte origin, boolean ignoreComments) {
-		return new CSSDocumentHandler(origin, ignoreComments);
+	SheetHandler createDocumentHandler(byte origin, boolean ignoreComments) {
+		return new SheetHandler(this, origin, ignoreComments);
 	}
 
 	/**
@@ -1047,463 +1069,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			throw ex;
 		}
 		return !getErrorHandler().hasSacErrors();
-	}
-
-	class CSSDocumentHandler implements CSSHandler, CSSErrorHandler, NamespaceMap {
-
-		private AbstractCSSRule currentRule = null;
-
-		private final byte sheetOrigin;
-
-		private final LinkedList<String> comments;
-
-		/*
-		 * switch for ignoring rules if a media rule is inside the wrong place or the
-		 * query list is invalid.
-		 */
-		private boolean ignoreRulesForMedia = false;
-
-		private boolean ignoreImports = false;
-
-		private CSSParseException outOfRuleException = null;
-
-		CSSDocumentHandler(byte origin, boolean ignoreComments) {
-			super();
-			this.sheetOrigin = origin;
-			if (!ignoreComments) {
-				comments = new LinkedList<String>();
-			} else {
-				comments = null;
-			}
-		}
-
-		@Override
-		public void startDocument() {
-			// Starting StyleSheet processing
-			currentRule = null;
-			ignoreRulesForMedia = false;
-			ignoreImports = false;
-			resetCommentStack();
-		}
-
-		@Override
-		public void endDocument() {
-			// Ending StyleSheet processing
-			resetCommentStack();
-		}
-
-		@Override
-		public void comment(String text) {
-			if ((currentRule == null || currentRule instanceof GroupingRule) && comments != null) {
-				comments.add(text);
-			}
-		}
-
-		@Override
-		public void ignorableAtRule(String atRule) {
-			// Ignorable @-rule
-			AbstractCSSRule rule;
-			int tentNameLen = atRule.length();
-			if (tentNameLen > 21) {
-				tentNameLen = 21;
-			}
-			String firstchars = atRule.trim().substring(0, tentNameLen).toLowerCase(Locale.ROOT);
-			if (firstchars.startsWith("@supports")) {
-				rule = createSupportsRule();
-			} else if (firstchars.startsWith("@keyframes ")) {
-				rule = new KeyframesRule(BaseCSSStyleSheet.this, getOrigin());
-			} else if (firstchars.startsWith("@viewport")) {
-				rule = createViewportRule();
-			} else if (firstchars.startsWith("@counter-style ")) {
-				rule = new CounterStyleRule(BaseCSSStyleSheet.this, getOrigin());
-			} else if (firstchars.equals("@font-feature-values ")) {
-				rule = new FontFeatureValuesRule(BaseCSSStyleSheet.this, getOrigin());
-			} else {
-				rule = createUnknownRule();
-				if (atRule.charAt(1) != '-') {
-					// Unknown non-custom rule
-					getErrorHandler().unknownRule(atRule);
-				}
-			}
-			try {
-				rule.setCssText(atRule);
-			} catch (DOMException e) {
-				getErrorHandler().badAtRule(e, atRule);
-				return;
-			}
-			setCommentsToRule(rule);
-			if (currentRule != null) {
-				addToCurrentRule(rule);
-			} else {
-				// Inserting rule into sheet
-				addLocalRule(rule);
-				resetCurrentRule();
-			}
-		}
-
-		private void addToCurrentRule(AbstractCSSRule rule) {
-			try {
-				((GroupingRule) currentRule).addRule(rule);
-			} catch (ClassCastException e) {
-				DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
-						"Found @-rule inside a non-grouping rule of type: " + currentRule.getType());
-				getErrorHandler().badAtRule(ex, rule.getCssText());
-			}
-		}
-
-		@Override
-		public void namespaceDeclaration(String prefix, String uri) {
-			// Setting namespace uri
-			namespaces.put(uri, prefix);
-			if (!ignoreRulesForMedia) {
-				NamespaceRule rule = createNamespaceRule(prefix, uri);
-				if (currentRule != null) {
-					addToCurrentRule(rule);
-				} else {
-					// Inserting rule into sheet
-					addLocalRule(rule);
-				}
-				resetCurrentRule();
-			} else {
-				resetCommentStack();
-			}
-		}
-
-		@Override
-		public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
-			// Ignore any '@import' rule that occurs inside a block or after any
-			// non-ignored statement other than an @charset or an @import rule
-			// (CSS 2.1 §4.1.5)
-			if (ignoreImports) {
-				SheetErrorHandler eh = getErrorHandler();
-				if (eh != null) {
-					eh.ignoredImport(uri);
-				}
-				resetCommentStack();
-				return;
-			}
-			if (match(destinationMedia, media)) {
-				if (!media.isNotAllMedia()) {
-					if (currentRule == null) { // That should be always true
-						// Importing rule from uri
-						ImportRule imp = createImportRule(media, uri);
-						setCommentsToRule(imp);
-						addLocalRule(imp);
-					}
-				} else {
-					getErrorHandler().badMediaList(media);
-				}
-			} else { // Ignoring @import from uri due to target media mismatch
-				resetCommentStack();
-			}
-		}
-
-		@Override
-		public void startMedia(MediaQueryList media) {
-			// Starting @media block for media
-			ignoreImports = true;
-			SheetErrorHandler eh;
-			if (currentRule != null) {
-				if (currentRule.getType() == CSSRule.MEDIA_RULE) {
-					MediaRule rule = new MediaRule(BaseCSSStyleSheet.this, media, sheetOrigin);
-					((GroupingRule) currentRule).addRule(rule);
-					currentRule = rule;
-					setCommentsToRule(currentRule);
-					ignoreRulesForMedia = false;
-				} else if ((eh = getErrorHandler()) != null) {
-					eh.sacMalfunction("Unexpected media rule inside of: " + currentRule.getCssText());
-					ignoreRulesForMedia = true;
-					return;
-				}
-			} else {
-				if (media.isNotAllMedia() && !getStyleSheetFactory().hasCompatValueFlags()) {
-					resetCommentStack();
-					ignoreRulesForMedia = true;
-				} else {
-					currentRule = new MediaRule(BaseCSSStyleSheet.this, media, sheetOrigin);
-					setCommentsToRule(currentRule);
-					ignoreRulesForMedia = false; // this should not be needed - just in case
-				}
-			}
-		}
-
-		@Override
-		public void endMedia(MediaQueryList media) {
-			if (ignoreRulesForMedia) {
-				ignoreRulesForMedia = false;
-				resetCommentStack();
-			} else {
-				if (currentRule != null) {
-					AbstractCSSRule pRule = currentRule.getParentRule();
-					if (pRule == null) {
-						// Inserting @media rule into sheet
-						addLocalRule(currentRule);
-						resetCurrentRule();
-					} else {
-						resetCurrentRule();
-						// Restore parent rule
-						currentRule = pRule;
-					}
-				}
-			}
-		}
-
-		@Override
-		public void startPage(String name, String pseudo_page) {
-			ignoreImports = true;
-			if (!ignoreRulesForMedia) {
-				if (currentRule instanceof PageRule) {
-					// Margin rule or error
-					MarginRule marginRule = createMarginRule(name);
-					marginRule.setParentRule(currentRule);
-					currentRule = marginRule;
-				} else {
-					PageRule pageRule = createPageRule();
-					pageRule.setParentRule(currentRule);
-					currentRule = pageRule;
-					if (name != null) {
-						pageRule.setSelectorText(name);
-					}
-					if (pseudo_page != null) {
-						Parser parser = getStyleSheetFactory().createSACParser();
-						StringReader re = new StringReader(pseudo_page);
-						try {
-							pageRule.setSelectorList(parser.parseSelectors(re));
-						} catch (IOException e) {
-						}
-					} else {
-						pageRule.setSelectorText("");
-					}
-				}
-				setCommentsToRule(currentRule);
-			} else {
-				resetCommentStack();
-			}
-		}
-
-		@Override
-		public void endPage(String name, String pseudo_page) {
-			if (!ignoreRulesForMedia) {
-				// Inserting @page rule into sheet
-				if (currentRule != null) {
-					AbstractCSSRule pRule = currentRule.getParentRule();
-					if (currentRule instanceof PageRule) {
-						if (pRule == null) {
-							addLocalRule(currentRule);
-							resetCurrentRule();
-						} else {
-							((GroupingRule) pRule).addRule(currentRule);
-							resetCommentStack();
-							currentRule = pRule;
-						}
-					} else { // else if (currentRule instanceof OMCSSMarginRule) {
-						PageRule pageRule = (PageRule) pRule;
-						pageRule.addMarginRule((MarginRule) currentRule);
-						resetCommentStack();
-					}
-					currentRule = pRule;
-				}
-			} else { // Ignored @page: target media mismatch
-				resetCommentStack();
-			}
-		}
-
-		@Override
-		public void startFontFace() {
-			ignoreImports = true;
-			if (!ignoreRulesForMedia) {
-				FontFaceRule rule = new FontFaceRule(BaseCSSStyleSheet.this, sheetOrigin);
-				rule.setParentRule(currentRule);
-				currentRule = rule;
-			} // else { Ignoring @font-face: target media mismatch
-			setCommentsToRule(currentRule);
-		}
-
-		@Override
-		public void endFontFace() {
-			if (!ignoreRulesForMedia) {
-				if (currentRule != null) {
-					AbstractCSSRule pRule = currentRule.getParentRule();
-					if (pRule == null) {
-						// Inserting @font-face rule into sheet
-						addLocalRule(currentRule);
-						resetCurrentRule();
-					} else {
-						addCurrentRuleToRule(pRule);
-						resetCommentStack();
-						// Restore parent rule
-						currentRule = pRule;
-					}
-				}
-			} else {
-				resetCommentStack();
-			}
-		}
-
-		private void addCurrentRuleToRule(AbstractCSSRule rule) {
-			try {
-				((GroupingRule) rule).addRule(currentRule);
-			} catch (ClassCastException e) {
-				DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
-						"Found @-rule inside a non-grouping rule of type: " + rule.getType());
-				getErrorHandler().badAtRule(ex, currentRule.getCssText());
-			}
-		}
-
-		@Override
-		public void startSelector(SelectorList selectors) {
-			ignoreImports = true;
-			if (!ignoreRulesForMedia) {
-				StyleRule styleRule = BaseCSSStyleSheet.this.createStyleRule();
-				if (currentRule != null) {
-					styleRule.setParentRule(currentRule);
-				}
-				currentRule = styleRule;
-				((CSSStyleDeclarationRule) currentRule).setSelectorList(selectors);
-				setCommentsToRule(currentRule);
-			} else { // Ignoring rule for these selectors due to target media mismatch
-				resetCommentStack();
-			}
-		}
-
-		@Override
-		public void endSelector(SelectorList selectors) {
-			if (!ignoreRulesForMedia && currentRule != null && currentRule.getType() == CSSRule.STYLE_RULE) {
-				BaseCSSRule pRule = (BaseCSSRule) currentRule.getParentRule();
-				if (((StyleRule) currentRule).getStyle().getLength() == 0) {
-					SheetErrorHandler eh = getErrorHandler();
-					if (eh != null) {
-						eh.emptyStyleRule(((StyleRule) currentRule).getSelectorText());
-					}
-				} else {
-					if (pRule == null) {
-						// Inserting rule into sheet
-						if (currentRule != null)
-							addLocalRule(currentRule);
-					} else {
-						((GroupingRule) pRule).addRule(currentRule);
-					}
-				}
-				currentRule = pRule;
-			}
-			resetCommentStack();
-		}
-
-		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
-			if (!ignoreRulesForMedia) {
-				String importantString = null;
-				if (important) {
-					importantString = "important";
-				} else {
-					importantString = null;
-				}
-				if (currentRule != null) {
-					try {
-						((BaseCSSStyleDeclaration) ((BaseCSSDeclarationRule) currentRule).getStyle()).setProperty(name,
-								value, importantString);
-					} catch (RuntimeException e) {
-						CSSPropertyValueException ex = new CSSPropertyValueException(e);
-						ex.setValueText(value.toString());
-						((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().wrongValue(name, ex);
-					}
-				} else {
-					/*
-					 * A property was received for being processed outside of a rule. This should never
-					 * happen, and if it happens it means that the SAC parser is malfunctioning.
-					 */
-					BaseCSSStyleSheet.this.getErrorHandler().sacMalfunction(
-							"Unexpected property " + name + ": " + value.toString());
-				}
-			} // else { Ignoring property due to target media mismatch
-		}
-
-		private void resetCurrentRule() {
-			if (currentRule != null) {
-				currentRule = null;
-			}
-			resetCommentStack();
-		}
-
-		private void setCommentsToRule(AbstractCSSRule rule) {
-			if (comments != null && !comments.isEmpty()) {
-				ArrayList<String> ruleComments = new ArrayList<String>(comments.size());
-				ruleComments.addAll(comments);
-				rule.setPrecedingComments(ruleComments);
-			}
-			resetCommentStack();
-		}
-
-		private void resetCommentStack() {
-			if (comments != null) {
-				comments.clear();
-			}
-		}
-
-		@Override
-		public String getNamespaceURI(String nsPrefix) {
-			Iterator<Entry<String, String>> it = BaseCSSStyleSheet.this.namespaces.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, String> entry = it.next();
-				String prefix = entry.getValue();
-				if (nsPrefix.equals(prefix)) {
-					return entry.getKey();
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public void warning(CSSParseException exception) throws CSSParseException {
-			if (currentRule != null && currentRule instanceof BaseCSSDeclarationRule
-					&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
-				int previousIndex = -1;
-				CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
-				if (style != null) {
-					previousIndex = style.getLength() - 1;
-				}
-				((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacWarning(exception, previousIndex);
-			} else {
-				// Handle as non-specific warning
-				BaseCSSStyleSheet.this.getErrorHandler().handleSacWarning(exception);
-			}
-		}
-
-		@Override
-		public void error(CSSParseException exception) throws CSSParseException {
-			if (currentRuleCanHandleError()) {
-				int previousIndex = -1;
-				CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
-				if (style != null) {
-					previousIndex = style.getLength() - 1;
-				}
-				((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacError(exception, previousIndex);
-				BaseCSSStyleSheet.this.getErrorHandler().mapError(exception, currentRule);
-			} else {
-				// Handle as non-specific error
-				nonRuleErrorHandling(exception);
-			}
-		}
-
-		/*
-		 * Current rule can handle the error if it is set (not null), it is a declaration rule and
-		 * contains a declaration error handler.
-		 */
-		private boolean currentRuleCanHandleError() {
-			return currentRule != null && currentRule instanceof BaseCSSDeclarationRule
-					&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null;
-		}
-
-		private void nonRuleErrorHandling(CSSParseException exception) {
-			BaseCSSStyleSheet.this.getErrorHandler().handleSacError(exception);
-			if (outOfRuleException == null) {
-				outOfRuleException = exception;
-			}
-			if (currentRule != null) {
-				currentRule = currentRule.getParentRule();
-			}
-		}
-
 	}
 
 	/**

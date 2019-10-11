@@ -23,11 +23,9 @@ import io.sf.carte.doc.style.css.CSSGroupingRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
-import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.ParserControl;
 
 /**
  * Implementation of CSSGroupingRule.
@@ -83,7 +81,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 			throw new DOMException(DOMException.INDEX_SIZE_ERR, "Index out of bounds in rule list");
 		}
 		Reader re = new StringReader(rule);
-		RuleDocumentHandler handler = new RuleDocumentHandler();
+		RuleHandler handler = new RuleHandler();
 		handler.setCurrentInsertionIndex(index);
 		RuleErrorHandler errorHandler = new RuleErrorHandler();
 		Parser parser = createSACParser();
@@ -191,15 +189,13 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 	protected void setGroupingRule(GroupingRule rule) throws DOMException {
 	}
 
-	class RuleDocumentHandler implements CSSHandler {
+	private class RuleHandler extends SheetHandler {
 		private AbstractCSSRule currentRule = null;
 
 		private int currentInsertionIndex = 0;
 
-		private boolean active = true;
-
-		public RuleDocumentHandler() {
-			super();
+		private RuleHandler() {
+			super((BaseCSSStyleSheet) GroupingRule.this.getParentStyleSheet(), getOrigin(), true);
 		}
 
 		public void setCurrentInsertionIndex(int index) {
@@ -207,25 +203,9 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void startDocument() {
+		public void parseStart(ParserControl parserctl) {
+			super.parseStart(parserctl);
 			currentRule = null;
-			active = true;
-		}
-
-		@Override
-		public void endDocument() {
-		}
-
-		@Override
-		public void comment(String text) {
-		}
-
-		@Override
-		public void ignorableAtRule(String atRule) {
-		}
-
-		@Override
-		public void namespaceDeclaration(String prefix, String uri) {
 		}
 
 		@Override
@@ -234,93 +214,18 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void startMedia(MediaQueryList media) {
-			// Nested @media rule: ignore
-			active = false;
-		}
-
-		@Override
-		public void endMedia(MediaQueryList media) {
-			active = true;
-		}
-
-		@Override
-		public void startPage(String name, String pseudo_page) {
-			if (active) {
-				currentRule = new PageRule(getParentStyleSheet(), getOrigin());
-				if (name != null) {
-					((PageRule) currentRule).setSelectorText(name);
-				}
-				if (pseudo_page != null) {
-					Parser parser = createSACParser();
-					StringReader re = new StringReader(pseudo_page);
-					try {
-						((CSSStyleDeclarationRule) currentRule).setSelectorList(parser.parseSelectors(re));
-					} catch (IOException e) {
-					}
-				} else {
-					((CSSStyleDeclarationRule) currentRule).setSelectorText("");
-				}
+		protected void addLocalRule(AbstractCSSRule rule) throws DOMException {
+			if (currentRule != null) {
+				throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+						"Attempted to parse more than one rule inside this one");
 			}
+			currentRule = rule;
+			currentInsertionIndex = insertRule(currentRule, currentInsertionIndex);
 		}
 
-		@Override
-		public void endPage(String name, String pseudo_page) {
-			if (active) {
-				currentInsertionIndex = insertRule(currentRule, currentInsertionIndex);
-				currentRule = null;
-			}
-		}
-
-		@Override
-		public void startFontFace() {
-			if (active) {
-				currentRule = new FontFaceRule(getParentStyleSheet(), getOrigin());
-			}
-		}
-
-		@Override
-		public void endFontFace() {
-			if (active) {
-				currentInsertionIndex = insertRule(currentRule, currentInsertionIndex);
-				currentRule = null;
-			}
-		}
-
-		@Override
-		public void startSelector(SelectorList selectors) {
-			if (active) {
-				if (currentRule == null) {
-					currentRule = getParentStyleSheet().createStyleRule();
-				}
-				((CSSStyleDeclarationRule) currentRule).setSelectorList(selectors);
-			}
-		}
-
-		@Override
-		public void endSelector(SelectorList selectors) {
-			if (active) {
-				if (currentRule instanceof StyleRule) {
-					insertRule(currentRule, currentInsertionIndex);
-					currentRule = null;
-				}
-			}
-		}
-
-		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
-			if (active) {
-				String importantString = null;
-				if (important) {
-					importantString = "important";
-				}
-				((BaseCSSStyleDeclaration) ((CSSStyleDeclarationRule) currentRule).getStyle()).setProperty(name, value,
-						importantString);
-			}
-		}
 	}
 
-	class RuleErrorHandler implements CSSErrorHandler {
+	private class RuleErrorHandler implements CSSErrorHandler {
 
 		@Override
 		public void warning(CSSParseException exception) throws CSSParseException {

@@ -47,6 +47,11 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 		condition = copyfrom.getCondition();
 	}
 
+	protected SupportsRule(AbstractCSSStyleSheet parentSheet, BooleanCondition condition, byte origin) {
+		super(parentSheet, SUPPORTS_RULE, origin);
+		this.condition = condition;
+	}
+
 	@Override
 	public String getConditionText() {
 		return condition != null ? condition.toString() : "";

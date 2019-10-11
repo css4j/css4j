@@ -14,6 +14,7 @@
 package io.sf.carte.doc.style.css.nsac;
 
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.parser.BooleanCondition;
 
 /**
  * A CSS event handler for low-level parsing.
@@ -24,27 +25,30 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 public interface CSSHandler {
 
 	/**
-	 * Receive notification of the beginning of a style sheet.
+	 * Receive notification of the beginning of the parse process.
 	 *
 	 * The CSS parser will invoke this method only once, before any other methods in
-	 * this interface, but only if a sheet is being processed. It is not called when
-	 * using, for example, {@code parseRule}.
+	 * this interface, and only when one of the {@code parseStyleSheet},
+	 * {@code parseRule} or {@code parseStyleDeclaration} methods were called.
+	 * 
+	 * @param parserctl an object that allows convenient access to certain parser
+	 *                  functionalities.
 	 */
-	void startDocument();
+	void parseStart(ParserControl parserctl);
 
 	/**
-	 * Receive notification of the end of a document.
+	 * Receive notification of the end of the stream being parsed.
 	 *
 	 * The CSS parser will invoke this method only once, and it will be the last
 	 * method invoked during the parse. The parser shall not invoke this method
 	 * unless it has reached the end of input.
 	 */
-	void endDocument();
+	void endOfStream();
 
 	/**
 	 * Receive notification of a comment. If the comment appears in a declaration
-	 * (e.g. color: /* comment * / blue;), the parser notifies the comment before
-	 * the declaration.
+	 * (e.g. color: /* comment {@literal *}/ blue;), the parser notifies the comment
+	 * before the declaration.
 	 *
 	 * @param text The comment.
 	 */
@@ -66,7 +70,7 @@ public interface CSSHandler {
 	void namespaceDeclaration(String prefix, String uri);
 
 	/**
-	 * Receive notification of a import statement in the style sheet.
+	 * Receive notification of a import rule in the style sheet.
 	 *
 	 * @param uri                 The URI of the imported style sheet.
 	 * @param media               The intended destination media for style
@@ -77,27 +81,27 @@ public interface CSSHandler {
 	void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI);
 
 	/**
-	 * Receive notification of the beginning of a media statement.
+	 * Receive notification of the beginning of a media rule.
 	 *
-	 * The Parser will invoke this method at the beginning of every media statement
+	 * The Parser will invoke this method at the beginning of every media rule
 	 * in the style sheet. There will be a corresponding endMedia() event for every
-	 * startElement() event.
+	 * startMedia() event.
 	 *
 	 * @param media The intended destination media for style information.
 	 */
 	void startMedia(MediaQueryList media);
 
 	/**
-	 * Receive notification of the end of a media statement.
+	 * Receive notification of the end of a media rule.
 	 *
 	 * @param media The intended destination media for style information.
 	 */
 	void endMedia(MediaQueryList media);
 
 	/**
-	 * Receive notification of the beginning of a page statement.
+	 * Receive notification of the beginning of a page rule.
 	 *
-	 * The Parser will invoke this method at the beginning of every page statement
+	 * The Parser will invoke this method at the beginning of every page rule
 	 * in the style sheet. There will be a corresponding endPage() event for every
 	 * startPage() event.
 	 *
@@ -107,7 +111,7 @@ public interface CSSHandler {
 	void startPage(String name, String pseudo_page);
 
 	/**
-	 * Receive notification of the end of a media statement.
+	 * Receive notification of the end of a page rule.
 	 *
 	 * @param name        the name of the page (if any, null otherwise)
 	 * @param pseudo_page the pseudo page (if any, null otherwise)
@@ -115,7 +119,25 @@ public interface CSSHandler {
 	void endPage(String name, String pseudo_page);
 
 	/**
-	 * Receive notification of the beginning of a font face statement.
+	 * Receive notification of the beginning of a margin rule.
+	 *
+	 * The Parser will invoke this method at the beginning of every margin rule in
+	 * the style sheet. There will be a corresponding endPage() event for every
+	 * startPage() event.
+	 *
+	 * @param name the name of the rule.
+	 */
+	void startMargin(String name);
+
+	/**
+	 * Receive notification of the end of a margin rule.
+	 *
+	 * @param name the name of the rule.
+	 */
+	void endMargin(String name);
+
+	/**
+	 * Receive notification of the beginning of a font face rule.
 	 *
 	 * The Parser will invoke this method at the beginning of every font face
 	 * statement in the style sheet. There will be a corresponding endFontFace()
@@ -124,31 +146,120 @@ public interface CSSHandler {
 	void startFontFace();
 
 	/**
-	 * Receive notification of the end of a font face statement.
+	 * Receive notification of the end of a font face rule.
 	 */
 	void endFontFace();
 
 	/**
-	 * Receive notification of the beginning of a rule statement.
+	 * Start a {@literal @}counter-style rule.
+	 * 
+	 * @param name the counter-style name.
+	 */
+	void startCounterStyle(String name);
+
+	/**
+	 * End of {@literal @}counter-style rule.
+	 */
+	void endCounterStyle();
+
+	/**
+	 * Start a {@literal @}keyframes rule.
+	 * 
+	 * @param name the keyframes name.
+	 */
+	void startKeyframes(String name);
+
+	/**
+	 * End of {@literal @}keyframes rule.
+	 */
+	void endKeyframes();
+
+	/**
+	 * Start a {@literal @}keyframe.
+	 * 
+	 * @param keyframeSelector the keyframe selector.
+	 */
+	void startKeyframe(LexicalUnit keyframeSelector);
+
+	/**
+	 * End of {@literal @}keyframe.
+	 */
+	void endKeyframe();
+
+	/**
+	 * Start a font feature values rule.
+	 * 
+	 * @param familyName the font family names.
+	 */
+	void startFontFeatures(String[] familyName);
+
+	/**
+	 * End of font feature values rule.
+	 */
+	void endFontFeatures();
+
+	/**
+	 * Start a feature map.
+	 * 
+	 * @param mapName the map name.
+	 */
+	void startFeatureMap(String mapName);
+
+	/**
+	 * End of feature map.
+	 */
+	void endFeatureMap();
+
+	/**
+	 * Receive notification of the beginning of a supports rule.
+	 *
+	 * The Parser will invoke this method at the beginning of every supports rule
+	 * in the style sheet. There will be a corresponding endSupports() event for every
+	 * startSupports() event.
+	 *
+	 * @param condition the supports condition.
+	 */
+	void startSupports(BooleanCondition condition);
+
+	/**
+	 * Receive notification of the end of a supports rule.
+	 *
+	 * @param condition the supports condition.
+	 */
+	void endSupports(BooleanCondition condition);
+
+	/**
+	 * Receive notification of the beginning of a style rule.
 	 *
 	 * @param selectors the intended selectors for next declarations.
 	 */
 	void startSelector(SelectorList selectors);
 
 	/**
-	 * Receive notification of the end of a rule statement.
+	 * Receive notification of the end of a style rule.
 	 *
 	 * @param selectors the intended selectors for the previous declarations.
 	 */
 	void endSelector(SelectorList selectors);
 
 	/**
-	 * Receive notification of a declaration.
-	 *
+	 * Start a {@literal @}viewport rule.
+	 */
+	void startViewport();
+
+	/**
+	 * End of {@literal @}viewport rule.
+	 */
+	void endViewport();
+
+	/**
+	 * Receive notification of a property declaration.
 	 * @param name      the name of the property.
 	 * @param value     the value of the property.
 	 * @param important is this property important ?
+	 * @param index     the character index at which the parsing of the given
+	 *                  property declaration ended.
 	 */
-	void property(String name, LexicalUnit value, boolean important);
+	void property(String name, LexicalUnit value, boolean important, int index);
 
 }

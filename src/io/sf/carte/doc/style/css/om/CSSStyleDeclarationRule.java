@@ -100,7 +100,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		selectorText = "";
 		Parser parser = createSACParser();
 		Reader re = new StringReader(cssText);
-		PropertyDocumentHandler handler = createDocumentHandler();
+		PropertyCSSHandler handler = createDocumentHandler();
 		handler.setLexicalPropertyListener(getLexicalPropertyListener());
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler(handler);
@@ -217,12 +217,12 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		return rule;
 	}
 
-	protected PropertyDocumentHandler createDocumentHandler() {
-		return new RuleDocumentHandler();
+	protected PropertyCSSHandler createDocumentHandler() {
+		return new RuleHandler();
 	}
 
-	class RuleDocumentHandler extends DeclarationRuleDocumentHandler {
-		RuleDocumentHandler() {
+	class RuleHandler extends DeclarationRuleCSSHandler {
+		RuleHandler() {
 			super();
 		}
 
@@ -236,9 +236,9 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
+		public void property(String name, LexicalUnit value, boolean important, int index) {
 			try {
-				super.property(name, value, important);
+				super.property(name, value, important, index);
 			} catch (DOMException e) {
 				CSSPropertyValueException ex = new CSSPropertyValueException(e);
 				ex.setValueText(value.toString());
@@ -287,6 +287,9 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			if (nsuri != null) {
 				if (nsuri.length() != 0) {
 					String nsprefix = getParentStyleSheet().getNamespacePrefix(esel.getNamespaceURI());
+					if (nsprefix == null) {
+						throw new IllegalStateException("Unknown ns prefix for URI " + esel.getNamespaceURI());
+					}
 					if (nsprefix.length() != 0) {
 						return nsprefix + "|" + lname;
 					} else {
