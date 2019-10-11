@@ -1780,8 +1780,10 @@ public class CSSParser implements Parser2 {
 					if (stage == STAGE_WAIT_NAME || stage == STAGE_WAIT_BLOCK_LIST) {
 						if (buffer.length() != 0) {
 							processName(index, unescapeBuffer(index).trim());
-							prevcp = codePoint;
-							stage = STAGE_WAIT_SELECTOR;
+							if (!parseError) {
+								prevcp = codePoint;
+								stage = STAGE_WAIT_SELECTOR;
+							}
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, blockRuleName + " must have a name.");
 						}
@@ -1897,8 +1899,12 @@ public class CSSParser implements Parser2 {
 			if (curlyBracketDepth != 0) {
 				if (stage == STAGE_DECLARATION_LIST) {
 					declarationHandler.endOfStream(len);
+					endBlock();
+					endBlockList();
 				} else if (stage == STAGE_END_BLOCK_LIST) {
 					return;
+				} else if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_FOUND_SELECTOR) {
+					endBlockList();
 				}
 				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
 			}
@@ -2966,6 +2972,7 @@ public class CSSParser implements Parser2 {
 				if (propertyName == null && buffer.length() == 0 && getCurlyBracketDepth() == 1
 						&& SheetTokenHandler.this.selectorHandler.getSelectorList().getLength() == 0) {
 					contextHandler = null;
+					SheetTokenHandler.this.buffer.append('@');
 					SheetTokenHandler.this.prevcp = 64;
 				} else {
 					unexpectedCharError(index, 64);
