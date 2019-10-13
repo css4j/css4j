@@ -456,6 +456,10 @@ public class ParseHelper {
 	}
 
 	public static String escapeString(String text, char quoteChar) {
+		return escapeString(text, quoteChar, false);
+	}
+
+	public static String escapeString(String text, char quoteChar, boolean endOfString) {
 		final int len = text.length();
 		if (len == 0) {
 			return text;
@@ -465,14 +469,22 @@ public class ParseHelper {
 		boolean noesc = true;
 		while (i < len) {
 			int cp = text.codePointAt(i);
-				// Escape controls and replacement char
-			if (Character.isISOControl(cp) || cp == 0xfffd) {
+			/*
+			 * Escape controls, FORMAT and OTHER_PUNCTUATION & OTHER_SYMBOL greater than
+			 * U+2800 (includes replacement char).
+			 */
+			int type = Character.getType(cp);
+			if (type == Character.CONTROL || type == Character.FORMAT
+					|| (cp >= 0x2800 && (type == Character.OTHER_PUNCTUATION || type == Character.OTHER_SYMBOL))) {
 				if (noesc) {
 					noesc = false;
 					buf = new StringBuilder(len + 16);
 					buf.append(text.subSequence(0, i));
 				}
-				buf.append('\\').append(Integer.toHexString(cp)).append(' ');
+				buf.append('\\').append(Integer.toHexString(cp));
+				if (!endOfString) {
+					buf.append(' ');
+				}
 			} else if (cp == 0x5c) {
 				if (i != len - 1 && isPrivateOrUnassignedEscape(text, i + 1)) {
 					if (!noesc) {

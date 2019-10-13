@@ -215,7 +215,7 @@ public class StringValue extends AbstractTextValue {
 			useDQ = false;
 			quote = '\'';
 		}
-		css = ParseHelper.escapeString(css, quote);
+		css = ParseHelper.escapeString(css, quote, true);
 		if (hasSingleQuotes || hasDoubleQuotes) {
 			if (useDQ) {
 				css = '"' + css + '"';

@@ -78,8 +78,8 @@ public class StringValueSQTest {
 		StringValue value = createCSSStringValue();
 		value.setCssText("\"â†\u0090\"");
 		assertEquals("â†\u0090", value.getStringValue());
-		assertEquals("'â†\\90 '", value.getCssText());
-		assertEquals("'â†\\90 '", value.getMinifiedCssText(""));
+		assertEquals("'â†\\90'", value.getCssText());
+		assertEquals("'â†\\90'", value.getMinifiedCssText(""));
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class StringValueSQTest {
 		value.setCssText("\\200B");
 		assertEquals("\u200B", value.getStringValue());
 		assertEquals("'\\200B'", value.getCssText());
-		assertEquals("'\u200B'", value.getMinifiedCssText(""));
+		assertEquals("'\\200b'", value.getMinifiedCssText(""));
 		value.setCssText("\\200  B");
 		assertTrue("Ȁ B".equals(value.getStringValue()));
 		assertEquals("'\\200  B'", value.getCssText());
