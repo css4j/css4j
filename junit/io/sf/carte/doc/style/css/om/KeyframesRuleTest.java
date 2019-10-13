@@ -30,6 +30,7 @@ import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSKeyframesRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class KeyframesRuleTest {
@@ -49,7 +50,7 @@ public class KeyframesRuleTest {
 		// https://developer.mozilla.org/en-US/docs/Web/CSS/@counter-style
 		StringReader re = new StringReader(
 				"/* pre-rule */@keyframes /* skip 1 */ foo /* skip 2 */ {  /* pre-from */ from /* skip 3 */ { margin-left: 100%;  width: 300%;} /* pre-50% */ 50% {margin-left: 50%;    width: 50%; }  to {margin-left: 0%;    width: 100%; }/* skip 4 */}");
-		sheet.parseStyleSheet(re);
+		sheet.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_PRECEDING);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);

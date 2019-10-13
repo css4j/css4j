@@ -97,12 +97,24 @@ abstract public class AbstractCSSRule implements ExtendedCSSRule {
 	 * 
 	 * @return the list of comments, or <code>null</code> if there were no preceding
 	 *         comments or the parsing was specified to ignore comments.
-	 * @see AbstractCSSStyleSheet#parseStyleSheet(java.io.Reader,
-	 *      boolean)
+	 * @see AbstractCSSStyleSheet#parseStyleSheet(java.io.Reader, short)
 	 */
 	abstract public List<String> getPrecedingComments();
 
 	abstract void setPrecedingComments(List<String> precedingComments);
+
+	/**
+	 * Get a list of the comments that immediately follow this rule, if any.
+	 * <p>
+	 * If the parsing mode was {@code COMMENTS_PRECEDING}, or was
+	 * {@code COMMENTS_AUTO} and the next comment happens after a newline character,
+	 * it shall be assigned to the next rule as a preceding comment.
+	 * 
+	 * @return the list of comments, or <code>null</code> if there were no trailing
+	 *         comments or the parsing was specified to ignore comments.
+	 * @see AbstractCSSStyleSheet#parseStyleSheet(java.io.Reader, short)
+	 */
+	abstract public List<String> getTrailingComments();
 
 	/**
 	 * Obtain a clone of this rule whose parent sheet is <code>parentSheet</code>.

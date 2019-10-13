@@ -45,4 +45,12 @@ public interface CSSFontFeatureValuesMap {
 	 */
 	List<String> getPrecedingComments();
 
+	/**
+	 * Get a list of the comments that were found right after this map, if any.
+	 * 
+	 * @return the list of comments, or <code>null</code> if there were no trailing
+	 *         comments.
+	 */
+	List<String> getTrailingComments();
+
 }

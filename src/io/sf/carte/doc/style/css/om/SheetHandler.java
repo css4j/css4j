@@ -21,6 +21,7 @@ import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
@@ -42,10 +43,16 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	private final BaseCSSStyleSheet parentSheet;
 
 	private AbstractCSSRule currentRule = null;
+	private AbstractCSSRule lastRule = null;
 
 	private final byte sheetOrigin;
 
+	/*
+	 * If comments have to be ignored, this will be null.
+	 */
 	private final LinkedList<String> comments;
+
+	private final boolean allCommentsPrecede;
 
 	/*
 	 * switch for ignoring rules if a grouping rule is inside the wrong place.
@@ -56,15 +63,16 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	private CSSParseException outOfRuleException = null;
 
-	SheetHandler(BaseCSSStyleSheet sheet, byte origin, boolean ignoreComments) {
+	SheetHandler(BaseCSSStyleSheet sheet, byte origin, short commentsMode) {
 		super();
 		this.parentSheet = sheet;
 		this.sheetOrigin = origin;
-		if (!ignoreComments) {
+		if (commentsMode != ExtendedCSSStyleSheet.COMMENTS_IGNORE) {
 			comments = new LinkedList<String>();
 		} else {
 			comments = null;
 		}
+		allCommentsPrecede = commentsMode != ExtendedCSSStyleSheet.COMMENTS_AUTO;
 	}
 
 	@Override
@@ -85,9 +93,17 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
-	public void comment(String text) {
+	public void comment(String text, boolean precededByLF) {
 		if (comments != null) {
-			comments.add(text);
+			if (lastRule != null && !precededByLF && !allCommentsPrecede) {
+				BaseCSSRule rule = (BaseCSSRule) lastRule;
+				if (rule.trailingComments == null) {
+					rule.trailingComments = new LinkedList<String>();
+				}
+				rule.trailingComments.add(text);
+			} else {
+				comments.add(text);
+			}
 		}
 	}
 
@@ -99,6 +115,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		if (tentNameLen > 21) {
 			tentNameLen = 21;
 		}
+		newRule();
 		rule = parentSheet.createUnknownRule();
 		if (atRule.charAt(1) != '-') {
 			// Unknown non-custom rule
@@ -120,6 +137,10 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		}
 	}
 
+	private void newRule() {
+		lastRule = null;
+	}
+
 	protected void addLocalRule(AbstractCSSRule rule) {
 		parentSheet.addLocalRule(rule);
 	}
@@ -131,13 +152,15 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
 					"Found @-rule inside a non-grouping rule of type: " + currentRule.getType());
 			parentSheet.getErrorHandler().badAtRule(ex, rule.getCssText());
+			lastRule = null;
 		}
 	}
 
 	@Override
 	public void namespaceDeclaration(String prefix, String uri) {
-		// Setting namespace uri
+		newRule();
 		if (ignoreGroupingRules == 0) {
+			// Setting namespace uri
 			parentSheet.setNamespace(prefix, uri);
 			NamespaceRule rule = parentSheet.createNamespaceRule(prefix, uri);
 			if (currentRule != null) {
@@ -183,6 +206,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void startSupports(BooleanCondition condition) {
 		// Starting @supports block
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			SheetErrorHandler eh;
 			if (currentRule != null) {
@@ -217,6 +241,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			resetCommentStack();
 		} else {
 			if (currentRule != null) {
+				lastRule = currentRule;
 				AbstractCSSRule pRule = currentRule.getParentRule();
 				if (pRule == null) {
 					// Inserting grouping rule into sheet
@@ -235,6 +260,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void startMedia(MediaQueryList media) {
 		// Starting @media block
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			SheetErrorHandler eh;
 			if (currentRule != null) {
@@ -266,6 +292,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void startPage(String name, String pseudo_page) {
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			PageRule pageRule = parentSheet.createPageRule();
 			pageRule.setParentRule(currentRule);
@@ -303,6 +330,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	@Override
 	public void startMargin(String name) {
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			assert(currentRule != null && currentRule.getType() == CSSRule.PAGE_RULE);
 			MarginRule marginRule = parentSheet.createMarginRule(name);
@@ -317,6 +345,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void endMargin(String name) {
 		if (ignoreGroupingRules == 0) {
 			assert(currentRule != null && currentRule.getType() == ExtendedCSSRule.MARGIN_RULE);
+			lastRule = currentRule;
 			AbstractCSSRule pRule = currentRule.getParentRule();
 			PageRule pageRule = (PageRule) pRule;
 			pageRule.addMarginRule((MarginRule) currentRule);
@@ -328,6 +357,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void startFontFace() {
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			FontFaceRule rule = new FontFaceRule(parentSheet, sheetOrigin);
 			rule.setParentRule(currentRule);
@@ -346,6 +376,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	private void endGenericRule() {
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
+				lastRule = currentRule;
 				AbstractCSSRule pRule = currentRule.getParentRule();
 				if (pRule == null) {
 					// Inserting rule into sheet
@@ -376,6 +407,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void startCounterStyle(String name) {
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			CounterStyleRule rule = parentSheet.createCounterStyleRule(name);
 			rule.setParentRule(currentRule);
@@ -394,6 +426,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void startKeyframes(String name) {
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			KeyframesRule rule = parentSheet.createKeyframesRule(name);
 			rule.setParentRule(currentRule);
@@ -411,6 +444,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	@Override
 	public void startKeyframe(LexicalUnit keyframeSelector) {
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			KeyframesRule kfs = (KeyframesRule) currentRule;
 			KeyframeRule rule = new KeyframeRule(kfs);
@@ -425,6 +459,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void endKeyframe() {
 		if (ignoreGroupingRules == 0) {
 			assert(currentRule != null && currentRule.getType() == ExtendedCSSRule.KEYFRAME_RULE);
+			lastRule = currentRule;
 			currentRule = currentRule.getParentRule();
 		}
 		resetCommentStack();
@@ -433,6 +468,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void startFontFeatures(String[] familyName) {
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			FontFeatureValuesRule rule = parentSheet.createFontFeatureValuesRule(familyName);
 			rule.setParentRule(currentRule);
@@ -470,6 +506,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void startViewport() {
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			ViewportRule rule = parentSheet.createViewportRule();
 			rule.setParentRule(currentRule);
@@ -488,6 +525,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void startSelector(SelectorList selectors) {
 		ignoreImports = true;
+		newRule();
 		if (ignoreGroupingRules == 0) {
 			StyleRule styleRule = parentSheet.createStyleRule();
 			if (currentRule != null) {
@@ -503,7 +541,9 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	@Override
 	public void endSelector(SelectorList selectors) {
-		if (ignoreGroupingRules == 0 && currentRule != null && currentRule.getType() == CSSRule.STYLE_RULE) {
+		if (ignoreGroupingRules == 0) {
+			assert(currentRule != null && currentRule.getType() == CSSRule.STYLE_RULE);
+			lastRule = currentRule;
 			BaseCSSRule pRule = (BaseCSSRule) currentRule.getParentRule();
 			if (((StyleRule) currentRule).getStyle().getLength() == 0) {
 				SheetErrorHandler eh = parentSheet.getErrorHandler();

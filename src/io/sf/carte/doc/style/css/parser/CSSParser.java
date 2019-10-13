@@ -749,7 +749,7 @@ public class CSSParser implements Parser {
 				if (readingPredicate) {
 					predicateHandler.separator(index, codepoint);
 				}
-				prevcp = 32;
+				setWhitespacePrevCp();
 			}
 		}
 
@@ -849,7 +849,7 @@ public class CSSParser implements Parser {
 					if (!readingValue) {
 						unexpectedTokenError(index, word);
 						return;
-					} else if (prevcp == 32 || prevcp == 13) {
+					} else if (isPrevCpWhitespace()) {
 						buffer.append(' ');
 					}
 				}
@@ -1101,7 +1101,7 @@ public class CSSParser implements Parser {
 					return;
 				}
 				if (functionToken) {
-					if (buffer.length() != 0) {
+					if (buffer.length() != 0 && isPrevCpWhitespace()) {
 						buffer.append(' ');
 					}
 					buffer.append(word);
@@ -1130,7 +1130,7 @@ public class CSSParser implements Parser {
 			private boolean appendWord(int index, CharSequence word, int quote) {
 				if (buffer.length() != 0) {
 					if (escapedTokenIndex == -1) {
-						if (prevcp == 32 || prevcp == 13) {
+						if (isPrevCpWhitespace()) {
 							if (stage == 1) {
 								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found white space between media");
 								return false;
@@ -1208,7 +1208,7 @@ public class CSSParser implements Parser {
 			@Override
 			public void openGroup(int index, int codepoint) {
 				if (codepoint == 40) { // '('
-					if (prevcp != 32 && prevcp != 13) {
+					if (isPrevCpNotWhitespace() && prevcp != 13) {
 						// Function token
 						functionToken = true;
 						buffer.append('(');
@@ -1394,7 +1394,7 @@ public class CSSParser implements Parser {
 				// : 58
 				// ; 59
 				if (functionToken) {
-					if (prevcp == 32) {
+					if (isPrevCpWhitespace()) {
 						buffer.append(' ');
 					}
 					bufferAppend(codepoint);
@@ -1867,11 +1867,17 @@ public class CSSParser implements Parser {
 				declarationHandler.separator(index, codePoint);
 			} else if (!parseError) {
 				if (buffer.length() != 0) {
-					if (stage == STAGE_WAIT_NAME && singleName && (escapedTokenIndex == -1 || prevcp == 32)) {
+					if (stage == STAGE_WAIT_NAME && singleName && (escapedTokenIndex == -1 || isPrevCpWhitespace())) {
 						stage = STAGE_WAIT_BLOCK_LIST;
 					}
 					if (prevcp != 32) {
-						buffer.append(' ');
+						if (prevcp != 10) {
+							buffer.append(' ');
+						} else {
+							return;
+						}
+					} else {
+						return;
 					}
 				}
 				prevcp = 32;
@@ -2543,15 +2549,31 @@ public class CSSParser implements Parser {
 				} else if ((stage == 2 && ruleType == PAGE_RULE) || stage == 8) {
 					processBufferPageRule(index);
 					if (prevcp != 44) {
-						prevcp = 32;
+						setWhitespacePrevCp();
 					}
 					return;
 				} else if (buffer.length() != 0
-						&& (prevcp != 32 || (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
+						&& (isPrevCpNotWhitespace() || (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
 					buffer.append(' ');
 				}
-				prevcp = 32;
+				setWhitespacePrevCp();
 			}
+		}
+
+		@Override
+		protected void setHandlerPreviousCp(int cp) {
+			super.setHandlerPreviousCp(cp);
+			if (contextHandler != null) {
+				contextHandler.setHandlerPreviousCp(cp);
+			}
+		}
+
+		@Override
+		protected boolean isPreviousCpLF() {
+			if (contextHandler != null) {
+				return contextHandler.isPreviousCpLF();
+			}
+			return super.isPreviousCpLF();
 		}
 
 		@Override
@@ -2765,7 +2787,7 @@ public class CSSParser implements Parser {
 					if (ruleType == PAGE_RULE) {
 						if (codepoint == 44) { // ,
 							processBufferPageRule(index);
-						} else if (codepoint == 58 && (prevcp == 44 || prevcp == 32 || prevcp == 13)) {
+						} else if (codepoint == 58 && (prevcp == 44 || isPrevCpWhitespace())) {
 							buffer.append(':');
 							return; // preserve prevcp
 						} else {
@@ -3601,7 +3623,7 @@ public class CSSParser implements Parser {
 
 		@Override
 		public void word(int index, CharSequence word) {
-			if (buffer.length() != 0 && (prevcp == 32 || prevcp == 13)) {
+			if (buffer.length() != 0 && isPrevCpWhitespace()) {
 				buffer.append(' ');
 			}
 			if (stage == STAGE_ATTR_START && prevcp != 65 && prevcp != TokenProducer.CHAR_VERTICAL_LINE) {
@@ -3614,7 +3636,7 @@ public class CSSParser implements Parser {
 					buffer.append(word);
 					newCombinatorSelector(Selector.SAC_DESCENDANT_SELECTOR);
 					stage = 1;
-				} else if (stage == STAGE_ATTR_POST_SYMBOL && prevcp == 32) {
+				} else if (stage == STAGE_ATTR_POST_SYMBOL && isPrevCpWhitespace()) {
 					if (word.length() == 1) {
 						char c = word.charAt(0);
 						if (c == 'i' || c == 'I') {
@@ -3678,7 +3700,7 @@ public class CSSParser implements Parser {
 				}
 				if (prevcp != 44) {
 					// If previous cp was a comma, we keep it
-					prevcp = 32;
+					setWhitespacePrevCp();
 				}
 			}
 		}
@@ -3689,7 +3711,7 @@ public class CSSParser implements Parser {
 				setAttributeSelectorValue(index, quoted);
 				stage = STAGE_ATTR_POST_SYMBOL;
 			} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) { // Pseudo-class argument
-				if (buffer.length() != 0 && (prevcp == 32 || prevcp == 13)) {
+				if (buffer.length() != 0 && isPrevCpWhitespace()) {
 					buffer.append(' ');
 				}
 				char c = (char) quoteChar;
@@ -3737,7 +3759,7 @@ public class CSSParser implements Parser {
 					} else {
 						StringBuilder buf = new StringBuilder(attrcond.value.length() + value.length() + 1);
 						buf.append(attrcond.value);
-						if (prevcp == 32 || prevcp == 13) {
+						if (isPrevCpWhitespace()) {
 							buf.append(' ');
 						}
 						attrcond.value = buf.append(value).toString();
@@ -3791,8 +3813,9 @@ public class CSSParser implements Parser {
 					}
 					parendepth++;
 				} else if (codepoint == 91) { // '['
-					if (prevcp != 65 && prevcp != 42 && prevcp != 44 && prevcp != 32 && prevcp != 93 && prevcp != 41
-							&& prevcp != 43 && prevcp != 62 && prevcp != 125 && prevcp != 126 && prevcp != 124) {
+					if (prevcp != 65 && prevcp != 42 && prevcp != 44 && prevcp != 32 && prevcp != 10 && prevcp != 93
+							&& prevcp != 41 && prevcp != 43 && prevcp != 62 && prevcp != 125 && prevcp != 126
+							&& prevcp != 124) {
 						// Not letter-or-digit nor *,ws)]+}~|>
 						unexpectedCharError(index, codepoint);
 					} else {
@@ -4081,7 +4104,7 @@ public class CSSParser implements Parser {
 							return;
 						}
 					}
-					if ((prevcp == 32 || prevcp == 13) && buffer.length() != 0) {
+					if (isPrevCpWhitespace() && buffer.length() != 0) {
 						buffer.append(' ');
 					}
 					bufferAppend(codepoint);
@@ -5501,7 +5524,7 @@ public class CSSParser implements Parser {
 			 */
 			if (flagIEValues && (this.propertyName.length() == 0 || this.propertyName.endsWith("filter")
 					|| "expression".equalsIgnoreCase(currentlu.getFunctionName()))) {
-				if (prevcp == 65 || prevcp == 32 || prevcp == 13 || prevcp == TokenProducer.CHAR_RIGHT_SQ_BRACKET) {
+				if (prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_RIGHT_SQ_BRACKET) {
 					// Could be a MS gradient or expression
 					LexicalUnitImpl lu;
 					int buflen = buffer.length();
@@ -6124,7 +6147,7 @@ public class CSSParser implements Parser {
 		}
 
 		private boolean isEscapedContext(int prevcp) {
-			return prevcp == 65 || prevcp == 32 || prevcp == 13 || prevcp == TokenProducer.CHAR_COLON
+			return prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_COLON
 					|| prevcp == TokenProducer.CHAR_COMMA || prevcp == TokenProducer.CHAR_SEMICOLON
 					|| prevcp == TokenProducer.CHAR_LEFT_CURLY_BRACKET;
 		}
@@ -6164,7 +6187,7 @@ public class CSSParser implements Parser {
 				}
 				processBuffer(index);
 			}
-			prevcp = 32;
+			setWhitespacePrevCp();
 		}
 
 		@Override
@@ -6395,23 +6418,25 @@ public class CSSParser implements Parser {
 			 * U+000A LINE FEED (LF) code point.
 			 */
 			if (codepoint == 10) { // LF \n
-				separator(index, codepoint);
+				separator(index, 10);
 				if (prevcp != 13) {
 					line++;
 					prevlinelength = index;
 				} else {
 					prevlinelength++;
 				}
+				setHandlerPreviousCp(10);
 			} else if (codepoint == 12) { // FF
-				separator(index, codepoint);
+				separator(index, 10);
+				setHandlerPreviousCp(10);
 				line++;
 				prevlinelength = index;
 			} else if (codepoint == 13) { // CR
 				line++;
 				prevlinelength = index;
-				prevcp = codepoint;
+				prevcp = 13;
 			} else if (codepoint == 9) { // TAB
-				separator(index, codepoint);
+				separator(index, 9);
 			} else if (codepoint < 0x80) {
 				unexpectedCharError(index, codepoint);
 			} else {
@@ -6419,9 +6444,37 @@ public class CSSParser implements Parser {
 			}
 		}
 
+		protected void setHandlerPreviousCp(int cp) {
+			prevcp = cp;
+		}
+
 		protected void highControl(int index, int codepoint) {
 			if (!parseError) {
 				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
+			}
+		}
+
+		/**
+		 * Return true if previous codepoint is whitespace (codepoints 32, 10 and 13).
+		 * 
+		 * @return true if previous codepoint is whitespace.
+		 */
+		boolean isPrevCpWhitespace() {
+			return prevcp == 32 || prevcp == 10 || prevcp == 13;
+		}
+
+		/**
+		 * Return true if previous codepoint is not whitespace (deliberately excluding 13).
+		 * 
+		 * @return true if previous codepoint is not whitespace.
+		 */
+		boolean isPrevCpNotWhitespace() {
+			return prevcp != 32 && prevcp != 10;
+		}
+
+		void setWhitespacePrevCp() {
+			if (prevcp != 10) {
+				prevcp = 32;
 			}
 		}
 
@@ -6445,8 +6498,12 @@ public class CSSParser implements Parser {
 		@Override
 		public void commented(int index, int commentType, String comment) {
 			if (commentType == 0) {
-				handler.comment(comment);
+				handler.comment(comment, isPreviousCpLF());
 			}
+		}
+
+		protected boolean isPreviousCpLF() {
+			return prevcp == 10;
 		}
 
 		void setEscapedTokenStart(int index) {

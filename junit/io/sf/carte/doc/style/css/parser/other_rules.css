@@ -6,7 +6,8 @@
 from {margin-left: 0px;}
 50% {margin-left: 110px; opacity: 1;}
 50% {opacity: 0.9;}
-to {margin-left: 200px;}
+to
+{margin-left: 200px;}
 }
 
 @keyframes important1 {
@@ -27,7 +28,8 @@ to {margin-left: 200px;}
   @styleset { double-W: 14; sharp-terminals: 16 1; }
 }
 
-@-webkit-keyframes foo {from{margin-top: 50px; }to{margin-top: 100px;}}
+@-webkit-keyframes
+foo {from{margin-top: 50px; }to{margin-top: 100px;}}
 
 body {
 	background-color: red;

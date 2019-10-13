@@ -35,6 +35,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -213,7 +214,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		// The following may cause an (undocumented)
 		// DOMException.NOT_SUPPORTED_ERR
 		Parser psr = getStyleSheetFactory().createSACParser();
-		SheetHandler handler = createDocumentHandler(true);
+		SheetHandler handler = createDocumentHandler(ExtendedCSSStyleSheet.COMMENTS_IGNORE);
 		psr.setDocumentHandler(handler);
 		psr.setErrorHandler(handler);
 		currentInsertionIndex = index - 1;
@@ -956,58 +957,41 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	/**
 	 * Creates a SAC document handler that fills this style sheet.
 	 * 
-	 * @param ignoreComments true if comments have to be ignored by the handler.
+	 * @param commentMode the comment processing mode.
 	 * @return the new SAC document handler.
 	 */
-	SheetHandler createDocumentHandler(boolean ignoreComments) {
-		return new SheetHandler(this, getOrigin(), ignoreComments);
+	SheetHandler createDocumentHandler(short commentMode) {
+		return new SheetHandler(this, getOrigin(), commentMode);
 	}
 
 	/**
 	 * Creates a SAC document handler that fills this style sheet.
 	 * 
 	 * @param origin the origin for this style sheet.
-	 * @param ignoreComments true if comments have to be ignored by the handler.
+	 * @param commentMode the comment processing mode.
 	 * @return the new SAC document handler.
 	 */
-	SheetHandler createDocumentHandler(byte origin, boolean ignoreComments) {
-		return new SheetHandler(this, origin, ignoreComments);
+	SheetHandler createDocumentHandler(byte origin, short commentMode) {
+		return new SheetHandler(this, origin, commentMode);
 	}
 
-	/**
-	 * Parses a style sheet.
-	 * 
-	 * If the style sheet is not empty, the rules from the parsed source will be
-	 * added at the end of the rule list, with the same origin as the rule with
-	 * a highest precedence origin.
-	 * <p>
-	 * To create a sheet, see
-	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
-	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
-	 * 
-	 * @param reader
-	 *            the character stream containing the CSS sheet.
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
-	 *         otherwise.
-	 * @throws DOMException
-	 *             if a problem is found parsing the sheet.
-	 * @throws IOException
-	 *             if a problem is found reading the sheet.
-	 */
 	@Override
 	public boolean parseStyleSheet(Reader reader) throws DOMException, IOException {
-		return parseStyleSheet(reader, false);
+		return parseStyleSheet(reader, COMMENTS_AUTO);
 	}
 
 	/**
 	 * Parses a style sheet.
 	 * <p>
 	 * If the style sheet is not empty, the rules from the parsed source will be
-	 * added at the end of the rule list, with the same origin as the rule with
-	 * a highest precedence origin.
+	 * added at the end of the rule list, with the same origin as the rule with a
+	 * highest precedence origin.
 	 * <p>
-	 * If <code>ignoreComments</code> is false, the comments preceding a rule
-	 * will be available through {@link AbstractCSSRule#getPrecedingComments()}.
+	 * If <code>commentMode</code> is not {@code COMMENTS_IGNORE}, the comments
+	 * preceding a rule shall be available through
+	 * {@link AbstractCSSRule#getPrecedingComments()}, and if {@code COMMENTS_AUTO}
+	 * was set also the trailing ones, through the method
+	 * {@link AbstractCSSRule#getTrailingComments()}.
 	 * <p>
 	 * This method resets the state of this sheet's error handler.
 	 * <p>
@@ -1015,19 +999,18 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
-	 * @param reader
-	 *            the character stream containing the CSS sheet.
-	 * @param ignoreComments
-	 *            true if comments have to be ignored.
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
-	 *         otherwise.
-	 * @throws DOMException
-	 *             if a problem is found parsing the sheet.
-	 * @throws IOException
-	 *             if a problem is found reading the sheet.
+	 * @param reader      the character stream containing the CSS sheet.
+	 * @param commentMode {@code 0} if comments have to be ignored, {@code 1} if all
+	 *                    comments are considered as preceding a rule, {@code 2} if
+	 *                    the parser should try to figure out which comments are
+	 *                    preceding and trailing a rule (auto mode).
+	 * @return <code>true</code> if the SAC parser reported no errors or fatal
+	 *         errors, false otherwise.
+	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws IOException  if a problem is found reading the sheet.
 	 */
 	@Override
-	public boolean parseStyleSheet(Reader reader, boolean ignoreComments) throws DOMException, IOException {
+	public boolean parseStyleSheet(Reader reader, short commentMode) throws DOMException, IOException {
 		if (sheetErrorHandler != null) {
 			sheetErrorHandler.reset();
 		}
@@ -1041,7 +1024,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			}
 		}
 		Parser parser = getStyleSheetFactory().createSACParser();
-		CSSHandler handler = createDocumentHandler(origin, ignoreComments);
+		CSSHandler handler = createDocumentHandler(origin, commentMode);
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler((CSSErrorHandler) handler);
 		try {

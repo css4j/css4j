@@ -30,8 +30,8 @@ public class CSSOMBridge {
 		return rule.getSelectorList();
 	}
 
-	public static CSSHandler createDocumentHandler(BaseCSSStyleSheet css, boolean ignoreComments) {
-		return css.createDocumentHandler(ignoreComments);
+	public static CSSHandler createDocumentHandler(BaseCSSStyleSheet css, short commentMode) {
+		return css.createDocumentHandler(commentMode);
 	}
 
 }

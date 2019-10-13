@@ -262,6 +262,8 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 		private KeyframeRule currentRule = null;
 
+		private KeyframeRule lastRule = null;
+
 		private LinkedList<String> comments = null;
 
 		private MyKeyframesHandler() {
@@ -271,6 +273,11 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		@Override
 		public void startKeyframes(String name) {
 			this.name = name;
+			newRule();
+		}
+
+		private void newRule() {
+			lastRule = null;
 		}
 
 		@Override
@@ -282,6 +289,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 		@Override
 		public void startKeyframe(LexicalUnit keyframeSelector) {
+			newRule();
 			currentRule = new KeyframeRule(KeyframesRule.this);
 			currentRule.setKeyText(keyframeSelector(keyframeSelector));
 			setLexicalPropertyListener(currentRule.getLexicalPropertyListener());
@@ -317,16 +325,24 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		public void endKeyframe() {
 			setCommentsToRule(currentRule);
 			currentRule = null;
+			lastRule = currentRule;
 			setLexicalPropertyListener(null);
 		}
 
 		@Override
-		public void comment(String text) {
-			if (currentRule == null) {
-				if (comments == null) {
-					comments = new LinkedList<String>();
+		public void comment(String text, boolean precededByLF) {
+			if (lastRule != null && !precededByLF) {
+				if (lastRule.trailingComments == null) {
+					lastRule.trailingComments = new LinkedList<String>();
 				}
-				comments.add(text);
+				lastRule.trailingComments.add(text);
+			} else {
+				if (currentRule == null) {
+					if (comments == null) {
+						comments = new LinkedList<String>();
+					}
+					comments.add(text);
+				}
 			}
 		}
 

@@ -20,6 +20,7 @@ import java.util.Iterator;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSGroupingRule;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -195,7 +196,8 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		private int currentInsertionIndex = 0;
 
 		private RuleHandler() {
-			super((BaseCSSStyleSheet) GroupingRule.this.getParentStyleSheet(), getOrigin(), true);
+			super((BaseCSSStyleSheet) GroupingRule.this.getParentStyleSheet(), getOrigin(),
+					ExtendedCSSStyleSheet.COMMENTS_IGNORE);
 		}
 
 		public void setCurrentInsertionIndex(int index) {

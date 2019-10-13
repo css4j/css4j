@@ -26,7 +26,7 @@ class TestDeclarationHandler extends EmptyCSSHandler implements CSSHandler {
 	boolean streamEnded = false;
 
 	@Override
-	public void comment(String text) {
+	public void comment(String text, boolean precededByLF) {
 		comments.add(text);
 	}
 

@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -42,22 +43,44 @@ import io.sf.carte.doc.style.css.parser.BooleanCondition;
 public class BaseCSSStyleSheetTest2 {
 
 	@Test
-	public void testGetSelectorsForPropertyValue() {
-		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
-		Selector[] selectors = sheet.getSelectorsForPropertyValue("display", "table-caption");
-		assertEquals(1, selectors.length);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, selectors[0].getSelectorType());
-		assertEquals("caption", ((ElementSelector) selectors[0]).getLocalName());
-	}
-
-	@Test
-	public void testGetSelectorsForPropertyValue2() {
-		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
-		Selector[] selectors = sheet.getSelectorsForPropertyValue("outline", "auto");
-		assertEquals(1, selectors.length);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, selectors[0].getSelectorType());
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION,
-				((ConditionalSelector) selectors[0]).getCondition().getConditionType());
+	public void testParseStyleSheetUserAgent() throws DOMException, IOException {
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		Reader re = loadFilefromClasspath("html.css");
+		sheet.parseStyleSheet(re);
+		re.close();
+		//
+		assertEquals(109, sheet.getCssRules().getLength());
+		//
+		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(0).getType());
+		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(0);
+		assertEquals(
+				"html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp {display: block; }",
+				stylerule.getCssText());
+		assertEquals(
+				"html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp{display:block}",
+				stylerule.getMinifiedCssText());
+		assertNotNull(stylerule.getPrecedingComments());
+		assertEquals(
+				"\n * HTML/XHTML CSS, derived from the one in the W3C CSS 2.1 specification,\n * combined with the styles from HTML5 specification.\n ",
+				stylerule.getPrecedingComments().get(0));
+		assertNull(stylerule.getTrailingComments());
+		//
+		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(41).getType());
+		stylerule = (StyleRule) sheet.getCssRules().item(41);
+		assertEquals("ol[start] {counter-reset: list-item calc(attr(start integer, 1) - 1); }", stylerule.getCssText());
+		assertEquals("ol[start]{counter-reset:list-item calc(attr(start integer,1) - 1)}",
+				stylerule.getMinifiedCssText());
+		assertNotNull(stylerule.getPrecedingComments());
+		assertEquals(" The start attribute on ol elements ", stylerule.getPrecedingComments().get(0));
+		assertNull(stylerule.getTrailingComments());
+		//
+		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(47).getType());
+		stylerule = (StyleRule) sheet.getCssRules().item(47);
+		assertEquals("wbr {content: '\\200B'; }", stylerule.getCssText());
+		assertEquals("wbr{content:'\\200b'}", stylerule.getMinifiedCssText());
+		assertNotNull(stylerule.getTrailingComments());
+		assertEquals(" this also has bidi implications ", stylerule.getTrailingComments().get(0));
 	}
 
 	@Test
@@ -87,6 +110,57 @@ public class BaseCSSStyleSheetTest2 {
 		pagerule = (PageRule) sheet.getCssRules().item(3);
 		assertEquals("@page bar :right,:blank {margin-right: 2em; }", pagerule.getCssText());
 		assertEquals("@page bar :right,:blank{margin-right:2em}", pagerule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testParseStyleSheetComments() throws DOMException, IOException {
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		Reader re = loadFilefromClasspath("parser/comments.css");
+		sheet.parseStyleSheet(re);
+		re.close();
+		//
+		assertEquals(4, sheet.getCssRules().getLength());
+		assertEquals(ExtendedCSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
+		ViewportRule vprule = (ViewportRule) sheet.getCssRules().item(0);
+		assertEquals("@viewport{width:device-width}", vprule.getMinifiedCssText());
+		assertEquals(1, vprule.getStyle().getLength());
+		//
+		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(1).getType());
+		AbstractCSSRule unknown = sheet.getCssRules().item(1);
+		assertEquals(
+				"@-webkit-viewport /* skip-vw 1-webkit */{/* pre-viewport-decl-webkit */ width: /* skip-vw 2-webkit */device-width; /* post-viewport-decl-webkit */}",
+				unknown.getCssText());
+		//
+		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(2).getType());
+		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(2);
+		assertEquals(1, stylerule.getStyle().getLength());
+		assertEquals("body{background-color:red}", stylerule.getMinifiedCssText());
+		//
+		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(3).getType());
+		AbstractCSSRule unknown2 = sheet.getCssRules().item(3);
+		assertEquals(
+				"@-webkit-keyframes important1 { /* pre-webkit-kf-list */from /* post-webkit-kfsel-from */{ /* pre-webkit-kf-from-decl */margin-top: 50px;/* post-webkit-kf-from-decl */ } /* post-webkit-kf-from */50% /* post-webkit-kfsel-50% */{/* pre-webkit-kf-50%-decl */margin-top: 150px !important; /* post-webkit-kf-50%-decl */} /* post-webkit-kf-50% */to/* post-webkit-kfsel-to */{ margin-top: 100px; }/* post-webkit-kf-to */ /* post-webkit-kf-list */}",
+				unknown2.getCssText());
+	}
+
+	@Test
+	public void testGetSelectorsForPropertyValue() {
+		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		Selector[] selectors = sheet.getSelectorsForPropertyValue("display", "table-caption");
+		assertEquals(1, selectors.length);
+		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, selectors[0].getSelectorType());
+		assertEquals("caption", ((ElementSelector) selectors[0]).getLocalName());
+	}
+
+	@Test
+	public void testGetSelectorsForPropertyValue2() {
+		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		Selector[] selectors = sheet.getSelectorsForPropertyValue("outline", "auto");
+		assertEquals(1, selectors.length);
+		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, selectors[0].getSelectorType());
+		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION,
+				((ConditionalSelector) selectors[0]).getCondition().getConditionType());
 	}
 
 	@Test

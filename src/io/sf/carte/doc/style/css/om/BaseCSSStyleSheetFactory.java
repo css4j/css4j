@@ -276,7 +276,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		try {
 			re = new InputStreamReader(is, "UTF-8");
 			cssSheet = createDocumentStyleSheet(ORIGIN_USER_AGENT);
-			cssSheet.parseStyleSheet(re, true);
+			cssSheet.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_IGNORE);
 		} catch (IOException e) {
 			throw e;
 		} finally {

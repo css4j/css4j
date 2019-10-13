@@ -373,7 +373,9 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		private final CSSFontFeatureValuesMapImpl styleset = new CSSFontFeatureValuesMapImpl();
 		private final HashMap<String, CSSFontFeatureValuesMapImpl> mapmap = null;
 
-		private CSSFontFeatureValuesMap currentMap = null;
+		private CSSFontFeatureValuesMapImpl currentMap = null;
+
+		private CSSFontFeatureValuesMapImpl lastMap = null;
 
 		private LinkedList<String> comments = null;
 
@@ -437,9 +439,10 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		private void enableMap(String featureValueName) {
 			FontFeatureValuesRule.enableMap(featureValueName, mapmap);
+			lastMap = null;
 		}
 
-		private CSSFontFeatureValuesMap getFeatureValuesMap(String featureValueName) {
+		private CSSFontFeatureValuesMapImpl getFeatureValuesMap(String featureValueName) {
 			CSSFontFeatureValuesMapImpl map;
 			if (featureValueName.equals("annotation")) {
 				map = annotation;
@@ -465,6 +468,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		@Override
 		public void endFeatureMap() {
 			setCommentsToCurrentMap();
+			lastMap = currentMap;
 			currentMap = null;
 		}
 
@@ -507,12 +511,19 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		@Override
-		public void comment(String text) {
-			if (currentMap == null) {
-				if (comments == null) {
-					comments = new LinkedList<String>();
+		public void comment(String text, boolean precededByLF) {
+			if (lastMap != null && !precededByLF) {
+				if (lastMap.trailingComments == null) {
+					lastMap.trailingComments = new LinkedList<String>();
 				}
-				comments.add(text);
+				lastMap.trailingComments.add(text);
+			} else {
+				if (currentMap == null) {
+					if (comments == null) {
+						comments = new LinkedList<String>();
+					}
+					comments.add(text);
+				}
 			}
 		}
 
@@ -520,7 +531,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			if (comments != null && !comments.isEmpty()) {
 				ArrayList<String> ruleComments = new ArrayList<String>(comments.size());
 				ruleComments.addAll(comments);
-				((CSSFontFeatureValuesMapImpl) currentMap).setPrecedingComments(ruleComments);
+				currentMap.setPrecedingComments(ruleComments);
 			}
 			resetCommentStack();
 		}
@@ -628,6 +639,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		private final LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
 		private List<String> precedingComments = null;
+		private LinkedList<String> trailingComments = null;
 
 		void addAll(CSSFontFeatureValuesMapImpl othermap) {
 			featureMap.putAll(othermap.featureMap);
@@ -667,6 +679,11 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		@Override
 		public List<String> getPrecedingComments() {
 			return precedingComments;
+		}
+
+		@Override
+		public List<String> getTrailingComments() {
+			return trailingComments;
 		}
 
 		@Override

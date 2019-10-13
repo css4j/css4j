@@ -36,6 +36,24 @@ import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSStyleSheet {
 
 	/**
+	 * Ignore all comments when parsing a sheet.
+	 */
+	short COMMENTS_IGNORE = 0;
+
+	/**
+	 * When parsing a sheet, all comments found before a rule will be considered as
+	 * belonging to that rule.
+	 */
+	short COMMENTS_PRECEDING = 1;
+
+	/**
+	 * When parsing a sheet, comments found before a rule may be assigned to the
+	 * previous rule if a newline character was not found between that rule and the
+	 * comment, otherwise shall be set as preceding the next rule.
+	 */
+	short COMMENTS_AUTO = 2;
+
+	/**
 	 * Inserts a rule in the current insertion point (generally after the last rule).
 	 *
 	 * @param cssrule
@@ -260,9 +278,9 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * If this style sheet is not empty, the rules from the parsed source will be added at the
 	 * end of the rule list.
 	 * <p>
-	 * The comments preceding a rule will be available through
-	 * {@link AbstractCSSRule#getPrecedingComments()}.
-	 *
+	 * The comments shall be processed according to {@link ExtendedCSSStyleSheet#COMMENTS_AUTO}.
+	 * </p>
+	 * 
 	 * @param reader
 	 *            the character stream containing the CSS sheet.
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, <code>false</code> otherwise.
@@ -282,22 +300,26 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * added at the end of the rule list, with the same origin as the rule with a
 	 * highest precedence origin.
 	 * <p>
-	 * If <code>ignoreComments</code> is false, the comments preceding a rule will
-	 * be available through {@link AbstractCSSRule#getPrecedingComments()}.
+	 * If <code>commentMode</code> is not {@code COMMENTS_IGNORE}, the comments
+	 * preceding a rule shall be available through
+	 * {@link AbstractCSSRule#getPrecedingComments()}, and if {@code COMMENTS_AUTO}
+	 * was set also the trailing ones, through the method
+	 * {@link AbstractCSSRule#getTrailingComments()}.
 	 * <p>
 	 * To create a sheet, see
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 *
-	 * @param reader
-	 *            the character stream containing the CSS sheet.
-	 * @param ignoreComments
-	 *            true if comments have to be ignored.
+	 * @param reader      the character stream containing the CSS sheet.
+	 * @param commentMode {@code 0} if comments have to be ignored, {@code 1} if all
+	 *                    comments are considered as preceding a rule, {@code 2} if
+	 *                    the parser should try to figure out which comments are
+	 *                    preceding and trailing a rule (auto mode).
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal
 	 *         errors, <code>false</code> otherwise.
 	 * @throws DOMException if a problem is found parsing the sheet.
 	 * @throws IOException  if a problem is found reading the sheet.
 	 */
-	boolean parseStyleSheet(Reader reader, boolean ignoreComments) throws DOMException, IOException;
+	boolean parseStyleSheet(Reader reader, short commentMode) throws DOMException, IOException;
 
 }

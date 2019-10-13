@@ -49,10 +49,12 @@ public interface CSSHandler {
 	 * Receive notification of a comment. If the comment appears in a declaration
 	 * (e.g. color: /* comment {@literal *}/ blue;), the parser notifies the comment
 	 * before the declaration.
-	 *
-	 * @param text The comment.
+	 * 
+	 * @param text         The comment.
+	 * @param precededByLF {@code true} if a Line Feed character was found since the
+	 *                     previous event.
 	 */
-	void comment(String text);
+	void comment(String text, boolean precededByLF);
 
 	/**
 	 * Receive notification of an unknown {@literal @}-rule not supported by this parser.

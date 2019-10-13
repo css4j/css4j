@@ -44,6 +44,7 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 	private final byte ruleOrigin;
 
 	List<String> precedingComments = null;
+	List<String> trailingComments = null;
 
 	protected BaseCSSRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {
 		super();
@@ -128,6 +129,11 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 	@Override
 	void setPrecedingComments(List<String> precedingComments) {
 		this.precedingComments = precedingComments;
+	}
+
+	@Override
+	public List<String> getTrailingComments() {
+		return trailingComments;
 	}
 
 	@Override

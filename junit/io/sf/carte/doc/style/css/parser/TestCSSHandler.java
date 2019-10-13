@@ -206,9 +206,13 @@ class TestCSSHandler extends TestDeclarationHandler {
 	}
 
 	@Override
-	public void comment(String text) {
+	public void comment(String text, boolean precededByLF) {
 		comments.add(text);
-		this.eventSeq.add("comment");
+		if (precededByLF) {
+			this.eventSeq.add("head-comment");
+		} else {
+			this.eventSeq.add("tail-comment");
+		}
 	}
 
 	@Override
