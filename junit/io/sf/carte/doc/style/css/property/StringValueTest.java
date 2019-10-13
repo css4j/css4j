@@ -86,10 +86,29 @@ public class StringValueTest {
 		assertEquals("foo", value.getStringValue());
 		assertEquals("\"foo\"", value.getCssText());
 		assertEquals("\"foo\"", value.getMinifiedCssText(""));
+		//
 		value.setCssText("foo");
 		assertEquals("foo", value.getStringValue());
 		assertEquals("\"foo\"", value.getCssText());
 		assertEquals("\"foo\"", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testSetCssTextWhitespace() {
+		StringValue value = createCSSStringValue();
+		value.setCssText("\" \"");
+		assertEquals(" ", value.getStringValue());
+		assertEquals("\" \"", value.getCssText());
+		assertEquals("\" \"", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testSetCssTextDoubleWhitespace() {
+		StringValue value = createCSSStringValue();
+		value.setCssText("\"  \"");
+		assertEquals("  ", value.getStringValue());
+		assertEquals("\"  \"", value.getCssText());
+		assertEquals("\"  \"", value.getMinifiedCssText(""));
 	}
 
 	@Test
@@ -98,7 +117,7 @@ public class StringValueTest {
 		value.setCssText("\"â†\u0090\"");
 		assertEquals("â†\u0090", value.getStringValue());
 		assertEquals("\"â†\\90 \"", value.getCssText());
-		assertEquals("\"â†\\90 \"", value.getMinifiedCssText(""));
+		assertEquals("\"â†\\90\"", value.getMinifiedCssText(""));
 	}
 
 	@Test
@@ -152,6 +171,21 @@ public class StringValueTest {
 	}
 
 	@Test
+	public void testLexicalSetter2() throws CSSException, IOException {
+		CSSParser parser = new CSSParser();
+		InputSource source = new InputSource(new StringReader("'\\200B'"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertNotNull(lu);
+		StringValue value = createCSSStringValue();
+		LexicalSetter setter = value.newLexicalSetter();
+		setter.setLexicalUnit(lu);
+		assertNull(setter.getNextLexicalUnit());
+		assertEquals("\u200B", value.getStringValue());
+		assertEquals("'\\200B'", value.getCssText());
+		assertEquals("'\\200b'", value.getMinifiedCssText(""));
+	}
+
+	@Test
 	public void testSetCssTextStringProgId() {
 		StringValue value = createCSSStringValue();
 		value.setCssText("progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");
@@ -169,7 +203,7 @@ public class StringValueTest {
 		value.setCssText("\\200B");
 		assertEquals("\u200B", value.getStringValue());
 		assertEquals("'\\200B'", value.getCssText());
-		assertEquals("'\u200B'", value.getMinifiedCssText(""));
+		assertEquals("'\\200b'", value.getMinifiedCssText(""));
 		value.setCssText("\\200  B");
 		assertTrue("Ȁ B".equals(value.getStringValue()));
 		assertEquals("'\\200  B'", value.getCssText());
