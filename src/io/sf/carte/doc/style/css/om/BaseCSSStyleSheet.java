@@ -1287,12 +1287,19 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					PageRule pageRule = createPageRule();
 					pageRule.setParentRule(currentRule);
 					currentRule = pageRule;
+					String selector;
 					if (name != null) {
-						pageRule.setSelectorText(name);
+						if (pseudo_page != null) {
+							selector = name + ' ' + pseudo_page;
+						} else {
+							selector = name;
+						}
+					} else {
+						selector = pseudo_page;
 					}
-					if (pseudo_page != null) {
+					if (selector != null) {
 						Parser parser = getStyleSheetFactory().createSACParser();
-						InputSource source = new InputSource(new StringReader(pseudo_page));
+						InputSource source = new InputSource(new StringReader(selector));
 						try {
 							pageRule.setSelectorList(parser.parseSelectors(source));
 						} catch (IOException e) {

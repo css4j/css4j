@@ -83,6 +83,17 @@ public class PageRuleTest {
 	}
 
 	@Test
+	public void testParsePageRulePseudoPage2() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader("@page foo :first {margin-top: 20%;}"));
+		sheet.parseStyleSheet(source);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
+		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
+		assertEquals("@page foo :first {\n    margin-top: 20%;\n}\n", pagerule.getCssText());
+		assertEquals("@page foo :first{margin-top:20%}", pagerule.getMinifiedCssText());
+	}
+
+	@Test
 	public void testParsePageRuleWithMargin() throws DOMException, IOException {
 		InputSource source = new InputSource(
 				new StringReader("@page :first {margin-top: 20%;@top-left {content: 'foo'; color: blue;}}"));
@@ -113,6 +124,14 @@ public class PageRuleTest {
 		rule.setCssText("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}");
 		assertEquals("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}", rule.getMinifiedCssText());
 		assertEquals(":first", rule.getSelectorText());
+	}
+
+	@Test
+	public void testSetCssTextStringPageSelector() throws DOMException {
+		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("@page foo :first{margin-top: 20%;}");
+		assertEquals("foo :first", rule.getSelectorText());
+		assertEquals("@page foo :first{margin-top:20%}", rule.getMinifiedCssText());
 	}
 
 	@Test

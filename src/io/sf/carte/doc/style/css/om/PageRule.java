@@ -150,12 +150,24 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 
 		private MarginRule currentMarginRule = null;
 
+		private boolean expectMargin = false;
+
 		@Override
 		public void startPage(String name, String pseudo_page) throws CSSException {
-			if (name == null) {
-				if (pseudo_page != null) {
+			if (!expectMargin) {
+				String selector;
+				if (name != null) {
+					if (pseudo_page != null) {
+						selector = name + ' ' + pseudo_page;
+					} else {
+						selector = name;
+					}
+				} else {
+					selector = pseudo_page;
+				}
+				if (selector != null) {
 					Parser parser = createSACParser();
-					InputSource source = new InputSource(new StringReader(pseudo_page));
+					InputSource source = new InputSource(new StringReader(selector));
 					try {
 						setSelectorList(parser.parseSelectors(source));
 					} catch (IOException e) {
@@ -163,6 +175,7 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 				} else {
 					setSelectorText("");
 				}
+				expectMargin = true;
 			} else {
 				currentMarginRule = new MarginRule(getParentStyleSheet(), getOrigin(), name);
 				currentMarginRule.setParentRule(PageRule.this);
@@ -172,7 +185,7 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 
 		@Override
 		public void endPage(String name, String pseudo_page) throws CSSException {
-			if (name != null) {
+			if (currentMarginRule != null) {
 				addMarginRule(currentMarginRule);
 				currentMarginRule = null;
 				setLexicalPropertyListener(getLexicalPropertyListener());
