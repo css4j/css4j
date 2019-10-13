@@ -150,10 +150,20 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 
 		@Override
 		public void startPage(String name, String pseudo_page) {
-			if (pseudo_page != null) {
+			String selector;
+			if (name != null) {
+				if (pseudo_page != null) {
+					selector = name + ' ' + pseudo_page;
+				} else {
+					selector = name;
+				}
+			} else {
+				selector = pseudo_page;
+			}
+			if (selector != null) {
 				Parser parser = createSACParser();
 				try {
-					setSelectorList(parser.parseSelectors(new StringReader(pseudo_page)));
+					setSelectorList(parser.parseSelectors(new StringReader(selector)));
 				} catch (IOException e) {
 				}
 			} else {

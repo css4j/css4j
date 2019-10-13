@@ -17,12 +17,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 
 import org.junit.Test;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
@@ -54,6 +58,35 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, selectors[0].getSelectorType());
 		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION,
 				((ConditionalSelector) selectors[0]).getCondition().getConditionType());
+	}
+
+	@Test
+	public void testParseStyleSheetPageRules() throws DOMException, IOException {
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		Reader re = loadFilefromClasspath("parser/page.css");
+		sheet.parseStyleSheet(re);
+		re.close();
+		//
+		assertEquals(4, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(0).getType());
+		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(0);
+		assertEquals("body{background-color:red}", stylerule.getMinifiedCssText());
+		//
+		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(1).getType());
+		PageRule pagerule = (PageRule) sheet.getCssRules().item(1);
+		assertEquals("@page :first {margin-top: 20%; }", pagerule.getCssText());
+		assertEquals("@page :first{margin-top:20%}", pagerule.getMinifiedCssText());
+		//
+		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(2).getType());
+		pagerule = (PageRule) sheet.getCssRules().item(2);
+		assertEquals("@page foo :left {margin-left: 10%; @top-center {content: none; }@bottom-center {content: counter(page); }}", pagerule.getCssText());
+		assertEquals("@page foo :left{margin-left:10%;@top-center{content:none}@bottom-center{content:counter(page)}}", pagerule.getMinifiedCssText());
+		//
+		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(3).getType());
+		pagerule = (PageRule) sheet.getCssRules().item(3);
+		assertEquals("@page bar :right,:blank {margin-right: 2em; }", pagerule.getCssText());
+		assertEquals("@page bar :right,:blank{margin-right:2em}", pagerule.getMinifiedCssText());
 	}
 
 	@Test
@@ -224,12 +257,18 @@ public class BaseCSSStyleSheetTest2 {
 	public void testToString() throws IOException {
 		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet();
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
-		CharBuffer target = CharBuffer.allocate(600);
-		assertTrue(re.read(target) != -1);
+		String file = readAndCloseFile(re, 600);
+		String expected = file.replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}", "}");
+		assertEquals(expected, sheet.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+	}
+
+	private String readAndCloseFile(Reader re, int bufCapacity) throws IOException {
+		CharBuffer target = CharBuffer.allocate(bufCapacity);
+		int n = re.read(target);
+		assertTrue(n != -1 && n < bufCapacity);
 		re.close();
 		target.flip();
-		String expected = target.toString().replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}", "}");
-		assertEquals(expected, sheet.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+		return target.toString();
 	}
 
 	@Test
@@ -258,6 +297,21 @@ public class BaseCSSStyleSheetTest2 {
 		target.flip();
 		String expected = target.toString().replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}", "}");
 		assertEquals(expected, sheet.toStyleString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+	}
+
+	private static Reader loadFilefromClasspath(String filename) {
+		final String path = "/io/sf/carte/doc/style/css/" + filename;
+		InputStream is = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
+			@Override
+			public InputStream run() {
+				return this.getClass().getResourceAsStream(path);
+			}
+		});
+		Reader re = null;
+		if (is != null) {
+			re = new InputStreamReader(is, StandardCharsets.UTF_8);
+		}
+		return re;
 	}
 
 }

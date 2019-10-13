@@ -270,12 +270,19 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			PageRule pageRule = parentSheet.createPageRule();
 			pageRule.setParentRule(currentRule);
 			currentRule = pageRule;
+			String selector;
 			if (name != null) {
-				pageRule.setSelectorText(name);
+				if (pseudo_page != null) {
+					selector = name + ' ' + pseudo_page;
+				} else {
+					selector = name;
+				}
+			} else {
+				selector = pseudo_page;
 			}
-			if (pseudo_page != null) {
+			if (selector != null) {
 				Parser parser = parentSheet.getStyleSheetFactory().createSACParser();
-				StringReader re = new StringReader(pseudo_page);
+				StringReader re = new StringReader(selector);
 				try {
 					pageRule.setSelectorList(parser.parseSelectors(re));
 				} catch (IOException e) {
