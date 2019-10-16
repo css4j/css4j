@@ -207,6 +207,10 @@ public class ParseHelperTest {
 	@Test
 	public void testParseIdentString() {
 		assertEquals("foo", ParseHelper.parseIdent("foo"));
+		assertEquals("1f", ParseHelper.parseIdent("\\31 f"));
+		assertEquals("o", ParseHelper.parseIdent("\\6f"));
+		assertEquals("o", ParseHelper.parseIdent("\\6F"));
+		assertEquals("1z", ParseHelper.parseIdent("\\31z"));
 		assertEquals("-â†\u0090", ParseHelper.parseIdent("-â†\\000090"));
 		assertEquals("-â†\u0090", ParseHelper.parseIdent("-â†\\90"));
 	}
@@ -228,6 +232,26 @@ public class ParseHelperTest {
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testParseIdentStringError3() {
+		try {
+			ParseHelper.parseIdent("\\31  f");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testParseIdentStringError4() {
+		try {
+			ParseHelper.parseIdent("a b");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
 	}
 
