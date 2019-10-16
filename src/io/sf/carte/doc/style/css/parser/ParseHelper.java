@@ -930,9 +930,10 @@ public class ParseHelper {
 		if (c == 0x2d && (len == 1 || isDigitCodepoint(ident.charAt(1)))) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad identifier");
 		}
+		char prev = ' ';
 		for (int i = 1; i < len; i++) {
 			c = ident.charAt(i);
-			if (!isNameCharOrEsc(c)) {
+			if (!isNameCharOrEsc(c) && (c != ' ' || !isHexCodePoint(prev))) {
 				String msg;
 				if (Character.isLetterOrDigit(c)) {
 					msg = "Identifier cannot contain '" + c + "'";
@@ -941,6 +942,7 @@ public class ParseHelper {
 				}
 				throw new DOMCharacterException(msg, i);
 			}
+			prev = c;
 		}
 		return unescapeStringValue(ident);
 	}
