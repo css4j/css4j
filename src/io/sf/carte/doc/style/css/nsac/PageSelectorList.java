@@ -12,26 +12,23 @@
 package io.sf.carte.doc.style.css.nsac;
 
 /**
- * List of selectors.
- * <p>
- * SAC's {@code SelectorList} interface by Philippe Le Hegaret.
- * </p>
+ * List of page selectors.
  */
-public interface SelectorList extends Iterable<Selector> {
+public interface PageSelectorList extends Iterable<PageSelector> {
 
 	/**
-	 * Get the length of this selector list.
+	 * Get the length of this page selector list.
 	 * 
-	 * @return the length of this selector list, zero if empty.
+	 * @return the length of this page selector list, zero if empty.
 	 */
 	int getLength();
 
 	/**
-	 * Get the selector at the specified index.
+	 * Get the page selector at the specified index.
 	 * 
-	 * @return the selector at the specified index, or <code>null</code> if the
+	 * @return the page selector at the specified index, or <code>null</code> if the
 	 *         index is not valid.
 	 */
-	Selector item(int index);
+	PageSelector item(int index);
 
 }

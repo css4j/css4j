@@ -11,10 +11,10 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import io.sf.carte.doc.style.css.nsac.Selector;
-import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.PageSelector;
+import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 
-class SelectorListImpl extends AbstractSACList<Selector> implements SelectorList {
+class PageSelectorListImpl extends AbstractSACList<PageSelector> implements PageSelectorList {
 
 	private static final long serialVersionUID = 1L;
 

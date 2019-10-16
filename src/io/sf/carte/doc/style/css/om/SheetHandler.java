@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -29,7 +27,7 @@ import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Locator;
-import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
@@ -290,33 +288,14 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
-	public void startPage(String name, String pseudo_page) {
+	public void startPage(PageSelectorList pageSelectorList) {
 		ignoreImports = true;
 		newRule();
 		if (ignoreGroupingRules == 0) {
 			PageRule pageRule = parentSheet.createPageRule();
 			pageRule.setParentRule(currentRule);
+			pageRule.setSelectorList(pageSelectorList);
 			currentRule = pageRule;
-			String selector;
-			if (name != null) {
-				if (pseudo_page != null) {
-					selector = name + ' ' + pseudo_page;
-				} else {
-					selector = name;
-				}
-			} else {
-				selector = pseudo_page;
-			}
-			if (selector != null) {
-				Parser parser = parentSheet.getStyleSheetFactory().createSACParser();
-				StringReader re = new StringReader(selector);
-				try {
-					pageRule.setSelectorList(parser.parseSelectors(re));
-				} catch (IOException e) {
-				}
-			} else {
-				pageRule.setSelectorText("");
-			}
 			setCommentsToRule(currentRule);
 		} else {
 			resetCommentStack();
@@ -324,7 +303,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
-	public void endPage(String name, String pseudo_page) {
+	public void endPage(PageSelectorList pageSelectorList) {
 		endGenericRule();
 	}
 
@@ -342,7 +321,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
-	public void endMargin(String name) {
+	public void endMargin() {
 		if (ignoreGroupingRules == 0) {
 			assert(currentRule != null && currentRule.getType() == ExtendedCSSRule.MARGIN_RULE);
 			lastRule = currentRule;

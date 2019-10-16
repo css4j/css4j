@@ -103,22 +103,22 @@ public interface CSSHandler {
 	/**
 	 * Receive notification of the beginning of a page rule.
 	 *
-	 * The Parser will invoke this method at the beginning of every page rule
-	 * in the style sheet. There will be a corresponding endPage() event for every
+	 * The Parser will invoke this method at the beginning of every page rule in the
+	 * style sheet. There will be a corresponding endPage() event for every
 	 * startPage() event.
 	 *
-	 * @param name        the name of the page (if any, null otherwise)
-	 * @param pseudo_page the pseudo page (if any, null otherwise)
+	 * @param pageSelectorList the page selector list (if any, <code>null</code>
+	 *                         otherwise)
 	 */
-	void startPage(String name, String pseudo_page);
+	void startPage(PageSelectorList pageSelectorList);
 
 	/**
 	 * Receive notification of the end of a page rule.
-	 *
-	 * @param name        the name of the page (if any, null otherwise)
-	 * @param pseudo_page the pseudo page (if any, null otherwise)
+	 * 
+	 * @param pageSelectorList the page selector list (if any, <code>null</code>
+	 *                         otherwise)
 	 */
-	void endPage(String name, String pseudo_page);
+	void endPage(PageSelectorList pageSelectorList);
 
 	/**
 	 * Receive notification of the beginning of a margin rule.
@@ -133,10 +133,8 @@ public interface CSSHandler {
 
 	/**
 	 * Receive notification of the end of a margin rule.
-	 *
-	 * @param name the name of the rule.
 	 */
-	void endMargin(String name);
+	void endMargin();
 
 	/**
 	 * Receive notification of the beginning of a font face rule.

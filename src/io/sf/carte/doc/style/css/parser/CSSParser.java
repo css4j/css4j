@@ -47,6 +47,7 @@ import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.InputSource;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Locator;
+import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.Selector;
@@ -293,6 +294,62 @@ public class CSSParser implements Parser {
 		tp.parse(reader, "/*", "*/");
 	}
 
+	public PageSelectorList parsePageSelectorList(String pageSelectorStr) throws DOMException {
+		if (pageSelectorStr == null) {
+			throw new NullPointerException("Null page selector");
+		}
+		PageSelectorListImpl list = new PageSelectorListImpl();
+		StringTokenizer commast = new StringTokenizer(pageSelectorStr, ",");
+		while (commast.hasMoreTokens()) {
+			String selstr = commast.nextToken();
+			selstr = ParseHelper.unescapeStringValue(selstr, true, false);
+			AbstractPageSelector psitem = null;
+			AbstractPageSelector ps = null;
+			StringTokenizer st = new StringTokenizer(selstr);
+			while (st.hasMoreTokens()) {
+				String s = st.nextToken();
+				if (s.charAt(0) == ':') {
+					if (s.length() > 1) {
+						s = s.substring(1).toLowerCase(Locale.ROOT);
+						if (containsOnlyLcLetters(s)) {
+							PseudoPageSelector pps = new PseudoPageSelector(s);
+							if (ps != null) {
+								ps.setNextSelector(pps);
+							} else {
+								psitem = pps;
+							}
+							ps = pps;
+							continue;
+						}
+					}
+				} else {
+					// Page type selector
+					if (ps == null) {
+						ps = new PageTypeSelector(s);
+						psitem = ps;
+						continue;
+					}
+				}
+				throw new DOMException(DOMException.SYNTAX_ERR, "Bad page selector: " + s);
+			}
+			if (ps != null) {
+				list.add(psitem);
+			}
+		}
+		return list;
+	}
+
+	private boolean containsOnlyLcLetters(String s) {
+		int len = s.length();
+		for (int i = 0; i < len; i++) {
+			char c = s.charAt(i);
+			if (c < 'a' || c > 'z') {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	@Override
 	public void parseRule(Reader reader) throws CSSParseException, IOException {
 		final int[] allowInWords = { 45, 95 }; // -_
@@ -338,9 +395,17 @@ public class CSSParser implements Parser {
 		tp.parse(re, "/*", "*/");
 	}
 
+	public void parsePageRuleBody(String blockList) throws CSSParseException {
+		int[] allowInWords = { 45, 95 }; // -_
+		PageTokenHandler handler = new PageTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		this.handler.parseStart(handler);
+		tp.parse(blockList, "/*", "*/");
+	}
+
 	public void parseKeyFramesBody(String blockList) throws CSSParseException {
 		int[] allowInWords = { 45, 95 }; // -_
-		KeyFrameBlockListTH handler = new KeyFrameBlockListTH(blockList.length());
+		KeyFrameBlockListTH handler = new KeyFrameBlockListTH();
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		this.handler.parseStart(handler);
 		tp.parse(blockList, "/*", "*/");
@@ -348,7 +413,7 @@ public class CSSParser implements Parser {
 
 	public void parseFontFeatureValuesBody(String blockList) {
 		int[] allowInWords = { 45, 95 }; // -_
-		FontFeatureValuesTH handler = new FontFeatureValuesTH(blockList.length());
+		FontFeatureValuesTH handler = new FontFeatureValuesTH();
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		this.handler.parseStart(handler);
 		tp.parse(blockList, "/*", "*/");
@@ -1807,37 +1872,48 @@ public class CSSParser implements Parser {
 
 	}
 
-	abstract class NestedRuleTH extends CSSTokenHandler {
+	abstract class NestedRuleTH extends ControlTokenHandler {
 
 		private final String blockRuleName;
-		private final boolean singleName;
-		private byte stage = STAGE_WAIT_NAME;
+		private byte stage = STAGE_WAIT_SELECTOR;
 		private int curlyBracketDepth = 0;
-		private final DeclarationTokenHandler declarationHandler;
+		private DeclarationTokenHandler declarationHandler;
 
 		/* @formatter:off
 		 * 
 		 * Stages
 		 * 
-		 * @rule name  { selector  {  declaration-list }  }
-		 *      1    2  3        4  5                   3  6
+		 * @rule selector  { nested-selector  {  declaration-list }  }
+		 *      1        2  3               4  5                   3  6
 		 * 
 		 * @formatter:on
 		 */
-		private static final byte STAGE_WAIT_NAME = 1;
-		private static final byte STAGE_WAIT_BLOCK_LIST = 2;
-		private static final byte STAGE_WAIT_SELECTOR = 3;
-		private static final byte STAGE_FOUND_SELECTOR = 4;
-		private static final byte STAGE_DECLARATION_LIST = 5;
+		static final byte STAGE_WAIT_SELECTOR = 1;
+		static final byte STAGE_WAIT_BLOCK_LIST = 2;
+		private static final byte STAGE_WAIT_NESTED_SELECTOR = 3;
+		private static final byte STAGE_FOUND_NESTED_SELECTOR = 4;
+		static final byte STAGE_DECLARATION_LIST = 5;
 		private static final byte STAGE_END_BLOCK_LIST = 6;
 		static final byte STAGE_SELECTOR_ERROR = 9;
+		static final byte STAGE_NESTED_SELECTOR_ERROR = 10;
 
-		NestedRuleTH(int bufSize, String blockRuleName, boolean singleName) {
+		NestedRuleTH(int bufSize, String blockRuleName) {
 			super();
 			this.blockRuleName = blockRuleName;
-			this.singleName = singleName;
 			declarationHandler = new NestedRuleDeclarationTokenHandler();
 			buffer = new StringBuilder(bufSize);
+		}
+
+		DeclarationTokenHandler getDeclarationHandler() {
+			return declarationHandler;
+		}
+
+		void setDeclarationHandler(DeclarationTokenHandler declarationHandler) {
+			this.declarationHandler = declarationHandler;
+		}
+
+		byte getStage() {
+			return stage;
 		}
 
 		void setStage(byte stage) {
@@ -1853,8 +1929,8 @@ public class CSSParser implements Parser {
 					unexpectedTokenError(index, word);
 				} else if (!parseError) {
 					buffer.append(word);
-					if (stage == STAGE_WAIT_SELECTOR) {
-						stage = STAGE_FOUND_SELECTOR;
+					if (stage == STAGE_WAIT_NESTED_SELECTOR) {
+						stage = STAGE_FOUND_NESTED_SELECTOR;
 					}
 					prevcp = 65;
 				}
@@ -1867,9 +1943,7 @@ public class CSSParser implements Parser {
 				declarationHandler.separator(index, codePoint);
 			} else if (!parseError) {
 				if (buffer.length() != 0) {
-					if (stage == STAGE_WAIT_NAME && singleName && (escapedTokenIndex == -1 || isPrevCpWhitespace())) {
-						stage = STAGE_WAIT_BLOCK_LIST;
-					}
+					checkNameSelector();
 					if (prevcp != 32) {
 						if (prevcp != 10) {
 							buffer.append(' ');
@@ -1884,29 +1958,25 @@ public class CSSParser implements Parser {
 			}
 		}
 
+		void checkNameSelector() {
+		}
+
 		@Override
 		public void quoted(int index, CharSequence quoted, int quoteCp) {
 			if (stage == STAGE_DECLARATION_LIST) {
 				declarationHandler.quoted(index, quoted, quoteCp);
 			} else {
-				if (stage == STAGE_WAIT_NAME) {
-					if (singleName) {
-						if (buffer.length() == 0) {
-							buffer.append(quoted);
-							stage = STAGE_WAIT_BLOCK_LIST;
-							prevcp = 65;
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-									blockRuleName + " name must be a single identifier or string");
-						}
-					} else {
-						buffer.append(quoted);
-					}
+				if (stage == STAGE_WAIT_SELECTOR) {
+					waitSelectorQuoted(index, quoted, quoteCp);
 				} else {
 					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
 							"Expected " + blockRuleName + " selector, found '" + quoted + "'");
 				}
 			}
+		}
+
+		void waitSelectorQuoted(int index, CharSequence quoted, int quoteCp) {
+			buffer.append(quoted);
 		}
 
 		@Override
@@ -1918,51 +1988,51 @@ public class CSSParser implements Parser {
 		public void openGroup(int index, int codePoint) {
 			if (stage == STAGE_DECLARATION_LIST) {
 				declarationHandler.openGroup(index, codePoint);
-				if (codePoint == TokenProducer.CHAR_LEFT_CURLY_BRACKET) {
-					curlyBracketDepth++;
-				}
 			} else {
 				if (codePoint == TokenProducer.CHAR_LEFT_CURLY_BRACKET) { // '{'
 					curlyBracketDepth++;
-					if (stage == STAGE_WAIT_NAME || stage == STAGE_WAIT_BLOCK_LIST) {
+					if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
 						if (buffer.length() != 0) {
-							processName(index, unescapeBuffer(index).trim());
+							processSelector(index, unescapeBuffer(index).trim());
 							if (!parseError) {
 								prevcp = codePoint;
-								stage = STAGE_WAIT_SELECTOR;
+								startBlockList(index);
 							}
 						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, blockRuleName + " must have a name.");
+							emptySelector(index);
 						}
 						return;
-					} else if (stage == STAGE_FOUND_SELECTOR) {
-						processSelector(index);
+					} else if (stage == STAGE_FOUND_NESTED_SELECTOR) {
+						processNestedSelector(index);
 						prevcp = codePoint;
-						declarationHandler.curlyBracketDepth = 1;
 						stage = STAGE_DECLARATION_LIST;
+						declarationHandler.curlyBracketDepth = 1;
 						return;
 					} else if (!parseError) {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Unexpected char: " + new String(Character.toChars(codePoint)));
-						stage = STAGE_SELECTOR_ERROR;
+						unexpectedCharError(index, codePoint, STAGE_SELECTOR_ERROR);
 					}
 					return;
 				}
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-						"Unexpected char: " + new String(Character.toChars(codePoint)));
+				unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
 			}
 		}
 
-		void processName(int index, String name) {
+		protected void startBlockList(int index) {
+			stage = STAGE_WAIT_NESTED_SELECTOR;
+		}
+
+		protected void emptySelector(int index) {
+			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, blockRuleName + " must have a name.");
+		}
+
+		void processSelector(int index, String name) {
 			if ("initial".equalsIgnoreCase(name) || "inherit".equalsIgnoreCase(name) || "unset".equalsIgnoreCase(name)
 					|| "none".equalsIgnoreCase(name) || "reset".equalsIgnoreCase(name)) {
 				handleError(index, ParseHelper.ERR_INVALID_IDENTIFIER, "A CSS keyword is not a valid custom ident.");
 			}
 		}
 
-		abstract void processSelector(int index);
-
-		abstract void endBlock();
+		abstract void processNestedSelector(int index);
 
 		abstract void endBlockList();
 
@@ -1971,30 +2041,42 @@ public class CSSParser implements Parser {
 			if (stage == STAGE_DECLARATION_LIST) {
 				declarationHandler.closeGroup(index, codePoint);
 				if (codePoint == TokenProducer.CHAR_RIGHT_CURLY_BRACKET) {
-					curlyBracketDepth--;
 					if (curlyBracketDepth == 1) {
 						endBlock();
-						stage = STAGE_WAIT_SELECTOR;
+					} else if (curlyBracketDepth == 0) {
+						endBlockList();
+						stage = STAGE_END_BLOCK_LIST;
 					}
 				}
 				prevcp = codePoint;
 			} else {
 				if (codePoint == TokenProducer.CHAR_RIGHT_CURLY_BRACKET) { // }
 					curlyBracketDepth--;
-					if (curlyBracketDepth == 0) {
-						// Body of rule ends
-						endBlockList();
-						stage = STAGE_END_BLOCK_LIST;
-						prevcp = codePoint;
-					} else if (curlyBracketDepth == 1 && stage == STAGE_SELECTOR_ERROR) {
-						stage = STAGE_WAIT_SELECTOR;
-						parseError = false;
-					}
+					handleRightCurlyBracket(index);
 					return;
 				}
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-						"Unexpected char: " + new String(Character.toChars(codePoint)));
+				if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
+					unexpectedCharError(index, codePoint, STAGE_SELECTOR_ERROR);
+				} else {
+					unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
+				}
 			}
+		}
+
+		protected void handleRightCurlyBracket(int index) {
+			if (curlyBracketDepth == 0) {
+				// Body of rule ends
+				endBlockList();
+				stage = STAGE_END_BLOCK_LIST;
+				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
+			} else if (curlyBracketDepth == 1 && stage == STAGE_NESTED_SELECTOR_ERROR) {
+				stage = STAGE_WAIT_NESTED_SELECTOR;
+				parseError = false;
+			}
+		}
+
+		protected void endBlock() {
+			stage = STAGE_WAIT_NESTED_SELECTOR;
 		}
 
 		@Override
@@ -2003,28 +2085,28 @@ public class CSSParser implements Parser {
 				declarationHandler.character(index, codePoint);
 			} else if (!parseError) {
 				char[] chars = Character.toChars(codePoint);
-				if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_FOUND_SELECTOR) {
+				if (stage == STAGE_WAIT_NESTED_SELECTOR || stage == STAGE_FOUND_NESTED_SELECTOR) {
+					if (isValidNestedSelectorCharacter(codePoint)) {
+						buffer.append(chars);
+						prevcp = codePoint;
+					} else {
+						unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
+					}
+					return;
+				} else if (stage == STAGE_WAIT_SELECTOR) {
 					if (isValidSelectorCharacter(codePoint)) {
 						buffer.append(chars);
 						prevcp = codePoint;
 						return;
-					} else {
-						unexpectedCharError(index, codePoint);
-						stage = STAGE_SELECTOR_ERROR;
 					}
-				} else if (stage == STAGE_WAIT_NAME && (isValidNameCharacter(codePoint)
-						|| (!singleName && codePoint == TokenProducer.CHAR_COMMA))) {
-					buffer.append(chars);
-					prevcp = codePoint;
-					return;
 				}
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected char: " + new String(chars));
+				unexpectedCharError(index, codePoint, STAGE_SELECTOR_ERROR);
 			}
 		}
 
-		abstract boolean isValidSelectorCharacter(int codePoint);
+		abstract boolean isValidNestedSelectorCharacter(int codePoint);
 
-		abstract boolean isValidNameCharacter(int codePoint);
+		abstract boolean isValidSelectorCharacter(int codePoint);
 
 		@Override
 		public void escaped(int index, int codePoint) {
@@ -2040,8 +2122,8 @@ public class CSSParser implements Parser {
 						buffer.append('\\');
 					}
 					buffer.append(chars);
-					if (stage == STAGE_WAIT_SELECTOR) {
-						stage = STAGE_FOUND_SELECTOR;
+					if (stage == STAGE_WAIT_NESTED_SELECTOR) {
+						stage = STAGE_FOUND_NESTED_SELECTOR;
 					}
 					prevcp = 65;
 				}
@@ -2057,7 +2139,7 @@ public class CSSParser implements Parser {
 					endBlockList();
 				} else if (stage == STAGE_END_BLOCK_LIST) {
 					return;
-				} else if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_FOUND_SELECTOR) {
+				} else if (stage == STAGE_WAIT_NESTED_SELECTOR || stage == STAGE_FOUND_NESTED_SELECTOR) {
 					endBlockList();
 				}
 				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
@@ -2067,16 +2149,20 @@ public class CSSParser implements Parser {
 		@Override
 		public void commented(int index, int commentType, String comment) {
 			if (!parseError && buffer.length() == 0 && curlyBracketDepth == 1 && parendepth == 0
-					&& stage == STAGE_WAIT_SELECTOR) {
+					&& stage == STAGE_WAIT_NESTED_SELECTOR) {
 				super.commented(index, commentType, comment);
 			}
 		}
 
-		@Override
-		protected void handleError(int index, byte errCode, String message) throws CSSParseException {
-			if (!parseError) {
+		void unexpectedCharError(int index, int codepoint, byte stageToSet) {
+			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+					"Unexpected '" + new String(Character.toChars(codepoint)) + "'", stageToSet);
+		}
+
+		protected void handleError(int index, byte errCode, String message, byte stageToSet) throws CSSParseException {
+			if (!parseError && stage != STAGE_SELECTOR_ERROR) {
 				super.handleError(index, errCode, message);
-				stage = 127;
+				stage = stageToSet;
 			}
 		}
 
@@ -2089,13 +2175,20 @@ public class CSSParser implements Parser {
 			@Override
 			protected void handleRightCurlyBracket(int index) {
 				resetHandler();
-				NestedRuleTH.this.stage = STAGE_WAIT_SELECTOR;
+				NestedRuleTH.this.curlyBracketDepth--;
+				NestedRuleTH.this.stage = STAGE_WAIT_NESTED_SELECTOR;
 				NestedRuleTH.this.prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
 			}
 
 			@Override
-			public void control(int index, int codepoint) {
-				NestedRuleTH.this.control(index, codepoint);
+			protected void skipDeclarationBlock(int index) {
+				TokenHandler ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl(), NestedRuleTH.this);
+				getTokenControl().setTokenHandler(ignoreth);
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return NestedRuleTH.this.getTokenControl();
 			}
 
 			@Override
@@ -2110,6 +2203,71 @@ public class CSSParser implements Parser {
 			}
 
 			@Override
+			public void control(int index, int codepoint) {
+				NestedRuleTH.this.control(index, codepoint);
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return NestedRuleTH.this.createException(index, errCode, message);
+			}
+
+		}
+
+		class RootDeclarationTokenHandler extends DeclarationTokenHandler {
+
+			private final DeclarationTokenHandler nestedDeclarationHandler;
+
+			RootDeclarationTokenHandler(DeclarationTokenHandler nestedDeclarationHandler) {
+				super(ShorthandDatabase.getInstance());
+				this.nestedDeclarationHandler = nestedDeclarationHandler;
+			}
+
+			@Override
+			protected void handleRightCurlyBracket(int index) {
+				NestedRuleTH.this.curlyBracketDepth--;
+				NestedRuleTH.this.setStage(STAGE_END_BLOCK_LIST);
+			}
+
+			@Override
+			protected void handleAtKeyword(int index) {
+				if (propertyName == null && buffer.length() == 0 && getCurlyBracketDepth() == 1) {
+					declarationHandler = nestedDeclarationHandler;
+					NestedRuleTH.this.setStage(STAGE_WAIT_NESTED_SELECTOR);
+					NestedRuleTH.this.prevcp = 64;
+				} else {
+					unexpectedCharError(index, 64);
+				}
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				setStage(STAGE_END_BLOCK_LIST);
+				NestedRuleTH.this.endOfStream(len);
+			}
+
+			@Override
+			protected void endDeclarationList() {
+			}
+
+			@Override
+			protected void skipDeclarationBlock(int index) {
+				TokenHandler ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl(), NestedRuleTH.this);
+				getTokenControl().setTokenHandler(ignoreth);
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return NestedRuleTH.this.getTokenControl();
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				NestedRuleTH.this.control(index, codepoint);
+			}
+
+			@Override
 			CSSParseException createException(int index, byte errCode, String message) {
 				return NestedRuleTH.this.createException(index, errCode, message);
 			}
@@ -2118,13 +2276,118 @@ public class CSSParser implements Parser {
 
 	}
 
-	private class KeyFrameBlockListTH extends NestedRuleTH {
-		KeyFrameBlockListTH(int bufSize) {
-			super(bufSize, "@keyframes", true);
+	private class PageTokenHandler extends NestedRuleTH {
+
+		private PageSelectorList pageSelectorList = null;
+
+		private final DeclarationTokenHandler rootDeclarationHandler;
+
+		private PageTokenHandler() {
+			super(64, "@page");
+			this.rootDeclarationHandler = new RootDeclarationTokenHandler(getDeclarationHandler());
+			setDeclarationHandler(rootDeclarationHandler);
 		}
 
 		@Override
-		void processSelector(int index) {
+		void processNestedSelector(int index) {
+			String name = rawBuffer().trim();
+			if (isMarginRuleName(name)) {
+				handler.startMargin(name);
+			} else {
+				handleError(index, ParseHelper.ERR_INVALID_IDENTIFIER, "Unknown margin rule name.");
+				setStage(STAGE_NESTED_SELECTOR_ERROR);
+			}
+		}
+
+		@Override
+		void processSelector(int index, String selector) {
+			super.processSelector(index, selector);
+			if (!parseError) {
+				try {
+					pageSelectorList = parsePageSelectorList(selector);
+				} catch (DOMException e) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX, e.getMessage());
+					setStage(STAGE_SELECTOR_ERROR);
+					return;
+				}
+				handler.startPage(pageSelectorList);
+			}
+		}
+
+		@Override
+		protected void emptySelector(int index) {
+			handler.startPage(null);
+			setStage(STAGE_DECLARATION_LIST);
+		}
+
+		@Override
+		protected void startBlockList(int index) {
+			setStage(STAGE_DECLARATION_LIST);
+		}
+
+		@Override
+		protected void endBlock() {
+			handler.endMargin();
+			setDeclarationHandler(rootDeclarationHandler);
+			setStage(STAGE_DECLARATION_LIST);
+		}
+
+		@Override
+		void endBlockList() {
+			handler.endPage(pageSelectorList);
+			pageSelectorList = null;
+		}
+
+		@Override
+		boolean isValidNestedSelectorCharacter(int codePoint) {
+			return false;
+		}
+
+		@Override
+		boolean isValidSelectorCharacter(int codePoint) {
+			return codePoint == TokenProducer.CHAR_COLON || codePoint == TokenProducer.CHAR_COMMA;
+		}
+
+		private boolean isMarginRuleName(String ruleName) {
+			StringTokenizer st = new StringTokenizer(ruleName, "-");
+			while (st.hasMoreElements()) {
+				String s = st.nextToken();
+				if (!"top".equals(s) && !"left".equals(s) && !"center".equals(s) && !"right".equals(s)
+						&& !"corner".equals(s) && !"bottom".equals(s) && !"middle".equals(s)) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+	}
+
+	private class KeyFrameBlockListTH extends NestedRuleTH {
+		KeyFrameBlockListTH() {
+			super(64, "@keyframes");
+		}
+
+		@Override
+		void checkNameSelector() {
+			if (getStage() == STAGE_WAIT_SELECTOR && (escapedTokenIndex == -1 || isPrevCpWhitespace())) {
+				setStage(STAGE_WAIT_BLOCK_LIST);
+			}
+		}
+
+		@Override
+		void waitSelectorQuoted(int index, CharSequence quoted, int quoteCp) {
+			if (buffer.length() == 0) {
+				buffer.append(quoted);
+				setStage(STAGE_WAIT_BLOCK_LIST);
+				prevcp = 65;
+			} else {
+				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+						"@keyframes name must be a single identifier or string");
+			}
+		}
+
+		@Override
+		void processNestedSelector(int index) {
 			String selector = rawBuffer();
 			LexicalUnit kfsel;
 			try {
@@ -2140,15 +2403,16 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		void processName(int index, String name) {
-			super.processName(index, name);
+		void processSelector(int index, String name) {
+			super.processSelector(index, name);
 			if (!parseError) {
 				handler.startKeyframes(name);
 			}
 		}
 
 		@Override
-		void endBlock() {
+		protected void endBlock() {
+			super.endBlock();
 			handler.endKeyframe();
 		}
 
@@ -2158,25 +2422,25 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		boolean isValidSelectorCharacter(int codePoint) {
+		boolean isValidNestedSelectorCharacter(int codePoint) {
 			return codePoint == TokenProducer.CHAR_PERCENT_SIGN || codePoint == TokenProducer.CHAR_COMMA
 					|| codePoint == TokenProducer.CHAR_FULL_STOP;
 		}
 
 		@Override
-		boolean isValidNameCharacter(int codePoint) {
+		boolean isValidSelectorCharacter(int codePoint) {
 			return false;
 		}
 
 	}
 
 	private class FontFeatureValuesTH extends NestedRuleTH {
-		FontFeatureValuesTH(int bufSize) {
-			super(bufSize, "@font-feature-values", false);
+		FontFeatureValuesTH() {
+			super(32, "@font-feature-values");
 		}
 
 		@Override
-		void processSelector(int index) {
+		void processNestedSelector(int index) {
 			String selector = unescapeBuffer(index);
 			if (selector.length() > 1 && selector.charAt(0) == '@') {
 				handler.startFeatureMap(selector.substring(1).trim());
@@ -2186,10 +2450,10 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		void processName(int index, String name) {
+		void processSelector(int index, String name) {
 			String[] familyName = name.split("\\s*,\\s*");
 			for (String fontName : familyName) {
-				super.processName(index, fontName);
+				super.processSelector(index, fontName);
 			}
 			if (!parseError) {
 				handler.startFontFeatures(familyName);
@@ -2197,7 +2461,8 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		void endBlock() {
+		protected void endBlock() {
+			super.endBlock();
 			handler.endFeatureMap();
 		}
 
@@ -2207,13 +2472,13 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		boolean isValidSelectorCharacter(int codePoint) {
+		boolean isValidNestedSelectorCharacter(int codePoint) {
 			return codePoint == TokenProducer.CHAR_COMMERCIAL_AT;
 		}
 
 		@Override
-		boolean isValidNameCharacter(int codePoint) {
-			return codePoint == TokenProducer.CHAR_HYPHEN_MINUS;
+		boolean isValidSelectorCharacter(int codePoint) {
+			return codePoint == TokenProducer.CHAR_HYPHEN_MINUS || codePoint == TokenProducer.CHAR_COMMA;
 		}
 
 	}
@@ -2226,7 +2491,11 @@ public class CSSParser implements Parser {
 
 		@Override
 		protected void endRuleBody() {
-			contextHandler = new RuleEndContentHandler();
+			if (getCurlyBracketDepth() == 0) {
+				contextHandler = new RuleEndContentHandler();
+			} else {
+				super.endRuleBody();
+			}
 		}
 
 		@Override
@@ -2318,7 +2587,7 @@ public class CSSParser implements Parser {
 		}
 	}
 
-	class SheetTokenHandler extends CSSTokenHandler {
+	class SheetTokenHandler extends ControlTokenHandler {
 
 		CSSTokenHandler contextHandler;
 		private final DeclarationTokenHandler declarationHandler;
@@ -2326,7 +2595,6 @@ public class CSSParser implements Parser {
 
 		private String ruleFirstPart = null;
 		private String ruleSecondPart = null;
-		private String marginRule = null;
 
 		private int curlyBracketDepth = 0;
 
@@ -2334,8 +2602,6 @@ public class CSSParser implements Parser {
 
 		private static final byte MEDIA_RULE = 4;
 		private static final byte FONT_FACE_RULE = 5;
-		private static final byte PAGE_RULE = 6;
-		private static final byte MARGIN_RULE = 9;
 		private static final byte SUPPORTS_RULE = 12;
 
 		// @formatter:off
@@ -2349,12 +2615,12 @@ public class CSSParser implements Parser {
 		//             38 import (expecting first token)
 		//             39 import (expecting first token as url)
 		//             40 import (expecting second token or final)
-		// Stage 2: media, font-face, page, supports
+		// Stage 2: media, font-face, supports
 		// Other rules (stage 5): document
-		// font-feature-values, counter-style, keyframes, viewport
+		// Separate handlers for page, font-feature-values, counter-style,
+		//                       keyframes, viewport
 		// Stage 7: nested rule inside a stage-2 rule, unless:
-		// Stage 8: nested page rule inside a media rule
-		// Stage 10: nested font-face rule inside a media rule
+		// Stage 10: nested font-face rule inside a media/supports rule
 		//
 		// @formatter:on
 		private byte stage = 0;
@@ -2370,6 +2636,10 @@ public class CSSParser implements Parser {
 			declarationHandler = new MyDeclarationTokenHandler();
 			selectorHandler = new MySelectorTokenHandler(nsMap);
 			contextHandler = selectorHandler;
+		}
+
+		int getCurlyBracketDepth() {
+			return curlyBracketDepth;
 		}
 
 		@Override
@@ -2408,9 +2678,8 @@ public class CSSParser implements Parser {
 							stage = 2;
 							buffer.setLength(0);
 						} else if ("page".equals(ruleName)) {
-							ruleType = PAGE_RULE;
-							stage = 2;
 							buffer.setLength(0);
+							contextHandler = new MyPageTH();
 						} else if ("viewport".equals(ruleName)) {
 							buffer.setLength(0);
 							contextHandler = new ViewportTokenHandler();
@@ -2437,26 +2706,9 @@ public class CSSParser implements Parser {
 						}
 						// All seems fine, obtain a lowercase rule name
 						String ruleName = word.toString().toLowerCase(Locale.ROOT);
-						if (ruleType == PAGE_RULE) {
-							if (isMarginRuleName(ruleName)) {
-								ruleType = MARGIN_RULE;
-								marginRule = ruleName;
-								handler.startMargin(ruleName);
-								buffer.setLength(0);
-							} else {
-								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-										"Expected margin rule, got " + word);
-							}
-						} else if ("page".equals(ruleName)) {
-							if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
-								// Nested page rule inside @media or @supports
-								ruleType = PAGE_RULE;
-								stage = 8;
-								buffer.setLength(0);
-							} else {
-								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-										"Unexpected rule: @page.");
-							}
+						if ("page".equals(ruleName)) {
+							buffer.setLength(0);
+							contextHandler = new MyPageTH();
 						} else if ("font-face".equals(ruleName)) {
 							if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
 								// Nested font-face rule inside @media or @supports
@@ -2509,26 +2761,11 @@ public class CSSParser implements Parser {
 					} else {
 						buffer.append(word);
 					}
-				} else if (ruleType == PAGE_RULE && buffer.length() != 1 && ruleFirstPart != null) {
-					// last cp not ':', not identifier, and page type already set
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Expecting pseudo-page, got " + word);
 				} else {
 					buffer.append(word);
 				}
 				prevcp = 65;
 			}
-		}
-
-		private boolean isMarginRuleName(String ruleName) {
-			StringTokenizer st = new StringTokenizer(ruleName, "-");
-			while (st.hasMoreElements()) {
-				String s = st.nextToken();
-				if (!"top".equals(s) && !"left".equals(s) && !"center".equals(s) && !"right".equals(s)
-						&& !"corner".equals(s) && !"bottom".equals(s) && !"middle".equals(s)) {
-					return false;
-				}
-			}
-			return true;
 		}
 
 		@Override
@@ -2546,12 +2783,6 @@ public class CSSParser implements Parser {
 					} else {
 						stage = 35;
 					}
-				} else if ((stage == 2 && ruleType == PAGE_RULE) || stage == 8) {
-					processBufferPageRule(index);
-					if (prevcp != 44) {
-						setWhitespacePrevCp();
-					}
-					return;
 				} else if (buffer.length() != 0
 						&& (isPrevCpNotWhitespace() || (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
 					buffer.append(' ');
@@ -2614,22 +2845,9 @@ public class CSSParser implements Parser {
 						if (curlyBracketDepth == 1) {
 							if (ruleType == FONT_FACE_RULE) {
 								startFontFaceRule(index);
-							} else if (ruleType == PAGE_RULE) {
-								startPageRule(index);
-							} else if (ruleType == MARGIN_RULE) {
-								if (buffer.length() != 0) {
-									handleError(index - buffer.length(), ParseHelper.ERR_UNEXPECTED_TOKEN,
-											"Unexpected token in margin rule: " + buffer.toString());
-								} else {
-									declarationHandler.curlyBracketDepth = 1;
-									contextHandler = declarationHandler;
-								}
-								curlyBracketDepth--;
 							}
 							buffer.setLength(0);
 						}
-					} else if (stage == 8 && curlyBracketDepth >= 2) {
-						startPageRule(index);
 					} else if (stage == 10 && curlyBracketDepth >= 2) {
 						startFontFaceRule(index);
 					} else {
@@ -2668,14 +2886,6 @@ public class CSSParser implements Parser {
 				}
 				prevcp = codepoint;
 			}
-		}
-
-		private void startPageRule(int index) {
-			processBufferPageRule(index);
-			handler.startPage(ruleFirstPart, ruleSecondPart);
-			declarationHandler.curlyBracketDepth = 1;
-			contextHandler = declarationHandler;
-			curlyBracketDepth--;
 		}
 
 		private void startFontFaceRule(int index) {
@@ -2751,12 +2961,6 @@ public class CSSParser implements Parser {
 			} else if (ruleType == FONT_FACE_RULE) {
 				declarationHandler.curlyBracketDepth = 1;
 				contextHandler = declarationHandler;
-			} else if (ruleType == PAGE_RULE) {
-				declarationHandler.curlyBracketDepth = 1;
-				contextHandler = declarationHandler;
-			} else if (ruleType == MARGIN_RULE) {
-				declarationHandler.curlyBracketDepth = 1;
-				contextHandler = declarationHandler;
 			}
 		}
 
@@ -2784,19 +2988,7 @@ public class CSSParser implements Parser {
 						buffer.append(';');
 					}
 				} else {
-					if (ruleType == PAGE_RULE) {
-						if (codepoint == 44) { // ,
-							processBufferPageRule(index);
-						} else if (codepoint == 58 && (prevcp == 44 || isPrevCpWhitespace())) {
-							buffer.append(':');
-							return; // preserve prevcp
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-									"Unexpected char " + new String(Character.toChars(codepoint)));
-						}
-					} else {
-						bufferAppend(codepoint);
-					}
+					bufferAppend(codepoint);
 				}
 				prevcp = codepoint;
 			}
@@ -2873,29 +3065,6 @@ public class CSSParser implements Parser {
 			buffer.setLength(0);
 		}
 
-		private void processBufferPageRule(int index) {
-			int buflen = buffer.length();
-			if (buflen != 0) {
-				if (buffer.charAt(0) == ':') {
-					if (buflen == 1) {
-						handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Character ':' must always precede an identifier in page rule preludes");
-					} else if (ruleSecondPart == null) {
-						ruleSecondPart = buffer.toString();
-					} else {
-						ruleSecondPart = new StringBuilder(ruleSecondPart.length() + buflen).append(ruleSecondPart)
-								.append(',').append(buffer).toString();
-					}
-				} else if (ruleFirstPart == null) {
-					ruleFirstPart = buffer.toString();
-				} else {
-					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN,
-							"Unexpected identifier at page rule: " + buffer.toString());
-				}
-				buffer.setLength(0);
-			}
-		}
-
 		private void processBuffer(int index) {
 			if (buffer.length() != 0) {
 				// Trim possible trailing space
@@ -2943,17 +3112,7 @@ public class CSSParser implements Parser {
 			if (contextHandler != null) {
 				contextHandler.endOfStream(len);
 			} else {
-				if (ruleType == MARGIN_RULE) {
-					handler.endMargin(marginRule);
-					ruleType = PAGE_RULE;
-				}
-				if (ruleType == PAGE_RULE) {
-					processBufferPageRule(len);
-					handler.endPage(ruleFirstPart, ruleSecondPart);
-					if (stage == 8) {
-						closeGroupingRules();
-					}
-				} else if (ruleType == FONT_FACE_RULE) {
+				if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
 					if (stage == 10) {
 						closeGroupingRules();
@@ -3055,7 +3214,7 @@ public class CSSParser implements Parser {
 			}
 
 			@Override
-			void skipDeclarationList() {
+			void skipDeclarationBlock() {
 				contextHandler = new MyIgnoredDeclarationTokenHandler();
 			}
 
@@ -3107,7 +3266,7 @@ public class CSSParser implements Parser {
 			}
 
 			@Override
-			void skipDeclarationList() {
+			void skipDeclarationBlock() {
 				contextHandler = new MyIgnoredDeclarationTokenHandler();
 			}
 
@@ -3129,15 +3288,56 @@ public class CSSParser implements Parser {
 
 		}
 
-		private class MyKeyFrameBlockListTH extends KeyFrameBlockListTH {
+		private class MyPageTH extends PageTokenHandler {
 
-			MyKeyFrameBlockListTH() {
-				super(64);
+			MyPageTH() {
+				super();
 			}
 
 			@Override
 			public void control(int index, int codepoint) {
 				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return SheetTokenHandler.this.getTokenControl();
+			}
+
+			@Override
+			void endBlockList() {
+				super.endBlockList();
+				endRuleBody();
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
+		private class MyKeyFrameBlockListTH extends KeyFrameBlockListTH {
+
+			MyKeyFrameBlockListTH() {
+				super();
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return SheetTokenHandler.this.getTokenControl();
 			}
 
 			@Override
@@ -3163,12 +3363,17 @@ public class CSSParser implements Parser {
 		private class MyFontFeatureValuesTH extends FontFeatureValuesTH {
 
 			MyFontFeatureValuesTH() {
-				super(64);
+				super();
 			}
 
 			@Override
 			public void control(int index, int codepoint) {
 				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return SheetTokenHandler.this.getTokenControl();
 			}
 
 			@Override
@@ -3460,30 +3665,6 @@ public class CSSParser implements Parser {
 						ruleType = 0;
 						SheetTokenHandler.this.stage = 0;
 					}
-				} else if (ruleType == PAGE_RULE) {
-					handler.endPage(ruleFirstPart, ruleSecondPart);
-					ruleFirstPart = null;
-					ruleSecondPart = null;
-					if (SheetTokenHandler.this.stage == 8) {
-						if (currentCondition.isMediaCondition()) {
-							ruleType = MEDIA_RULE;
-						} else {
-							ruleType = SUPPORTS_RULE;
-						}
-						buffer.setLength(0);
-						SheetTokenHandler.this.stage = 2;
-						contextHandler = selectorHandler;
-						selectorHandler.prevcp = 32;
-					} else {
-						ruleType = 0;
-						SheetTokenHandler.this.stage = 0;
-					}
-				} else if (ruleType == MARGIN_RULE) {
-					handler.endMargin(marginRule);
-					ruleType = PAGE_RULE;
-					marginRule = null;
-					contextHandler = declarationHandler;
-					declarationHandler.curlyBracketDepth = 2;
 				} else {
 					// Mark the end of rule (not of selector)
 					handler.endSelector(SheetTokenHandler.this.selectorHandler.selist);
@@ -3503,6 +3684,11 @@ public class CSSParser implements Parser {
 				} else {
 					unexpectedCharError(index, 64);
 				}
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return SheetTokenHandler.this.getTokenControl();
 			}
 
 			@Override
@@ -4749,8 +4935,7 @@ public class CSSParser implements Parser {
 	}
 
 	class DeclarationRuleTokenHandler extends DeclarationTokenHandler {
-		private TokenControl control = null;
-		//
+
 		private String ruleFirstPart = null;
 		private byte stage = 0;
 		//
@@ -4770,11 +4955,6 @@ public class CSSParser implements Parser {
 
 		void setStage(byte stage) {
 			this.stage = stage;
-		}
-
-		@Override
-		public void tokenStart(TokenControl control) {
-			this.control = control;
 		}
 
 		@Override
@@ -4806,6 +4986,7 @@ public class CSSParser implements Parser {
 
 		@Override
 		protected void handleLeftCurlyBracket(int index) {
+			curlyBracketDepth++;
 			if (stage != INVALID_RULE) {
 				if (stage == STAGE_RULE_NAME_SELECTOR) {
 					String ruleSecondPart = null;
@@ -4816,18 +4997,18 @@ public class CSSParser implements Parser {
 					stage = STAGE_RULE_BODY;
 					startAtRule(index, ruleFirstPart, ruleSecondPart);
 					if (stage == INVALID_RULE) {
-						skipDeclarationList();
+						skipDeclarationBlock();
 					}
 				} else {
 					unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
 				}
 			} else {
-				skipDeclarationList();
+				skipDeclarationBlock();
 			}
 		}
 
-		void skipDeclarationList() {
-			control.setTokenHandler(new IgnoredDeclarationRuleTokenHandler());
+		void skipDeclarationBlock() {
+			getTokenControl().setTokenHandler(new IgnoredDeclarationRuleTokenHandler());
 		}
 
 		protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
@@ -4967,7 +5148,8 @@ public class CSSParser implements Parser {
 		}
 	}
 
-	class DeclarationTokenHandler extends CSSTokenHandler {
+	class DeclarationTokenHandler extends ControlTokenHandler {
+
 		private LexicalUnitImpl lunit = null;
 		private LexicalUnitImpl currentlu = null;
 		String propertyName = null;
@@ -4976,7 +5158,7 @@ public class CSSParser implements Parser {
 		private boolean unicodeRange = false;
 		private boolean readPriority = false;
 		private boolean priorityImportant = false;
-		private int curlyBracketDepth;
+		int curlyBracketDepth;
 		private int squareBracketDepth;
 		private boolean functionToken = false;
 		private final boolean flagIEValues;
@@ -5051,8 +5233,11 @@ public class CSSParser implements Parser {
 					}
 				}
 			} else if (codepoint == 123) { // '{'
-				curlyBracketDepth++;
-				handleLeftCurlyBracket(index);
+				if (!parseError) {
+					handleLeftCurlyBracket(index);
+				} else {
+					skipDeclarationBlock(index);
+				}
 			} else if (codepoint == 91) { // '['
 				squareBracketDepth++;
 				if (!parseError) {
@@ -5095,6 +5280,12 @@ public class CSSParser implements Parser {
 
 		protected void handleLeftCurlyBracket(int index) {
 			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
+			skipDeclarationBlock(index);
+		}
+
+		protected void skipDeclarationBlock(int index) {
+			TokenHandler ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl(), this);
+			getTokenControl().setTokenHandler(ignoreth);
 		}
 
 		private LexicalUnitImpl newLexicalUnit(short unitType) {
@@ -6368,6 +6559,53 @@ public class CSSParser implements Parser {
 
 		@Override
 		public void escaped(int index, int codePoint) {
+		}
+
+	}
+
+	private class CallbackIgnoredDeclarationTH extends IgnoredDeclarationTokenHandler {
+
+		private final TokenControl parserctl;
+		private final CSSTokenHandler parent;
+
+		CallbackIgnoredDeclarationTH(TokenControl parserctl, CSSTokenHandler parent) {
+			super();
+			this.parserctl = parserctl;
+			this.parent = parent;
+		}
+
+		@Override
+		protected void endDeclarationBlock() {
+			parserctl.setTokenHandler(parent);
+		}
+
+		@Override
+		public void control(int index, int codepoint) {
+			parent.control(index, codepoint);
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			parent.endOfStream(len);
+		}
+
+	}
+
+	abstract class ControlTokenHandler extends CSSTokenHandler {
+
+		private TokenControl parserctl = null;
+
+		ControlTokenHandler() {
+			super();
+		}
+
+		@Override
+		public void tokenStart(TokenControl control) {
+			this.parserctl = control;
+		}
+
+		TokenControl getTokenControl() {
+			return parserctl;
 		}
 
 	}

@@ -133,6 +133,7 @@ import io.sf.carte.doc.xml.dtd.DocumentTypeDeclarationTest;
 import io.sf.carte.doc.xml.dtd.EntityFinderTest;
 import io.sf.carte.uparser.TokenProducerTest;
 import io.sf.carte.util.BufferSimpleWriterTest;
+import io.sf.carte.util.SingleElementIteratorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -256,7 +257,8 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		DocumentTypeDeclarationTest.class,
 		EntityFinderTest.class,
 		TokenProducerTest.class,
-		BufferSimpleWriterTest.class
+		BufferSimpleWriterTest.class,
+		SingleElementIteratorTest.class
 		})
 public class AllTests {
 }

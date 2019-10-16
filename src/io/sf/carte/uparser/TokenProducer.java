@@ -154,6 +154,11 @@ public class TokenProducer {
 	public static final int CHAR_CIRCUMFLEX_ACCENT = 94;
 
 	/**
+	 * _
+	 */
+	public static final int CHAR_LOW_LINE = 95;
+
+	/**
 	 * {
 	 */
 	public static final int CHAR_LEFT_CURLY_BRACKET = 123;

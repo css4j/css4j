@@ -363,8 +363,8 @@ public class RuleParserTest {
 	@Test
 	public void testParseStyleSheetPageRuleNestedOnMediaRule() throws CSSException, IOException {
 		parseRule("@media print {@page {margin-top: 20%;}h3 {width: 80%}}");
-		assertEquals(1, handler.pageRuleNames.size());
-		assertNull(handler.pageRuleNames.getFirst());
+		assertEquals(1, handler.pageRuleSelectors.size());
+		assertNull(handler.pageRuleSelectors.getFirst());
 		assertEquals(1, handler.endPageCount);
 		assertEquals(1, handler.mediaRuleLists.size());
 		MediaQueryList medialist = handler.mediaRuleLists.getFirst();
@@ -567,6 +567,24 @@ public class RuleParserTest {
 		assertEquals(1, handler.endCounterStyleCount);
 		handler.checkRuleEndings();
 		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseCounterStyleRuleError() throws CSSException, IOException {
+		parseRule("@counter-style foo {symbols: \\1F44D;{foo} :bar;suffix: \" \";\n}");
+		assertEquals(1, handler.counterStyleNames.size());
+		assertEquals("foo", handler.counterStyleNames.get(0));
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("symbols", handler.propertyNames.get(0));
+		assertEquals("suffix", handler.propertyNames.get(1));
+		assertEquals(2, handler.lexicalValues.size());
+		assertEquals("\\1F44D", handler.lexicalValues.get(0).toString());
+		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
+		assertEquals(0, handler.atRules.size());
+		assertEquals(1, handler.endCounterStyleCount);
+		handler.checkRuleEndings();
+		assertTrue(errorHandler.hasError());
+		assertEquals(37, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test

@@ -29,6 +29,7 @@ import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
+import io.sf.carte.util.SingleElementIterator;
 import io.sf.jclf.text.TokenParser;
 
 /**
@@ -232,6 +233,11 @@ class NSACSelectorFactory implements NamespaceMap {
 				return null;
 			else
 				return selector;
+		}
+
+		@Override
+		public Iterator<Selector> iterator() {
+			return new SingleElementIterator<Selector>(selector);
 		}
 
 		@Override

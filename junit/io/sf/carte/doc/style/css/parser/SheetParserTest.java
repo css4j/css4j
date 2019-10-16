@@ -133,6 +133,32 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseSheetStyleRuleBad2() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		Reader re = new StringReader(".foo{margin-left:0;{foo:bar;} :bar;margin-right:auto;}");
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.selectors.size());
+		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("margin-left", handler.propertyNames.getFirst());
+		assertEquals("margin-right", handler.propertyNames.getLast());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(0, lu.getIntegerValue());
+		lu = handler.lexicalValues.getLast();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("auto", lu.getStringValue());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(20, errorHandler.getLastException().getColumnNumber());
+		handler.checkRuleEndings();
+	}
+
+	@Test
 	public void testParseSheetStyleRuleBadNested() throws CSSException, IOException {
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
@@ -1014,17 +1040,13 @@ public class SheetParserTest {
 		assertEquals("counter(page)", handler.lexicalValues.get(4).toString());
 		assertEquals(6, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
-		assertEquals(3, handler.pageRuleNames.size());
-		assertNull(handler.pageRuleNames.getFirst());
-		assertEquals("foo", handler.pageRuleNames.get(1));
-		assertEquals("bar", handler.pageRuleNames.get(2));
+		assertEquals(3, handler.pageRuleSelectors.size());
+		assertEquals(":first", handler.pageRuleSelectors.get(0).toString());
+		assertEquals("foo :left", handler.pageRuleSelectors.get(1).toString());
+		assertEquals("bar :right,:blank", handler.pageRuleSelectors.get(2).toString());
 		assertEquals(2, handler.marginRuleNames.size());
 		assertEquals("top-center", handler.marginRuleNames.get(0));
 		assertEquals("bottom-center", handler.marginRuleNames.get(1));
-		assertEquals(3, handler.pseudoPages.size());
-		assertEquals(":first", handler.pseudoPages.get(0));
-		assertEquals(":left", handler.pseudoPages.get(1));
-		assertEquals(":right,:blank", handler.pseudoPages.get(2));
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
@@ -1037,9 +1059,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(re);
-		assertEquals(1, handler.pageRuleNames.size());
-		assertNull(handler.pageRuleNames.getFirst());
-		assertEquals(":first", handler.pseudoPages.getFirst());
+		assertEquals(1, handler.pageRuleSelectors.size());
+		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
 		assertEquals(1, handler.marginRuleNames.size());
 		assertEquals("top-left", handler.marginRuleNames.get(0));
 		assertEquals(3, handler.propertyNames.size());
@@ -1070,9 +1091,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(re);
-		assertEquals(1, handler.pageRuleNames.size());
-		assertNull(handler.pageRuleNames.getFirst());
-		assertEquals(":first", handler.pseudoPages.getFirst());
+		assertEquals(1, handler.pageRuleSelectors.size());
+		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-top", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
@@ -1097,9 +1117,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(re);
-		assertEquals(1, handler.pageRuleNames.size());
-		assertNull(handler.pageRuleNames.getFirst());
-		assertEquals(":first", handler.pseudoPages.getFirst());
+		assertEquals(1, handler.pageRuleSelectors.size());
+		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-top", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
@@ -1124,9 +1143,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(re);
-		assertEquals(1, handler.pageRuleNames.size());
-		assertNull(handler.pageRuleNames.getFirst());
-		assertEquals(":first", handler.pseudoPages.getFirst());
+		assertEquals(1, handler.pageRuleSelectors.size());
+		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-top", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
@@ -1151,8 +1169,8 @@ public class SheetParserTest {
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(re);
-		assertEquals(1, handler.pageRuleNames.size());
-		assertNull(handler.pageRuleNames.getFirst());
+		assertEquals(1, handler.pageRuleSelectors.size());
+		assertNull(handler.pageRuleSelectors.getFirst());
 		assertEquals(1, handler.mediaRuleLists.size());
 		MediaQueryList medialist = handler.mediaRuleLists.getFirst();
 		assertEquals(1, medialist.getLength());
@@ -1329,7 +1347,7 @@ public class SheetParserTest {
 		parser.setErrorHandler(errorHandler);
 		parser.parseStyleSheet(re);
 		assertEquals(0, handler.atRules.size());
-		assertEquals(1, handler.pageRuleNames.size());
+		assertEquals(1, handler.pageRuleSelectors.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(55, errorHandler.getLastException().getColumnNumber());

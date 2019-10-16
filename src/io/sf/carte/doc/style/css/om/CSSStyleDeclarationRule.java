@@ -217,12 +217,12 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		return rule;
 	}
 
-	protected PropertyCSSHandler createDocumentHandler() {
+	private PropertyCSSHandler createDocumentHandler() {
 		return new RuleHandler();
 	}
 
-	class RuleHandler extends DeclarationRuleCSSHandler {
-		RuleHandler() {
+	private class RuleHandler extends DeclarationRuleCSSHandler {
+		private RuleHandler() {
 			super();
 		}
 

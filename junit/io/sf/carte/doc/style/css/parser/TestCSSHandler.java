@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 class TestCSSHandler extends TestDeclarationHandler {
@@ -32,8 +33,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 	LinkedList<MediaQueryList> importMedias = new LinkedList<MediaQueryList>();
 	LinkedList<MediaQueryList> mediaRuleLists = new LinkedList<MediaQueryList>();
 	LinkedList<BooleanCondition> supportsRuleLists = new LinkedList<BooleanCondition>();
-	LinkedList<String> pageRuleNames = new LinkedList<String>();
-	LinkedList<String> pseudoPages = new LinkedList<String>();
+	LinkedList<PageSelectorList> pageRuleSelectors = new LinkedList<PageSelectorList>();
 	LinkedList<String> marginRuleNames = new LinkedList<String>();
 	LinkedList<String> counterStyleNames = new LinkedList<String>();
 	LinkedList<String> keyframesNames = new LinkedList<String>();
@@ -109,14 +109,13 @@ class TestCSSHandler extends TestDeclarationHandler {
 	}
 
 	@Override
-	public void startPage(String name, String pseudo_page) {
-		pageRuleNames.add(name);
-		pseudoPages.add(pseudo_page);
+	public void startPage(PageSelectorList pageSelectorList) {
+		pageRuleSelectors.add(pageSelectorList);
 		this.eventSeq.add("startPage");
 	}
 
 	@Override
-	public void endPage(String name, String pseudo_page) {
+	public void endPage(PageSelectorList pageSelectorList) {
 		this.eventSeq.add("endPage");
 		endPageCount++;
 	}
@@ -128,7 +127,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 	}
 
 	@Override
-	public void endMargin(String name) {
+	public void endMargin() {
 		this.eventSeq.add("endMargin");
 		endMarginCount ++;
 	}
@@ -247,7 +246,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 		}
 		assertTrue(selectors.equals(endSelectors));
 		assertEquals(mediaRuleLists.size(), endMediaCount);
-		assertEquals(pageRuleNames.size(), endPageCount);
+		assertEquals(pageRuleSelectors.size(), endPageCount);
 		assertEquals(counterStyleNames.size(), endCounterStyleCount);
 		assertEquals(keyframesNames.size(), endKeyframesCount);
 		assertEquals(keyframeSelectors.size(), endKeyframeCount);

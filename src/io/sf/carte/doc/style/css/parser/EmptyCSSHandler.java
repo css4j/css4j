@@ -16,6 +16,7 @@ import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -64,11 +65,11 @@ abstract public class EmptyCSSHandler implements CSSHandler, CSSErrorHandler {
 	}
 
 	@Override
-	public void startPage(String name, String pseudo_page) {
+	public void startPage(PageSelectorList pageSelectorList) {
 	}
 
 	@Override
-	public void endPage(String name, String pseudo_page) {
+	public void endPage(PageSelectorList pageSelectorList) {
 	}
 
 	@Override
@@ -76,7 +77,7 @@ abstract public class EmptyCSSHandler implements CSSHandler, CSSErrorHandler {
 	}
 
 	@Override
-	public void endMargin(String name) {
+	public void endMargin() {
 	}
 
 	@Override

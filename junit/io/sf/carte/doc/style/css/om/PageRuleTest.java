@@ -92,6 +92,33 @@ public class PageRuleTest {
 	}
 
 	@Test
+	public void testParsePageRulePseudoPage2() throws DOMException, IOException {
+		StringReader re = new StringReader("@page foo :first,bar :right {margin-top: 20%;}");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
+		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
+		assertEquals("@page foo :first,bar :right {\n    margin-top: 20%;\n}\n", pagerule.getCssText());
+		assertEquals("@page foo :first,bar :right{margin-top:20%}", pagerule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testParsePageRulePseudoPageMargin() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@page foo :first,bar :right {margin-top: 20%;@top-left {margin-top: 0.7em; margin-left:1ex}@bottom-center {content: counter(page); }}");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
+		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
+		assertEquals(
+				"@page foo :first,bar :right {\n    margin-top: 20%;\n    @top-left {\n        margin-top: 0.7em;\n        margin-left: 1ex;\n    }\n    @bottom-center {\n        content: counter(page);\n    }\n}\n",
+				pagerule.getCssText());
+		assertEquals(
+				"@page foo :first,bar :right{margin-top:20%;@top-left{margin-top:.7em;margin-left:1ex}@bottom-center{content:counter(page)}}",
+				pagerule.getMinifiedCssText());
+	}
+
+	@Test
 	public void testParsePageRuleWithMargin() throws DOMException, IOException {
 		StringReader re = new StringReader("@page :first {margin-top: 20%;@top-left {content: 'foo'; color: blue;}}");
 		sheet.parseStyleSheet(re);
@@ -129,6 +156,15 @@ public class PageRuleTest {
 		rule.setCssText("@page foo :first{margin-top: 20%;}");
 		assertEquals("foo :first", rule.getSelectorText());
 		assertEquals("@page foo :first{margin-top:20%}", rule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testSetCssTextStringPageSelectorList() throws DOMException {
+		PageRule rule = sheet.createPageRule();
+		rule.setCssText("@page foo :first,bar :right {margin-top: 20%;}");
+		assertEquals("foo :first,bar :right", rule.getSelectorText());
+		assertEquals("@page foo :first,bar :right {\n    margin-top: 20%;\n}\n", rule.getCssText());
+		assertEquals("@page foo :first,bar :right{margin-top:20%}", rule.getMinifiedCssText());
 	}
 
 	@Test

@@ -11,12 +11,162 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
+import org.w3c.dom.DOMException;
+
+import io.sf.carte.doc.style.css.nsac.PageSelector;
+import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 
 public class CSSParserTest {
+
+	@Test
+	public void testParsePageSelectorList() {
+		CSSParser parser = new CSSParser();
+		PageSelectorList pagesel = parser.parsePageSelectorList("foo");
+		assertNotNull(pagesel);
+		assertEquals(1, pagesel.getLength());
+		PageSelector sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("foo", sel.getName());
+		assertEquals("foo", sel.getCssText());
+		assertNull(sel.getNext());
+		assertEquals("foo", pagesel.toString());
+		//
+		pagesel = parser.parsePageSelectorList("\\31z");
+		assertNotNull(pagesel);
+		assertEquals(1, pagesel.getLength());
+		sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("1z", sel.getName());
+		assertEquals("\\31 z", sel.getCssText());
+		assertNull(sel.getNext());
+		assertEquals("\\31 z", pagesel.toString());
+		//
+		pagesel = parser.parsePageSelectorList("\\31 f");
+		assertNotNull(pagesel);
+		assertEquals(1, pagesel.getLength());
+		sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("1f", sel.getName());
+		assertEquals("\\31 f", sel.getCssText());
+		assertNull(sel.getNext());
+		assertEquals("\\31 f", pagesel.toString());
+		//
+		pagesel = parser.parsePageSelectorList(":first");
+		assertNotNull(pagesel);
+		assertEquals(1, pagesel.getLength());
+		sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, sel.getSelectorType());
+		assertEquals("first", sel.getName());
+		assertEquals(":first", sel.getCssText());
+		assertNull(sel.getNext());
+		assertEquals(":first", pagesel.toString());
+		//
+		pagesel = parser.parsePageSelectorList(":first ,");
+		assertNotNull(pagesel);
+		assertEquals(1, pagesel.getLength());
+		sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, sel.getSelectorType());
+		assertEquals("first", sel.getName());
+		assertEquals(":first", sel.getCssText());
+		assertNull(sel.getNext());
+		//
+		pagesel = parser.parsePageSelectorList("foo :first");
+		assertNotNull(pagesel);
+		assertEquals(1, pagesel.getLength());
+		sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("foo", sel.getName());
+		assertEquals("foo", sel.getCssText());
+		sel = sel.getNext();
+		assertNotNull(sel);
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, sel.getSelectorType());
+		assertEquals("first", sel.getName());
+		assertEquals(":first", sel.getCssText());
+		assertNull(sel.getNext());
+		//
+		pagesel = parser.parsePageSelectorList("foo :first :left");
+		assertNotNull(pagesel);
+		assertEquals(1, pagesel.getLength());
+		sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("foo", sel.getName());
+		assertEquals("foo", sel.getCssText());
+		sel = sel.getNext();
+		assertNotNull(sel);
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, sel.getSelectorType());
+		assertEquals("first", sel.getName());
+		assertEquals(":first", sel.getCssText());
+		sel = sel.getNext();
+		assertNotNull(sel);
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, sel.getSelectorType());
+		assertEquals("left", sel.getName());
+		assertEquals(":left", sel.getCssText());
+		assertNull(sel.getNext());
+		//
+		pagesel = parser.parsePageSelectorList("foo,bar :first");
+		assertNotNull(pagesel);
+		assertEquals(2, pagesel.getLength());
+		sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("foo", sel.getName());
+		assertEquals("foo", sel.getCssText());
+		assertNull(sel.getNext());
+		sel = pagesel.item(1);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("bar", sel.getName());
+		assertEquals("bar", sel.getCssText());
+		sel = sel.getNext();
+		assertNotNull(sel);
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, sel.getSelectorType());
+		assertEquals("first", sel.getName());
+		assertEquals(":first", sel.getCssText());
+		assertNull(sel.getNext());
+		assertEquals("foo,bar :first", pagesel.toString());
+		//
+		pagesel = parser.parsePageSelectorList("foo , bar :first");
+		assertNotNull(pagesel);
+		assertEquals(2, pagesel.getLength());
+		sel = pagesel.item(0);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("foo", sel.getName());
+		assertEquals("foo", sel.getCssText());
+		assertNull(sel.getNext());
+		sel = pagesel.item(1);
+		assertEquals(PageSelector.Type.PAGE_TYPE, sel.getSelectorType());
+		assertEquals("bar", sel.getName());
+		assertEquals("bar", sel.getCssText());
+		sel = sel.getNext();
+		assertNotNull(sel);
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, sel.getSelectorType());
+		assertEquals("first", sel.getName());
+		assertEquals(":first", sel.getCssText());
+		assertNull(sel.getNext());
+	}
+
+	@Test
+	public void testParsePageSelectorListError() {
+		CSSParser parser = new CSSParser();
+		try {
+			parser.parsePageSelectorList(null);
+			fail("Must throw exception.");
+		} catch (NullPointerException e) {
+		}
+		//
+		try {
+			parser.parsePageSelectorList("::first");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.SYNTAX_ERR, e.code);
+		}
+	}
 
 	@Test
 	public void testBufferEndsWithEscapedChar() {

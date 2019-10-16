@@ -12,8 +12,8 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
@@ -21,7 +21,9 @@ import org.w3c.dom.css.CSSRule;
 import io.sf.carte.doc.style.css.ExtendedCSSPageRule;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.PageSelectorList;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -32,7 +34,9 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPageRule {
+public class PageRule extends BaseCSSDeclarationRule implements ExtendedCSSPageRule {
+
+	private PageSelectorList selectorList = null;
 
 	private MarginRuleList marginRules = null;
 
@@ -110,19 +114,28 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 		}
 	}
 
+	public PageSelectorList getSelectorList() {
+		return selectorList;
+	}
+
+	void setSelectorList(PageSelectorList selectorList) {
+		this.selectorList = selectorList;
+	}
+
 	/**
-	 * Get the page type selector.
+	 * Get the page selector text.
 	 * 
-	 * @return the page type selector.
+	 * @return the page selector text.
 	 */
 	@Override
 	public String getSelectorText() {
-		return super.getSelectorText();
+		return selectorList == null ? "" : selectorList.toString();
 	}
 
 	@Override
 	public void setSelectorText(String selectorText) throws DOMException {
-		super.setSelectorText(selectorText);
+		CSSParser parser = new CSSParser();
+		selectorList = parser.parsePageSelectorList(selectorText);
 	}
 
 	@Override
@@ -136,43 +149,31 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 		if (!ParseHelper.startsWithIgnoreCase(cssText, "@page")) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @page rule: " + cssText);
 		}
-		super.setCssText(cssText);
+		String body = cssText.substring(5, len);
+		PropertyCSSHandler handler = new PageRuleHandler();
+		handler.setLexicalPropertyListener(getLexicalPropertyListener());
+		CSSParser parser = (CSSParser) createSACParser();
+		parser.setDocumentHandler(handler);
+		try {
+			parser.parsePageRuleBody(body);
+		} catch (CSSParseException e) {
+			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		}
 	}
 
-	@Override
-	protected PropertyCSSHandler createDocumentHandler() {
-		return new PageRuleHandler();
-	}
-
-	private class PageRuleHandler extends RuleHandler {
+	private class PageRuleHandler extends DeclarationRuleCSSHandler {
 
 		private MarginRule currentMarginRule = null;
 
 		@Override
-		public void startPage(String name, String pseudo_page) {
-			String selector;
-			if (name != null) {
-				if (pseudo_page != null) {
-					selector = name + ' ' + pseudo_page;
-				} else {
-					selector = name;
-				}
-			} else {
-				selector = pseudo_page;
-			}
-			if (selector != null) {
-				Parser parser = createSACParser();
-				try {
-					setSelectorList(parser.parseSelectors(new StringReader(selector)));
-				} catch (IOException e) {
-				}
-			} else {
-				setSelectorText("");
-			}
+		public void startPage(PageSelectorList pageSelectorList) {
+			PageRule.this.selectorList = pageSelectorList;
 		}
 
 		@Override
-		public void endPage(String name, String pseudo_page) {
+		public void endPage(PageSelectorList pageSelectorList) {
 		}
 
 		@Override
@@ -183,15 +184,34 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 		}
 
 		@Override
-		public void endMargin(String name) {
+		public void endMargin() {
 			addMarginRule(currentMarginRule);
 			currentMarginRule = null;
 			setLexicalPropertyListener(getLexicalPropertyListener());
 		}
 
 		@Override
-		public void startAtRule(String name, String pseudoSelector) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Cannot set rule of type: " + name);
+		public void warning(CSSParseException exception) throws CSSParseException {
+			if (selectorList != null) {
+				super.warning(exception);
+			} else {
+				AbstractCSSStyleSheet sheet = getParentStyleSheet();
+				if (sheet != null) {
+					sheet.getErrorHandler().ruleParseWarning(PageRule.this, exception);
+				}
+			}
+		}
+
+		@Override
+		public void error(CSSParseException exception) throws CSSParseException {
+			if (selectorList != null) {
+				super.error(exception);
+			} else {
+				AbstractCSSStyleSheet sheet = getParentStyleSheet();
+				if (sheet != null) {
+					sheet.getErrorHandler().ruleParseError(PageRule.this, exception);
+				}
+			}
 		}
 
 	}
@@ -212,7 +232,7 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((marginRules == null) ? 0 : marginRules.hashCode());
+		result = prime * result + Objects.hash(marginRules, selectorList);
 		return result;
 	}
 
@@ -228,19 +248,13 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 			return false;
 		}
 		PageRule other = (PageRule) obj;
-		if (marginRules == null) {
-			if (other.marginRules != null) {
-				return false;
-			}
-		} else if (!marginRules.equals(other.marginRules)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(marginRules, other.marginRules) && Objects.equals(selectorList, other.selectorList);
 	}
 
 	@Override
 	public PageRule clone(AbstractCSSStyleSheet parentSheet) {
-		PageRule clon = (PageRule) super.clone(parentSheet);
+		PageRule clon = new PageRule(parentSheet, getOrigin());
+		clon.selectorList = selectorList;
 		if (this.marginRules != null) {
 			clon.marginRules = new MarginRuleList(this.marginRules.size());
 			Iterator<MarginRule> it = this.marginRules.iterator();
@@ -248,6 +262,8 @@ public class PageRule extends CSSStyleDeclarationRule implements ExtendedCSSPage
 				clon.marginRules.add(it.next().clone(parentSheet));
 			}
 		}
+		String oldHrefContext = getParentStyleSheet().getHref();
+		clon.setWrappedStyle((BaseCSSStyleDeclaration) getStyle(), oldHrefContext);
 		return clon;
 	}
 
