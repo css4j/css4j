@@ -2064,7 +2064,11 @@ public class CSSParser implements Parser2 {
 
 		@Override
 		protected void endRuleBody() {
-			contextHandler = new RuleEndContentHandler();
+			if (getCurlyBracketDepth() == 0) {
+				contextHandler = new RuleEndContentHandler();
+			} else {
+				super.endRuleBody();
+			}
 		}
 
 		@Override
@@ -2212,6 +2216,10 @@ public class CSSParser implements Parser2 {
 			declarationHandler = new MyDeclarationTokenHandler(source);
 			selectorHandler = new MySelectorTokenHandler(source, nsMap);
 			contextHandler = selectorHandler;
+		}
+
+		int getCurlyBracketDepth() {
+			return curlyBracketDepth;
 		}
 
 		@Override
