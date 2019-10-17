@@ -268,6 +268,8 @@ class LexicalUnitImpl implements LexicalUnit2 {
 				quri = ParseHelper.quote(value, '\'');
 			}
 			return "url(" + quri + ")";
+		case LexicalUnit.SAC_INHERIT:
+			return "inherit";
 		case LexicalUnit2.SAC_ELEMENT_REFERENCE:
 			if (value == null) {
 				return "element(#)";

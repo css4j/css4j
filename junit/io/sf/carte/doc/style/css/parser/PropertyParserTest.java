@@ -41,6 +41,14 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyInherit() throws CSSException, IOException {
+		LexicalUnit lu = parser.parsePropertyValue(new InputSource(new StringReader("inherit")));
+		assertEquals(LexicalUnit.SAC_INHERIT, lu.getLexicalUnitType());
+		assertEquals("inherit", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
 	public void testParsePropertyBadHexColor2() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#"));
 		try {
