@@ -1802,7 +1802,7 @@ public class CSSParser implements Parser2 {
 
 		void processName(int index, String name) {
 			if ("initial".equalsIgnoreCase(name) || "inherit".equalsIgnoreCase(name) || "unset".equalsIgnoreCase(name)
-					|| "none".equalsIgnoreCase(name) || "reset".equalsIgnoreCase(name)) {
+					|| "none".equalsIgnoreCase(name) || "revert".equalsIgnoreCase(name)) {
 				handleError(index, ParseHelper.ERR_INVALID_IDENTIFIER, "A CSS keyword is not a valid custom ident.");
 			}
 		}
