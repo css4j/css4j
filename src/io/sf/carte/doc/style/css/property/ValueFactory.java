@@ -861,7 +861,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Creates an AbstractCSSPrimitiveValue according to the given lexical value.
+	 * Creates an PrimitiveValue according to the given lexical value.
 	 * <p>
 	 * This method either returns a value or throws an exception, but cannot return null.
 	 * </p>
@@ -870,7 +870,7 @@ public class ValueFactory {
 	 *            the lexical value.
 	 * @param subp
 	 *            the flag marking whether it is a sub-property.
-	 * @return the AbstractCSSPrimitiveValue for the CSS primitive value.
+	 * @return the PrimitiveValue for the CSS primitive value.
 	 * @throws DOMException
 	 *             if a problem was found setting the lexical value to a CSS
 	 *             primitive.

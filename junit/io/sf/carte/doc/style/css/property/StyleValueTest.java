@@ -29,11 +29,11 @@ import org.w3c.dom.css.CSSValue;
 import org.w3c.dom.css.CSSValueList;
 
 @RunWith(Parameterized.class)
-public class AbstractCSSValueTest {
+public class StyleValueTest {
 
 	private Parser cssParser;
 
-	public AbstractCSSValueTest(Parser cssParser) {
+	public StyleValueTest(Parser cssParser) {
 		super();
 		this.cssParser = cssParser;
 	}
