@@ -32,6 +32,7 @@ license information):
  File: src/io/sf/carte/doc/style/css/ExtendedCSSPageRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSRuleList.java
+ File: src/io/sf/carte/doc/style/css/ExtendedCSSStyleDeclaration.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSStyleRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSStyleSheet.java
  File: src/io/sf/carte/doc/style/css/MediaQueryList.java
