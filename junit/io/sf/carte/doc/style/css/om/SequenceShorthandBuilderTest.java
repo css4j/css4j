@@ -34,6 +34,21 @@ public class SequenceShorthandBuilderTest {
 	@Test
 	public void testBuilder() {
 		assertShorthandText("cue:url('foo.au');", "cue: url('foo.au'); ");
+		assertShorthandText("cue:url('foo.au') url('bar.au');",
+				"cue: url('foo.au') url('bar.au'); ");
+	}
+
+	@Test
+	public void testBuilderMix() {
+		/*
+		 * Not very realistic examples
+		 */
+		assertShorthandText("cue-after:inherit;cue-before:url('foo.au');",
+				"cue-before: url('foo.au'); cue-after:inherit;");
+		assertShorthandText("cue-after:unset;cue-before:url('foo.au');",
+				"cue-before: url('foo.au'); cue-after:unset;");
+		assertShorthandText("cue:url('foo.au') none;",
+				"cue-before: url('foo.au'); cue-after:initial;");
 	}
 
 	@Test

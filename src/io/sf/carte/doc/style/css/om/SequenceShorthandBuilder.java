@@ -64,14 +64,28 @@ class SequenceShorthandBuilder extends ShorthandBuilder {
 			}
 		}
 		// Now append value(s)
+		boolean appended = false;
 		StyleValue cssVal0 = null;
 		if (declaredSet.contains(subp[0])) {
 			cssVal0 = getCSSValue(subp[0]);
-			buf.append(cssVal0.getMinifiedCssText(subp[0]));
+			if (!isNotInitialValue(cssVal0, subp[0])) {
+				// Make sure that we have a typed initial value and not a keyword
+				cssVal0 = getInitialPropertyValue(subp[0]);
+			}
+			String text = cssVal0.getMinifiedCssText(subp[0]);
+			buf.append(text);
+			appended = true;
 		}
 		if (declaredSet.contains(subp[1])) {
 			StyleValue cssVal1 = getCSSValue(subp[1]);
+			if (!isNotInitialValue(cssVal1, subp[1])) {
+				// Make sure that we have a typed initial value and not a keyword
+				cssVal1 = getInitialPropertyValue(subp[1]);
+			}
 			if (!valueEquals(cssVal0, cssVal1)) {
+				if (appended) {
+					buf.append(' ');
+				}
 				buf.append(cssVal1.getMinifiedCssText(subp[1]));
 			}
 		}
