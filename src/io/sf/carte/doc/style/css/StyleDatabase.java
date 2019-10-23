@@ -12,8 +12,6 @@
 package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 /**
  * CSS Style database.
@@ -32,7 +30,7 @@ public interface StyleDatabase {
 	 *
 	 * @return the default color value.
 	 */
-	CSSPrimitiveValue getInitialColor();
+	CSSTypedValue getInitialColor();
 
 	/**
 	 * Sets the initial (default) value for the 'color' property on this device.
@@ -116,7 +114,7 @@ public interface StyleDatabase {
 	/**
 	 * Gets the identifier of the device's natural unit.
 	 *
-	 * @return the unit identifier as in <code>CSSPrimitiveValue</code>.
+	 * @return the unit identifier as in {@link CSSUnit}.
 	 */
 	short getNaturalUnit();
 

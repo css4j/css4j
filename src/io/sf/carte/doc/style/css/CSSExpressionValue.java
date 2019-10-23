@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
 /**
  * A primitive value containing an expression (like <code>calc()</code>).
  */
-public interface CSSExpressionValue extends ExtendedCSSPrimitiveValue {
+public interface CSSExpressionValue extends CSSTypedValue {
 
 	/**
 	 * Get the root expression corresponding to this <code>calc()</code> value.

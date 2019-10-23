@@ -11,13 +11,12 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 class FlexShorthandSetter extends ShorthandSetter {
@@ -77,7 +76,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 				}
 			}
 			if (flexBasisUnset && ValueFactory.isSizeSACUnit(currentValue)) {
-				PrimitiveValue value = (PrimitiveValue) createCSSValue("flex-basis",
+				TypedValue value = (TypedValue) createCSSValue("flex-basis",
 						currentValue);
 				if (value.isNumberZero()) {
 					NumberValue number = new NumberValue();
@@ -132,7 +131,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 
 	private void setFlexGrow(float grow) {
 		NumberValue number = new NumberValue();
-		number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, grow);
+		number.setFloatValue(CSSUnit.CSS_NUMBER, grow);
 		number.setSubproperty(true);
 		setSubpropertyValue("flex-grow", number);
 	}
@@ -173,7 +172,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 
 	private void setFlexShrink(float shrink) {
 		NumberValue number = new NumberValue();
-		number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, shrink);
+		number.setFloatValue(CSSUnit.CSS_NUMBER, shrink);
 		number.setSubproperty(true);
 		setSubpropertyValue("flex-shrink", number);
 	}

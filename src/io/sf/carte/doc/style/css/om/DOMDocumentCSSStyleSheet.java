@@ -54,12 +54,10 @@ abstract public class DOMDocumentCSSStyleSheet extends BaseDocumentCSSStyleSheet
 	@Override
 	public ComputedCSSStyle getComputedStyle(CSSElement elm, String pseudoElt) {
 		InlineStyle inline = (InlineStyle) elm.getStyle();
-		ComputedCSSStyle style = createComputedCSSStyle(this);
+		ComputedCSSStyle style = createComputedCSSStyle();
 		style.setOwnerNode(elm);
 		return computeStyle(style, elm.getSelectorMatcher(), pseudoElt, inline);
 	}
-
-	abstract protected ComputedCSSStyle createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet);
 
 	abstract protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(String medium, byte origin);
 

@@ -89,11 +89,10 @@ class ProductExpression extends StyleExpression implements AlgebraicExpression {
 		// Superclass check guarantees that the class of obj is ProductExpression
 		ProductExpression other = (ProductExpression) obj;
 		if (operands == null) {
-			if (other.operands != null)
-				return false;
-		} else if (!operands.equals(other.operands))
-			return false;
-		return true;
+			return other.operands == null;
+		} else {
+			return operands.equals(other.operands);
+		}
 	}
 
 	@Override

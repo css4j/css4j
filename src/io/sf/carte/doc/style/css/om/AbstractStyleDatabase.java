@@ -20,23 +20,23 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.FunctionValue;
 import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -53,14 +53,14 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 
 	protected final String DEFAULT_GENERIC_FONT_FAMILY = "serif";
 
-	private static final PrimitiveValue DEFAULT_INITIAL_COLOR;
+	private static final TypedValue DEFAULT_INITIAL_COLOR;
 
 	static {
-		DEFAULT_INITIAL_COLOR = (PrimitiveValue) new ValueFactory().parseProperty("#000000");
+		DEFAULT_INITIAL_COLOR = (TypedValue) new ValueFactory().parseProperty("#000000");
 		((ColorValue) DEFAULT_INITIAL_COLOR).setSystemDefault();
 	}
 
-	private CSSPrimitiveValue initialColor;
+	private CSSTypedValue initialColor;
 
 	public AbstractStyleDatabase() {
 		super();
@@ -73,13 +73,13 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	}
 
 	@Override
-	public CSSPrimitiveValue getInitialColor() {
+	public CSSTypedValue getInitialColor() {
 		return initialColor;
 	}
 
 	@Override
 	public void setInitialColor(String initialColor) {
-		this.initialColor = (PrimitiveValue) new ValueFactory().parseProperty(initialColor);
+		this.initialColor = (TypedValue) new ValueFactory().parseProperty(initialColor);
 		((ColorValue) this.initialColor).setSystemDefault();
 	}
 
@@ -103,10 +103,10 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	}
 
 	private String scanFontFamilyValue(CSSComputedProperties style) {
-		ExtendedCSSValue value = style.getPropertyCSSValue("font-family");
+		CSSValue value = style.getPropertyCSSValue("font-family");
 		String requestedFamily = null;
 		if (value != null) {
-			if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			if (value.getCssValueType() == CssType.LIST) {
 				ValueList fontList = (ValueList) value;
 				Iterator<StyleValue> it = fontList.iterator();
 				while (it.hasNext()) {
@@ -130,13 +130,13 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		return requestedFamily;
 	}
 
-	private String stringValueOrNull(ExtendedCSSValue value) {
-		CSSPrimitiveValue primi;
-		short ptype;
+	private String stringValueOrNull(CSSValue value) {
+		CSSTypedValue primi;
+		Type ptype;
 		String s;
-		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((ptype = (primi = (CSSPrimitiveValue) value).getPrimitiveType()) == CSSPrimitiveValue.CSS_STRING
-						|| ptype == CSSPrimitiveValue.CSS_IDENT)) {
+		if (value.getCssValueType() == CssType.TYPED
+				&& ((ptype = (primi = (CSSTypedValue) value).getPrimitiveType()) == Type.STRING
+						|| ptype == Type.IDENT)) {
 			s = primi.getStringValue();
 		} else {
 			s = null;
@@ -162,25 +162,29 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		familyName = familyName.toLowerCase(Locale.ROOT);
 		if (!isFontFaceName(familyName)) {
 			ExtendedCSSStyleDeclaration decl = rule.getStyle();
-			ExtendedCSSValue value = decl.getPropertyCSSValue("src");
-			if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			CSSValue value = decl.getPropertyCSSValue("src");
+			if (value.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) value;
 				if (list.isCommaSeparated()) {
 					Iterator<StyleValue> it = list.iterator();
 					while (it.hasNext()) {
 						StyleValue item = it.next();
-						if (item.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+						if (item.getCssValueType() == CssType.LIST) {
 							if (loadFont(familyName, (ValueList) item, rule)) {
 								return;
 							}
-						} else if (loadFont(familyName, (PrimitiveValue) item, null, rule)) {
+						} else if (loadFont(familyName, (TypedValue) item, null, rule)) {
 							return;
 						}
 					}
 				} else if (loadFont(familyName, list, rule)) {
 					return;
 				}
-			} else if (loadFont(familyName, (PrimitiveValue) value, null, rule)) {
+			/*
+			 * The style is supposed to be computed, so all PROXY values should
+			 * have been resolved already: cast to TypedValue.
+			 */
+			} else if (loadFont(familyName, (TypedValue) value, null, rule)) {
 				return;
 			}
 		}
@@ -190,25 +194,25 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		if (!value.isCommaSeparated()) {
 			ValueList list = value;
 			Iterator<StyleValue> it = list.iterator();
-			PrimitiveValue uri = null;
+			TypedValue uri = null;
 			String fontFormat = null;
 			while (it.hasNext()) {
 				StyleValue item = it.next();
-				if (item.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-					PrimitiveValue primi = (PrimitiveValue) item;
-					short pType = primi.getPrimitiveType();
+				if (item.getCssValueType() == CssType.TYPED) {
+					TypedValue primi = (TypedValue) item;
+					Type pType = primi.getPrimitiveType();
 					LinkedCSSValueList args;
-					if (pType == CSSPrimitiveValue.CSS_URI || pType == CSSPrimitiveValue.CSS_STRING) {
+					if (pType == Type.URI || pType == Type.STRING) {
 						if (uri == null) {
 							uri = primi;
 							continue;
 						}
-					} else if (pType == CSSPrimitiveValue2.CSS_FUNCTION && "format".equalsIgnoreCase(primi.getStringValue()) && (args = ((FunctionValue) primi).getArguments()).size() == 1) {
+					} else if (pType == Type.FUNCTION && "format".equalsIgnoreCase(primi.getStringValue()) && (args = ((FunctionValue) primi).getArguments()).size() == 1) {
 						StyleValue arg = args.item(0);
-						if (arg.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-							primi = (PrimitiveValue) arg;
+						if (arg.getCssValueType() == CssType.TYPED) {
+							primi = (TypedValue) arg;
 							pType = primi.getPrimitiveType();
-							if (pType == CSSPrimitiveValue.CSS_STRING || pType == CSSPrimitiveValue.CSS_IDENT) {
+							if (pType == Type.STRING || pType == Type.IDENT) {
 								fontFormat = primi.getStringValue();
 								continue;
 							}
@@ -219,14 +223,11 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 				return false;
 			}
 			if (uri != null) {
-				if (loadFont(familyName, uri, fontFormat, rule)) {
-					return true;
-				}
+				return loadFont(familyName, uri, fontFormat, rule);
 			} else {
 				errorSrc(value, rule);
 				return false;
 			}
-			return false;
 		}
 		errorSrc(value, rule);
 		return false;
@@ -238,9 +239,9 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		rule.getStyleDeclarationErrorHandler().wrongValue("src", ex);
 	}
 
-	private boolean loadFont(String familyName, PrimitiveValue value, String format, ExtendedCSSFontFaceRule rule) {
-		short pType = value.getPrimitiveType();
-		if (pType == CSSPrimitiveValue.CSS_URI) {
+	private boolean loadFont(String familyName, TypedValue value, String format, ExtendedCSSFontFaceRule rule) {
+		Type pType = value.getPrimitiveType();
+		if (pType == Type.URI) {
 			String uri = value.getStringValue();
 			Node node = rule.getParentStyleSheet().getOwnerNode();
 			CSSDocument doc;
@@ -286,16 +287,13 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 				} catch (IOException e) {
 				}
 			}
-		} else if (pType == CSSPrimitiveValue2.CSS_FUNCTION) {
+		} else if (pType == Type.FUNCTION) {
 			String fname = value.getStringValue();
 			FunctionValue function = (FunctionValue) value;
 			if ("local".equalsIgnoreCase(fname) && function.getArguments().size() == 1) {
 				StyleValue arg = function.getArguments().get(0);
-				if (arg.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-					value = (PrimitiveValue) arg;
-					if (value.getPrimitiveType() == CSSPrimitiveValue.CSS_STRING) {
-						return isFontFamilyAvailable(value.getStringValue());
-					}
+				if (arg.getPrimitiveType() == Type.STRING) {
+					return isFontFamilyAvailable(value.getStringValue());
 				}
 			}
 		}

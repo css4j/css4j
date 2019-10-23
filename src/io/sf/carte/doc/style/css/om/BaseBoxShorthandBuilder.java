@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
@@ -28,13 +29,13 @@ abstract class BaseBoxShorthandBuilder extends ShorthandBuilder {
 	/**
 	 * 
 	 * @param value
-	 * @return 1 if the value is inherit, 5 if unset, 0 otherwise.
+	 * @return 1 if the value is inherit, 5 if revert, 0 otherwise.
 	 */
 	byte keywordState(StyleValue value) {
 		if (isInherit(value)) {
 			return 1;
 		}
-		if (isCssKeywordValue("unset", value)) {
+		if (isCssKeywordValue(CSSValue.Type.REVERT, value)) {
 			return 5;
 		}
 		return 0;

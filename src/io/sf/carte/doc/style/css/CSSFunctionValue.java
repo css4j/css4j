@@ -17,7 +17,7 @@ import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
 /**
  * A function value.
  */
-public interface CSSFunctionValue extends ExtendedCSSPrimitiveValue {
+public interface CSSFunctionValue extends CSSTypedValue {
 
 	/**
 	 * Get the arguments of this function.

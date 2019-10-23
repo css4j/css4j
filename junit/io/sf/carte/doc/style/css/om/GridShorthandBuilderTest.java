@@ -29,6 +29,21 @@ public class GridShorthandBuilderTest {
 	@Test
 	public void testBuilderNoShorthand() {
 		assertShorthandText("grid-row-start:2;", "grid-row-start: 2;");
+		assertShorthandText("grid-template-rows:none;", "grid-template-rows:none;");
+		assertShorthandText("grid-auto-columns:auto;grid-auto-flow:inherit;grid-auto-rows:auto;grid-template-areas:none;grid-template-columns:none;grid-template-rows:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:none;grid-auto-rows:auto;grid-auto-columns:auto;grid-auto-flow:inherit;");
+		assertShorthandText("grid-auto-columns:auto;grid-auto-flow:row;grid-auto-rows:inherit;grid-template-areas:none;grid-template-columns:none;grid-template-rows:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:none;grid-auto-rows:inherit;grid-auto-columns:auto;grid-auto-flow:row;");
+		assertShorthandText("grid-auto-columns:auto;grid-auto-flow:row;grid-auto-rows:revert;grid-template-areas:none;grid-template-columns:none;grid-template-rows:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:none;grid-auto-rows:revert;grid-auto-columns:auto;grid-auto-flow:row;");
+	}
+
+	@Test
+	public void testBuilderMix() {
+		assertShorthandText("grid:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:none;grid-auto-rows:auto;grid-auto-columns:auto;grid-auto-flow:initial;");
+		assertShorthandText("grid:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:none;grid-auto-rows:auto;grid-auto-columns:auto;grid-auto-flow:unset;");
 	}
 
 	@Test
@@ -178,12 +193,32 @@ public class GridShorthandBuilderTest {
 
 	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("grid:unset;", "grid: unset;");
+		assertShorthandText("grid:none;", "grid: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("grid:unset!important;", "grid: unset!important;");
+		assertShorthandText("grid:none!important;", "grid: unset!important;");
+	}
+
+	@Test
+	public void testBuilderInitial() {
+		assertShorthandText("grid:none;", "grid: initial;");
+	}
+
+	@Test
+	public void testBuilderInitialImportant() {
+		assertShorthandText("grid:none!important;", "grid: initial!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("grid:revert;", "grid: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("grid:revert!important;", "grid: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

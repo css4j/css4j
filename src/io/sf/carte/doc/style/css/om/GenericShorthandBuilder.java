@@ -15,11 +15,11 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
@@ -52,10 +52,23 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
-		check = checkValuesForKeyword("unset", declaredSet);
+		// Unset
+		if (isInheritedProperty()) {
+			check = checkValuesForKeyword(CSSValue.Type.UNSET, declaredSet);
+			if (check == 1) {
+				// All values are unset
+				buf.append("unset");
+				appendPriority(buf, important);
+				return true;
+			} else if (check == 2) {
+				return false;
+			}
+		}
+		// Revert
+		check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
 		if (check == 1) {
-			// All values are unset
-			buf.append("unset");
+			// All values are revert
+			buf.append("revert");
 			appendPriority(buf, important);
 			return true;
 		} else if (check == 2) {
@@ -68,7 +81,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 			if (declaredSet.contains(property)) {
 				// First, make sure that it is not a layered property
 				StyleValue cssVal = getCSSValue(property);
-				if ((cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
+				if ((cssVal.getCssValueType() == CssType.LIST &&
 						((ValueList) cssVal).isCommaSeparated()) || 
 						invalidValueClash(declaredSet, property, cssVal)) {
 					return false;
@@ -93,7 +106,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 	 * @return <code>true</code> if the shorthand should not be built.
 	 */
 	boolean invalidValueClash(Set<String> declaredSet, String property, StyleValue cssVal) {
-		if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+		if (cssVal.getCssValueType() == CssType.LIST) {
 			ValueList list = (ValueList) cssVal;
 			int len = list.getLength();
 			for (int i = 0; i < len; i++) {
@@ -101,31 +114,33 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 					return true;
 				}
 			}
-		} else if (cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			return invalidPrimitiveValueClash(declaredSet, property, (PrimitiveValue) cssVal);
-		} else {
+		} else if (cssVal.getCssValueType() == CssType.TYPED) {
+			return invalidPrimitiveValueClash(declaredSet, property, (TypedValue) cssVal);
+		} else if (cssVal.getCssValueType() != CssType.KEYWORD) {
+			// Problematic keywords have been filtered out already.
 			return true;
 		}
 		return false;
 	}
 
-	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, PrimitiveValue primi) {
-		if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
+	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, TypedValue primi) {
+		if (primi.getPrimitiveType() == CSSValue.Type.IDENT) {
 			return invalidIdentValueClash(declaredSet, propertyName, primi);
 		}
 		return false;
 	}
 
-	boolean invalidIdentValueClash(Set<String> declaredSet, String propertyName, PrimitiveValue primi) {
+	boolean invalidIdentValueClash(Set<String> declaredSet, String propertyName, TypedValue primi) {
 		String ident = primi.getStringValue().toLowerCase(Locale.ROOT);
-		if (!getShorthandDatabase().isIdentifierValue(propertyName, ident) && !ident.equals(initialvalue) && !ident.equals("initial")) {
+		if (!getShorthandDatabase().isIdentifierValue(propertyName, ident) && !ident.equals(initialvalue)) {
 			if (identifierValuesAreKnown(propertyName) || containsControl(ident)) {
 				return true; // Invalid value
 			}
 			Iterator<String> it = declaredSet.iterator();
 			while (it.hasNext()) {
 				String property = it.next();
-				if (getShorthandDatabase().hasKnownIdentifierValues(property) && getShorthandDatabase().isIdentifierValue(property, ident)) {
+				if (getShorthandDatabase().hasKnownIdentifierValues(property)
+						&& getShorthandDatabase().isIdentifierValue(property, ident)) {
 					return true;
 				}
 			}
@@ -139,6 +154,12 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 
 	boolean appendValueText(StringBuilder buf, String property, boolean appended) {
 		return appendValueIfNotInitial(buf, property, appended);
+	}
+
+	@Override
+	boolean isInheritedProperty() {
+		String ptyname = getLonghandProperties()[0];
+		return PropertyDatabase.getInstance().isInherited(ptyname);
 	}
 
 }

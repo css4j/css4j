@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.util.SimpleWriter;
 
@@ -23,7 +22,7 @@ import io.sf.carte.util.SimpleWriter;
  * this value can be used.
  * 
  */
-public class SystemDefaultValue extends PrimitiveValue {
+public class SystemDefaultValue extends TypedValue {
 	private static SystemDefaultValue strictmode = new SystemDefaultValue();
 
 	/**
@@ -31,7 +30,7 @@ public class SystemDefaultValue extends PrimitiveValue {
 	 *
 	 */
 	protected SystemDefaultValue() {
-		super(CSSPrimitiveValue.CSS_UNKNOWN);
+		super(Type.UNKNOWN);
 	}
 
 	public static SystemDefaultValue getInstance() {
@@ -80,10 +79,7 @@ public class SystemDefaultValue extends PrimitiveValue {
 			return false;
 		}
 		SystemDefaultValue other = (SystemDefaultValue) obj;
-		if (!getCssText().equals(other.getCssText())) {
-			return false;
-		}
-		return true;
+		return getCssText().equals(other.getCssText());
 	}
 
 	@Override

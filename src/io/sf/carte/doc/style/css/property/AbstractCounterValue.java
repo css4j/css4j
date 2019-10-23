@@ -11,11 +11,6 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.css.Counter;
-
 import io.sf.carte.doc.style.css.CSSCounterValue;
 
 /**
@@ -24,12 +19,12 @@ import io.sf.carte.doc.style.css.CSSCounterValue;
  * @author Carlos Amengual
  *
  */
-abstract class AbstractCounterValue extends PrimitiveValue implements CSSCounterValue {
+abstract class AbstractCounterValue extends TypedValue implements CSSCounterValue {
 
 	private String identifier;
 	private PrimitiveValue listStyle = null;
 
-	protected AbstractCounterValue(short primitiveType) {
+	protected AbstractCounterValue(Type primitiveType) {
 		super(primitiveType);
 	}
 
@@ -40,11 +35,6 @@ abstract class AbstractCounterValue extends PrimitiveValue implements CSSCounter
 		if (listStyle != null) {
 			listStyle = listStyle.clone();
 		}
-	}
-
-	@Override
-	public Counter getCounterValue() throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Obsolete API");
 	}
 
 	@Override
@@ -68,14 +58,14 @@ abstract class AbstractCounterValue extends PrimitiveValue implements CSSCounter
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
 		result = prime * result + ((listStyle == null) ? decimalHashCode() : listStyle.hashCode());
 		return result;
 	}
 
 	private int decimalHashCode() {
-		int result = 31 * CSSValue.CSS_PRIMITIVE_VALUE + CSSPrimitiveValue.CSS_IDENT;
+		int result = 31 * CssType.TYPED.hashCode() + Type.IDENT.hashCode();
 		result = 31 * result + "decimal".hashCode();
 		return result;
 	}
@@ -100,15 +90,11 @@ abstract class AbstractCounterValue extends PrimitiveValue implements CSSCounter
 			return false;
 		}
 		if (listStyle == null) {
-			if (other.listStyle != null && !isCSSIdentifier(other.listStyle, "decimal")) {
-				return false;
-			}
+			return other.listStyle == null || isCSSIdentifier(other.listStyle, "decimal");
 		} else if (other.listStyle == null) {
 			return isCSSIdentifier(listStyle, "decimal");
-		} else if (!listStyle.equals(other.listStyle)) {
-			return false;
 		}
-		return true;
+		return listStyle.equals(other.listStyle);
 	}
 
 	static void quoteSeparator(String separator, StringBuilder buf) {

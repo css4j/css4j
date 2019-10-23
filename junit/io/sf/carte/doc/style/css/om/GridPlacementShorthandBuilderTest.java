@@ -48,6 +48,26 @@ public class GridPlacementShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderMix() {
+		assertShorthandText("grid-column:auto;", "grid-column-start: auto; grid-column-end: initial;");
+		assertShorthandText("grid-column:auto;", "grid-column-start: auto; grid-column-end: unset;");
+		assertShorthandText("grid-column:auto;", "grid-column-start: initial; grid-column-end: auto;");
+		assertShorthandText("grid-column:auto;", "grid-column-start: unset; grid-column-end: auto;");
+		assertShorthandText("grid-column:2;", "grid-column-start: 2; grid-column-end: initial;");
+		assertShorthandText("grid-column:2;", "grid-column-start: 2; grid-column-end: unset;");
+		assertShorthandText("grid-column:auto/2;", "grid-column-start: initial; grid-column-end: 2;");
+		assertShorthandText("grid-column:auto/2;", "grid-column-start: unset; grid-column-end: 2;");
+		assertShorthandText("grid-column:2 foo;", "grid-column-start: 2 foo; grid-column-end: initial;");
+		assertShorthandText("grid-column:2 foo;", "grid-column-start: 2 foo; grid-column-end: unset;");
+		assertShorthandText("grid-column:auto/2 foo;", "grid-column-start: initial; grid-column-end: 2 foo;");
+		assertShorthandText("grid-column:auto/2 foo;", "grid-column-start: unset; grid-column-end: 2 foo;");
+		assertShorthandText("grid-column:span 2;", "grid-column-start: span 2; grid-column-end: initial;");
+		assertShorthandText("grid-column:span 2;", "grid-column-start: span 2; grid-column-end: unset;");
+		assertShorthandText("grid-column:auto/span 2;", "grid-column-start: initial; grid-column-end: span 2;");
+		assertShorthandText("grid-column:auto/span 2;", "grid-column-start: unset; grid-column-end: span 2;");
+	}
+
+	@Test
 	public void testBuilderImportant() {
 		assertShorthandText("grid-row:2 foo/bar!important;", "grid-row: 2 foo / bar ! important");
 		assertShorthandText("grid-column-start:3;grid-row:2 foo/bar!important;",
@@ -65,6 +85,16 @@ public class GridPlacementShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderInitial() {
+		assertShorthandText("grid-row:auto;", "grid-row: initial;");
+	}
+
+	@Test
+	public void testBuilderInitialImportant() {
+		assertShorthandText("grid-row:auto!important;", "grid-row: initial!important;");
+	}
+
+	@Test
 	public void testBuilderUnset() {
 		assertShorthandText("grid-row:unset;", "grid-row: unset;");
 	}
@@ -72,6 +102,16 @@ public class GridPlacementShorthandBuilderTest {
 	@Test
 	public void testBuilderUnsetImportant() {
 		assertShorthandText("grid-row:unset!important;", "grid-row: unset!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("grid-row:revert;", "grid-row: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("grid-row:revert!important;", "grid-row: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

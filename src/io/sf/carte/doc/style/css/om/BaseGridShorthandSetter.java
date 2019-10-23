@@ -13,11 +13,9 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Iterator;
 
-import org.w3c.dom.css.CSSValue;
-
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
-import io.sf.carte.doc.style.css.property.InheritValue;
+import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory.ListValueItem;
@@ -190,14 +188,16 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 
 	StyleValue subpropertyValue(StyleValue value) {
 		switch (value.getCssValueType()) {
-		case CSSValue.CSS_PRIMITIVE_VALUE:
+		case TYPED:
+		case PROXY:
 			((PrimitiveValue) value).setSubproperty(true);
 			break;
-		case CSSValue.CSS_VALUE_LIST:
+		case LIST:
 			((ValueList) value).setSubproperty(true);
 			break;
-		case CSSValue.CSS_INHERIT:
-			value = ((InheritValue) value).asSubproperty();
+		case KEYWORD:
+			value = ((KeywordValue) value).asSubproperty();
+		default:
 		}
 		return value;
 	}

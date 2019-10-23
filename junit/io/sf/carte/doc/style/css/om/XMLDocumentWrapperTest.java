@@ -34,17 +34,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSStyleDeclaration;
-import org.w3c.dom.css.CSSStyleRule;
-import org.w3c.dom.css.CSSValue;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleProcessingInstruction;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -178,12 +177,12 @@ public class XMLDocumentWrapperTest {
 		assertEquals(null, sheet.getTitle());
 		assertEquals(3, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
-		assertEquals("background-color: red; ", ((CSSStyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
+		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
 		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ffval.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_URI, ((CSSPrimitiveValue) ffval).getPrimitiveType());
+		assertEquals(CssType.TYPED, ffval.getCssValueType());
+		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
 		assertTrue(((FontFeatureValuesRule) sheet.getCssRules().item(2)).getMinifiedCssText()
 				.startsWith("@font-feature-values Foo Sans,Bar"));
 		assertTrue(it.hasNext());
@@ -224,7 +223,7 @@ public class XMLDocumentWrapperTest {
 		CSSElement elm = xmlDoc.getElementById("firstH3");
 		assertNotNull(elm);
 		DocumentCSSStyleSheet sheet = xmlDoc.getStyleSheet();
-		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		ExtendedCSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(15, styledecl.getLength());
 		assertEquals("#808000", styledecl.getPropertyValue("color"));
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
@@ -428,7 +427,7 @@ public class XMLDocumentWrapperTest {
 		re.close();
 		CSSElement elm = xmlDoc.getElementById("para1");
 		assertNotNull(elm);
-		CSSStyleDeclaration style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		ExtendedCSSStyleDeclaration style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("#cd853f", style.getPropertyValue("background-color"));
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
 		elm.getOverrideStyle(null).setCssText("color: darkmagenta ! important;");

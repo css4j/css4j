@@ -35,9 +35,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.LinkStyle;
 
 public class DOMDocumentTest {
 

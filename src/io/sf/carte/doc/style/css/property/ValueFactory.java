@@ -17,10 +17,9 @@ import java.io.StringReader;
 import java.util.Locale;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -59,7 +58,7 @@ public class ValueFactory {
 	 *         otherwise.
 	 */
 	public static boolean isSizeSACUnit(LexicalUnit unit) {
-		return sizeSACUnit(unit) != 0;
+		return sizeSACUnit(unit) != CSSUnit.CSS_INVALID;
 	}
 
 	/**
@@ -68,46 +67,49 @@ public class ValueFactory {
 	 * 
 	 * @param unit
 	 *            the SAC lexical unit.
-	 * @return the unit type if it is a size type (including percentage and unknown dimension), 0
-	 *         otherwise.
+	 * @return the CSS unit type if it is a size type (including percentage),
+	 *         CSS_INVALID otherwise.
 	 */
 	private static short sizeSACUnit(LexicalUnit unit) {
 		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION) {
-			type = functionDimensionArgumentUnit(unit);
+		short cssUnit;
+		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
+			cssUnit = functionDimensionArgumentUnit(unit);
 		} else if (type == LexicalUnit.SAC_SUB_EXPRESSION) {
-			type = subexpressionDimensionUnit(unit);
+			cssUnit = subexpressionDimensionUnit(unit);
+		} else {
+			cssUnit = unit.getCssUnit();
 		}
-		switch (type) {
-		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_PIXEL:
-		case LexicalUnit.SAC_POINT:
-		case LexicalUnit.SAC_EM:
-		case LexicalUnit.SAC_EX:
-		case LexicalUnit.SAC_PICA:
-		case LexicalUnit.SAC_CENTIMETER:
-		case LexicalUnit.SAC_DIMENSION:
-		case LexicalUnit.SAC_INCH:
-		case LexicalUnit.SAC_MILLIMETER:
-		case LexicalUnit.SAC_CAP:
-		case LexicalUnit.SAC_CH:
-		case LexicalUnit.SAC_IC:
-		case LexicalUnit.SAC_LH:
-		case LexicalUnit.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit.SAC_REM:
-		case LexicalUnit.SAC_RLH:
-		case LexicalUnit.SAC_TURN:
-		case LexicalUnit.SAC_VB:
-		case LexicalUnit.SAC_VH:
-		case LexicalUnit.SAC_VI:
-		case LexicalUnit.SAC_VMAX:
-		case LexicalUnit.SAC_VMIN:
-		case LexicalUnit.SAC_VW:
-			return type;
-		case LexicalUnit.SAC_INTEGER:
-			return unit.getIntegerValue() == 0 ? type : 0;
+		switch (cssUnit) {
+		case CSSUnit.CSS_PERCENTAGE:
+		case CSSUnit.CSS_PX:
+		case CSSUnit.CSS_PT:
+		case CSSUnit.CSS_EM:
+		case CSSUnit.CSS_EX:
+		case CSSUnit.CSS_PC:
+		case CSSUnit.CSS_CM:
+		case CSSUnit.CSS_IN:
+		case CSSUnit.CSS_MM:
+		case CSSUnit.CSS_CAP:
+		case CSSUnit.CSS_CH:
+		case CSSUnit.CSS_IC:
+		case CSSUnit.CSS_LH:
+		case CSSUnit.CSS_QUARTER_MM:
+		case CSSUnit.CSS_REM:
+		case CSSUnit.CSS_RLH:
+		case CSSUnit.CSS_TURN:
+		case CSSUnit.CSS_VB:
+		case CSSUnit.CSS_VH:
+		case CSSUnit.CSS_VI:
+		case CSSUnit.CSS_VMAX:
+		case CSSUnit.CSS_VMIN:
+		case CSSUnit.CSS_VW:
+			return cssUnit;
 		default:
-			return 0;
+			if (type == LexicalUnit.SAC_INTEGER && unit.getIntegerValue() == 0) {
+				return CSSUnit.CSS_NUMBER;
+			}
+			return CSSUnit.CSS_INVALID;
 		}
 	}
 
@@ -120,13 +122,16 @@ public class ValueFactory {
 	 */
 	public static boolean isResolutionSACUnit(LexicalUnit unit) {
 		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION) {
-			type = firstArgumentUnit(unit);
+		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
+			unit = firstDimensionArgument(unit);
+			return unit != null && isResolutionSACUnit(unit);
+		} else {
+			type = unit.getCssUnit();
 		}
 		switch (type) {
-		case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
-		case LexicalUnit.SAC_DOTS_PER_INCH:
-		case LexicalUnit.SAC_DOTS_PER_PIXEL:
+		case CSSUnit.CSS_DPCM:
+		case CSSUnit.CSS_DPI:
+		case CSSUnit.CSS_DPPX:
 			return true;
 		default:
 			return false;
@@ -134,7 +139,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the given SAC value can represent a size greater than zero (e.g. font
+	 * Tests whether the given SAC value could represent a size greater than zero (e.g. font
 	 * size).
 	 * 
 	 * @param unit
@@ -144,35 +149,40 @@ public class ValueFactory {
 	 */
 	public static boolean isPositiveSizeSACUnit(LexicalUnit unit) {
 		final short utype = unit.getLexicalUnitType();
+		boolean function;
 		short type = utype;
-		if (utype == LexicalUnit.SAC_FUNCTION) {
+		if (utype == LexicalUnit.SAC_FUNCTION || utype == LexicalUnit.SAC_VAR || utype == LexicalUnit.SAC_ATTR) {
 			type = functionDimensionArgumentUnit(unit);
+			function = true;
+		} else {
+			type = unit.getCssUnit();
+			function = false;
 		}
 		switch (type) {
-		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_PIXEL:
-		case LexicalUnit.SAC_POINT:
-		case LexicalUnit.SAC_EM:
-		case LexicalUnit.SAC_EX:
-		case LexicalUnit.SAC_PICA:
-		case LexicalUnit.SAC_CENTIMETER:
-		case LexicalUnit.SAC_DIMENSION:
-		case LexicalUnit.SAC_INCH:
-		case LexicalUnit.SAC_MILLIMETER:
-		case LexicalUnit.SAC_CAP:
-		case LexicalUnit.SAC_CH:
-		case LexicalUnit.SAC_IC:
-		case LexicalUnit.SAC_LH:
-		case LexicalUnit.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit.SAC_REM:
-		case LexicalUnit.SAC_RLH:
-		case LexicalUnit.SAC_VB:
-		case LexicalUnit.SAC_VH:
-		case LexicalUnit.SAC_VI:
-		case LexicalUnit.SAC_VMAX:
-		case LexicalUnit.SAC_VMIN:
-		case LexicalUnit.SAC_VW:
-			return utype == LexicalUnit.SAC_FUNCTION || unit.getFloatValue() > 0f;
+		case CSSUnit.CSS_PERCENTAGE:
+		case CSSUnit.CSS_PX:
+		case CSSUnit.CSS_PT:
+		case CSSUnit.CSS_EM:
+		case CSSUnit.CSS_EX:
+		case CSSUnit.CSS_PC:
+		case CSSUnit.CSS_CM:
+		case CSSUnit.CSS_OTHER:
+		case CSSUnit.CSS_IN:
+		case CSSUnit.CSS_MM:
+		case CSSUnit.CSS_CAP:
+		case CSSUnit.CSS_CH:
+		case CSSUnit.CSS_IC:
+		case CSSUnit.CSS_LH:
+		case CSSUnit.CSS_QUARTER_MM:
+		case CSSUnit.CSS_REM:
+		case CSSUnit.CSS_RLH:
+		case CSSUnit.CSS_VB:
+		case CSSUnit.CSS_VH:
+		case CSSUnit.CSS_VI:
+		case CSSUnit.CSS_VMAX:
+		case CSSUnit.CSS_VMIN:
+		case CSSUnit.CSS_VW:
+			return function || unit.getFloatValue() > 0f;
 		default:
 			return false;
 		}
@@ -181,42 +191,43 @@ public class ValueFactory {
 	/**
 	 * Tests whether the given SAC unit type is a size or numeric unit.
 	 * 
-	 * @param unit
-	 *            the lexical value.
-	 * @return <code>true</code> if it is a size or numeric type (including percentage and unknown dimension), false
-	 *         otherwise.
+	 * @param unit the lexical value.
+	 * @return <code>true</code> if it is a size or numeric type (including
+	 *         percentage), false otherwise.
 	 */
 	public static boolean isSizeOrNumberSACUnit(LexicalUnit unit) {
 		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION) {
+		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
 			type = functionDimensionArgumentUnit(unit);
+		} else if (type == LexicalUnit.SAC_INTEGER || type == LexicalUnit.SAC_REAL) {
+			return true;
+		} else {
+			type = unit.getCssUnit();
 		}
 		switch (type) {
-		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_PIXEL:
-		case LexicalUnit.SAC_POINT:
-		case LexicalUnit.SAC_EM:
-		case LexicalUnit.SAC_EX:
-		case LexicalUnit.SAC_PICA:
-		case LexicalUnit.SAC_CENTIMETER:
-		case LexicalUnit.SAC_DIMENSION:
-		case LexicalUnit.SAC_INCH:
-		case LexicalUnit.SAC_MILLIMETER:
-		case LexicalUnit.SAC_INTEGER:
-		case LexicalUnit.SAC_REAL:
-		case LexicalUnit.SAC_CAP:
-		case LexicalUnit.SAC_CH:
-		case LexicalUnit.SAC_IC:
-		case LexicalUnit.SAC_LH:
-		case LexicalUnit.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit.SAC_REM:
-		case LexicalUnit.SAC_RLH:
-		case LexicalUnit.SAC_VB:
-		case LexicalUnit.SAC_VH:
-		case LexicalUnit.SAC_VI:
-		case LexicalUnit.SAC_VMAX:
-		case LexicalUnit.SAC_VMIN:
-		case LexicalUnit.SAC_VW:
+		case CSSUnit.CSS_PERCENTAGE:
+		case CSSUnit.CSS_PX:
+		case CSSUnit.CSS_PT:
+		case CSSUnit.CSS_EM:
+		case CSSUnit.CSS_EX:
+		case CSSUnit.CSS_PC:
+		case CSSUnit.CSS_CM:
+		case CSSUnit.CSS_OTHER:
+		case CSSUnit.CSS_IN:
+		case CSSUnit.CSS_MM:
+		case CSSUnit.CSS_CAP:
+		case CSSUnit.CSS_CH:
+		case CSSUnit.CSS_IC:
+		case CSSUnit.CSS_LH:
+		case CSSUnit.CSS_QUARTER_MM:
+		case CSSUnit.CSS_REM:
+		case CSSUnit.CSS_RLH:
+		case CSSUnit.CSS_VB:
+		case CSSUnit.CSS_VH:
+		case CSSUnit.CSS_VI:
+		case CSSUnit.CSS_VMAX:
+		case CSSUnit.CSS_VMIN:
+		case CSSUnit.CSS_VW:
 			return true;
 		default:
 			return false;
@@ -243,63 +254,6 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the given SAC unit type is numeric.
-	 * 
-	 * @param unit
-	 *            the lexical value.
-	 * @return <code>true</code> if is a numeric type, <code>false</code> otherwise.
-	 */
-	public static boolean isNumericSACUnit(LexicalUnit unit) {
-		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION) {
-			type = firstArgumentUnit(unit);
-		}
-		switch (type) {
-		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_PIXEL:
-		case LexicalUnit.SAC_POINT:
-		case LexicalUnit.SAC_EM:
-		case LexicalUnit.SAC_EX:
-		case LexicalUnit.SAC_PICA:
-		case LexicalUnit.SAC_INTEGER:
-		case LexicalUnit.SAC_REAL:
-		case LexicalUnit.SAC_CENTIMETER:
-		case LexicalUnit.SAC_DEGREE:
-		case LexicalUnit.SAC_DIMENSION:
-		case LexicalUnit.SAC_GRADIAN:
-		case LexicalUnit.SAC_HERTZ:
-		case LexicalUnit.SAC_INCH:
-		case LexicalUnit.SAC_KILOHERTZ:
-		case LexicalUnit.SAC_MILLIMETER:
-		case LexicalUnit.SAC_MILLISECOND:
-		case LexicalUnit.SAC_RADIAN:
-		case LexicalUnit.SAC_SECOND:
-		case LexicalUnit.SAC_COUNTER_FUNCTION:
-		case LexicalUnit.SAC_COUNTERS_FUNCTION:
-		case LexicalUnit.SAC_CAP:
-		case LexicalUnit.SAC_CH:
-		case LexicalUnit.SAC_IC:
-		case LexicalUnit.SAC_LH:
-		case LexicalUnit.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit.SAC_REM:
-		case LexicalUnit.SAC_RLH:
-		case LexicalUnit.SAC_TURN:
-		case LexicalUnit.SAC_VB:
-		case LexicalUnit.SAC_VH:
-		case LexicalUnit.SAC_VI:
-		case LexicalUnit.SAC_VMAX:
-		case LexicalUnit.SAC_VMIN:
-		case LexicalUnit.SAC_VW:
-		case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
-		case LexicalUnit.SAC_DOTS_PER_INCH:
-		case LexicalUnit.SAC_DOTS_PER_PIXEL:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	/**
 	 * Tests whether the given SAC unit type is an angle unit.
 	 * 
 	 * @param unit
@@ -308,22 +262,23 @@ public class ValueFactory {
 	 */
 	public static boolean isAngleSACUnit(LexicalUnit unit) {
 		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION) {
+		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
 			if (isColorFunction(unit)) {
 				return false;
 			}
-			type = firstArgumentUnit(unit);
+			unit = firstDimensionArgument(unit);
+			return unit != null && isAngleSACUnit(unit);
+		} else if (type == LexicalUnit.SAC_INTEGER) {
+			return unit.getIntegerValue() == 0;
+		} else {
+			type = unit.getCssUnit();
 		}
 		switch (type) {
-		case LexicalUnit.SAC_DEGREE:
-		case LexicalUnit.SAC_RADIAN:
-		case LexicalUnit.SAC_GRADIAN:
-		case LexicalUnit.SAC_TURN:
+		case CSSUnit.CSS_DEG:
+		case CSSUnit.CSS_RAD:
+		case CSSUnit.CSS_GRAD:
+		case CSSUnit.CSS_TURN:
 			return true;
-		case LexicalUnit.SAC_INTEGER:
-			if (unit.getIntegerValue() == 0) {
-				return true;
-			}
 		default:
 			return false;
 		}
@@ -338,20 +293,18 @@ public class ValueFactory {
 	 */
 	public static boolean isTimeSACUnit(LexicalUnit unit) {
 		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION) {
-			type = firstArgumentUnit(unit);
-			if (type == LexicalUnit.SAC_INTEGER) {
-				return false;
-			}
+		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
+			unit = firstDimensionArgument(unit);
+			return unit != null && isTimeSACUnit(unit);
+		} else if (type == LexicalUnit.SAC_INTEGER) {
+			return unit.getIntegerValue() == 0;
+		} else {
+			type = unit.getCssUnit();
 		}
 		switch (type) {
-		case LexicalUnit.SAC_MILLISECOND:
-		case LexicalUnit.SAC_SECOND:
+		case CSSUnit.CSS_MS:
+		case CSSUnit.CSS_S:
 			return true;
-		case LexicalUnit.SAC_INTEGER:
-			if (unit.getIntegerValue() == 0) {
-				return true;
-			}
 		default:
 			return false;
 		}
@@ -373,7 +326,7 @@ public class ValueFactory {
 		LexicalUnit lu = lunit.getParameters();
 		while (lu != null) {
 			short type = sizeSACUnit(lu);
-			if (type != 0) {
+			if (type != CSSUnit.CSS_INVALID) {
 				return type;
 			}
 			lu = lu.getNextLexicalUnit();
@@ -398,7 +351,7 @@ public class ValueFactory {
 		LexicalUnit lu = lunit.getSubValues();
 		while (lu != null) {
 			short type = sizeSACUnit(lu);
-			if (type != 0) {
+			if (type != CSSUnit.CSS_INVALID) {
 				return type;
 			}
 			lu = lu.getNextLexicalUnit();
@@ -412,30 +365,30 @@ public class ValueFactory {
 	}
 
 	/**
-	 * If the supplied value represents a function, get the unit type of the first
-	 * argument.
+	 * If the supplied value represents a function, get the first argument that has
+	 * an explicit dimension.
 	 * 
-	 * @param lunit
-	 *            the lexical value.
-	 * @return the unit type of the first argument, or -1 if the value has
-	 *         no arguments or is not a function.
+	 * @param lunit the lexical value.
+	 * @return the unit type of the first dimension argument, null if the value has
+	 *         no dimension arguments.
 	 */
-	private static short firstArgumentUnit(LexicalUnit lunit) {
+	private static LexicalUnit firstDimensionArgument(LexicalUnit lunit) {
 		LexicalUnit lu = lunit.getParameters();
-		if (lu != null) {
-			return lu.getLexicalUnitType();
+		while (lu != null) {
+			short sacType = lu.getLexicalUnitType();
+			if (sacType == LexicalUnit.SAC_DIMENSION) {
+				return lu;
+			}
+			lu = lu.getNextLexicalUnit();
 		}
-		return -1;
+		return null;
 	}
 
 	private static boolean isColorFunction(LexicalUnit lunit) {
 		String name = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 		// We may be using a parser that does not map "rgba" to RGBCOLOR.
-		if ("hsl".equals(name) || "hsla".equals(name) || "hwb".equals(name) || name.endsWith("-gradient")
-				|| "rgba".equals(name)) {
-			return true;
-		}
-		return false;
+		return "hsl".equals(name) || "hsla".equals(name) || "hwb".equals(name) || name.endsWith("-gradient")
+				|| "rgba".equals(name);
 	}
 
 	/**
@@ -559,7 +512,7 @@ public class ValueFactory {
 	 * <p>
 	 * 
 	 * @param feature the string containing the feature value
-	 * @return the CSSPrimitiveValue object containing the parsed value.
+	 * @return the PrimitiveValue object containing the parsed value.
 	 * @throws DOMException if a problem was found parsing the feature.
 	 */
 	public PrimitiveValue parseMediaFeature(String feature) throws DOMException {
@@ -572,7 +525,7 @@ public class ValueFactory {
 	 * 
 	 * @param feature the string containing the feature value.
 	 * @param parser the parser used to parse values.
-	 * @return the CSSPrimitiveValue object containing the parsed value.
+	 * @return the PrimitiveValue object containing the parsed value.
 	 * @throws DOMException if a problem was found parsing the feature.
 	 */
 	public PrimitiveValue parseMediaFeature(String feature, Parser parser) throws DOMException {
@@ -632,80 +585,89 @@ public class ValueFactory {
 		if (lunit.getNextLexicalUnit() != null) {
 			ValueList superlist = null; // Comma-separated values
 			ValueList list = ValueList.createWSValueList(); // Whitespace-separated
-																	// values
-			LexicalUnit nlu = lunit;
-			do {
-				StyleValue value;
-				// Check for bracket list.
-				if (nlu.getLexicalUnitType() != LexicalUnit.SAC_LEFT_BRACKET) {
-					ValueItem item = createCSSValueItem(nlu, false);
-					if (item.hasWarnings() && style != null) {
-						StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
-						if (errHandler != null) {
-							item.handleSyntaxWarnings(errHandler);
+															// values
+			try {
+				LexicalUnit nlu = lunit;
+				do {
+					StyleValue value;
+					// Check for bracket list.
+					if (nlu.getLexicalUnitType() != LexicalUnit.SAC_LEFT_BRACKET) {
+						ValueItem item = createCSSValueItem(nlu, false);
+						if (item.hasWarnings() && style != null) {
+							StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
+							if (errHandler != null) {
+								item.handleSyntaxWarnings(errHandler);
+							}
+						}
+						value = item.getCSSValue();
+						CssType cat = value.getCssValueType();
+						if (cat == CssType.TYPED || cat == CssType.PROXY) {
+							// Caution for ratio values.
+							nlu = item.getNextLexicalUnit();
+						} else {
+							nlu = nlu.getNextLexicalUnit();
+						}
+					} else { // Bracket list
+						nlu = nlu.getNextLexicalUnit();
+						// Better check for null now
+						if (nlu == null) {
+							throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
+						}
+						ListValueItem listitem = parseBracketList(nlu, style, false);
+						if (listitem != null) {
+							value = listitem.getCSSValue();
+							nlu = listitem.getNextLexicalUnit();
+						} else {
+							nlu = nlu.getNextLexicalUnit();
+							continue;
 						}
 					}
-					value = item.getCSSValue();
-					if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-						nlu = item.getNextLexicalUnit();
-					} else {
-						nlu = nlu.getNextLexicalUnit();
-					}
-				} else { // Bracket list
-					nlu = nlu.getNextLexicalUnit();
-					// Better check for null now
-					if (nlu == null) {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
-					}
-					ListValueItem listitem = parseBracketList(nlu, style, false);
-					if (listitem != null) {
-						value = listitem.getCSSValue();
-						nlu = listitem.getNextLexicalUnit();
-					} else {
-						nlu = nlu.getNextLexicalUnit();
+					if (nlu != null) {
+						if (nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+							nlu = nlu.getNextLexicalUnit();
+							if (superlist == null) {
+								superlist = ValueList.createCSValueList();
+							}
+							if (list.getLength() > 0) {
+								list.add(value);
+								superlist.add(list);
+								// New list
+								list = ValueList.createWSValueList();
+							} else {
+								superlist.add(value);
+							}
+						} else {
+							list.add(value);
+						}
 						continue;
-					}
-				}
-				if (nlu != null) {
-					if (nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-						nlu = nlu.getNextLexicalUnit();
+					} else {
 						if (superlist == null) {
-							superlist = ValueList.createCSValueList();
-						}
-						if (list.getLength() > 0) {
 							list.add(value);
-							superlist.add(list);
-							// New list
-							list = ValueList.createWSValueList();
 						} else {
-							superlist.add(value);
-						}
-					} else {
-						list.add(value);
-					}
-					continue;
-				} else {
-					if (superlist == null) {
-						list.add(value);
-					} else {
-						if (list.getLength() > 0) {
-							list.add(value);
-							superlist.add(list);
-						} else {
-							superlist.add(value);
+							if (list.getLength() > 0) {
+								list.add(value);
+								superlist.add(list);
+							} else {
+								superlist.add(value);
+							}
 						}
 					}
+					break;
+				} while (nlu != null);
+				if (superlist != null) {
+					StyleValue value = listOrFirstItem(superlist);
+					// if superlist is not null, cannot be empty
+					// so value cannot be null here
+					if (value.getCssValueType() == CssType.LIST) {
+						return listOrFirstItem((ValueList) value);
+					}
+					return value;
 				}
-				break;
-			} while (nlu != null);
-			if (superlist != null) {
-				StyleValue value = listOrFirstItem(superlist);
-				// if superlist is not null, cannot be empty
-				// so value cannot be null here
-				if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
-					return listOrFirstItem((ValueList) value);
-				}
-				return value;
+			} catch (CSSLexicalProcessingException e) {
+				// Contains a var() that should be processed as a lexical value.
+				LexicalSetter item = new LexicalValue().newLexicalSetter();
+				item.setLexicalUnit(lunit);
+				return item.getCSSValue();
 			}
 			return listOrFirstItem(list);
 		} else {
@@ -725,37 +687,46 @@ public class ValueFactory {
 	public ListValueItem parseBracketList(LexicalUnit nlu, AbstractCSSStyleDeclaration style, boolean subproperty) {
 		ListValueItem listitem = new ListValueItem();
 		listitem.list = ValueList.createBracketValueList();
-		while (nlu.getLexicalUnitType() != LexicalUnit.SAC_RIGHT_BRACKET) {
-			ValueItem item = createCSSValueItem(nlu, subproperty);
-			if (item.hasWarnings() && style != null) {
-				StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
-				if (errHandler != null) {
-					item.handleSyntaxWarnings(errHandler);
-				}
-			}
-			StyleValue value = item.getCSSValue();
-			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				nlu = item.getNextLexicalUnit();
-			} else {
-				nlu = nlu.getNextLexicalUnit();
-			}
-			listitem.list.add(value);
-			if (nlu != null) {
-				if (nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-					// Ignoring
-					nlu = nlu.getNextLexicalUnit();
-					if (nlu == null) {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
+		try {
+			while (nlu.getLexicalUnitType() != LexicalUnit.SAC_RIGHT_BRACKET) {
+				ValueItem item = createCSSValueItem(nlu, subproperty);
+				if (item.hasWarnings() && style != null) {
+					StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
+					if (errHandler != null) {
+						item.handleSyntaxWarnings(errHandler);
 					}
 				}
-			} else {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
+				StyleValue value = item.getCSSValue();
+				if (value.getCssValueType() == CssType.TYPED) {
+					nlu = item.getNextLexicalUnit();
+				} else {
+					nlu = nlu.getNextLexicalUnit();
+				}
+				listitem.list.add(value);
+				if (nlu != null) {
+					if (nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+						// Ignoring
+						nlu = nlu.getNextLexicalUnit();
+						if (nlu == null) {
+							throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
+						}
+					}
+				} else {
+					throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
+				}
 			}
-		}
-		if (listitem.list.getLength() != 0) {
-			listitem.nextLexicalUnit = nlu.getNextLexicalUnit();
-		} else {
-			listitem = null;
+			if (listitem.list.getLength() != 0) {
+				listitem.nextLexicalUnit = nlu.getNextLexicalUnit();
+			} else {
+				listitem = null;
+			}
+		} catch (CSSLexicalProcessingException e) {
+			// Contains a var() that should be processed as a lexical value.
+			listitem.list.clear();
+			LexicalSetter item = new LexicalValue().newLexicalSetter();
+			item.setLexicalUnit(nlu);
+			listitem.list.add(item.getCSSValue());
+			listitem.nextLexicalUnit = null;
 		}
 		return listitem;
 	}
@@ -828,17 +799,42 @@ public class ValueFactory {
 	public ValueItem createCSSValueItem(LexicalUnit lunit, boolean subproperty) throws DOMException {
 		switch (lunit.getLexicalUnitType()) {
 		case LexicalUnit.SAC_INHERIT:
-			InheritValue value = InheritValue.getValue();
+			KeywordValue value = InheritValue.getValue();
+			if (subproperty)
+				value = value.asSubproperty();
+			return value;
+		case LexicalUnit.SAC_UNSET:
+			value = UnsetValue.getValue();
+			if (subproperty)
+				value = value.asSubproperty();
+			return value;
+		case LexicalUnit.SAC_REVERT:
+			value = RevertValue.getValue();
+			if (subproperty)
+				value = value.asSubproperty();
+			return value;
+		case LexicalUnit.SAC_INITIAL:
+			value = InitialValue.getValue();
 			if (subproperty)
 				value = value.asSubproperty();
 			return value;
 		default:
-			return createCSSPrimitiveValueItem(lunit, !subproperty, subproperty);
+			try {
+				return createCSSPrimitiveValueItem(lunit, !subproperty, subproperty);
+			} catch (CSSLexicalProcessingException e) {
+				// Contains a var() that should be processed as a lexical value.
+				if (!isNotListLexicalUnit(lunit)) {
+					throw e;
+				}
+				LexicalSetter item = new LexicalValue().newLexicalSetter();
+				item.setLexicalUnit(lunit);
+				return item;
+			}
 		}
 	}
 
 	/**
-	 * Creates an AbstractCSSPrimitiveValue according to the given lexical value.
+	 * Creates a PrimitiveValue according to the given lexical value.
 	 * <p>
 	 * This method either returns a value or throws an exception, but cannot return null.
 	 * </p>
@@ -847,7 +843,7 @@ public class ValueFactory {
 	 *            the lexical value.
 	 * @param subp
 	 *            the flag marking whether it is a sub-property.
-	 * @return the AbstractCSSPrimitiveValue for the CSS primitive value.
+	 * @return the PrimitiveValue for the CSS primitive value.
 	 * @throws DOMException
 	 *             if a problem was found setting the lexical value to a CSS
 	 *             primitive.
@@ -878,13 +874,9 @@ public class ValueFactory {
 		PrimitiveValue primi;
 		LexicalSetter setter;
 		try {
-			switch (unitType) {
+			typeLoop: switch (unitType) {
 			case LexicalUnit.SAC_IDENT:
 				primi = new IdentifierValue();
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case LexicalUnit.SAC_ATTR:
-				primi = new AttrValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_STRING_VALUE:
@@ -899,32 +891,38 @@ public class ValueFactory {
 				primi = new PercentageValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_CENTIMETER:
 			case LexicalUnit.SAC_DIMENSION:
-			case LexicalUnit.SAC_EM:
-			case LexicalUnit.SAC_EX:
-			case LexicalUnit.SAC_INCH:
-			case LexicalUnit.SAC_MILLIMETER:
-			case LexicalUnit.SAC_PICA:
-			case LexicalUnit.SAC_PIXEL:
-			case LexicalUnit.SAC_POINT:
-			case LexicalUnit.SAC_CAP:
-			case LexicalUnit.SAC_CH:
-			case LexicalUnit.SAC_IC:
-			case LexicalUnit.SAC_LH:
-			case LexicalUnit.SAC_QUARTER_MILLIMETER:
-			case LexicalUnit.SAC_REM:
-			case LexicalUnit.SAC_RLH:
-			case LexicalUnit.SAC_VB:
-			case LexicalUnit.SAC_VH:
-			case LexicalUnit.SAC_VI:
-			case LexicalUnit.SAC_VMAX:
-			case LexicalUnit.SAC_VMIN:
-			case LexicalUnit.SAC_VW:
-				primi = new NumberValue();
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				((NumberValue) primi).lengthUnitType = true;
-				break;
+				switch (lunit.getCssUnit()) {
+				case CSSUnit.CSS_CM:
+				case CSSUnit.CSS_EM:
+				case CSSUnit.CSS_EX:
+				case CSSUnit.CSS_IN:
+				case CSSUnit.CSS_MM:
+				case CSSUnit.CSS_PC:
+				case CSSUnit.CSS_PX:
+				case CSSUnit.CSS_PT:
+				case CSSUnit.CSS_CAP:
+				case CSSUnit.CSS_CH:
+				case CSSUnit.CSS_IC:
+				case CSSUnit.CSS_LH:
+				case CSSUnit.CSS_QUARTER_MM:
+				case CSSUnit.CSS_REM:
+				case CSSUnit.CSS_RLH:
+				case CSSUnit.CSS_VB:
+				case CSSUnit.CSS_VH:
+				case CSSUnit.CSS_VI:
+				case CSSUnit.CSS_VMAX:
+				case CSSUnit.CSS_VMIN:
+				case CSSUnit.CSS_VW:
+					primi = new NumberValue();
+					(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+					((NumberValue) primi).lengthUnitType = true;
+					break typeLoop;
+				default:
+					primi = new NumberValue();
+					(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+					break typeLoop;
+				}
 			case LexicalUnit.SAC_REAL:
 				primi = new NumberValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
@@ -932,21 +930,6 @@ public class ValueFactory {
 					// Check for ratio
 					return checkForRatio(setter, subp);
 				}
-				break;
-			case LexicalUnit.SAC_DEGREE:
-			case LexicalUnit.SAC_GRADIAN:
-			case LexicalUnit.SAC_RADIAN:
-			case LexicalUnit.SAC_TURN:
-			case LexicalUnit.SAC_HERTZ:
-			case LexicalUnit.SAC_KILOHERTZ:
-			case LexicalUnit.SAC_MILLISECOND:
-			case LexicalUnit.SAC_SECOND:
-			case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
-			case LexicalUnit.SAC_DOTS_PER_INCH:
-			case LexicalUnit.SAC_DOTS_PER_PIXEL:
-			case LexicalUnit.SAC_FR:
-				primi = new NumberValue();
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_INTEGER:
 				primi = new NumberValue();
@@ -991,14 +974,22 @@ public class ValueFactory {
 						}
 					}
 					break;
-				} else if ("var".equals(func)) {
-					// special case
-					primi = createCustomProperty(lunit);
 				} else if ("env".equals(func)) {
 					primi = new EnvVariableValue();
 				} else {
 					primi = new FunctionValue();
 				}
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case LexicalUnit.SAC_VAR:
+				if (!isIsolatedLexicalUnit(lunit)) {
+					throw new CSSLexicalProcessingException("var() found.");
+				}
+				primi = new CustomPropertyValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case LexicalUnit.SAC_ATTR:
+				primi = new AttrValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_UNICODERANGE:
@@ -1010,7 +1001,7 @@ public class ValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_RECT_FUNCTION:
-				primi = new OMCSSRectValue();
+				primi = new RectValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_COUNTER_FUNCTION:
@@ -1043,6 +1034,16 @@ public class ValueFactory {
 		return setter;
 	}
 
+	private boolean isIsolatedLexicalUnit(LexicalUnit lunit) {
+		return !lunit.isParameter() && lunit.getNextLexicalUnit() == null
+				&& lunit.getPreviousLexicalUnit() == null;
+	}
+
+	private boolean isNotListLexicalUnit(LexicalUnit lunit) {
+		return lunit.getNextLexicalUnit() == null
+				&& lunit.getPreviousLexicalUnit() == null;
+	}
+
 	private LexicalSetter checkForRatio(LexicalSetter setter, boolean subp) throws DOMException {
 		LexicalUnit nlu = setter.getNextLexicalUnit();
 		if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
@@ -1063,29 +1064,6 @@ public class ValueFactory {
 			}
 		}
 		return setter;
-	}
-
-	private PrimitiveValue createCustomProperty(LexicalUnit lunit) {
-		LexicalUnit lu = lunit.getParameters();
-		if (lu == null || lu.getLexicalUnitType() != LexicalUnit.SAC_IDENT) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Variable name must be an identifier");
-		}
-		lu = lu.getNextLexicalUnit();
-		PrimitiveValue primi;
-		if (lu != null) {
-			if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Fallback must be separated by comma");
-			}
-			lu = lu.getNextLexicalUnit();
-			if (lu == null) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "No fallback found after comma");
-			}
-			StyleValue fallback = createCSSValue(lu);
-			primi = new CustomPropertyValue(fallback);
-		} else {
-			primi = new CustomPropertyValue();
-		}
-		return primi;
 	}
 
 	public LexicalUnit appendValueString(StringBuilder buf, LexicalUnit lunit) {
@@ -1160,192 +1138,6 @@ public class ValueFactory {
 	 */
 	public boolean hasFactoryFlag(byte flag) {
 		return (flags & flag) == flag;
-	}
-
-	/**
-	 * Translate a SAC lexical type into a CSS primitive unit type.
-	 * @param lunit 
-	 *            the lexical unit.
-	 * @return the unit type according to <code>CSSPrimitiveValue</code>.
-	 */
-	static short domPrimitiveType(LexicalUnit lunit) {
-		short sacType = lunit.getLexicalUnitType();
-		short primiType;
-		if (sacType == LexicalUnit.SAC_FUNCTION) {
-			LexicalUnit lu = lunit.getParameters();
-			while (lu != null) {
-				if (isNumericSACUnit(lu)) {
-					return CSSPrimitiveValue.CSS_NUMBER;
-				}
-				lu = lu.getNextLexicalUnit();
-				if (lu != null) {
-					if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-						lu = lu.getNextLexicalUnit();
-					}
-				}
-			}
-			primiType = CSSPrimitiveValue.CSS_UNKNOWN;
-		} else {
-			primiType = domPrimitiveType(sacType);
-		}
-		return primiType;
-	}
-
-	/**
-	 * Translate a SAC lexical type into a CSS primitive unit type.
-	 * @param sacType 
-	 *            the SAC type.
-	 * @return the unit type according to <code>CSSPrimitiveValue</code>.
-	 */
-	public static short domPrimitiveType(short sacType) {
-		short primiType;
-		switch (sacType) {
-		case LexicalUnit.SAC_ATTR:
-			primiType = CSSPrimitiveValue.CSS_ATTR;
-			break;
-		case LexicalUnit.SAC_IDENT:
-			primiType = CSSPrimitiveValue.CSS_IDENT;
-			break;
-		case LexicalUnit.SAC_STRING_VALUE:
-			primiType = CSSPrimitiveValue.CSS_STRING;
-			break;
-		case LexicalUnit.SAC_URI:
-			primiType = CSSPrimitiveValue.CSS_URI;
-			break;
-		case LexicalUnit.SAC_CENTIMETER:
-			primiType = CSSPrimitiveValue.CSS_CM;
-			break;
-		case LexicalUnit.SAC_DEGREE:
-			primiType = CSSPrimitiveValue.CSS_DEG;
-			break;
-		case LexicalUnit.SAC_DIMENSION:
-			primiType = CSSPrimitiveValue.CSS_DIMENSION;
-			break;
-		case LexicalUnit.SAC_EM:
-			primiType = CSSPrimitiveValue.CSS_EMS;
-			break;
-		case LexicalUnit.SAC_EX:
-			primiType = CSSPrimitiveValue.CSS_EXS;
-			break;
-		case LexicalUnit.SAC_GRADIAN:
-			primiType = CSSPrimitiveValue.CSS_GRAD;
-			break;
-		case LexicalUnit.SAC_HERTZ:
-			primiType = CSSPrimitiveValue.CSS_HZ;
-			break;
-		case LexicalUnit.SAC_INCH:
-			primiType = CSSPrimitiveValue.CSS_IN;
-			break;
-		case LexicalUnit.SAC_KILOHERTZ:
-			primiType = CSSPrimitiveValue.CSS_KHZ;
-			break;
-		case LexicalUnit.SAC_MILLIMETER:
-			primiType = CSSPrimitiveValue.CSS_MM;
-			break;
-		case LexicalUnit.SAC_MILLISECOND:
-			primiType = CSSPrimitiveValue.CSS_MS;
-			break;
-		case LexicalUnit.SAC_PERCENTAGE:
-			primiType = CSSPrimitiveValue.CSS_PERCENTAGE;
-			break;
-		case LexicalUnit.SAC_PICA:
-			primiType = CSSPrimitiveValue.CSS_PC;
-			break;
-		case LexicalUnit.SAC_PIXEL:
-			primiType = CSSPrimitiveValue.CSS_PX;
-			break;
-		case LexicalUnit.SAC_POINT:
-			primiType = CSSPrimitiveValue.CSS_PT;
-			break;
-		case LexicalUnit.SAC_RADIAN:
-			primiType = CSSPrimitiveValue.CSS_RAD;
-			break;
-		case LexicalUnit.SAC_SECOND:
-			primiType = CSSPrimitiveValue.CSS_S;
-			break;
-		case LexicalUnit.SAC_REAL:
-		case LexicalUnit.SAC_INTEGER:
-			primiType = CSSPrimitiveValue.CSS_NUMBER;
-			break;
-		case LexicalUnit.SAC_RGBCOLOR:
-			primiType = CSSPrimitiveValue.CSS_RGBCOLOR;
-			break;
-		case LexicalUnit.SAC_CAP:
-			primiType = CSSPrimitiveValue2.CSS_CAP;
-			break;
-		case LexicalUnit.SAC_CH:
-			primiType = CSSPrimitiveValue2.CSS_CH;
-			break;
-		case LexicalUnit.SAC_IC:
-			primiType = CSSPrimitiveValue2.CSS_IC;
-			break;
-		case LexicalUnit.SAC_LH:
-			primiType = CSSPrimitiveValue2.CSS_LH;
-			break;
-		case LexicalUnit.SAC_QUARTER_MILLIMETER:
-			primiType = CSSPrimitiveValue2.CSS_QUARTER_MM;
-			break;
-		case LexicalUnit.SAC_REM:
-			primiType = CSSPrimitiveValue2.CSS_REM;
-			break;
-		case LexicalUnit.SAC_RLH:
-			primiType = CSSPrimitiveValue2.CSS_RLH;
-			break;
-		case LexicalUnit.SAC_TURN:
-			primiType = CSSPrimitiveValue2.CSS_TURN;
-			break;
-		case LexicalUnit.SAC_VB:
-			primiType = CSSPrimitiveValue2.CSS_VB;
-			break;
-		case LexicalUnit.SAC_VH:
-			primiType = CSSPrimitiveValue2.CSS_VH;
-			break;
-		case LexicalUnit.SAC_VI:
-			primiType = CSSPrimitiveValue2.CSS_VI;
-			break;
-		case LexicalUnit.SAC_VMAX:
-			primiType = CSSPrimitiveValue2.CSS_VMAX;
-			break;
-		case LexicalUnit.SAC_VMIN:
-			primiType = CSSPrimitiveValue2.CSS_VMIN;
-			break;
-		case LexicalUnit.SAC_VW:
-			primiType = CSSPrimitiveValue2.CSS_VW;
-			break;
-		case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
-			primiType = CSSPrimitiveValue2.CSS_DPCM;
-			break;
-		case LexicalUnit.SAC_DOTS_PER_INCH:
-			primiType = CSSPrimitiveValue2.CSS_DPI;
-			break;
-		case LexicalUnit.SAC_DOTS_PER_PIXEL:
-			primiType = CSSPrimitiveValue2.CSS_DPPX;
-			break;
-		case LexicalUnit.SAC_FR:
-			primiType = CSSPrimitiveValue2.CSS_FR;
-			break;
-		case LexicalUnit.SAC_UNICODERANGE:
-			primiType = CSSPrimitiveValue2.CSS_UNICODE_RANGE;
-			break;
-		case LexicalUnit.SAC_UNICODE_WILDCARD:
-			primiType = CSSPrimitiveValue2.CSS_UNICODE_WILDCARD;
-			break;
-		case LexicalUnit.SAC_ELEMENT_REFERENCE:
-			primiType = CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE;
-			break;
-		case LexicalUnit.SAC_RECT_FUNCTION:
-			primiType = CSSPrimitiveValue.CSS_RECT;
-			break;
-		case LexicalUnit.SAC_COUNTER_FUNCTION:
-			primiType = CSSPrimitiveValue.CSS_COUNTER;
-			break;
-		case LexicalUnit.SAC_COUNTERS_FUNCTION:
-			primiType = CSSPrimitiveValue2.CSS_COUNTERS;
-			break;
-		default:
-			primiType = CSSPrimitiveValue.CSS_UNKNOWN;
-		}
-		return primiType;
 	}
 
 }

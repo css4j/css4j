@@ -20,10 +20,11 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -79,7 +80,7 @@ public class FunctionValueTest {
 		style.setCssText("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("cubic-bezier(0.42, 0, 1, 1)", style.getPropertyValue("transition-timing-function"));
 		assertEquals("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ", style.getCssText());
 		assertEquals(4, val.getArguments().size());
@@ -92,7 +93,7 @@ public class FunctionValueTest {
 		style.setCssText("transition-timing-function: cubic-bezier(-.42, -.3, -1, -.01); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("cubic-bezier(-0.42, -0.3, -1, -0.01)", style.getPropertyValue("transition-timing-function"));
 		assertEquals("transition-timing-function: cubic-bezier(-0.42, -0.3, -1, -0.01); ", style.getCssText());
 		assertEquals(4, val.getArguments().size());
@@ -105,7 +106,7 @@ public class FunctionValueTest {
 		style.setCssText("foo: bar(0.3, 0, calc(3% -  1.4em)); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("bar(0.3, 0, calc(3% - 1.4em))", style.getPropertyValue("foo"));
 		assertEquals("foo: bar(0.3, 0, calc(3% - 1.4em)); ", style.getCssText());
 		assertEquals(3, val.getArguments().size());
@@ -120,7 +121,7 @@ public class FunctionValueTest {
 		style.setCssText("property: foo(one two, three, four five six); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("property");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("foo(one two, three, four five six)", style.getPropertyValue("property"));
 		assertEquals("property: foo(one two, three, four five six); ", style.getCssText());
 		assertEquals("property:foo(one two,three,four five six)", style.getMinifiedCssText());
@@ -134,7 +135,7 @@ public class FunctionValueTest {
 		style.setCssText("property: foo(one, two, three, four five six); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("property");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("foo(one, two, three, four five six)", style.getPropertyValue("property"));
 		assertEquals("property: foo(one, two, three, four five six); ", style.getCssText());
 		assertEquals("property:foo(one,two,three,four five six)", style.getMinifiedCssText());
@@ -148,7 +149,7 @@ public class FunctionValueTest {
 		style.setCssText("property: foo(one two three); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("property");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("foo(one two three)", style.getPropertyValue("property"));
 		assertEquals("property: foo(one two three); ", style.getCssText());
 		assertEquals("property:foo(one two three)", style.getMinifiedCssText());
@@ -162,7 +163,7 @@ public class FunctionValueTest {
 		style.setCssText("width: -webkit-calc(100% - 24px*2); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("-webkit-calc(100% - 24px*2)", style.getPropertyValue("width"));
 		assertEquals("width: -webkit-calc(100% - 24px*2); ", style.getCssText());
 		assertEquals("width:-webkit-calc(100% - 24px*2)", style.getMinifiedCssText());
@@ -184,7 +185,7 @@ public class FunctionValueTest {
 		List<StyleValue> args = val.getArguments();
 		assertEquals(1, args.size());
 		CSSValue cssval = args.get(0);
-		assertEquals(CSSValue.CSS_VALUE_LIST, cssval.getCssValueType());
+		assertEquals(CssType.LIST, cssval.getCssValueType());
 		ValueList list = (ValueList) cssval;
 		assertEquals(5, list.getLength());
 		assertEquals("iequirk", list.item(0).getCssText());
@@ -213,21 +214,21 @@ public class FunctionValueTest {
 		List<StyleValue> args = val.getArguments();
 		assertEquals(1, args.size());
 		CSSValue cssval = args.get(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, cssval.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, ((CSSPrimitiveValue2) cssval).getPrimitiveType());
+		assertEquals(CssType.TYPED, cssval.getCssValueType());
+		assertEquals(CSSValue.Type.FUNCTION, cssval.getPrimitiveType());
 		FunctionValue eval = (FunctionValue) cssval;
 		args = eval.getArguments();
 		assertEquals(1, args.size());
 		cssval = args.get(0);
-		assertEquals(CSSValue.CSS_VALUE_LIST, cssval.getCssValueType());
+		assertEquals(CssType.LIST, cssval.getCssValueType());
 		ValueList list = (ValueList) cssval;
 		assertEquals(3, list.getLength());
 		cssval = list.item(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, cssval.getCssValueType());
+		assertEquals(CssType.TYPED, cssval.getCssValueType());
 		assertEquals("document\\.documentElement\\.scrollTop", cssval.getCssText());
 		cssval = list.item(2);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, cssval.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue2) cssval).getPrimitiveType());
+		assertEquals(CssType.TYPED, cssval.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, cssval.getPrimitiveType());
 		assertEquals("(document\\.documentElement\\.clientHeight-this\\.offsetHeight)", cssval.getCssText());
 		assertTrue(val.equals(val.clone()));
 	}
@@ -249,13 +250,13 @@ public class FunctionValueTest {
 		style.setCssText("transform: translateY(calc(3% - 1.2 * 5px));");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("translateY(calc(3% - 1.2*5px))", style.getPropertyValue("transform"));
 		assertEquals("transform: translateY(calc(3% - 1.2*5px)); ", style.getCssText());
 		assertEquals(1, val.getArguments().size());
 		StyleValue arg = val.getArguments().get(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("3% - 1.2*5px", calc.getExpression().getCssText());
 		assertEquals("calc(3% - 1.2*5px)", calc.getCssText());
@@ -269,14 +270,14 @@ public class FunctionValueTest {
 		style.setCssText("transform: sin(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("sin", val.getStringValue());
 		assertEquals("sin", val.getFunctionName());
 		assertEquals("sin(1.2*5deg)", style.getPropertyValue("transform"));
 		assertEquals(1, val.getArguments().size());
 		StyleValue arg = val.getArguments().get(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*5deg", calc.getExpression().getCssText());
 	}
@@ -286,16 +287,18 @@ public class FunctionValueTest {
 		style.setCssText("foo: atan2(-1.5, 0.2 * 2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("atan2(-1.5, 0.2*2)", style.getPropertyValue("foo"));
 		assertEquals(2, val.getArguments().size());
 		StyleValue arg = val.getArguments().get(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_NUMBER, ((CSSPrimitiveValue) arg).getPrimitiveType());
-		assertEquals(-1.5f, ((CSSPrimitiveValue) arg).getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.01f);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
+		CSSTypedValue primi = (CSSTypedValue) arg;
+		assertEquals(CSSUnit.CSS_NUMBER, primi.getUnitType());
+		assertEquals(-1.5f, primi.getFloatValue(CSSUnit.CSS_NUMBER), 0.01f);
 		arg = val.getArguments().get(1);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("0.2*2", calc.getExpression().getCssText());
 	}
@@ -305,20 +308,22 @@ public class FunctionValueTest {
 		style.setCssText("foo: atan2(0.2 * 2, -1.5)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("atan2", val.getStringValue());
 		assertEquals("atan2", val.getFunctionName());
 		assertEquals("atan2(0.2*2, -1.5)", style.getPropertyValue("foo"));
 		assertEquals(2, val.getArguments().size());
 		StyleValue arg = val.getArguments().get(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("0.2*2", calc.getExpression().getCssText());
 		arg = val.getArguments().get(1);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_NUMBER, ((CSSPrimitiveValue) arg).getPrimitiveType());
-		assertEquals(-1.5f, ((CSSPrimitiveValue) arg).getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.01f);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
+		CSSTypedValue primi = (CSSTypedValue) arg;
+		assertEquals(CSSUnit.CSS_NUMBER, primi.getUnitType());
+		assertEquals(-1.5f, ((CSSTypedValue) arg).getFloatValue(CSSUnit.CSS_NUMBER), 0.01f);
 	}
 
 	@Test
@@ -326,14 +331,14 @@ public class FunctionValueTest {
 		style.setCssText("transform: sqrt(1.2 * calc(attr(foo) / 3))");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");
 		assertNotNull(val);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("sqrt", val.getStringValue());
 		assertEquals("sqrt", val.getFunctionName());
 		assertEquals("sqrt(1.2*calc(attr(foo)/3))", style.getPropertyValue("transform"));
 		assertEquals(1, val.getArguments().size());
 		StyleValue arg = val.getArguments().get(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, arg.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) arg).getPrimitiveType());
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*calc(attr(foo)/3)", calc.getExpression().getCssText());
 	}
@@ -344,7 +349,7 @@ public class FunctionValueTest {
 		StyleValue cssval = style.getPropertyCSSValue("grid-template-columns");
 		assertNotNull(cssval);
 		FunctionValue val = (FunctionValue) cssval;
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("repeat(3, [line1 line2 line3] 200px)", style.getPropertyValue("grid-template-columns"));
 		assertEquals("grid-template-columns: repeat(3, [line1 line2 line3] 200px); ", style.getCssText());
 		assertEquals("grid-template-columns:repeat(3,[line1 line2 line3] 200px)", style.getMinifiedCssText());

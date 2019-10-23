@@ -483,16 +483,14 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 					number.setIntegerValue(ival);
 					values.add(number);
 					continue;
-				} else if (lutype == LexicalUnit.SAC_FUNCTION) {
-					String funcname = value.getFunctionName();
-					if ("calc".equalsIgnoreCase(funcname) || "var".equalsIgnoreCase(funcname)) {
-						ValueFactory valueFactory = new ValueFactory();
-						StyleValue cssval = valueFactory.createCSSValue(value);
-						PrimitiveValue pri = (PrimitiveValue) cssval;
-						pri.setExpectInteger();
-						values.add(pri);
-						continue;
-					}
+				} else if (lutype == LexicalUnit.SAC_VAR
+						|| (lutype == LexicalUnit.SAC_FUNCTION && "calc".equalsIgnoreCase(value.getFunctionName()))) {
+					ValueFactory valueFactory = new ValueFactory();
+					StyleValue cssval = valueFactory.createCSSValue(value);
+					PrimitiveValue pri = (PrimitiveValue) cssval;
+					pri.setExpectInteger();
+					values.add(pri);
+					continue;
 				}
 				String msg = "Found non-integer value: " + value.toString();
 				if (parserctl != null) {

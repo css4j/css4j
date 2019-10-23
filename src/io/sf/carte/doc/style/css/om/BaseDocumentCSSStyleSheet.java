@@ -24,6 +24,7 @@ import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
@@ -119,6 +120,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 	@Override
 	abstract public ComputedCSSStyle getComputedStyle(CSSElement elm, String pseudoElt);
 
+	abstract protected ComputedCSSStyle createComputedCSSStyle();
+
 	/**
 	 * Clone this style sheet.
 	 * 
@@ -199,7 +202,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 		}
 		// Now the override style.
 		if (elt.hasOverrideStyle(pseudoElt)) {
-			style.addStyle((BaseCSSStyleDeclaration) elt.getOverrideStyle(pseudoElt));
+			BaseCSSStyleDeclaration ovstyle = (BaseCSSStyleDeclaration) elt.getOverrideStyle(pseudoElt);
+			style.addStyle(ovstyle);
 		}
 		// Finally, the user's important style sheet.
 		AbstractCSSStyleSheet userImportantStyleSheet = getStyleSheetFactory().getUserImportantStyleSheet();
@@ -211,6 +215,71 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 			while (styleit.hasNext()) {
 				StyleRule rule = styleit.next();
 				style.addStyle((BaseCSSStyleDeclaration) rule.getStyle());
+			}
+		}
+		return style;
+	}
+
+	protected ComputedCSSStyle computeRevertedStyle(ComputedCSSStyle style, SelectorMatcher matcher,
+			String pseudoElt, BaseCSSStyleDeclaration inlineStyle, byte origin) {
+		// Set the pseudo-element
+		matcher.setPseudoElement(pseudoElt);
+		// Obtain the owner element and look for non-CSS presentational hints.
+		CSSElement elt = style.getOwnerNode();
+		ErrorHandler errHandler = elt.getOwnerDocument().getErrorHandler();
+		errHandler.resetComputedStyleErrors(elt);
+		if (origin >= CSSStyleSheetFactory.ORIGIN_AUTHOR) {
+			if (elt.hasPresentationalHints()) {
+				try {
+					elt.exportHintsToStyle(style);
+				} catch (DOMException e) {
+					errHandler.presentationalHintError(elt, e);
+				}
+			}
+		}
+		/*
+		 * We build a sorted set of styles that apply to the given element.
+		 */
+		Cascade matchingStyles = new Cascade();
+		matchingStyles.cascade(matcher, getTargetMedium(), cssRules, origin);
+		/*
+		 * The styles are sorted according to its specificity, per the
+		 * SpecificityComparator.
+		 */
+		Iterator<StyleRule> styleit = matchingStyles.iterator();
+		/*
+		 * Now we add all the styles to form a single declaration. We add them
+		 * according to the order specified by the sorted set.
+		 * 
+		 * Each more specific style is added, starting with the less specific
+		 * declaration.
+		 */
+		while (styleit.hasNext()) {
+			StyleRule rule = styleit.next();
+			style.addStyle((BaseCSSStyleDeclaration) rule.getStyle());
+		}
+		if (origin >= CSSStyleSheetFactory.ORIGIN_AUTHOR) {
+			// The inline style has higher priority, so we add it at the end.
+			if (inlineStyle != null && !inlineStyle.isEmpty()) {
+				style.addStyle(inlineStyle);
+			}
+			// Now the override style.
+			if (elt.hasOverrideStyle(pseudoElt)) {
+				style.addStyle((BaseCSSStyleDeclaration) elt.getOverrideStyle(pseudoElt));
+			}
+		}
+		// Finally, the user's important style sheet.
+		if (origin >= CSSStyleSheetFactory.ORIGIN_USER_IMPORTANT) {
+			AbstractCSSStyleSheet userImportantStyleSheet = getStyleSheetFactory().getUserImportantStyleSheet();
+			if (userImportantStyleSheet != null) {
+				// Build a new cascade
+				Cascade usercascade = new Cascade();
+				usercascade.cascade(matcher, getTargetMedium(), userImportantStyleSheet.getCssRules());
+				styleit = usercascade.iterator();
+				while (styleit.hasNext()) {
+					StyleRule rule = styleit.next();
+					style.addStyle((BaseCSSStyleDeclaration) rule.getStyle());
+				}
 			}
 		}
 		return style;
@@ -290,6 +359,38 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 				LinkedList<StyleRule> matchingRules = new LinkedList<StyleRule>();
 				matchingRules.add(sp.getCSSStyleRule());
 				matchingStyles.put(sp, matchingRules);
+			}
+		}
+
+		public void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list, byte origin) {
+			Iterator<AbstractCSSRule> it = list.iterator();
+			while (it.hasNext()) {
+				AbstractCSSRule rule = it.next();
+				if (rule.getOrigin() >= origin) {
+					short type = rule.getType();
+					if (type != CSSRule.STYLE_RULE && type != CSSRule.PAGE_RULE) {
+						if (type == CSSRule.MEDIA_RULE) {
+							scanMediaRule(matcher, targetMedium, getCanvas(), (MediaRule) rule);
+						} else if (type == CSSRule.FONT_FACE_RULE) {
+							processFontFaceRule((FontFaceRule) rule, targetMedium);
+						} else if (type == ExtendedCSSRule.SUPPORTS_RULE) {
+							SupportsRule supports = (SupportsRule) rule;
+							DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
+							StyleDatabase sdb;
+							if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null
+									&& supports.supports(sdb)) {
+								CSSRuleArrayList rules = supports.getCssRules();
+								cascade(matcher, targetMedium, rules);
+							}
+						} // we find no @import rules here
+						continue;
+					}
+					StyleRule stylerule = (StyleRule) rule;
+					int selIdx = matcher.matches(stylerule.getSelectorList());
+					if (selIdx != -1) {
+						add(stylerule.getSpecifity(selIdx));
+					}
+				}
 			}
 		}
 

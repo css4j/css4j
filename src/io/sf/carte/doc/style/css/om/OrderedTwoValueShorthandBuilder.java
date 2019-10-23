@@ -13,8 +13,9 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Set;
 
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -50,13 +51,24 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
-		check = checkValuesForKeyword("unset", declaredSet);
+		// Revert
+		check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+		if (check == 1) {
+			// All values are revert
+			buf.append("revert");
+			appendPriority(buf, important);
+			return true;
+		} else if (check == 2) {
+			return false;
+		}
+		// Unset
+		check = checkValuesForKeyword(CSSValue.Type.UNSET, declaredSet);
 		if (check == 1) {
 			// All values are unset
 			buf.append("unset");
 			appendPriority(buf, important);
 			return true;
-		} else if (check == 2) {
+		} else if (check == 2 && isInheritedProperty()) {
 			return false;
 		}
 		String[] subp = getSubproperties();
@@ -66,7 +78,7 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 		String property = subp[0];
 		// Make sure that it is not a layered property
 		StyleValue cssVal = getCSSValue(property);
-		if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
+		if (cssVal.getCssValueType() == CssType.LIST &&
 				((ValueList) cssVal).isCommaSeparated()) {
 			return false;
 		}
@@ -76,7 +88,7 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 			appended = true;
 		}
 		StyleValue cssVal2 = getCSSValue(subp[1]);
-		if (!valueEquals(cssVal, cssVal2)) {
+		if (!valueEquals(cssVal, cssVal2) && (appended || isNotInitialValue(cssVal2, property))) {
 			appendValueText(buf, cssVal2, appended);
 			appended = true;
 		}
@@ -87,12 +99,18 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 		return true;
 	}
 
+	@Override
+	boolean isInheritedProperty() {
+		String ptyname = getLonghandProperties()[0];
+		return PropertyDatabase.getInstance().isInherited(ptyname);
+	}
+
 	/*
 	 * This override is optimized for the case where non system-default values cannot be found
 	 */
 	@Override
 	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
-		return cssVal != null && !isInitialIdentifier(cssVal)
+		return cssVal != null && !isEffectiveInitialKeyword(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 

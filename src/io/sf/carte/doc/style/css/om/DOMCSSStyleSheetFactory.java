@@ -315,8 +315,8 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 		}
 
 		@Override
-		protected DOMComputedStyle createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet) {
-			return new MyDOMComputedStyle(parentSheet);
+		protected DOMComputedStyle createComputedCSSStyle() {
+			return new MyDOMComputedStyle(this);
 		}
 
 		@Override

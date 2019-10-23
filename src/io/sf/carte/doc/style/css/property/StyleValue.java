@@ -13,27 +13,18 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.CSSValue;
 
 /**
  * Base implementation for CSS values.
  * 
- * @author Carlos Amengual
- * 
  */
-abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
-
-	private final short valueType;
+abstract public class StyleValue implements CSSValue, Cloneable {
 
 	private transient boolean readOnly = false;
 
-	protected StyleValue(short valueType) {
+	protected StyleValue() {
 		super();
-		this.valueType = valueType;
-	}
-
-	protected StyleValue(StyleValue copied) {
-		this(copied.valueType);
 	}
 
 	/**
@@ -57,21 +48,20 @@ abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 				"This property can only be modified at the style declaration level.");
 	}
 
-	/**
-	 * Gives a code defining the type of the value as defined by <code><a href=
-	 * "http://www.w3.org/2003/01/dom2-javadoc/org/w3c/dom/css/CSSValue.html">CSSValue</a>
-	 *  </code>.
-	 * 
-	 * @return the value type according to CSS DOM Level 2.
-	 */
-	@Override
-	public short getCssValueType() {
-		return valueType;
-	}
-
 	@Override
 	public String getMinifiedCssText(String propertyName) {
 		return getCssText();
+	}
+
+	/**
+	 * Check whether this value is primitive, that is, either a
+	 * {@link io.sf.carte.doc.style.css.CSSValue.CssType#TYPED TYPED} or
+	 * {@link io.sf.carte.doc.style.css.CSSValue.CssType#PROXY PROXY} value.
+	 * 
+	 * @return {@code true} if the value is {@code TYPED} or {@code PROXY}.
+	 */
+	public boolean isPrimitiveValue() {
+		return false;
 	}
 
 	/**
@@ -106,7 +96,7 @@ abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 
 	@Override
 	public int hashCode() {
-		return valueType;
+		return getCssValueType().hashCode();
 	}
 
 	@Override
@@ -121,10 +111,7 @@ abstract public class StyleValue implements ExtendedCSSValue, Cloneable {
 			return false;
 		}
 		StyleValue other = (StyleValue) obj;
-		if (valueType != other.valueType) {
-			return false;
-		}
-		return true;
+		return getCssValueType() == other.getCssValueType();
 	}
 
 	@Override

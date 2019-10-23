@@ -59,6 +59,19 @@ public class BorderRadiusBuilderTest {
 	}
 
 	@Test
+	public void testBorderRadiusMix() {
+		assertShorthandText(
+				"border-radius:1px 5px 7px 3px;",
+				"border-top-left-radius:1px;border-bottom-left-radius:3px; border-top-right-radius:5px;border-bottom-right-radius:7px;");
+		assertShorthandText(
+				"border-radius:0 5px 7px 3px;",
+				"border-top-left-radius:unset;border-bottom-left-radius:3px; border-top-right-radius:5px;border-bottom-right-radius:7px;");
+		assertShorthandText(
+				"border-radius:0 0 7px 3px;",
+				"border-top-left-radius:unset;border-bottom-left-radius:3px; border-top-right-radius:initial;border-bottom-right-radius:7px;");
+	}
+
+	@Test
 	public void testBorderRadiusImportant() {
 		assertShorthandText("border-radius:1px!important;", "border-radius:1px!important;");
 		assertShorthandText("border-radius:1px 2px!important;", "border-radius:1px 2px!important;");
@@ -253,8 +266,14 @@ public class BorderRadiusBuilderTest {
 
 	@Test
 	public void testBorderRadiusUnset() {
-		assertShorthandText("border-radius:unset;", "border-radius: unset;");
-		assertShorthandText("border-radius:unset!important;", "border-radius: unset !important;");
+		assertShorthandText("border-radius:0;", "border-radius: unset;");
+		assertShorthandText("border-radius:0!important;", "border-radius: unset !important;");
+	}
+
+	@Test
+	public void testBorderRadiusRevert() {
+		assertShorthandText("border-radius:revert;", "border-radius: revert;");
+		assertShorthandText("border-radius:revert!important;", "border-radius: revert !important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

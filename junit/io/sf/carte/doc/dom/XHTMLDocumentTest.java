@@ -36,24 +36,25 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSStyleDeclaration;
-import org.w3c.dom.css.CSSStyleRule;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.dom.HTMLDocument.LinkElement;
 import io.sf.carte.doc.dom.HTMLDocument.StyleElement;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
+import io.sf.carte.doc.style.css.om.StyleRule;
 
 public class XHTMLDocumentTest {
 
@@ -565,12 +566,12 @@ public class XHTMLDocumentTest {
 		assertEquals(null, sheet.getTitle());
 		assertEquals(3, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
-		assertEquals("background-color: red; ", ((CSSStyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
+		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
 		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ffval.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_URI, ((CSSPrimitiveValue) ffval).getPrimitiveType());
+		assertEquals(CssType.TYPED, ffval.getCssValueType());
+		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
 		assertTrue(((FontFeatureValuesRule) sheet.getCssRules().item(2)).getMinifiedCssText()
 				.startsWith("@font-feature-values Foo Sans,Bar"));
 		assertTrue(it.hasNext());
@@ -611,12 +612,12 @@ public class XHTMLDocumentTest {
 		CSSElement elm = xmlDoc.getElementById("firstH3");
 		assertNotNull(elm);
 		assertEquals("font-family: 'Does Not Exist', Neither; color: navy; ", elm.getAttribute("style"));
-		CSSStyleDeclaration style = elm.getStyle();
+		ExtendedCSSStyleDeclaration style = elm.getStyle();
 		assertEquals("font-family: 'Does Not Exist', Neither; color: navy; ", style.getCssText());
 		assertEquals(2, style.getLength());
 		assertEquals("'Does Not Exist', Neither", style.getPropertyValue("font-family"));
 		DocumentCSSStyleSheet sheet = xmlDoc.getStyleSheet();
-		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		ExtendedCSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(19, styledecl.getLength());
 		assertEquals("#000080", styledecl.getPropertyValue("color"));
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
@@ -646,7 +647,7 @@ public class XHTMLDocumentTest {
 		CSSElement elm = xmlDoc.getElementById("fooimg");
 		assertNotNull(elm);
 		DocumentCSSStyleSheet sheet = xmlDoc.getStyleSheet();
-		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		ExtendedCSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(2, styledecl.getLength());
 		assertEquals("200px", styledecl.getPropertyValue("width"));
 		assertEquals("180px", styledecl.getPropertyValue("height"));
@@ -725,7 +726,7 @@ public class XHTMLDocumentTest {
 		//
 		Attr type = style.getAttributeNode("type");
 		type.setNodeValue("foo");
-		assertNull(((LinkStyle) style).getSheet());
+		assertNull(((LinkStyle<AbstractCSSRule>) style).getSheet());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 	}
 
@@ -771,13 +772,13 @@ public class XHTMLDocumentTest {
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
 		href.setValue("http://www.example.com/css/example.css");
-		assertNotNull(((LinkStyle) link).getSheet());
+		assertNotNull(((LinkStyle<AbstractCSSRule>) link).getSheet());
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		xmlDoc.getErrorHandler().reset();
 		//
 		link.setAttribute("media", "screen only and");
-		assertNull(((LinkStyle) link).getSheet());
+		assertNull(((LinkStyle<AbstractCSSRule>) link).getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 	}
 
@@ -807,7 +808,7 @@ public class XHTMLDocumentTest {
 		re.close();
 		CSSElement elm = xmlDoc.getElementById("para1");
 		assertNotNull(elm);
-		CSSStyleDeclaration style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		ExtendedCSSStyleDeclaration style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("#cd853f", style.getPropertyValue("background-color"));
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
 		elm.getOverrideStyle(null).setCssText("color: darkmagenta ! important;");

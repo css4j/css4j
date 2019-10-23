@@ -15,7 +15,8 @@ import java.io.IOException;
 
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -24,7 +25,7 @@ import io.sf.carte.util.SimpleWriter;
  * @see CSSExpression
  */
 class OperandExpression extends StyleExpression implements CSSOperandExpression {
-	ExtendedCSSPrimitiveValue operand = null;
+	CSSPrimitiveValue operand = null;
 
 	OperandExpression() {
 		super();
@@ -40,12 +41,12 @@ class OperandExpression extends StyleExpression implements CSSOperandExpression 
 	}
 
 	@Override
-	public ExtendedCSSPrimitiveValue getOperand() {
+	public CSSPrimitiveValue getOperand() {
 		return operand;
 	}
 
 	@Override
-	public void setOperand(ExtendedCSSPrimitiveValue operand) {
+	public void setOperand(CSSPrimitiveValue operand) {
 		this.operand = operand;
 	}
 
@@ -69,11 +70,10 @@ class OperandExpression extends StyleExpression implements CSSOperandExpression 
 		// Superclass check guarantees that the class of obj is OperandExpression
 		OperandExpression other = (OperandExpression) obj;
 		if (operand == null) {
-			if (other.operand != null)
-				return false;
-		} else if (!operand.equals(other.operand))
-			return false;
-		return true;
+			return other.operand == null;
+		} else {
+			return operand.equals(other.operand);
+		}
 	}
 
 	@Override
@@ -98,7 +98,7 @@ class OperandExpression extends StyleExpression implements CSSOperandExpression 
 		return new OperandExpression(this);
 	}
 
-	static OperandExpression createOperand(ExtendedCSSPrimitiveValue operand) {
+	static OperandExpression createOperand(CSSTypedValue operand) {
 		OperandExpression opexpr = new OperandExpression();
 		opexpr.setOperand(operand);
 		return opexpr;

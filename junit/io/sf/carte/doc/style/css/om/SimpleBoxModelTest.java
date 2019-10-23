@@ -20,7 +20,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.DocumentException;
 import io.sf.carte.doc.style.css.BoxValues;
@@ -29,6 +28,7 @@ import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.property.NumberValue;
 
@@ -54,7 +54,7 @@ public class SimpleBoxModelTest {
 		TableBoxValues tablebox;
 		// Element: body
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -68,7 +68,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList0_0_0 = elm.getChildNodes();
@@ -82,7 +82,7 @@ public class SimpleBoxModelTest {
 		// Element: h1 id = h1
 		assertEquals("h1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(36.45, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(36.45, box.getMarginBottom(), 0.03f);
@@ -96,7 +96,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(3 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
@@ -108,7 +108,7 @@ public class SimpleBoxModelTest {
 		// Element: p id = para1
 		assertEquals("para1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(40, box.getMarginTop(), 0.03f);
 		assertEquals(80, box.getMarginRight(), 0.03f);
 		assertEquals(40, box.getMarginBottom(), 0.03f);
@@ -122,7 +122,7 @@ public class SimpleBoxModelTest {
 		assertEquals(1.33, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(1.33, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(685.34, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(4 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
@@ -134,7 +134,7 @@ public class SimpleBoxModelTest {
 		// Element: p id = para2
 		assertEquals("para2", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(40, box.getMarginTop(), 0.03f);
 		assertEquals(80, box.getMarginRight(), 0.03f);
 		assertEquals(40, box.getMarginBottom(), 0.03f);
@@ -148,7 +148,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(624, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList4_1_4 = elm.getChildNodes();
@@ -162,7 +162,7 @@ public class SimpleBoxModelTest {
 		// Element: span id = span1
 		assertEquals("span1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -175,7 +175,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderRightWidth(), 0.03f);
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		// Return to parent level (body)
 		node = ndList0_0_0.item(6 + delta);
@@ -188,7 +188,7 @@ public class SimpleBoxModelTest {
 		// Element: h2 id = h2
 		assertEquals("h2", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(26.56, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(26.56, box.getMarginBottom(), 0.03f);
@@ -202,7 +202,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(8 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
@@ -214,7 +214,7 @@ public class SimpleBoxModelTest {
 		// Element: p id = smip
 		assertEquals("smip", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(40, box.getMarginTop(), 0.03f);
 		assertEquals(80, box.getMarginRight(), 0.03f);
 		assertEquals(40, box.getMarginBottom(), 0.03f);
@@ -228,7 +228,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(688, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(10 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"P".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
@@ -240,7 +240,7 @@ public class SimpleBoxModelTest {
 		// Element: p id = tablepara
 		assertEquals("tablepara", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(16, box.getMarginTop(), 0.03f);
 		assertEquals(32, box.getMarginRight(), 0.03f);
 		assertEquals(48, box.getMarginBottom(), 0.03f);
@@ -254,7 +254,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(720, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList10_1_10 = elm.getChildNodes();
@@ -267,7 +267,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: span
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -280,7 +280,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderRightWidth(), 0.03f);
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		// Return to parent level (body)
 		node = ndList0_0_0.item(12 + delta);
@@ -293,7 +293,7 @@ public class SimpleBoxModelTest {
 		// Element: table id = table1
 		assertEquals("table1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		tablebox = (TableBoxValues)style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		tablebox = (TableBoxValues)style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, tablebox.getMarginTop(), 0.03f);
 		assertEquals(0, tablebox.getMarginRight(), 0.03f);
 		assertEquals(0, tablebox.getMarginBottom(), 0.03f);
@@ -319,7 +319,7 @@ public class SimpleBoxModelTest {
 		// Element: tr id = tablehdr1
 		assertEquals("tablehdr1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(16, box.getMarginTop(), 0.03f);
 		assertEquals(21.33, box.getMarginRight(), 0.03f);
 		assertEquals(16, box.getMarginBottom(), 0.03f);
@@ -344,7 +344,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: th "Header 1"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -368,7 +368,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: th "Header 2"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -392,7 +392,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: th "Header 3"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -417,7 +417,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -443,7 +443,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell00
 		assertEquals("cell00", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -468,7 +468,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell01
 		assertEquals("cell01", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -493,7 +493,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell02
 		assertEquals("cell02", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -518,7 +518,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -544,7 +544,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell10
 		assertEquals("cell10", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -569,7 +569,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell11
 		assertEquals("cell11", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -594,7 +594,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell12
 		assertEquals("cell12", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -619,7 +619,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -645,7 +645,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell20
 		assertEquals("cell20", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -670,7 +670,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell21
 		assertEquals("cell21", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -695,7 +695,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell22
 		assertEquals("cell22", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -720,7 +720,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -746,7 +746,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell30
 		assertEquals("cell30", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -771,7 +771,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell31
 		assertEquals("cell31", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -796,7 +796,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell32
 		assertEquals("cell32", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -821,7 +821,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -847,7 +847,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell40
 		assertEquals("cell40", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -872,7 +872,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell41
 		assertEquals("cell41", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -897,7 +897,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell42
 		assertEquals("cell42", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -922,7 +922,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -948,7 +948,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell50
 		assertEquals("cell50", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -973,7 +973,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell51
 		assertEquals("cell51", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -998,7 +998,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell52
 		assertEquals("cell52", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1023,7 +1023,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1049,7 +1049,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell60
 		assertEquals("cell60", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1074,7 +1074,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell61
 		assertEquals("cell61", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1099,7 +1099,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell62
 		assertEquals("cell62", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1125,7 +1125,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: p
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(40, box.getMarginTop(), 0.03f);
 		assertEquals(80, box.getMarginRight(), 0.03f);
 		assertEquals(40, box.getMarginBottom(), 0.03f);
@@ -1139,7 +1139,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(624, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(16 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"TABLE".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
@@ -1151,7 +1151,7 @@ public class SimpleBoxModelTest {
 		// Element: table id = table2
 		assertEquals("table2", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		tablebox = (TableBoxValues)style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		tablebox = (TableBoxValues)style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, tablebox.getMarginTop(), 0.03f);
 		assertEquals(0, tablebox.getMarginRight(), 0.03f);
 		assertEquals(0, tablebox.getMarginBottom(), 0.03f);
@@ -1177,7 +1177,7 @@ public class SimpleBoxModelTest {
 		// Element: tr id = tablehdr2
 		assertEquals("tablehdr2", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(16, box.getMarginTop(), 0.03f);
 		assertEquals(21.33, box.getMarginRight(), 0.03f);
 		assertEquals(16, box.getMarginBottom(), 0.03f);
@@ -1202,7 +1202,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: th "Header 1"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1226,7 +1226,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: th "Header 2"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1250,7 +1250,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: th "Header 3"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1274,7 +1274,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: th "Header 4"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1299,7 +1299,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1325,7 +1325,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell00
 		assertEquals("cell00", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1350,7 +1350,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell01
 		assertEquals("cell01", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1375,7 +1375,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell02
 		assertEquals("cell02", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1400,7 +1400,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell03
 		assertEquals("cell03", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1425,7 +1425,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1451,7 +1451,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell10
 		assertEquals("cell10", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1475,7 +1475,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: td "Cell"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1499,7 +1499,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: td "Cell with more content"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1523,7 +1523,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: td "Cell"
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1548,7 +1548,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: tr
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1574,7 +1574,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell20
 		assertEquals("cell20", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1599,7 +1599,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell21
 		assertEquals("cell21", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1624,7 +1624,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell22
 		assertEquals("cell22", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1649,7 +1649,7 @@ public class SimpleBoxModelTest {
 		// Element: td id = cell23
 		assertEquals("cell23", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(0, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(0, box.getMarginBottom(), 0.03f);
@@ -1676,7 +1676,7 @@ public class SimpleBoxModelTest {
 		// Element: h3 id = firstH3
 		assertEquals("firstH3", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(21.33, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(21.33, box.getMarginBottom(), 0.03f);
@@ -1690,7 +1690,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList0_0_0.item(20 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE || !"DIV".equals(((CSSElement)node).getTagName().toUpperCase(Locale.ROOT))) {
@@ -1702,7 +1702,7 @@ public class SimpleBoxModelTest {
 		// Element: div id = div1
 		assertEquals("div1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(32, box.getMarginTop(), 0.03f);
 		assertEquals(0, box.getMarginRight(), 0.03f);
 		assertEquals(48, box.getMarginBottom(), 0.03f);
@@ -1716,7 +1716,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(800, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList20_1_20 = elm.getChildNodes();
@@ -1730,7 +1730,7 @@ public class SimpleBoxModelTest {
 		// Element: p id = listpara
 		assertEquals("listpara", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(40, box.getMarginTop(), 0.03f);
 		assertEquals(80, box.getMarginRight(), 0.03f);
 		assertEquals(40, box.getMarginBottom(), 0.03f);
@@ -1744,7 +1744,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(624, box.getWidth(), 0.1f);
-		assertEquals(21.33, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(21.33, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList20_1_20.item(3 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1756,7 +1756,7 @@ public class SimpleBoxModelTest {
 		// Element: ul id = ul1
 		assertEquals("ul1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(16, box.getMarginTop(), 0.03f);
 		assertEquals(32, box.getMarginRight(), 0.03f);
 		assertEquals(32, box.getMarginBottom(), 0.03f);
@@ -1770,7 +1770,7 @@ public class SimpleBoxModelTest {
 		assertEquals(2.66, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(2.66, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(689.09, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		// Evaluating child nodes:
 		NodeList ndList23_2_3 = elm.getChildNodes();
@@ -1784,7 +1784,7 @@ public class SimpleBoxModelTest {
 		// Element: li id = ul1li1
 		assertEquals("ul1li1", elm.getAttribute("id"));
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(19.20, box.getMarginTop(), 0.03f);
 		assertEquals(38.40, box.getMarginRight(), 0.03f);
 		assertEquals(19.20, box.getMarginBottom(), 0.03f);
@@ -1798,7 +1798,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(3 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1809,7 +1809,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: li
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(19.20, box.getMarginTop(), 0.03f);
 		assertEquals(38.40, box.getMarginRight(), 0.03f);
 		assertEquals(19.20, box.getMarginBottom(), 0.03f);
@@ -1823,7 +1823,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(5 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1834,7 +1834,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: li
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(19.20, box.getMarginTop(), 0.03f);
 		assertEquals(38.40, box.getMarginRight(), 0.03f);
 		assertEquals(19.20, box.getMarginBottom(), 0.03f);
@@ -1848,7 +1848,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(7 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1859,7 +1859,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: li
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(19.20, box.getMarginTop(), 0.03f);
 		assertEquals(38.40, box.getMarginRight(), 0.03f);
 		assertEquals(19.20, box.getMarginBottom(), 0.03f);
@@ -1873,7 +1873,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(9 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1884,7 +1884,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: li
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(19.20, box.getMarginTop(), 0.03f);
 		assertEquals(38.40, box.getMarginRight(), 0.03f);
 		assertEquals(19.20, box.getMarginBottom(), 0.03f);
@@ -1898,7 +1898,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		node = ndList23_2_3.item(11 + delta);
 		while(node.getNodeType() != Node.ELEMENT_NODE) {
@@ -1909,7 +1909,7 @@ public class SimpleBoxModelTest {
 		elm = (CSSElement)node;
 		// Element: li
 		style = sheet.getComputedStyle(elm, null);
-		box = style.getBoxValues(CSSPrimitiveValue.CSS_PX);
+		box = style.getBoxValues(CSSUnit.CSS_PX);
 		assertEquals(19.20, box.getMarginTop(), 0.03f);
 		assertEquals(38.40, box.getMarginRight(), 0.03f);
 		assertEquals(19.20, box.getMarginBottom(), 0.03f);
@@ -1923,7 +1923,7 @@ public class SimpleBoxModelTest {
 		assertEquals(0, box.getBorderBottomWidth(), 0.03f);
 		assertEquals(0, box.getBorderLeftWidth(), 0.03f);
 		assertEquals(599, box.getWidth(), 0.1f);
-		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);
+		assertEquals(19.20, NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);
 		delta = 0;
 		// Return to parent level (div)
 		// Return to parent level (body)

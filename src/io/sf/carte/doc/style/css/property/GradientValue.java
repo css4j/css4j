@@ -27,7 +27,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 	private GradientType gradientType = CSSGradientValue.GradientType.OTHER_GRADIENT;
 
 	GradientValue() {
-		super();
+		super(Type.GRADIENT);
 	}
 
 	GradientValue(GradientValue copied) {
@@ -60,10 +60,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			return false;
 		}
 		GradientValue other = (GradientValue) obj;
-		if (gradientType != other.gradientType) {
-			return false;
-		}
-		return true;
+		return gradientType == other.gradientType;
 	}
 
 	@Override
@@ -82,7 +79,6 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			if (lu == null) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Gradient without arguments");
 			}
-			setCSSUnitType(CSS_GRADIENT);
 			if (funcname.endsWith("linear-gradient")) {
 				if (funcname.equals("linear-gradient")) {
 					gradientType = GradientType.LINEAR_GRADIENT;
@@ -202,11 +198,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
 			if (BaseCSSStyleDeclaration.testColor(lu)) {
 				return true;
-			} else if (lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
-					&& ValueFactory.isSizeSACUnit(lu)) {
-				return true;
+			} else {
+				return lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
+						&& ValueFactory.isSizeSACUnit(lu);
 			}
-			return false;
 		}
 
 		private LexicalUnit processLinearColorStop(LexicalUnit lu, ValueFactory factory) {
@@ -334,12 +329,11 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
 			if (BaseCSSStyleDeclaration.testColor(lu)) {
 				return true;
-			} else if (lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
-					&& (ValueFactory.isAngleSACUnit(lu)
-							|| lu.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE)) {
-				return true;
+			} else {
+				return lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
+						&& (ValueFactory.isAngleSACUnit(lu)
+								|| lu.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE);
 			}
-			return false;
 		}
 
 		private LexicalUnit processAngularColorStop(LexicalUnit lu, ValueFactory factory) {

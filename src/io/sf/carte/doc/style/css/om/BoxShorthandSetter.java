@@ -18,6 +18,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.InheritValue;
+import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -43,8 +44,8 @@ class BoxShorthandSetter extends ShorthandSetter {
 			}
 			lunit = lunit.getNextLexicalUnit();
 		}
-		InheritValue inherit = InheritValue.getValue().asSubproperty();
-		setSubpropertiesInherit(inherit);
+		KeywordValue inherit = InheritValue.getValue().asSubproperty();
+		setSubpropertiesToKeyword(inherit);
 		initValueString();
 		appendValueItemString(inherit);
 		return true;
@@ -135,33 +136,30 @@ class BoxShorthandSetter extends ShorthandSetter {
 	 */
 	short boxValueCount(LexicalUnit topLevelUnit) {
 		short valueCount = 0;
+		short lutype;
 		for (LexicalUnit value = topLevelUnit; value != null; value = value.getNextLexicalUnit()) {
 			if (isValueOfType(value)) {
 				valueCount++;
 				continue;
-			} else if (value.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			} else if ((lutype = value.getLexicalUnitType()) == LexicalUnit.SAC_IDENT) {
 				String sv = value.getStringValue();
 				// only auto (and css-wide keywords) for margin properties
 				String lcsv = sv.toLowerCase(Locale.ROOT).intern();
 				if (isIdentifierValue(lcsv)) {
 					valueCount++;
 					continue;
-				} else if ("unset".equals(lcsv) || "initial".equals(lcsv)) {
-					nonmixed = false;
-					valueCount++;
-					continue;
 				}
-			} else if (value.getLexicalUnitType() == LexicalUnit.SAC_INHERIT) {
+			} else if (lutype == LexicalUnit.SAC_INHERIT || lutype == LexicalUnit.SAC_INITIAL
+					|| lutype == LexicalUnit.SAC_UNSET || lutype == LexicalUnit.SAC_REVERT) {
 				nonmixed = false;
 				valueCount++;
 				continue;
-			} else if (value.getLexicalUnitType() == LexicalUnit.SAC_FUNCTION) {
-				if ("var".equalsIgnoreCase(value.getStringValue())) {
-					valueCount++;
-					continue;
-				}
+			} else if (value.getLexicalUnitType() == LexicalUnit.SAC_VAR) {
+				valueCount++;
+				continue;
 			}
 			// Error found
+			valueCount = 5;
 			break;
 		}
 		if (!nonmixed && valueCount == 1) {
@@ -185,7 +183,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 
 	@Override
 	protected void setSubpropertyValue(String subproperty, StyleValue cssValue) {
-		styleDeclaration.setProperty(subproperty, cssValue, getPriority());
+		styleDeclaration.setProperty(subproperty, cssValue, isPriorityImportant());
 	}
 
 }

@@ -433,10 +433,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 		if (uPath == cPath) {
 			return true;
 		}
-		if (uPath != null && uPath.startsWith(cPath)) {
-			return true;
-		}
-		return false;
+		return uPath != null && uPath.startsWith(cPath);
 	}
 
 	private static boolean matchPort(URL url, int[] ports) {
@@ -592,13 +589,10 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 				return false;
 			}
 			if (realm == null) {
-				if (other.realm != null) {
-					return false;
-				}
-			} else if (!realm.equals(other.realm)) {
-				return false;
+				return other.realm == null;
+			} else {
+				return realm.equals(other.realm);
 			}
-			return true;
 		}
 
 		@Override

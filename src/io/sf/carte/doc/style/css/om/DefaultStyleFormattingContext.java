@@ -15,7 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -172,7 +172,7 @@ public class DefaultStyleFormattingContext implements StyleFormattingContext {
 	}
 
 	@Override
-	public void writeValue(SimpleWriter wri, String propertyName, ExtendedCSSValue value) throws IOException {
+	public void writeValue(SimpleWriter wri, String propertyName, CSSValue value) throws IOException {
 		value.writeCssText(wri);
 	}
 

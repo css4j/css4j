@@ -20,9 +20,9 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -65,10 +65,10 @@ public class CustomPropertyValueTest {
 		assertEquals("foo:var(--my-identifier)", style.getMinifiedCssText());
 		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.VAR, cssval.getPrimitiveType());
 		CustomPropertyValue val = (CustomPropertyValue) cssval;
 		assertEquals("var(--my-identifier)", val.getCssText());
-		assertEquals("--my-identifier", val.getStringValue());
+		assertEquals("--my-identifier", val.getName());
 	}
 
 	@Test
@@ -79,11 +79,13 @@ public class CustomPropertyValueTest {
 		assertEquals("foo:var(--my-identifier,#f0c)", style.getMinifiedCssText());
 		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.VAR, cssval.getPrimitiveType());
 		CustomPropertyValue val = (CustomPropertyValue) cssval;
 		assertEquals("var(--my-identifier, #f0c)", val.getCssText());
-		assertEquals("#f0c", val.getFallback().getCssText());
-		assertEquals("--my-identifier", val.getStringValue());
+		LexicalUnit fallback = val.getFallback();
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, fallback.getLexicalUnitType());
+		assertEquals("#f0c", fallback.getCssText());
+		assertEquals("--my-identifier", val.getName());
 	}
 
 	@Test
@@ -93,13 +95,11 @@ public class CustomPropertyValueTest {
 		assertEquals("var(--my-identifier)", value.getCssText());
 		assertEquals("var(--my-identifier)", value.getMinifiedCssText(""));
 		assertEquals("--my-identifier", value.getName());
-		assertEquals("--my-identifier", value.getStringValue());
 		//
 		value.setCssText("var(--my-identifier, #f0c)");
 		assertEquals("var(--my-identifier, #f0c)", value.getCssText());
 		assertEquals("var(--my-identifier,#f0c)", value.getMinifiedCssText(""));
 		assertEquals("--my-identifier", value.getName());
-		assertEquals("--my-identifier", value.getStringValue());
 		assertEquals("#f0c", value.getFallback().getCssText());
 	}
 
@@ -152,8 +152,24 @@ public class CustomPropertyValueTest {
 		assertNotNull(clon);
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
-		assertEquals(value.getStringValue(), clon.getStringValue());
+		assertEquals(value.getName(), clon.getName());
 		assertEquals(value.getCssText(), clon.getCssText());
+		assertEquals(value.getFallback(), clon.getFallback());
+		assertTrue(value.equals(clon));
+	}
+
+	@Test
+	public void testClone2() {
+		style.setCssText("foo: var(--my-identifier, auto); ");
+		CustomPropertyValue value = (CustomPropertyValue) style.getPropertyCSSValue("foo");
+		assertNotNull(value);
+		CustomPropertyValue clon = value.clone();
+		assertNotNull(clon);
+		assertEquals(value.getCssValueType(), clon.getCssValueType());
+		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
+		assertEquals(value.getName(), clon.getName());
+		assertEquals(value.getCssText(), clon.getCssText());
+		assertEquals(value.getFallback(), clon.getFallback());
 		assertTrue(value.equals(clon));
 	}
 

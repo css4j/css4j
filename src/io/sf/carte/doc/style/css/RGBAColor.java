@@ -12,22 +12,41 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.css.RGBColor;
-
 /**
- * Adds an alpha channel to W3C's {@link RGBColor} interface.
+ * Based on W3C's {@code RGBColor} interface.
  */
-public interface RGBAColor extends RGBColor {
+public interface RGBAColor {
 
 	/**
 	 * Enumeration of color spaces.
 	 */
-	public enum ColorSpace {RGB, HSL, HWB}
+	enum ColorSpace {RGB, HSL, HWB}
+
+	/**
+	 * Get the red component of this colour.
+	 * 
+	 * @return the red component.
+	 */
+	CSSPrimitiveValue getRed();
+
+	/**
+	 * Get the green component of this colour.
+	 * 
+	 * @return the green component.
+	 */
+	CSSPrimitiveValue getGreen();
+
+	/**
+	 * Get the blue component of this colour.
+	 * 
+	 * @return the blue component.
+	 */
+	CSSPrimitiveValue getBlue();
 
 	/**
 	 * Get the alpha channel of this colour.
 	 * 
 	 * @return the alpha channel.
 	 */
-	ExtendedCSSPrimitiveValue getAlpha();
+	CSSPrimitiveValue getAlpha();
 }

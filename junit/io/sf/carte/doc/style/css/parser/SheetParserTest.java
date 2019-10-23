@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.sf.carte.doc.TestConfig;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
@@ -626,7 +627,8 @@ public class SheetParserTest {
 		assertEquals("blue", lu.getStringValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_POINT, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
 		assertEquals(5, lu.getFloatValue(), 0.01f);
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();

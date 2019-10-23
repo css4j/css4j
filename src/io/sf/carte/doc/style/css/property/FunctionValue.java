@@ -15,30 +15,32 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Function CSSPrimitiveValue.
+ * Function value.
  * 
  * @author Carlos Amengual
  *
  */
-public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
+public class FunctionValue extends TypedValue implements CSSFunctionValue {
 
 	private String functionName = null;
 
 	private final LinkedCSSValueList arguments = new LinkedCSSValueList();
 
 	public FunctionValue() {
-		super(CSSPrimitiveValue2.CSS_FUNCTION);
+		super(Type.FUNCTION);
+	}
+
+	protected FunctionValue(Type type) {
+		super(type);
 	}
 
 	protected FunctionValue(FunctionValue copied) {
@@ -153,22 +155,23 @@ public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 		}
 
 		private boolean isOperand(StyleValue value) {
-			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				short pType = ((CSSPrimitiveValue) value).getPrimitiveType();
+			if (value.getCssValueType() == CssType.TYPED) {
+				CSSTypedValue typed = (CSSTypedValue) value;
+				Type pType = typed.getPrimitiveType();
 				switch (pType) {
-				case CSSPrimitiveValue.CSS_STRING:
-				case CSSPrimitiveValue.CSS_IDENT:
-				case CSSPrimitiveValue.CSS_RGBCOLOR:
-				case CSSPrimitiveValue.CSS_URI:
-				case CSSPrimitiveValue.CSS_ATTR:
-				case CSSPrimitiveValue.CSS_COUNTER:
-				case CSSPrimitiveValue.CSS_RECT:
-				case CSSPrimitiveValue.CSS_UNKNOWN:
-				case CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE:
-				case CSSPrimitiveValue2.CSS_GRADIENT:
-				case CSSPrimitiveValue2.CSS_UNICODE_CHARACTER:
-				case CSSPrimitiveValue2.CSS_UNICODE_RANGE:
-				case CSSPrimitiveValue2.CSS_UNICODE_WILDCARD:
+				case STRING:
+				case IDENT:
+				case RGBCOLOR:
+				case URI:
+				case ATTR:
+				case COUNTER:
+				case RECT:
+				case UNKNOWN:
+				case ELEMENT_REFERENCE:
+				case GRADIENT:
+				case UNICODE_CHARACTER:
+				case UNICODE_RANGE:
+				case UNICODE_WILDCARD:
 					break;
 				default:
 					return true;
@@ -245,9 +248,8 @@ public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 			// Check whether the only parameter is an expression, and omit the
 			// parentheses in that case
 			StyleValue first = arguments.get(0);
-			if (first.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-					&& ((CSSPrimitiveValue2) first).getPrimitiveType() == CSSPrimitiveValue2.CSS_EXPRESSION
-					&& ((CSSPrimitiveValue2) first).getStringValue().length() == 0) {
+			if (first.getPrimitiveType() == Type.EXPRESSION
+					&& ((CSSExpressionValue) first).getStringValue().length() == 0) {
 				wri.write(((CSSExpressionValue) first).getExpression().getCssText());
 			} else {
 				first.writeCssText(wri);
@@ -297,13 +299,10 @@ public class FunctionValue extends PrimitiveValue implements CSSFunctionValue {
 			return false;
 		}
 		if (functionName == null) {
-			if (other.functionName != null) {
-				return false;
-			}
-		} else if (!functionName.equals(other.functionName)) {
-			return false;
+			return other.functionName == null;
+		} else {
+			return functionName.equals(other.functionName);
 		}
-		return true;
 	}
 
 	@Override

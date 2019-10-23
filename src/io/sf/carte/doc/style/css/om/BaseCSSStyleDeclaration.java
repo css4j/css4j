@@ -26,8 +26,6 @@ import java.util.TreeSet;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSS2Properties;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
@@ -36,9 +34,11 @@ import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
-import io.sf.carte.doc.style.css.ExtendedCSSValueList;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueList;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -49,12 +49,12 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -130,7 +130,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		while (it.hasNext()) {
 			Entry<String, StyleValue> entry = it.next();
 			StyleValue value = entry.getValue();
-			if (value.getCssValueType() == CSSValue.CSS_CUSTOM) {
+			if (value.getCssValueType() == CssType.SHORTHAND) {
 				value = value.clone();
 			}
 			propValue.put(entry.getKey(), value);
@@ -138,10 +138,6 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return propValue;
 	}
 
-	/**
-	 * Retrieves a minified textual representation of the declaration block (excluding the
-	 * surrounding curly braces).
-	 */
 	@Override
 	public String getMinifiedCssText() {
 		LinkedList<String> unusedShorthands = new LinkedList<String>(shorthandSet);
@@ -152,11 +148,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			String prio = priorities.get(i);
 			boolean important = prio != null && "important".equals(prio);
 			StyleValue cssVal = propValue.get(ptyname);
-			short type = cssVal.getCssValueType();
+			CssType type = cssVal.getCssValueType();
 			// Verify if the property is a subproperty of a previously set
 			// shorthand
-			if (type == CSSValue.CSS_PRIMITIVE_VALUE || type == CSSValue.CSS_VALUE_LIST
-					|| type == CSSValue.CSS_INHERIT) {
+			if (type != CssType.SHORTHAND) {
 				if (cssVal.isSubproperty()) {
 					Iterator<String> it = unusedShorthands.iterator();
 					while (it.hasNext()) {
@@ -238,11 +233,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			String prio = priorities.get(i);
 			boolean important = prio != null && "important".equals(prio);
 			CSSValue cssVal = propValue.get(ptyname);
-			short type = cssVal.getCssValueType();
+			CssType type = cssVal.getCssValueType();
 			// Verify if the property is a subproperty of a previously set
 			// shorthand
-			if (type == CSSValue.CSS_PRIMITIVE_VALUE || type == CSSValue.CSS_VALUE_LIST
-					|| type == CSSValue.CSS_INHERIT) {
+			if (type != CssType.SHORTHAND) {
 				if (((StyleValue) cssVal).isSubproperty()) {
 					Iterator<String> it = unusedShorthands.iterator();
 					while (it.hasNext()) {
@@ -290,14 +284,15 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		context.endPropertyDeclaration(wri);
 	}
 
-	String getPlainCssText() {
+	String getComputedPlainCssText() {
 		int sz = propertyList.size();
 		StringBuilder sb = new StringBuilder(50 + sz * 18);
 		for (int i = 0; i < sz; i++) {
 			String ptyname = propertyList.get(i);
 			String prio = priorities.get(i);
+			StyleValue value = getCSSValue(ptyname);
 			sb.append(ptyname).append(':').append(' ');
-			appendCssText(sb, getCSSValue(ptyname));
+			appendCssText(sb, value);
 			if (prio != null && "important".equals(prio)) {
 				sb.append(" ! important");
 			}
@@ -550,16 +545,15 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	@Override
 	public String getPropertyValue(String propertyName) {
 		propertyName = getCanonicalPropertyName(propertyName);
-		CSSValue value = getCSSValue(propertyName);
+		StyleValue value = getCSSValue(propertyName);
 		if (value != null) {
-			short type = value.getCssValueType();
-			if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
-				short ptype;
-				if ((ptype = ((CSSPrimitiveValue) value).getPrimitiveType()) == CSSPrimitiveValue.CSS_STRING
-						|| ptype == CSSPrimitiveValue.CSS_IDENT) {
-					return ((CSSPrimitiveValue) value).getStringValue();
+			CssType type = value.getCssValueType();
+			if (type == CssType.TYPED) {
+				Type ptype = value.getPrimitiveType();
+				if (ptype == Type.STRING || ptype == Type.IDENT) {
+					return ((CSSTypedValue) value).getStringValue();
 				}
-			} else if (type == CSSValue.CSS_CUSTOM
+			} else if (type == CssType.SHORTHAND
 					&& ((ShorthandValue) value).getLonghands().size() < getLonghandPropertyCount(propertyName)) {
 				return "";
 			}
@@ -632,7 +626,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 		// find the number of layers (list items in master property)
 		int layers = 1;
-		if (bimg.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+		if (bimg.getCssValueType() == CssType.LIST) {
 			ValueList list = (ValueList) bimg;
 			if (list.isCommaSeparated()) {
 				layers = list.getLength();
@@ -655,7 +649,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	ValueList computeSubpropertyList(StyleValue value, int layers) {
 		int items;
 		ValueList list;
-		if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST && ((ValueList) value).isCommaSeparated()) {
+		if (value.getCssValueType() == CssType.LIST && ((ValueList) value).isCommaSeparated()) {
 			list = (ValueList) value.clone();
 			items = list.getLength();
 		} else {
@@ -866,31 +860,37 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					}
 				}
 			}
-			try {
-				SubpropertySetter shorthandSetter = setSubproperties(propertyName, value, important);
-				String shorthandText = shorthandSetter.getCssText();
-				if (shorthandText.length() != 0) {
-					ShorthandValue shVal = ShorthandValue.createCSSShorthandValue(sdb, propertyName, value,
-							important);
-					shVal.setShorthandText(shorthandText, shorthandSetter.getMinifiedCssText());
-					if (shadowedShorthands != null) {
-						Iterator<String> it = shadowedShorthands.iterator();
-						while (it.hasNext()) {
-							String shadowed = it.next();
-							shorthandSet.remove(shadowed);
-							propValue.remove(shadowed);
-						}
+			setShorthandLonghands(propertyName, value, important, shadowedShorthands);
+		}
+	}
+
+	boolean setShorthandLonghands(String propertyName, LexicalUnit value, boolean important,
+			LinkedList<String> shadowedShorthands) {
+		try {
+			SubpropertySetter shorthandSetter = setSubproperties(propertyName, value, important);
+			String shorthandText = shorthandSetter.getCssText();
+			if (shorthandText.length() != 0) {
+				ShorthandValue shVal = shorthandSetter.createCSSShorthandValue(value);
+				shVal.setShorthandText(shorthandText, shorthandSetter.getMinifiedCssText());
+				if (shadowedShorthands != null) {
+					Iterator<String> it = shadowedShorthands.iterator();
+					while (it.hasNext()) {
+						String shadowed = it.next();
+						shorthandSet.remove(shadowed);
+						propValue.remove(shadowed);
 					}
-					propValue.put(propertyName, shVal);
-					shorthandSet.add(propertyName);
-				} else {
-					// Report warning
-					shorthandWarning(propertyName, value, important);
 				}
-			} catch (DOMException e) {
-				// Report error
-				shorthandError(propertyName, value, important, shadowedShorthands, e);
+				propValue.put(propertyName, shVal);
+				shorthandSet.add(propertyName);
+			} else {
+				// Report warning
+				shorthandWarning(propertyName, value, important);
 			}
+			return true;
+		} catch (DOMException e) {
+			// Report error
+			shorthandError(propertyName, value, important, shadowedShorthands, e);
+			return false;
 		}
 	}
 
@@ -942,12 +942,12 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		// Handle special cases
 		if (propertyName.equals("font-family") || propertyName.equals("content")) {
 			// Special case (e.g. unquoted "Times New Roman")
-			if (cssvalue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			if (cssvalue.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) cssvalue;
 				if (list.isCommaSeparated()) {
 					int sz = list.getLength();
 					for (int i = 0; i < sz; i++) {
-						if (list.item(i).getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+						if (list.item(i).getCssValueType() == CssType.LIST) {
 							list.set(i, listToString((ValueList) list.item(i)));
 						}
 					}
@@ -957,13 +957,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 		} else if (propertyName.equals("background-position")) {
 			// Check property
-			if (cssvalue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			if (cssvalue.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) cssvalue;
 				if (list.isCommaSeparated()) {
 					int sz = list.getLength();
 					for (int i = 0; i < sz; i++) {
 						StyleValue item = list.item(i);
-						if (item.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+						if (item.getCssValueType() == CssType.LIST) {
 							if (!checkBackgroundPosition((ValueList) item)) {
 								list.remove(i--);
 								// Report error
@@ -981,7 +981,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				}
 			}
 		}
-		setProperty(propertyName, cssvalue, important ? "important" : null);
+		setProperty(propertyName, cssvalue, important);
 	}
 
 	private void wrongBackgroundPositionError(String cssText) {
@@ -998,8 +998,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		boolean allItemsAreIdent = true;
 		for (int i = 1; i < len; i++) {
 			StyleValue cssval = list.item(i);
-			if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
-					|| ((CSSPrimitiveValue) cssval).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT) {
+			if (cssval.getCssValueType() != CssType.TYPED
+					|| cssval.getPrimitiveType() != Type.IDENT) {
 				allItemsAreIdent = false;
 				break;
 			}
@@ -1011,7 +1011,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				buf.append(' ').append(list.item(i).getCssText());
 			}
 			StringValue csstr = new StringValue();
-			csstr.setStringValue(CSSPrimitiveValue.CSS_STRING, buf.toString());
+			csstr.setStringValue(Type.STRING, buf.toString());
 			return csstr;
 		} else {
 			return list;
@@ -1027,26 +1027,20 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		if (count < 3) {
 			return true;
 		} else if (count == 4) {
-			if (((CSSPrimitiveValue) list.item(0)).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(1)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(2)).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(3)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT) {
-				return true;
-			}
-			return false;
+			return list.item(0).getPrimitiveType() == Type.IDENT
+					&& list.item(1).getPrimitiveType() != Type.IDENT
+					&& list.item(2).getPrimitiveType() == Type.IDENT
+					&& list.item(3).getPrimitiveType() != Type.IDENT;
 		} else { // 3
-			if (((CSSPrimitiveValue) list.item(0)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT) {
+			if (list.item(0).getPrimitiveType() != Type.IDENT) {
 				return false;
 			}
-			if (((CSSPrimitiveValue) list.item(1)).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(2)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT) {
+			if (list.item(1).getPrimitiveType() == Type.IDENT
+					&& list.item(2).getPrimitiveType() != Type.IDENT) {
 				return true;
 			}
-			if (((CSSPrimitiveValue) list.item(1)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(2)).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-				return true;
-			}
-			return false;
+			return list.item(1).getPrimitiveType() != Type.IDENT
+					&& list.item(2).getPrimitiveType() == Type.IDENT;
 		}
 	}
 
@@ -1102,12 +1096,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 * @param cssValue
 	 *            the property value.
 	 * @param priority
-	 *            the property priority.
+	 *            <code>true</code> if the property priority is important.
 	 * @return <code>true</code> if the property was set and the length of the style
 	 *         declaration varied.
 	 */
-	boolean setProperty(String propertyName, StyleValue cssValue, String priority) {
+	boolean setProperty(String propertyName, StyleValue cssValue, boolean important) {
 		propertyName = propertyName.intern();
+		String priority = important ? "important" : null;
 		if (!propertyList.contains(propertyName)) {
 			addProperty(propertyName, cssValue, priority);
 			return true;
@@ -1144,7 +1139,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	@Override
 	protected void addProperty(String propertyName, StyleValue cssValue, String priority) {
-		if (cssValue.getCssValueType() == CSSValue.CSS_CUSTOM) {
+		if (cssValue.getCssValueType() == CssType.SHORTHAND) {
 			// We got a CSSShorthandValue
 			addShorthandName(propertyName);
 		} else {
@@ -1199,7 +1194,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	boolean addCompatProperty(String propertyName, StyleValue cssValue, String priority) {
-		if (cssValue.getCssValueType() == CSSValue.CSS_CUSTOM) {
+		if (cssValue.getCssValueType() == CssType.SHORTHAND) {
 			// We got a CSSShorthandValue
 			addShorthandName(propertyName);
 		} else {
@@ -1220,31 +1215,31 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	private static boolean hasUnknown(CSSValue cssValue) {
-		short type = cssValue.getCssValueType();
-		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
-			short ptype = ((CSSPrimitiveValue) cssValue).getPrimitiveType();
-			if (ptype == CSSPrimitiveValue.CSS_UNKNOWN) {
+		CssType type = cssValue.getCssValueType();
+		if (type == CssType.TYPED) {
+			CSSTypedValue.Type ptype = cssValue.getPrimitiveType();
+			if (ptype == Type.UNKNOWN) {
 				return true;
-			} else if (ptype == CSSPrimitiveValue2.CSS_FUNCTION) {
+			} else if (ptype == Type.FUNCTION) {
 				CSSFunctionValue function = (CSSFunctionValue) cssValue;
-				ExtendedCSSValueList<? extends ExtendedCSSValue> list = function.getArguments();
-				for (ExtendedCSSValue value : list) {
+				CSSValueList<? extends CSSValue> list = function.getArguments();
+				for (CSSValue value : list) {
 					if (hasUnknown(value)) {
 						return true;
 					}
 				}
-			} else if (ptype == CSSPrimitiveValue2.CSS_EXPRESSION) {
+			} else if (ptype == Type.EXPRESSION) {
 				CSSExpressionValue calc = (CSSExpressionValue) cssValue;
 				return hasUnknown(calc.getExpression());
 			}
-		} else if (type == CSSValue.CSS_VALUE_LIST) {
+		} else if (type == CssType.LIST) {
 			ValueList list = (ValueList) cssValue;
 			for (CSSValue value : list) {
 				if (hasUnknown(value)) {
 					return true;
 				}
 			}
-		}
+		} // assume that PROXY values have no hacks.
 		return false;
 	}
 
@@ -1543,14 +1538,14 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return defval;
 	}
 
-	private PrimitiveValue getColorInitialValue() {
-		PrimitiveValue value;
+	private TypedValue getColorInitialValue() {
+		TypedValue value;
 		StyleDatabase sdb = getStyleDatabase();
 		if (sdb == null) {
 			// Initial value depends on user agent
 			value = getSystemDefaultValue("color");
 		} else {
-			value = (PrimitiveValue) sdb.getInitialColor();
+			value = (TypedValue) sdb.getInitialColor();
 			value = new SafeSystemDefaultValue(value);
 		}
 		return value;
@@ -1564,8 +1559,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			value = getSystemDefaultValue("font-family");
 		} else {
 			value = getValueFactory().parseProperty(sdb.getDefaultGenericFontFamily());
-			if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				value = new SafeSystemDefaultValue((PrimitiveValue) value);
+			if (value.getCssValueType() == CssType.TYPED) {
+				value = new SafeSystemDefaultValue((TypedValue) value);
 			} else {
 				value = getSystemDefaultValue("font-family");
 			}
@@ -1573,8 +1568,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return value;
 	}
 
-	private PrimitiveValue getSystemDefaultValue(String propertyName) {
-		PrimitiveValue value;
+	private TypedValue getSystemDefaultValue(String propertyName) {
+		TypedValue value;
 		AbstractCSSStyleSheetFactory factory = getStyleSheetFactory();
 		if (factory != null) {
 			value = factory.getSystemDefaultValue(propertyName);
@@ -1584,17 +1579,17 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return value;
 	}
 
-	protected PrimitiveValue getCurrentColor() {
+	protected TypedValue getCurrentColor() {
 		return new IdentifierValue("currentcolor");
 	}
 
-	public PrimitiveValue getCSSColor() {
+	public TypedValue getCSSColor() {
 		StyleValue cssvalue = getCSSValue("color");
-		PrimitiveValue color;
-		if (cssvalue == null || cssvalue.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+		TypedValue color;
+		if (cssvalue == null || cssvalue.getCssValueType() != CssType.TYPED) {
 			color = getColorInitialValue();
 		} else {
-			color = (PrimitiveValue) cssvalue;
+			color = (TypedValue) cssvalue;
 		}
 		return color;
 	}
@@ -1623,6 +1618,14 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		if (sdb.isShorthand(propertyName)) {
 			SubpropertySetter setter;
+			// Check for var()
+			if (isOrContainsType(value, LexicalUnit.SAC_VAR)) {
+				setter = new PendingSubstitutionSetter(this, propertyName);
+				setter.init(value, important);
+				setter.assignSubproperties();
+				return setter;
+			}
+			// Normal shorthands
 			if ("font".equals(propertyName)) {
 				if (getStyleDatabase() != null) {
 					// Check for system font identifier
@@ -1700,6 +1703,18 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		} else {
 			return null;
 		}
+	}
+
+	private static boolean isOrContainsType(LexicalUnit lunit, short unitType) {
+		do {
+			if (lunit.getLexicalUnitType() == unitType
+					|| (lunit.getParameters() != null && isOrContainsType(lunit.getParameters(), unitType))
+					|| (lunit.getSubValues() != null && isOrContainsType(lunit.getSubValues(), unitType))) {
+				return true;
+			}
+			lunit = lunit.getNextLexicalUnit();
+		} while (lunit != null);
+		return false;
 	}
 
 	private SubpropertySetter setSystemFont(String fontDecl, boolean important) throws DOMException {
@@ -1926,11 +1941,15 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	}
 
+	/**
+	 * Test if the value is a color.
+	 * 
+	 * @param lunit the lexical unit to test.
+	 * @return true if the value is a color.
+	 */
 	public static boolean testColor(LexicalUnit lunit) {
 		short utype = lunit.getLexicalUnitType();
 		if (LexicalUnit.SAC_RGBCOLOR == utype) {
-			return true;
-		} else if (LexicalUnit.SAC_STRING_VALUE == utype && lunit.getStringValue().charAt(0) == '#') {
 			return true;
 		} else if (LexicalUnit.SAC_IDENT == utype) {
 			String sv = lunit.getStringValue();
@@ -1947,11 +1966,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					|| "hwb".equals(func) || "color".equals(func) || "rgba".equals(func))) {
 				return true;
 			}
-			if ("var".equals(func)) {
-				LexicalUnit lu = findCustomPropertyFallback(lunit);
-				if (lu != null) {
-					return testColor(lu);
-				}
+		} else if (LexicalUnit.SAC_VAR == utype) {
+			LexicalUnit lu = findCustomPropertyFallback(lunit);
+			if (lu != null) {
+				return testColor(lu);
 			}
 		}
 		return false;
@@ -1974,38 +1992,6 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 		}
 		return lu;
-	}
-
-	interface SubpropertySetter {
-		void init(LexicalUnit shorthandValue, boolean important);
-
-		/**
-		 * Attempt to assign the shorthand to its longhand subproperties.
-		 * 
-		 * @return <code>true</code> if the shorthand was successfully parsed into longhands,
-		 *         <code>false</code> otherwise.
-		 */
-		boolean assignSubproperties();
-
-		/**
-		 * Get a string representation of the shorthand.
-		 * 
-		 * @return a string representation of the shorthand. If empty, that means the shorthand
-		 *         had errors or was browser-unsafe. If {@link #assignSubproperties()} returned
-		 *         true but the empty string is still returned, it means that the longhands could
-		 *         be set but the shorthand construct is considered to be browser-unsafe.
-		 */
-		String getCssText();
-
-		/**
-		 * Get a minified string representation of the shorthand.
-		 * 
-		 * @return a string representation of the shorthand. If empty, that means the shorthand
-		 *         had errors or was browser-unsafe. If {@link #assignSubproperties()} returned
-		 *         true but the empty string is still returned, it means that the longhands could
-		 *         be set but the shorthand construct is considered to be browser-unsafe.
-		 */
-		String getMinifiedCssText();
 	}
 
 	@Override

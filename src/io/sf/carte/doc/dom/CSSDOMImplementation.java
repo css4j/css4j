@@ -287,8 +287,8 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 		}
 
 		@Override
-		protected ComputedCSSStyle createComputedCSSStyle(BaseDocumentCSSStyleSheet parentSheet) {
-			return new MyDOMComputedStyle(parentSheet);
+		protected ComputedCSSStyle createComputedCSSStyle() {
+			return new MyDOMComputedStyle(this);
 		}
 
 		@Override

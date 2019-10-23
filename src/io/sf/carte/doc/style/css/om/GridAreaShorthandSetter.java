@@ -11,9 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -94,18 +92,13 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 
 	private StyleValue omittedValue(StyleValue cssval) {
 		StyleValue other;
-		if (isIdentifier(cssval)) {
+		if (cssval.getPrimitiveType() == CSSValue.Type.IDENT) {
 			// It must be either a custom-ident or 'auto' (in any case is what we want)
 			other = cssval;
 		} else {
 			other = createAutoValue();
 		}
 		return other;
-	}
-
-	private boolean isIdentifier(StyleValue cssval) {
-		return cssval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) cssval).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT;
 	}
 
 	static IdentifierValue createAutoValue() {

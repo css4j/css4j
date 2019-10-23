@@ -13,8 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Set;
 
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -97,14 +97,14 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 		} else if (inheritcheck == 2) {
 			return false;
 		}
-		// now unset
-		byte unsetcheck = checkDeclaredValuesForKeyword("unset", declaredSet);
-		if (unsetcheck == 1) {
-			// All values are 'unset'
-			buf.append("unset");
+		// now revert
+		byte revertcheck = checkDeclaredValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+		if (revertcheck == 1) {
+			// All values are 'revert'
+			buf.append("revert");
 			appendPriority(buf, important);
 			return true;
-		} else if (unsetcheck == 2) {
+		} else if (revertcheck == 2) {
 			return false;
 		}
 		StyleValue topLeftValue = getCSSValue("border-top-left-radius");
@@ -114,7 +114,7 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 		// Check for list values
 		boolean slash = false;
 		StyleValue topLeftValue0, topLeftValue1;
-		if (topLeftValue != null && topLeftValue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+		if (topLeftValue != null && topLeftValue.getCssValueType() == CssType.LIST) {
 			topLeftValue0 = ((ValueList) topLeftValue).item(0);
 			topLeftValue1 = ((ValueList) topLeftValue).item(1);
 			slash = true;
@@ -123,7 +123,7 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 			topLeftValue1 = null;
 		}
 		StyleValue topRightValue0, topRightValue1;
-		if (topRightValue != null && topRightValue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+		if (topRightValue != null && topRightValue.getCssValueType() == CssType.LIST) {
 			topRightValue0 = ((ValueList) topRightValue).item(0);
 			topRightValue1 = ((ValueList) topRightValue).item(1);
 			slash = true;
@@ -132,7 +132,7 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 			topRightValue1 = null;
 		}
 		StyleValue bottomRightValue0, bottomRightValue1;
-		if (bottomRightValue != null && bottomRightValue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+		if (bottomRightValue != null && bottomRightValue.getCssValueType() == CssType.LIST) {
 			bottomRightValue0 = ((ValueList) bottomRightValue).item(0);
 			bottomRightValue1 = ((ValueList) bottomRightValue).item(1);
 			slash = true;
@@ -141,7 +141,7 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 			bottomRightValue1 = null;
 		}
 		StyleValue bottomLeftValue0, bottomLeftValue1;
-		if (bottomLeftValue != null && bottomLeftValue.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+		if (bottomLeftValue != null && bottomLeftValue.getCssValueType() == CssType.LIST) {
 			bottomLeftValue0 = ((ValueList) bottomLeftValue).item(0);
 			bottomLeftValue1 = ((ValueList) bottomLeftValue).item(1);
 			slash = true;

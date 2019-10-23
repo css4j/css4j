@@ -19,10 +19,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -67,7 +66,7 @@ public class CountersValueTest {
 		style.setCssText("content: counters(ListCounter,'|');");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_COUNTERS, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.COUNTERS, cssval.getPrimitiveType());
 		assertEquals("counters(ListCounter, '|')", style.getPropertyValue("content"));
 		assertEquals("content: counters(ListCounter, '|'); ", style.getCssText());
 		assertEquals("content:counters(ListCounter,'|')", style.getMinifiedCssText());
@@ -82,15 +81,15 @@ public class CountersValueTest {
 		style.setCssText("content: counters(ListCounter,'. ',none);");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_COUNTERS, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.COUNTERS, cssval.getPrimitiveType());
 		assertEquals("counters(ListCounter, '. ', none)", style.getPropertyValue("content"));
 		assertEquals("content: counters(ListCounter, '. ', none); ", style.getCssText());
 		assertEquals("content:counters(ListCounter,'. ',none)", style.getMinifiedCssText());
 		CountersValue counter = (CountersValue) cssval;
 		assertEquals("ListCounter", counter.getName());
 		PrimitiveValue counterstyle = counter.getCounterStyle();
-		assertEquals(CSSPrimitiveValue.CSS_IDENT, counterstyle.getPrimitiveType());
-		assertEquals("none", counterstyle.getStringValue());
+		assertEquals(CSSValue.Type.IDENT, counterstyle.getPrimitiveType());
+		assertEquals("none", ((TypedValue) counterstyle).getStringValue());
 		assertEquals(". ", counter.getSeparator());
 	}
 
@@ -99,15 +98,15 @@ public class CountersValueTest {
 		style.setCssText("content: counters(ListCounter,'|', decimal);");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_COUNTERS, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.COUNTERS, cssval.getPrimitiveType());
 		assertEquals("counters(ListCounter, '|')", style.getPropertyValue("content"));
 		assertEquals("content: counters(ListCounter, '|'); ", style.getCssText());
 		assertEquals("content:counters(ListCounter,'|')", style.getMinifiedCssText());
 		CountersValue counter = (CountersValue) cssval;
 		assertEquals("ListCounter", counter.getName());
 		PrimitiveValue counterstyle = counter.getCounterStyle();
-		assertEquals(CSSPrimitiveValue.CSS_IDENT, counterstyle.getPrimitiveType());
-		assertEquals("decimal", counterstyle.getStringValue());
+		assertEquals(CSSValue.Type.IDENT, counterstyle.getPrimitiveType());
+		assertEquals("decimal", ((TypedValue) counterstyle).getStringValue());
 		assertEquals("|", counter.getSeparator());
 	}
 
@@ -116,13 +115,13 @@ public class CountersValueTest {
 		style.setCssText("content: '(' counters(ListCounter,'.') ') ';");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
-		assertEquals(CSSValue.CSS_VALUE_LIST, cssval.getCssValueType());
+		assertEquals(CssType.LIST, cssval.getCssValueType());
 		ValueList list = (ValueList) cssval;
 		assertEquals(3, list.getLength());
 		assertEquals("'('", list.item(0).getCssText());
 		cssval = list.item(1);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, cssval.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_COUNTERS, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CssType.TYPED, cssval.getCssValueType());
+		assertEquals(CSSValue.Type.COUNTERS, cssval.getPrimitiveType());
 		assertEquals("'(' counters(ListCounter, '.') ') '", style.getPropertyValue("content"));
 		assertEquals("content: '(' counters(ListCounter, '.') ') '; ", style.getCssText());
 		assertEquals("content:'(' counters(ListCounter,'.') ') '", style.getMinifiedCssText());
@@ -137,12 +136,12 @@ public class CountersValueTest {
 		style.setCssText("content: counters(ListCounter,'.') ':';");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
-		assertEquals(CSSValue.CSS_VALUE_LIST, cssval.getCssValueType());
+		assertEquals(CssType.LIST, cssval.getCssValueType());
 		ValueList list = (ValueList) cssval;
 		assertEquals(2, list.getLength());
 		cssval = list.item(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, cssval.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_COUNTERS, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CssType.TYPED, cssval.getCssValueType());
+		assertEquals(CSSValue.Type.COUNTERS, cssval.getPrimitiveType());
 		assertEquals("counters(ListCounter, '.') ':'", style.getPropertyValue("content"));
 		assertEquals("content: counters(ListCounter, '.') ':'; ", style.getCssText());
 		assertEquals("content:counters(ListCounter,'.') ':'", style.getMinifiedCssText());
@@ -158,15 +157,15 @@ public class CountersValueTest {
 		style.setCssText("content: counters(ListCounter, '.', upper-latin);");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_COUNTERS, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.COUNTERS, cssval.getPrimitiveType());
 		assertEquals("counters(ListCounter, '.', upper-latin)", style.getPropertyValue("content"));
 		assertEquals("content: counters(ListCounter, '.', upper-latin); ", style.getCssText());
 		assertEquals("content:counters(ListCounter,'.',upper-latin)", style.getMinifiedCssText());
 		CountersValue counter = (CountersValue) cssval;
 		assertEquals("ListCounter", counter.getName());
 		PrimitiveValue counterstyle = counter.getCounterStyle();
-		assertEquals(CSSPrimitiveValue.CSS_IDENT, counterstyle.getPrimitiveType());
-		assertEquals("upper-latin", counterstyle.getStringValue());
+		assertEquals(CSSValue.Type.IDENT, counterstyle.getPrimitiveType());
+		assertEquals("upper-latin", ((TypedValue) counterstyle).getStringValue());
 		assertEquals(".", counter.getSeparator());
 	}
 
@@ -175,7 +174,7 @@ public class CountersValueTest {
 		style.setCssText("content: counters(ListCounter, '.', symbols(cyclic '*' '\\2020' '\\2021' '\\A7')); ");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_COUNTERS, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.COUNTERS, cssval.getPrimitiveType());
 		assertEquals("counters(ListCounter, '.', symbols(cyclic '*' '\\2020' '\\2021' '\\A7'))",
 				style.getPropertyValue("content"));
 		assertEquals("content: counters(ListCounter, '.', symbols(cyclic '*' '\\2020' '\\2021' '\\A7')); ",
@@ -185,8 +184,8 @@ public class CountersValueTest {
 		CountersValue counter = (CountersValue) cssval;
 		assertEquals("ListCounter", counter.getName());
 		PrimitiveValue counterstyle = counter.getCounterStyle();
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, counterstyle.getPrimitiveType());
-		assertEquals("symbols", counterstyle.getStringValue());
+		assertEquals(CSSValue.Type.FUNCTION, counterstyle.getPrimitiveType());
+		assertEquals("symbols", ((TypedValue) counterstyle).getStringValue());
 		assertEquals(".", counter.getSeparator());
 	}
 

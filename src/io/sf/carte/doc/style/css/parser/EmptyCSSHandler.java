@@ -23,7 +23,7 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 /**
  * Handler that implements empty methods for all {@link CSSHandler} methods
  * except
- * {@link CSSHandler#property(String, io.sf.carte.doc.style.css.nsac.LexicalUnit, boolean)
+ * {@link CSSHandler#property(String, io.sf.carte.doc.style.css.nsac.LexicalUnit, boolean, int)
  * property(String, LexicalUnit, boolean, int)}.
  */
 abstract public class EmptyCSSHandler implements CSSHandler, CSSErrorHandler {

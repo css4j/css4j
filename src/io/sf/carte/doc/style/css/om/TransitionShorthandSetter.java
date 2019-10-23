@@ -11,13 +11,9 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.Locale;
-
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
@@ -81,7 +77,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				}
 				valueBuffer.append(cssVal.getCssText());
 				miniValueBuffer.append(cssVal.getMinifiedCssText(getShorthandName()));
-				if (cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+				if (cssVal.getCssValueType() == CssType.TYPED) {
 					value = item.getNextLexicalUnit();
 				} else {
 					value = value.getNextLexicalUnit();
@@ -137,8 +133,12 @@ class TransitionShorthandSetter extends ShorthandSetter {
 					nextCurrentValue();
 					break;
 				}
-				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_INHERIT) {
-					// Full layer is 'inherit'
+				// If a css-wide keyword is found, set the entire layer to it
+				short lutype = currentValue.getLexicalUnitType();
+				if (lutype == LexicalUnit.SAC_INHERIT || lutype == LexicalUnit.SAC_UNSET
+						|| lutype == LexicalUnit.SAC_REVERT) {
+					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
+					// Full layer is 'keyword'
 					while (currentValue != null) {
 						boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
 						currentValue = currentValue.getNextLexicalUnit();
@@ -149,30 +149,9 @@ class TransitionShorthandSetter extends ShorthandSetter {
 					i++;
 					// First, clear any values set at this layer
 					clearLayer(i);
-					InheritValue inherit = InheritValue.getValue().asSubproperty();
-					addSingleValueLayer(inherit);
-					appendValueItemString(inherit);
+					addSingleValueLayer(keyword);
+					appendValueItemString(keyword);
 					continue toploop;
-				}
-				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-					String sv = currentValue.getStringValue().toLowerCase(Locale.ROOT);
-					if ("initial".equals(sv) || "unset".equals(sv)) {
-						StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
-						// Full layer is 'keyword'
-						while (currentValue != null) {
-							boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
-							currentValue = currentValue.getNextLexicalUnit();
-							if (commaFound) {
-								break;
-							}
-						}
-						i++;
-						// First, clear any values set at this layer
-						clearLayer(i);
-						addSingleValueLayer(keyword);
-						appendValueItemString(keyword);
-						continue toploop;
-					}
 				}
 				if ((tdurUnset || tdelayUnset) && ValueFactory.isTimeSACUnit(currentValue)) {
 					if (tdurUnset) {

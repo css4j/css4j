@@ -13,11 +13,13 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 
 /**
  * Build an 'animation' shorthand from individual properties.
@@ -50,10 +52,10 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
-		check = checkValuesForKeyword("unset", declaredSet);
+		check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
 		if (check == 1) {
-			// All values are unset
-			buf.append("unset");
+			// All values are revert
+			buf.append("revert");
 			appendPriority(buf, important);
 			return true;
 		} else if (check == 2) {
@@ -64,8 +66,12 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 		if (declaredSet.contains(FLEX_GROW) || declaredSet.contains(FLEX_SHRINK)) {
 			cssFlexGrow = getCSSValue(FLEX_GROW);
 			// Make sure that it is not a (wrong) list property
-			if (cssFlexGrow.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE || 
-					invalidFlexGrowShrink((CSSPrimitiveValue) cssFlexGrow)) {
+			if (cssFlexGrow.getCssValueType() == CssType.TYPED) {
+				if (invalidFlexGrowShrink((CSSTypedValue) cssFlexGrow)) {
+					return false;
+				}
+			} else if (cssFlexGrow.getCssValueType() != CssType.KEYWORD) {
+				// not initial or unset
 				return false;
 			}
 		}
@@ -73,8 +79,12 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 		if (declaredSet.contains(FLEX_SHRINK)) {
 			cssFlexShrink = getCSSValue(FLEX_SHRINK);
 			// Make sure that it is not a (wrong) list property
-			if (cssFlexShrink.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE || 
-					invalidFlexGrowShrink((CSSPrimitiveValue) cssFlexShrink)) {
+			if (cssFlexShrink.getCssValueType() == CssType.TYPED) {
+				if (invalidFlexGrowShrink((CSSTypedValue) cssFlexShrink)) {
+					return false;
+				}
+			} else if (cssFlexGrow.getCssValueType() != CssType.KEYWORD) {
+				// not initial or unset
 				return false;
 			}
 		}
@@ -82,29 +92,33 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 		if (declaredSet.contains(FLEX_BASIS)) {
 			cssFlexBasis = getCSSValue(FLEX_BASIS);
 			// Make sure that it is not a (wrong) list property
-			if (cssFlexBasis.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||
-					invalidFlexBasis((CSSPrimitiveValue) cssFlexBasis)) {
+			if (cssFlexBasis.getCssValueType() == CssType.TYPED) {
+				if (invalidFlexBasis((CSSTypedValue) cssFlexBasis)) {
+					return false;
+				}
+			} else if (cssFlexGrow.getCssValueType() != CssType.KEYWORD) {
+				// not initial or unset
 				return false;
 			}
 		}
 		// Special cases
-		PrimitiveValue primiBasis = (PrimitiveValue) cssFlexBasis;
-		if (primiBasis != null && primiBasis.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& "auto".equalsIgnoreCase(primiBasis.getStringValue())) {
-			CSSPrimitiveValue primiGrow = (CSSPrimitiveValue) cssFlexGrow;
-			CSSPrimitiveValue primiShrink = (CSSPrimitiveValue) cssFlexShrink;
+		TypedValue primiBasis;
+		if (cssFlexBasis != null && cssFlexBasis.getPrimitiveType() == Type.IDENT
+				&& "auto".equalsIgnoreCase((primiBasis = (TypedValue) cssFlexBasis).getStringValue())) {
+			CSSTypedValue primiGrow = (CSSTypedValue) cssFlexGrow;
+			CSSTypedValue primiShrink = (CSSTypedValue) cssFlexShrink;
 			float grow;
 			float shrink;
 			if (primiShrink != null) {
-				shrink = primiShrink.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+				shrink = primiShrink.getFloatValue(CSSUnit.CSS_NUMBER);
 				if (primiGrow != null) {
-					grow = primiGrow.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+					grow = primiGrow.getFloatValue(CSSUnit.CSS_NUMBER);
 				} else {
 					grow = shrink;
 				}
 			} else {
 				if (primiGrow != null) {
-					grow = primiGrow.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
+					grow = primiGrow.getFloatValue(CSSUnit.CSS_NUMBER);
 				} else {
 					grow = 1f;
 				}
@@ -135,7 +149,8 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 			appended = true;
 		}
 		if (isNotInitialValue(cssFlexBasis, FLEX_BASIS)) {
-			if (primiBasis.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER || primiBasis.isNumberZero()) {
+			primiBasis = (TypedValue) cssFlexBasis;
+			if (primiBasis.getUnitType() == CSSUnit.CSS_NUMBER || primiBasis.isNumberZero()) {
 				if (appended) {
 					buf.append(' ');
 				}
@@ -152,22 +167,19 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	private boolean invalidFlexGrowShrink(CSSPrimitiveValue primi) {
-		if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
-			return primi.getFloatValue(CSSPrimitiveValue.CSS_NUMBER) < 0f;
-		} else if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-			String ident = primi.getStringValue();
-			return !"initial".equalsIgnoreCase(ident);
+	private boolean invalidFlexGrowShrink(CSSTypedValue primi) {
+		if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
+			return primi.getFloatValue(CSSUnit.CSS_NUMBER) < 0f;
 		}
 		return true;
 	}
 
-	private boolean invalidFlexBasis(CSSPrimitiveValue primi) {
-		if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
+	private boolean invalidFlexBasis(CSSTypedValue primi) {
+		if (primi.getPrimitiveType() == Type.IDENT) {
 			String ident = primi.getStringValue();
-			return !"auto".equalsIgnoreCase(ident) && !"content".equalsIgnoreCase(ident) && !"initial".equalsIgnoreCase(ident);
-		} else if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
-			return primi.getFloatValue(CSSPrimitiveValue.CSS_NUMBER) != 0f;
+			return !"auto".equalsIgnoreCase(ident) && !"content".equalsIgnoreCase(ident);
+		} else if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
+			return primi.getFloatValue(CSSUnit.CSS_NUMBER) != 0f;
 		}
 		return false;
 	}
@@ -177,7 +189,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 	 */
 	@Override
 	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
-		return cssVal != null && !isInitialIdentifier(cssVal)
+		return cssVal != null && !isEffectiveInitialKeyword(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 

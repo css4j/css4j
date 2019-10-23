@@ -11,13 +11,12 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.Viewport;
 import io.sf.carte.doc.style.css.CSSDocument;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
@@ -45,7 +44,7 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 	}
 
 	@Override
-	public ExtendedCSSPrimitiveValue getFeatureValue(String feature) {
+	public CSSTypedValue getFeatureValue(String feature) {
 		if ("width".equals(feature)) {
 			return getWidth();
 		} else if ("height".equals(feature)) {
@@ -53,19 +52,19 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 		} else if ("aspect-ratio".equals(feature)) {
 			float fratio = getWidthFloat() / getHeightFloat();
 			NumberValue number = new NumberValue();
-			number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, fratio);
+			number.setFloatValue(CSSUnit.CSS_NUMBER, fratio);
 			return number;
 		} else if ("orientation".equals(feature)) {
 			return new IdentifierValue(getOrientation());
 		} else if ("resolution".equals(feature)) {
 			NumberValue number = new NumberValue();
-			number.setFloatValue(CSSPrimitiveValue2.CSS_DPI, getResolution());
+			number.setFloatValue(CSSUnit.CSS_DPI, getResolution());
 			return number;
 		} else if ("scan".equals(feature)) {
 			return new IdentifierValue(getScanType());
 		} else if ("grid".equals(feature)) {
 			NumberValue number = new NumberValue();
-			number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, isGridDevice() ? 1f : 0f);
+			number.setFloatValue(CSSUnit.CSS_NUMBER, isGridDevice() ? 1f : 0f);
 			return number;
 		} else if ("update".equals(feature)) {
 			return new IdentifierValue(getUpdateFrequency());
@@ -76,22 +75,22 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 		} else if ("color".equals(feature)) {
 			NumberValue number = new NumberValue();
 			int color = getStyleDatabase().getColorDepth();
-			number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, color);
+			number.setFloatValue(CSSUnit.CSS_NUMBER, color);
 			return number;
 		} else if ("color-index".equals(feature)) {
 			NumberValue number = new NumberValue();
-			number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, getColorIndex());
+			number.setFloatValue(CSSUnit.CSS_NUMBER, getColorIndex());
 			return number;
 		} else if ("monochrome".equals(feature)) {
 			NumberValue number = new NumberValue();
-			number.setFloatValue(CSSPrimitiveValue.CSS_NUMBER, getMonoBitsPerPixel());
+			number.setFloatValue(CSSUnit.CSS_NUMBER, getMonoBitsPerPixel());
 			return number;
 		}
 		return null;
 	}
 
 	@Override
-	public boolean matchesFeature(String feature, ExtendedCSSPrimitiveValue value) {
+	public boolean matchesFeature(String feature, CSSTypedValue value) {
 		if ("orientation".equals(feature)) {
 			return matches(value, getOrientation());
 		} else if ("scan".equals(feature)) {
@@ -108,7 +107,7 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 			if (value == null) {
 				return !supportsGamut("none");
 			}
-			if (value.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
+			if (value.getPrimitiveType() == Type.IDENT) {
 				String sv = value.getStringValue();
 				return supportsGamut(sv);
 			}
@@ -118,11 +117,16 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 		return false;
 	}
 
-	private boolean matches(ExtendedCSSPrimitiveValue valueToMatch, String featureValue) {
+	private boolean matches(CSSTypedValue valueToMatch, String featureValue) {
 		if (valueToMatch == null) {
 			return !"none".equals(featureValue);
 		}
-		return ShorthandBuilder.isCSSIdentifier(valueToMatch, featureValue);
+		return isCSSIdentifier(valueToMatch, featureValue);
+	}
+
+	private static boolean isCSSIdentifier(CSSTypedValue value, String ident) {
+		return value.getPrimitiveType() == Type.IDENT
+				&& ident.equalsIgnoreCase(value.getStringValue());
 	}
 
 	private NumberValue getWidth() {

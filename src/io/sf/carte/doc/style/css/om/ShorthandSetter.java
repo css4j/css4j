@@ -20,17 +20,19 @@ import java.util.List;
 import java.util.Locale;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
+import io.sf.carte.doc.style.css.property.InitialValue;
+import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
-import io.sf.carte.doc.style.css.property.ShorthandDatabase;
+import io.sf.carte.doc.style.css.property.RevertValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.UnsetValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -41,17 +43,11 @@ import io.sf.carte.doc.style.css.property.ValueList;
  * @author Carlos Amengual
  *
  */
-class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
-
-	BaseCSSStyleDeclaration styleDeclaration;
-
-	private final String shorthandName;
+class ShorthandSetter extends BaseShorthandSetter {
 
 	private boolean priorityImportant = false;
 
 	private final PropertyDatabase pdb = PropertyDatabase.getInstance();
-
-	private final ShorthandDatabase shorthandDb = ShorthandDatabase.getInstance();
 
 	final ValueFactory valueFactory;
 
@@ -59,7 +55,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 
 	private final LinkedList<String> mypropertyList = new LinkedList<String>();
 
-	private final LinkedList<String> mypriorities = new LinkedList<String>();
+	private final LinkedList<Boolean> mypriorities = new LinkedList<Boolean>();
 
 	protected LexicalUnit currentValue = null;
 
@@ -74,14 +70,8 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	private final ArrayList<String> unassignedProperties = new ArrayList<String>(6);
 
 	ShorthandSetter(BaseCSSStyleDeclaration style, String shorthandName) {
-		super();
-		this.styleDeclaration = style;
-		this.shorthandName = shorthandName;
+		super(style, shorthandName);
 		valueFactory = style.getValueFactory();
-	}
-
-	public String getShorthandName() {
-		return shorthandName;
 	}
 
 	public boolean isPriorityImportant() {
@@ -98,10 +88,6 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 
 	public final PropertyDatabase getPropertyDatabase() {
 		return pdb;
-	}
-
-	public final ShorthandDatabase getShorthandDatabase() {
-		return shorthandDb;
 	}
 
 	/**
@@ -151,29 +137,35 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 					}
 				}
 			} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_FUNCTION) {
-				String funcname = lu.getFunctionName();
 				List<String> unass = getUnassignedProperties();
 				Iterator<String> it = unass.iterator();
 				while (it.hasNext()) {
 					String property = it.next();
 					if (property.endsWith("-color")) {
-						if (!"var".equalsIgnoreCase(funcname)) {
-							LexicalUnit param = lu.getParameters();
-							while (param != null) {
-								if (BaseCSSStyleDeclaration.testColor(param)) {
-									setSubpropertyValue(property, createCSSValue(property, lu));
-									it.remove();
-									continue valueloop;
-								}
-								param = param.getNextLexicalUnit();
+						LexicalUnit param = lu.getParameters();
+						while (param != null) {
+							if (BaseCSSStyleDeclaration.testColor(param)) {
+								setSubpropertyValue(property, createCSSValue(property, lu));
+								it.remove();
+								continue valueloop;
 							}
-						} else if (unass.size() == 1) {
+							param = param.getNextLexicalUnit();
+						}
+					}
+				}
+			} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_VAR) {
+				List<String> unass = getUnassignedProperties();
+				Iterator<String> it = unass.iterator();
+				while (it.hasNext()) {
+					String property = it.next();
+					if (property.endsWith("-color")) {
+						if (unass.size() == 1) {
 							setSubpropertyValue(property, createCSSValue(property, lu));
 							it.remove();
 							break valueloop;
 						}
 					} else if (property.endsWith("-image")) {
-						if (unass.size() == 1 && "var".equalsIgnoreCase(funcname)) {
+						if (unass.size() == 1) {
 							setSubpropertyValue(property, createCSSValue(property, lu));
 							it.remove();
 							break valueloop;
@@ -200,31 +192,39 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	 *          keyword was found mixed with other values.
 	 */
 	byte scanForCssWideKeywords(LexicalUnit lunit) {
-		if (lunit.getLexicalUnitType() == LexicalUnit.SAC_INHERIT) {
+		KeywordValue kwval = createKeywordValueSubproperty(lunit);
+		if (kwval != null) {
 			if (lunit.getNextLexicalUnit() != null) {
-				reportMixedKeywords("inherit");
+				reportMixedKeywords(kwval.getCssText());
 				return 2;
 			}
-			InheritValue inherit = InheritValue.getValue().asSubproperty();
-			setSubpropertiesInherit(inherit);
+			setSubpropertiesToKeyword(kwval);
 			initValueString();
-			appendValueItemString(inherit);
+			appendValueItemString(kwval);
 			return 1;
-		} else if (lunit.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String keyword = lunit.getStringValue();
-			if (keyword.equalsIgnoreCase("initial") || keyword.equalsIgnoreCase("unset")) {
-				if (lunit.getNextLexicalUnit() != null) {
-					reportMixedKeywords(keyword);
-					return 2;
-				}
-				StyleValue cssval = valueFactory.createCSSValueItem(lunit, true).getCSSValue();
-				setSubpropertiesToKeyword(cssval);
-				initValueString();
-				appendValueItemString(cssval);
-				return 1;
-			}
 		}
 		return 0;
+	}
+
+	KeywordValue createKeywordValueSubproperty(LexicalUnit lunit) {
+		KeywordValue kwval;
+		switch (lunit.getLexicalUnitType()) {
+		case LexicalUnit.SAC_INHERIT:
+			kwval = InheritValue.getValue().asSubproperty();
+			break;
+		case LexicalUnit.SAC_INITIAL:
+			kwval = InitialValue.getValue().asSubproperty();
+			break;
+		case LexicalUnit.SAC_UNSET:
+			kwval = UnsetValue.getValue().asSubproperty();
+			break;
+		case LexicalUnit.SAC_REVERT:
+			kwval = RevertValue.getValue().asSubproperty();
+			break;
+		default:
+			kwval = null;
+		}
+		return kwval;
 	}
 
 	private void reportMixedKeywords(String keyword) {
@@ -235,34 +235,37 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		}
 	}
 
-	protected void setSubpropertiesInherit(InheritValue inherit) {
+	protected void setSubpropertiesToKeyword(KeywordValue keyword) {
 		String[] subparray = getShorthandSubproperties();
 		for (String subp : subparray) {
 			if (!getShorthandDatabase().isShorthand(subp)) {
-				styleDeclaration.setProperty(subp, inherit, getPriority());
+				styleDeclaration.setProperty(subp, keyword, isPriorityImportant());
 			} else {
 				String[] sh = getShorthandDatabase().getShorthandSubproperties(subp);
 				for (String s : sh) {
-					styleDeclaration.setProperty(s, inherit, getPriority());
+					styleDeclaration.setProperty(s, keyword, isPriorityImportant());
 				}
 			}
 		}
 		return;
 	}
 
-	protected void setSubpropertiesToKeyword(StyleValue keyword) {
-		String[] subparray = getShorthandSubproperties();
-		for (String subp : subparray) {
-			if (!getShorthandDatabase().isShorthand(subp)) {
-				styleDeclaration.setProperty(subp, keyword, getPriority());
-			} else {
-				String[] sh = getShorthandDatabase().getShorthandSubproperties(subp);
-				for (String s : sh) {
-					styleDeclaration.setProperty(s, keyword, getPriority());
-				}
+	void setListSubpropertyValue(String pname, ValueList list) {
+		if (list.getLength() == 1) {
+			StyleValue val = list.item(0);
+			CssType cat;
+			if (val.isPrimitiveValue()) {
+				((PrimitiveValue) val).setSubproperty(true);
+			} else if ((cat = val.getCssValueType()) == CssType.KEYWORD) {
+				val = ((KeywordValue) val).asSubproperty();
+			} else if (cat == CssType.LIST) {
+				((ValueList) val).setSubproperty(true);
 			}
+			setSubpropertyValue(pname, val);
+		} else {
+			list.setSubproperty(true);
+			setSubpropertyValue(pname, list);
 		}
-		return;
 	}
 
 	protected String[] getShorthandSubproperties() {
@@ -335,28 +338,26 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	StyleValue defaultPropertyValue(String propertyName) {
 		StyleValue cssVal = styleDeclaration.defaultPropertyValue(propertyName, getPropertyDatabase());
 		if (cssVal != null) {
-			short type = cssVal.getCssValueType();
-			if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+			CssType type = cssVal.getCssValueType();
+			if (type == CssType.TYPED) {
 				((PrimitiveValue) cssVal).setSubproperty(true);
-			} else if (type == CSSValue.CSS_VALUE_LIST) {
+			} else if (type == CssType.LIST) {
 				((ValueList) cssVal).setSubproperty(true);
 			}
 		} else {
-			IdentifierValue ident = new IdentifierValue("initial");
-			ident.setSubproperty(true);
-			cssVal = ident;
+			cssVal = InitialValue.getValue().asSubproperty();
 		}
 		return cssVal;
 	}
 
 	void setPropertyToDefault(String pname) {
 		StyleValue cssVal = defaultPropertyValue(pname);
-		setProperty(pname, cssVal, getPriority());
+		setProperty(pname, cssVal, isPriorityImportant());
 	}
 
 	void setDeclarationPropertyToDefault(String propertyName) {
 		StyleValue cssVal = defaultPropertyValue(propertyName);
-		styleDeclaration.setProperty(propertyName, cssVal, getPriority());
+		styleDeclaration.setProperty(propertyName, cssVal, isPriorityImportant());
 	}
 
 	protected List<String> subpropertyList() {
@@ -423,20 +424,14 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		}
 		if (subproperty.endsWith("-color")) {
 			if (BaseCSSStyleDeclaration.testColor(currentValue)) {
-				if (setCurrentValue(subproperty)) {
-					return true;
-				}
+				return setCurrentValue(subproperty);
 			}
 		} else if (subproperty.endsWith("-width")) {
 			if (ValueFactory.isSizeSACUnit(currentValue)) {
-				if (setCurrentValue(subproperty)) {
-					return true;
-				}
+				return setCurrentValue(subproperty);
 			}
 		} else if (subproperty.endsWith("-image") && isImage()) {
-			if (setCurrentValue(subproperty)) {
-				return true;
-			}
+			return setCurrentValue(subproperty);
 		}
 		return false;
 	}
@@ -478,11 +473,11 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	}
 
 	protected void setSubpropertyValue(String subproperty, StyleValue cssValue) {
-		setProperty(subproperty, cssValue, getPriority());
+		setProperty(subproperty, cssValue, isPriorityImportant());
 	}
 
 	void setSubpropertyValueWListCheck(String property, StyleValue value) {
-		if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+		if (value.getCssValueType() == CssType.LIST) {
 			ValueList list = (ValueList) value;
 			if (list.getLength() == 1) {
 				value = list.item(0);
@@ -497,7 +492,7 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 			setSubpropertyValue(subproperty, cssValue);
 		} else {
 			switch (cssval.getCssValueType()) {
-			case CSSValue.CSS_VALUE_LIST:
+			case LIST:
 				((ValueList) cssval).add(cssValue);
 				cssValue = cssval;
 				break;
@@ -512,13 +507,13 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 				list.add(cssValue);
 				cssValue = list;
 			}
-			setProperty(subproperty, cssValue, getPriority());
+			setProperty(subproperty, cssValue, isPriorityImportant());
 		}
 	}
 
-	void setProperty(String subpropertyName, StyleValue cssValue, String priority) {
+	void setProperty(String subpropertyName, StyleValue cssValue, boolean important) {
 		mypropertyList.add(subpropertyName);
-		mypriorities.add(priority);
+		mypriorities.add(important);
 		mypropValue.put(subpropertyName, cssValue);
 	}
 
@@ -663,6 +658,12 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 	@Override
 	public String getMinifiedCssText() {
 		return miniValueBuffer.toString();
+	}
+
+	@Override
+	public ShorthandValue createCSSShorthandValue(LexicalUnit value) {
+		return ShorthandValue.createCSSShorthandValue(getShorthandDatabase(), getShorthandName(), value,
+				isPriorityImportant());
 	}
 
 	void reportDeclarationError(String propertyName, String message) {

@@ -11,11 +11,11 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
 
 class LenientSystemDefaultValue extends SafeSystemDefaultValue {
 
-	LenientSystemDefaultValue(ExtendedCSSPrimitiveValue defvalue) {
+	LenientSystemDefaultValue(CSSTypedValue defvalue) {
 		super(defvalue);
 	}
 

@@ -11,11 +11,10 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.css.CSSValueList;
-
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Build a 'transition' shorthand from individual properties.
@@ -29,12 +28,12 @@ class TransitionShorthandBuilder extends ListOrderedShorthandBuilder {
 	@Override
 	boolean valueClash(int index, String property) {
 		StyleValue freePropertyValue = getCSSListItemValue(freeProperty, index);
-		short freeType = freePropertyValue.getCssValueType();
+		CssType freeType = freePropertyValue.getCssValueType();
 		boolean retval = false;
-		if (freeType == CSSValue.CSS_PRIMITIVE_VALUE) {
-			retval = isConflictingIdentifier(property, (CSSPrimitiveValue) freePropertyValue);
-		} else if (freeType == CSSValue.CSS_VALUE_LIST) {
-			retval = listHasConflictingIdentifiers(property, (CSSValueList) freePropertyValue);
+		if (freeType == CssType.TYPED) {
+			retval = isConflictingIdentifier(property, (CSSTypedValue) freePropertyValue);
+		} else if (freeType == CssType.LIST) {
+			retval = listHasConflictingIdentifiers(property, (ValueList) freePropertyValue);
 		}
 		if (!retval && property.equals("transition-duration")) {
 			StyleValue delay = getCSSListItemValue("transition-delay", index);

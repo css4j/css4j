@@ -15,22 +15,21 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSUnicodeRangeValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Unicode range CSSPrimitiveValue.
+ * Unicode range value.
  * 
  */
-public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRangeValue {
+public class UnicodeRangeValue extends TypedValue implements CSSUnicodeRangeValue {
 
-	private PrimitiveValue value = null;
-	private PrimitiveValue endValue = null;
+	private TypedValue value = null;
+	private TypedValue endValue = null;
 
 	UnicodeRangeValue() {
-		super(CSSPrimitiveValue2.CSS_UNICODE_RANGE);
+		super(Type.UNICODE_RANGE);
 	}
 
 	protected UnicodeRangeValue(UnicodeRangeValue copied) {
@@ -47,7 +46,7 @@ public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRange
 		String s1 = value.getCssText();
 		StringBuilder buf = new StringBuilder(s1.length() * 2 + 16);
 		buf.append(s1).append('-');
-		if (endValue.getPrimitiveType() == CSSPrimitiveValue2.CSS_UNICODE_CHARACTER) {
+		if (endValue.getPrimitiveType() == Type.UNICODE_CHARACTER) {
 			buf.append(Integer.toHexString(((CSSUnicodeRangeValue.CSSUnicodeValue) endValue).getCodePoint()));
 		} else {
 			buf.append(endValue.getStringValue());
@@ -60,7 +59,7 @@ public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRange
 		value.writeCssText(wri);
 		if (endValue != null) {
 			wri.write('-');
-			if (endValue.getPrimitiveType() == CSSPrimitiveValue2.CSS_UNICODE_CHARACTER) {
+			if (endValue.getPrimitiveType() == Type.UNICODE_CHARACTER) {
 				wri.write(Integer.toHexString(((CSSUnicodeRangeValue.CSSUnicodeValue) endValue).getCodePoint()));
 			} else {
 				wri.write(endValue.getStringValue());
@@ -69,12 +68,12 @@ public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRange
 	}
 
 	@Override
-	public PrimitiveValue getValue() {
+	public TypedValue getValue() {
 		return value;
 	}
 
 	@Override
-	public PrimitiveValue getEndValue() {
+	public TypedValue getEndValue() {
 		return endValue;
 	}
 
@@ -107,13 +106,10 @@ public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRange
 			return false;
 		}
 		if (value == null) {
-			if (other.value != null) {
-				return false;
-			}
-		} else if (!value.equals(other.value)) {
-			return false;
+			return other.value == null;
+		} else {
+			return value.equals(other.value);
 		}
-		return true;
 	}
 
 	@Override
@@ -139,7 +135,7 @@ public class UnicodeRangeValue extends PrimitiveValue implements CSSUnicodeRange
 			this.nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 
-		private PrimitiveValue readValue(LexicalUnit lu) {
+		private TypedValue readValue(LexicalUnit lu) {
 			short type = lu.getLexicalUnitType();
 			if (type == LexicalUnit.SAC_INTEGER) {
 				UnicodeValue val = new UnicodeValue();

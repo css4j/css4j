@@ -20,7 +20,7 @@ public interface CSSOperandExpression extends CSSExpression {
 	 *
 	 * @return the primitive operand.
 	 */
-	ExtendedCSSPrimitiveValue getOperand();
+	CSSPrimitiveValue getOperand();
 
 	/**
 	 * Create and return a copy of this object.
@@ -35,6 +35,6 @@ public interface CSSOperandExpression extends CSSExpression {
 	 * 
 	 * @param operand the operand value.
 	 */
-	void setOperand(ExtendedCSSPrimitiveValue operand);
+	void setOperand(CSSPrimitiveValue operand);
 
 }

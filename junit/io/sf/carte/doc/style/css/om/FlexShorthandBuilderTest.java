@@ -32,6 +32,16 @@ public class FlexShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderMixNoShorthand() {
+		assertShorthandText(
+				"flex-basis:inherit;flex-grow:0;flex-shrink:0;",
+				"flex-grow:0;flex-shrink:0;flex-basis:inherit;");
+		assertShorthandText(
+				"flex-basis:revert;flex-grow:0;flex-shrink:0;",
+				"flex-grow:0;flex-shrink:0;flex-basis:revert;");
+	}
+
+	@Test
 	public void testBuilder() {
 		assertShorthandText("flex:auto;", "flex: auto; ");
 		assertShorthandText("flex:0;", "flex: 0; ");
@@ -41,7 +51,6 @@ public class FlexShorthandBuilderTest {
 		assertShorthandText("flex:2 2;", "flex: 2 2 auto; ");
 		assertShorthandText("flex:3%;", "flex: 3%; ");
 		assertShorthandText("flex:content;", "flex: content; ");
-		assertShorthandText("flex:0;", "flex: initial; ");
 		assertShorthandText("flex:0 0 50%;", "flex: 0 0 50%; ");
 		assertShorthandText("flex:50%;flex-shrink:0!important;", "flex: 0 0 50%; flex-shrink:0!important; ");
 		assertShorthandText("flex:1 50%;flex-shrink:0!important;", "flex: 1 0 50%; flex-shrink:0!important; ");
@@ -77,6 +86,15 @@ public class FlexShorthandBuilderTest {
 		assertShorthandText("flex:2 2!important;", "flex: 2 2 auto!important; ");
 		assertShorthandText("flex:3%!important;", "flex: 3%!important; ");
 		assertShorthandText("flex:content!important;", "flex: content!important; ");
+	}
+
+	@Test
+	public void testBuilderInitial() {
+		assertShorthandText("flex:0;", "flex: initial; ");
+	}
+
+	@Test
+	public void testBuilderInitialImportant() {
 		assertShorthandText("flex:0!important;", "flex: initial!important; ");
 	}
 
@@ -92,12 +110,22 @@ public class FlexShorthandBuilderTest {
 
 	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("flex:unset;", "flex: unset;");
+		assertShorthandText("flex:0;", "flex: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("flex:unset!important;", "flex: unset!important;");
+		assertShorthandText("flex:0!important;", "flex: unset!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("flex:revert;", "flex: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("flex:revert!important;", "flex: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

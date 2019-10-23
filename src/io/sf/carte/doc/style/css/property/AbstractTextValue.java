@@ -16,16 +16,15 @@ import java.io.IOException;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Abstract CSSPrimitiveValue that prefers to have <code>cssText</code> as a field.
+ * Abstract CSSTypedValue that prefers to have <code>cssText</code> as a field.
  * 
  */
-abstract class AbstractTextValue extends PrimitiveValue {
+abstract class AbstractTextValue extends TypedValue {
 
 	private String cssText = null;
 
-	AbstractTextValue(short primitiveType) {
-		super();
-		setCSSUnitType(primitiveType);
+	AbstractTextValue(Type primitiveType) {
+		super(primitiveType);
 	}
 
 	AbstractTextValue(AbstractTextValue copied) {

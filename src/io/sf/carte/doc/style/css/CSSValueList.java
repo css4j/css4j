@@ -12,14 +12,17 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.css.CSSValueList;
-
 /**
- * Augmented {@link CSSValueList} interface.
+ * Based on W3C's {@code CSSValueList} interface.
  *
  * @param <E> the value type.
  */
-public interface ExtendedCSSValueList<E extends ExtendedCSSValue> extends CSSValueList, ExtendedCSSValue, Iterable<E> {
+public interface CSSValueList<E extends CSSValue> extends CSSValue, Iterable<E> {
+
+	/**
+	 * The number of values in this list.
+	 */
+	int getLength();
 
 	/**
 	 * Adds a value to the end of this list.
@@ -43,14 +46,13 @@ public interface ExtendedCSSValueList<E extends ExtendedCSSValue> extends CSSVal
 	boolean isEmpty();
 
 	/**
-	 * retrieve an <code>ExtendedCSSValue</code> by ordinal index.
+	 * Retrieve a <code>CSSValue</code> by ordinal index.
 	 * 
 	 * @param index the index in this list.
 	 * @return the value at <code>index</code>, or <code>null</code> if
 	 *         <code>index</code> is less than zero, or greater or equal to the list
 	 *         length.
 	 */
-	@Override
 	E item(int index);
 
 	/**
@@ -84,6 +86,16 @@ public interface ExtendedCSSValueList<E extends ExtendedCSSValue> extends CSSVal
 	 * @return a clone of this instance.
 	 */
 	@Override
-	ExtendedCSSValueList<E> clone();
+	CSSValueList<E> clone();
+
+	@Override
+	default CssType getCssValueType() {
+		return CssType.LIST;
+	}
+
+	@Override
+	default Type getPrimitiveType() {
+		return Type.INVALID;
+	}
 
 }

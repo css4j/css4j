@@ -23,14 +23,14 @@ import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.css.CSSValueList;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 public class FontFaceRuleTest {
 
@@ -116,12 +116,12 @@ public class FontFaceRuleTest {
 		assertEquals(2, ffrule.getStyle().getLength());
 		assertEquals("url('font/FooSans.woff2') format('woff2')", ffrule.getStyle().getPropertyValue("src"));
 		CSSValue src = ffrule.getStyle().getPropertyCSSValue("src");
-		assertEquals(CSSValue.CSS_VALUE_LIST, src.getCssValueType());
-		assertEquals(2, ((CSSValueList) src).getLength());
-		assertEquals(CSSPrimitiveValue.CSS_URI, ((CSSPrimitiveValue) ((CSSValueList) src).item(0)).getPrimitiveType());
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ((CSSValueList) src).item(1).getCssValueType());
-		CSSPrimitiveValue format = (CSSPrimitiveValue) ((CSSValueList) src).item(1);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, format.getPrimitiveType());
+		assertEquals(CssType.LIST, src.getCssValueType());
+		assertEquals(2, ((ValueList) src).getLength());
+		assertEquals(CSSValue.Type.URI, ((CSSTypedValue) ((ValueList) src).item(0)).getPrimitiveType());
+		assertEquals(CssType.TYPED, ((ValueList) src).item(1).getCssValueType());
+		CSSTypedValue format = (CSSTypedValue) ((ValueList) src).item(1);
+		assertEquals(CSSValue.Type.FUNCTION, format.getPrimitiveType());
 		assertEquals("format('woff2')", format.getCssText());
 		assertEquals(
 				"@font-face {\n    font-family: 'FooSans';\n    src: url('font/FooSans.woff2') format('woff2');\n}\n",
@@ -151,12 +151,12 @@ public class FontFaceRuleTest {
 		assertEquals(2, ffrule.getStyle().getLength());
 		assertEquals("url('font/FooSans.woff2') format('woff2')", ffrule.getStyle().getPropertyValue("src"));
 		CSSValue src = ffrule.getStyle().getPropertyCSSValue("src");
-		assertEquals(CSSValue.CSS_VALUE_LIST, src.getCssValueType());
-		assertEquals(2, ((CSSValueList) src).getLength());
-		assertEquals(CSSPrimitiveValue.CSS_URI, ((CSSPrimitiveValue) ((CSSValueList) src).item(0)).getPrimitiveType());
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ((CSSValueList) src).item(1).getCssValueType());
-		CSSPrimitiveValue format = (CSSPrimitiveValue) ((CSSValueList) src).item(1);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, format.getPrimitiveType());
+		assertEquals(CssType.LIST, src.getCssValueType());
+		assertEquals(2, ((ValueList) src).getLength());
+		assertEquals(CSSValue.Type.URI, ((CSSTypedValue) ((ValueList) src).item(0)).getPrimitiveType());
+		assertEquals(CssType.TYPED, ((ValueList) src).item(1).getCssValueType());
+		CSSTypedValue format = (CSSTypedValue) ((ValueList) src).item(1);
+		assertEquals(CSSValue.Type.FUNCTION, format.getPrimitiveType());
 		assertEquals("format('woff2')", format.getCssText());
 		assertEquals(
 				"@font-face {\n    font-family: 'FooSans';\n    src: url('font/FooSans.woff2') format('woff2');\n}\n",
@@ -180,24 +180,24 @@ public class FontFaceRuleTest {
 				"local('Montserrat-Bold'), url('//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2') format(\"woff2\")",
 				ffrule.getStyle().getPropertyValue("src"));
 		CSSValue src = ffrule.getStyle().getPropertyCSSValue("src");
-		assertEquals(CSSValue.CSS_VALUE_LIST, src.getCssValueType());
-		assertEquals(2, ((CSSValueList) src).getLength());
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ((CSSValueList) src).item(0).getCssValueType());
-		CSSPrimitiveValue local = (CSSPrimitiveValue) ((CSSValueList) src).item(0);
-		assertEquals(CSSPrimitiveValue2.CSS_FUNCTION, local.getPrimitiveType());
+		assertEquals(CssType.LIST, src.getCssValueType());
+		assertEquals(2, ((ValueList) src).getLength());
+		assertEquals(CssType.TYPED, ((ValueList) src).item(0).getCssValueType());
+		CSSTypedValue local = (CSSTypedValue) ((ValueList) src).item(0);
+		assertEquals(CSSValue.Type.FUNCTION, local.getPrimitiveType());
 		assertEquals("local('Montserrat-Bold')", local.getCssText());
-		CSSValue val = ((CSSValueList) src).item(1);
-		assertEquals(CSSValue.CSS_VALUE_LIST, val.getCssValueType());
-		CSSValueList list = (CSSValueList) val;
-		CSSPrimitiveValue uri = (CSSPrimitiveValue) list.item(0);
-		assertEquals(CSSPrimitiveValue.CSS_URI, uri.getPrimitiveType());
+		CSSValue val = ((ValueList) src).item(1);
+		assertEquals(CssType.LIST, val.getCssValueType());
+		ValueList list = (ValueList) val;
+		CSSTypedValue uri = (CSSTypedValue) list.item(0);
+		assertEquals(CSSValue.Type.URI, uri.getPrimitiveType());
 		assertEquals("url('//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2')", uri.getCssText());
-		CSSPrimitiveValue format = (CSSPrimitiveValue) list.item(1);
+		CSSTypedValue format = (CSSTypedValue) list.item(1);
 		assertEquals("format(\"woff2\")", format.getCssText());
 		CSSValue range = ffrule.getStyle().getPropertyCSSValue("unicode-range");
 		assertNotNull(range);
-		assertEquals(CSSValue.CSS_VALUE_LIST, range.getCssValueType());
-		assertEquals(14, ((CSSValueList) range).getLength());
+		assertEquals(CssType.LIST, range.getCssValueType());
+		assertEquals(14, ((ValueList) range).getLength());
 		assertEquals(
 				"@font-face {\n    font-family: Montserrat;\n    font-style: normal;\n    font-weight: 700;\n    src: local('Montserrat-Bold'), url('//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2') format(\"woff2\");\n    unicode-range: U+00??, U+131, U+152-153, U+2c6, U+2da, U+2dc, U+2000-206f, U+2074, U+20ac, U+2212, U+2215, U+e0ff, U+effd, U+f000;\n}\n",
 				ffrule.getCssText());

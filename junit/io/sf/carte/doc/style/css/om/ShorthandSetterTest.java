@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.om;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -32,12 +31,12 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.css.CSSValueList;
 
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -89,6 +88,11 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("animation: ease-in ease-out");
 		assertEquals("ease-in", emptyStyleDecl.getPropertyValue("animation-timing-function"));
 		assertEquals("ease-out", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("1", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("running", emptyStyleDecl.getPropertyValue("animation-play-state"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
 		assertEquals("animation: ease-in ease-out; ", emptyStyleDecl.getCssText());
@@ -221,8 +225,8 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("border: 0");
 		assertEquals("none", emptyStyleDecl.getPropertyValue("border-top-style"));
 		assertEquals("none", emptyStyleDecl.getPropertyValue("border-right-style"));
-		assertEquals(0, ((CSSPrimitiveValue) emptyStyleDecl.getPropertyCSSValue("border-top-width"))
-				.getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.01);
+		assertEquals(0, ((CSSTypedValue) emptyStyleDecl.getPropertyCSSValue("border-top-width"))
+				.getFloatValue(CSSUnit.CSS_NUMBER), 0.01);
 		assertEquals("border: 0; ", emptyStyleDecl.getCssText());
 		assertEquals("border:0;", emptyStyleDecl.getMinifiedCssText());
 	}
@@ -285,21 +289,21 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("border-top: 4px dotted green; border: 1px dashed var(--mycolor); ");
 		assertEquals("border: 1px dashed var(--mycolor); ", emptyStyleDecl.getCssText());
 		assertEquals("border:1px dashed var(--mycolor);", emptyStyleDecl.getMinifiedCssText());
-		assertEquals("1px", emptyStyleDecl.getPropertyValue("border-top-width"));
-		assertEquals("1px", emptyStyleDecl.getPropertyValue("border-right-width"));
-		assertEquals("dashed", emptyStyleDecl.getPropertyValue("border-top-style"));
-		assertEquals("dashed", emptyStyleDecl.getPropertyValue("border-right-style"));
-		assertEquals("var(--mycolor)", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("var(--mycolor)", emptyStyleDecl.getPropertyValue("border-right-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-right-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-right-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-right-color"));
 		assertEquals(17, emptyStyleDecl.getLength());
 	}
 
 	@Test
 	public void testBorderVarBad() {
 		emptyStyleDecl.setCssText("border-top: 4px dotted green; border: dashed var(--mycolor); ");
-		assertEquals("border-top: 4px dotted green; ", emptyStyleDecl.getCssText());
-		assertEquals("border-top:4px dotted green;", emptyStyleDecl.getMinifiedCssText());
-		assertEquals(3, emptyStyleDecl.getLength());
+		assertEquals("border: dashed var(--mycolor); ", emptyStyleDecl.getCssText());
+		assertEquals("border:dashed var(--mycolor);", emptyStyleDecl.getMinifiedCssText());
+		assertEquals(17, emptyStyleDecl.getLength());
 	}
 
 	@Test
@@ -366,8 +370,8 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("border-left-width: 2px; border-top: 0");
 		assertEquals("none", emptyStyleDecl.getPropertyValue("border-top-style"));
 		assertEquals("2px", emptyStyleDecl.getPropertyValue("border-left-width"));
-		assertEquals(0, ((CSSPrimitiveValue) emptyStyleDecl.getPropertyCSSValue("border-top-width"))
-				.getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.01);
+		assertEquals(0, ((CSSTypedValue) emptyStyleDecl.getPropertyCSSValue("border-top-width"))
+				.getFloatValue(CSSUnit.CSS_NUMBER), 0.01);
 		assertEquals("border-left-width: 2px; border-top: 0; ", emptyStyleDecl.getCssText());
 		assertEquals("border-left-width:2px;border-top:0;", emptyStyleDecl.getMinifiedCssText());
 	}
@@ -393,18 +397,17 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("border-top: 0 var(--whatever)");
 		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-style"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertNull(emptyStyleDecl.getPropertyCSSValue("border-top-width"));
-		assertEquals("", emptyStyleDecl.getCssText());
-		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("border-top: 0 var(--whatever); ", emptyStyleDecl.getCssText());
+		assertEquals("border-top:0 var(--whatever);", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
 	public void testBorderTopVar2() {
 		emptyStyleDecl.setCssText("border-top: 0 solid var(--mycolor)");
-		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-top-style"));
-		assertEquals("var(--mycolor)", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals(0, ((CSSPrimitiveValue) emptyStyleDecl.getPropertyCSSValue("border-top-width"))
-				.getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 0.01);
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("border-top: 0 solid var(--mycolor); ", emptyStyleDecl.getCssText());
 		assertEquals("border-top:0 solid var(--mycolor);", emptyStyleDecl.getMinifiedCssText());
 	}
@@ -412,20 +415,20 @@ public class ShorthandSetterTest {
 	@Test
 	public void testBorderTopVar3() {
 		emptyStyleDecl.setCssText("border-top: solid var(--mywidth, 2px) var(--mycolor, #da0)");
-		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-top-style"));
-		assertEquals("var(--mycolor, #da0)", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("var(--mywidth, 2px)", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("border-top: solid var(--mywidth, 2px) var(--mycolor, #da0); ", emptyStyleDecl.getCssText());
-		assertEquals("border-top:solid var(--mywidth,2px) var(--mycolor,#da0);", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-top:solid var(--mywidth, 2px) var(--mycolor, #da0);", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
 	public void testBorderTopVar4() {
 		emptyStyleDecl.setCssText("border-top: solid var(--mywidth, 2px)");
-		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-top-style"));
-		assertEquals("var(--mywidth, 2px)", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("border-top: solid var(--mywidth, 2px); ", emptyStyleDecl.getCssText());
-		assertEquals("border-top:solid var(--mywidth,2px);", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-top:solid var(--mywidth, 2px);", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -480,10 +483,10 @@ public class ShorthandSetterTest {
 		assertEquals("border-color: blue navy green transparent; ", emptyStyleDecl.getCssText());
 		assertEquals("border-color:blue navy green transparent;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("border-color: var(--mytopcolor) navy green transparent; ");
-		assertEquals("var(--mytopcolor)", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("navy", emptyStyleDecl.getPropertyValue("border-right-color"));
-		assertEquals("green", emptyStyleDecl.getPropertyValue("border-bottom-color"));
-		assertEquals("transparent", emptyStyleDecl.getPropertyValue("border-left-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-right-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-bottom-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-left-color"));
 		assertEquals("border-color: var(--mytopcolor) navy green transparent; ", emptyStyleDecl.getCssText());
 		assertEquals("border-color:var(--mytopcolor) navy green transparent;", emptyStyleDecl.getMinifiedCssText());
 	}
@@ -574,10 +577,10 @@ public class ShorthandSetterTest {
 		assertEquals("border-style: inset solid dotted outset; ", emptyStyleDecl.getCssText());
 		assertEquals("border-style:inset solid dotted outset;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("border-style: var(--mystyle) solid dotted outset; ");
-		assertEquals("var(--mystyle)", emptyStyleDecl.getPropertyValue("border-top-style"));
-		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-right-style"));
-		assertEquals("dotted", emptyStyleDecl.getPropertyValue("border-bottom-style"));
-		assertEquals("outset", emptyStyleDecl.getPropertyValue("border-left-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-right-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-bottom-style"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-left-style"));
 		assertEquals("border-style: var(--mystyle) solid dotted outset; ", emptyStyleDecl.getCssText());
 		assertEquals("border-style:var(--mystyle) solid dotted outset;", emptyStyleDecl.getMinifiedCssText());
 	}
@@ -653,10 +656,10 @@ public class ShorthandSetterTest {
 		assertEquals("border-width: 2px 8em 4pt 5px; ", emptyStyleDecl.getCssText());
 		assertEquals("border-width:2px 8em 4pt 5px;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("border-width: var(--myborderwidth) 8em 4pt 5px; ");
-		assertEquals("var(--myborderwidth)", emptyStyleDecl.getPropertyValue("border-top-width"));
-		assertEquals("8em", emptyStyleDecl.getPropertyValue("border-right-width"));
-		assertEquals("4pt", emptyStyleDecl.getPropertyValue("border-bottom-width"));
-		assertEquals("5px", emptyStyleDecl.getPropertyValue("border-left-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-right-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-bottom-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-left-width"));
 		assertEquals("border-width: var(--myborderwidth) 8em 4pt 5px; ", emptyStyleDecl.getCssText());
 		assertEquals("border-width:var(--myborderwidth) 8em 4pt 5px;", emptyStyleDecl.getMinifiedCssText());
 	}
@@ -1545,33 +1548,33 @@ public class ShorthandSetterTest {
 		assertEquals("border-radius: 0; ", emptyStyleDecl.getCssText());
 		assertEquals("border-radius:0;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("border-radius: var(--my-theme-border-radius); ");
-		assertEquals("var(--my-theme-border-radius)", emptyStyleDecl.getPropertyValue("border-top-left-radius"));
-		assertEquals("var(--my-theme-border-radius)", emptyStyleDecl.getPropertyValue("border-top-right-radius"));
-		assertEquals("var(--my-theme-border-radius)", emptyStyleDecl.getPropertyValue("border-bottom-right-radius"));
-		assertEquals("var(--my-theme-border-radius)", emptyStyleDecl.getPropertyValue("border-bottom-left-radius"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-left-radius"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-right-radius"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-bottom-right-radius"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-bottom-left-radius"));
 		assertEquals("border-radius: var(--my-theme-border-radius); ", emptyStyleDecl.getCssText());
 		assertEquals("border-radius:var(--my-theme-border-radius);", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("border-radius: var(--my-tlbr-border-radius) var(--my-trbl-border-radius); ");
-		assertEquals("var(--my-tlbr-border-radius)", emptyStyleDecl.getPropertyValue("border-top-left-radius"));
-		assertEquals("var(--my-trbl-border-radius)", emptyStyleDecl.getPropertyValue("border-top-right-radius"));
-		assertEquals("var(--my-tlbr-border-radius)", emptyStyleDecl.getPropertyValue("border-bottom-right-radius"));
-		assertEquals("var(--my-trbl-border-radius)", emptyStyleDecl.getPropertyValue("border-bottom-left-radius"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-left-radius"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-right-radius"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-bottom-right-radius"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("border-bottom-left-radius"));
 		assertEquals("border-radius: var(--my-tlbr-border-radius) var(--my-trbl-border-radius); ",
 				emptyStyleDecl.getCssText());
 		assertEquals("border-radius:var(--my-tlbr-border-radius) var(--my-trbl-border-radius);",
 				emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText(
 				"border-radius: var(--my-tl-border-radius) var(--my-trbl1-border-radius) var(--my-bbr1-border-radius) / var(--my-bbr2-border-radius) var(--my-trbl2-border-radius)");
-		assertEquals("var(--my-tl-border-radius) var(--my-bbr2-border-radius)",
+		assertEquals("",
 				emptyStyleDecl.getPropertyValue("border-top-left-radius"));
-		assertEquals("var(--my-trbl1-border-radius) var(--my-trbl2-border-radius)",
+		assertEquals("",
 				emptyStyleDecl.getPropertyValue("border-top-right-radius"));
-		assertEquals("var(--my-bbr1-border-radius) var(--my-bbr2-border-radius)",
+		assertEquals("",
 				emptyStyleDecl.getPropertyValue("border-bottom-right-radius"));
-		assertEquals("var(--my-trbl1-border-radius) var(--my-trbl2-border-radius)",
+		assertEquals("",
 				emptyStyleDecl.getPropertyValue("border-bottom-left-radius"));
 		assertEquals(
-				"border-radius: var(--my-tl-border-radius) var(--my-trbl1-border-radius) var(--my-bbr1-border-radius) / var(--my-bbr2-border-radius) var(--my-trbl2-border-radius); ",
+				"border-radius: var(--my-tl-border-radius) var(--my-trbl1-border-radius) var(--my-bbr1-border-radius)/var(--my-bbr2-border-radius) var(--my-trbl2-border-radius); ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
 				"border-radius:var(--my-tl-border-radius) var(--my-trbl1-border-radius) var(--my-bbr1-border-radius)/var(--my-bbr2-border-radius) var(--my-trbl2-border-radius);",
@@ -1661,10 +1664,10 @@ public class ShorthandSetterTest {
 		assertEquals("margin: 10px 4pt 3px 5px; ", emptyStyleDecl.getCssText());
 		assertEquals("margin:10px 4pt 3px 5px;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("margin: var(--mytopmargin) 4pt 3px 5px; ");
-		assertEquals("var(--mytopmargin)", emptyStyleDecl.getPropertyValue("margin-top"));
-		assertEquals("4pt", emptyStyleDecl.getPropertyValue("margin-right"));
-		assertEquals("3px", emptyStyleDecl.getPropertyValue("margin-bottom"));
-		assertEquals("5px", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-left"));
 		assertEquals("margin: var(--mytopmargin) 4pt 3px 5px; ", emptyStyleDecl.getCssText());
 		assertEquals("margin:var(--mytopmargin) 4pt 3px 5px;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("margin: 10px inherit 3px auto; ");
@@ -1676,6 +1679,23 @@ public class ShorthandSetterTest {
 				emptyStyleDecl.getCssText());
 		assertEquals("margin-top:10px;margin-right:inherit;margin-bottom:3px;margin-left:auto",
 				emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("margin: inherit; ");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("margin: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("margin:inherit;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("margin: unset; ");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("margin: unset; ", emptyStyleDecl.getCssText());
+		assertEquals("margin:unset;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("margin: initial; ");
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("margin-top"));
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("margin-right"));
@@ -1683,6 +1703,54 @@ public class ShorthandSetterTest {
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("margin-left"));
 		assertEquals("margin: initial; ", emptyStyleDecl.getCssText());
 		assertEquals("margin:initial;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("margin: revert; ");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("margin: revert; ", emptyStyleDecl.getCssText());
+		assertEquals("margin:revert;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasWarnings());
+		//
+		emptyStyleDecl.setCssText("margin: revert initial; ");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("margin-top: revert; margin-right: initial; margin-bottom: revert; margin-left: initial; ",
+				emptyStyleDecl.getCssText());
+		assertEquals("margin-top:revert;margin-right:initial;margin-bottom:revert;margin-left:initial",
+				emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testMarginError() {
+		emptyStyleDecl.setCssText("margin-top:1px;margin: 1px hello; ");
+		assertEquals("1px", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("margin-top: 1px; ", emptyStyleDecl.getCssText());
+		assertEquals("margin-top:1px", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testMarginError2() {
+		emptyStyleDecl.setCssText("margin-top:1px;margin: revert hello; ");
+		assertEquals("1px", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("margin-top: 1px; ", emptyStyleDecl.getCssText());
+		assertEquals("margin-top:1px", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasWarnings());
 	}
 
 	@Test
@@ -1703,10 +1771,10 @@ public class ShorthandSetterTest {
 		assertEquals("padding: 2em 3em 1em; ", emptyStyleDecl.getCssText());
 		assertEquals("padding:2em 3em 1em;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("padding: var(--mypaddingtop) 2em 3em 1em");
-		assertEquals("var(--mypaddingtop)", emptyStyleDecl.getPropertyValue("padding-top"));
-		assertEquals("2em", emptyStyleDecl.getPropertyValue("padding-right"));
-		assertEquals("3em", emptyStyleDecl.getPropertyValue("padding-bottom"));
-		assertEquals("1em", emptyStyleDecl.getPropertyValue("padding-left"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("padding-top"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("padding-right"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("padding-bottom"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("padding-left"));
 		assertEquals("padding: var(--mypaddingtop) 2em 3em 1em; ", emptyStyleDecl.getCssText());
 		assertEquals("padding:var(--mypaddingtop) 2em 3em 1em;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("padding: 2em 3em inherit");
@@ -1718,6 +1786,7 @@ public class ShorthandSetterTest {
 				emptyStyleDecl.getCssText());
 		assertEquals("padding-top:2em;padding-right:3em;padding-bottom:inherit;padding-left:3em",
 				emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("padding: initial; ");
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("padding-top"));
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("padding-right"));
@@ -1725,6 +1794,14 @@ public class ShorthandSetterTest {
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("padding-left"));
 		assertEquals("padding: initial; ", emptyStyleDecl.getCssText());
 		assertEquals("padding:initial;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("padding: inherit; ");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("padding-top"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("padding-right"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("padding-bottom"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("padding-left"));
+		assertEquals("padding: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("padding:inherit;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -1870,8 +1947,10 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-clip"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-attachment"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-repeat"));
-		assertEquals("", emptyStyleDecl.getCssText());
-		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("background: var(--myimage) 40%/10em gray round fixed border-box; ",
+				emptyStyleDecl.getCssText());
+		assertEquals("background:var(--myimage) 40%/10em gray round fixed border-box;",
+				emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -1899,8 +1978,8 @@ public class ShorthandSetterTest {
 		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("background-size"));
 		StyleValue val = emptyStyleDecl.getPropertyCSSValue("background-size");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_VALUE_LIST, val.getCssValueType());
-		CSSValueList list = (CSSValueList) val;
+		assertEquals(CssType.LIST, val.getCssValueType());
+		ValueList list = (ValueList) val;
 		assertEquals(2, list.getLength());
 		assertEquals("auto", list.item(0).getCssText());
 		assertEquals("auto", list.item(1).getCssText());
@@ -1921,8 +2000,8 @@ public class ShorthandSetterTest {
 		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("background-size"));
 		StyleValue val = emptyStyleDecl.getPropertyCSSValue("background-size");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_VALUE_LIST, val.getCssValueType());
-		CSSValueList list = (CSSValueList) val;
+		assertEquals(CssType.LIST, val.getCssValueType());
+		ValueList list = (ValueList) val;
 		assertEquals(2, list.getLength());
 		assertEquals("auto", list.item(0).getCssText());
 		assertEquals("auto", list.item(1).getCssText());
@@ -2184,10 +2263,10 @@ public class ShorthandSetterTest {
 		assertEquals("url('/img/border.png')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("round", emptyStyleDecl.getPropertyValue("border-image-repeat"));
 		assertEquals("25% 30% 12% 20% fill", emptyStyleDecl.getPropertyValue("border-image-slice"));
-		assertEquals(CSSValue.CSS_VALUE_LIST,
+		assertEquals(CssType.LIST,
 				emptyStyleDecl.getPropertyCSSValue("border-image-slice").getCssValueType());
 		assertEquals("25%",
-				((CSSValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
+				((ValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
 		assertEquals("2pt", emptyStyleDecl.getPropertyValue("border-image-width"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("border-image-outset"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("border-image-source").isSubproperty());
@@ -2218,10 +2297,10 @@ public class ShorthandSetterTest {
 		assertEquals("url('/img/border.png')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("round", emptyStyleDecl.getPropertyValue("border-image-repeat"));
 		assertEquals("25% 30%", emptyStyleDecl.getPropertyValue("border-image-slice"));
-		assertEquals(CSSValue.CSS_VALUE_LIST,
+		assertEquals(CssType.LIST,
 				emptyStyleDecl.getPropertyCSSValue("border-image-slice").getCssValueType());
 		assertEquals("25%",
-				((CSSValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
+				((ValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
 		assertEquals("2pt", emptyStyleDecl.getPropertyValue("border-image-width"));
 		assertEquals("border-image: url('/img/border.png') 25% 30% / 2pt round; ", emptyStyleDecl.getCssText());
 		assertEquals("border-image:url('/img/border.png') 25% 30%/2pt round;", emptyStyleDecl.getMinifiedCssText());
@@ -2233,10 +2312,10 @@ public class ShorthandSetterTest {
 		assertEquals("url('/img/border.png')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("round", emptyStyleDecl.getPropertyValue("border-image-repeat"));
 		assertEquals("25% 30%", emptyStyleDecl.getPropertyValue("border-image-slice"));
-		assertEquals(CSSValue.CSS_VALUE_LIST,
+		assertEquals(CssType.LIST,
 				emptyStyleDecl.getPropertyCSSValue("border-image-slice").getCssValueType());
 		assertEquals("25%",
-				((CSSValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
+				((ValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("border-image-width"));
 		assertEquals("border-image: url('/img/border.png') 25% 30% / auto round; ", emptyStyleDecl.getCssText());
 		assertEquals("border-image:url('/img/border.png') 25% 30%/auto round;", emptyStyleDecl.getMinifiedCssText());
@@ -2244,10 +2323,10 @@ public class ShorthandSetterTest {
 		assertEquals("none", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("round", emptyStyleDecl.getPropertyValue("border-image-repeat"));
 		assertEquals("25% 30%", emptyStyleDecl.getPropertyValue("border-image-slice"));
-		assertEquals(CSSValue.CSS_VALUE_LIST,
+		assertEquals(CssType.LIST,
 				emptyStyleDecl.getPropertyCSSValue("border-image-slice").getCssValueType());
 		assertEquals("25%",
-				((CSSValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
+				((ValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("border-image-width"));
 		assertEquals("border-image: none 25% 30% / auto round; ", emptyStyleDecl.getCssText());
 		assertEquals("border-image:none 25% 30%/auto round;", emptyStyleDecl.getMinifiedCssText());
@@ -2261,10 +2340,10 @@ public class ShorthandSetterTest {
 				emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("round", emptyStyleDecl.getPropertyValue("border-image-repeat"));
 		assertEquals("25% 30% 12% 20% fill", emptyStyleDecl.getPropertyValue("border-image-slice"));
-		assertEquals(CSSValue.CSS_VALUE_LIST,
+		assertEquals(CssType.LIST,
 				emptyStyleDecl.getPropertyCSSValue("border-image-slice").getCssValueType());
 		assertEquals("25%",
-				((CSSValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
+				((ValueList) emptyStyleDecl.getPropertyCSSValue("border-image-slice")).item(0).getCssText());
 		assertEquals("2pt", emptyStyleDecl.getPropertyValue("border-image-width"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("border-image-outset"));
 		assertEquals("border-image: repeating-conic-gradient(gold, #f06 20deg) 25% 30% 12% 20% fill / 2pt / 1 round; ",
@@ -2752,30 +2831,44 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-basis").isSubproperty());
 		assertEquals("flex: none; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:none;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("flex: initial");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("flex-grow"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("flex-shrink"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("flex-basis"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-grow").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-basis").isSubproperty());
+		assertEquals("flex: initial; ", emptyStyleDecl.getCssText());
+		assertEquals("flex:initial;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: auto; ");
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: auto; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:auto;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 0; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 2; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2 auto; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2785,30 +2878,35 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-basis").isSubproperty());
 		assertEquals("flex: 2 2 auto; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2 auto;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 1 0; ");
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 1 0; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:1 0;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 1 0px; ");
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 1 0px; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:1 0px;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 1em; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("1em", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 1em; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 1em;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2 5%; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("5%", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 2 5%; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2 5%;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0 0 50%; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-grow").isSubproperty());
@@ -2818,54 +2916,63 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-basis").isSubproperty());
 		assertEquals("flex: 0 0 50%; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0 0 50%;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2 0px; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 2 0px; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2 0px;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2 0; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 2 0; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2 0;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0px; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 0px; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0px;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 5%; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("5%", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 5%; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:5%;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: content; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("content", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: content; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:content;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0 0 calc(100.0% - 60.0px / 3); ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("calc(100% - 60px/3)", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 0 0 calc(100% - 60px/3); ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0 0 calc(100% - 60px/3);", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0 0 calc((100.0% - 60.0px) / 3); ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("calc((100% - 60px)/3)", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 0 0 calc((100% - 60px)/3); ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0 0 calc((100% - 60px)/3);", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: inherit; ");
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: inherit; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:inherit;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 1.2em unset; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2873,6 +2980,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: unset unset; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2880,12 +2988,14 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: unset; ");
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: unset; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:unset;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: none none; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2893,6 +3003,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: 2 3 4; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2900,6 +3011,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: 2 3 4 2em; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2907,6 +3019,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: 1.2em 2 auto; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2914,6 +3027,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: 1.2em 2 2px; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -3060,7 +3174,7 @@ public class ShorthandSetterTest {
 				emptyStyleDecl.getPropertyValue("grid-template-rows"));
 		assertEquals("auto 1fr auto", emptyStyleDecl.getPropertyValue("grid-template-columns"));
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("grid-template-columns");
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
 		assertEquals(3, ((ValueList) value).getLength());
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("grid-auto-rows"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("grid-auto-columns"));
@@ -3526,7 +3640,7 @@ public class ShorthandSetterTest {
 				emptyStyleDecl.getPropertyValue("grid-template-rows"));
 		assertEquals("auto 1fr auto", emptyStyleDecl.getPropertyValue("grid-template-columns"));
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("grid-template-columns");
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
 		assertEquals(3, ((ValueList) value).getLength());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("grid-template-areas").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("grid-template-rows").isSubproperty());
@@ -4113,9 +4227,9 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getPropertyValue("list-style-image"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("list-style-position"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("list-style-type"));
-		assertEquals("", emptyStyleDecl.getCssText());
-		assertEquals("", emptyStyleDecl.getMinifiedCssText());
-		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertEquals("list-style: decimal var(--whatever); ", emptyStyleDecl.getCssText());
+		assertEquals("list-style:decimal var(--whatever);", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -4466,11 +4580,11 @@ public class ShorthandSetterTest {
 		assertEquals("font: \"Times New Roman\"; ", emptyStyleDecl.getCssText());
 		assertEquals("font:\"Times New Roman\";", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("font: \"Times New Roman\", Arial");
-		assertEquals(CSSValue.CSS_VALUE_LIST, emptyStyleDecl.getPropertyCSSValue("font-family").getCssValueType());
+		assertEquals(CssType.LIST, emptyStyleDecl.getPropertyCSSValue("font-family").getCssValueType());
 		assertEquals("\"Times New Roman\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
 		emptyStyleDecl.setCssText("font: 16pt \"Times New Roman\", Arial");
 		assertEquals("16pt", emptyStyleDecl.getPropertyValue("font-size"));
-		assertEquals(CSSValue.CSS_VALUE_LIST, emptyStyleDecl.getPropertyCSSValue("font-family").getCssValueType());
+		assertEquals(CssType.LIST, emptyStyleDecl.getPropertyCSSValue("font-family").getCssValueType());
 		assertEquals("\"Times New Roman\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("font: 16pt \"Times New Roman\", Arial; ", emptyStyleDecl.getCssText());
 		assertEquals("font:16pt \"Times New Roman\",Arial;", emptyStyleDecl.getMinifiedCssText());

@@ -15,28 +15,25 @@ import java.io.IOException;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSRatioValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Ratio CSSPrimitiveValue.
+ * Ratio value.
  * 
  * @author Carlos Amengual
  *
  */
-public class RatioValue extends PrimitiveValue implements CSSRatioValue {
+public class RatioValue extends TypedValue implements CSSRatioValue {
 
 	private PrimitiveValue antecedentValue;
 	private PrimitiveValue consequentValue;
 
 	public RatioValue() {
-		super();
-		setCSSUnitType(CSSPrimitiveValue2.CSS_RATIO);
+		super(Type.RATIO);
 	}
 
 	protected RatioValue(RatioValue copied) {
@@ -67,7 +64,7 @@ public class RatioValue extends PrimitiveValue implements CSSRatioValue {
 		checkModifiableProperty();
 		ValueFactory vf = new ValueFactory();
 		PrimitiveValue value = vf.parseMediaFeature(cssText);
-		if (value.getPrimitiveType() != CSSPrimitiveValue2.CSS_RATIO) {
+		if (value.getPrimitiveType() != Type.RATIO) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Value is not a ratio.");
 		}
 		RatioValue ratio = (RatioValue) value;
@@ -120,12 +117,13 @@ public class RatioValue extends PrimitiveValue implements CSSRatioValue {
 		this.consequentValue = consequentValue;
 	}
 
-	private void checkValueType(CSSPrimitiveValue value) throws DOMException {
+	private void checkValueType(PrimitiveValue value) throws DOMException {
 		if (value == null) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null value in ratio.");
 		}
-		short ptype = value.getPrimitiveType();
-		if (ptype != CSSPrimitiveValue.CSS_NUMBER && ptype != CSSPrimitiveValue2.CSS_EXPRESSION) {
+		CssType cat = value.getCssValueType();
+		Type ptype = value.getPrimitiveType();
+		if (cat != CssType.PROXY && (cat != CssType.TYPED || (ptype != Type.NUMERIC && ptype != Type.EXPRESSION))) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected type in ratio: " + ptype);
 		}
 	}

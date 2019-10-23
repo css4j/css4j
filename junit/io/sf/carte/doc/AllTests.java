@@ -32,6 +32,7 @@ import io.sf.carte.doc.dom.TreeWalkerTest;
 import io.sf.carte.doc.dom.XHTMLDocumentTest;
 import io.sf.carte.doc.dom.XMLDocumentBuilderTest;
 import io.sf.carte.doc.dom.XMLDocumentTest;
+import io.sf.carte.doc.style.css.CSSUnitTest;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetTest;
 import io.sf.carte.doc.style.css.om.AbstractStyleDatabaseTest;
 import io.sf.carte.doc.style.css.om.AnimationShorthandBuilderTest;
@@ -89,6 +90,7 @@ import io.sf.carte.doc.style.css.parser.AnBExpressionTest;
 import io.sf.carte.doc.style.css.parser.CSSParserTest;
 import io.sf.carte.doc.style.css.parser.DeclarationParserTest;
 import io.sf.carte.doc.style.css.parser.DeclarationRuleParserTest;
+import io.sf.carte.doc.style.css.parser.LexicalUnitTest;
 import io.sf.carte.doc.style.css.parser.MediaListTest;
 import io.sf.carte.doc.style.css.parser.MediaQueryDatabaseTest;
 import io.sf.carte.doc.style.css.parser.NSACMediaQueryTest;
@@ -100,7 +102,6 @@ import io.sf.carte.doc.style.css.parser.SelectorParserNSTest;
 import io.sf.carte.doc.style.css.parser.SelectorParserTest;
 import io.sf.carte.doc.style.css.parser.SheetParserTest;
 import io.sf.carte.doc.style.css.parser.SupportsConditionTest;
-import io.sf.carte.doc.style.css.property.AbstractCSSValueTest;
 import io.sf.carte.doc.style.css.property.AttrValueTest;
 import io.sf.carte.doc.style.css.property.CalcValueTest;
 import io.sf.carte.doc.style.css.property.ColorValueTest;
@@ -114,14 +115,16 @@ import io.sf.carte.doc.style.css.property.FunctionValueTest;
 import io.sf.carte.doc.style.css.property.GradientValueTest;
 import io.sf.carte.doc.style.css.property.IdentifierValueTest;
 import io.sf.carte.doc.style.css.property.InheritValueTest;
+import io.sf.carte.doc.style.css.property.LexicalValueTest;
 import io.sf.carte.doc.style.css.property.NumberValueTest;
-import io.sf.carte.doc.style.css.property.OMCSSRectValueTest;
 import io.sf.carte.doc.style.css.property.PropertyDatabaseTest;
 import io.sf.carte.doc.style.css.property.RatioValueTest;
+import io.sf.carte.doc.style.css.property.RectValueTest;
 import io.sf.carte.doc.style.css.property.ShorthandDatabaseTest;
 import io.sf.carte.doc.style.css.property.StringValueDQTest;
 import io.sf.carte.doc.style.css.property.StringValueSQTest;
 import io.sf.carte.doc.style.css.property.StringValueTest;
+import io.sf.carte.doc.style.css.property.StyleValueTest;
 import io.sf.carte.doc.style.css.property.URIValueTest;
 import io.sf.carte.doc.style.css.property.UnicodeRangeValueTest;
 import io.sf.carte.doc.style.css.property.UnknownValueTest;
@@ -157,6 +160,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 	XHTMLDocumentTest.class,
 	XMLDocumentBuilderTest.class,
 	XMLDocumentTest.class,
+	CSSUnitTest.class,
 	AbstractStyleDatabaseTest.class,
 		AbstractCSSStyleSheetTest.class,
 		AnimationShorthandBuilderTest.class,
@@ -214,6 +218,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		CSSParserTest.class,
 		DeclarationParserTest.class,
 		DeclarationRuleParserTest.class,
+		LexicalUnitTest.class,
 		MediaListTest.class,
 		MediaQueryDatabaseTest.class,
 		NSACMediaQueryTest.class,
@@ -225,8 +230,8 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		SelectorParserNSTest.class,
 		SheetParserTest.class,
 		SupportsConditionTest.class,
- 		AbstractCSSValueTest.class,
- 		AttrValueTest.class,
+		StyleValueTest.class,
+		AttrValueTest.class,
 		CalcValueTest.class,
 		ColorValueTest.class,
 		CounterValueTest.class,
@@ -236,19 +241,20 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		EnvVariableValueTest.class,
 		EvaluatorTest.class,
 		FunctionValueTest.class,
+		GradientValueTest.class,
 		IdentifierValueTest.class,
 		InheritValueTest.class,
-		GradientValueTest.class,
+		LexicalValueTest.class,
 		NumberValueTest.class,
-		OMCSSRectValueTest.class,
+		RectValueTest.class,
 		PropertyDatabaseTest.class,
 		RatioValueTest.class,
 		ShorthandDatabaseTest.class,
 		StringValueTest.class,
 		StringValueDQTest.class,
 		StringValueSQTest.class,
-		UnknownValueTest.class,
 		UnicodeRangeValueTest.class,
+		UnknownValueTest.class,
 		URIValueTest.class,
 		ValueListTest.class,
 		ValueFactoryTest.class,

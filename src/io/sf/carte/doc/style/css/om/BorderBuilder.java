@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 class BorderBuilder extends BaseBoxShorthandBuilder {
@@ -99,7 +100,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 *         width, style or color are keyword but at least one isn't.
 	 */
 	@Override
-	byte checkValuesForKeyword(String keyword, Set<String> declaredSet) {
+	byte checkValuesForKeyword(CSSValue.Type keyword, Set<String> declaredSet) {
 		byte wcheck = checkValuesForKeyword(keyword, "border-width", declaredSet);
 		byte scheck = checkValuesForKeyword(keyword, "border-style", declaredSet);
 		byte ccheck = checkValuesForKeyword(keyword, "border-color", declaredSet);
@@ -133,11 +134,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			} else if (icheck == 2) {
 				return false;
 			}
-			// 'unset' check
-			byte ucheck = checkValuesForKeyword("unset", declaredSet);
+			// 'revert' check
+			byte ucheck = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
 			if (ucheck == 1) {
-				// All values are unset
-				buf.append("border:unset");
+				// All values are revert
+				buf.append("border:revert");
 				appendPriority(buf, important);
 				return true;
 			} else if (ucheck == 2) {
@@ -273,7 +274,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 * 
 	 * @param score
 	 *            the score.
-	 * @return 0 if the best state are normal values, 1 if inherit, 5 if unset.
+	 * @return 0 if the best state are normal values, 1 if inherit, 5 if revert.
 	 */
 	private byte bestState(PropertyValueScore score) {
 		byte best_state = 0;
@@ -1372,7 +1373,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			} else if (state == 1) {
 				buf.append("inherit");
 			} else {
-				buf.append("unset");
+				buf.append("revert");
 			}
 			unusedSet.remove(bWidthPty);
 			unusedSet.remove(bStylePty);
@@ -1385,7 +1386,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	/**
 	 * Get the keyword state of top side properties.
 	 * 
-	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if unset, -1 if
+	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if revert, -1 if
 	 *         mixed.
 	 */
 	private byte getTopKeywordState() {
@@ -1398,7 +1399,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	/**
 	 * Get the keyword state of right side properties.
 	 * 
-	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if unset, -1 if
+	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if revert, -1 if
 	 *         mixed.
 	 */
 	private byte getRightKeywordState() {
@@ -1411,7 +1412,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	/**
 	 * Get the keyword state of bottom side properties.
 	 * 
-	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if unset, -1 if
+	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if revert, -1 if
 	 *         mixed.
 	 */
 	private byte getBottomKeywordState() {
@@ -1424,7 +1425,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	/**
 	 * Get the keyword state of left side properties.
 	 * 
-	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if unset, -1 if
+	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if revert, -1 if
 	 *         mixed.
 	 */
 	private byte getLeftKeywordState() {
@@ -1440,7 +1441,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 * @param width
 	 * @param style
 	 * @param color
-	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if unset, -1 if
+	 * @return 0 if all properties are non-keyword, 1 if all are inherit, 2 if revert, -1 if
 	 *         mixed.
 	 */
 	private byte getSideKeywordState(StyleValue width, StyleValue style, StyleValue color) {

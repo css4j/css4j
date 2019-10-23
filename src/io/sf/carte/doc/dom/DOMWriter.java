@@ -502,7 +502,7 @@ public class DOMWriter {
 				if (entity != null) {
 					buf.append(entity);
 				} else {
-					buf.append('#').append(Integer.toString(cp));
+					buf.append('#').append(cp);
 				}
 				buf.append(';');
 				continue;

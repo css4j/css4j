@@ -56,8 +56,8 @@ public class SupportsConditionFactory implements BooleanConditionFactory {
 	 * Create a declaration (operand) condition.
 	 * <p>
 	 * The value of the feature can be set later with
-	 * {@link DeclarationCondition#setValue(io.sf.carte.doc.style.css.ExtendedCSSValue)
-	 * DeclarationCondition.setValue(ExtendedCSSValue)}.
+	 * {@link DeclarationCondition#setValue(io.sf.carte.doc.style.css.CSSValue)
+	 * DeclarationCondition.setValue(CSSValue)}.
 	 * 
 	 * @param featureName
 	 *            the name of the declared feature.

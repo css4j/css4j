@@ -22,9 +22,11 @@ import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -45,21 +47,21 @@ public class ValueFactoryTest {
 		ValueFactory factory = new ValueFactory();
 		LexicalUnit lunit = parsePropertyValue("1, 2, 3, 4");
 		StyleValue value = factory.createCSSValue(lunit);
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
 		ValueList list = (ValueList) value;
 		assertEquals(4, list.getLength());
 		assertTrue(list.isCommaSeparated());
 		//
 		lunit = parsePropertyValue("1 2 3 4");
 		value = factory.createCSSValue(lunit);
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
 		list = (ValueList) value;
 		assertEquals(4, list.getLength());
 		assertFalse(list.isCommaSeparated());
 		//
 		lunit = parsePropertyValue("[first header-start]");
 		value = factory.createCSSValue(lunit);
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
 		list = (ValueList) value;
 		assertEquals(2, list.getLength());
 		assertFalse(list.isCommaSeparated());
@@ -68,23 +70,61 @@ public class ValueFactoryTest {
 		//
 		lunit = parsePropertyValue("[first header-start], [main-start],[]");
 		value = factory.createCSSValue(lunit);
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
 		list = (ValueList) value;
 		assertEquals(2, list.getLength());
 		assertTrue(list.isCommaSeparated());
-		assertEquals(CSSValue.CSS_VALUE_LIST, list.item(0).getCssValueType());
+		assertEquals(CssType.LIST, list.item(0).getCssValueType());
 		ValueList bracketlist = (ValueList) list.item(0);
 		assertEquals(2, bracketlist.getLength());
 		assertFalse(bracketlist.isCommaSeparated());
 		assertEquals("first", bracketlist.item(0).getCssText());
 		assertEquals("header-start", bracketlist.item(1).getCssText());
 		assertEquals("[first header-start]", bracketlist.getCssText());
-		assertEquals(CSSValue.CSS_VALUE_LIST, list.item(1).getCssValueType());
+		assertEquals(CssType.LIST, list.item(1).getCssValueType());
 		bracketlist = (ValueList) list.item(1);
 		assertEquals(1, bracketlist.getLength());
 		assertFalse(bracketlist.isCommaSeparated());
 		assertEquals("main-start", bracketlist.item(0).getCssText());
 		assertEquals("[main-start]", bracketlist.getCssText());
+	}
+
+	@Test
+	public void testCreateCSSValueKeyword() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("inherit");
+		StyleValue value = factory.createCSSValue(lunit);
+		assertEquals(CssType.KEYWORD, value.getCssValueType());
+		assertEquals(CSSValue.Type.INHERIT, value.getPrimitiveType());
+		assertEquals("inherit", value.getCssText());
+		//
+		lunit = parsePropertyValue("unset");
+		value = factory.createCSSValue(lunit);
+		assertEquals(CssType.KEYWORD, value.getCssValueType());
+		assertEquals(CSSValue.Type.UNSET, value.getPrimitiveType());
+		assertEquals("unset", value.getCssText());
+		//
+		lunit = parsePropertyValue("revert");
+		value = factory.createCSSValue(lunit);
+		assertEquals(CssType.KEYWORD, value.getCssValueType());
+		assertEquals(CSSValue.Type.REVERT, value.getPrimitiveType());
+		assertEquals("revert", value.getCssText());
+		//
+		lunit = parsePropertyValue("initial");
+		value = factory.createCSSValue(lunit);
+		assertEquals(CssType.KEYWORD, value.getCssValueType());
+		assertEquals(CSSValue.Type.INITIAL, value.getPrimitiveType());
+		assertEquals("initial", value.getCssText());
+	}
+
+	@Test
+	public void testCreateCSSValueVar() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("var(--foo, 3px)");
+		StyleValue value = factory.createCSSValue(lunit);
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(CSSValue.Type.VAR, value.getPrimitiveType());
+		assertEquals("var(--foo, 3px)", value.getCssText());
 	}
 
 	@Test
@@ -96,6 +136,9 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));
 		//
 		lunit = parsePropertyValue("0");
+		assertTrue(ValueFactory.isSizeSACUnit(lunit));
+		//
+		lunit = parsePropertyValue("var(--foo,2em)");
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));
 		//
 		lunit = parsePropertyValue("calc(300px - 2%)");
@@ -156,6 +199,8 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isResolutionSACUnit(lunit));
 		lunit = parsePropertyValue("foo(3dpi)");
 		assertTrue(ValueFactory.isResolutionSACUnit(lunit));
+		lunit = parsePropertyValue("var(--foo,3dpi)");
+		assertTrue(ValueFactory.isResolutionSACUnit(lunit));
 		lunit = parsePropertyValue("2px");
 		assertFalse(ValueFactory.isResolutionSACUnit(lunit));
 		lunit = parsePropertyValue("0");
@@ -171,6 +216,8 @@ public class ValueFactoryTest {
 		lunit = parsePropertyValue("foo(3px)");
 		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
 		lunit = parsePropertyValue("calc(300px - 2%)");
+		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
+		lunit = parsePropertyValue("var(--foo,2px)");
 		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
 		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
@@ -218,6 +265,8 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
 		lunit = parsePropertyValue("calc(300px - 2%)");
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
+		lunit = parsePropertyValue("var(--foo, 2px)");
+		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
 		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
 		lunit = parsePropertyValue("0");
@@ -255,6 +304,8 @@ public class ValueFactoryTest {
 		lunit = parsePropertyValue("foo(3px)");
 		assertFalse(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
 		lunit = parsePropertyValue("calc(300% - 1px)");
+		assertFalse(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
+		lunit = parsePropertyValue("var(--foo, 1px)");
 		assertFalse(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
 		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isPlainNumberOrPercentSACUnit(lunit));
@@ -311,9 +362,9 @@ public class ValueFactoryTest {
 	@Test
 	public void testFirstDimensionArgumentUnit() throws CSSException, IOException {
 		LexicalUnit lunit = parsePropertyValue("foo(3.2em,4)");
-		assertEquals(LexicalUnit.SAC_EM, ValueFactory.functionDimensionArgumentUnit(lunit));
+		assertEquals(CSSUnit.CSS_EM, ValueFactory.functionDimensionArgumentUnit(lunit));
 		lunit = parsePropertyValue("foo(3px,4)");
-		assertEquals(LexicalUnit.SAC_PIXEL, ValueFactory.functionDimensionArgumentUnit(lunit));
+		assertEquals(CSSUnit.CSS_PX, ValueFactory.functionDimensionArgumentUnit(lunit));
 		lunit = parsePropertyValue("foo(3.2,4)");
 		assertEquals(-1, ValueFactory.functionDimensionArgumentUnit(lunit));
 		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
@@ -337,8 +388,9 @@ public class ValueFactoryTest {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lunit = parsePropertyValue("40pt\\9");
 		StyleValue value = factory.createCSSValue(lunit);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.UNKNOWN, value.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_INVALID, ((CSSTypedValue) value).getUnitType());
 		assertEquals("40pt\\9", value.getCssText());
 	}
 
@@ -348,8 +400,9 @@ public class ValueFactoryTest {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lunit = parsePropertyValue("foo 40pt\\9");
 		StyleValue value = factory.createCSSValue(lunit);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.UNKNOWN, value.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_INVALID, ((CSSTypedValue) value).getUnitType());
 		assertEquals("foo 40pt\\9", value.getCssText());
 	}
 
@@ -359,8 +412,9 @@ public class ValueFactoryTest {
 		parser.setFlag(Parser.Flag.IEPRIO);
 		LexicalUnit lunit = parsePropertyValue("40pt!ie");
 		StyleValue value = factory.createCSSValue(lunit);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.UNKNOWN, value.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_INVALID, ((CSSTypedValue) value).getUnitType());
 		assertEquals("40pt!ie", value.getCssText());
 	}
 
@@ -370,8 +424,9 @@ public class ValueFactoryTest {
 		parser.setFlag(Parser.Flag.IEPRIO);
 		LexicalUnit lunit = parsePropertyValue("foo 40pt!ie");
 		StyleValue value = factory.createCSSValue(lunit);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.UNKNOWN, value.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_INVALID, ((CSSTypedValue) value).getUnitType());
 		assertEquals("foo 40pt!ie", value.getCssText());
 	}
 

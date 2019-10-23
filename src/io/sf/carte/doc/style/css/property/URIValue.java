@@ -17,7 +17,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -41,16 +40,11 @@ public class URIValue extends StringValue {
 	 *              CSSStyleSheetFactory.setFactoryFlag(byte)}
 	 */
 	public URIValue(byte flags) {
-		super(CSSPrimitiveValue.CSS_URI, flags);
+		super(Type.URI, flags);
 	}
 
 	protected URIValue(URIValue copied) {
 		super(copied);
-	}
-
-	@Override
-	public short getPrimitiveType() {
-		return CSSPrimitiveValue.CSS_URI;
 	}
 
 	@Override
@@ -138,8 +132,8 @@ public class URIValue extends StringValue {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = getCssValueType();
-		result = prime * result + getPrimitiveType();
+		int result = getCssValueType().hashCode();
+		result = prime * result + getPrimitiveType().hashCode();
 		String sv = getStringValue();
 		return prime * result + ((sv == null) ? 0 : sv.hashCode());
 	}
@@ -155,13 +149,10 @@ public class URIValue extends StringValue {
 		URIValue other = (URIValue) obj;
 		String sv = getStringValue();
 		if (sv == null) {
-			if (other.getStringValue() != null) {
-				return false;
-			}
-		} else if (!sv.equals(other.getStringValue())) {
-			return false;
+			return other.getStringValue() == null;
+		} else {
+			return sv.equals(other.getStringValue());
 		}
-		return true;
 	}
 
 	public boolean isEquivalent(URIValue other) {
@@ -170,13 +161,10 @@ public class URIValue extends StringValue {
 		}
 		String sv = getStringValue();
 		if (sv == null) {
-			if (other.getStringValue() != null) {
-				return false;
-			}
-		} else if (!sv.equals(other.getStringValue())) {
-			return false;
+			return other.getStringValue() == null;
+		} else {
+			return sv.equals(other.getStringValue());
 		}
-		return true;
 	}
 
 	@Override

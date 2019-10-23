@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
@@ -28,7 +27,7 @@ import io.sf.carte.util.SimpleWriter;
 class CounterValue extends AbstractCounterValue {
 
 	public CounterValue() {
-		super(CSSPrimitiveValue.CSS_COUNTER);
+		super(Type.COUNTER);
 	}
 
 	protected CounterValue(CounterValue copied) {

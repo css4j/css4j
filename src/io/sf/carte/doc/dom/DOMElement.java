@@ -25,7 +25,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.TypeInfo;
-import org.w3c.dom.css.CSSStyleDeclaration;
 
 import io.sf.carte.doc.DOMTokenList;
 import io.sf.carte.doc.DOMTokenSetImpl;
@@ -794,7 +793,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void exportHintsToStyle(CSSStyleDeclaration style) {
+	public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
 	}
 
 	/**

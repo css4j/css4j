@@ -689,9 +689,7 @@ abstract class AbstractDOMNode implements DOMNode {
 					NamedNodeMap nmap = getAttributes();
 					NamedNodeMap othernmap = arg.getAttributes();
 					if (nmap == null) {
-						if (othernmap == null) {
-							return true;
-						}
+						return othernmap == null;
 					} else {
 						int sz = nmap.getLength();
 						if (sz == othernmap.getLength()) {

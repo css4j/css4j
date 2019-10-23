@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -24,7 +23,7 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Identifier CSSPrimitiveValue.
+ * Identifier value.
  * 
  * @author Carlos Amengual
  *
@@ -34,7 +33,7 @@ public class IdentifierValue extends AbstractTextValue {
 	private String stringValue = null;
 
 	public IdentifierValue() {
-		super(CSS_IDENT);
+		super(Type.IDENT);
 	}
 
 	/**
@@ -46,7 +45,7 @@ public class IdentifierValue extends AbstractTextValue {
 	 *            the identifier.
 	 */
 	public IdentifierValue(String plainIdentifier) {
-		super(CSS_IDENT);
+		super(Type.IDENT);
 		this.stringValue = plainIdentifier;
 		setPlainCssText(plainIdentifier);
 	}
@@ -92,16 +91,15 @@ public class IdentifierValue extends AbstractTextValue {
 	}
 
 	@Override
-	public void setStringValue(short stringType, String stringValue) throws DOMException {
+	public void setStringValue(Type stringType, String stringValue) throws DOMException {
 		checkModifiableProperty();
-		if (stringType != CSSPrimitiveValue.CSS_IDENT) {
+		if (stringType != Type.IDENT) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
 					"This value is an identifier. To have a new type, set it at the style-declaration level.");
 		}
 		if (stringValue == null || stringValue.length() == 0) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null or empty value.");
 		}
-		setCSSUnitType(stringType);
 		setStringValue(stringValue);
 		setPlainCssText(escape(this.stringValue));
 	}
@@ -163,13 +161,10 @@ public class IdentifierValue extends AbstractTextValue {
 		String sv = getStringValue();
 		String osv = other.getStringValue();
 		if (sv == null) {
-			if (osv != null) {
-				return false;
-			}
-		} else if (!sv.equals(osv)) {
-			return false;
+			return osv == null;
+		} else {
+			return sv.equals(osv);
 		}
-		return true;
 	}
 
 	@Override

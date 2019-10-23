@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -100,7 +101,8 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("landscape", lu.getStringValue());
 		lu = handler.lexicalValues.getLast();
-		assertEquals(LexicalUnit.SAC_PIXEL, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
 		assertEquals(640, lu.getFloatValue(), 0.01f);
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals("640px", lu.toString());

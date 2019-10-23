@@ -42,7 +42,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
-import org.w3c.dom.stylesheets.LinkStyle;
 import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.agent.CSSCanvas;
@@ -53,9 +52,11 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
@@ -438,7 +439,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 	}
 
-	interface LinkStyleDefiner extends LinkStyle, Node {
+	interface LinkStyleDefiner extends LinkStyle<AbstractCSSRule>, Node {
 		@Override
 		AbstractCSSStyleSheet getSheet();
 
@@ -808,7 +809,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			Node parent = getParentNode();
 			try {
 				String newdata = data.substring(0, offset);
-				newnode = getOwnerDocument().createTextNode(data.substring(offset, data.length()));
+				newnode = getOwnerDocument().createTextNode(data.substring(offset));
 				if (parent != null) {
 					parent.insertBefore(newnode, getNextSibling());
 				}
@@ -1332,13 +1333,10 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		private boolean isSameNamespace(String ownerNamespaceURI) {
 			String namespaceURI = getNamespaceURI();
 			if (namespaceURI == null) {
-				if (ownerNamespaceURI == null || isDefaultNamespace(ownerNamespaceURI)) {
-					return true;
-				}
+				return ownerNamespaceURI == null || isDefaultNamespace(ownerNamespaceURI);
 			} else {
 				return namespaceURI.equals(ownerNamespaceURI);
 			}
-			return false;
 		}
 
 		@Override
@@ -1837,10 +1835,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	private String lookupPrefix(Node node, String namespaceURI) {
 		if (node.getNamespaceURI() == namespaceURI) {
 			String prefix = node.getPrefix();
-			if (prefix != null) {
-				return prefix;
-			}
-			return null;
+			return prefix;
 		}
 		Node cnode = node.getFirstChild();
 		while (cnode != null) {

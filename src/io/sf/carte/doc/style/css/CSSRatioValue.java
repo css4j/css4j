@@ -17,21 +17,21 @@ package io.sf.carte.doc.style.css;
  * a solidus ('/'), followed by optional whitespace, followed by a number. (as
  * defined by Media Queries level 4)
  */
-public interface CSSRatioValue extends ExtendedCSSPrimitiveValue {
+public interface CSSRatioValue extends CSSTypedValue {
 
 	/**
 	 * Get the antecedent value (i.e. the 'a' in 'a/b').
 	 * 
 	 * @return the antecedent value.
 	 */
-	ExtendedCSSPrimitiveValue getAntecedentValue();
+	CSSPrimitiveValue getAntecedentValue();
 
 	/**
 	 * Get the consequent value (i.e. the 'b' in 'a/b').
 	 * 
 	 * @return the consequent value.
 	 */
-	ExtendedCSSPrimitiveValue getConsequentValue();
+	CSSPrimitiveValue getConsequentValue();
 
 	@Override
 	CSSRatioValue clone();

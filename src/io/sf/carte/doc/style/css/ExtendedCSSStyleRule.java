@@ -11,15 +11,31 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.css.CSSStyleRule;
+import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
- * An extended CSS style rule.
+ * A CSS style rule.
  * 
  */
-public interface ExtendedCSSStyleRule extends CSSDeclarationRule, CSSStyleRule {
+public interface ExtendedCSSStyleRule extends CSSDeclarationRule {
+
+	/**
+	 * Get a parsable serialization of the selector(s).
+	 * 
+	 * @return a parsable serialization of the selector list.
+	 */
+	String getSelectorText();
+
+	/**
+	 * Parse the given string and set the selector list according to it.
+	 * 
+	 * @param selectorText a text representation of a selector list, according to
+	 *                     CSS syntax.
+	 * @throws DOMException
+	 */
+	void setSelectorText(String selectorText) throws DOMException;
 
 	/**
 	 * The selectors of this style rule.

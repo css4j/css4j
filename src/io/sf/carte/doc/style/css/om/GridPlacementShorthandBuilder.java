@@ -13,9 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -60,19 +59,29 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
-		check = checkValuesForKeyword("unset", declaredSet);
+		// Unset
+		check = checkValuesForKeyword(CSSValue.Type.UNSET, declaredSet);
 		if (check == 1) {
 			// All values are unset
 			buf.append("unset");
 			appendPriority(buf, important);
 			return true;
+		}
+		// Revert
+		check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+		if (check == 1) {
+			// All values are revert
+			buf.append("revert");
+			appendPriority(buf, important);
+			return true;
 		} else if (check == 2) {
 			return false;
 		}
+		//
 		String[] subp = getSubproperties();
 		// Make sure that it is not a layered property
 		StyleValue cssVal0 = getCSSValue(subp[0]);
-		if (cssVal0.getCssValueType() == CSSValue.CSS_VALUE_LIST && ((ValueList) cssVal0).isCommaSeparated()) {
+		if (cssVal0.getCssValueType() == CssType.LIST && ((ValueList) cssVal0).isCommaSeparated()) {
 			return false;
 		}
 		appendValueText(buf, cssVal0);
@@ -108,14 +117,15 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 	}
 
 	private boolean isPrintValue(String propertyName, StyleValue cssValue, StyleValue cssVal0) {
-		if (!isIdentifier(cssValue)) {
-			return true;
+		if (cssValue.getCssValueType() != CssType.KEYWORD) {
+			if (cssValue.getPrimitiveType() != CSSValue.Type.IDENT) {
+				return true;
+			}
+			if (cssVal0.getPrimitiveType() == CSSValue.Type.IDENT) {
+				return !valueEquals(cssVal0, cssValue);
+			}
 		}
-		if (isIdentifier(cssVal0)) {
-			return !valueEquals(cssVal0, cssValue);
-		} else {
-			return isNotInitialValue(cssValue, propertyName);
-		}
+		return isNotInitialValue(cssValue, propertyName) && isNotInitialValue(cssVal0, propertyName);
 	}
 
 	/*
@@ -123,17 +133,16 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 	 */
 	@Override
 	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
-		return cssVal != null && !isInitialIdentifier(cssVal)
+		return cssVal != null && !isEffectiveInitialKeyword(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
 	private void appendValueText(StringBuilder buf, StyleValue cssVal) {
-		buf.append(cssVal.getMinifiedCssText(getShorthandName()));
-	}
-
-	private boolean isIdentifier(StyleValue cssVal) {
-		return cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) cssVal).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT;
+		if (!isEffectiveInitialKeyword(cssVal)) {
+			buf.append(cssVal.getMinifiedCssText(getShorthandName()));
+		} else {
+			buf.append("auto");
+		}
 	}
 
 }

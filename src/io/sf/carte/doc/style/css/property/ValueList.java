@@ -17,31 +17,29 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
-import io.sf.carte.doc.style.css.ExtendedCSSValueList;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueList;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Implementation of CSSValueList.
+ * Implementation of ValueList.
  * 
  * @author Carlos Amengual
  *
  */
-abstract public class ValueList extends StyleValue implements ExtendedCSSValueList<StyleValue> {
+abstract public class ValueList extends StyleValue implements CSSValueList<StyleValue> {
 
 	protected final List<StyleValue> valueList;
 
 	private ValueList() {
-		super(CSSValue.CSS_VALUE_LIST);
+		super();
 		valueList = new ArrayList<StyleValue>();
 	}
 
 	private ValueList(ValueList copy) {
-		super(CSSValue.CSS_VALUE_LIST);
+		super();
 		valueList = new ArrayList<StyleValue>(copy.valueList);
 	}
 
@@ -73,7 +71,7 @@ abstract public class ValueList extends StyleValue implements ExtendedCSSValueLi
 	@Override
 	public boolean add(StyleValue value) {
 		if( value == null) {
-			throw new NullPointerException("Null value added to CSSValueList");
+			throw new NullPointerException("Null value added to ValueList");
 		}
 		return valueList.add(value);
 	}
@@ -88,7 +86,7 @@ abstract public class ValueList extends StyleValue implements ExtendedCSSValueLi
 	 */
 	public boolean addAll(ValueList list) {
 		if (list == null) {
-			throw new NullPointerException("Null list added to CSSValueList");
+			throw new NullPointerException("Null list added to ValueList");
 		}
 		if (isCommaSeparated() != list.isCommaSeparated() || isBracketList() != list.isBracketList()) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Attempted to add lists of different types");
@@ -122,7 +120,7 @@ abstract public class ValueList extends StyleValue implements ExtendedCSSValueLi
 	@Override
 	public StyleValue set(int index, StyleValue value) {
 		if( value == null) {
-			throw new NullPointerException("Null value set to CSSValueList");
+			throw new NullPointerException("Null value set to ValueList");
 		}
 		return valueList.set(index, value);
 	}
@@ -152,7 +150,7 @@ abstract public class ValueList extends StyleValue implements ExtendedCSSValueLi
 		if (valueList != null) {
 			Iterator<StyleValue> it = valueList.iterator();
 			while (it.hasNext()) {
-				ExtendedCSSValue value = it.next();
+				CSSValue value = it.next();
 				result = prime * result + ((value == null) ? 0 : value.hashCode());
 			}
 		}
@@ -172,16 +170,14 @@ abstract public class ValueList extends StyleValue implements ExtendedCSSValueLi
 		}
 		ValueList other = (ValueList) obj;
 		if (valueList.isEmpty()) { // valueList cannot be null
-			if (!other.valueList.isEmpty()) {
-				return false;
-			}
+			return other.valueList.isEmpty();
 		} else if (valueList.size() != other.valueList.size()) {
 			return false;
 		} else {
 			int sz = valueList.size();
 			for (int i = 0; i < sz; i++) {
-				ExtendedCSSValue item = valueList.get(i);
-				ExtendedCSSValue oitem = other.valueList.get(i);
+				CSSValue item = valueList.get(i);
+				CSSValue oitem = other.valueList.get(i);
 				if (item == null) { // Should not be the case
 					if (oitem != null) {
 						return false;
@@ -197,12 +193,13 @@ abstract public class ValueList extends StyleValue implements ExtendedCSSValueLi
 	public void setSubproperty(boolean subp) {
 		if (valueList != null) {
 			for (int i = 0; i < getLength(); i++) {
-				ExtendedCSSValue val = item(i);
-				if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
+				CSSValue val = item(i);
+				CssType cat = val.getCssValueType();
+				if (cat == CssType.TYPED || cat == CssType.PROXY) {
 					((PrimitiveValue) val).setSubproperty(true);
-				} else if (val.getCssValueType() == CSSValue.CSS_INHERIT) {
-					set(i, ((InheritValue) val).asSubproperty());
-				} else if (val.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+				} else if (cat == CssType.KEYWORD) {
+					set(i, ((KeywordValue) val).asSubproperty());
+				} else if (cat == CssType.LIST) {
 					((ValueList) val).setSubproperty(true);
 				}
 			}
@@ -329,8 +326,7 @@ abstract public class ValueList extends StyleValue implements ExtendedCSSValueLi
 			@Override
 			public StyleValue item(int index) {
 				StyleValue val = super.item(index);
-				if (val != null && val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-						&& ((CSSPrimitiveValue) val).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
+				if (val != null && val.getPrimitiveType() == CSSValue.Type.URI) {
 					return new URIValueWrapper((URIValue) val, oldHrefContext, this.parentSheetHref);
 				} else {
 					return val;
@@ -430,8 +426,7 @@ abstract public class ValueList extends StyleValue implements ExtendedCSSValueLi
 			@Override
 			public StyleValue item(int index) {
 				StyleValue val = super.item(index);
-				if (val != null && val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-						&& ((CSSPrimitiveValue) val).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
+				if (val != null && val.getPrimitiveType() == CSSValue.Type.URI) {
 					return new URIValueWrapper((URIValue) val, oldHrefContext, this.parentSheetHref);
 				} else {
 					return val;

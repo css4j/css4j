@@ -11,12 +11,10 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.css.CSSFontFaceRule;
-
 /**
- * An extended CSS font-face rule.
+ * A CSS font-face rule.
  *
  */
-public interface ExtendedCSSFontFaceRule extends CSSDeclarationRule, CSSFontFaceRule {
+public interface ExtendedCSSFontFaceRule extends CSSDeclarationRule {
 
 }

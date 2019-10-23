@@ -14,14 +14,14 @@ package io.sf.carte.doc.style.css.om;
 import java.util.List;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
-import io.sf.carte.doc.style.css.property.InheritValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -78,7 +78,7 @@ class FontShorthandSetter extends ShorthandSetter {
 					// the line-height value
 					nextCurrentValue();
 					StyleValue cssValue = createCSSValue(subproperty, currentValue);
-					setProperty("line-height", cssValue, getPriority());
+					setProperty("line-height", cssValue, isPriorityImportant());
 					nextCurrentValue();
 					lineHeightSet = true;
 				}
@@ -157,17 +157,17 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	private void consumeFontFamilyIdent() {
-		short stringType = CSSPrimitiveValue.CSS_IDENT;
+		Type stringType = Type.IDENT;
 		String str = currentValue.getStringValue();
 		super.nextCurrentValue();
 		while (currentValue != null && currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 			String s = currentValue.getStringValue();
 			str += " " + s;
-			stringType = CSSPrimitiveValue.CSS_STRING;
+			stringType = Type.STRING;
 			super.nextCurrentValue();
 		}
-		PrimitiveValue value;
-		if (stringType == CSSPrimitiveValue.CSS_STRING) {
+		TypedValue value;
+		if (stringType == Type.STRING) {
 			value = new StringValue();
 		} else {
 			value = new IdentifierValue();
@@ -215,18 +215,11 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	protected void setSubpropertiesInherit(InheritValue inherit) {
-		super.setSubpropertiesInherit(inherit);
-		lineHeightSet = true;
-		resetSubproperties();
-		flush();
-	}
-
-	@Override
-	protected void setSubpropertiesToKeyword(StyleValue keyword) {
+	protected void setSubpropertiesToKeyword(KeywordValue keyword) {
 		super.setSubpropertiesToKeyword(keyword);
 		lineHeightSet = true;
 		resetSubproperties();
 		flush();
 	}
+
 }

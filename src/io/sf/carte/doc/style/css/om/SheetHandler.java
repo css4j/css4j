@@ -16,9 +16,9 @@ import java.util.LinkedList;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSStyleDeclaration;
 
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
@@ -546,7 +546,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
 				try {
-					((BaseCSSStyleDeclaration) ((BaseCSSDeclarationRule) currentRule).getStyle()).setProperty(name,
+					((BaseCSSDeclarationRule) currentRule).getStyle().setProperty(name,
 							value, important, index);
 				} catch (RuntimeException e) {
 					CSSPropertyValueException ex = new CSSPropertyValueException(e);
@@ -598,11 +598,12 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		if (currentRule != null && currentRule instanceof BaseCSSDeclarationRule
 				&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
 			int previousIndex = -1;
-			CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
+			ExtendedCSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
 			if (style != null) {
 				previousIndex = style.getLength() - 1;
 			}
-			((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacWarning(exception, previousIndex);
+			((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacWarning(exception,
+					previousIndex);
 		} else {
 			// Handle as non-specific warning
 			parentSheet.getErrorHandler().handleSacWarning(exception);
@@ -613,7 +614,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void error(CSSParseException exception) throws CSSParseException {
 		if (currentRuleCanHandleError()) {
 			int previousIndex = -1;
-			CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
+			ExtendedCSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
 			if (style != null) {
 				previousIndex = style.getLength() - 1;
 			}

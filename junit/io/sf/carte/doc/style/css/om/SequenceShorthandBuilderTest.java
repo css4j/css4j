@@ -34,6 +34,23 @@ public class SequenceShorthandBuilderTest {
 	@Test
 	public void testBuilder() {
 		assertShorthandText("cue:url('foo.au');", "cue: url('foo.au'); ");
+		assertShorthandText("cue:url('foo.au') url('bar.au');",
+				"cue: url('foo.au') url('bar.au'); ");
+	}
+
+	@Test
+	public void testBuilderMix() {
+		/*
+		 * Not very realistic examples
+		 */
+		assertShorthandText("cue-after:inherit;cue-before:url('foo.au');",
+				"cue-before: url('foo.au'); cue-after:inherit;");
+		assertShorthandText("cue-after:revert;cue-before:url('foo.au');",
+				"cue-before: url('foo.au'); cue-after:revert;");
+		assertShorthandText("cue:url('foo.au') none;",
+				"cue-before: url('foo.au'); cue-after:unset;");
+		assertShorthandText("cue:url('foo.au') none;",
+				"cue-before: url('foo.au'); cue-after:initial;");
 	}
 
 	@Test
@@ -53,12 +70,22 @@ public class SequenceShorthandBuilderTest {
 
 	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("cue:unset;", "cue: unset;");
+		assertShorthandText("cue:none;", "cue: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("cue:unset!important;", "cue: unset!important;");
+		assertShorthandText("cue:none!important;", "cue: unset!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("cue:revert;", "cue: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("cue:revert!important;", "cue: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

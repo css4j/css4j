@@ -14,36 +14,26 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSCustomPropertyValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Custom property (<code>var</code>) CSSPrimitiveValue.
+ * Custom property (<code>var</code>) value.
  * 
  * @author Carlos Amengual
  *
  */
-public class CustomPropertyValue extends PrimitiveValue implements CSSCustomPropertyValue {
+public class CustomPropertyValue extends ProxyValue implements CSSCustomPropertyValue {
 
 	private String name = null;
 
-	private StyleValue fallback = null;
-
-	private boolean expectInteger = false;
+	private LexicalUnit fallback = null;
 
 	CustomPropertyValue() {
-		super(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY);
+		super(Type.VAR);
 		this.fallback = null;
-	}
-
-	CustomPropertyValue(StyleValue fallback) {
-		super(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY);
-		this.fallback = fallback;
 	}
 
 	protected CustomPropertyValue(CustomPropertyValue copied) {
@@ -53,24 +43,13 @@ public class CustomPropertyValue extends PrimitiveValue implements CSSCustomProp
 	}
 
 	@Override
-	public StyleValue getFallback() {
+	public LexicalUnit getFallback() {
 		return fallback;
-	}
-
-	public boolean isExpectingInteger() {
-		return expectInteger;
 	}
 
 	@Override
 	public void setExpectInteger() {
-		expectInteger = true;
-		if (fallback != null) {
-			if (fallback.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
-				super.setExpectInteger();
-			} else {
-				((PrimitiveValue) fallback).setExpectInteger();
-			}
-		}
+		super.setExpectInteger();
 	}
 
 	@Override
@@ -101,31 +80,52 @@ public class CustomPropertyValue extends PrimitiveValue implements CSSCustomProp
 		wri.write(name);
 		if (fallback != null) {
 			wri.write(", ");
-			fallback.writeCssText(wri);
+			writeFallback(wri);
 		}
 		wri.write(')');
 	}
 
+	private void writeFallback(SimpleWriter wri) {
+		ValueFactory vf = new ValueFactory();
+		StyleValue cssval;
+		try {
+			cssval = vf.createCSSValue(fallback);
+			cssval.writeCssText(wri);
+		} catch (DOMException | IOException e) {
+			try {
+				wri.write(fallback.toString());
+			} catch (IOException e1) {
+			}
+		}
+	}
+
 	@Override
 	public String getMinifiedCssText(String propertyName) {
-		String ftext;
-		int sz = name.length();
-		if (fallback == null) {
-			sz += 2;
-			ftext = null;
-		} else {
-			ftext = fallback.getMinifiedCssText(propertyName);
-			sz += 3 + ftext.length();
+		int sz = name.length() + 5;
+		if (fallback != null) {
+			sz += 80;
 		}
 		StringBuilder buf = new StringBuilder(sz);
 		buf.append("var(");
 		buf.append(name);
-		if (ftext != null) {
+		if (fallback != null) {
 			buf.append(',');
-			buf.append(ftext);
+			appendMinifiedFallback(buf);
 		}
 		buf.append(')');
 		return buf.toString();
+	}
+
+	private void appendMinifiedFallback(StringBuilder buf) {
+		ValueFactory vf = new ValueFactory();
+		String text;
+		try {
+			StyleValue cssval = vf.createCSSValue(fallback);
+			text = cssval.getMinifiedCssText(name);
+		} catch (DOMException e) {
+			text = fallback.toString();
+		}
+		buf.append(text);
 	}
 
 	@Override
@@ -133,12 +133,11 @@ public class CustomPropertyValue extends PrimitiveValue implements CSSCustomProp
 		checkModifiableProperty();
 		ValueFactory factory = new ValueFactory();
 		StyleValue cssval = factory.parseProperty(cssText);
-		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||
-				((CSSPrimitiveValue)cssval).getPrimitiveType() != CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY) {
+		if (cssval == null || cssval.getPrimitiveType() != Type.VAR) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a custom property value.");
 		}
 		CustomPropertyValue customp = (CustomPropertyValue) cssval;
-		this.name = customp.getStringValue();
+		this.name = customp.getName();
 		this.fallback = customp.fallback;
 	}
 
@@ -171,13 +170,10 @@ public class CustomPropertyValue extends PrimitiveValue implements CSSCustomProp
 			return false;
 		}
 		if (fallback == null) {
-			if (other.fallback != null) {
-				return false;
-			}
-		} else if (!fallback.equals(other.fallback)) {
-			return false;
+			return other.fallback == null;
+		} else {
+			return fallback.equals(other.fallback);
 		}
-		return true;
 	}
 
 	@Override
@@ -189,22 +185,28 @@ public class CustomPropertyValue extends PrimitiveValue implements CSSCustomProp
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			/*
-			 * We do not set the fallback here
-			 */
 			LexicalUnit lu = lunit.getParameters();
+			if (lu == null || lu.getLexicalUnitType() != LexicalUnit.SAC_IDENT) {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Variable name must be an identifier");
+			}
 			name = lu.getStringValue();
+			lu = lu.getNextLexicalUnit();
+			if (lu != null) {
+				if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
+					throw new DOMException(DOMException.SYNTAX_ERR, "Fallback must be separated by comma");
+				}
+				lu = lu.getNextLexicalUnit();
+				if (lu == null) {
+					throw new DOMException(DOMException.SYNTAX_ERR, "No fallback found after comma");
+				}
+				fallback = lu.clone();
+			}
 			this.nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 	}
 
 	@Override
 	public String getName() {
-		return name;
-	}
-
-	@Override
-	public String getStringValue() {
 		return name;
 	}
 

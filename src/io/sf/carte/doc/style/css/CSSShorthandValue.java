@@ -16,9 +16,9 @@ import java.util.Set;
 /**
  * Shorthand value.
  * <p>
- * These values are of <code>CSSValue.CSS_CUSTOM</code> type.
+ * These values are of {@link CSSValue.CssType.SHORTHAND SHORTHAND} type.
  */
-public interface CSSShorthandValue extends ExtendedCSSValue {
+public interface CSSShorthandValue extends CSSValue {
 
 	/**
 	 * Is the value of important priority ?
@@ -33,6 +33,16 @@ public interface CSSShorthandValue extends ExtendedCSSValue {
 	 * @return the set of longhand properties.
 	 */
 	Set<String> getLonghands();
+
+	@Override
+	default CssType getCssValueType() {
+		return CssType.SHORTHAND;
+	}
+
+	@Override
+	default Type getPrimitiveType() {
+		return Type.INVALID;
+	}
 
 	@Override
 	CSSShorthandValue clone();

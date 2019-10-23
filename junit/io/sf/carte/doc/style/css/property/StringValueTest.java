@@ -23,8 +23,8 @@ import java.io.StringReader;
 
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -35,38 +35,38 @@ public class StringValueTest {
 	@Test
 	public void testSetStringValueShortString() {
 		StringValue value = createCSSStringValue();
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "Some text in \"double quotes\"");
+		value.setStringValue(CSSValue.Type.STRING, "Some text in \"double quotes\"");
 		assertEquals("Some text in \"double quotes\"", value.getStringValue());
 		assertEquals("'Some text in \"double quotes\"'", value.getCssText());
 		assertEquals("'Some text in \"double quotes\"'", value.getMinifiedCssText(""));
 		//
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "Some text 'in quotes'");
+		value.setStringValue(CSSValue.Type.STRING, "Some text 'in quotes'");
 		assertEquals("Some text 'in quotes'", value.getStringValue());
 		assertEquals("\"Some text 'in quotes'\"", value.getCssText());
 		assertEquals("\"Some text 'in quotes'\"", value.getMinifiedCssText(""));
 		//
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "Some text in \"double quote's\"");
+		value.setStringValue(CSSValue.Type.STRING, "Some text in \"double quote's\"");
 		assertEquals("Some text in \"double quote's\"", value.getStringValue());
 		assertEquals("'Some text in \"double quote\\'s\"'", value.getCssText());
 		assertEquals("'Some text in \"double quote\\'s\"'", value.getMinifiedCssText(""));
 		//
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "&");
+		value.setStringValue(CSSValue.Type.STRING, "&");
 		assertEquals("&", value.getStringValue());
 		assertEquals("'&'", value.getCssText());
 		assertEquals("'&'", value.getMinifiedCssText(""));
 		//
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "foo");
+		value.setStringValue(CSSValue.Type.STRING, "foo");
 		assertEquals("foo", value.getStringValue());
 		assertEquals("'foo'", value.getCssText());
 		assertEquals("'foo'", value.getMinifiedCssText(""));
 		//
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "\\5FAE\u8F6F");
+		value.setStringValue(CSSValue.Type.STRING, "\\5FAE\u8F6F");
 		assertEquals("\\5FAE\u8F6F", value.getStringValue());
 		assertEquals("'\\\\5FAE\u8F6F'", value.getCssText());
 		assertEquals("'\\\\5FAE\u8F6F'", value.getMinifiedCssText(""));
 		//
 		try {
-			value.setStringValue(CSSPrimitiveValue.CSS_STRING, null);
+			value.setStringValue(CSSValue.Type.STRING, null);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
@@ -130,7 +130,7 @@ public class StringValueTest {
 		assertEquals("\u5b8b\u4f53", value.getStringValue());
 		assertEquals("\"\u5b8b\u4f53\"", value.getCssText());
 		assertEquals("\"\u5b8b\u4f53\"", value.getMinifiedCssText(""));
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, value.getStringValue());
+		value.setStringValue(CSSValue.Type.STRING, value.getStringValue());
 		assertEquals("\u5b8b\u4f53", value.getStringValue());
 		assertEquals("\"\u5b8b\u4f53\"", value.getCssText());
 		assertEquals("\"\u5b8b\u4f53\"", value.getMinifiedCssText(""));
@@ -143,7 +143,7 @@ public class StringValueTest {
 		assertEquals("\\5FAE\u8F6F", value.getStringValue());
 		assertEquals("\"\\\\5FAE\\8F6F\"", value.getCssText());
 		assertEquals("\"\\\\5FAE\u8F6F\"", value.getMinifiedCssText(""));
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, value.getStringValue());
+		value.setStringValue(CSSValue.Type.STRING, value.getStringValue());
 		assertEquals("\\5FAE\u8F6F", value.getStringValue());
 		assertEquals("\"\\\\5FAE\u8F6F\"", value.getCssText());
 		assertEquals("\"\\\\5FAE\u8F6F\"", value.getMinifiedCssText(""));
@@ -243,7 +243,7 @@ public class StringValueTest {
 	@Test
 	public void testClone() {
 		StringValue value = createCSSStringValue();
-		value.setStringValue(CSSPrimitiveValue.CSS_STRING, "Some text in \"double quotes\"");
+		value.setStringValue(CSSValue.Type.STRING, "Some text in \"double quotes\"");
 		StringValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());

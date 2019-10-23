@@ -11,9 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -52,8 +50,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 					}
 				}
 			} else {
-				if (firstValue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE &&
-						((CSSPrimitiveValue) firstValue).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
+				if (firstValue.getPrimitiveType() == CSSValue.Type.IDENT) {
 					setSubpropertyValue(subparray[1], firstValue);
 				}
 				flush();

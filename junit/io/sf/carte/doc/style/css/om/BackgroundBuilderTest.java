@@ -101,12 +101,22 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundUnset() {
-		assertShorthandText("background:unset;", "background: unset;");
+		assertShorthandText("background:none;", "background: unset;");
 	}
 
 	@Test
 	public void testBackgroundUnsetImportant() {
-		assertShorthandText("background:unset!important;", "background: unset ! important;");
+		assertShorthandText("background:none!important;", "background: unset ! important;");
+	}
+
+	@Test
+	public void testBackgroundRevert() {
+		assertShorthandText("background:revert;", "background: revert;");
+	}
+
+	@Test
+	public void testBackgroundRevertImportant() {
+		assertShorthandText("background:revert!important;", "background: revert ! important;");
 	}
 
 	@Test
@@ -263,7 +273,7 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundLayered2() {
 		assertShorthandText(
-				"background:inherit,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,unset;",
+				"background:inherit,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,none;",
 				"background:inherit, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, unset;");
 	}
 

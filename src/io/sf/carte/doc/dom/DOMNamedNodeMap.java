@@ -284,15 +284,12 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	private boolean isSameNamespace(String namespaceURI, Node memberNode) {
 		String nodeNamespaceURI = memberNode.getNamespaceURI();
 		if (nodeNamespaceURI == null) {
-			if (namespaceURI == null || memberNode.isDefaultNamespace(namespaceURI)) {
-				return true;
-			}
+			return namespaceURI == null || memberNode.isDefaultNamespace(namespaceURI);
 		} else if (namespaceURI == null) {
 			return memberNode.isDefaultNamespace(nodeNamespaceURI);
 		} else {
 			return nodeNamespaceURI.equals(namespaceURI);
 		}
-		return false;
 	}
 
 	@Override
@@ -321,11 +318,10 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 		if (nodeType != other.nodeType)
 			return false;
 		if (attributeMap == null) {
-			if (other.attributeMap != null)
-				return false;
-		} else if (!sameNodes(other.attributeMap))
-			return false;
-		return true;
+			return other.attributeMap == null;
+		} else {
+			return sameNodes(other.attributeMap);
+		}
 	}
 
 	private boolean sameNodes(HashMap<String, ?> otherAttr) {

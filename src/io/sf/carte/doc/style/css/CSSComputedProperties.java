@@ -25,14 +25,15 @@ import org.w3c.dom.css.CSS2Properties;
 public interface CSSComputedProperties extends CSS2Properties, NodeStyleDeclaration {
 
 	/**
-	 * Retrieves the computed object representation of the value of a CSS property. This
-	 * method returns <code>null</code> if the property is a shorthand property.
+	 * Retrieves the computed object representation of the value of a CSS property.
 	 *
 	 * @param propertyName
 	 *            The name of the CSS property.
-	 * @return the object value of the property.
+	 * @return the object value of the property, or <code>null</code> if the property
+	 *         is a shorthand property.
 	 */
-	@Override ExtendedCSSValue getPropertyCSSValue(String propertyName);
+	@Override
+	CSSValue getPropertyCSSValue(String propertyName);
 
 	/**
 	 * Retrieves the String value of a CSS property.
@@ -41,21 +42,22 @@ public interface CSSComputedProperties extends CSS2Properties, NodeStyleDeclarat
 	 *            The name of the CSS property. See the CSS property index.
 	 * @return the value of the property.
 	 */
-	@Override String getPropertyValue(String propertyName);
+	@Override
+	String getPropertyValue(String propertyName);
 
 	/**
 	 * Gets the primitive, computed value for the 'color' property.
 	 *
 	 * @return the value for the 'color' property.
 	 */
-	ExtendedCSSPrimitiveValue getCSSColor();
+	CSSTypedValue getCSSColor();
 
 	/**
 	 * Gets the primitive, computed value for the 'background-color' property.
 	 *
 	 * @return the value for the 'background-color' property.
 	 */
-	ExtendedCSSPrimitiveValue getCSSBackgroundColor();
+	CSSTypedValue getCSSBackgroundColor();
 
 	/**
 	 * Gets the computed value(s) for the 'background-image' property.
@@ -82,7 +84,8 @@ public interface CSSComputedProperties extends CSS2Properties, NodeStyleDeclarat
 	 *
 	 * @return the font weight.
 	 */
-	@Override String getFontWeight();
+	@Override
+	String getFontWeight();
 
 	/**
 	 * Gets the computed value of the font-size property.
@@ -121,7 +124,8 @@ public interface CSSComputedProperties extends CSS2Properties, NodeStyleDeclarat
 	 *
 	 * @return the owner node.
 	 */
-	@Override CSSElement getOwnerNode();
+	@Override
+	CSSElement getOwnerNode();
 
 	/**
 	 * Gets the computed style for the parent element.

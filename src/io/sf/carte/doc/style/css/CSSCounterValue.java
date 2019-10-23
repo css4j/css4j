@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css;
 /**
  * A CSS <code>counter()</code> function.
  */
-public interface CSSCounterValue extends ExtendedCSSPrimitiveValue {
+public interface CSSCounterValue extends CSSTypedValue {
 
 	/**
 	 * Get the name of this counter.
@@ -28,6 +28,6 @@ public interface CSSCounterValue extends ExtendedCSSPrimitiveValue {
 	 * 
 	 * @return the counter style, or <code>null</code> if style is the default.
 	 */
-	ExtendedCSSPrimitiveValue getCounterStyle();
+	CSSPrimitiveValue getCounterStyle();
 
 }

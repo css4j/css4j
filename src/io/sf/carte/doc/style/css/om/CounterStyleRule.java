@@ -51,7 +51,8 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 		if (name == null || "none".equalsIgnoreCase(name) || "disc".equalsIgnoreCase(name)
 				|| "decimal".equalsIgnoreCase(name) || "inside".equalsIgnoreCase(name)
 				|| "outside".equalsIgnoreCase(name) || "inherit".equalsIgnoreCase(name)
-				|| "unset".equalsIgnoreCase(name) || "initial".equalsIgnoreCase(name)) {
+				|| "unset".equalsIgnoreCase(name) || "initial".equalsIgnoreCase(name)
+				|| "revert".equalsIgnoreCase(name)) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad counter-style name: " + name);
 		}
 		this.name = name;

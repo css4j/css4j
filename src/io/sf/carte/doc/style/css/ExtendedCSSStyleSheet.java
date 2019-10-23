@@ -16,7 +16,6 @@ import java.io.Reader;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSImportRule;
-import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.css.CSSUnknownRule;
 
@@ -209,7 +208,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *
 	 * @return a CSS style declaration.
 	 */
-	CSSStyleDeclaration createStyleDeclaration();
+	ExtendedCSSStyleDeclaration createStyleDeclaration();
 
 	/**
 	 * Create a CSS unknown rule.

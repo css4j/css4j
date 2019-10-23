@@ -13,7 +13,7 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.CSSValue;
 
 /**
  * A condition that declares a property name and a value.
@@ -28,7 +28,7 @@ public interface DeclarationCondition {
 	 */
 	String getName();
 
-	ExtendedCSSValue getValue();
+	CSSValue getValue();
 
 	boolean isParsable();
 
@@ -39,7 +39,7 @@ public interface DeclarationCondition {
 	 * @throws DOMException if the value is incompatible with the feature being
 	 *                      tested with the condition.
 	 */
-	void setValue(ExtendedCSSValue value) throws DOMException;
+	void setValue(CSSValue value) throws DOMException;
 
 	/**
 	 * Set a serialized value for the property, setting the <code>parsable</code>

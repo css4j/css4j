@@ -35,11 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleSheet;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.stylesheets.LinkStyle;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -49,7 +45,11 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -163,8 +163,8 @@ public class StylableDocumentWrapperTest {
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
 		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ffval.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_URI, ((CSSPrimitiveValue) ffval).getPrimitiveType());
+		assertEquals(CssType.TYPED, ffval.getCssValueType());
+		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
 		assertTrue(((CSSFontFeatureValuesRule) sheet.getCssRules().item(2)).getMinifiedCssText()
 				.startsWith("@font-feature-values Foo Sans,Bar"));
 		assertTrue(it.hasNext());
@@ -206,12 +206,12 @@ public class StylableDocumentWrapperTest {
 	public void getElementgetStyle() {
 		CSSElement elm = xhtmlDoc.getElementById("firstH3");
 		assertNotNull(elm);
-		CSSStyleDeclaration style = elm.getStyle();
+		ExtendedCSSStyleDeclaration style = elm.getStyle();
 		assertEquals("font-family: 'Does Not Exist', Neither; color: navy; ", style.getCssText());
 		assertEquals(2, style.getLength());
 		assertEquals("'Does Not Exist', Neither", style.getPropertyValue("font-family"));
 		DocumentCSSStyleSheet sheet = xhtmlDoc.getStyleSheet();
-		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		ExtendedCSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(17, styledecl.getLength());
 		assertEquals("#000080", styledecl.getPropertyValue("color"));
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
@@ -291,7 +291,7 @@ public class StylableDocumentWrapperTest {
 	@Test
 	public void testStyleElement() {
 		CSSElement style = (CSSElement) xhtmlDoc.getElementsByTagName("style").item(0);
-		CSSStyleSheet sheet = (CSSStyleSheet) ((LinkStyle) style).getSheet();
+		CSSStyleSheet sheet = ((LinkStyle<?>) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);
@@ -299,7 +299,7 @@ public class StylableDocumentWrapperTest {
 		assertEquals(1, style.getChildNodes().getLength());
 		Node node = style.getFirstChild();
 		node.setNodeValue("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
-		sheet = (CSSStyleSheet) ((LinkStyle) style).getSheet();
+		sheet = ((LinkStyle<?>) style).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == style);
 		// Empty text content
@@ -308,14 +308,14 @@ public class StylableDocumentWrapperTest {
 		//
 		Attr type = style.getAttributeNode("type");
 		type.setNodeValue("foo");
-		assertNull(((LinkStyle) style).getSheet());
+		assertNull(((LinkStyle<?>) style).getSheet());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testLinkElement() {
 		CSSElement link = (CSSElement) xhtmlDoc.getElementsByTagName("link").item(0);
-		CSSStyleSheet sheet = (CSSStyleSheet) ((LinkStyle) link).getSheet();
+		CSSStyleSheet sheet = ((LinkStyle<?>) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);
@@ -324,13 +324,13 @@ public class StylableDocumentWrapperTest {
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
 		href.setValue("http://www.example.com/css/example.css");
-		assertNotNull(((LinkStyle) link).getSheet());
+		assertNotNull(((LinkStyle<?>) link).getSheet());
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		xhtmlDoc.getErrorHandler().reset();
 		//
 		link = (CSSElement) xhtmlDoc.getElementsByTagName("link").item(4);
-		sheet = (CSSStyleSheet) ((LinkStyle) link).getSheet();
+		sheet = ((LinkStyle<?>) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(1, sheet.getMedia().getLength());
 		assertEquals("print", sheet.getMedia().getMediaText());
@@ -340,7 +340,7 @@ public class StylableDocumentWrapperTest {
 		Attr media = link.getAttributeNode("media");
 		assertNotNull(media);
 		media.setValue("screen only and");
-		assertNull(((LinkStyle) link).getSheet());
+		assertNull(((LinkStyle<?>) link).getSheet());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
@@ -350,7 +350,7 @@ public class StylableDocumentWrapperTest {
 		xhtmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
 		re.close();
 		CSSElement elm = xhtmlDoc.getElementById("para1");
-		CSSStyleDeclaration style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		ExtendedCSSStyleDeclaration style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("#cd853f", style.getPropertyValue("background-color"));
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
 		elm.getOverrideStyle(null).setCssText("color: darkmagenta ! important;");

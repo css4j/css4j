@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -93,8 +91,7 @@ class CompatDeclarationSet {
 	}
 
 	static boolean isPriorityCompat(StyleValue compatvalue) {
-		return compatvalue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) compatvalue).getPrimitiveType() == CSSPrimitiveValue.CSS_UNKNOWN
+		return compatvalue.getPrimitiveType() == CSSValue.Type.UNKNOWN
 				&& ((UnknownValue) compatvalue).isPriorityCompat();
 	}
 

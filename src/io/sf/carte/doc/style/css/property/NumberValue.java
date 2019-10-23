@@ -16,19 +16,20 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Number-specific CSSPrimitiveValue.
+ * Number-specific value.
  * 
  * @author Carlos Amengual
  *
  */
-public class NumberValue extends PrimitiveValue {
+public class NumberValue extends TypedValue {
+
+	private short unitType;
 
 	protected float realvalue = 0;
 
@@ -46,11 +47,13 @@ public class NumberValue extends PrimitiveValue {
 	private boolean specified = true;
 
 	public NumberValue() {
-		super();
+		super(Type.NUMERIC);
+		this.unitType = CSSUnit.CSS_NUMBER;
 	}
 
 	protected NumberValue(NumberValue copied) {
 		super(copied);
+		this.unitType = copied.unitType;
 		this.realvalue = copied.realvalue;
 		this.asInteger = copied.asInteger;
 		this.calculated = copied.calculated;
@@ -59,8 +62,17 @@ public class NumberValue extends PrimitiveValue {
 	}
 
 	@Override
+	public short getUnitType() {
+		return unitType;
+	}
+
+	void setUnitType(short unitType) {
+		this.unitType = unitType;
+	}
+
+	@Override
 	public String getCssText() {
-		boolean notaNumber = getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER;
+		boolean notaNumber = unitType != CSSUnit.CSS_NUMBER;
 		if (realvalue == 0f && !notaNumber) {
 			return "0";
 		}
@@ -72,7 +84,7 @@ public class NumberValue extends PrimitiveValue {
 			return Integer.toString((int) rintValue);
 		} else if (realvalue == rintValue) {
 			if (notaNumber) {
-				return Integer.toString((int) rintValue) + dimensionUnitText;
+				return (int) rintValue + dimensionUnitText;
 			}
 		}
 		String s = serializeNumber(realvalue);
@@ -89,7 +101,7 @@ public class NumberValue extends PrimitiveValue {
 		} else {
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(fractionDigits(getPrimitiveType()));
+			format.setMaximumFractionDigits(fractionDigits(getUnitType()));
 			s = format.format(real);
 		}
 		return s;
@@ -101,7 +113,7 @@ public class NumberValue extends PrimitiveValue {
 	}
 
 	void writeCssText(SimpleWriter wri, float realvalue) throws IOException {
-		boolean notaNumber = getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER;
+		boolean notaNumber = getUnitType() != CSSUnit.CSS_NUMBER;
 		if (realvalue == 0f && !notaNumber) {
 			wri.write('0');
 			return;
@@ -144,8 +156,8 @@ public class NumberValue extends PrimitiveValue {
 	}
 
 	private String getMinifiedCssText(String propertyName, float realvalue) {
-		boolean notaNumber = getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER;
-		if (realvalue == 0f && notaNumber && getPrimitiveType() != CSSPrimitiveValue.CSS_PERCENTAGE
+		boolean notaNumber = getUnitType() != CSSUnit.CSS_NUMBER;
+		if (realvalue == 0f && notaNumber && getUnitType() != CSSUnit.CSS_PERCENTAGE
 				&& isLengthUnitType()) {
 			return "0";
 		}
@@ -198,19 +210,15 @@ public class NumberValue extends PrimitiveValue {
 	@Override
 	public void setFloatValue(short unitType, float floatValue) throws DOMException {
 		checkModifiableProperty();
-		setCSSUnitType(unitType);
+		setUnitType(unitType);
 		realvalue = floatValue;
-		dimensionUnitText = dimensionUnitString(unitType);
-		if (unitType == CSS_NUMBER && ((float) Math.rint(floatValue)) == realvalue) {
-			asInteger = true;
-		} else {
-			asInteger = false;
-		}
-		lengthUnitType = isLengthUnitType(getPrimitiveType());
+		dimensionUnitText = CSSUnit.dimensionUnitString(unitType);
+		asInteger = unitType == CSSUnit.CSS_NUMBER && ((float) Math.rint(floatValue)) == realvalue;
+		lengthUnitType = CSSUnit.isLengthUnitType(unitType);
 	}
 
 	public void setFloatValuePt(float floatValue) {
-		setCSSUnitType(CSSPrimitiveValue.CSS_PT);
+		setUnitType(CSSUnit.CSS_PT);
 		realvalue = floatValue;
 		dimensionUnitText = "pt";
 		asInteger = false;
@@ -219,14 +227,14 @@ public class NumberValue extends PrimitiveValue {
 
 	public void setIntegerValue(int intValue) {
 		realvalue = intValue;
-		setCSSUnitType(CSSPrimitiveValue.CSS_NUMBER);
+		setUnitType(CSSUnit.CSS_NUMBER);
 		asInteger = true;
 		lengthUnitType = false;
 	}
 
 	@Override
 	public void setExpectInteger() {
-		if (getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER || !asInteger) {
+		if (getUnitType() != CSSUnit.CSS_NUMBER || !asInteger) {
 			super.setExpectInteger();
 		}
 	}
@@ -273,34 +281,25 @@ public class NumberValue extends PrimitiveValue {
 	}
 
 	/**
-	 * Gets a float value in a specified unit. If this CSS value doesn't contain
-	 * a float value or can't be converted into the specified unit, a
-	 * <code>DOMException</code> is raised.
+	 * Gets a float value in a specified unit.
 	 * 
-	 * @param unitType
-	 *            A unit code to get the float value. The unit code can only be
-	 *            a float unit type (i.e. <code>CSS_NUMBER</code>,
-	 *            <code>CSS_PERCENTAGE</code>, <code>CSS_EMS</code>,
-	 *            <code>CSS_EXS</code>, <code>CSS_PX</code>,
-	 *            <code>CSS_CM</code>, <code>CSS_MM</code>, <code>CSS_IN</code>,
-	 *            <code>CSS_PT</code>, <code>CSS_PC</code>,
-	 *            <code>CSS_DEG</code>, <code>CSS_RAD</code>,
-	 *            <code>CSS_GRAD</code>, <code>CSS_MS</code>,
-	 *            <code>CSS_S</code>, <code>CSS_HZ</code>, <code>CSS_KHZ</code>,
-	 *            <code>CSS_DIMENSION</code>).
+	 * @param unitType A unit code to get the float value, like
+	 *                 <code>CSS_NUMBER</code>, <code>CSS_PERCENTAGE</code>,
+	 *                 <code>CSS_PT</code> or <code>CSS_EX</code>. If the type is
+	 *                 <code>CSS_OTHER</code>, the value shall be returned as is,
+	 *                 regardless of the unit that was set with.
 	 * @return The float value in the specified unit.
-	 * @throws DOMException
-	 *             INVALID_ACCESS_ERR if the CSS value can't be converted into
-	 *             the specified unit.
+	 * @throws DOMException INVALID_ACCESS_ERR if the CSS value can't be converted
+	 *                      into the specified unit.
 	 */
 	@Override
 	public float getFloatValue(short unitType) throws DOMException {
-		if (unitType == getPrimitiveType()) {
+		if (unitType == getUnitType()) {
 			return realvalue;
-		} else if (unitType == CSSPrimitiveValue.CSS_NUMBER && getPrimitiveType() != CSSPrimitiveValue.CSS_PERCENTAGE) {
+		} else if (unitType == CSSUnit.CSS_NUMBER && getUnitType() != CSSUnit.CSS_PERCENTAGE) {
 			return realvalue;
 		} else {
-			return floatValueConversion(realvalue, getPrimitiveType(), unitType);
+			return floatValueConversion(realvalue, getUnitType(), unitType);
 		}
 	}
 
@@ -326,214 +325,220 @@ public class NumberValue extends PrimitiveValue {
 			return fvalue;
 		}
 		switch (declType) {
-		case CSSPrimitiveValue.CSS_PT:
-			if (unitType == CSSPrimitiveValue.CSS_PX) {
+		case CSSUnit.CSS_PT:
+			if (unitType == CSSUnit.CSS_PX) {
 				// 1px = 0.75pt
 				return fvalue / 0.75f;
-			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
+			} else if (unitType == CSSUnit.CSS_IN) {
 				// 1in = 72pt
 				return fvalue / 72f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
+			} else if (unitType == CSSUnit.CSS_PC) {
 				// 1pc = 12pt
 				return fvalue / 12f;
-			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
+			} else if (unitType == CSSUnit.CSS_CM) {
 				// 1cm = 28.34646pt
 				return fvalue / 28.3464567f;
-			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
+			} else if (unitType == CSSUnit.CSS_MM) {
 				// 1mm = 2.834646pt
 				return fvalue / 2.83464567f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
+			} else if (unitType == CSSUnit.CSS_QUARTER_MM) {
 				return fvalue * 1.4111111f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_PX:
-			if (unitType == CSSPrimitiveValue.CSS_PT) {
+		case CSSUnit.CSS_PX:
+			if (unitType == CSSUnit.CSS_PT) {
 				// 1px = 0.75pt
 				return fvalue * 0.75f;
-			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
+			} else if (unitType == CSSUnit.CSS_IN) {
 				// 1in = 96px
 				return fvalue / 96f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
+			} else if (unitType == CSSUnit.CSS_PC) {
 				// 1pc = 16px
 				return fvalue / 16f;
-			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
+			} else if (unitType == CSSUnit.CSS_CM) {
 				// 1cm = 37.795px
 				return fvalue / 37.7952756f;
-			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
+			} else if (unitType == CSSUnit.CSS_MM) {
 				// 1mm = 3.7795px
 				return fvalue / 3.77952756f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
+			} else if (unitType == CSSUnit.CSS_QUARTER_MM) {
 				return fvalue * 1.05833333f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_PC:
-			if (unitType == CSSPrimitiveValue.CSS_PT) {
+		case CSSUnit.CSS_PC:
+			if (unitType == CSSUnit.CSS_PT) {
 				// 1pc = 12pt
 				return fvalue * 12f;
-			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
+			} else if (unitType == CSSUnit.CSS_IN) {
 				// 1in = 6pc
 				return fvalue / 6f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PX) {
+			} else if (unitType == CSSUnit.CSS_PX) {
 				// 1pc = 16px
 				return fvalue * 16f;
-			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
+			} else if (unitType == CSSUnit.CSS_CM) {
 				// 1cm = 2.3622047pc
 				return fvalue * 0.42333333f;
-			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
+			} else if (unitType == CSSUnit.CSS_MM) {
 				// 4.233mm = 1pc
 				return fvalue * 4.2333333f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
+			} else if (unitType == CSSUnit.CSS_QUARTER_MM) {
 				return fvalue * 16.9333333f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_IN:
-			if (unitType == CSSPrimitiveValue.CSS_PX) {
+		case CSSUnit.CSS_IN:
+			if (unitType == CSSUnit.CSS_PX) {
 				// 1in = 96px
 				return fvalue * 96f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PT) {
+			} else if (unitType == CSSUnit.CSS_PT) {
 				// 1in = 72pt
 				return fvalue * 72f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
+			} else if (unitType == CSSUnit.CSS_PC) {
 				// 1in = 6pc
 				return fvalue * 6f;
-			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
+			} else if (unitType == CSSUnit.CSS_CM) {
 				// 2.54cm = 1in
 				return fvalue * 2.54f;
-			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
+			} else if (unitType == CSSUnit.CSS_MM) {
 				// 25.4mm = 1in
 				return fvalue * 25.4f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
+			} else if (unitType == CSSUnit.CSS_QUARTER_MM) {
 				return fvalue * 101.6f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_CM:
-			if (unitType == CSSPrimitiveValue.CSS_PT) {
+		case CSSUnit.CSS_CM:
+			if (unitType == CSSUnit.CSS_PT) {
 				// 1cm = 28.34646pt
 				return fvalue * 28.3464567f;
-			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
+			} else if (unitType == CSSUnit.CSS_IN) {
 				// 1in = 2.54cm
 				return fvalue / 2.54f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PX) {
+			} else if (unitType == CSSUnit.CSS_PX) {
 				// 1cm = 37.795px
 				return fvalue * 37.7952756f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
+			} else if (unitType == CSSUnit.CSS_PC) {
 				// 1cm = 2.3622pc
 				return fvalue * 2.3622047f;
-			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
+			} else if (unitType == CSSUnit.CSS_MM) {
 				// 1cm = 10mm
 				return fvalue * 10f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
+			} else if (unitType == CSSUnit.CSS_QUARTER_MM) {
 				return fvalue * 40f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_MM:
-			if (unitType == CSSPrimitiveValue.CSS_PT) {
+		case CSSUnit.CSS_MM:
+			if (unitType == CSSUnit.CSS_PT) {
 				// 1mm = 2.834646pt
 				return fvalue * 2.83464567f;
-			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
+			} else if (unitType == CSSUnit.CSS_IN) {
 				// 1in = 25.4mm
 				return fvalue / 25.4f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PX) {
+			} else if (unitType == CSSUnit.CSS_PX) {
 				// 1mm = 3.77952756px
 				return fvalue * 3.77952756f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
+			} else if (unitType == CSSUnit.CSS_PC) {
 				// 1mm = 0.23622pc
 				return fvalue * 0.23622047f;
-			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
+			} else if (unitType == CSSUnit.CSS_CM) {
 				// 1cm = 10mm
 				return fvalue * 0.1f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_QUARTER_MM) {
+			} else if (unitType == CSSUnit.CSS_QUARTER_MM) {
 				return fvalue * 4f;
 			}
 			break;
-		case CSSPrimitiveValue2.CSS_QUARTER_MM:
-			if (unitType == CSSPrimitiveValue.CSS_PT) {
+		case CSSUnit.CSS_QUARTER_MM:
+			if (unitType == CSSUnit.CSS_PT) {
 				return fvalue * 0.7086614f;
-			} else if (unitType == CSSPrimitiveValue.CSS_IN) {
+			} else if (unitType == CSSUnit.CSS_IN) {
 				return fvalue / 101.6f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PX) {
+			} else if (unitType == CSSUnit.CSS_PX) {
 				return fvalue * 0.9448819f;
-			} else if (unitType == CSSPrimitiveValue.CSS_PC) {
+			} else if (unitType == CSSUnit.CSS_PC) {
 				return fvalue / 16.933333f;
-			} else if (unitType == CSSPrimitiveValue.CSS_MM) {
+			} else if (unitType == CSSUnit.CSS_MM) {
 				return fvalue * 0.25f;
-			} else if (unitType == CSSPrimitiveValue.CSS_CM) {
+			} else if (unitType == CSSUnit.CSS_CM) {
 				// 1cm = 40q
 				return fvalue * 0.025f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_MS:
-			if (unitType == CSSPrimitiveValue.CSS_S) {
+		case CSSUnit.CSS_MS:
+			if (unitType == CSSUnit.CSS_S) {
 				return fvalue * 0.001f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_S:
-			if (unitType == CSSPrimitiveValue.CSS_MS) {
+		case CSSUnit.CSS_S:
+			if (unitType == CSSUnit.CSS_MS) {
 				return fvalue * 1000f;
 			}
 			break;
-		case CSSPrimitiveValue2.CSS_TURN:
-			if (unitType == CSSPrimitiveValue.CSS_RAD) {
+		case CSSUnit.CSS_TURN:
+			if (unitType == CSSUnit.CSS_RAD) {
 				return fvalue * 2f * (float) Math.PI;
-			} else if (unitType == CSSPrimitiveValue.CSS_GRAD) {
+			} else if (unitType == CSSUnit.CSS_GRAD) {
 				return fvalue * 400f;
-			} else if (unitType == CSSPrimitiveValue.CSS_DEG) {
+			} else if (unitType == CSSUnit.CSS_DEG) {
 				return fvalue * 360f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_RAD:
-			if (unitType == CSSPrimitiveValue.CSS_DEG) {
+		case CSSUnit.CSS_RAD:
+			if (unitType == CSSUnit.CSS_DEG) {
 				return (float) Math.toDegrees(fvalue);
-			} else if (unitType == CSSPrimitiveValue.CSS_GRAD) {
+			} else if (unitType == CSSUnit.CSS_GRAD) {
 				return fvalue * 63.6619772368f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_TURN) {
+			} else if (unitType == CSSUnit.CSS_TURN) {
 				return fvalue * 0.159154943092f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_DEG:
-			if (unitType == CSSPrimitiveValue.CSS_RAD) {
+		case CSSUnit.CSS_DEG:
+			if (unitType == CSSUnit.CSS_RAD) {
 				return (float) Math.toRadians(fvalue);
-			} else if (unitType == CSSPrimitiveValue.CSS_GRAD) {
+			} else if (unitType == CSSUnit.CSS_GRAD) {
 				return fvalue * 1.1111111111f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_TURN) {
+			} else if (unitType == CSSUnit.CSS_TURN) {
 				return fvalue / 360f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_GRAD:
-			if (unitType == CSSPrimitiveValue.CSS_DEG) {
+		case CSSUnit.CSS_GRAD:
+			if (unitType == CSSUnit.CSS_DEG) {
 				return fvalue * 0.9f;
-			} else if (unitType == CSSPrimitiveValue.CSS_RAD) {
+			} else if (unitType == CSSUnit.CSS_RAD) {
 				return fvalue * 0.015707963268f;
-			} else if (unitType == CSSPrimitiveValue2.CSS_TURN) {
+			} else if (unitType == CSSUnit.CSS_TURN) {
 				return fvalue * 0.0025f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_NUMBER:
-			if (unitType == CSSPrimitiveValue.CSS_DEG) { // Assume degrees
+		case CSSUnit.CSS_NUMBER:
+			if (unitType == CSSUnit.CSS_DEG) { // Assume degrees
 				return fvalue;
 			}
-		case CSSPrimitiveValue.CSS_HZ:
-			if (unitType == CSSPrimitiveValue.CSS_KHZ) {
+		case CSSUnit.CSS_HZ:
+			if (unitType == CSSUnit.CSS_KHZ) {
 				return fvalue * 0.001f;
 			}
 			break;
-		case CSSPrimitiveValue.CSS_KHZ:
-			if (unitType == CSSPrimitiveValue.CSS_HZ) {
+		case CSSUnit.CSS_KHZ:
+			if (unitType == CSSUnit.CSS_HZ) {
 				return fvalue * 1000f;
 			}
 			break;
 		default:
-			if (CSSPrimitiveValue.CSS_DIMENSION == unitType) {
+			if (CSSUnit.CSS_OTHER == unitType) {
 				// Unknown dimension, return as is.
 				return fvalue;
 			}
 		}
-		String unit = dimensionUnitString(declType);
+		String unit = CSSUnit.dimensionUnitString(declType);
 		if (unit.length() == 0) {
-			unit = Integer.toString(declType);
+			unit = '<' + Integer.toString(declType) + '>';
+		}
+		String requestedUnitStr;
+		try {
+			requestedUnitStr = CSSUnit.dimensionUnitString(unitType);
+		} catch (DOMException e) {
+			requestedUnitStr = '<' + Integer.toString(unitType) + '>';
 		}
 		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-				"Cannot transform unit " + unit + " to " + dimensionUnitString(unitType));
+				"Cannot transform unit " + unit + " to " + requestedUnitStr);
 	}
 
 	/**
@@ -562,11 +567,13 @@ public class NumberValue extends PrimitiveValue {
 			case LexicalUnit.SAC_INTEGER:
 				realvalue = lunit.getIntegerValue();
 				asInteger = true;
+				setUnitType(CSSUnit.CSS_NUMBER);
 				break;
 			default:
 				realvalue = lunit.getFloatValue();
 				asInteger = false;
 				dimensionUnitText = lunit.getDimensionUnitText();
+				setUnitType(lunit.getCssUnit());
 			}
 		}
 
@@ -575,12 +582,13 @@ public class NumberValue extends PrimitiveValue {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = getCssValueType();
+		int result = getCssValueType().hashCode();
+		result = prime * result + getPrimitiveType().hashCode();
 		short pType;
 		if (realvalue != 0f) {
-			pType = getPrimitiveType();
+			pType = getUnitType();
 		} else {
-			pType = CSSPrimitiveValue.CSS_NUMBER;
+			pType = CSSUnit.CSS_NUMBER;
 		}
 		result = prime * result + pType;
 		result = prime * result + Float.floatToIntBits(realvalue);
@@ -599,10 +607,7 @@ public class NumberValue extends PrimitiveValue {
 		if (Float.floatToIntBits(realvalue) != Float.floatToIntBits(other.realvalue)) {
 			return false;
 		}
-		if (getPrimitiveType() != other.getPrimitiveType() && realvalue != 0f) {
-			return false;
-		}
-		return true;
+		return getUnitType() == other.getUnitType() || realvalue == 0f;
 	}
 
 	@Override
@@ -637,152 +642,32 @@ public class NumberValue extends PrimitiveValue {
 
 	}
 
-	/**
-	 * Gives the dimension unit String associated to the given CSS unit type.
-	 * 
-	 * @param unitType
-	 *            the CSS primitive unit type.
-	 * @return the unit String.
-	 */
-	static String dimensionUnitString(short unitType) {
-		switch (unitType) {
-		case CSSPrimitiveValue.CSS_EMS:
-			return "em";
-		case CSSPrimitiveValue.CSS_EXS:
-			return "ex";
-		case CSSPrimitiveValue.CSS_PX:
-			return "px";
-		case CSSPrimitiveValue.CSS_IN:
-			return "in";
-		case CSSPrimitiveValue.CSS_CM:
-			return "cm";
-		case CSSPrimitiveValue.CSS_MM:
-			return "mm";
-		case CSSPrimitiveValue.CSS_PT:
-			return "pt";
-		case CSSPrimitiveValue.CSS_PC:
-			return "pc";
-		case CSSPrimitiveValue.CSS_PERCENTAGE:
-			return "%";
-		case CSSPrimitiveValue.CSS_DEG:
-			return "deg";
-		case CSSPrimitiveValue.CSS_GRAD:
-			return "grad";
-		case CSSPrimitiveValue.CSS_RAD:
-			return "rad";
-		case CSSPrimitiveValue.CSS_MS:
-			return "ms";
-		case CSSPrimitiveValue.CSS_S:
-			return "s";
-		case CSSPrimitiveValue.CSS_HZ:
-			return "Hz";
-		case CSSPrimitiveValue.CSS_KHZ:
-			return "kHz";
-		case CSSPrimitiveValue2.CSS_CAP:
-			return "cap";
-		case CSSPrimitiveValue2.CSS_CH:
-			return "ch";
-		case CSSPrimitiveValue2.CSS_FR:
-			return "fr";
-		case CSSPrimitiveValue2.CSS_IC:
-			return "ic";
-		case CSSPrimitiveValue2.CSS_LH:
-			return "lh";
-		case CSSPrimitiveValue2.CSS_QUARTER_MM:
-			return "Q";
-		case CSSPrimitiveValue2.CSS_REM:
-			return "rem";
-		case CSSPrimitiveValue2.CSS_RLH:
-			return "rlh";
-		case CSSPrimitiveValue2.CSS_VB:
-			return "vb";
-		case CSSPrimitiveValue2.CSS_VH:
-			return "vh";
-		case CSSPrimitiveValue2.CSS_VI:
-			return "vi";
-		case CSSPrimitiveValue2.CSS_VMAX:
-			return "vmax";
-		case CSSPrimitiveValue2.CSS_VMIN:
-			return "vmin";
-		case CSSPrimitiveValue2.CSS_VW:
-			return "vw";
-		case CSSPrimitiveValue2.CSS_DPI:
-			return "dpi";
-		case CSSPrimitiveValue2.CSS_DPCM:
-			return "dpcm";
-		case CSSPrimitiveValue2.CSS_DPPX:
-			return "dppx";
-		case CSSPrimitiveValue.CSS_DIMENSION:
-		default:
-			return "";
-		}
-	}
-
 	private static int fractionDigits(short primitiveType) {
 		switch (primitiveType) {
-		case CSSPrimitiveValue.CSS_EMS:
-		case CSSPrimitiveValue.CSS_EXS:
-		case CSSPrimitiveValue.CSS_IN:
-		case CSSPrimitiveValue.CSS_MM:
-		case CSSPrimitiveValue.CSS_PC:
-		case CSSPrimitiveValue.CSS_PX:
-		case CSSPrimitiveValue.CSS_PT:
-		case CSSPrimitiveValue2.CSS_CAP:
-		case CSSPrimitiveValue2.CSS_CH:
-		case CSSPrimitiveValue2.CSS_IC:
-		case CSSPrimitiveValue2.CSS_LH:
-		case CSSPrimitiveValue2.CSS_QUARTER_MM:
-		case CSSPrimitiveValue2.CSS_REM:
-		case CSSPrimitiveValue2.CSS_RLH:
-		case CSSPrimitiveValue.CSS_MS:
-		case CSSPrimitiveValue.CSS_DEG:
-		case CSSPrimitiveValue.CSS_GRAD:
+		case CSSUnit.CSS_EM:
+		case CSSUnit.CSS_EX:
+		case CSSUnit.CSS_IN:
+		case CSSUnit.CSS_MM:
+		case CSSUnit.CSS_PC:
+		case CSSUnit.CSS_PX:
+		case CSSUnit.CSS_PT:
+		case CSSUnit.CSS_CAP:
+		case CSSUnit.CSS_CH:
+		case CSSUnit.CSS_IC:
+		case CSSUnit.CSS_LH:
+		case CSSUnit.CSS_QUARTER_MM:
+		case CSSUnit.CSS_REM:
+		case CSSUnit.CSS_RLH:
+		case CSSUnit.CSS_MS:
+		case CSSUnit.CSS_DEG:
+		case CSSUnit.CSS_GRAD:
 			return 2;
-		case CSSPrimitiveValue.CSS_KHZ:
-		case CSSPrimitiveValue.CSS_CM:
-		case CSSPrimitiveValue2.CSS_TURN:
+		case CSSUnit.CSS_KHZ:
+		case CSSUnit.CSS_CM:
+		case CSSUnit.CSS_TURN:
 			return 4;
 		}
 		return 3;
-	}
-
-	public static boolean isLengthUnitType(short primitiveType) {
-		switch (primitiveType) {
-		case CSSPrimitiveValue.CSS_CM:
-		case CSSPrimitiveValue.CSS_EMS:
-		case CSSPrimitiveValue.CSS_EXS:
-		case CSSPrimitiveValue.CSS_IN:
-		case CSSPrimitiveValue.CSS_MM:
-		case CSSPrimitiveValue.CSS_PC:
-		case CSSPrimitiveValue.CSS_PX:
-		case CSSPrimitiveValue.CSS_PT:
-		case CSSPrimitiveValue2.CSS_CAP:
-		case CSSPrimitiveValue2.CSS_CH:
-		case CSSPrimitiveValue2.CSS_IC:
-		case CSSPrimitiveValue2.CSS_LH:
-		case CSSPrimitiveValue2.CSS_QUARTER_MM:
-		case CSSPrimitiveValue2.CSS_REM:
-		case CSSPrimitiveValue2.CSS_RLH:
-		case CSSPrimitiveValue2.CSS_VB:
-		case CSSPrimitiveValue2.CSS_VH:
-		case CSSPrimitiveValue2.CSS_VI:
-		case CSSPrimitiveValue2.CSS_VMAX:
-		case CSSPrimitiveValue2.CSS_VMIN:
-		case CSSPrimitiveValue2.CSS_VW:
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean isAngleUnitType(short primitiveType) {
-		switch (primitiveType) {
-		case CSSPrimitiveValue.CSS_DEG:
-		case CSSPrimitiveValue.CSS_RAD:
-		case CSSPrimitiveValue.CSS_GRAD:
-		case CSSPrimitiveValue2.CSS_TURN:
-			return true;
-		}
-		return false;
 	}
 
 	public static NumberValue createCSSNumberValue(short unit, float floatValue) {

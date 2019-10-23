@@ -18,16 +18,16 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.Rect;
 
+import io.sf.carte.doc.style.css.CSSRectValue;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 
-public class OMCSSRectValueTest {
+public class RectValueTest {
 
 	BaseCSSStyleDeclaration style;
 
@@ -43,14 +43,14 @@ public class OMCSSRectValueTest {
 	@Test
 	public void testEquals() {
 		style.setCssText("clip: rect(2px 12em 3em 2pt);");
-		OMCSSRectValue value = (OMCSSRectValue) style.getPropertyCSSValue("clip");
+		RectValue value = (RectValue) style.getPropertyCSSValue("clip");
 		assertTrue(value.equals(value));
 		style.setCssText("clip: rect(2px 12em 3em 2pt);");
-		OMCSSRectValue value2 = (OMCSSRectValue) style.getPropertyCSSValue("clip");
+		RectValue value2 = (RectValue) style.getPropertyCSSValue("clip");
 		assertTrue(value.equals(value2));
 		assertEquals(value.hashCode(), value2.hashCode());
 		style.setCssText("clip: rect(2px 12em 3em 1pt);");
-		value2 = (OMCSSRectValue) style.getPropertyCSSValue("clip");
+		value2 = (RectValue) style.getPropertyCSSValue("clip");
 		assertFalse(value.equals(value2));
 		assertFalse(value.hashCode() == value2.hashCode());
 	}
@@ -60,12 +60,11 @@ public class OMCSSRectValueTest {
 		style.setCssText("clip: rect(2px 12em 3em 2pt); ");
 		StyleValue cssval = style.getPropertyCSSValue("clip");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue.CSS_RECT, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.RECT, cssval.getPrimitiveType());
 		assertEquals("rect(2px, 12em, 3em, 2pt)", style.getPropertyValue("clip"));
 		assertEquals("clip: rect(2px, 12em, 3em, 2pt); ", style.getCssText());
 		assertEquals("clip:rect(2px,12em,3em,2pt)", style.getMinifiedCssText());
-		OMCSSRectValue val = (OMCSSRectValue) cssval;
-		Rect rect = val.getRectValue();
+		CSSRectValue rect = (CSSRectValue) cssval;
 		assertEquals("2px", rect.getTop().getCssText());
 		assertEquals("12em", rect.getRight().getCssText());
 		assertEquals("3em", rect.getBottom().getCssText());
@@ -77,12 +76,11 @@ public class OMCSSRectValueTest {
 		style.setCssText("clip: rect(2px, 12em, 3em, 2pt); ");
 		StyleValue cssval = style.getPropertyCSSValue("clip");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue.CSS_RECT, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.RECT, cssval.getPrimitiveType());
 		assertEquals("rect(2px, 12em, 3em, 2pt)", style.getPropertyValue("clip"));
 		assertEquals("clip: rect(2px, 12em, 3em, 2pt); ", style.getCssText());
 		assertEquals("clip:rect(2px,12em,3em,2pt)", style.getMinifiedCssText());
-		OMCSSRectValue val = (OMCSSRectValue) cssval;
-		Rect rect = val.getRectValue();
+		CSSRectValue rect = (CSSRectValue) cssval;
 		assertEquals("2px", rect.getTop().getCssText());
 		assertEquals("12em", rect.getRight().getCssText());
 		assertEquals("3em", rect.getBottom().getCssText());
@@ -93,8 +91,8 @@ public class OMCSSRectValueTest {
 	public void testClone() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("clip: rect(2px 12em 3em 2pt); ");
-		OMCSSRectValue value = (OMCSSRectValue) style.getPropertyCSSValue("clip");
-		OMCSSRectValue clon = value.clone();
+		RectValue value = (RectValue) style.getPropertyCSSValue("clip");
+		RectValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getCssText(), clon.getCssText());

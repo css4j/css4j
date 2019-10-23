@@ -29,6 +29,18 @@ public class GridTemplateShorthandBuilderTest {
 	@Test
 	public void testBuilderNoShorthand() {
 		assertShorthandText("grid-row-start:2;", "grid-row-start: 2;");
+		assertShorthandText("grid-template-areas:none;grid-template-columns:inherit;grid-template-rows:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:inherit;");
+		assertShorthandText("grid-template-areas:none;grid-template-columns:revert;grid-template-rows:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:revert;");
+	}
+
+	@Test
+	public void testBuilderMix() {
+		assertShorthandText("grid-template:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:initial;");
+		assertShorthandText("grid-template:none;",
+				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:unset;");
 	}
 
 	@Test
@@ -179,13 +191,23 @@ public class GridTemplateShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderInitial() {
+		assertShorthandText("grid-template:none;", "grid-template: initial;");
+	}
+
+	@Test
+	public void testBuilderInitialImportant() {
+		assertShorthandText("grid-template:none!important;", "grid-template: initial!important;");
+	}
+
+	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("grid-template:unset;", "grid-template: unset;");
+		assertShorthandText("grid-template:none;", "grid-template: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("grid-template:unset!important;", "grid-template: unset!important;");
+		assertShorthandText("grid-template:none!important;", "grid-template: unset!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

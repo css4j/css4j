@@ -16,7 +16,6 @@ import java.io.IOException;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSCountersValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
@@ -31,7 +30,7 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 	private String separator = "";
 
 	public CountersValue() {
-		super(CSSPrimitiveValue2.CSS_COUNTERS);
+		super(Type.COUNTERS);
 	}
 
 	protected CountersValue(CountersValue copied) {
@@ -170,20 +169,19 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 		}
 		CountersValue other = (CountersValue) obj;
 		if (separator == null) {
-			if (other.separator != null) {
-				return false;
-			}
-		} else if (!separator.equals(other.separator)) {
-			return false;
+			return other.separator == null;
+		} else {
+			return separator.equals(other.separator);
 		}
-		return true;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((separator == null) ? 0 : separator.hashCode());
+		if (separator != null) {
+			result = prime * result + separator.hashCode();
+		}
 		return result;
 	}
 

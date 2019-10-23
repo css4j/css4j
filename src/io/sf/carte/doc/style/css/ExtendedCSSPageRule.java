@@ -11,14 +11,18 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.css.CSSPageRule;
+import org.w3c.dom.DOMException;
 
 /**
  * An extended CSS {@literal @}page rule.
  *
  */
-public interface ExtendedCSSPageRule extends CSSDeclarationRule, CSSPageRule {
+public interface ExtendedCSSPageRule extends CSSDeclarationRule {
 
 	ExtendedCSSRuleList<? extends CSSMarginRule> getMarginRules();
+
+	String getSelectorText();
+
+	void setSelectorText(String selectorText) throws DOMException;
 
 }

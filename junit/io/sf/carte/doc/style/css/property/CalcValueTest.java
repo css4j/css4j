@@ -17,15 +17,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
 import org.junit.Test;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
-import io.sf.carte.doc.style.css.CSSOperandExpression;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.StyleRule;
@@ -57,8 +58,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc(80% - 3em); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("80% - 3em", calc.getExpression().toString());
 		assertEquals("calc(80% - 3em)", val.getCssText());
@@ -73,8 +74,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc(100%/3 - 2*1em - 2*1px); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals("100%/3 - 2*1em - 2*1px", expr.toString());
@@ -106,8 +107,8 @@ public class CalcValueTest {
 		style.setCssText("font-size: calc(1em + (0.4vw + 0.25vh)/2); ");
 		StyleValue val = style.getPropertyCSSValue("font-size");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals("1em + (0.4vw + 0.25vh)/2", expr.toString());
@@ -144,8 +145,8 @@ public class CalcValueTest {
 		style.setCssText("font-size: calc(1em - (0.4vw + 0.25vh)/2); ");
 		StyleValue val = style.getPropertyCSSValue("font-size");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals("1em - (0.4vw + 0.25vh)/2", expr.toString());
@@ -182,8 +183,8 @@ public class CalcValueTest {
 		style.setCssText("left: calc(20px + 2vw + 8.1% - 2.1vw); ");
 		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw + 8.1% - 2.1vw", expr.toString());
@@ -221,8 +222,8 @@ public class CalcValueTest {
 		style.setCssText("left: calc(20px + 2vw + (8.1% - 2.1vw)); ");
 		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw + 8.1% - 2.1vw", expr.toString());
@@ -239,8 +240,8 @@ public class CalcValueTest {
 		style.setCssText("left: calc(20px + 2vw - (8.1% - 2.1vw)); ");
 		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw - (8.1% - 2.1vw)", expr.toString());
@@ -257,8 +258,8 @@ public class CalcValueTest {
 		style.setCssText("left: calc(20px + 2 * (8.1% - 2.1vw)); ");
 		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals("20px + 2*(8.1% - 2.1vw)", expr.toString());
@@ -268,27 +269,27 @@ public class CalcValueTest {
 	}
 
 	@Test
+	public void testCreateCSSValueVar() throws CSSException, IOException {
+		ValueFactory vf = new ValueFactory();
+		StyleValue value = vf.parseProperty("calc(3*calc(2*var(--foo, 3px)))");
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, value.getPrimitiveType());
+		assertEquals("calc(3*calc(2*var(--foo, 3px)))", value.getCssText());
+		assertEquals("calc(3*calc(2*var(--foo, 3px)))", value.getCssText());
+	}
+
+	@Test
 	public void testSetCssTextCustomProperty() {
 		StyleRule styleRule = new StyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
-		style.setCssText("margin-left:calc(1em - var(--bar,0.3rem))");
+		style.setCssText("margin-left:calc(var(--bar,0.3rem))");
 		StyleValue val = style.getPropertyCSSValue("margin-left");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		CSSExpression expr = calc.getExpression();
-		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
-		AlgebraicExpression operands = (AlgebraicExpression) expr;
-		assertEquals(2, operands.getLength());
-		CSSExpression op2 = operands.item(1);
-		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op2.getPartType());
-		ExtendedCSSPrimitiveValue varop = ((CSSOperandExpression) op2).getOperand();
-		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, varop.getPrimitiveType());
-		assertEquals("1em - var(--bar, 0.3rem)", expr.toString());
-		assertEquals("calc(1em - var(--bar, 0.3rem))", val.getCssText());
-		assertEquals("calc(1em - var(--bar,.3rem))", val.getMinifiedCssText("margin-left"));
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(var(--bar, 0.3rem))", val.getCssText());
+		assertEquals("calc(var(--bar, 0.3rem))", val.getMinifiedCssText("margin-left"));
 	}
 
 	@Test
@@ -299,8 +300,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc(-3em); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("-3em", calc.getExpression().toString());
 		assertEquals("calc(-3em)", val.getCssText());
@@ -309,9 +310,9 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextNegative2() {
-		NumberValue number1 = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 4);
+		NumberValue number1 = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 4);
 		OperandExpression op1 = OperandExpression.createOperand(number1);
-		NumberValue number2 = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, -1);
+		NumberValue number2 = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, -1);
 		OperandExpression op2 = OperandExpression.createOperand(number2);
 		AlgebraicExpression sum = SumExpression.createSumExpression();
 		((StyleExpression) sum).addExpression(op1);
@@ -328,8 +329,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc((50% - 3em)*2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("(50% - 3em)*2", calc.getExpression().toString());
 		assertEquals("calc((50% - 3em)*2)", val.getCssText());
@@ -344,8 +345,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc((100.0% - 60.0px) / 3); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("(100% - 60px)/3", calc.getExpression().toString());
 		assertEquals("calc((100% - 60px)/3)", val.getCssText());
@@ -360,8 +361,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc(calc(50% - 3em)*2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("(50% - 3em)*2", calc.getExpression().toString());
 		assertEquals("calc((50% - 3em)*2)", val.getCssText());
@@ -376,8 +377,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc((50% - 3em) - (2% - 1px)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("50% - 3em - (2% - 1px)", calc.getExpression().toString());
 		assertEquals("calc(50% - 3em - (2% - 1px))", val.getCssText());
@@ -392,8 +393,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc((50% - 3em) - max(6px, 1em)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("50% - 3em - max(6px, 1em)", calc.getExpression().toString());
 		assertEquals("calc(50% - 3em - max(6px, 1em))", val.getCssText());
@@ -408,8 +409,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc((50% - 3em) - calc(2% - 1px)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("50% - 3em - (2% - 1px)", calc.getExpression().toString());
 		assertEquals("calc(50% - 3em - (2% - 1px))", val.getCssText());
@@ -424,8 +425,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc(calc(50% - 3em) - (2% - 1px)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("50% - 3em - (2% - 1px)", calc.getExpression().toString());
 		assertEquals("calc(50% - 3em - (2% - 1px))", val.getCssText());
@@ -440,8 +441,8 @@ public class CalcValueTest {
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em)/(35 - 21)); ");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("(1.5 - 1.3)*(100vw - 21em)/(35 - 21)", calc.getExpression().toString());
 		assertEquals("calc((1.5 - 1.3)*(100vw - 21em)/(35 - 21))", val.getCssText());
@@ -456,8 +457,8 @@ public class CalcValueTest {
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) - (35 - 21)); ");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("(1.5 - 1.3)*(100vw - 21em) - (35 - 21)", calc.getExpression().toString());
 		assertEquals("calc((1.5 - 1.3)*(100vw - 21em) - (35 - 21))", val.getCssText());
@@ -472,8 +473,8 @@ public class CalcValueTest {
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) / max(6px, 1em)); ");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("(1.5 - 1.3)*(100vw - 21em)/max(6px, 1em)", calc.getExpression().toString());
 		assertEquals("calc((1.5 - 1.3)*(100vw - 21em)/max(6px, 1em))", val.getCssText());
@@ -488,8 +489,8 @@ public class CalcValueTest {
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) - max(6px, 1em)); ");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("(1.5 - 1.3)*(100vw - 21em) - max(6px, 1em)", calc.getExpression().toString());
 		assertEquals("calc((1.5 - 1.3)*(100vw - 21em) - max(6px, 1em))", val.getCssText());
@@ -504,8 +505,8 @@ public class CalcValueTest {
 		style.setCssText("counter-reset: calc(attr(start integer, 1) - 1);");
 		StyleValue val = style.getPropertyCSSValue("counter-reset");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("attr(start integer, 1) - 1", calc.getExpression().toString());
 		assertEquals("calc(attr(start integer, 1) - 1)", val.getCssText());
@@ -520,8 +521,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc((-3em)*2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		assertEquals("-3em*2", calc.getExpression().toString());
 		assertEquals("calc(-3em*2)", val.getCssText());
@@ -536,8 +537,8 @@ public class CalcValueTest {
 		style.setCssText("width: calc((-3em + 5%)*2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, val.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) val).getPrimitiveType());
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, expr.getPartType());

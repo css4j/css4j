@@ -1,0 +1,195 @@
+/*
+
+ Copyright (c) 2005-2019, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://css4j.github.io/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.parser;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.io.StringReader;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Parser;
+
+public class LexicalUnitTest {
+
+	private static Parser parser;
+
+	@Before
+	public void setUp() {
+		parser = new CSSParser();
+	}
+
+	@Test
+	public void testClone() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times Roman");
+		LexicalUnit clone = lu.clone();
+		assertNotNull(clone.getNextLexicalUnit());
+		assertNull(clone.getNextLexicalUnit().getNextLexicalUnit());
+		assertNull(clone.getPreviousLexicalUnit());
+		assertFalse(clone.isParameter());
+		assertEquals(lu, clone);
+	}
+
+	@Test
+	public void testCloneFunction() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(2 * (3 + 2))");
+		LexicalUnit clone = lu.clone();
+		assertTrue(lu.getParameters().isParameter());
+		assertFalse(lu.isParameter());
+		assertTrue(clone.getParameters().isParameter());
+		assertFalse(clone.isParameter());
+		assertNotNull(clone.getParameters());
+		assertTrue(clone.getParameters().isParameter());
+		assertTrue(clone.getParameters().getNextLexicalUnit().isParameter());
+		assertNull(clone.getNextLexicalUnit());
+		assertNull(clone.getPreviousLexicalUnit());
+		assertEquals(lu, clone);
+		assertEquals(lu.toString(), clone.toString());
+	}
+
+	@Test
+	public void testIsParameter() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times Roman");
+		assertFalse(lu.getNextLexicalUnit().isParameter());
+	}
+
+	@Test
+	public void testInsertNextLexicalUnit() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times Roman");
+		LexicalUnit lu2 = parsePropertyValue("New");
+		lu.insertNextLexicalUnit(lu2);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("Times", lu.getStringValue());
+		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
+		lu = lu.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("New", lu.getStringValue());
+		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
+		lu = lu.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("Roman", lu.getStringValue());
+	}
+
+	@Test
+	public void testInsertNextLexicalUnit2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times Roman");
+		LexicalUnit lu2 = parsePropertyValue("Very New");
+		lu.insertNextLexicalUnit(lu2);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("Times", lu.getStringValue());
+		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
+		lu = lu.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("Very", lu.getStringValue());
+		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
+		lu = lu.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("New", lu.getStringValue());
+		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
+		lu = lu.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("Roman", lu.getStringValue());
+	}
+
+	@Test
+	public void testReplaceBy() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times Roman");
+		LexicalUnit lu2 = parsePropertyValue("New");
+		LexicalUnit replacement = lu.replaceBy(lu2);
+		assertSame(lu2, replacement);
+		assertEquals("New Roman", lu2.toString());
+		assertEquals("Times", lu.toString());
+	}
+
+	@Test
+	public void testReplaceBy2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Monospace Regular");
+		LexicalUnit lu2 = parsePropertyValue("Bold");
+		LexicalUnit replacement = lu.getNextLexicalUnit().replaceBy(lu2);
+		assertSame(lu2, replacement);
+		assertEquals("Bold", lu2.toString());
+		assertEquals("Monospace Bold", lu.toString());
+	}
+
+	@Test
+	public void testReplaceBy3() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times New Roman");
+		LexicalUnit lu2 = parsePropertyValue("Very Old");
+		LexicalUnit replacement = lu.getNextLexicalUnit().replaceBy(lu2);
+		assertSame(lu2, replacement);
+		assertEquals("Very Old Roman", lu2.toString());
+		assertEquals("Times Very Old Roman", lu.toString());
+	}
+
+	@Test
+	public void testReplaceByCalc() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(2 * (3 + 2))");
+		LexicalUnit lu2 = parsePropertyValue("5");
+		LexicalUnit replacement = lu.getParameters().replaceBy(lu2);
+		assertSame(lu2, replacement);
+		assertEquals("5*(3 + 2)", lu2.toString());
+		assertEquals("calc(5*(3 + 2))", lu.toString());
+	}
+
+	@Test
+	public void testReplaceByCalc2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(2 * (3 + 2))");
+		LexicalUnit lu2 = parsePropertyValue("5");
+		LexicalUnit secondOp = lu.getParameters().getNextLexicalUnit().getNextLexicalUnit();
+		LexicalUnit replacement = secondOp.replaceBy(lu2);
+		assertSame(lu2, replacement);
+		assertEquals("5", lu2.toString());
+		assertEquals("calc(2*5)", lu.toString());
+	}
+
+	@Test
+	public void testEquals() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Sans Serif");
+		LexicalUnit lu2 = parsePropertyValue("Lucida Sans");
+		assertNotEquals(lu, lu2);
+		assertEquals(lu, lu2.getNextLexicalUnit());
+		//
+		lu = parsePropertyValue("calc(2 * (3 + 2))");
+		lu2 = parsePropertyValue("calc(2 * (3 + 2)) 7");
+		assertEquals(lu, lu2);
+		assertNotEquals(lu, lu2.getNextLexicalUnit());
+		//
+		lu2 = parsePropertyValue("calc(2 * (3 + 1))");
+		assertNotEquals(lu, lu2);
+		//
+		lu2 = parsePropertyValue("calc(2 * (3 + 2) * 5)");
+		assertNotEquals(lu, lu2);
+		//
+		lu2 = parsePropertyValue("calc(2)");
+		assertNotEquals(lu, lu2);
+		//
+		lu = parsePropertyValue("calc(2)");
+		lu2 = parsePropertyValue("calc(2 * (3 + 2))");
+		assertNotEquals(lu, lu2);
+	}
+
+	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {
+		return parser.parsePropertyValue(new StringReader(value));
+	}
+
+}

@@ -19,7 +19,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Calc CSSPrimitiveValue.
+ * Calc value.
  * 
  * @author Carlos Amengual
  *
@@ -44,10 +44,10 @@ public class CalcValue extends ExpressionValue {
 		if (super.isInvalidOperand(primi, lutype, lastlutype)) {
 			return true;
 		}
-		if (primi instanceof NumberValue) {
+		if (primi.getPrimitiveType() == Type.NUMERIC) {
 			return lastlutype != -1 && lastlutype != LexicalUnit.SAC_SUB_EXPRESSION && primi.isNegativeNumber();
 		}
-		return lutype != LexicalUnit.SAC_FUNCTION && lutype != LexicalUnit.SAC_ATTR;
+		return lutype != LexicalUnit.SAC_FUNCTION && lutype != LexicalUnit.SAC_VAR && lutype != LexicalUnit.SAC_ATTR;
 	}
 
 	@Override
@@ -61,17 +61,6 @@ public class CalcValue extends ExpressionValue {
 		int result = super.hashCode();
 		result = prime * result + "calc".hashCode();
 		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		return true;
 	}
 
 	@Override

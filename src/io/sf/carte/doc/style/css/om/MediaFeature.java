@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 
 /**
@@ -29,7 +29,7 @@ public interface MediaFeature extends MediaFeaturePredicate {
 	 *
 	 * @return the value to be tested on the feature.
 	 */
-	ExtendedCSSPrimitiveValue getValue();
+	CSSTypedValue getValue();
 
 	/**
 	 * If this is a range feature test involving two values, get the second value.
@@ -37,6 +37,6 @@ public interface MediaFeature extends MediaFeaturePredicate {
 	 * @return the second value in this range test, or <code>null</code> if this is
 	 *         not a range feature or the range only involves one value.
 	 */
-	ExtendedCSSPrimitiveValue getRangeSecondValue();
+	CSSTypedValue getRangeSecondValue();
 
 }

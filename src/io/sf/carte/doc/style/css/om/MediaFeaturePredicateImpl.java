@@ -14,11 +14,11 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -33,8 +33,8 @@ import io.sf.carte.doc.style.css.property.ValueFactory;
  */
 class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 
-	private ExtendedCSSPrimitiveValue value1;
-	private ExtendedCSSPrimitiveValue value2;
+	private CSSTypedValue value1;
+	private CSSTypedValue value2;
 	private byte rangeType;
 
 	MediaFeaturePredicateImpl(String featureName) {
@@ -57,7 +57,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 	}
 
 	@Override
-	public ExtendedCSSPrimitiveValue getValue() {
+	public CSSTypedValue getValue() {
 		return value1;
 	}
 
@@ -65,41 +65,41 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 	public void setValue(LexicalUnit value) {
 		if (value != null) {
 			StyleValue cssval = new ValueFactory().createCSSValue(value);
-			if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+			if (cssval.getCssValueType() != CssType.TYPED) {
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 						"Expected typed value, got: " + cssval.getCssValueType());
 			}
-			this.value1 = (ExtendedCSSPrimitiveValue) cssval;
+			this.value1 = (CSSTypedValue) cssval;
 		} else {
 			this.value1 = null;
 		}
 	}
 
 	@Override
-	public ExtendedCSSPrimitiveValue getRangeSecondValue() {
+	public CSSTypedValue getRangeSecondValue() {
 		return value2;
 	}
 
 	@Override
 	public void setValueRange(LexicalUnit value1, LexicalUnit value2) {
 		StyleValue cssval = new ValueFactory().createCSSValue(value1);
-		if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+		if (cssval.getCssValueType() != CssType.TYPED) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Expected typed value, got: " + cssval.getCssValueType());
 		}
-		this.value1 = (ExtendedCSSPrimitiveValue) cssval;
+		this.value1 = (CSSTypedValue) cssval;
 		//
 		cssval = new ValueFactory().createCSSValue(value2);
-		if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+		if (cssval.getCssValueType() != CssType.TYPED) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Expected typed value, got: " + cssval.getCssValueType());
 		}
-		this.value2 = (ExtendedCSSPrimitiveValue) cssval;
+		this.value2 = (CSSTypedValue) cssval;
 	}
 
 	@Override
 	public boolean matches(MediaPredicate otherPredicate, byte negatedQuery) {
-		if (getPredicateType() != ((BooleanConditionImpl.Predicate) otherPredicate).getPredicateType()) {
+		if (getPredicateType() != otherPredicate.getPredicateType()) {
 			return false;
 		}
 		MediaFeaturePredicateImpl other = (MediaFeaturePredicateImpl) otherPredicate;
@@ -168,14 +168,14 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 			type = negateType(type);
 		}
 		// Normalize type
-		ExtendedCSSPrimitiveValue otherVal1 = other.value1;
-		ExtendedCSSPrimitiveValue otherVal2 = other.value2;
+		CSSTypedValue otherVal1 = other.value1;
+		CSSTypedValue otherVal2 = other.value2;
 		boolean noeq1 = false;
 		boolean noeq2 = false;
 		switch (type) {
 		case MediaFeaturePredicate.FEATURE_EQ:
-			if (value1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-				if (otherVal1 != null && otherVal1.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+			if (value1.getPrimitiveType() == CSSValue.Type.IDENT) {
+				if (otherVal1 != null && otherVal1.getPrimitiveType() == CSSValue.Type.IDENT
 						&& value1.getStringValue().equalsIgnoreCase(otherVal1.getStringValue())) {
 					return negatedQuery == 0 || negatedQuery == 3;
 				}
@@ -395,7 +395,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 		float fval1;
 		float denom = 1f;
 		boolean isRatio = false;
-		short pType = CSSPrimitiveValue.CSS_NUMBER;
+		short pType = CSSUnit.CSS_NUMBER;
 		if (value1 == null) {
 			// Boolean
 			if (otherVal1 == null) {
@@ -404,16 +404,24 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 			}
 			fval1 = 0f;
 		} else {
-			pType = value1.getPrimitiveType();
-			if (pType != CSSPrimitiveValue2.CSS_RATIO) {
+			pType = value1.getUnitType();
+			if (value1.getPrimitiveType() != CSSValue.Type.RATIO) {
+				/*
+				 * If it is not a number, throws an exception.
+				 */
 				fval1 = value1.getFloatValue(pType);
 			} else {
 				RatioValue ratio = (RatioValue) value1;
 				PrimitiveValue ante = ratio.getAntecedentValue();
-				pType = ante.getPrimitiveType();
+				PrimitiveValue cons = ratio.getConsequentValue();
+				pType = ante.getUnitType();
+				if (pType != CSSUnit.CSS_NUMBER || cons.getUnitType() != CSSUnit.CSS_NUMBER) {
+					// We may have a custom property or calc() here.
+					return false;
+				}
 				try {
-					fval1 = ante.getFloatValue(pType);
-					denom = ratio.getConsequentValue().getFloatValue(pType);
+					fval1 = ((CSSTypedValue) ante).getFloatValue(pType);
+					denom = ((CSSTypedValue) cons).getFloatValue(pType);
 				} catch (DOMException e) {
 					return false;
 				}
@@ -424,13 +432,18 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 		if (otherVal1 == null) {
 			ofval1 = 0f;
 		} else {
-			if (otherVal1.getPrimitiveType() == CSSPrimitiveValue2.CSS_RATIO) {
+			if (otherVal1.getPrimitiveType() == CSSValue.Type.RATIO) {
 				RatioValue ratio = (RatioValue) otherVal1;
 				PrimitiveValue ante = ratio.getAntecedentValue();
+				PrimitiveValue cons = ratio.getConsequentValue();
+				if (ante.getUnitType() != CSSUnit.CSS_NUMBER || cons.getUnitType() != CSSUnit.CSS_NUMBER) {
+					// We may have a custom property or calc() here.
+					return false;
+				}
 				float odenom;
 				try {
-					ofval1 = ante.getFloatValue(pType);
-					odenom = ratio.getConsequentValue().getFloatValue(pType);
+					ofval1 = ((CSSTypedValue) ante).getFloatValue(pType);
+					odenom = ((CSSTypedValue) cons).getFloatValue(pType);
 				} catch (DOMException e) {
 					return false;
 				}
@@ -454,8 +467,8 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 			}
 			//
 			boolean isRatio2 = false;
-			pType = value2.getPrimitiveType();
-			if (pType != CSSPrimitiveValue2.CSS_RATIO) {
+			pType = value2.getUnitType();
+			if (value2.getPrimitiveType() != CSSValue.Type.RATIO) {
 				try {
 					fval2 = value2.getFloatValue(pType);
 				} catch (DOMException e) {
@@ -464,22 +477,30 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 			} else {
 				RatioValue ratio = (RatioValue) value2;
 				PrimitiveValue ante = ratio.getAntecedentValue();
-				pType = ante.getPrimitiveType();
+				PrimitiveValue cons = ratio.getConsequentValue();
+				pType = ante.getUnitType();
+				if (pType != CSSUnit.CSS_NUMBER || cons.getUnitType() != CSSUnit.CSS_NUMBER) {
+					return false;
+				}
 				try {
-					fval2 = ante.getFloatValue(pType);
-					denom = ratio.getConsequentValue().getFloatValue(pType);
+					fval2 = ((CSSTypedValue) ante).getFloatValue(pType);
+					denom = ((CSSTypedValue) cons).getFloatValue(pType);
 				} catch (DOMException e) {
 					return false;
 				}
 				isRatio2 = true;
 			}
-			if (otherVal2.getPrimitiveType() == CSSPrimitiveValue2.CSS_RATIO) {
+			if (otherVal2.getPrimitiveType() == CSSValue.Type.RATIO) {
 				RatioValue ratio = (RatioValue) otherVal2;
 				PrimitiveValue ante = ratio.getAntecedentValue();
+				PrimitiveValue cons = ratio.getConsequentValue();
+				if (ante.getUnitType() != CSSUnit.CSS_NUMBER || cons.getUnitType() != CSSUnit.CSS_NUMBER) {
+					return false;
+				}
 				float odenom;
 				try {
-					ofval2 = ante.getFloatValue(pType);
-					odenom = ratio.getConsequentValue().getFloatValue(pType);
+					ofval2 = ((CSSTypedValue) ante).getFloatValue(pType);
+					odenom = ((CSSTypedValue) cons).getFloatValue(pType);
 				} catch (DOMException e) {
 					return false;
 				}

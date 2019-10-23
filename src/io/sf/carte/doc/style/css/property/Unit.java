@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 
 /**
  * CSS unit.
@@ -32,7 +32,7 @@ class Unit {
 
 	public Unit() {
 		super();
-		unitType = CSSPrimitiveValue.CSS_NUMBER;
+		unitType = CSSUnit.CSS_NUMBER;
 		exponent = 0;
 	}
 
@@ -79,7 +79,7 @@ class Unit {
 
 	void setUnitType(short unitType) {
 		this.unitType = unitType;
-		if (unitType == CSSPrimitiveValue.CSS_NUMBER) {
+		if (unitType == CSSUnit.CSS_NUMBER) {
 			exponent = 0;
 		} else {
 			exponent = 1;

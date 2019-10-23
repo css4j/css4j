@@ -21,12 +21,13 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSEnvVariableValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -69,10 +70,10 @@ public class EnvVariableValueTest {
 		assertEquals("foo:env(safe-area-inset-left)", style.getMinifiedCssText());
 		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_ENV_VAR, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.ENV, cssval.getPrimitiveType());
 		CSSEnvVariableValue val = (CSSEnvVariableValue) cssval;
 		assertEquals("env(safe-area-inset-left)", val.getCssText());
-		assertEquals("safe-area-inset-left", val.getStringValue());
+		assertEquals("safe-area-inset-left", val.getName());
 		assertNull(val.getFallback());
 	}
 
@@ -84,14 +85,15 @@ public class EnvVariableValueTest {
 		assertEquals("foo:env(safe-area-inset-left,1px)", style.getMinifiedCssText());
 		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_ENV_VAR, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.ENV, cssval.getPrimitiveType());
 		CSSEnvVariableValue val = (CSSEnvVariableValue) cssval;
 		assertEquals("env(safe-area-inset-left, 1px)", val.getCssText());
-		assertEquals("safe-area-inset-left", val.getStringValue());
-		ExtendedCSSValue fb = val.getFallback();
+		assertEquals("safe-area-inset-left", val.getName());
+		CSSValue fb = val.getFallback();
 		assertNotNull(fb);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, fb.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_PX, ((CSSPrimitiveValue) fb).getPrimitiveType());
+		assertEquals(CssType.TYPED, fb.getCssValueType());
+		assertEquals(Type.NUMERIC, fb.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_PX, ((CSSTypedValue) fb).getUnitType());
 		assertEquals("1px", fb.getCssText());
 	}
 
@@ -132,7 +134,7 @@ public class EnvVariableValueTest {
 		assertNotNull(clon);
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
-		assertEquals(value.getStringValue(), clon.getStringValue());
+		assertEquals(value.getName(), clon.getName());
 		assertEquals(value.getCssText(), clon.getCssText());
 		assertTrue(value.getFallback().equals(clon.getFallback()));
 		assertTrue(value.equals(clon));

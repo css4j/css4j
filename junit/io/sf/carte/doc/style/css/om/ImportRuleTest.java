@@ -28,7 +28,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -37,6 +36,7 @@ import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
+import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 
 public class ImportRuleTest {
@@ -63,7 +63,7 @@ public class ImportRuleTest {
 		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		assertNotNull(cssStyle);
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		MediaQueryList mql = imp.getMedia();
@@ -102,7 +102,7 @@ public class ImportRuleTest {
 		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		assertNotNull(cssStyle);
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		MediaQueryList mql = imp.getMedia();
@@ -209,7 +209,7 @@ public class ImportRuleTest {
 		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		assertNotNull(cssStyle);
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		MediaQueryList mql = imp.getMedia();
@@ -311,7 +311,7 @@ public class ImportRuleTest {
 		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		assertNotNull(cssStyle);
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(1, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		AbstractCSSStyleSheet imported = imp.getStyleSheet();
@@ -354,7 +354,7 @@ public class ImportRuleTest {
 		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		assertNotNull(cssStyle);
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(1, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		AbstractCSSStyleSheet imported = imp.getStyleSheet();
@@ -397,7 +397,7 @@ public class ImportRuleTest {
 		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		assertNotNull(cssStyle);
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(1, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		AbstractCSSStyleSheet imported = imp.getStyleSheet();

@@ -13,15 +13,13 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
-import org.w3c.dom.css.CSSStyleDeclaration;
-import org.w3c.dom.css.ElementCSSInlineStyle;
 
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
  * Essentially adds CSS-related methods to the DOM's {@link Element} interface.
  */
-public interface CSSElement extends Element, CSSNode, ElementCSSInlineStyle {
+public interface CSSElement extends Element, CSSNode {
 
 	/**
 	 * Gets the computed style declaration that applies to this element.
@@ -77,7 +75,6 @@ public interface CSSElement extends Element, CSSNode, ElementCSSInlineStyle {
 	 * @return the inline style specified by the <code>style</code> attribute, or
 	 *         <code>null</code> if that attribute is not present.
 	 */
-	@Override
 	ExtendedCSSStyleDeclaration getStyle();
 
 	/**
@@ -121,7 +118,7 @@ public interface CSSElement extends Element, CSSNode, ElementCSSInlineStyle {
 	 * A document may contain non-CSS presentational hints (like the <code>width</code>
 	 * attribute in HTML). This method can return <code>true</code> only if this specific
 	 * element do contain such hints, which can be exported to a style declaration by using
-	 * the {@link #exportHintsToStyle(CSSStyleDeclaration)} method.
+	 * the {@link #exportHintsToStyle(ExtendedCSSStyleDeclaration)} method.
 	 *
 	 * @return <code>true</code> if this element has presentational hints.
 	 */
@@ -129,10 +126,10 @@ public interface CSSElement extends Element, CSSNode, ElementCSSInlineStyle {
 
 	/**
 	 * Export this element's non-CSS presentational hints (if any) to the supplied
-	 * {@link CSSStyleDeclaration}.
+	 * {@link ExtendedCSSStyleDeclaration}.
 	 *
 	 * @param style
 	 *            the style declaration to export to.
 	 */
-	void exportHintsToStyle(CSSStyleDeclaration style) throws DOMException;
+	void exportHintsToStyle(ExtendedCSSStyleDeclaration style) throws DOMException;
 }

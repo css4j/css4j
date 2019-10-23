@@ -32,6 +32,7 @@ license information):
  File: src/io/sf/carte/doc/style/css/ExtendedCSSPageRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSRuleList.java
+ File: src/io/sf/carte/doc/style/css/ExtendedCSSStyleDeclaration.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSStyleRule.java
  File: src/io/sf/carte/doc/style/css/ExtendedCSSStyleSheet.java
  File: src/io/sf/carte/doc/style/css/MediaQueryList.java
@@ -88,12 +89,13 @@ Title to copyright in this work will at all times remain with copyright holders.
  File: src/io/sf/carte/doc/style/css/CSSExpressionValue.java
  File: src/io/sf/carte/doc/style/css/CSSFunctionValue.java
  File: src/io/sf/carte/doc/style/css/CSSGradientValue.java
- File: src/io/sf/carte/doc/style/css/CSSPrimitiveValue2.java
  File: src/io/sf/carte/doc/style/css/CSSRatioValue.java
+ File: src/io/sf/carte/doc/style/css/CSSRectValue.java
+ File: src/io/sf/carte/doc/style/css/CSSTypedValue.java
  File: src/io/sf/carte/doc/style/css/CSSUnicodeRangeValue.java
- File: src/io/sf/carte/doc/style/css/ExtendedCSSValue.java
- File: src/io/sf/carte/doc/style/css/ExtendedCSSPrimitiveValue.java
- File: src/io/sf/carte/doc/style/css/ExtendedCSSValueList.java
+ File: src/io/sf/carte/doc/style/css/CSSValue.java
+ File: src/io/sf/carte/doc/style/css/CSSValueList.java
+ File: src/io/sf/carte/doc/style/css/LinkStyle.java
  File: src/io/sf/carte/doc/style/css/RGBAColor.java
  File: src/io/sf/carte/doc/style/css/parser/FontFeatureValuesHandler.java
  File: src/io/sf/carte/doc/style/css/parser/KeyframesHandler.java

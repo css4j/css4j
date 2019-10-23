@@ -78,10 +78,7 @@ class DOMElementLinkedList extends LinkedList<DOMElement> implements ElementList
 	private static boolean isSameNamespace(DOMElement element, String ns2) {
 		String ns1 = element.getNamespaceURI();
 		if (ns1 == null) {
-			if (ns2 != null && !element.isDefaultNamespace(ns2)) {
-				return false;
-			}
-			return true;
+			return ns2 == null || element.isDefaultNamespace(ns2);
 		}
 		return ns1.equals(ns2) || (ns2 == null && element.isDefaultNamespace(ns1));
 	}

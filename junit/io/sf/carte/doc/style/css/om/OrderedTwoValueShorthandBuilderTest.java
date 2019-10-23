@@ -60,6 +60,18 @@ public class OrderedTwoValueShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderMix() {
+		assertShorthandText("align-content:normal;justify-content:inherit;",
+				"align-content: normal; justify-content: inherit;");
+		assertShorthandText("align-content:normal;justify-content:revert;",
+				"align-content: normal; justify-content: revert;");
+		assertShorthandText("place-content:normal;",
+				"align-content: normal; justify-content: initial;");
+		assertShorthandText("place-content:normal;",
+				"align-content: normal; justify-content: unset;");
+	}
+
+	@Test
 	public void testBuilderImportant() {
 		assertShorthandText("place-content:first baseline space-evenly!important;",
 				"place-content: first baseline space-evenly !important");
@@ -73,6 +85,16 @@ public class OrderedTwoValueShorthandBuilderTest {
 	@Test
 	public void testBuilderInheritImportant() {
 		assertShorthandText("place-content:inherit!important;", "place-content: inherit!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("place-content:revert;", "place-content: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("place-content:revert!important;", "place-content: revert!important;");
 	}
 
 	@Test

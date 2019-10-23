@@ -14,9 +14,10 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -68,14 +69,14 @@ class BorderImageBuilder extends ShorthandBuilder {
 			appendPriority(buf, important);
 			return true;
 		}
-		// 'unset'
-		byte unsetcheck = checkValuesForUnset(declaredSet, biSource, biSlice, biWidth, biOutset, biRepeat);
-		if (unsetcheck == 1) {
-			// All values are 'unset'
-			buf.append("unset");
+		// 'revert'
+		byte revertcheck = checkValuesForRevert(declaredSet, biSource, biSlice, biWidth, biOutset, biRepeat);
+		if (revertcheck == 1) {
+			// All values are 'revert'
+			buf.append("revert");
 			appendPriority(buf, important);
 			return true;
-		} else if (unsetcheck == 2) {
+		} else if (revertcheck == 2) {
 			return false;
 		}
 		// Now append the values as appropriate
@@ -141,42 +142,44 @@ class BorderImageBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private boolean allValuesAreInitial(Set<String> declaredSet, StyleValue biSource, StyleValue biSlice, StyleValue biWidth,
-			StyleValue biOutset, StyleValue biRepeat) {
-		if (declaredSet.contains("border-image-source") && !isCssKeywordValue("initial", biSource) && isNotInitialValue(biSource, "border-image-source")) {
+	private boolean allValuesAreInitial(Set<String> declaredSet, StyleValue biSource, StyleValue biSlice,
+			StyleValue biWidth, StyleValue biOutset, StyleValue biRepeat) {
+		if (declaredSet.contains("border-image-source") && !isEffectiveInitialKeyword(biSource)
+				&& isNotInitialValue(biSource, "border-image-source")) {
 			return false;
 		}
-		if (declaredSet.contains("border-image-slice") && !isCssKeywordValue("initial", biSlice) && isNotInitialValue(biSlice, "border-image-slice")) {
+		if (declaredSet.contains("border-image-slice") && !isEffectiveInitialKeyword(biSlice)
+				&& isNotInitialValue(biSlice, "border-image-slice")) {
 			return false;
 		}
-		if (declaredSet.contains("border-image-width") && !isCssKeywordValue("initial", biWidth) && isNotInitialValue(biWidth, "border-image-width")) {
+		if (declaredSet.contains("border-image-width") && !isEffectiveInitialKeyword(biWidth)
+				&& isNotInitialValue(biWidth, "border-image-width")) {
 			return false;
 		}
-		if (declaredSet.contains("border-image-outset") && !isCssKeywordValue("initial", biOutset) && isNotInitialValue(biOutset, "border-image-outset")) {
+		if (declaredSet.contains("border-image-outset") && !isEffectiveInitialKeyword(biOutset)
+				&& isNotInitialValue(biOutset, "border-image-outset")) {
 			return false;
 		}
-		if (declaredSet.contains("border-image-repeat") && !isCssKeywordValue("initial", biRepeat) && isNotInitialValue(biRepeat, "border-image-repeat")) {
-			return false;
-		}
-		return true;
-	}
+        return !declaredSet.contains("border-image-repeat") || isEffectiveInitialKeyword(biRepeat)
+                || !isNotInitialValue(biRepeat, "border-image-repeat");
+    }
 
-	private byte checkValuesForUnset(Set<String> declaredSet, StyleValue biSource, StyleValue biSlice, StyleValue biWidth,
+	private byte checkValuesForRevert(Set<String> declaredSet, StyleValue biSource, StyleValue biSlice, StyleValue biWidth,
 			StyleValue biOutset, StyleValue biRepeat) {
 		byte ucount = 0, total = (byte) declaredSet.size();
-		if (declaredSet.contains("border-image-source") && isCssKeywordValue("unset", biSource)) {
+		if (declaredSet.contains("border-image-source") && isCssKeywordValue(CSSValue.Type.REVERT, biSource)) {
 			ucount++;
 		}
-		if (declaredSet.contains("border-image-slice") && isCssKeywordValue("unset", biSlice)) {
+		if (declaredSet.contains("border-image-slice") && isCssKeywordValue(CSSValue.Type.REVERT, biSlice)) {
 			ucount++;
 		}
-		if (declaredSet.contains("border-image-width") && isCssKeywordValue("unset", biWidth)) {
+		if (declaredSet.contains("border-image-width") && isCssKeywordValue(CSSValue.Type.REVERT, biWidth)) {
 			ucount++;
 		}
-		if (declaredSet.contains("border-image-outset") && isCssKeywordValue("unset", biOutset)) {
+		if (declaredSet.contains("border-image-outset") && isCssKeywordValue(CSSValue.Type.REVERT, biOutset)) {
 			ucount++;
 		}
-		if (declaredSet.contains("border-image-repeat") && isCssKeywordValue("unset", biRepeat)) {
+		if (declaredSet.contains("border-image-repeat") && isCssKeywordValue(CSSValue.Type.REVERT, biRepeat)) {
 			ucount++;
 		}
 		if (ucount == 0) {
@@ -215,10 +218,10 @@ class BorderImageBuilder extends ShorthandBuilder {
 	}
 
 	private boolean appendBorderImageSlice(StyleValue value) {
-		short type = value.getCssValueType();
-		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+		CssType type = value.getCssValueType();
+		if (type == CssType.TYPED) {
 			appendBorderImageSide1Value(bibuf, "100%", value);
-		} else if (type == CSSValue.CSS_VALUE_LIST) {
+		} else if (type == CssType.LIST) {
 			ValueList list = (ValueList) value;
 			if (list.isCommaSeparated()) {
 				return false;
@@ -226,9 +229,8 @@ class BorderImageBuilder extends ShorthandBuilder {
 			boolean fill = false;
 			int sides = list.getLength();
 			StyleValue lastval = list.item(sides - 1);
-			if (lastval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-					&& ((CSSPrimitiveValue) lastval).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-				if ("fill".equals(((CSSPrimitiveValue) lastval).getStringValue().toLowerCase(Locale.ROOT))) {
+			if (lastval.getPrimitiveType() == Type.IDENT) {
+				if ("fill".equals(((CSSTypedValue) lastval).getStringValue().toLowerCase(Locale.ROOT))) {
 					sides--;
 					fill = true;
 				} else {
@@ -245,16 +247,18 @@ class BorderImageBuilder extends ShorthandBuilder {
 			if (fill) {
 				appendText("fill");
 			}
+		} else if (type == CssType.PROXY) {
+			return false;
 		}
 		return true;
 	}
 
 	private boolean appendBorderImageWidth(StyleValue value) {
 		StringBuilder buf = new StringBuilder();
-		short type = value.getCssValueType();
-		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+		CssType type = value.getCssValueType();
+		if (type == CssType.TYPED) {
 			appendBorderImageSide1Value(buf, "1", value);
-		} else if (type == CSSValue.CSS_VALUE_LIST) {
+		} else if (type == CssType.LIST) {
 			ValueList list = (ValueList) value;
 			if (list.isCommaSeparated()) {
 				return false;
@@ -264,6 +268,8 @@ class BorderImageBuilder extends ShorthandBuilder {
 				return false;
 			}
 			appendBorderImageSides(buf, "1", list, sides);
+		} else if (type == CssType.PROXY) {
+			return false;
 		}
 		if (buf.length() != 0) {
 			if (noslice) {
@@ -276,15 +282,17 @@ class BorderImageBuilder extends ShorthandBuilder {
 
 	private boolean appendBorderImageOutset(StyleValue value) {
 		StringBuilder buf = new StringBuilder();
-		short type = value.getCssValueType();
-		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+		CssType type = value.getCssValueType();
+		if (type == CssType.TYPED) {
 			appendBorderImageSide1Value(buf, "0", value);
-		} else if (type == CSSValue.CSS_VALUE_LIST) {
+		} else if (type == CssType.LIST) {
 			ValueList list = (ValueList) value;
 			if (list.isCommaSeparated()) {
 				return false;
 			}
 			appendBorderImageSides(buf, "0", list, list.getLength());
+		} else if (type == CssType.PROXY) {
+			return false;
 		}
 		if (buf.length() != 0) {
 			bibuf.append('/').append(buf);
@@ -358,10 +366,10 @@ class BorderImageBuilder extends ShorthandBuilder {
 	}
 
 	private boolean appendBorderImageRepeat(StyleValue value) {
-		short type = value.getCssValueType();
-		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
+		CssType type = value.getCssValueType();
+		if (type == CssType.TYPED) {
 			appendValueIfNotInitial("border-image-repeat", value);
-		} else if (type == CSSValue.CSS_VALUE_LIST) {
+		} else if (type == CssType.LIST) {
 			ValueList list = (ValueList) value;
 			if (list.isCommaSeparated() || list.getLength() != 2) {
 				return false;
@@ -374,6 +382,8 @@ class BorderImageBuilder extends ShorthandBuilder {
 				appendText(v0.getCssText());
 				bibuf.append(v1.getCssText());
 			}
+		} else if (type == CssType.PROXY) {
+			return false;
 		}
 		return true;
 	}

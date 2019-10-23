@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
 /**
  * A CSS unicode range value.
  */
-public interface CSSUnicodeRangeValue extends ExtendedCSSPrimitiveValue {
+public interface CSSUnicodeRangeValue extends CSSTypedValue {
 
 	/**
 	 * Get the beginning of this unicode range.
@@ -24,14 +24,14 @@ public interface CSSUnicodeRangeValue extends ExtendedCSSPrimitiveValue {
 	 * 
 	 * @return the value.
 	 */
-	ExtendedCSSPrimitiveValue getValue();
+	CSSTypedValue getValue();
 
 	/**
 	 * Get the end of this unicode range.
 	 * 
 	 * @return the range end value, or null if a single unicode value was specified.
 	 */
-	ExtendedCSSPrimitiveValue getEndValue();
+	CSSTypedValue getEndValue();
 
 	@Override
 	CSSUnicodeRangeValue clone();
@@ -39,10 +39,19 @@ public interface CSSUnicodeRangeValue extends ExtendedCSSPrimitiveValue {
 	/**
 	 * A CSS unicode character value.
 	 */
-	public interface CSSUnicodeValue extends ExtendedCSSPrimitiveValue {
+	public interface CSSUnicodeValue extends CSSTypedValue {
 
+		/**
+		 * Set the value of the unicode codepoint.
+		 * 
+		 * @param codePoint the codepoint.
+		 */
 		void setCodePoint(int codePoint);
 
+		/**
+		 * Get the value of the unicode codepoint.
+		 * @return the codepoint.
+		 */
 		int getCodePoint();
 
 	}

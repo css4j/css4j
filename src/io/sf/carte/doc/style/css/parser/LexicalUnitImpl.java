@@ -12,17 +12,20 @@
 package io.sf.carte.doc.style.css.parser;
 
 import java.util.Locale;
-import java.util.Objects;
 
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 class LexicalUnitImpl implements LexicalUnit {
 
 	private short unitType;
 
+	private short cssUnit = CSSUnit.CSS_INVALID;
+
 	int intValue = 0;
 
-	float floatValue = 0;
+	float floatValue = Float.NaN;
 
 	String dimensionUnitText = "";
 
@@ -53,6 +56,15 @@ class LexicalUnitImpl implements LexicalUnit {
 	}
 
 	@Override
+	public short getCssUnit() {
+		return cssUnit;
+	}
+
+	void setCssUnit(short cssUnit) {
+		this.cssUnit = cssUnit;
+	}
+
+	@Override
 	public LexicalUnit getNextLexicalUnit() {
 		return nextLexicalUnit;
 	}
@@ -60,6 +72,59 @@ class LexicalUnitImpl implements LexicalUnit {
 	@Override
 	public LexicalUnit getPreviousLexicalUnit() {
 		return previousLexicalUnit;
+	}
+
+	@Override
+	public void insertNextLexicalUnit(LexicalUnit nextUnit) throws CSSException {
+		LexicalUnitImpl nlu = (LexicalUnitImpl) nextUnit;
+		if (nlu.getPreviousLexicalUnit() != null) {
+			throw new CSSException("Parameter unit has a previous unit.");
+		}
+		nlu.previousLexicalUnit = this;
+		nlu.ownerLexicalUnit = ownerLexicalUnit;
+		LexicalUnitImpl lu = nlu;
+		LexicalUnitImpl lastlu;
+		do {
+			lastlu = lu;
+			lu = lu.nextLexicalUnit;
+		} while (lu != null);
+		lastlu.nextLexicalUnit = nextLexicalUnit;
+		nextLexicalUnit.previousLexicalUnit = lastlu;
+		nextLexicalUnit = nlu;
+	}
+
+	@Override
+	public LexicalUnit replaceBy(LexicalUnit replacementUnit) {
+		LexicalUnitImpl rlu = (LexicalUnitImpl) replacementUnit;
+		if (previousLexicalUnit != null) {
+			previousLexicalUnit.nextLexicalUnit = rlu;
+			rlu.previousLexicalUnit = previousLexicalUnit;
+		}
+		if (nextLexicalUnit != null) {
+			LexicalUnitImpl lu = rlu;
+			LexicalUnitImpl lastlu;
+			do {
+				lastlu = lu;
+				lu = lu.nextLexicalUnit;
+			} while (lu != null);
+			nextLexicalUnit.previousLexicalUnit = lastlu;
+			lastlu.nextLexicalUnit = nextLexicalUnit;
+			nextLexicalUnit = null;
+		}
+		// Set the owner
+		if (ownerLexicalUnit != null) {
+			LexicalUnitImpl lu = rlu;
+			do {
+				lu.ownerLexicalUnit = ownerLexicalUnit;
+				lu = lu.nextLexicalUnit;
+			} while (lu != null);
+			if (previousLexicalUnit == null) {
+				ownerLexicalUnit.parameters = rlu;
+			}
+			ownerLexicalUnit = null;
+		}
+		previousLexicalUnit = null;
+		return replacementUnit;
 	}
 
 	@Override
@@ -88,6 +153,11 @@ class LexicalUnitImpl implements LexicalUnit {
 			return parameters;
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isParameter() {
+		return ownerLexicalUnit != null;
 	}
 
 	@Override
@@ -184,41 +254,8 @@ class LexicalUnitImpl implements LexicalUnit {
 		case LexicalUnit.SAC_INTEGER:
 			return Integer.toString(intValue);
 		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_PIXEL:
-		case LexicalUnit.SAC_POINT:
-		case LexicalUnit.SAC_EM:
-		case LexicalUnit.SAC_EX:
-		case LexicalUnit.SAC_PICA:
 		case LexicalUnit.SAC_REAL:
-		case LexicalUnit.SAC_CENTIMETER:
-		case LexicalUnit.SAC_DEGREE:
 		case LexicalUnit.SAC_DIMENSION:
-		case LexicalUnit.SAC_GRADIAN:
-		case LexicalUnit.SAC_HERTZ:
-		case LexicalUnit.SAC_INCH:
-		case LexicalUnit.SAC_KILOHERTZ:
-		case LexicalUnit.SAC_MILLIMETER:
-		case LexicalUnit.SAC_MILLISECOND:
-		case LexicalUnit.SAC_RADIAN:
-		case LexicalUnit.SAC_SECOND:
-		case LexicalUnit.SAC_CAP:
-		case LexicalUnit.SAC_CH:
-		case LexicalUnit.SAC_DOTS_PER_CENTIMETER:
-		case LexicalUnit.SAC_DOTS_PER_INCH:
-		case LexicalUnit.SAC_DOTS_PER_PIXEL:
-		case LexicalUnit.SAC_IC:
-		case LexicalUnit.SAC_LH:
-		case LexicalUnit.SAC_QUARTER_MILLIMETER:
-		case LexicalUnit.SAC_REM:
-		case LexicalUnit.SAC_RLH:
-		case LexicalUnit.SAC_TURN:
-		case LexicalUnit.SAC_VB:
-		case LexicalUnit.SAC_VH:
-		case LexicalUnit.SAC_VI:
-		case LexicalUnit.SAC_VMAX:
-		case LexicalUnit.SAC_VMIN:
-		case LexicalUnit.SAC_VW:
-		case LexicalUnit.SAC_FR:
 			StringBuilder buf = new StringBuilder();
 			if(floatValue % 1 != 0) {
 			    buf.append(String.format(Locale.ROOT, "%s", floatValue));
@@ -235,6 +272,7 @@ class LexicalUnitImpl implements LexicalUnit {
 			}
 		case LexicalUnit.SAC_FUNCTION:
 		case LexicalUnit.SAC_RECT_FUNCTION:
+		case LexicalUnit.SAC_VAR:
 		case LexicalUnit.SAC_ATTR:
 		case LexicalUnit.SAC_COUNTER_FUNCTION:
 		case LexicalUnit.SAC_COUNTERS_FUNCTION:
@@ -267,6 +305,14 @@ class LexicalUnitImpl implements LexicalUnit {
 				quri = ParseHelper.quote(value, '\'');
 			}
 			return "url(" + quri + ")";
+		case LexicalUnit.SAC_INHERIT:
+			return "inherit";
+		case LexicalUnit.SAC_INITIAL:
+			return "initial";
+		case LexicalUnit.SAC_UNSET:
+			return "unset";
+		case LexicalUnit.SAC_REVERT:
+			return "revert";
 		case LexicalUnit.SAC_ELEMENT_REFERENCE:
 			if (value == null) {
 				return "element(#)";
@@ -332,28 +378,109 @@ class LexicalUnitImpl implements LexicalUnit {
 		return "";
 	}
 
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(dimensionUnitText, floatValue, identCssText, intValue, parameters, unitType, value);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + unitType;
+		result = prime * result + cssUnit;
+		result = prime * result + ((dimensionUnitText == null) ? 0 : dimensionUnitText.hashCode());
+		result = prime * result + Float.floatToIntBits(floatValue);
+		result = prime * result + ((identCssText == null) ? 0 : identCssText.hashCode());
+		result = prime * result + intValue;
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		LexicalUnitImpl lu = parameters;
+		while (lu != null) {
+			result = prime * result + lu.hashCode();
+			lu = lu.nextLexicalUnit;
+		}
+		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
+		if (obj == null) {
+			return false;
+		}
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		LexicalUnitImpl other = (LexicalUnitImpl) obj;
-		return Objects.equals(dimensionUnitText, other.dimensionUnitText)
-				&& Float.floatToIntBits(floatValue) == Float.floatToIntBits(other.floatValue)
-				&& Objects.equals(identCssText, other.identCssText) && intValue == other.intValue
-				&& Objects.equals(ownerLexicalUnit, other.ownerLexicalUnit)
-				&& Objects.equals(parameters, other.parameters) && unitType == other.unitType
-				&& Objects.equals(value, other.value);
+		if (unitType != other.unitType) {
+			return false;
+		}
+		if (cssUnit != other.cssUnit) {
+			return false;
+		}
+		if (dimensionUnitText == null) {
+			if (other.dimensionUnitText != null) {
+				return false;
+			}
+		} else if (!dimensionUnitText.equals(other.dimensionUnitText)) {
+			return false;
+		}
+		if (Float.floatToIntBits(floatValue) != Float.floatToIntBits(other.floatValue)) {
+			return false;
+		}
+		if (value == null) {
+			if (other.value != null) {
+				return false;
+			}
+		} else if (!value.equals(other.value)) {
+			return false;
+		}
+		if (identCssText == null) {
+			if (other.identCssText != null) {
+				return false;
+			}
+		} else if (!identCssText.equals(other.identCssText)) {
+			return false;
+		}
+		if (intValue != other.intValue) {
+			return false;
+		}
+		if (parameters == null) {
+			return other.parameters == null;
+		} else if (other.parameters == null) {
+			return false;
+		}
+		LexicalUnitImpl lu = parameters;
+		LexicalUnitImpl olu = other.parameters;
+		while (lu != null) {
+			if (!lu.equals(olu)) {
+				return false;
+			}
+			lu = lu.nextLexicalUnit;
+			olu = olu.nextLexicalUnit;
+		}
+		return olu == null;
+	}
+
+	@Override
+	public LexicalUnitImpl clone() {
+		return clone(null);
+	}
+
+	private LexicalUnitImpl clone(LexicalUnitImpl newOwner) {
+		LexicalUnitImpl clon = new LexicalUnitImpl(unitType);
+		clon.cssUnit = cssUnit;
+		clon.intValue = intValue;
+		clon.floatValue = floatValue;
+		clon.dimensionUnitText = dimensionUnitText;
+		clon.identCssText = identCssText;
+		clon.value = value;
+		if (nextLexicalUnit != null) {
+			clon.nextLexicalUnit = nextLexicalUnit.clone(newOwner);
+			clon.nextLexicalUnit.previousLexicalUnit = clon;
+		}
+		clon.ownerLexicalUnit = newOwner;
+		if (parameters != null) {
+			clon.parameters = parameters.clone(clon);
+		}
+		return clon;
 	}
 
 }

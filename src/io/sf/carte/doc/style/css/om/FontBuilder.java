@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 import java.util.Set;
 
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
@@ -45,6 +46,11 @@ class FontBuilder extends ShorthandBuilder {
 		if (style.isPropertySet(property)) {
 			addAssignedProperty(property, style.isPropertyImportant(property));
 		}
+	}
+
+	@Override
+	boolean isInheritedProperty() {
+		return true;
 	}
 
 	void appendFontKerningValue(StringBuilder buf) {
@@ -106,21 +112,33 @@ class FontBuilder extends ShorthandBuilder {
 				return false;
 			}
 			// Check for css-wide keywords
-			if (checkValuesForInitial(vFontStyle, vFontVariant, vFontWeight, vFontStretch, vFontSize, vFontFamily,
-					vLineHeight)) {
+			if (checkValuesForInitial(vFontStyle, vFontVariant, vFontWeight, vFontStretch,
+					vFontSize, vFontFamily, vLineHeight)) {
 				// All values are initial
 				buf.append("normal");
 				appendPriority(buf, important);
 				return true;
 			}
-			byte unsetcheck = checkValuesForUnset(vFontStyle, vFontWeight, vFontStretch, vFontSize, vFontFamily,
-					vLineHeight);
-			if (unsetcheck == 1) {
+			// Unset check
+			byte kwcheck = checkValuesForKeyword(CSSValue.Type.UNSET, vFontStyle, vFontWeight,
+					vFontStretch, vFontSize, vFontFamily, vLineHeight);
+			if (kwcheck == 1) {
 				// All values are unset
 				buf.append("unset");
 				appendPriority(buf, important);
 				return true;
-			} else if (unsetcheck == 2) {
+			} else if (kwcheck == 2) {
+				return false;
+			}
+			// Revert check
+			kwcheck = checkValuesForKeyword(CSSValue.Type.REVERT, vFontStyle, vFontWeight,
+					vFontStretch, vFontSize, vFontFamily, vLineHeight);
+			if (kwcheck == 1) {
+				// All values are revert
+				buf.append("revert");
+				appendPriority(buf, important);
+				return true;
+			} else if (kwcheck == 2) {
 				return false;
 			}
 		}
@@ -215,26 +233,25 @@ class FontBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private byte checkValuesForUnset(StyleValue vFontStyle, StyleValue vFontWeight,
-			StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily,
-			StyleValue vLineHeight) {
+	private byte checkValuesForKeyword(CSSValue.Type keyword, StyleValue vFontStyle, StyleValue vFontWeight,
+			StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily, StyleValue vLineHeight) {
 		byte ucount = 0;
-		if (isCssKeywordValue("unset", vFontStyle)) {
+		if (isCssKeywordValue(keyword, vFontStyle)) {
 			ucount++;
 		}
-		if (isCssKeywordValue("unset", vFontWeight)) {
+		if (isCssKeywordValue(keyword, vFontWeight)) {
 			ucount++;
 		}
-		if (isCssKeywordValue("unset", vFontStretch)) {
+		if (isCssKeywordValue(keyword, vFontStretch)) {
 			ucount++;
 		}
-		if (isCssKeywordValue("unset", vFontSize)) {
+		if (isCssKeywordValue(keyword, vFontSize)) {
 			ucount++;
 		}
-		if (isCssKeywordValue("unset", vFontFamily)) {
+		if (isCssKeywordValue(keyword, vFontFamily)) {
 			ucount++;
 		}
-		if (isCssKeywordValue("unset", vLineHeight)) {
+		if (isCssKeywordValue(keyword, vLineHeight)) {
 			ucount++;
 		}
 		switch (ucount) {
@@ -250,29 +267,26 @@ class FontBuilder extends ShorthandBuilder {
 	private boolean checkValuesForInitial(StyleValue vFontStyle, StyleValue vFontVariant,
 			StyleValue vFontWeight, StyleValue vFontStretch, StyleValue vFontSize,
 			StyleValue vFontFamily, StyleValue vLineHeight) {
-		if (!isCssKeywordValue("initial", vFontStyle) && isNotInitialValue(vFontStyle, "font-style")) {
+		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontStyle) && isNotInitialValue(vFontStyle, "font-style")) {
 			return false;
 		}
-		if (!isCssKeywordValue("initial", vFontVariant) && isNotInitialValue(vFontVariant, "font-variant")) {
+		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontVariant) && isNotInitialValue(vFontVariant, "font-variant")) {
 			return false;
 		}
-		if (!isCssKeywordValue("initial", vFontWeight) && isNotInitialValue(vFontWeight, "font-weight")) {
+		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontWeight) && isNotInitialValue(vFontWeight, "font-weight")) {
 			return false;
 		}
-		if (!isCssKeywordValue("initial", vFontStretch) && isNotInitialValue(vFontStretch, "font-stretch")) {
+		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontStretch) && isNotInitialValue(vFontStretch, "font-stretch")) {
 			return false;
 		}
-		if (!isCssKeywordValue("initial", vFontSize) && isNotInitialValue(vFontSize, "font-size")) {
+		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontSize) && isNotInitialValue(vFontSize, "font-size")) {
 			return false;
 		}
-		if (!isCssKeywordValue("initial", vFontFamily) && isNotInitialValue(vFontFamily, "font-family")) {
+		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontFamily) && isNotInitialValue(vFontFamily, "font-family")) {
 			return false;
 		}
-		if (!isCssKeywordValue("initial", vLineHeight) && isNotInitialValue(vLineHeight, "line-height")) {
-			return false;
-		}
-		return true;
-	}
+        return isCssKeywordValue(CSSValue.Type.INITIAL, vLineHeight) || !isNotInitialValue(vLineHeight, "line-height");
+    }
 
 	private boolean isFontVariantCss21(StyleValue vFontVariant) {
 		String text = vFontVariant.getCssText().toLowerCase(Locale.ROOT);
@@ -300,7 +314,7 @@ class FontBuilder extends ShorthandBuilder {
 	private boolean isFontVariantSetToInitialOrCss21() {
 		StyleValue cssVal = getCSSValue("font-variant-caps");
 		String fvcaps = cssVal.getCssText();
-		if (isInitialIdentifier(cssVal) || fvcaps.equalsIgnoreCase("normal") || fvcaps.equalsIgnoreCase("small-caps")) {
+		if (isEffectiveInitialKeyword(cssVal) || fvcaps.equalsIgnoreCase("normal") || fvcaps.equalsIgnoreCase("small-caps")) {
 			return isInitialValue("font-variant-ligatures") && isInitialValue("font-variant-position")
 					&& isInitialValue("font-variant-numeric") && isInitialValue("font-variant-alternates")
 					&& isInitialValue("font-variant-east-asian");

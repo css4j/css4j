@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
@@ -22,7 +21,7 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * String-specific CSSPrimitiveValue.
+ * String value.
  * 
  * @author Carlos Amengual
  *
@@ -48,7 +47,7 @@ public class StringValue extends AbstractTextValue {
 	 *              CSSStyleSheetFactory.setFactoryFlag(byte)}
 	 */
 	public StringValue(byte flags) {
-		this(CSSPrimitiveValue.CSS_STRING, flags);
+		this(Type.STRING, flags);
 	}
 
 	/**
@@ -60,7 +59,7 @@ public class StringValue extends AbstractTextValue {
 	 *                      {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(byte)
 	 *                      CSSStyleSheetFactory.setFactoryFlag(byte)}
 	 */
-	StringValue(short primitiveType, byte flags) {
+	StringValue(Type primitiveType, byte flags) {
 		super(primitiveType);
 		this.flags = flags;
 		quote = '\'';
@@ -124,17 +123,12 @@ public class StringValue extends AbstractTextValue {
 	}
 
 	@Override
-	public short getPrimitiveType() {
-		return CSSPrimitiveValue.CSS_STRING;
-	}
-
-	@Override
 	public String getStringValue() {
 		return stringValue;
 	}
 
 	@Override
-	public void setStringValue(short stringType, String stringValue) throws DOMException {
+	public void setStringValue(Type stringType, String stringValue) throws DOMException {
 		checkModifiableProperty();
 		if (getPrimitiveType() != stringType) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
@@ -260,13 +254,10 @@ public class StringValue extends AbstractTextValue {
 		}
 		StringValue other = (StringValue) obj;
 		if (stringValue == null) {
-			if (other.stringValue != null) {
-				return false;
-			}
-		} else if (!stringValue.equals(other.stringValue)) {
-			return false;
+			return other.stringValue == null;
+		} else {
+			return stringValue.equals(other.stringValue);
 		}
-		return true;
 	}
 
 	@Override

@@ -49,6 +49,18 @@ public class TransitionShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderMix() {
+		assertShorthandText("transition-delay:inherit;transition-duration:3200ms;transition-property:foo;transition-timing-function:ease-in;",
+				"transition-duration: 3200ms;transition-delay:inherit;transition-timing-function:ease-in;transition-property:foo;");
+		assertShorthandText("transition-delay:revert;transition-duration:3200ms;transition-property:foo;transition-timing-function:ease-in;",
+				"transition-duration: 3200ms;transition-delay:revert;transition-timing-function:ease-in;transition-property:foo;");
+		assertShorthandText("transition:foo 3200ms ease-in;",
+				"transition-duration: 3200ms;transition-delay:initial;transition-timing-function:ease-in;transition-property:foo;");
+		assertShorthandText("transition:foo 3200ms ease-in;",
+				"transition-duration: 3200ms;transition-delay:unset;transition-timing-function:ease-in;transition-property:foo;");
+	}
+
+	@Test
 	public void testBuilderMulti() {
 		assertShorthandText("transition:right .15s ease-out,bottom .15s ease-out;",
 				"transition:.15s ease-out;transition-property:right,bottom");
@@ -101,12 +113,12 @@ public class TransitionShorthandBuilderTest {
 
 	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("transition:unset;", "transition: unset;");
+		assertShorthandText("transition:0s;", "transition: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("transition:unset!important;", "transition: unset!important;");
+		assertShorthandText("transition:0s!important;", "transition: unset!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

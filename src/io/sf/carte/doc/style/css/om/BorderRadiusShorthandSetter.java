@@ -98,8 +98,7 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean isCustomProperty() {
-		return currentValue.getLexicalUnitType() == LexicalUnit.SAC_FUNCTION
-				&& "var".equals(currentValue.getFunctionName());
+		return currentValue.getLexicalUnitType() == LexicalUnit.SAC_VAR;
 	}
 
 }

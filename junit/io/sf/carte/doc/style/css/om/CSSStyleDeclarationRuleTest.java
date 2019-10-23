@@ -19,8 +19,8 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSStyleDeclaration;
 
+import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -41,7 +41,7 @@ public class CSSStyleDeclarationRuleTest {
 		rule.setCssText(cssText);
 		assertEquals(cssText, rule.getCssText().replace("\n", ""));
 		assertTrue(sheet == rule.getParentStyleSheet());
-		CSSStyleDeclaration style = rule.getStyle();
+		ExtendedCSSStyleDeclaration style = rule.getStyle();
 		assertTrue(rule == style.getParentRule());
 	}
 

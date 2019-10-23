@@ -14,10 +14,9 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -59,7 +58,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 	 */
 	@Override
 	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
-		return cssVal != null && !isInitialIdentifier(cssVal)
+		return cssVal != null && !isEffectiveInitialKeyword(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
@@ -68,12 +67,11 @@ class GridShorthandBuilder extends ShorthandBuilder {
 	}
 
 	private boolean isIdentifier(StyleValue cssVal) {
-		return cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE &&
-				((CSSPrimitiveValue) cssVal).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT;
+		return cssVal.getPrimitiveType() == CSSValue.Type.IDENT;
 	}
 
 	private boolean isIdentifier(StyleValue cssVal, String ident) {
-		return isIdentifier(cssVal) && ident.equalsIgnoreCase(((CSSPrimitiveValue) cssVal).getStringValue());
+		return isIdentifier(cssVal) && ident.equalsIgnoreCase(((CSSTypedValue) cssVal).getStringValue());
 	}
 
 	private class GridTemplateShorthandBuilder extends GridShorthandBuilder {
@@ -96,10 +94,11 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			} else if (check == 2) {
 				return false;
 			}
-			check = checkValuesForKeyword("unset", declaredSet);
+			//
+			check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
 			if (check == 1) {
-				// All values are unset
-				buf.append("unset");
+				// All values are revert
+				buf.append("revert");
 				appendPriority(buf, important);
 				return true;
 			} else if (check == 2) {
@@ -109,7 +108,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			String[] subp = getLonghandProperties();
 			for (String property : subp) {
 				StyleValue cssVal = getCSSValue(property);
-				if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
+				if (cssVal.getCssValueType() == CssType.LIST &&
 						((ValueList) cssVal).isCommaSeparated()) {
 					return false;
 				}
@@ -167,10 +166,11 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			} else if (check == 2) {
 				return false;
 			}
-			check = checkValuesForKeyword("unset", declaredSet);
+			//
+			check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
 			if (check == 1) {
-				// All values are unset
-				buf.append("unset");
+				// All values are revert
+				buf.append("revert");
 				appendPriority(buf, important);
 				return true;
 			} else if (check == 2) {
@@ -180,7 +180,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			String[] subp = getLonghandProperties();
 			for (String property : subp) {
 				StyleValue cssVal = getCSSValue(property);
-				if (cssVal.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
+				if (cssVal.getCssValueType() == CssType.LIST &&
 						((ValueList) cssVal).isCommaSeparated()) {
 					return false;
 				}
@@ -239,14 +239,17 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			cssGridTAreas = getCSSValue("grid-template-areas");
 			cssGridTRows = getCSSValue("grid-template-rows");
 			cssGridTColumns = getCSSValue("grid-template-columns");
-			defaultGridTAreas = isIdentifier(cssGridTAreas, "none") || !declaredSet.contains("grid-template-areas");
-			defaultGridTRows = isIdentifier(cssGridTRows, "none") || !declaredSet.contains("grid-template-rows");
-			defaultGridTColumns = isIdentifier(cssGridTColumns, "none") || !declaredSet.contains("grid-template-columns");
+			defaultGridTAreas = isIdentifier(cssGridTAreas, "none") || !declaredSet.contains("grid-template-areas")
+					|| isEffectiveInitialKeyword(cssGridTAreas);
+			defaultGridTRows = isIdentifier(cssGridTRows, "none") || !declaredSet.contains("grid-template-rows")
+					|| isEffectiveInitialKeyword(cssGridTRows);
+			defaultGridTColumns = isIdentifier(cssGridTColumns, "none") || !declaredSet.contains("grid-template-columns")
+					|| isEffectiveInitialKeyword(cssGridTColumns);
 			lacksRepeatInGridTRows = lacksRepeatFunction(cssGridTRows);
 		}
 
 		private boolean lacksRepeatFunction(StyleValue value) {
-			if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			if (value.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) value;
 				Iterator<StyleValue> it = list.iterator();
 				while (it.hasNext()) {
@@ -254,9 +257,9 @@ class GridShorthandBuilder extends ShorthandBuilder {
 						return false;
 					}
 				}
-			} else if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				CSSPrimitiveValue primi = (CSSPrimitiveValue) value;
-				return primi.getPrimitiveType() != CSSPrimitiveValue2.CSS_FUNCTION ||
+			} else if (value.getCssValueType() == CssType.TYPED) {
+				CSSTypedValue primi = (CSSTypedValue) value;
+				return primi.getPrimitiveType() != CSSValue.Type.FUNCTION ||
 						"repeat".equalsIgnoreCase(primi.getStringValue());
 			}
 			return true;
@@ -288,7 +291,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 					appendValueText(buf, areavalue);
 					idx++;
 				}
-			} else if (cssGridTRows.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			} else if (cssGridTRows.getCssValueType() == CssType.LIST) {
 				if (!((ValueList) cssGridTRows).isBracketList()) {
 					int rowlistIdx = 0;
 					ValueList rowsslist = (ValueList) cssGridTRows;
@@ -297,7 +300,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 					while (it.hasNext()) {
 						StyleValue value = it.next();
 						ValueList bracketlist;
-						if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST &&
+						if (value.getCssValueType() == CssType.LIST &&
 								(bracketlist = (ValueList) value).isBracketList()) {
 							int sz = bracketlist.getLength();
 							if (sz < 2) {
@@ -393,7 +396,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		}
 
 		StyleValue getGridTemplateAreaItem(int index) {
-			if (cssGridTAreas.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			if (cssGridTAreas.getCssValueType() == CssType.LIST) {
 				return ((ValueList) cssGridTAreas).item(index);
 			}
 			if (!defaultGridTAreas && index == 0) {
@@ -422,9 +425,12 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			cssGridARows = getCSSValue("grid-auto-rows");
 			cssGridAColumns = getCSSValue("grid-auto-columns");
 			cssGridAFlow = getCSSValue("grid-auto-flow");
-			defaultGridARows = isIdentifier(cssGridARows, "auto") || !declaredSet.contains("grid-auto-rows");
-			defaultGridAColumns = isIdentifier(cssGridAColumns, "auto") || !declaredSet.contains("grid-auto-columns");
-			defaultGridAFlow = isIdentifier(cssGridAFlow, "row") || !declaredSet.contains("grid-auto-flow");
+			defaultGridARows = isIdentifier(cssGridARows, "auto") || !declaredSet.contains("grid-auto-rows")
+					|| isEffectiveInitialKeyword(cssGridARows);
+			defaultGridAColumns = isIdentifier(cssGridAColumns, "auto") || !declaredSet.contains("grid-auto-columns")
+					|| isEffectiveInitialKeyword(cssGridAColumns);
+			defaultGridAFlow = isIdentifier(cssGridAFlow, "row") || !declaredSet.contains("grid-auto-flow")
+					|| isEffectiveInitialKeyword(cssGridAFlow);
 			rowAFlow = isRowAutoflow();
 		}
 
@@ -489,7 +495,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		}
 
 		private boolean isRowAutoflow() {
-			if (cssGridAFlow.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			if (cssGridAFlow.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) cssGridAFlow;
 				if (list.getLength() == 2) {
 					return "row".equalsIgnoreCase(list.item(0).getCssText()) ||
@@ -502,7 +508,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		}
 
 		private boolean isAutoflowDense() {
-			if (cssGridAFlow.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+			if (cssGridAFlow.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) cssGridAFlow;
 				if (list.getLength() == 2) {
 					return "dense".equalsIgnoreCase(list.item(1).getCssText()) ||

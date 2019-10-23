@@ -16,17 +16,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
-import io.sf.carte.doc.style.css.property.InheritValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -124,8 +119,11 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					break;
 				}
 				// If a css-wide keyword is found, set the entire layer to it
-				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_INHERIT) {
-					// Full layer is 'inherit'
+				short lutype = currentValue.getLexicalUnitType();
+				if (lutype == LexicalUnit.SAC_INHERIT || lutype == LexicalUnit.SAC_UNSET
+						|| lutype == LexicalUnit.SAC_REVERT) {
+					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
+					// Full layer is 'keyword'
 					while (currentValue != null) {
 						boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
 						currentValue = currentValue.getNextLexicalUnit();
@@ -136,8 +134,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					i++;
 					// First, clear any values set at this layer
 					clearLayer(subp, i);
-					InheritValue inherit = InheritValue.getValue().asSubproperty();
-					addSingleValueLayer(inherit);
+					addSingleValueLayer(keyword);
 					// Reset layer buffer to initial state, eventually with comma
 					layerBuffer.setLength(0);
 					miniLayerBuffer.setLength(0);
@@ -145,7 +142,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 						layerBuffer.append(',');
 						miniLayerBuffer.append(',');
 					}
-					appendValueItemString(inherit);
+					appendValueItemString(keyword);
 					appendToValueBuffer(layerBuffer, miniLayerBuffer);
 					// Done with the layer
 					layerBuffer.setLength(0);
@@ -155,41 +152,6 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 						miniLayerBuffer.append(',');
 					}
 					continue topLoop;
-				}
-				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-					String sv = currentValue.getStringValue().toLowerCase(Locale.ROOT);
-					if ("initial".equals(sv) || "unset".equals(sv)) {
-						StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
-						// Full layer is 'keyword'
-						while (currentValue != null) {
-							boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
-							currentValue = currentValue.getNextLexicalUnit();
-							if (commaFound) {
-								break;
-							}
-						}
-						i++;
-						// First, clear any values set at this layer
-						clearLayer(subp, i);
-						addSingleValueLayer(keyword);
-						// Reset layer buffer to initial state, eventually with comma
-						layerBuffer.setLength(0);
-						miniLayerBuffer.setLength(0);
-						if (i != 1) {
-							layerBuffer.append(',');
-							miniLayerBuffer.append(',');
-						}
-						appendValueItemString(keyword);
-						appendToValueBuffer(layerBuffer, miniLayerBuffer);
-						// Done with the layer
-						layerBuffer.setLength(0);
-						miniLayerBuffer.setLength(0);
-						if (i != layerCount) {
-							layerBuffer.append(',');
-							miniLayerBuffer.append(',');
-						}
-						continue topLoop;
-					}
 				}
 				// try to assign the current lexical value to an individual
 				// property ...and see the result
@@ -371,7 +333,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean lastChanceLayerAssign(String property, LexicalUnit lUnit) {
-		if (lUnit.getLexicalUnitType() == LexicalUnit.SAC_FUNCTION && "var".equalsIgnoreCase(lUnit.getFunctionName())) {
+		if (lUnit.getLexicalUnitType() == LexicalUnit.SAC_VAR) {
 			StyleValue cssValue = createCSSValue(property, lUnit);
 			setSubpropertyValue(property, cssValue);
 			return true;
@@ -416,23 +378,6 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			} else if ("background-attachment".equals(pname)) {
 				lstAttachment.add(cssVal);
 			}
-		}
-	}
-
-	private void setListSubpropertyValue(String pname, ValueList list) {
-		if (list.getLength() == 1) {
-			StyleValue val = list.item(0);
-			if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				((PrimitiveValue) val).setSubproperty(true);
-			} else if (val.getCssValueType() == CSSValue.CSS_INHERIT) {
-				val = ((InheritValue) val).asSubproperty();
-			} else if (val.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
-				((ValueList) val).setSubproperty(true);
-			}
-			setSubpropertyValue(pname, val);
-		} else {
-			list.setSubproperty(true);
-			setSubpropertyValue(pname, list);
 		}
 	}
 
@@ -508,26 +453,16 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		if (count == 2) {
 			return true;
 		} else if (count == 4) {
-			if (((CSSPrimitiveValue) list.item(0)).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(1)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(2)).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(3)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT) {
-				return true;
-			}
-			return false;
+			return list.item(0).getPrimitiveType() == Type.IDENT && list.item(1).getPrimitiveType() != Type.IDENT
+					&& list.item(2).getPrimitiveType() == Type.IDENT && list.item(3).getPrimitiveType() != Type.IDENT;
 		} else { // 3
-			if (((CSSPrimitiveValue) list.item(0)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT) {
+			if (list.item(0).getPrimitiveType() != Type.IDENT) {
 				return false;
 			}
-			if (((CSSPrimitiveValue) list.item(1)).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(2)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT) {
+			if (list.item(1).getPrimitiveType() == Type.IDENT && list.item(2).getPrimitiveType() != Type.IDENT) {
 				return true;
 			}
-			if (((CSSPrimitiveValue) list.item(1)).getPrimitiveType() != CSSPrimitiveValue.CSS_IDENT
-					&& ((CSSPrimitiveValue) list.item(2)).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-				return true;
-			}
-			return false;
+			return list.item(1).getPrimitiveType() != Type.IDENT && list.item(2).getPrimitiveType() == Type.IDENT;
 		}
 	}
 

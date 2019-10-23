@@ -17,6 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.CSSValue;
+
 public class InheritValueTest {
 
 	@Test
@@ -35,13 +37,15 @@ public class InheritValueTest {
 	public void testGetCssText() {
 		InheritValue inherit = InheritValue.getValue();
 		assertEquals("inherit", inherit.getCssText());
+		assertEquals(CSSValue.Type.INHERIT, inherit.getPrimitiveType());
 	}
 
 	@Test
 	public void testClone() {
 		InheritValue value = InheritValue.getValue();
-		InheritValue clon = value.clone();
+		KeywordValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
+		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getCssText(), clon.getCssText());
 	}
 

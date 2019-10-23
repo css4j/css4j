@@ -14,10 +14,9 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.css.CSSValueList;
-
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -36,7 +35,7 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		}
 		StyleValue masterValue = getCSSValue(freeProperty);
 		ValueList masterList;
-		if (masterValue.getCssValueType() != CSSValue.CSS_VALUE_LIST
+		if (masterValue.getCssValueType() != CssType.LIST
 				|| !(masterList = (ValueList) masterValue).isCommaSeparated()) {
 			return super.appendShorthandSet(buf, declaredSet, important);
 		}
@@ -45,7 +44,10 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		if (checkDeclaredValueListForInherit(declaredSet, listLen)) {
 			return false;
 		}
-		if (checkDeclaredValueListForKeyword("unset", declaredSet, listLen)) {
+		if (checkDeclaredValueListForKeyword(CSSValue.Type.REVERT, declaredSet, listLen)) {
+			return false;
+		}
+		if (isInheritedProperty() && checkDeclaredValueListForKeyword(CSSValue.Type.UNSET, declaredSet, listLen)) {
 			return false;
 		}
 		// Value sanity check
@@ -53,8 +55,8 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		while (it.hasNext()) {
 			String property = it.next();
 			StyleValue value = getCSSValue(property);
-			short type = value.getCssValueType();
-			if (type == CSSValue.CSS_VALUE_LIST) {
+			CssType type = value.getCssValueType();
+			if (type == CssType.LIST) {
 				if (invalidListValueClash(declaredSet, property, (ValueList) value)) {
 					return false;
 				}
@@ -96,11 +98,12 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		return false;
 	}
 
-	private boolean checkDeclaredValueListForKeyword(String keyword, Set<String> declaredSet, int listLen) {
+	private boolean checkDeclaredValueListForKeyword(CSSValue.Type keyword, Set<String> declaredSet,
+			int listLen) {
 		for (String propertyName : declaredSet) {
 			ValueList list = computeCSSItemList(propertyName, listLen - 1);
 			for (int i = 0; i < listLen; i++) {
-				if (isCssKeywordValue(keyword, list.item(i))) {
+				if (list.item(i).getPrimitiveType() == keyword) {
 					return true;
 				}
 			}
@@ -139,7 +142,7 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		StyleValue value = getCSSValue(propertyName);
 		int items;
 		ValueList list;
-		if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST && ((ValueList) value).isCommaSeparated()) {
+		if (value.getCssValueType() == CssType.LIST && ((ValueList) value).isCommaSeparated()) {
 			list = (ValueList) value.clone();
 			items = list.getLength();
 		} else {
@@ -157,24 +160,24 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		return list;
 	}
 
-	boolean isConflictingIdentifier(String property, CSSPrimitiveValue freePrimi) {
+	boolean isConflictingIdentifier(String property, CSSTypedValue freePrimi) {
 		// Make sure that 'none' is in animation-fill-mode list in
 		// 'identifier.properties'
-		return freePrimi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+		return freePrimi.getPrimitiveType() == CSSValue.Type.IDENT
 				&& getShorthandDatabase().isIdentifierValue(property, freePrimi.getStringValue());
 	}
 
-	boolean listHasConflictingIdentifiers(String property, CSSValueList list) {
+	boolean listHasConflictingIdentifiers(String property, ValueList list) {
 		int len = list.getLength();
 		for (int i = 0; i < len; i++) {
-			CSSValue item = list.item(i);
-			short type = item.getCssValueType();
-			if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
-				if (isConflictingIdentifier(property, (CSSPrimitiveValue) item)) {
+			StyleValue item = list.item(i);
+			CssType type = item.getCssValueType();
+			if (type == CssType.TYPED) {
+				if (isConflictingIdentifier(property, (CSSTypedValue) item)) {
 					return true;
 				}
-			} else if (type == CSSValue.CSS_VALUE_LIST) {
-				return listHasConflictingIdentifiers(property, (CSSValueList) item);
+			} else if (type == CssType.LIST) {
+				return listHasConflictingIdentifiers(property, (ValueList) item);
 			}
 		}
 		return false;

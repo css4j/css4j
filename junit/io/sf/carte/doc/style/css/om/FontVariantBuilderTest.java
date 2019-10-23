@@ -32,6 +32,22 @@ public class FontVariantBuilderTest {
 	}
 
 	@Test
+	public void testFontVariantNoShorthandMix() {
+		assertShorthandText("font-variant-alternates:inherit;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
+				"font-variant-caps: small-caps;font-variant-ligatures:normal;font-variant-position:sub;font-variant-numeric:normal;font-variant-alternates:inherit;font-variant-east-asian:ruby;");
+		assertShorthandText("font-variant-alternates:unset;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
+				"font-variant-caps: small-caps;font-variant-ligatures:normal;font-variant-position:sub;font-variant-numeric:normal;font-variant-alternates:unset;font-variant-east-asian:ruby;");
+		assertShorthandText("font-variant-alternates:revert;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
+				"font-variant-caps: small-caps;font-variant-ligatures:normal;font-variant-position:sub;font-variant-numeric:normal;font-variant-alternates:revert;font-variant-east-asian:ruby;");
+	}
+
+	@Test
+	public void testFontVariantInitialMix() {
+		assertShorthandText("font-variant:sub small-caps ruby;",
+				"font-variant-caps: small-caps;font-variant-ligatures:normal;font-variant-position:sub;font-variant-numeric:normal;font-variant-alternates:initial;font-variant-east-asian:ruby;");
+	}
+
+	@Test
 	public void testFontVariantNone() {
 		assertShorthandText("font-variant:none;", "font-variant: none;");
 	}
@@ -74,6 +90,16 @@ public class FontVariantBuilderTest {
 	}
 
 	@Test
+	public void testFontVariantInitial() {
+		assertShorthandText("font-variant:normal;", "font-variant: initial;");
+	}
+
+	@Test
+	public void testFontVariantInitialImportant() {
+		assertShorthandText("font-variant:normal!important;", "font-variant: initial!important;");
+	}
+
+	@Test
 	public void testFontVariantUnset() {
 		assertShorthandText("font-variant:unset;", "font-variant: unset;");
 	}
@@ -81,6 +107,16 @@ public class FontVariantBuilderTest {
 	@Test
 	public void testFontVariantUnsetImportant() {
 		assertShorthandText("font-variant:unset!important;", "font-variant: unset!important;");
+	}
+
+	@Test
+	public void testFontVariantRevert() {
+		assertShorthandText("font-variant:revert;", "font-variant: revert;");
+	}
+
+	@Test
+	public void testFontVariantRevertImportant() {
+		assertShorthandText("font-variant:revert!important;", "font-variant: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

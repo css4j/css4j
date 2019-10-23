@@ -122,7 +122,7 @@ public interface CSSStyleSheetFactory {
 	 *            the property name.
 	 * @return the system default css primitive value.
 	 */
-	ExtendedCSSPrimitiveValue getSystemDefaultValue(String propertyName);
+	CSSTypedValue getSystemDefaultValue(String propertyName);
 
 	/**
 	 * Create a new StyleDeclarationErrorHandler for the given style rule.

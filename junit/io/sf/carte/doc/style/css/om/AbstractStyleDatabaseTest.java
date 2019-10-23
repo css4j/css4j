@@ -25,11 +25,11 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.LinkStyle;
 
 public class AbstractStyleDatabaseTest {
 
@@ -59,7 +59,7 @@ public class AbstractStyleDatabaseTest {
 		cssdoc = factory.createCSSDocument(doc);
 		cssdoc.setTargetMedium("screen");
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
-		sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		styleText = cssStyle.getChildNodes().item(0);
 	}
 

@@ -14,11 +14,11 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 
 /**
  * Build a shorthand from individual properties when specific order matters, and the
@@ -34,16 +34,17 @@ class OrderedShorthandBuilder extends GenericShorthandBuilder {
 		super(shorthandName, parentStyle, initialvalue);
 		this.freeProperty = freeProperty.toLowerCase(Locale.ROOT);
 		StyleValue freePropertyValue = getCSSValue(freeProperty);
-		if (freePropertyValue != null && freePropertyValue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE && 
-				((CSSPrimitiveValue) freePropertyValue).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
-			this.freePropertyStringValue = ((CSSPrimitiveValue) freePropertyValue).getStringValue();
+		if (freePropertyValue != null && freePropertyValue.getCssValueType() == CssType.TYPED
+				&& freePropertyValue
+						.getPrimitiveType() == CSSValue.Type.IDENT) {
+			this.freePropertyStringValue = ((CSSTypedValue) freePropertyValue).getStringValue();
 		} else {
 			this.freePropertyStringValue = null;
 		}
 	}
 
 	@Override
-	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, PrimitiveValue primi) {
+	boolean invalidPrimitiveValueClash(Set<String> declaredSet, String propertyName, TypedValue primi) {
 		return !freeProperty.equals(propertyName) && super.invalidPrimitiveValueClash(declaredSet, propertyName, primi);
 	}
 

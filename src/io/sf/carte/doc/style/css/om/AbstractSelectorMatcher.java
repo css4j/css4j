@@ -184,7 +184,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			if (matches(((CombinatorSelector) selector).getSecondSelector())) {
 				Selector sel = ((CombinatorSelector) selector).getSelector();
 				SelectorMatcher siblingSM = getPreviousSiblingSelectorMatcher();
-				return siblingSM == null ? false : siblingSM.matches(sel);
+				return siblingSM != null && siblingSM.matches(sel);
 			}
 			break;
 		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:

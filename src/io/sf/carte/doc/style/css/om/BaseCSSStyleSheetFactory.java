@@ -34,8 +34,8 @@ import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 import io.sf.carte.doc.style.css.property.ColorValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
@@ -355,15 +355,15 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @return the system default css primitive value.
 	 */
 	@Override
-	public PrimitiveValue getSystemDefaultValue(String propertyName) {
+	public TypedValue getSystemDefaultValue(String propertyName) {
 		if (lenientSystemValues) {
-			PrimitiveValue value = null;
+			TypedValue value = null;
 			propertyName = propertyName.toLowerCase(Locale.ROOT);
 			if ("color".equals(propertyName) || propertyName.endsWith("-color")) {
-				value = (PrimitiveValue) new ValueFactory().parseProperty("#000000");
+				value = (TypedValue) new ValueFactory().parseProperty("#000000");
 				((ColorValue) value).setSystemDefault();
 			} else if ("font-family".equals(propertyName)) {
-				value = (PrimitiveValue) new ValueFactory().parseProperty("serif");
+				value = (TypedValue) new ValueFactory().parseProperty("serif");
 			}
 			if (value != null) {
 				return new LenientSystemDefaultValue(value);

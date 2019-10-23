@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Set;
 
+import io.sf.carte.doc.style.css.CSSValue;
+
 /**
  * Build a font-variant shorthand from individual properties.
  */
@@ -25,6 +27,11 @@ class FontVariantBuilder extends ShorthandBuilder {
 	@Override
 	protected int getMinimumSetSize() {
 		return 6;
+	}
+
+	@Override
+	boolean isInheritedProperty() {
+		return true;
 	}
 
 	@Override
@@ -45,7 +52,8 @@ class FontVariantBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
-		check = checkValuesForKeyword("unset", declaredSet);
+		// Check for 'unset'
+		check = checkValuesForKeyword(CSSValue.Type.UNSET, declaredSet);
 		if (check == 1) {
 			// All values are unset
 			buf.append("unset");
@@ -54,6 +62,17 @@ class FontVariantBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
+		// Check for 'revert'
+		check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+		if (check == 1) {
+			// All values are revert
+			buf.append("revert");
+			appendPriority(buf, important);
+			return true;
+		} else if (check == 2) {
+			return false;
+		}
+		//
 		boolean appended = false;
 		if (declaredSet.contains("font-variant-ligatures")) {
 			appended = appendValueIfNotInitial(buf, "font-variant-ligatures", false);

@@ -23,16 +23,17 @@ import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesMap;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 
 public class FontFeatureValuesRuleTest {
 
@@ -57,7 +58,7 @@ public class FontFeatureValuesRuleTest {
 		assertEquals("Some Font", rule.getFontFamily()[0]);
 		assertEquals("Other Font", rule.getFontFamily()[1]);
 		CSSFontFeatureValuesMap swash = rule.getSwash();
-		assertEquals(1, swash.get("swishy")[0].getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
+		assertEquals(1, ((TypedValue) swash.get("swishy")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, swash.getPrecedingComments().size());
 		assertEquals(" pre-swash ", swash.getPrecedingComments().get(0));
@@ -83,11 +84,11 @@ public class FontFeatureValuesRuleTest {
 		number.setIntegerValue(4);
 		CSSFontFeatureValuesMap annot = rule.getAnnotation();
 		annot.set("boxed", number);
-		assertEquals(4f, annot.get("boxed")[0].getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
-		number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 4f);
+		assertEquals(4f, ((TypedValue) annot.get("boxed")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
+		number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 4f);
 		annot.set("boxed", number);
-		assertEquals(4f, annot.get("boxed")[0].getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
-		number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 3.5f);
+		assertEquals(4f, ((TypedValue) annot.get("boxed")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
+		number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 3.5f);
 		try {
 			annot.set("boxed", number);
 			fail("Must throw eception.");
@@ -107,12 +108,12 @@ public class FontFeatureValuesRuleTest {
 		assertEquals(1, rule.getFontFamily().length);
 		assertEquals("Some Font", rule.getFontFamily()[0]);
 		CSSFontFeatureValuesMap swash = rule.getSwash();
-		assertEquals(1, swash.get("swishy")[0].getFloatValue(CSSPrimitiveValue.CSS_NUMBER), 1e-6);
+		assertEquals(1, ((TypedValue) swash.get("swishy")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
 		PrimitiveValue primi = swash.get("flowing")[0];
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, primi.getPrimitiveType());
+		assertEquals(CSSValue.Type.EXPRESSION, primi.getPrimitiveType());
 		//
 		primi = rule.getStyleset().get("double-W")[0];
-		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, primi.getPrimitiveType());
+		assertEquals(CSSValue.Type.VAR, primi.getPrimitiveType());
 		//
 		assertEquals(
 				"@font-feature-values Some Font{@swash{swishy:1;flowing:calc(1 + 1)}@styleset{double-W:var(--doubleW,2);sharp-terminals:16 1}}",
@@ -263,11 +264,11 @@ public class FontFeatureValuesRuleTest {
 	public void testStylesetSetStringPrimitiveValue() {
 		String[] ff = { "Arial", "Helvetica" };
 		CSSFontFeatureValuesRule rule = sheet.createFontFeatureValuesRule(ff);
-		NumberValue number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 14f);
+		NumberValue number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 14f);
 		rule.getStyleset().set("sharp-terminals", number);
 		assertEquals("@font-feature-values Arial,Helvetica{@styleset{sharp-terminals:14}}", rule.getMinifiedCssText());
 		//
-		NumberValue number2 = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 1f);
+		NumberValue number2 = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 1f);
 		PrimitiveValue[] pvarray = { number, number2 };
 		rule.getStyleset().set("sharp-terminals", pvarray);
 		assertEquals("@font-feature-values Arial,Helvetica{@styleset{sharp-terminals:14 1}}",
@@ -277,7 +278,7 @@ public class FontFeatureValuesRuleTest {
 	@Test
 	public void testStylesetSetStringPrimitiveValueError() {
 		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		NumberValue number = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_PX, 14f);
+		NumberValue number = NumberValue.createCSSNumberValue(CSSUnit.CSS_PX, 14f);
 		try {
 			rule.getStyleset().set("sharp-terminals", number);
 			fail("Must throw exception");

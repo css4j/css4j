@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
@@ -48,7 +47,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 	}
 
 	private ShorthandValue(LexicalUnit lexicalUnit, boolean important, String[] longhands) {
-		super(CSSValue.CSS_CUSTOM);
+		super();
 		this.lexicalUnit = lexicalUnit;
 		this.important = important;
 		priorityCompat = lexicalUnit.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_PRIO;
@@ -56,7 +55,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 	}
 
 	private ShorthandValue(ShorthandValue copied) {
-		super(copied);
+		super();
 		this.lexicalUnit = copied.lexicalUnit;
 		this.important = copied.important;
 		this.priorityCompat = copied.priorityCompat;
@@ -156,4 +155,5 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 		}
 		return shval;
 	}
+
 }

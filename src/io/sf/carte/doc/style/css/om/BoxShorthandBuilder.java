@@ -13,11 +13,11 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Set;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
-import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
@@ -52,17 +52,15 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 
 	@Override
 	boolean isExcludedValue(StyleValue cssValue) {
-		short type = cssValue.getCssValueType();
-		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
-			ExtendedCSSPrimitiveValue primi = (ExtendedCSSPrimitiveValue) cssValue;
-			short ptype = primi.getPrimitiveType();
-			return !NumberValue.isLengthUnitType(ptype) && !primi.isNumberZero()
-					&& ptype != CSSPrimitiveValue.CSS_PERCENTAGE && ptype != CSSPrimitiveValue.CSS_IDENT;
-		} else if (type == CSSValue.CSS_VALUE_LIST) {
-			return true;
+		CssType type = cssValue.getCssValueType();
+		if (type == CssType.TYPED) {
+			CSSTypedValue primi = (CSSTypedValue) cssValue;
+			short ptype = primi.getUnitType();
+			return !CSSUnit.isLengthUnitType(ptype) && !primi.isNumberZero() && ptype != CSSUnit.CSS_PERCENTAGE
+					&& primi.getPrimitiveType() != Type.IDENT;
 		}
-		return false;
-	}
+		return type == CssType.LIST;
+    }
 
 	/**
 	 * Score for finding same values in the box property.
@@ -307,16 +305,15 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 
 	private boolean appendValueIfSaneAndNotInitial(StringBuilder buf, String propertyName) {
 		StyleValue cssVal = getCSSValue(propertyName);
-		short type = cssVal.getCssValueType();
-		if (type != CSSValue.CSS_VALUE_LIST) {
-			if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
-				CSSPrimitiveValue primi = (CSSPrimitiveValue) cssVal;
-				short ptype = primi.getPrimitiveType();
-				if (ptype != CSSPrimitiveValue.CSS_STRING) {
-					if (ptype == CSSPrimitiveValue.CSS_IDENT) {
+		CssType type = cssVal.getCssValueType();
+		if (type != CssType.LIST) {
+			if (type == CssType.TYPED) {
+				CSSTypedValue.Type ptype = cssVal.getPrimitiveType();
+				if (ptype != Type.STRING) {
+					if (ptype == Type.IDENT) {
+						CSSTypedValue primi = (CSSTypedValue) cssVal;
 						String s = primi.getStringValue();
-						if (!s.equalsIgnoreCase("auto") && !s.equalsIgnoreCase("initial")
-								&& !s.equalsIgnoreCase("unset")) {
+						if (!s.equalsIgnoreCase("auto")) {
 							return false;
 						}
 					}
@@ -328,16 +325,15 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 						appended = true;
 					}
 				}
-			} else if (type == CSSValue.CSS_INHERIT) {
-				if (appended) {
-					buf.append(' ');
+			} else if (type == CssType.KEYWORD) {
+				if (cssVal.getPrimitiveType() == CSSValue.Type.INHERIT
+						|| cssVal.getPrimitiveType() == CSSValue.Type.REVERT) {
+					if (appended) {
+						buf.append(' ');
+					}
+					buf.append(cssVal.getCssText());
+					appended = true;
 				}
-				buf.append("inherit");
-				appended = true;
-			/*
-			} else {  // Only shorthands are CSSValue.CSS_CUSTOM in this library
-				return false;
-			*/
 			}
 			return true;
 		}

@@ -14,11 +14,10 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.agent.CSSCanvas;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.parser.AbstractMediaQuery;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
@@ -29,6 +28,7 @@ import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.RatioValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 
 class MediaQueryImpl extends AbstractMediaQuery {
 
@@ -71,7 +71,7 @@ class MediaQueryImpl extends AbstractMediaQuery {
 
 	private static boolean matchesFeaturePredicate(MediaFeature predicate, CSSCanvas canvas) {
 		String feature = predicate.getName();
-		ExtendedCSSPrimitiveValue value = predicate.getValue();
+		CSSTypedValue value = predicate.getValue();
 		predicate.getRangeSecondValue();
 		byte type = predicate.getRangeType();
 		if (type == 0 && value == null) {
@@ -84,57 +84,48 @@ class MediaQueryImpl extends AbstractMediaQuery {
 				if (feature.startsWith("device-")) {
 					feature = feature.substring(7);
 				}
-				if (featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_GE, value, null, canvas)) {
-					return true;
-				}
+				return featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_GE, value, null, canvas);
 			} else if (feature.startsWith("max-")) {
 				// <=
 				feature = feature.substring(4);
 				if (feature.startsWith("device-")) {
 					feature = feature.substring(7);
 				}
-				if (featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_LE, value, null, canvas)) {
-					return true;
-				}
+				return featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_LE, value, null, canvas);
 			} else {
 				if (feature.startsWith("device-")) {
 					feature = feature.substring(7);
 				}
 				if (!isRangeFeature(feature)) {
-					if (canvas.matchesFeature(feature, value)) {
-						return true;
-					}
-				} else if (featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_EQ, value, null, canvas)) {
-					return true;
+					return canvas.matchesFeature(feature, value);
+				} else {
+					return featureRangeMatch(feature, MediaFeaturePredicate.FEATURE_EQ, value, null, canvas);
 				}
 			}
 		} else {
-			if (featureRangeMatch(feature, type, value, predicate.getRangeSecondValue(), canvas)) {
-				return true;
-			}
+			return featureRangeMatch(feature, type, value, predicate.getRangeSecondValue(), canvas);
 		}
-		return false;
 	}
 
 	private static boolean featureBooleanMatch(String feature, CSSCanvas canvas) {
 		if (isRangeFeature(feature)) {
-			ExtendedCSSPrimitiveValue featured = canvas.getFeatureValue(feature);
+			CSSTypedValue featured = canvas.getFeatureValue(feature);
 			return !featured.isNumberZero();
 		}
 		return canvas.matchesFeature(feature, null);
 	}
 
-	private static boolean featureRangeMatch(String feature, byte type, CSSPrimitiveValue value,
-			CSSPrimitiveValue value2, CSSCanvas canvas) {
-		ExtendedCSSPrimitiveValue featured = canvas.getFeatureValue(feature);
+	private static boolean featureRangeMatch(String feature, byte type, CSSTypedValue value,
+			CSSTypedValue value2, CSSCanvas canvas) {
+		CSSTypedValue featured = canvas.getFeatureValue(feature);
 		if (featured == null) {
 			return false;
 		}
-		short primitype = ((CSSPrimitiveValue) featured).getPrimitiveType();
-		float featureValue = ((CSSPrimitiveValue) featured).getFloatValue(primitype);
+		short unitype = featured.getUnitType();
+		float featureValue = featured.getFloatValue(unitype);
 		float fval1, fval2 = 0;
 		try {
-			fval1 = valueInUnit(value, canvas, primitype);
+			fval1 = valueInUnit(value, canvas, unitype);
 		} catch (DOMException e) {
 			return false;
 		}
@@ -143,7 +134,7 @@ class MediaQueryImpl extends AbstractMediaQuery {
 				return false;
 			}
 			try {
-				fval2 = valueInUnit(value2, canvas, primitype);
+				fval2 = valueInUnit(value2, canvas, unitype);
 			} catch (DOMException e) {
 				return false;
 			}
@@ -180,50 +171,63 @@ class MediaQueryImpl extends AbstractMediaQuery {
 		}
 	}
 
-	private static float valueInUnit(CSSPrimitiveValue value, CSSCanvas canvas, short primitype) throws DOMException {
+	private static float valueInUnit(CSSTypedValue value, CSSCanvas canvas, short primitype)
+			throws DOMException {
+		float fval;
+		switch (value.getPrimitiveType()) {
+		case EXPRESSION:
+			ExpressionValue evalue = (ExpressionValue) value;
+			Evaluator ev = new MQEvaluator(canvas);
+			fval = ev.evaluateExpression(evalue).getFloatValue(primitype);
+			break;
+		case RATIO:
+			float ffirst, fsecond;
+			RatioValue ratio = (RatioValue) value;
+			PrimitiveValue first = ratio.getAntecedentValue();
+			PrimitiveValue second = ratio.getConsequentValue();
+			if (first.getUnitType() == CSSUnit.CSS_NUMBER) {
+				ffirst = ((CSSTypedValue) first).getFloatValue(CSSUnit.CSS_NUMBER);
+			} else {
+				// Calc
+				ev = new MQEvaluator(canvas);
+				ffirst = ev.evaluateExpression((CalcValue) first).getFloatValue(CSSUnit.CSS_NUMBER);
+			}
+			if (second.getUnitType() == CSSUnit.CSS_NUMBER) {
+				fsecond = ((CSSTypedValue) second).getFloatValue(CSSUnit.CSS_NUMBER);
+			} else {
+				// Calc
+				ev = new MQEvaluator(canvas);
+				fsecond = ev.evaluateExpression((CalcValue) second).getFloatValue(CSSUnit.CSS_NUMBER);
+			}
+			fval = ffirst / fsecond;
+			break;
+		case NUMERIC:
+			return numericValueInUnit(value, canvas, primitype);
+		default:
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Unsupported type: " + value.getPrimitiveType());
+		}
+		return fval;
+	}
+
+	private static float numericValueInUnit(CSSTypedValue value, CSSCanvas canvas, short primitype)
+			throws DOMException {
 		float fval;
 		StyleDatabase sdb;
-		switch (value.getPrimitiveType()) {
-		case CSSPrimitiveValue.CSS_EMS:
-			fval = value.getFloatValue(CSSPrimitiveValue.CSS_EMS);
+		switch (value.getUnitType()) {
+		case CSSUnit.CSS_EM:
+			fval = value.getFloatValue(CSSUnit.CSS_EM);
 			sdb = canvas.getStyleDatabase();
 			float fontSize = sdb.getFontSizeFromIdentifier(null, "medium");
 			fontSize = NumberValue.floatValueConversion(fontSize, sdb.getNaturalUnit(), primitype);
 			fval *= fontSize;
 			break;
-		case CSSPrimitiveValue.CSS_EXS:
-			fval = value.getFloatValue(CSSPrimitiveValue.CSS_EXS);
+		case CSSUnit.CSS_EX:
+			fval = value.getFloatValue(CSSUnit.CSS_EX);
 			sdb = canvas.getStyleDatabase();
 			fontSize = sdb.getFontSizeFromIdentifier(null, "medium");
 			float exSize = sdb.getExSizeInPt(null, fontSize);
-			exSize = NumberValue.floatValueConversion(exSize, CSSPrimitiveValue.CSS_PT, primitype);
+			exSize = NumberValue.floatValueConversion(exSize, CSSUnit.CSS_PT, primitype);
 			fval *= exSize;
-			break;
-		case CSSPrimitiveValue2.CSS_EXPRESSION:
-			ExpressionValue evalue = (ExpressionValue) value;
-			Evaluator ev = new MQEvaluator(canvas);
-			fval = ev.evaluateExpression(evalue).getFloatValue(primitype);
-			break;
-		case CSSPrimitiveValue2.CSS_RATIO:
-			float ffirst, fsecond;
-			RatioValue ratio = (RatioValue) value;
-			PrimitiveValue first = ratio.getAntecedentValue();
-			PrimitiveValue second = ratio.getConsequentValue();
-			if (first.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
-				ffirst = first.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
-			} else {
-				// Calc
-				ev = new MQEvaluator(canvas);
-				ffirst = ev.evaluateExpression((CalcValue) first).getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
-			}
-			if (second.getPrimitiveType() == CSSPrimitiveValue.CSS_NUMBER) {
-				fsecond = second.getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
-			} else {
-				// Calc
-				ev = new MQEvaluator(canvas);
-				fsecond = ev.evaluateExpression((CalcValue) second).getFloatValue(CSSPrimitiveValue.CSS_NUMBER);
-			}
-			fval = ffirst / fsecond;
 			break;
 		default:
 			fval = value.getFloatValue(primitype);
@@ -247,8 +251,8 @@ class MediaQueryImpl extends AbstractMediaQuery {
 		}
 
 		@Override
-		protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
-			if (partialValue.getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER) {
+		protected TypedValue absoluteTypedValue(TypedValue partialValue) {
+			if (partialValue.getUnitType() != CSSUnit.CSS_NUMBER) {
 				float fval = valueInUnit(partialValue, canvas, expectedUnit);
 				NumberValue number = new NumberValue();
 				number.setFloatValue(expectedUnit, fval);

@@ -15,21 +15,20 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.CSSUnicodeRangeValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Unicode character CSSPrimitiveValue.
+ * Unicode character value.
  * 
  */
-public class UnicodeValue extends PrimitiveValue implements CSSUnicodeRangeValue.CSSUnicodeValue {
+public class UnicodeValue extends TypedValue implements CSSUnicodeRangeValue.CSSUnicodeValue {
 
 	private int codePoint = 0;
 
 	public UnicodeValue() {
-		super(CSSPrimitiveValue2.CSS_UNICODE_CHARACTER);
+		super(Type.UNICODE_CHARACTER);
 	}
 
 	protected UnicodeValue(UnicodeValue copied) {
@@ -90,10 +89,7 @@ public class UnicodeValue extends PrimitiveValue implements CSSUnicodeRangeValue
 			return false;
 		}
 		UnicodeValue other = (UnicodeValue) obj;
-		if (codePoint != other.codePoint) {
-			return false;
-		}
-		return true;
+		return codePoint == other.codePoint;
 	}
 
 	@Override

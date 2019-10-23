@@ -143,11 +143,10 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 			return false;
 		BaseCSSDeclarationRule other = (BaseCSSDeclarationRule) obj;
 		if (declaration == null) {
-			if (other.declaration != null)
-				return false;
-		} else if (!declaration.equals(other.declaration))
-			return false;
-		return true;
+			return other.declaration == null;
+		} else {
+			return declaration.equals(other.declaration);
+		}
 	}
 
 	@Override

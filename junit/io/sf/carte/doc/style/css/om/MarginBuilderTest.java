@@ -219,8 +219,8 @@ public class MarginBuilderTest {
 
 	@Test
 	public void testMarginUnset() {
-		assertShorthandText("margin:unset;", "margin: unset;");
-		assertShorthandText("margin:unset!important;", "margin: unset !important;");
+		assertShorthandText("margin:0;", "margin: unset;");
+		assertShorthandText("margin:0!important;", "margin: unset !important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

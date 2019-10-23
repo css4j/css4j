@@ -11,11 +11,10 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.css.CSSValueList;
-
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.ValueList;
 
 /**
  * Build an 'animation' shorthand from individual properties.
@@ -33,13 +32,15 @@ class AnimationShorthandBuilder extends ListOrderedShorthandBuilder {
 			chkProperty = "transition-timing-function";
 		}
 		StyleValue freePropertyValue = getCSSListItemValue(freeProperty, index);
-		short freeType = freePropertyValue.getCssValueType();
+		// Check for conflicting identifiers
+		CssType freeType = freePropertyValue.getCssValueType();
 		boolean retval = false;
-		if (freeType == CSSValue.CSS_PRIMITIVE_VALUE) {
-			retval = isConflictingIdentifier(chkProperty, (CSSPrimitiveValue) freePropertyValue);
-		} else if (freeType == CSSValue.CSS_VALUE_LIST) {
-			retval = listHasConflictingIdentifiers(chkProperty, (CSSValueList) freePropertyValue);
+		if (freeType == CssType.TYPED) {
+			retval = isConflictingIdentifier(chkProperty, (CSSTypedValue) freePropertyValue);
+		} else if (freeType == CssType.LIST) {
+			retval = listHasConflictingIdentifiers(chkProperty, (ValueList) freePropertyValue);
 		}
+		// duration-delay
 		if (!retval && property.equals("animation-duration")) {
 			StyleValue delay = getCSSListItemValue("animation-delay", index);
 			if (isNotInitialValue(delay, "animation-delay")) {

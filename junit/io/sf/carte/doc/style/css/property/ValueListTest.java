@@ -90,6 +90,7 @@ public class ValueListTest {
 		cs.add(factory.parseProperty("medium"));
 		ValueList clon = cs.clone();
 		assertEquals(cs.getCssValueType(), clon.getCssValueType());
+		assertEquals(cs.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(cs.getLength(), clon.getLength());
 		assertEquals(cs.item(0), clon.item(0));
 		assertEquals(cs.getCssText(), clon.getCssText());

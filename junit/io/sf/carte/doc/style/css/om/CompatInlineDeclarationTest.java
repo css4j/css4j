@@ -28,13 +28,13 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.css.CSSValueList;
-import org.w3c.dom.css.Rect;
 
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSRectValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.property.NumberValue;
@@ -102,7 +102,8 @@ public class CompatInlineDeclarationTest {
 		NumberValue val = (NumberValue) emptyStyleDecl.getPropertyCSSValue("line-height");
 		assertEquals("rem", val.getDimensionUnitText());
 		assertEquals("line-height: 1.2rem; ", emptyStyleDecl.getCssText());
-		assertEquals(1.2f, val.getFloatValue(CSSPrimitiveValue.CSS_DIMENSION), 1e-9);
+		assertEquals(1.2f, val.getFloatValue(CSSUnit.CSS_REM), 1e-9);
+		assertEquals(1.2f, val.getFloatValue(CSSUnit.CSS_OTHER), 1e-9);
 	}
 
 	@Test
@@ -180,11 +181,11 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText("font-family: \"\u5b8b\u4f53\",Arial");
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
 		value = ((ValueList) value).item(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		CSSPrimitiveValue primi = (CSSPrimitiveValue) value;
-		assertEquals(CSSPrimitiveValue.CSS_STRING, primi.getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		CSSTypedValue primi = (CSSTypedValue) value;
+		assertEquals(CSSValue.Type.STRING, primi.getPrimitiveType());
 		assertEquals("\u5b8b\u4f53", primi.getStringValue());
 		emptyStyleDecl.setCssText(emptyStyleDecl.getCssText());
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
@@ -195,11 +196,11 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText("font: \"\u5b8b\u4f53\",Arial");
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
 		value = ((ValueList) value).item(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		CSSPrimitiveValue primi = (CSSPrimitiveValue) value;
-		assertEquals(CSSPrimitiveValue.CSS_STRING, primi.getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		CSSTypedValue primi = (CSSTypedValue) value;
+		assertEquals(CSSValue.Type.STRING, primi.getPrimitiveType());
 		assertEquals("\u5b8b\u4f53", primi.getStringValue());
 		emptyStyleDecl.setCssText(emptyStyleDecl.getCssText());
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
@@ -209,9 +210,9 @@ public class CompatInlineDeclarationTest {
 	public void setCssTextEscaped8() {
 		emptyStyleDecl.setCssText("font-family: \\\u5b8b\u4f53");
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		CSSPrimitiveValue primi = (CSSPrimitiveValue) value;
-		assertEquals(CSSPrimitiveValue.CSS_IDENT, primi.getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		CSSTypedValue primi = (CSSTypedValue) value;
+		assertEquals(CSSValue.Type.IDENT, primi.getPrimitiveType());
 		assertEquals("\u5b8b\u4f53", primi.getStringValue());
 		assertEquals("\u5b8b\u4f53", emptyStyleDecl.getPropertyValue("font-family"));
 		emptyStyleDecl.setCssText(emptyStyleDecl.getCssText());
@@ -507,9 +508,9 @@ public class CompatInlineDeclarationTest {
 	@Test
 	public void setCssTextFontFamily() {
 		emptyStyleDecl.setCssText("font-family: Times New Roman, Verdana, Chicago");
-		CSSValue value = ((CSSValueList) emptyStyleDecl.getPropertyCSSValue("font-family")).item(0);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		assertEquals("Times New Roman", ((CSSPrimitiveValue) value).getStringValue());
+		CSSValue value = ((ValueList) emptyStyleDecl.getPropertyCSSValue("font-family")).item(0);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals("Times New Roman", ((CSSTypedValue) value).getStringValue());
 		assertEquals("'Times New Roman', Verdana, Chicago",
 				emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
@@ -532,22 +533,22 @@ public class CompatInlineDeclarationTest {
 		assertEquals("10% 20%, center top 30%", emptyStyleDecl.getPropertyValue("background-position"));
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("background-position");
 		assertNotNull(value);
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
-		assertEquals(2, ((CSSValueList) value).getLength());
-		assertEquals("10% 20%", ((CSSValueList) value).item(0).getCssText());
-		assertEquals("center top 30%", ((CSSValueList) value).item(1).getCssText());
+		assertEquals(CssType.LIST, value.getCssValueType());
+		assertEquals(2, ((ValueList) value).getLength());
+		assertEquals("10% 20%", ((ValueList) value).item(0).getCssText());
+		assertEquals("center top 30%", ((ValueList) value).item(1).getCssText());
 		emptyStyleDecl.setCssText("background-position: left, center top 30%, center, center");
 		assertEquals("left, center top 30%, center, center", emptyStyleDecl.getPropertyValue("background-position"));
 		value = emptyStyleDecl.getPropertyCSSValue("background-position");
 		assertNotNull(value);
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
-		assertEquals(4, ((CSSValueList) value).getLength());
-		assertEquals("left", ((CSSValueList) value).item(0).getCssText());
-		assertEquals("center top 30%", ((CSSValueList) value).item(1).getCssText());
-		assertEquals("center", ((CSSValueList) value).item(2).getCssText());
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ((CSSValueList) value).item(2).getCssValueType());
-		assertEquals("center", ((CSSValueList) value).item(3).getCssText());
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ((CSSValueList) value).item(3).getCssValueType());
+		assertEquals(CssType.LIST, value.getCssValueType());
+		assertEquals(4, ((ValueList) value).getLength());
+		assertEquals("left", ((ValueList) value).item(0).getCssText());
+		assertEquals("center top 30%", ((ValueList) value).item(1).getCssText());
+		assertEquals("center", ((ValueList) value).item(2).getCssText());
+		assertEquals(CssType.TYPED, ((ValueList) value).item(2).getCssValueType());
+		assertEquals("center", ((ValueList) value).item(3).getCssText());
+		assertEquals(CssType.TYPED, ((ValueList) value).item(3).getCssValueType());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -557,10 +558,10 @@ public class CompatInlineDeclarationTest {
 		assertEquals("0 2px, 0 2px", emptyStyleDecl.getPropertyValue("background-position"));
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("background-position");
 		assertNotNull(value);
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
-		assertEquals(2, ((CSSValueList) value).getLength());
-		assertEquals("0 2px", ((CSSValueList) value).item(0).getCssText());
-		assertEquals("0 2px", ((CSSValueList) value).item(1).getCssText());
+		assertEquals(CssType.LIST, value.getCssValueType());
+		assertEquals(2, ((ValueList) value).getLength());
+		assertEquals("0 2px", ((ValueList) value).item(0).getCssText());
+		assertEquals("0 2px", ((ValueList) value).item(1).getCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -590,8 +591,8 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText("clip: rect(5px, 20px, 25px, 5px);");
 		assertEquals("rect(5px, 20px, 25px, 5px)", emptyStyleDecl.getPropertyValue("clip"));
 		CSSValue value = emptyStyleDecl.getPropertyCSSValue("clip");
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		Rect rect = ((CSSPrimitiveValue) value).getRectValue();
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		CSSRectValue rect = (CSSRectValue) value;
 		assertEquals("5px", rect.getTop().getCssText());
 		assertEquals("20px", rect.getRight().getCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
@@ -602,8 +603,8 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText("height:calc(100vh - 230px);");
 		CSSValue value = emptyStyleDecl.getPropertyCSSValue("height");
 		assertNotNull(value);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		assertEquals(CSSPrimitiveValue2.CSS_EXPRESSION, ((CSSPrimitiveValue) value).getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, value.getPrimitiveType());
 		assertEquals("calc(100vh - 230px)", emptyStyleDecl.getPropertyValue("height"));
 		assertEquals("calc(100vh - 230px)", value.getCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
@@ -613,13 +614,13 @@ public class CompatInlineDeclarationTest {
 	public void getPropertyCSSValueForQuotes() {
 		emptyStyleDecl.setCssText("quotes: '\"' '\"' \"'\" \"'\";");
 		CSSValue value = emptyStyleDecl.getPropertyCSSValue("quotes");
-		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
-		CSSValueList list = (CSSValueList) value;
+		assertEquals(CssType.LIST, value.getCssValueType());
+		ValueList list = (ValueList) value;
 		assertEquals(4, list.getLength());
-		assertEquals("\"", ((CSSPrimitiveValue) list.item(0)).getStringValue());
-		assertEquals("\"", ((CSSPrimitiveValue) list.item(1)).getStringValue());
-		assertEquals("'", ((CSSPrimitiveValue) list.item(2)).getStringValue());
-		assertEquals("'", ((CSSPrimitiveValue) list.item(3)).getStringValue());
+		assertEquals("\"", ((CSSTypedValue) list.item(0)).getStringValue());
+		assertEquals("\"", ((CSSTypedValue) list.item(1)).getStringValue());
+		assertEquals("'", ((CSSTypedValue) list.item(2)).getStringValue());
+		assertEquals("'", ((CSSTypedValue) list.item(3)).getStringValue());
 		assertEquals("'\"'", list.item(0).getCssText());
 		assertEquals("'\"'", list.item(1).getCssText());
 		assertEquals("\"'\"", list.item(2).getCssText());

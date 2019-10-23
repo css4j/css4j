@@ -43,10 +43,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.TypeInfo;
-import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleSheet;
-import org.w3c.dom.css.ElementCSSInlineStyle;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.DeviceFactory;
@@ -57,6 +54,7 @@ import io.sf.carte.doc.style.css.CSSNode;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
@@ -324,7 +322,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	}
 
-	interface LinkStyleDefiner extends LinkStyle, Node {
+	interface LinkStyleDefiner extends LinkStyle<AbstractCSSRule>, Node {
 		@Override
 		AbstractCSSStyleSheet getSheet();
 
@@ -764,7 +762,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 	}
 
-	class MyElement extends MyNode implements CSSElement, ElementCSSInlineStyle {
+	class MyElement extends MyNode implements CSSElement {
 		private final Element element;
 
 		WeakReference<SelectorMatcher> selectorMatcherRef = null;
@@ -946,7 +944,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		@Override
-		public void exportHintsToStyle(CSSStyleDeclaration style) {
+		public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
 		}
 
 		@Override
@@ -1099,10 +1097,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		private boolean loadDefinedSheet(String href, String title) {
 			definedSheet = loadStyleSheet(definedSheet, href, title, getAttribute("media"), this);
-			if (definedSheet == null) {
-				return false;
-			}
-			return true;
+			return definedSheet != null;
 		}
 
 	}

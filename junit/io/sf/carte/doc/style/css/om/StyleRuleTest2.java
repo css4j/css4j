@@ -24,8 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSRuleList;
-import org.w3c.dom.css.CSSStyleDeclaration;
-import org.w3c.dom.css.CSSStyleRule;
 
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 
@@ -34,9 +32,9 @@ public class StyleRuleTest2 {
 	AbstractCSSStyleSheet sheet;
 	StyleRule styleRule;
 	BaseCSSStyleDeclaration emptyStyleDecl;
-	CSSStyleRule frameRule = null;
-	CSSStyleRule framesetRule = null;
-	CSSStyleRule noframesRule = null;
+	StyleRule frameRule = null;
+	StyleRule framesetRule = null;
+	StyleRule noframesRule = null;
 
 	@Before
 	public void setUp() throws IOException {
@@ -71,7 +69,7 @@ public class StyleRuleTest2 {
 	@Test
 	public void getMinifiedCssText() {
 		assertEquals("display:block;border:none!important;",
-				((AbstractCSSStyleDeclaration) frameRule.getStyle()).getMinifiedCssText());
+				frameRule.getStyle().getMinifiedCssText());
 	}
 
 	@Test
@@ -92,7 +90,7 @@ public class StyleRuleTest2 {
 
 	@Test
 	public void removeProperty() {
-		CSSStyleDeclaration styleDecl = framesetRule.getStyle();
+		AbstractCSSStyleDeclaration styleDecl = framesetRule.getStyle();
 		assertEquals("none", styleDecl.removeProperty("border"));
 		for (int i = 0; i < styleDecl.getLength(); i++) {
 			assertNotSame("border", styleDecl.item(i));
@@ -122,19 +120,19 @@ public class StyleRuleTest2 {
 		assertEquals(rule.getCssText(), clon.getCssText());
 	}
 
-	CSSStyleRule styleRuleFor(String selectorText, String propertyName) {
+	StyleRule styleRuleFor(String selectorText, String propertyName) {
 		CSSRuleList rules = sheet.getCssRules();
 		for (int i = 0; i < rules.getLength(); i++) {
 			CSSRule rule = rules.item(i);
-			if (rule instanceof CSSStyleRule) {
-				String selText = ((CSSStyleRule) rule).getSelectorText();
+			if (rule instanceof StyleRule) {
+				String selText = ((StyleRule) rule).getSelectorText();
 				// Small hack
 				StringTokenizer st = new StringTokenizer(selText, ",");
 				while (st.hasMoreElements()) {
 					String selector = st.nextToken();
 					if (selector.equals(selectorText)) {
-						if (((CSSStyleRule) rule).getStyle().getPropertyCSSValue(propertyName) != null) {
-							return (CSSStyleRule) rule;
+						if (((StyleRule) rule).getStyle().getPropertyCSSValue(propertyName) != null) {
+							return (StyleRule) rule;
 						}
 						break;
 					}

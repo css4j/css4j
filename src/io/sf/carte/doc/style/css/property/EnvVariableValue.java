@@ -14,26 +14,22 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSEnvVariableValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Environment variable (<code>env</code>) CSSPrimitiveValue.
+ * Environment variable (<code>env</code>).
  * 
  */
-public class EnvVariableValue extends PrimitiveValue implements CSSEnvVariableValue {
+public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue {
 
 	private String name = null;
 	private StyleValue fallback = null;
 
 	EnvVariableValue() {
-		super(CSSPrimitiveValue2.CSS_ENV_VAR);
+		super(Type.ENV);
 	}
 
 	protected EnvVariableValue(EnvVariableValue copied) {
@@ -82,8 +78,7 @@ public class EnvVariableValue extends PrimitiveValue implements CSSEnvVariableVa
 		checkModifiableProperty();
 		ValueFactory factory = new ValueFactory();
 		StyleValue cssval = factory.parseProperty(cssText);
-		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||
-				((CSSPrimitiveValue)cssval).getPrimitiveType() != CSSPrimitiveValue2.CSS_ENV_VAR) {
+		if (cssval == null || cssval.getPrimitiveType() != Type.ENV) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an environment variable value.");
 		}
 		EnvVariableValue env = (EnvVariableValue) cssval;
@@ -120,13 +115,10 @@ public class EnvVariableValue extends PrimitiveValue implements CSSEnvVariableVa
 			return false;
 		}
 		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
-			return false;
+			return other.name == null;
+		} else {
+			return name.equals(other.name);
 		}
-		return true;
 	}
 
 	@Override
@@ -163,12 +155,7 @@ public class EnvVariableValue extends PrimitiveValue implements CSSEnvVariableVa
 	}
 
 	@Override
-	public String getStringValue() {
-		return name;
-	}
-
-	@Override
-	public ExtendedCSSValue getFallback() {
+	public StyleValue getFallback() {
 		return fallback;
 	}
 

@@ -214,8 +214,8 @@ public class PaddingBuilderTest {
 
 	@Test
 	public void testPaddingUnset() {
-		assertShorthandText("padding:unset;", "padding: unset;");
-		assertShorthandText("padding:unset!important;", "padding: unset !important;");
+		assertShorthandText("padding:0;", "padding: unset;");
+		assertShorthandText("padding:0!important;", "padding: unset !important;");
 	}
 
 	@Test

@@ -25,13 +25,10 @@ import io.sf.carte.doc.style.css.StyleDatabase;
  */
 abstract public class DOMComputedStyle extends ComputedCSSStyle {
 
-	private BaseDocumentCSSStyleSheet parentSheet = null;
-
 	private transient ComputedCSSStyle parentStyle = null;
 
 	protected DOMComputedStyle(BaseDocumentCSSStyleSheet parentSheet) {
-		super();
-		this.parentSheet = parentSheet;
+		super(parentSheet);
 	}
 
 	protected DOMComputedStyle(ComputedCSSStyle copiedObject) {
@@ -40,7 +37,7 @@ abstract public class DOMComputedStyle extends ComputedCSSStyle {
 
 	@Override
 	public ComputedCSSStyle getParentComputedStyle() {
-		if (parentStyle == null && parentSheet != null) {
+		if (parentStyle == null && getOwnerSheet() != null) {
 			Node node = getOwnerNode();
 			while (node != null) {
 				node = node.getParentNode();
@@ -48,7 +45,7 @@ abstract public class DOMComputedStyle extends ComputedCSSStyle {
 					break;
 				}
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					parentStyle = parentSheet.getComputedStyle((CSSElement) node, null);
+					parentStyle = getOwnerSheet().getComputedStyle((CSSElement) node, null);
 					break;
 				}
 			}

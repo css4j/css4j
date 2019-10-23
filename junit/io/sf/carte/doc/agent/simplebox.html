@@ -67,7 +67,7 @@ function addPropertyValue(style, propertyName, boxvar, methodSuffix, accu) {
 	accu = typeof accu !== 'undefined' ?  accu : '0.03';
 	buffer = 'assertEquals(';
 	if (style.getPropertyCSSValue) {
-		var pv = style.getPropertyCSSValue(propertyName).getFloatValue(CSSPrimitiveValue.CSS_PX);
+		var pv = style.getPropertyCSSValue(propertyName).getFloatValue(CSSUnit.CSS_PX);
 		buffer += fmtNumber(pv);
 		buffer += ', ' + boxvar + '.get' + methodSuffix + '(), ' + accu + 'f);\n';
 	} else {
@@ -97,11 +97,11 @@ function boxValues(elm, index) {
 	if (display == 'table') {
 		boxvar = 'tablebox';
 		buffer += boxvar;
-		buffer += ' = (TableBoxValues)style.getBoxValues(CSSPrimitiveValue.CSS_PX);\n';
+		buffer += ' = (TableBoxValues)style.getBoxValues(CSSUnit.CSS_PX);\n';
 	} else {
 		boxvar = 'box';
 		buffer += boxvar;
-		buffer += ' = style.getBoxValues(CSSPrimitiveValue.CSS_PX);\n';
+		buffer += ' = style.getBoxValues(CSSUnit.CSS_PX);\n';
 	}
 	buffer += addPropertyValue(style, 'margin-top', boxvar, 'MarginTop');
 	buffer += addPropertyValue(style, 'margin-right', boxvar, 'MarginRight');
@@ -131,7 +131,7 @@ function boxValues(elm, index) {
 		buffer += 'assertEquals(';
 		var pvlen = pv.length;
 		pv = pv.slice(0, pvlen - 2);
-		buffer += fmtNumber(pv) + ', NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSPrimitiveValue.CSS_PT, CSSPrimitiveValue.CSS_PX), 0.03f);\n';
+		buffer += fmtNumber(pv) + ', NumberValue.floatValueConversion(style.getComputedLineHeight(), CSSUnit.CSS_PT, CSSUnit.CSS_PX), 0.03f);\n';
 	}
 	return buffer;
 }

@@ -20,9 +20,8 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -86,7 +85,7 @@ public class UnicodeRangeValueTest {
 		style.setCssText("unicode-range: U+???;");
 		StyleValue cssval = style.getPropertyCSSValue("unicode-range");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_RANGE, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.UNICODE_RANGE, cssval.getPrimitiveType());
 		assertEquals("unicode-range: U+???; ", style.getCssText());
 		assertEquals("unicode-range:U+???", style.getMinifiedCssText());
 		assertEquals("U+???", style.getPropertyValue("unicode-range"));
@@ -99,36 +98,36 @@ public class UnicodeRangeValueTest {
 		assertNotNull(cssval);
 		UnicodeRangeValue val = (UnicodeRangeValue) cssval;
 		assertEquals("U+???", val.getCssText());
-		PrimitiveValue unicode = val.getValue();
+		TypedValue unicode = val.getValue();
 		assertNotNull(unicode);
-		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_WILDCARD, unicode.getPrimitiveType());
+		assertEquals(CSSValue.Type.UNICODE_WILDCARD, unicode.getPrimitiveType());
 		assertEquals("U+???", unicode.getCssText());
 		assertEquals("???", unicode.getStringValue());
 		try {
-			unicode.setStringValue(CSSPrimitiveValue2.CSS_UNICODE_WILDCARD, null);
+			unicode.setStringValue(CSSValue.Type.UNICODE_WILDCARD, null);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
 		try {
-			unicode.setStringValue(CSSPrimitiveValue2.CSS_UNICODE_WILDCARD, "");
+			unicode.setStringValue(CSSValue.Type.UNICODE_WILDCARD, "");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
 		}
 		try {
-			unicode.setStringValue(CSSPrimitiveValue2.CSS_UNICODE_WILDCARD, "foo");
+			unicode.setStringValue(CSSValue.Type.UNICODE_WILDCARD, "foo");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
 		}
 		try {
-			unicode.setStringValue(CSSPrimitiveValue.CSS_IDENT, "foo");
+			unicode.setStringValue(CSSValue.Type.IDENT, "foo");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
 		}
-		unicode.setStringValue(CSSPrimitiveValue2.CSS_UNICODE_WILDCARD, "2??");
+		unicode.setStringValue(CSSValue.Type.UNICODE_WILDCARD, "2??");
 		assertEquals("U+2??", unicode.getCssText());
 		assertEquals("2??", unicode.getStringValue());
 	}
@@ -138,20 +137,20 @@ public class UnicodeRangeValueTest {
 		style.setCssText("unicode-range: U+0027; ");
 		StyleValue cssval = style.getPropertyCSSValue("unicode-range");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_RANGE, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.UNICODE_RANGE, cssval.getPrimitiveType());
 		assertEquals("U+27", style.getPropertyValue("unicode-range"));
 		assertEquals("unicode-range: U+27; ", style.getCssText());
 		assertEquals("unicode-range:U+27", style.getMinifiedCssText());
 		UnicodeRangeValue val = (UnicodeRangeValue) cssval;
 		assertEquals("U+27", val.getCssText());
 		try {
-			val.setStringValue(CSSPrimitiveValue2.CSS_UNICODE_WILDCARD, "??");
+			val.setStringValue(CSSValue.Type.UNICODE_WILDCARD, "??");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
 		}
 		try {
-			val.setStringValue(CSSPrimitiveValue2.CSS_UNICODE_RANGE, "");
+			val.setStringValue(CSSValue.Type.UNICODE_RANGE, "");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
@@ -163,7 +162,7 @@ public class UnicodeRangeValueTest {
 		style.setCssText("unicode-range: U+0025-00FF; ");
 		StyleValue cssval = style.getPropertyCSSValue("unicode-range");
 		assertNotNull(cssval);
-		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_RANGE, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		assertEquals(CSSValue.Type.UNICODE_RANGE, cssval.getPrimitiveType());
 		assertEquals("U+25-ff", style.getPropertyValue("unicode-range"));
 		assertEquals("unicode-range: U+25-ff; ", style.getCssText());
 		assertEquals("unicode-range:U+25-ff", style.getMinifiedCssText());

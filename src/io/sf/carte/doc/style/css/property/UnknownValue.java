@@ -29,7 +29,7 @@ public class UnknownValue extends AbstractTextValue {
 	private boolean priorityCompat = false;
 
 	public UnknownValue() {
-		super(CSS_UNKNOWN);
+		super(Type.UNKNOWN);
 	}
 
 	protected UnknownValue(UnknownValue copied) {
@@ -64,10 +64,7 @@ public class UnknownValue extends AbstractTextValue {
 			return false;
 		}
 		UnknownValue other = (UnknownValue) obj;
-		if (!getCssText().equals(other.getCssText())) {
-			return false;
-		}
-		return true;
+		return getCssText().equals(other.getCssText());
 	}
 
 	@Override

@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
 /**
  * A CSS environment variable value.
  */
-public interface CSSEnvVariableValue extends ExtendedCSSPrimitiveValue {
+public interface CSSEnvVariableValue extends CSSPrimitiveValue {
 
 	/**
 	 * Get the name of this environment variable.
@@ -29,7 +29,7 @@ public interface CSSEnvVariableValue extends ExtendedCSSPrimitiveValue {
 	 * 
 	 * @return the fallback value, or null if there is no fallback value.
 	 */
-	ExtendedCSSValue getFallback();
+	CSSValue getFallback();
 
 	@Override
 	CSSEnvVariableValue clone();

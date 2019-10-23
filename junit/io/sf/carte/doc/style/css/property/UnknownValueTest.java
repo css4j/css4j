@@ -67,6 +67,7 @@ public class UnknownValueTest {
 		value.setPlainCssText("*");
 		UnknownValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
+		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getCssText(), clon.getCssText());
 	}
 

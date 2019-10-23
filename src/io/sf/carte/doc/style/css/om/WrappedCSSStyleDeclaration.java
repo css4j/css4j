@@ -15,10 +15,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.URIValueWrapper;
@@ -97,13 +97,12 @@ class WrappedCSSStyleDeclaration extends BaseCSSStyleDeclaration {
 	}
 
 	static StyleValue wrapCSSValue(StyleValue value, String oldHrefContext, String hrefcontext) {
-		short type = value.getCssValueType();
-		if (type == CSSValue.CSS_VALUE_LIST) {
+		CssType type = value.getCssValueType();
+		if (type == CssType.LIST) {
 			if (hrefcontext != null) {
 				value = ((ValueList) value).wrap(oldHrefContext, hrefcontext);
 			}
-		} else if (type == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) value).getPrimitiveType() == CSSPrimitiveValue.CSS_URI) {
+		} else if (value.getPrimitiveType() == CSSValue.Type.URI) {
 			if (hrefcontext != null) {
 				value = new URIValueWrapper((URIValue) value, oldHrefContext, hrefcontext);
 			}

@@ -218,26 +218,41 @@ public class BorderBuilderTest {
 	}
 
 	@Test
+	public void testBorder8() {
+		assertShorthandText("border:1px;", "border:1px;border-style:medium");
+		assertShorthandText("border:1px;", "border:1px;border-style:initial");
+		assertShorthandText("border:1px;", "border:1px;border-style:unset");
+	}
+
+	@Test
 	public void testBorderMixed() {
-		assertShorthandText("border:1px;border-style:unset;border-color:inherit;",
+		assertShorthandText("border:1px;border-style:revert;",
+				"border:1px;border-style:revert");
+		assertShorthandText("border:1px;border-color:inherit;",
 				"border: 1px; border-color: inherit; border-style: unset;");
-		assertShorthandText("border:1px;border-style:unset;border-color:inherit!important;",
-				"border: 1px; border-color: inherit !important; border-style: unset;");
+		assertShorthandText("border:1px;border-style:revert;border-color:inherit;",
+				"border: 1px; border-color: inherit; border-style: revert;");
+		assertShorthandText("border:1px;border-color:inherit!important;",
+				"border: 1px; border-color: inherit !important; border-style: unset");
 	}
 
 	@Test
 	public void testBorderMixed2() {
-		assertShorthandText("border:solid;border-width:unset;border-color:inherit;",
+		assertShorthandText("border:solid;border-color:inherit;",
 				"border: solid; border-color: inherit; border-width: unset;");
-		assertShorthandText("border:solid;border-color:inherit;border-width:unset!important;",
+		assertShorthandText("border:solid;border-width:revert;border-color:inherit;",
+				"border: solid; border-color: inherit; border-width: revert;");
+		assertShorthandText("border:solid;border-color:inherit;border-width:medium!important;",
 				"border: solid; border-color: inherit; border-width: unset !important;");
 	}
 
 	@Test
 	public void testBorderMixed3() {
-		assertShorthandText("border:solid;border-width:unset;border-color:blue navy;",
+		assertShorthandText("border:solid;border-color:blue navy;",
 				"border: solid; border-color: blue navy; border-width: unset;");
-		assertShorthandText("border:solid;border-color:blue navy;border-width:unset!important;",
+		assertShorthandText("border:solid;border-width:revert;border-color:blue navy;",
+				"border: solid; border-color: blue navy; border-width: revert;");
+		assertShorthandText("border:solid;border-color:blue navy;border-width:medium!important;",
 				"border: solid; border-color: blue navy; border-width: unset!important;");
 	}
 
@@ -288,12 +303,12 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderUnset() {
-		assertShorthandText("border:unset;", "border: unset");
+		assertShorthandText("border:none;", "border: unset");
 	}
 
 	@Test
 	public void testBorderUnsetImportant() {
-		assertShorthandText("border:unset!important;", "border: unset !important");
+		assertShorthandText("border:none!important;", "border: unset !important");
 	}
 
 	@Test

@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
 import io.sf.carte.doc.agent.AbstractDeviceFactory;
 import io.sf.carte.doc.agent.CSSCanvas;
@@ -25,6 +24,7 @@ import io.sf.carte.doc.agent.Viewport;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 import io.sf.carte.doc.style.css.StyleDatabase;
 
@@ -121,7 +121,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 
 		@Override
 		public short getNaturalUnit() {
-			return CSSPrimitiveValue.CSS_PX;
+			return CSSUnit.CSS_PX;
 		}
 
 		@Override

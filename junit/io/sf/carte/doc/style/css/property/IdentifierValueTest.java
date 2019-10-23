@@ -21,9 +21,9 @@ import java.io.StringReader;
 
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -44,30 +44,30 @@ public class IdentifierValueTest {
 	@Test
 	public void testSetStringValueShortString() {
 		IdentifierValue value = new IdentifierValue();
-		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "scroll");
+		value.setStringValue(CSSValue.Type.IDENT, "scroll");
 		assertEquals("scroll", value.getStringValue());
 		assertEquals("scroll", value.getCssText());
 		//
-		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "\uD83D\uDC4D");
+		value.setStringValue(CSSValue.Type.IDENT, "\uD83D\uDC4D");
 		assertEquals("\uD83D\uDC4D", value.getStringValue());
 		assertEquals("\uD83D\uDC4D", value.getCssText());
 		//
 		try {
-			value.setStringValue(CSSPrimitiveValue.CSS_STRING, null);
+			value.setStringValue(CSSValue.Type.STRING, null);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
 		}
 		//
 		try {
-			value.setStringValue(CSSPrimitiveValue.CSS_IDENT, null);
+			value.setStringValue(CSSValue.Type.IDENT, null);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
 		//
 		try {
-			value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "");
+			value.setStringValue(CSSValue.Type.IDENT, "");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
@@ -132,7 +132,7 @@ public class IdentifierValueTest {
 	@Test
 	public void testSetStringValueShortStringEscaped() {
 		IdentifierValue value = new IdentifierValue();
-		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "\t");
+		value.setStringValue(CSSValue.Type.IDENT, "\t");
 		assertEquals("\t", value.getStringValue());
 		assertEquals("\\9", value.getCssText());
 	}
@@ -144,7 +144,7 @@ public class IdentifierValueTest {
 		LexicalUnit lu = parser.parsePropertyValue(re);
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
 		IdentifierValue value = new IdentifierValue();
-		assertEquals(CSSPrimitiveValue.CSS_IDENT, value.getPrimitiveType());
+		assertEquals(CSSValue.Type.IDENT, value.getPrimitiveType());
 		value.newLexicalSetter().setLexicalUnit(lu);
 		assertEquals("\\1F44D", value.getCssText());
 		assertEquals("\uD83D\uDC4D", value.getMinifiedCssText(""));
@@ -195,8 +195,8 @@ public class IdentifierValueTest {
 		CSSParser parser = new CSSParser();
 		ValueFactory factory = new ValueFactory();
 		StyleValue value = factory.parseProperty("scroll", parser);
-		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
-		assertEquals(CSSPrimitiveValue.CSS_IDENT, ((CSSPrimitiveValue) value).getPrimitiveType());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.IDENT, value.getPrimitiveType());
 		assertTrue(value.equals(factory.parseProperty("scroll", parser)));
 		assertFalse(value.equals(factory.parseProperty("medium", parser)));
 		assertFalse(value.equals(factory.parseProperty("SCROLL", parser)));
@@ -206,7 +206,7 @@ public class IdentifierValueTest {
 	@Test
 	public void testClone() {
 		IdentifierValue value = new IdentifierValue();
-		value.setStringValue(CSSPrimitiveValue.CSS_IDENT, "scroll");
+		value.setStringValue(CSSValue.Type.IDENT, "scroll");
 		IdentifierValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());

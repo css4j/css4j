@@ -16,22 +16,19 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSAttrValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Attr primitive value.
+ * Attr value.
  * 
- * @author Carlos Amengual
- *
  */
-public class AttrValue extends AbstractTextValue implements CSSAttrValue {
+public class AttrValue extends ProxyValue implements CSSAttrValue {
 
 	private String attrname = null;
 	private String typeval = null;
@@ -40,7 +37,7 @@ public class AttrValue extends AbstractTextValue implements CSSAttrValue {
 	private final byte flags;
 
 	public AttrValue(byte flags) {
-		super(CSS_ATTR);
+		super(Type.ATTR);
 		this.flags = flags;
 	}
 
@@ -76,75 +73,41 @@ public class AttrValue extends AbstractTextValue implements CSSAttrValue {
 	 * @return the default value, or <code>null</code> if no suitable default was
 	 *         found.
 	 */
-	public static PrimitiveValue defaultFallback(String valueType) {
+	public static TypedValue defaultFallback(String valueType) {
 		// Defaults
-		PrimitiveValue defaultFallback = null;
+		TypedValue defaultFallback = null;
 		if (valueType == null || "string".equalsIgnoreCase(valueType)) {
 			defaultFallback = new StringValue();
-			defaultFallback.setStringValue(CSSPrimitiveValue.CSS_STRING, "");
+			defaultFallback.setStringValue(Type.STRING, "");
 		} else if ("color".equalsIgnoreCase(valueType)) {
 			defaultFallback = new IdentifierValue("currentColor");
 		} else if ("integer".equalsIgnoreCase(valueType) || "number".equalsIgnoreCase(valueType)
 				|| "length".equalsIgnoreCase(valueType)) {
-			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 0);
+			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0);
 		} else if ("angle".equalsIgnoreCase(valueType)) {
-			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_DEG, 0);
+			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, 0);
 		} else if ("time".equalsIgnoreCase(valueType)) {
-			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_S, 0);
+			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_S, 0);
 		} else if ("frequency".equalsIgnoreCase(valueType)) {
-			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_HZ, 0);
+			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_HZ, 0);
 		} else if ("%".equalsIgnoreCase(valueType)) {
-			defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_PERCENTAGE, 0);
+			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, 0);
 		} else {
 			String lctypeval = valueType.toLowerCase(Locale.ROOT).intern();
-			short sacUnit = ParseHelper.unitFromString(lctypeval);
-			if (sacUnit != LexicalUnit.SAC_DIMENSION) {
-				short pType = ValueFactory.domPrimitiveType(sacUnit);
-				if (pType != CSSPrimitiveValue.CSS_UNKNOWN) {
-					if (NumberValue.isLengthUnitType(pType)) {
-						defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_NUMBER, 0);
-					} else if (NumberValue.isAngleUnitType(pType)) {
-						defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_DEG, 0);
-					} else if (pType == CSSPrimitiveValue.CSS_S || pType == CSSPrimitiveValue.CSS_MS) {
-						defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_S, 0);
-					} else if (pType == CSSPrimitiveValue.CSS_HZ || pType == CSSPrimitiveValue.CSS_KHZ) {
-						defaultFallback = NumberValue.createCSSNumberValue(CSSPrimitiveValue.CSS_HZ, 0);
-					}
+			short cssUnit = ParseHelper.unitFromString(lctypeval);
+			if (cssUnit != CSSUnit.CSS_OTHER) {
+				if (CSSUnit.isLengthUnitType(cssUnit)) {
+					defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0);
+				} else if (CSSUnit.isAngleUnitType(cssUnit)) {
+					defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, 0);
+				} else if (cssUnit == CSSUnit.CSS_S || cssUnit == CSSUnit.CSS_MS) {
+					defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_S, 0);
+				} else if (cssUnit == CSSUnit.CSS_HZ || cssUnit == CSSUnit.CSS_KHZ) {
+					defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_HZ, 0);
 				}
 			}
 		}
 		return defaultFallback;
-	}
-
-	@Override
-	public String getStringValue() {
-		if (typeval == null && fallback == null) {
-			return attrname;
-		}
-		StringBuilder buf = new StringBuilder(attrname.length() + 32);
-		buf.append(attrname);
-		if (typeval != null) {
-			buf.append(' ');
-			buf.append(typeval);
-		}
-		if (fallback != null) {
-			buf.append(", ");
-			buf.append(fallback.getCssText());
-		}
-		return buf.toString();
-	}
-
-	@Override
-	public void setStringValue(short stringType, String stringValue) throws DOMException {
-		checkModifiableProperty();
-		if (stringType != CSSPrimitiveValue.CSS_ATTR) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-					"This value is an attribute. To have a new type, set it at the style-declaration level.");
-		}
-		typeval = null;
-		fallback = null;
-		parseAttrValues(stringValue);
-		setPlainCssText("attr(" + stringValue + ')');
 	}
 
 	@Override
@@ -157,7 +120,6 @@ public class AttrValue extends AbstractTextValue implements CSSAttrValue {
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			String strval = lunit.getStringValue();
-			setPlainCssText("attr(" + strval + ')');
 			parseAttrValues(strval);
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
@@ -210,15 +172,13 @@ public class AttrValue extends AbstractTextValue implements CSSAttrValue {
 		checkModifiableProperty();
 		ValueFactory factory = new ValueFactory(flags);
 		StyleValue cssval = factory.parseProperty(cssText);
-		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE ||
-				((CSSPrimitiveValue)cssval).getPrimitiveType() != CSSPrimitiveValue.CSS_ATTR) {
+		if (cssval == null || cssval.getPrimitiveType() != Type.ATTR) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an attr value.");
 		}
 		AttrValue attr = (AttrValue) cssval;
 		this.attrname = attr.attrname;
 		this.typeval = attr.typeval;
 		this.fallback = attr.fallback;
-		setPlainCssText(cssval.getCssText());
 	}
 
 	private void parseAttrValues(String attr) throws DOMException {
@@ -232,16 +192,10 @@ public class AttrValue extends AbstractTextValue implements CSSAttrValue {
 			String s = attr.substring(idxp1, len).trim();
 			ValueFactory factory = new ValueFactory(flags);
 			StyleValue value = factory.parseProperty(s);
-			if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
-				StringValue sval = new StringValue(flags);
-				sval.setStringValue(CSSPrimitiveValue.CSS_STRING, s);
-				fallback = sval;
-			} else {
-				fallback = value;
-				if (PrimitiveValue.isOrContainsType(fallback, CSSPrimitiveValue.CSS_ATTR)) {
-					badSyntax(attr);
-				}
+			if (TypedValue.isOrContainsType(value, Type.ATTR)) {
+				badSyntax(attr);
 			}
+			fallback = value;
 		}
 		if (idx == -1) {
 			idx = len;
@@ -301,13 +255,10 @@ public class AttrValue extends AbstractTextValue implements CSSAttrValue {
 			return false;
 		}
 		if (typeval == null) {
-			if (other.typeval != null) {
-				return false;
-			}
-		} else if (!typeval.equals(other.typeval)) {
-			return false;
+			return other.typeval == null;
+		} else {
+			return typeval.equals(other.typeval);
 		}
-		return true;
 	}
 
 	@Override

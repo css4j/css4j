@@ -18,7 +18,6 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
@@ -28,14 +27,14 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class ExpressionValue extends PrimitiveValue implements CSSExpressionValue {
+public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 
 	private StyleExpression expression = null;
 
 	private boolean roundResult = false;
 
 	public ExpressionValue() {
-		super(CSSPrimitiveValue2.CSS_EXPRESSION);
+		super(Type.EXPRESSION);
 	}
 
 	protected ExpressionValue(ExpressionValue copied) {
@@ -176,7 +175,7 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 				default:
 					PrimitiveValue primi;
 					LexicalSetter item = factory.createCSSPrimitiveValueItem(lu, false, false);
-					if (item == null || isInvalidOperand(primi = item.getCSSValue(), lutype, lastlutype)) {
+					if (isInvalidOperand(primi = item.getCSSValue(), lutype, lastlutype)) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
 					}
 					OperandExpression operand = new OperandExpression();
@@ -303,11 +302,10 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 			return false;
 		ExpressionValue other = (ExpressionValue) obj;
 		if (expression == null) {
-			if (other.expression != null)
-				return false;
-		} else if (!expression.equals(other.expression))
-			return false;
-		return true;
+			return other.expression == null;
+		} else {
+			return expression.equals(other.expression);
+		}
 	}
 
 	@Override

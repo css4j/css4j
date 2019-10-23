@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import org.w3c.dom.css.CSSStyleDeclaration;
+import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 
 /**
  * Transforms HTML attributes into style declarations.
@@ -21,7 +21,7 @@ import org.w3c.dom.css.CSSStyleDeclaration;
  */
 public final class AttributeToStyle {
 
-	public static void align(String attribute, CSSStyleDeclaration style) {
+	public static void align(String attribute, ExtendedCSSStyleDeclaration style) {
 		if (attribute.equalsIgnoreCase("center") || attribute.equalsIgnoreCase("middle")) {
 			style.setProperty("text-align", "center", null);
 		} else if (attribute.equalsIgnoreCase("justify")) {
@@ -33,14 +33,14 @@ public final class AttributeToStyle {
 		}
 	}
 
-	public static void bgcolor(String bgcolorAttr, CSSStyleDeclaration style) {
+	public static void bgcolor(String bgcolorAttr, ExtendedCSSStyleDeclaration style) {
 		bgcolorAttr = bgcolorAttr.trim();
 		if (bgcolorAttr.length() != 0) {
 			style.setProperty("background-color", bgcolorAttr, null);
 		}
 	}
 
-	public static void width(String widthAttr, CSSStyleDeclaration style) {
+	public static void width(String widthAttr, ExtendedCSSStyleDeclaration style) {
 		int attlen = widthAttr.length();
 		if (attlen != 0) {
 			char c = widthAttr.charAt(attlen - 1);
@@ -51,7 +51,7 @@ public final class AttributeToStyle {
 		}
 	}
 
-	public static void height(String heightAttr, CSSStyleDeclaration style) {
+	public static void height(String heightAttr, ExtendedCSSStyleDeclaration style) {
 		int attlen = heightAttr.length();
 		if (attlen != 0) {
 			char c = heightAttr.charAt(attlen - 1);
@@ -62,14 +62,14 @@ public final class AttributeToStyle {
 		}
 	}
 
-	public static void face(String attribute, CSSStyleDeclaration style) {
+	public static void face(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		if (attribute.length() != 0) {
 			style.setProperty("font-family", attribute, null);
 		}
 	}
 
-	public static void size(String attribute, CSSStyleDeclaration style) {
+	public static void size(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		if (attribute.length() != 0) {
 			style.setProperty("font-size", translateFontSize(attribute), null);
@@ -84,18 +84,18 @@ public final class AttributeToStyle {
 		} else if(size.charAt(0) == '-') {
 			return "smaller";
 		} else {
-			return size.toString();
+			return size;
 		}
 	}
 
-	public static void color(String attribute, CSSStyleDeclaration style) {
+	public static void color(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		if (attribute.length() != 0) {
 			style.setProperty("color", attribute, null);
 		}
 	}
 
-	public static boolean border(String attribute, CSSStyleDeclaration style) {
+	public static boolean border(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		int attlen = attribute.length();
 		if (attlen != 0) {
@@ -112,7 +112,7 @@ public final class AttributeToStyle {
 		return false;
 	}
 
-	public static void borderColor(String attribute, CSSStyleDeclaration style) {
+	public static void borderColor(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		int attlen = attribute.length();
 		if (attlen != 0) {
@@ -123,7 +123,7 @@ public final class AttributeToStyle {
 		}
 	}
 
-	public static void cellSpacing(String attribute, CSSStyleDeclaration style) {
+	public static void cellSpacing(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		int attlen = attribute.length();
 		if (attlen != 0) {
@@ -135,14 +135,14 @@ public final class AttributeToStyle {
 		}
 	}
 
-	public static void background(String attribute, CSSStyleDeclaration style) {
+	public static void background(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		if (attribute.length() != 0) {
 			style.setProperty("background-image", attribute, null);
 		}
 	}
 
-	public static void hspace(String attribute, CSSStyleDeclaration style) {
+	public static void hspace(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		int attlen = attribute.length();
 		if (attlen != 0) {
@@ -151,7 +151,7 @@ public final class AttributeToStyle {
 		}
 	}
 
-	public static void vspace(String attribute, CSSStyleDeclaration style) {
+	public static void vspace(String attribute, ExtendedCSSStyleDeclaration style) {
 		attribute = attribute.trim();
 		int attlen = attribute.length();
 		if (attlen != 0) {

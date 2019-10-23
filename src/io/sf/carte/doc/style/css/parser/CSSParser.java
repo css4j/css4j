@@ -32,6 +32,7 @@ import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.AgentUtil;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
@@ -1792,9 +1793,7 @@ public class CSSParser implements Parser {
 					parsingWord = 2;
 				}
 			}
-			if ("important".equals(buf.toString().toLowerCase(Locale.ROOT))) {
-				return true;
-			}
+			return "important".equals(buf.toString().toLowerCase(Locale.ROOT));
 		}
 		return false;
 	}
@@ -4863,17 +4862,11 @@ public class CSSParser implements Parser {
 			default:
 				return true;
 			}
-			if (last == null) {
-				return false;
-			}
-			return true;
+			return last != null;
 		}
 
 		protected boolean isValidSelectorList() {
-			if (selist.isEmpty() || currentsel != null) {
-				return false;
-			}
-			return true;
+			return !selist.isEmpty() && currentsel == null;
 		}
 
 		@Override
@@ -5261,6 +5254,8 @@ public class CSSParser implements Parser {
 				lu = newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
 			} else if ("attr".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_ATTR);
+			} else if ("var".equalsIgnoreCase(name)) {
+				lu = newLexicalUnit(LexicalUnit.SAC_VAR);
 			} else if ("element".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_ELEMENT_REFERENCE);
 				functionToken = true;
@@ -5468,7 +5463,7 @@ public class CSSParser implements Parser {
 		private boolean isValidHSLColor() {
 			LexicalUnitImpl lu = currentlu.parameters;
 			short pcntCount = 0;
-			short lastType = -1;
+			short lastType = -1; // -2 means angle type
 			boolean hasCommas = false;
 			boolean hasNoCommas = false;
 			do {
@@ -5481,7 +5476,8 @@ public class CSSParser implements Parser {
 						if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
 							return false;
 						}
-					} else if (lastType == LexicalUnit.SAC_INTEGER || isAngleType(lastType)) {
+					} else if (lastType == LexicalUnit.SAC_INTEGER || lastType == -2) {
+						// last type was integer or angle.
 						hasNoCommas = true;
 					}
 					pcntCount++;
@@ -5498,10 +5494,11 @@ public class CSSParser implements Parser {
 							return false;
 						}
 					}
-				} else if (isAngleType(type)) {
+				} else if (isAngleType(lu.getCssUnit())) {
 					if (lastType != -1) {
 						return false;
 					}
+					type = -2;
 				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
 					if (pcntCount != 2 || lastType != LexicalUnit.SAC_PERCENTAGE || hasCommas) {
 						return false;
@@ -5522,8 +5519,8 @@ public class CSSParser implements Parser {
 		}
 
 		private boolean isAngleType(short type) {
-			return type == LexicalUnit.SAC_DEGREE || type == LexicalUnit.SAC_RADIAN || type == LexicalUnit.SAC_GRADIAN
-					|| type == LexicalUnit.SAC_TURN;
+			return type == CSSUnit.CSS_DEG || type == CSSUnit.CSS_RAD || type == CSSUnit.CSS_GRAD
+					|| type == CSSUnit.CSS_TURN;
 		}
 
 		protected void handleRightCurlyBracket(int index) {
@@ -5574,6 +5571,7 @@ public class CSSParser implements Parser {
 							&& (compatText = setFullIdentCompat()) != null) { // !
 						warnIdentCompat(index, compatText);
 						lunit.setUnitType(LexicalUnit.SAC_COMPAT_PRIO);
+						lunit.setCssUnit(CSSUnit.CSS_INVALID);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -6041,9 +6039,11 @@ public class CSSParser implements Parser {
 				if (ident.equalsIgnoreCase("inherit")) {
 					newLexicalUnit(LexicalUnit.SAC_INHERIT);
 				} else if (ident.equalsIgnoreCase("initial")) {
-					newLexicalUnit(LexicalUnit.SAC_IDENT).value = "initial";
+					newLexicalUnit(LexicalUnit.SAC_INITIAL);
 				} else if (ident.equalsIgnoreCase("unset")) {
-					newLexicalUnit(LexicalUnit.SAC_IDENT).value = "unset";
+					newLexicalUnit(LexicalUnit.SAC_UNSET);
+				} else if (ident.equalsIgnoreCase("revert")) {
+					newLexicalUnit(LexicalUnit.SAC_REVERT);
 				} else {
 					if (!newIdentifier(raw, ident, cssText)) {
 						handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
@@ -6123,46 +6123,53 @@ public class CSSParser implements Parser {
 		}
 
 		private boolean parseNumber(int index, String s, int i) {
-			String strnum;
 			String unit = null;
-			short unitType;
+			LexicalUnitImpl lu;
 			if (i != s.length()) {
 				unit = s.substring(i);
 				unit = unit.trim().toLowerCase(Locale.ROOT).intern();
-				unitType = ParseHelper.unitFromString(unit);
-				strnum = s.substring(0, i);
+				short cssUnit = ParseHelper.unitFromString(unit);
+				final short unitType;
+				if (cssUnit == CSSUnit.CSS_PERCENTAGE) {
+					unitType = LexicalUnit.SAC_PERCENTAGE;
+				} else {
+					unitType = LexicalUnit.SAC_DIMENSION;
+				}
+				String strnum = s.substring(0, i);
+				float flval;
+				try {
+					flval = Float.parseFloat(strnum);
+				} catch (NumberFormatException e) {
+					return false;
+				}
+				lu = newLexicalUnit(unitType);
+				lu.floatValue = flval;
+				lu.dimensionUnitText = unit;
+				lu.setCssUnit(cssUnit);
 			} else { // No unit
 				if (s.lastIndexOf('.', i) == -1) {
-					unitType = LexicalUnit.SAC_INTEGER;
-				} else {
-					unitType = LexicalUnit.SAC_REAL;
-				}
-				strnum = s;
-			}
-			if (unitType == LexicalUnit.SAC_INTEGER) {
-				try {
-					int intval = Integer.parseInt(strnum);
-					LexicalUnitImpl lu = newLexicalUnit(unitType);
+					int intval;
+					try {
+						intval = Integer.parseInt(s);
+					} catch (NumberFormatException e) {
+						return false;
+					}
+					lu = newNumberUnit(LexicalUnit.SAC_INTEGER);
 					lu.intValue = intval;
-				} catch (NumberFormatException e) {
-					return false;
-				}
-			} else {
-				try {
-					LexicalUnitImpl lu;
-					float flval = Float.parseFloat(strnum);
-					if (unitType == LexicalUnit.SAC_REAL && flval == 0f) {
-						lu = newLexicalUnit(LexicalUnit.SAC_INTEGER);
+				} else {
+					float flval;
+					try {
+						flval = Float.parseFloat(s);
+					} catch (NumberFormatException e) {
+						return false;
+					}
+					if (flval == 0f) {
+						lu = newNumberUnit(LexicalUnit.SAC_INTEGER);
 						lu.intValue = (int) flval;
 					} else {
-						lu = newLexicalUnit(unitType);
+						lu = newNumberUnit(LexicalUnit.SAC_REAL);
 						lu.floatValue = flval;
-						if (unit != null) {
-							lu.dimensionUnitText = unit;
-						}
 					}
-				} catch (NumberFormatException e) {
-					return false;
 				}
 			}
 			return true;
@@ -6200,7 +6207,7 @@ public class CSSParser implements Parser {
 					parseHexComponent(4, 6, false);
 					int comp = hexComponent(6, 8, false);
 					newLexicalUnit(LexicalUnit.SAC_OPERATOR_SLASH);
-					newLexicalUnit(LexicalUnit.SAC_REAL).floatValue = comp / 255f;
+					newNumberUnit(LexicalUnit.SAC_REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 4) {
@@ -6213,7 +6220,7 @@ public class CSSParser implements Parser {
 					parseHexComponent(2, 3, true);
 					int comp = hexComponent(3, 4, true);
 					newLexicalUnit(LexicalUnit.SAC_OPERATOR_SLASH);
-					newLexicalUnit(LexicalUnit.SAC_REAL).floatValue = comp / 255f;
+					newNumberUnit(LexicalUnit.SAC_REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else {
@@ -6227,7 +6234,13 @@ public class CSSParser implements Parser {
 
 		private void parseHexComponent(int start, int end, boolean doubleDigit) {
 			int comp = hexComponent(start, end, doubleDigit);
-			newLexicalUnit(LexicalUnit.SAC_INTEGER).intValue = comp;
+			newNumberUnit(LexicalUnit.SAC_INTEGER).intValue = comp;
+		}
+
+		private LexicalUnitImpl newNumberUnit(short sacType) {
+			LexicalUnitImpl lu = newLexicalUnit(sacType);
+			lu.setCssUnit(CSSUnit.CSS_NUMBER);
+			return lu;
 		}
 
 		private int hexComponent(int start, int end, boolean doubleDigit) {
@@ -6467,6 +6480,7 @@ public class CSSParser implements Parser {
 				currentlu.reset();
 				currentlu.value = prev + ' ' + lastvalue;
 				currentlu.setUnitType(LexicalUnit.SAC_COMPAT_IDENT);
+				currentlu.setCssUnit(CSSUnit.CSS_INVALID);
 			} else {
 				newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = lastvalue;
 			}
@@ -6498,6 +6512,7 @@ public class CSSParser implements Parser {
 				}
 				lunit.value = newval;
 				lunit.setUnitType(LexicalUnit.SAC_COMPAT_IDENT);
+				lunit.setCssUnit(CSSUnit.CSS_INVALID);
 			} else {
 				newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = newval;
 			}

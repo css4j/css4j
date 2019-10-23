@@ -31,12 +31,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSRuleList;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.MediaQueryFactory;
@@ -150,7 +150,7 @@ public class MediaRuleTest {
 		CSSElement cssStyle = styleElement(
 				"@media only screen and (min-width:0\\0){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}",
 				EnumSet.of(Parser.Flag.IEVALUES));
-		AbstractCSSStyleSheet compatsheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet compatsheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(1, compatsheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, compatsheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) compatsheet.getCssRules().item(0);
@@ -175,7 +175,7 @@ public class MediaRuleTest {
 	@Test
 	public void testParseBad() throws DOMException, ParserConfigurationException {
 		CSSElement cssStyle = styleElement("@media (max-width:1600px) and only screen {div.foo{margin:1em}}");
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(1, sheet.getCssRules().getLength());
 		AbstractCSSRule rule = sheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
@@ -195,7 +195,7 @@ public class MediaRuleTest {
 	public void testParseIgnoreBad() throws DOMException, ParserConfigurationException {
 		CSSElement cssStyle = styleElement(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
 		//
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
@@ -222,7 +222,7 @@ public class MediaRuleTest {
 	public void testParseIgnoreBad2() throws DOMException, ParserConfigurationException {
 		CSSElement cssStyle = styleElement(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }}@media {div.foo{margin:1em}}");
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
 		//
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());

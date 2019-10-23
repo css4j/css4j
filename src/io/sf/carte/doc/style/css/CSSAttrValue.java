@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
 /**
  * <code>attr()</code> primitive value.
  */
-public interface CSSAttrValue extends ExtendedCSSPrimitiveValue {
+public interface CSSAttrValue extends CSSPrimitiveValue {
 
 	/**
 	 * Get the attribute name.
@@ -36,6 +36,6 @@ public interface CSSAttrValue extends ExtendedCSSPrimitiveValue {
 	 * 
 	 * @return the fallback value, or <code>null</code> if no fallback was specified.
 	 */
-	ExtendedCSSValue getFallback();
+	CSSValue getFallback();
 
 }

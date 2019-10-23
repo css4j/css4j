@@ -38,6 +38,19 @@ public class GenericShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderNoShorthandKeywordMix() {
+		assertShorthandText(
+				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:inherit;",
+				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:inherit;");
+		assertShorthandText(
+				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:revert;",
+				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:revert;");
+		assertShorthandText(
+				"text-emphasis-color:unset;text-emphasis-style:open;",
+				"text-emphasis-style:open;text-emphasis-color:unset");
+	}
+
+	@Test
 	public void testBuilderNoShorthandCustomProperty() {
 		assertShorthandText(
 				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:var(--foo-style);",
@@ -52,6 +65,15 @@ public class GenericShorthandBuilderTest {
 		assertShorthandText(
 				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:double \\9 ;",
 				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:double \\9;");
+	}
+
+	@Test
+	public void testBuilderKeywordMix() {
+		assertShorthandText(
+				"text-decoration:line-through navy;",
+				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:unset;");
+		assertShorthandText(
+				"text-emphasis:open;", "text-emphasis-style:open;text-emphasis-color:initial");
 	}
 
 	@Test
@@ -91,12 +113,22 @@ public class GenericShorthandBuilderTest {
 
 	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("text-decoration:unset;", "text-decoration: unset;");
+		assertShorthandText("text-decoration:none;", "text-decoration: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("text-decoration:unset!important;", "text-decoration: unset!important;");
+		assertShorthandText("text-decoration:none!important;", "text-decoration: unset!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("text-decoration:revert;", "text-decoration: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("text-decoration:revert!important;", "text-decoration: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

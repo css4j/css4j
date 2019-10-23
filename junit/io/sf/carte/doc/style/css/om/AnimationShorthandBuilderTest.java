@@ -29,7 +29,7 @@ public class AnimationShorthandBuilderTest {
 	@Test
 	public void testBuilderNoShorthand() {
 		assertShorthandText("animation-name:foo;", "animation-name: foo;");
-		// Nobody uses IE hacks for animations, but the detection code is shared
+		// With IE Hack
 		assertShorthandText(
 				"animation-delay:1s;animation-duration:3200ms;animation-fill-mode:none;animation-name:foo\\9 ;",
 				"animation-duration: 3200ms;animation-delay:1s;animation-fill-mode:none;animation-name:foo\\9;");
@@ -49,6 +49,30 @@ public class AnimationShorthandBuilderTest {
 		assertShorthandText("animation:3s none backwards;", "animation: 3s none backwards;");
 		assertShorthandText("animation:3s ease-in 1s 2 reverse both paused slidein;",
 				"animation: 3s ease-in 1s 2 reverse both paused slidein;");
+	}
+
+	@Test
+	public void testBuilderMix() {
+		assertShorthandText(
+				"animation-delay:1s;animation-direction:normal;animation-duration:3200ms;animation-fill-mode:inherit;animation-iteration-count:1;animation-name:foo;animation-play-state:running;animation-timing-function:ease-in;",
+				"animation-duration: 3200ms;animation-delay:1s;animation-fill-mode:inherit;animation-timing-function:ease-in;animation-direction:normal;animation-iteration-count:1;animation-play-state:running;animation-name:foo;");
+		assertShorthandText(
+				"animation-delay:1s;animation-direction:normal;animation-duration:3200ms;animation-fill-mode:revert;animation-iteration-count:1;animation-name:foo;animation-play-state:running;animation-timing-function:ease-in;",
+				"animation-duration: 3200ms;animation-delay:1s;animation-fill-mode:revert;animation-timing-function:ease-in;animation-direction:normal;animation-iteration-count:1;animation-play-state:running;animation-name:foo;");
+		assertShorthandText(
+				"animation:3200ms ease-in 1s foo;",
+				"animation-duration: 3200ms;animation-delay:1s;animation-fill-mode:initial;animation-timing-function:ease-in;animation-direction:normal;animation-iteration-count:1;animation-play-state:running;animation-name:foo;");
+		assertShorthandText(
+				"animation:3200ms ease-in 1s foo;",
+				"animation-duration: 3200ms;animation-delay:1s;animation-fill-mode:unset;animation-timing-function:ease-in;animation-direction:normal;animation-iteration-count:1;animation-play-state:running;animation-name:foo;");
+	}
+
+	@Test
+	public void testBuilderIEHack() {
+		// Nobody uses IE hacks for animations, but the detection code is shared
+		assertShorthandText(
+				"animation:3200ms ease-in 1s foo\\9 ;",
+				"animation-duration: 3200ms;animation-delay:1s;animation-fill-mode:none;animation-timing-function:ease-in;animation-direction:normal;animation-iteration-count:1;animation-play-state:running;animation-name:foo\\9;");
 	}
 
 	@Test
@@ -93,12 +117,22 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("animation:unset;", "animation: unset;");
+		assertShorthandText("animation:none;", "animation: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("animation:unset!important;", "animation: unset!important;");
+		assertShorthandText("animation:none!important;", "animation: unset!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("animation:revert;", "animation: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("animation:revert!important;", "animation: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

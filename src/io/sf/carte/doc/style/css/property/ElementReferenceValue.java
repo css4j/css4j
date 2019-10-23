@@ -16,24 +16,23 @@ import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Element reference (<code>element()</code>) CSSPrimitiveValue.
+ * Element reference (<code>element()</code>) value.
  * 
  * @author Carlos Amengual
  *
  */
-class ElementReferenceValue extends PrimitiveValue {
+class ElementReferenceValue extends TypedValue {
 
 	private String refname = null;
 
 	ElementReferenceValue() {
-		super(CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE);
+		super(Type.ELEMENT_REFERENCE);
 	}
 
 	protected ElementReferenceValue(ElementReferenceValue copied) {
@@ -95,13 +94,10 @@ class ElementReferenceValue extends PrimitiveValue {
 		}
 		ElementReferenceValue other = (ElementReferenceValue) obj;
 		if (refname == null) {
-			if (other.refname != null) {
-				return false;
-			}
-		} else if (!refname.equals(other.refname)) {
-			return false;
+			return other.refname == null;
+		} else {
+			return refname.equals(other.refname);
 		}
-		return true;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ package io.sf.carte.doc.agent;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.StyleDatabase;
 
 /**
@@ -48,7 +48,7 @@ public interface CSSCanvas {
 	 * @return the value of the requested media feature, or <code>null</code> if the
 	 *         feature is not known or not supported.
 	 */
-	ExtendedCSSPrimitiveValue getFeatureValue(String feature);
+	CSSTypedValue getFeatureValue(String feature);
 
 	/**
 	 * Does this canvas support the given media feature?
@@ -60,7 +60,7 @@ public interface CSSCanvas {
 	 * @return <code>true</code> if the feature (with the given value, if any) is
 	 *         supported, <code>false</code> otherwise.
 	 */
-	boolean matchesFeature(String featureName, ExtendedCSSPrimitiveValue value);
+	boolean matchesFeature(String featureName, CSSTypedValue value);
 
 	/**
 	 * Reload any possible style state/caching that this canvas may have.

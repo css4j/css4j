@@ -58,14 +58,22 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImageUnset() {
-		emptyStyleDecl.setCssText("border-image: unset");
-		assertEquals("border-image:unset;", emptyStyleDecl.getOptimizedCssText());
+		assertShorthandText("border-image:none;", "border-image: unset");
 	}
 
 	@Test
 	public void testBorderImageUnsetImportant() {
-		emptyStyleDecl.setCssText("border-image: unset ! important");
-		assertEquals("border-image:unset!important;", emptyStyleDecl.getOptimizedCssText());
+		assertShorthandText("border-image:none!important;", "border-image: unset ! important");
+	}
+
+	@Test
+	public void testBorderImageRevert() {
+		assertShorthandText("border-image:revert;", "border-image: revert");
+	}
+
+	@Test
+	public void testBorderImageRevertImportant() {
+		assertShorthandText("border-image:revert!important;", "border-image: revert ! important");
 	}
 
 	@Test
@@ -128,16 +136,15 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImageNoShorthandKeyword() {
-		emptyStyleDecl.setCssText(
+		assertShorthandText(
+				"border-image:url('foo.png');",
 				"border-image-source: url('foo.png'); border-image-outset: 0; border-image-slice: 100%; border-image-repeat: unset; border-image-width: 1;");
-		assertEquals(
-				"border-image-outset:0;border-image-repeat:unset;border-image-slice:100%;border-image-source:url('foo.png');border-image-width:1;",
-				emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText(
+		assertShorthandText(
+				"border-image:none;",
 				"border-image-source:unset; border-image-outset:0; border-image-slice:100%;border-image-repeat: unset;border-image-width:1;");
-		assertEquals(
-				"border-image-outset:0;border-image-repeat:unset;border-image-slice:100%;border-image-source:unset;border-image-width:1;",
-				emptyStyleDecl.getOptimizedCssText());
+		assertShorthandText(
+				"border-image-outset:0;border-image-repeat:revert;border-image-slice:100%;border-image-source:url('foo.png');border-image-width:1;",
+				"border-image-source: url('foo.png'); border-image-outset: 0; border-image-slice: 100%; border-image-repeat: revert; border-image-width: 1;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

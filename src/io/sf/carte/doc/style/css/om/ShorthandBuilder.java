@@ -22,18 +22,19 @@ import java.util.TreeSet;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSValueList;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueList;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -203,12 +204,11 @@ abstract class ShorthandBuilder {
 	}
 
 	boolean isExcludedValue(StyleValue cssValue) {
-		short type = cssValue.getCssValueType();
-		if (type == CSSValue.CSS_PRIMITIVE_VALUE) {
-			return isExcludedType(((CSSPrimitiveValue) cssValue).getPrimitiveType());
-		} else if (type == CSSValue.CSS_VALUE_LIST) {
+		if (cssValue.isPrimitiveValue()) {
+			return isExcludedType(cssValue.getPrimitiveType());
+		} else if (cssValue.getCssValueType() == CssType.LIST) {
 			@SuppressWarnings("unchecked")
-			ExtendedCSSValueList<StyleValue> list = (ExtendedCSSValueList<StyleValue>) cssValue;
+			CSSValueList<StyleValue> list = (CSSValueList<StyleValue>) cssValue;
 			Iterator<StyleValue> it = list.iterator();
 			while (it.hasNext()) {
 				if (isExcludedValue(it.next())) {
@@ -219,8 +219,8 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean isExcludedType(short primitiveType) {
-		return primitiveType == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY;
+	boolean isExcludedType(Type type) {
+		return type == Type.VAR;
 	}
 
 	boolean processPriorities(StringBuilder buf) {
@@ -246,9 +246,7 @@ abstract class ShorthandBuilder {
 					appendNonImportantProperties(buf);
 				}
 			}
-			if (!appendShorthandSet(buf, impPtySet, true)) {
-				return false;
-			}
+			return appendShorthandSet(buf, impPtySet, true);
 		}
 		return true;
 	}
@@ -316,24 +314,26 @@ abstract class ShorthandBuilder {
 	}
 
 	boolean isInherit(StyleValue value) {
-		return value != null && value.getCssValueType() == CSSValue.CSS_INHERIT;
+		return value != null && value.getPrimitiveType() == Type.INHERIT;
 	}
 
 	/**
 	 * Check for keyword identifier values.
 	 * <p>
-	 * Only works if the declaredSet only contains properties that are within the set
-	 * that has to be tested.
-	 * @param keyword the keyword.
+	 * Only works if the declaredSet only contains properties that are within the
+	 * set that has to be tested.
+	 * 
+	 * @param keyword     the keyword.
 	 * @param declaredSet the declared set.
 	 * 
-	 * @return 0 if no keyword was found, 1 if all values are keyword, 2 if both keyword and
-	 *         non-keyword values were found.
+	 * @return 0 if no keyword was found, 1 if all values are keyword, 2 if both
+	 *         keyword and non-keyword values were found.
 	 */
-	byte checkDeclaredValuesForKeyword(String keyword, Set<String> declaredSet) {
+	byte checkDeclaredValuesForKeyword(CSSValue.Type keyword, Set<String> declaredSet) {
 		byte count = 0;
 		for (String propertyName : declaredSet) {
-			if (isCssKeywordValue(keyword, getCSSValue(propertyName))) {
+			StyleValue val = getCSSValue(propertyName);
+			if (keyword == val.getPrimitiveType()) {
 				count++;
 			}
 		}
@@ -352,25 +352,26 @@ abstract class ShorthandBuilder {
 	 * @return 0 if no keyword was found, 1 if all values are keyword, 2 if both keyword and
 	 *         non-keyword values were found.
 	 */
-	byte checkValuesForKeyword(String keyword, Set<String> declaredSet) {
+	byte checkValuesForKeyword(CSSValue.Type keyword, Set<String> declaredSet) {
 		return checkValuesForKeyword(keyword, getShorthandName(), declaredSet);
 	}
 
 	/**
 	 * Inefficient check for keyword identifier values.
 	 * 
-	 * @param keyword the keyword.
+	 * @param keyword   the keyword.
 	 * @param shorthand the shorthand name.
-	 * @return 0 if no keyword was found, 1 if all values are keyword, 2 if both keyword and
-	 *         non-keyword values were found.
+	 * @return 0 if no keyword was found, 1 if all values are keyword, 2 if both
+	 *         keyword and non-keyword values were found.
 	 */
-	byte checkValuesForKeyword(String keyword, String shorthand, Set<String> declaredSet) {
+	byte checkValuesForKeyword(CSSValue.Type keyword, String shorthand, Set<String> declaredSet) {
 		byte count = 0, expect = 0;
 		String[] properties = getLonghandProperties(shorthand);
 		for (String propertyName : properties) {
 			if (declaredSet.contains(propertyName)) {
 				expect++;
-				if (isCssKeywordValue(keyword, getCSSValue(propertyName))) {
+				StyleValue cssValue = getCSSValue(propertyName);
+				if (cssValue.getPrimitiveType() == keyword) {
 					count++;
 				}
 			}
@@ -383,39 +384,36 @@ abstract class ShorthandBuilder {
 		return 2;
 	}
 
-	static boolean isCssKeywordValue(String keyword, StyleValue cssValue) {
-		return cssValue != null && cssValue.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& isCSSIdentifier((CSSPrimitiveValue) cssValue, keyword);
-	}
-
-	static boolean isCSSIdentifier(CSSPrimitiveValue value, String ident) {
-		return value.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& ident.equalsIgnoreCase(value.getStringValue());
+	static boolean isCssKeywordValue(CSSValue.Type keyword, StyleValue cssValue) {
+		return cssValue != null && cssValue.getPrimitiveType() == keyword;
 	}
 
 	String getValueTextIfNotInitial(String propertyName, StyleValue cssVal) {
-		if (cssVal != null && !cssVal.isSystemDefault() && !isInitialIdentifier(cssVal)
+		if (cssVal != null && !cssVal.isSystemDefault() && cssVal.getPrimitiveType() != CSSValue.Type.INITIAL
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal)) {
 			return cssVal.getMinifiedCssText(propertyName);
 		}
 		return null;
 	}
 
-	static boolean isInitialIdentifier(StyleValue cssVal) {
-		return cssVal.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& ((CSSPrimitiveValue) cssVal).getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
-				&& ((CSSPrimitiveValue) cssVal).getStringValue().toLowerCase(Locale.ROOT).equals("initial");
-	}
-
 	boolean isInitialValue(String propertyName) {
 		StyleValue cssVal = getCSSValue(propertyName);
-		return cssVal.isSystemDefault() || isInitialIdentifier(cssVal)
+		return cssVal.isSystemDefault() || cssVal.getPrimitiveType() == CSSValue.Type.INITIAL
 				|| valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
 	protected boolean isNotInitialValue(StyleValue cssVal, String propertyName) {
-		return cssVal != null && !cssVal.isSystemDefault() && !isInitialIdentifier(cssVal)
+		return cssVal != null && !cssVal.isSystemDefault() && !isEffectiveInitialKeyword(cssVal)
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
+	}
+
+	boolean isEffectiveInitialKeyword(StyleValue cssVal) {
+		CSSValue.Type keyword = cssVal.getPrimitiveType();
+		return keyword == Type.INITIAL || (!isInheritedProperty() && keyword == Type.UNSET);
+	}
+
+	boolean isInheritedProperty() {
+		return false;
 	}
 
 	boolean containsControl(String ident) {
@@ -430,15 +428,15 @@ abstract class ShorthandBuilder {
 	}
 
 	boolean isUnknownIdentifier(String propertyName, StyleValue value) {
-		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			CSSPrimitiveValue primi = (CSSPrimitiveValue) value;
-			if (primi.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
+		if (value.getCssValueType() == CssType.TYPED) {
+			CSSTypedValue primi = (CSSTypedValue) value;
+			if (primi.getPrimitiveType() == Type.IDENT) {
 				String s = primi.getStringValue();
 				if (!"none".equalsIgnoreCase(s)) {
 					return !getShorthandDatabase().isIdentifierValue(propertyName, s);
 				}
 			}
-		} else if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
+		} else if (value.getCssValueType() == CssType.LIST) {
 			ValueList list = (ValueList) value;
 			int len = list.getLength();
 			for (int i = 0; i < len; i++) {
@@ -450,14 +448,13 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean isImagePrimitiveValue(PrimitiveValue primi) {
-		short type = primi.getPrimitiveType();
-		return type == CSSPrimitiveValue.CSS_URI || type == CSSPrimitiveValue2.CSS_GRADIENT
-				|| (type == CSSPrimitiveValue2.CSS_FUNCTION && isImageFunction(primi))
-				|| type == CSSPrimitiveValue2.CSS_ELEMENT_REFERENCE || type == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY;
+	boolean isImagePrimitiveValue(TypedValue primi) {
+		Type type = primi.getPrimitiveType();
+		return type == Type.URI || type == Type.GRADIENT || (type == Type.FUNCTION && isImageFunction(primi))
+				|| type == Type.ELEMENT_REFERENCE || type == Type.VAR;
 	}
 
-	private boolean isImageFunction(PrimitiveValue primi) {
+	private boolean isImageFunction(TypedValue primi) {
 		String name = primi.getStringValue();
 		return "image".equalsIgnoreCase(name) || "image-set".equalsIgnoreCase(name)
 				|| "cross-fade".equalsIgnoreCase(name);
@@ -465,30 +462,26 @@ abstract class ShorthandBuilder {
 
 	boolean valueEquals(StyleValue value1, StyleValue value2) {
 		if (value2 == null) {
-			if (value1 == null) {
-				return true;
-			}
-			return false;
+			return value1 == null;
 		} else if (value1 == null) {
 			return false;
 		}
 		if (value2.isSystemDefault() != value1.isSystemDefault()) {
 			return false;
 		}
-		if (value1.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE
-				&& value2.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			PrimitiveValue pvalue1 = (PrimitiveValue) value1;
-			short type1 = pvalue1.getPrimitiveType();
-			PrimitiveValue pvalue2 = (PrimitiveValue) value2;
-			short type2 = pvalue2.getPrimitiveType();
-			if (type1 == CSSPrimitiveValue.CSS_IDENT) {
-				if (type2 == CSSPrimitiveValue.CSS_RGBCOLOR) {
+		if (value1.getCssValueType() == CssType.TYPED && value2.getCssValueType() == CssType.TYPED) {
+			TypedValue pvalue1 = (TypedValue) value1;
+			Type type1 = pvalue1.getPrimitiveType();
+			TypedValue pvalue2 = (TypedValue) value2;
+			Type type2 = pvalue2.getPrimitiveType();
+			if (type1 == Type.IDENT) {
+				if (type2 == Type.RGBCOLOR) {
 					return testColorIdentifier(pvalue2, pvalue1.getStringValue().toLowerCase(Locale.ROOT));
-				} else if (type2 == CSSPrimitiveValue.CSS_IDENT) {
+				} else if (type2 == Type.IDENT) {
 					return pvalue1.getStringValue().equalsIgnoreCase(pvalue2.getStringValue());
 				}
-			} else if (type1 == CSSPrimitiveValue.CSS_RGBCOLOR) {
-				if (type2 == CSSPrimitiveValue.CSS_IDENT) {
+			} else if (type1 == Type.RGBCOLOR) {
+				if (type2 == Type.IDENT) {
 					return testColorIdentifier(pvalue1, pvalue2.getStringValue());
 				}
 			}
@@ -496,7 +489,7 @@ abstract class ShorthandBuilder {
 		return value1.equals(value2);
 	}
 
-	private boolean testColorIdentifier(PrimitiveValue color, String ident) {
+	private boolean testColorIdentifier(TypedValue color, String ident) {
 		String spec;
 		if ("transparent".equals(ident)) {
 			spec = "rgba(0,0,0,0)";
@@ -506,7 +499,7 @@ abstract class ShorthandBuilder {
 		if (spec != null) {
 			ValueFactory factory = new ValueFactory();
 			try {
-				CSSPrimitiveValue val = (CSSPrimitiveValue) factory.parseProperty(spec);
+				CSSTypedValue val = (CSSTypedValue) factory.parseProperty(spec);
 				return val.getRGBColorValue().equals(color.getRGBColorValue());
 			} catch (DOMException e) {
 			}
@@ -544,10 +537,11 @@ abstract class ShorthandBuilder {
 
 	boolean appendRelativeURI(StringBuilder buf, boolean prepend, StyleValue value) {
 		String text;
-		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			CSSPrimitiveValue pvalue = (CSSPrimitiveValue) value;
-			short type = pvalue.getPrimitiveType();
-			if (type == CSSPrimitiveValue.CSS_URI) {
+		CssType category = value.getCssValueType();
+		if (category == CssType.TYPED) {
+			CSSTypedValue pvalue = (CSSTypedValue) value;
+			Type type = pvalue.getPrimitiveType();
+			if (type == Type.URI) {
 				URL url = ((URIValue) pvalue).getURLValue();
 				if (url != null) {
 					String baseuri;
@@ -560,14 +554,17 @@ abstract class ShorthandBuilder {
 				} else {
 					text = pvalue.getCssText();
 				}
-			} else if (type == CSSPrimitiveValue.CSS_IDENT) {
+			} else if (type == Type.IDENT) {
 				text = pvalue.getStringValue();
-				if ("none".equalsIgnoreCase(text) || "initial".equalsIgnoreCase(text)) {
+				if ("none".equalsIgnoreCase(text)) {
 					return false;
 				}
 			} else {
 				text = value.getMinifiedCssText("background-image");
 			}
+		} else if (category == CssType.KEYWORD) {
+			// assume 'initial' or 'unset' with no inheritance
+			return false;
 		} else {
 			text = value.getMinifiedCssText("background-image");
 		}

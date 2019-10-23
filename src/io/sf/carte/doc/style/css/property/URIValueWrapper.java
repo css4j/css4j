@@ -123,7 +123,7 @@ public class URIValueWrapper extends URIValue implements WrappedValue {
 	}
 
 	@Override
-	public void setStringValue(short stringType, String stringValue) throws DOMException {
+	public void setStringValue(Type stringType, String stringValue) throws DOMException {
 		error();
 	}
 

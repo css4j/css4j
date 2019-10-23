@@ -14,15 +14,11 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 
-import org.w3c.dom.css.CSSValue;
-
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.property.InheritValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -113,8 +109,11 @@ class AnimationShorthandSetter extends ShorthandSetter {
 					break;
 				}
 				// If a css-wide keyword is found, set the entire layer to it
-				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_INHERIT) {
-					// Full layer is 'inherit'
+				short lutype = currentValue.getLexicalUnitType();
+				if (lutype == LexicalUnit.SAC_INHERIT || lutype == LexicalUnit.SAC_UNSET
+						|| lutype == LexicalUnit.SAC_REVERT) {
+					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
+					// Full layer is 'keyword'
 					while (currentValue != null) {
 						boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
 						currentValue = currentValue.getNextLexicalUnit();
@@ -125,8 +124,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 					i++;
 					// First, clear any values set at this layer
 					clearLayer(subp, i);
-					InheritValue inherit = InheritValue.getValue().asSubproperty();
-					addSingleValueLayer(inherit);
+					addSingleValueLayer(keyword);
 					// Reset layer buffer to initial state, eventually with comma
 					layerBuffer.setLength(0);
 					miniLayerBuffer.setLength(0);
@@ -134,7 +132,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 						layerBuffer.append(',');
 						miniLayerBuffer.append(',');
 					}
-					appendValueItemString(inherit);
+					appendValueItemString(keyword);
 					appendToValueBuffer(layerBuffer, miniLayerBuffer);
 					// Done with the layer
 					layerBuffer.setLength(0);
@@ -144,41 +142,6 @@ class AnimationShorthandSetter extends ShorthandSetter {
 						miniLayerBuffer.append(',');
 					}
 					continue topLoop;
-				}
-				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-					String sv = currentValue.getStringValue().toLowerCase(Locale.ROOT);
-					if ("initial".equals(sv) || "unset".equals(sv)) {
-						StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
-						// Full layer is 'keyword'
-						while (currentValue != null) {
-							boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
-							currentValue = currentValue.getNextLexicalUnit();
-							if (commaFound) {
-								break;
-							}
-						}
-						i++;
-						// First, clear any values set at this layer
-						clearLayer(subp, i);
-						addSingleValueLayer(keyword);
-						// Reset layer buffer to initial state, eventually with comma
-						layerBuffer.setLength(0);
-						miniLayerBuffer.setLength(0);
-						if (i != 1) {
-							layerBuffer.append(',');
-							miniLayerBuffer.append(',');
-						}
-						appendValueItemString(keyword);
-						appendToValueBuffer(layerBuffer, miniLayerBuffer);
-						// Done with the layer
-						layerBuffer.setLength(0);
-						miniLayerBuffer.setLength(0);
-						if (i != layerCount) {
-							layerBuffer.append(',');
-							miniLayerBuffer.append(',');
-						}
-						continue topLoop;
-					}
 				}
 				// try to assign the current lexical value to an individual
 				// property ...and see the result
@@ -267,8 +230,8 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	 * @return <code>true</code> if the value was successfully assigned.
 	 */
 	private boolean assignLayerValue(Set<String> subp) {
-		short type = currentValue.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_SECOND || type == LexicalUnit.SAC_MILLISECOND) {
+		short type = currentValue.getCssUnit();
+		if (type == CSSUnit.CSS_S || type == CSSUnit.CSS_MS) {
 			ValueList list;
 			String property = "animation-duration";
 			if (!subp.contains(property)) {
@@ -283,22 +246,18 @@ class AnimationShorthandSetter extends ShorthandSetter {
 			list.add(createCSSValue(property, currentValue));
 			subp.remove(property);
 			nextCurrentValue();
-		} else if (type == LexicalUnit.SAC_INTEGER) {
+		} else if ((type = currentValue.getLexicalUnitType()) == LexicalUnit.SAC_INTEGER) {
 			int ivalue = currentValue.getIntegerValue();
 			if (ivalue < 0) {
 				return false;
 			}
-			if (!setIterationCountValue(subp)) {
-				return false;
-			}
+			return setIterationCountValue(subp);
 		} else if (type == LexicalUnit.SAC_REAL) {
 			float fvalue = currentValue.getFloatValue();
 			if (fvalue < 0f) {
 				return false;
 			}
-			if (!setIterationCountValue(subp)) {
-				return false;
-			}
+			return setIterationCountValue(subp);
 		} else if (type == LexicalUnit.SAC_FUNCTION) {
 			if (!subp.contains("animation-timing-function")) {
 				return false;
@@ -307,28 +266,23 @@ class AnimationShorthandSetter extends ShorthandSetter {
 			subp.remove("animation-timing-function");
 			nextCurrentValue();
 		} else if (type == LexicalUnit.SAC_IDENT) {
-			if (subp.contains("animation-timing-function")
-					&& testIdentifiers("transition-timing-function")) {
+			if (subp.contains("animation-timing-function") && testIdentifiers("transition-timing-function")) {
 				lstTimingFunction.add(createCSSValue("animation-timing-function", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-timing-function");
-			} else if (subp.contains("animation-iteration-count")
-					&& testIdentifiers("animation-iteration-count")) {
+			} else if (subp.contains("animation-iteration-count") && testIdentifiers("animation-iteration-count")) {
 				lstIterationCount.add(createCSSValue("animation-iteration-count", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-iteration-count");
-			} else if (subp.contains("animation-direction")
-					&& testIdentifiers("animation-direction")) {
+			} else if (subp.contains("animation-direction") && testIdentifiers("animation-direction")) {
 				lstDirection.add(createCSSValue("animation-direction", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-direction");
-			} else if (subp.contains("animation-fill-mode")
-					&& testIdentifiers("animation-fill-mode")) {
+			} else if (subp.contains("animation-fill-mode") && testIdentifiers("animation-fill-mode")) {
 				lstFillMode.add(createCSSValue("animation-fill-mode", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-fill-mode");
-			} else if (subp.contains("animation-play-state")
-					&& testIdentifiers("animation-play-state")) {
+			} else if (subp.contains("animation-play-state") && testIdentifiers("animation-play-state")) {
 				lstPlayState.add(createCSSValue("animation-play-state", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-play-state");
@@ -397,23 +351,6 @@ class AnimationShorthandSetter extends ShorthandSetter {
 			} else if ("animation-name".equals(pname)) {
 				lstName.add(cssVal);
 			}
-		}
-	}
-
-	private void setListSubpropertyValue(String pname, ValueList list) {
-		if (list.getLength() == 1) {
-			StyleValue val = list.item(0);
-			if (val.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				((PrimitiveValue) val).setSubproperty(true);
-			} else if (val.getCssValueType() == CSSValue.CSS_INHERIT) {
-				val = ((InheritValue) val).asSubproperty();
-			} else if (val.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
-				((ValueList) val).setSubproperty(true);
-			}
-			setSubpropertyValue(pname, val);
-		} else {
-			list.setSubproperty(true);
-			setSubpropertyValue(pname, list);
 		}
 	}
 

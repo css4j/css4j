@@ -16,16 +16,15 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSValue;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValueList;
+import io.sf.carte.doc.style.css.CSSValueList;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Linked-list implementation of <code>ExtendedCSSValueList</code>.
+ * Linked-list implementation of <code>CSSValueList</code>.
  */
-public class LinkedCSSValueList extends LinkedList<StyleValue> implements ExtendedCSSValueList<StyleValue> {
+public class LinkedCSSValueList extends LinkedList<StyleValue> implements CSSValueList<StyleValue> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -71,7 +70,7 @@ public class LinkedCSSValueList extends LinkedList<StyleValue> implements Extend
 	 * @return a clone of this instance.
 	 */
 	@Override
-	public ExtendedCSSValueList<StyleValue> clone() {
+	public CSSValueList<StyleValue> clone() {
 		LinkedCSSValueList copy = new LinkedCSSValueList();
 		copy.addAll(this);
 		return copy;
@@ -123,7 +122,7 @@ public class LinkedCSSValueList extends LinkedList<StyleValue> implements Extend
 	@Override
 	public StyleValue set(int index, StyleValue value) {
 		if(value == null) {
-			throw new NullPointerException("Null value set to CSSValueList");
+			throw new NullPointerException("Null value set to ValueList");
 		}
 		return super.set(index, value);
 	}
@@ -145,11 +144,6 @@ public class LinkedCSSValueList extends LinkedList<StyleValue> implements Extend
 	public void setCssText(String cssText) throws DOMException {
 		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
 				"This value has to be modified by accessing its elements.");
-	}
-
-	@Override
-	public short getCssValueType() {
-		return CSSValue.CSS_VALUE_LIST;
 	}
 
 }

@@ -15,10 +15,11 @@ import java.io.IOException;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -70,11 +71,10 @@ abstract public class InlineStyle extends BaseCSSStyleDeclaration implements Nod
 	}
 
 	private void writeValue(SimpleWriter wri, String propertyName, StyleValue value) throws IOException {
-		CSSPrimitiveValue primi;
-		if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
-				|| (primi = (CSSPrimitiveValue) value).getPrimitiveType() != CSSPrimitiveValue.CSS_STRING) {
+		if (value.getCssValueType() != CssType.TYPED || value.getPrimitiveType() != CSSValue.Type.STRING) {
 			value.writeCssText(wri);
 		} else {
+			CSSTypedValue primi = (CSSTypedValue) value;
 			String s = primi.getStringValue();
 			s = ParseHelper.escapeControl(s);
 			s = ParseHelper.quote(s, '\'');

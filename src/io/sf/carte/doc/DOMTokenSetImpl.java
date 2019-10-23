@@ -166,7 +166,7 @@ public class DOMTokenSetImpl implements DOMTokenList {
 		if (multiple) {
 			return ((LinkedList<String>) this.value).contains(token);
 		}
-		return ((String) value).equals(token);
+		return value.equals(token);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -191,7 +191,7 @@ public class DOMTokenSetImpl implements DOMTokenList {
 			}
 			return true;
 		}
-		return otherlen == 1 && ((String) value).equals(otherlist.item(0));
+		return otherlen == 1 && value.equals(otherlist.item(0));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -201,7 +201,7 @@ public class DOMTokenSetImpl implements DOMTokenList {
 			return ((LinkedList<String>) this.value).containsAll(tokenSet);
 		}
 		int sz = tokenSet.size();
-		return sz == 0 || (sz == 1 && ((String) value).equals(tokenSet.iterator().next()));
+		return sz == 0 || (sz == 1 && value.equals(tokenSet.iterator().next()));
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public class DOMTokenSetImpl implements DOMTokenList {
 				this.value = set.getFirst();
 				multiple = false;
 			}
-		} else if (((String) value).equals(token)) {
+		} else if (value.equals(token)) {
 			this.value = "";
 		}
 	}
@@ -271,7 +271,7 @@ public class DOMTokenSetImpl implements DOMTokenList {
 				multiple = false;
 				set.clear();
 			}
-		} else if (((String) this.value).equals(token)) {
+		} else if (this.value.equals(token)) {
 			this.value = "";
 		} else if (((String) this.value).length() == 0) {
 			this.value = token;
@@ -306,7 +306,7 @@ public class DOMTokenSetImpl implements DOMTokenList {
 					set.remove(idx);
 				}
 			}
-		} else if (((String) this.value).equals(oldToken)) {
+		} else if (this.value.equals(oldToken)) {
 			this.value = newToken;
 		}
 	}

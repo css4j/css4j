@@ -16,8 +16,8 @@ import java.io.InputStream;
 import java.util.HashSet;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
 
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 
 /**
@@ -145,7 +145,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 
 	@Override
 	public short getNaturalUnit() {
-		return CSSPrimitiveValue.CSS_PT;
+		return CSSUnit.CSS_PT;
 	}
 
 }

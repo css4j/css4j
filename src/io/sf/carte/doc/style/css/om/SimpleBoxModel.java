@@ -16,25 +16,28 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.css.CSSPrimitiveValue;
-import org.w3c.dom.css.CSSValue;
 
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.Viewport;
 import io.sf.carte.doc.style.css.BoxValues;
+import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 
 /**
  * Simple CSS Box Model.
@@ -149,6 +152,8 @@ abstract class SimpleBoxModel {
 
 	abstract protected ComputedCSSStyle getComputedStyle();
 
+	abstract protected CSSComputedProperties getRevertStyle(String pseudoElt);
+
 	private StyleDatabase getStyleDatabase() {
 		return getComputedStyle().getStyleDatabase();
 	}
@@ -156,7 +161,7 @@ abstract class SimpleBoxModel {
 	private void computeSharedBoxValues(MyBoxValues box, short unitType) {
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCSSValue("margin-top");
-		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
@@ -167,12 +172,12 @@ abstract class SimpleBoxModel {
 		if (styledecl == null) {
 			box.marginTop = 0f;
 		} else {
-			if (cssval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				CSSPrimitiveValue2 primi = (CSSPrimitiveValue2) cssval;
-				if (isPrimitiveAutoLength(primi)) {
+			if (cssval.getCssValueType() == CssType.TYPED) {
+				CSSTypedValue typed = (CSSTypedValue) cssval;
+				if (isTypedAutoOrInvalidLength(typed)) {
 					box.marginTop = 0f;
 				} else {
-					box.marginTop = computeMarginNumberValue(styledecl, "margin-top", primi, unitType);
+					box.marginTop = computeMarginNumberValue(styledecl, "margin-top", typed, unitType);
 				}
 			} else {
 				CSSPropertyValueException e = new CSSPropertyValueException(
@@ -182,7 +187,7 @@ abstract class SimpleBoxModel {
 			}
 		}
 		cssval = styledecl.getCSSValue("margin-bottom");
-		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
@@ -193,12 +198,12 @@ abstract class SimpleBoxModel {
 		if (styledecl == null) {
 			box.marginBottom = 0f;
 		} else {
-			if (cssval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				CSSPrimitiveValue2 primi = (CSSPrimitiveValue2) cssval;
-				if (isPrimitiveAutoLength(primi)) {
+			if (cssval.getCssValueType() == CssType.TYPED) {
+				CSSTypedValue typed = (CSSTypedValue) cssval;
+				if (isTypedAutoOrInvalidLength(typed)) {
 					box.marginBottom = 0f;
 				} else {
-					box.marginBottom = computeMarginNumberValue(styledecl, "margin-bottom", primi, unitType);
+					box.marginBottom = computeMarginNumberValue(styledecl, "margin-bottom", typed, unitType);
 				}
 			} else {
 				CSSPropertyValueException e = new CSSPropertyValueException(
@@ -232,8 +237,8 @@ abstract class SimpleBoxModel {
 	 * @return <code>true</code> if the value is <code>auto</code> or invalid
 	 *         length.
 	 */
-	private static boolean isPrimitiveAutoLength(CSSPrimitiveValue2 value) {
-		return (value.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT
+	private static boolean isTypedAutoOrInvalidLength(CSSTypedValue value) {
+		return (value.getPrimitiveType() == Type.IDENT
 				&& "auto".equalsIgnoreCase(value.getStringValue()))
 				|| (value.isNegativeNumber() && !value.isCalculatedNumber());
 	}
@@ -254,7 +259,7 @@ abstract class SimpleBoxModel {
 	void computeInlineBox(MyBoxValues box, short unitType) throws StyleDatabaseRequiredException {
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCSSValue("margin-right");
-		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
@@ -265,10 +270,10 @@ abstract class SimpleBoxModel {
 		if (styledecl == null) {
 			box.marginRight = 0f;
 		} else {
-			if (cssval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				CSSPrimitiveValue2 primi = (CSSPrimitiveValue2) cssval;
-				if (!isPrimitiveAutoLength(primi)) {
-					box.marginRight = computeMarginNumberValue(styledecl, "margin-right", primi, unitType);
+			if (cssval.getCssValueType() == CssType.TYPED) {
+				CSSTypedValue typed = (CSSTypedValue) cssval;
+				if (!isTypedAutoOrInvalidLength(typed)) {
+					box.marginRight = computeMarginNumberValue(styledecl, "margin-right", typed, unitType);
 				}
 			} else {
 				CSSPropertyValueException e = new CSSPropertyValueException(
@@ -279,7 +284,7 @@ abstract class SimpleBoxModel {
 		}
 		styledecl = getComputedStyle();
 		cssval = styledecl.getCSSValue("margin-left");
-		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
@@ -290,10 +295,10 @@ abstract class SimpleBoxModel {
 		if (styledecl == null) {
 			box.marginLeft = 0f;
 		} else {
-			if (cssval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-				CSSPrimitiveValue2 primi = (CSSPrimitiveValue2) cssval;
-				if (!isPrimitiveAutoLength(primi)) {
-					box.marginLeft = computeMarginNumberValue(styledecl, "margin-left", primi, unitType);
+			if (cssval.getCssValueType() == CssType.TYPED) {
+				CSSTypedValue typed = (CSSTypedValue) cssval;
+				if (!isTypedAutoOrInvalidLength(typed)) {
+					box.marginLeft = computeMarginNumberValue(styledecl, "margin-left", typed, unitType);
 				}
 			} else {
 				CSSPropertyValueException e = new CSSPropertyValueException(
@@ -316,8 +321,8 @@ abstract class SimpleBoxModel {
 					ex.setValueText(strWidth);
 					elm.getOwnerDocument().getErrorHandler().computedStyleError(elm, "width", ex);
 				}
-				if (unitType != CSSPrimitiveValue.CSS_PX) {
-					box.width = NumberValue.floatValueConversion(box.width, CSSPrimitiveValue.CSS_PX, unitType);
+				if (unitType != CSSUnit.CSS_PX) {
+					box.width = NumberValue.floatValueConversion(box.width, CSSUnit.CSS_PX, unitType);
 				}
 			}
 		}
@@ -372,7 +377,7 @@ abstract class SimpleBoxModel {
 		boolean margin_right_auto = false;
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCSSValue("margin-right");
-		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
@@ -380,11 +385,11 @@ abstract class SimpleBoxModel {
 				cssval = styledecl.getCSSValue("margin-right");
 			}
 		}
-		if (cssval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			CSSPrimitiveValue2 primi = (CSSPrimitiveValue2) cssval;
-			margin_right_auto = isPrimitiveAutoLength(primi);
+		if (cssval.getCssValueType() == CssType.TYPED) {
+			CSSTypedValue typed = (CSSTypedValue) cssval;
+			margin_right_auto = isTypedAutoOrInvalidLength(typed);
 			if (!margin_right_auto) {
-				box.marginRight = computeMarginNumberValue(styledecl, "margin-right", primi, unitType);
+				box.marginRight = computeMarginNumberValue(styledecl, "margin-right", typed, unitType);
 			}
 		} else {
 			CSSPropertyValueException e = new CSSPropertyValueException(
@@ -395,7 +400,7 @@ abstract class SimpleBoxModel {
 		styledecl = getComputedStyle();
 		boolean margin_left_auto = false;
 		cssval = styledecl.getCSSValue("margin-left");
-		while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
@@ -403,11 +408,11 @@ abstract class SimpleBoxModel {
 				cssval = styledecl.getCSSValue("margin-left");
 			}
 		}
-		if (cssval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
-			CSSPrimitiveValue2 primi = (CSSPrimitiveValue2) cssval;
-			margin_left_auto = isPrimitiveAutoLength(primi);
+		if (cssval.getCssValueType() == CssType.TYPED) {
+			CSSTypedValue typed = (CSSTypedValue) cssval;
+			margin_left_auto = isTypedAutoOrInvalidLength(typed);
 			if (!margin_left_auto) {
-				box.marginLeft = computeMarginNumberValue(styledecl, "margin-left", primi, unitType);
+				box.marginLeft = computeMarginNumberValue(styledecl, "margin-left", typed, unitType);
 			}
 		} else {
 			CSSPropertyValueException e = new CSSPropertyValueException(
@@ -419,9 +424,9 @@ abstract class SimpleBoxModel {
 		styledecl = getComputedStyle();
 		// Width
 		cssval = styledecl.getCSSValue("width");
-		CSSPrimitiveValue2 primi;
-		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
-				|| isPrimitiveAutoLength(primi = (CSSPrimitiveValue2) cssval)) {
+		CSSTypedValue typed;
+		if (cssval == null || cssval.getCssValueType() != CssType.TYPED
+				|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
 			// width: auto
 			if (margin_right_auto) {
 				box.marginRight = 0f;
@@ -440,7 +445,7 @@ abstract class SimpleBoxModel {
 					+ box.paddingLeft + box.paddingRight);
 		} else {
 			// Non-auto width
-			box.width = computeNonAutoWidth(styledecl, primi, unitType);
+			box.width = computeNonAutoWidth(styledecl, typed, unitType);
 			float contBlockWidth;
 			ComputedCSSStyle contblockStyledecl = findContainingBlockStyle(styledecl);
 			if (contblockStyledecl == null) {
@@ -593,8 +598,8 @@ abstract class SimpleBoxModel {
 		}
 		box.colwidth = new float[ncol];
 		StyleValue cssval = style.getCSSValue("width");
-		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
-				|| isPrimitiveAutoLength((CSSPrimitiveValue2) cssval)) {
+		if (cssval == null || cssval.getCssValueType() != CssType.TYPED
+				|| isTypedAutoOrInvalidLength((CSSTypedValue) cssval)) {
 			// width: auto
 			/*
 			 * If the 'table' or 'inline-table' element has 'width: auto', the used width is
@@ -711,7 +716,7 @@ abstract class SimpleBoxModel {
 					text = BoxModelHelper.contractSpaces(text.trim());
 					if (canvas != null) {
 						minw = NumberValue.floatValueConversion(canvas.stringWidth(text, style),
-								CSSPrimitiveValue.CSS_PT, unitType);
+								CSSUnit.CSS_PT, unitType);
 					} else {
 						minw = BoxModelHelper.computeNodeMinimumWidth(text, style, unitType);
 					}
@@ -751,7 +756,7 @@ abstract class SimpleBoxModel {
 		text = BoxModelHelper.contractSpaces(text.trim());
 		CSSCanvas canvas = getComputedStyle().getOwnerNode().getOwnerDocument().getCanvas();
 		if (canvas != null) {
-			contw[0] = NumberValue.floatValueConversion(canvas.stringWidth(text, style), CSSPrimitiveValue.CSS_PT,
+			contw[0] = NumberValue.floatValueConversion(canvas.stringWidth(text, style), CSSUnit.CSS_PT,
 					unitType);
 		} else {
 			contw[0] = BoxModelHelper.computeTextWidth(text, style, unitType);
@@ -785,7 +790,7 @@ abstract class SimpleBoxModel {
 			if (canvas != null && (viewport = canvas.getViewport()) != null) {
 				float fv = viewport.getViewportWidth();
 				return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(),
-						CSSPrimitiveValue.CSS_PT);
+						CSSUnit.CSS_PT);
 			}
 		}
 		if (sdb == null) {
@@ -794,10 +799,10 @@ abstract class SimpleBoxModel {
 			pve.setValueText(value);
 			throw pve;
 		}
-		return NumberValue.floatValueConversion(sdb.getDeviceWidth(), sdb.getNaturalUnit(), CSSPrimitiveValue.CSS_PT);
+		return NumberValue.floatValueConversion(sdb.getDeviceWidth(), sdb.getNaturalUnit(), CSSUnit.CSS_PT);
 	}
 
-	private float computeMarginNumberValue(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue cssval,
+	private float computeMarginNumberValue(ComputedCSSStyle styledecl, String propertyName, CSSTypedValue cssval,
 			short unitType) throws StyleDatabaseRequiredException {
 		float fv;
 		try {
@@ -814,8 +819,8 @@ abstract class SimpleBoxModel {
 		return fv;
 	}
 
-	private float floatValue(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue cssval, short unitType,
-			boolean useDeviceDocumentWidth) throws DOMException {
+	private float floatValue(ComputedCSSStyle styledecl, String propertyName, CSSTypedValue cssval,
+			short unitType, boolean useDeviceDocumentWidth) throws DOMException {
 		if (unitType < 0) {
 			if (getStyleDatabase() == null) {
 				StyleDatabaseRequiredException sdex = new StyleDatabaseRequiredException(
@@ -825,28 +830,32 @@ abstract class SimpleBoxModel {
 			}
 			unitType = getStyleDatabase().getNaturalUnit();
 		}
-		short declType = cssval.getPrimitiveType();
+		Type declType = cssval.getPrimitiveType();
 		float fv;
-		if (declType == CSSPrimitiveValue.CSS_PERCENTAGE) {
-			fv = percentageValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
-		} else if (declType == CSSPrimitiveValue2.CSS_EXPRESSION) {
+		if (declType == Type.EXPRESSION) {
 			fv = calcValue(styledecl, propertyName, (ExpressionValue) cssval, unitType, useDeviceDocumentWidth);
-		} else if (declType == CSSPrimitiveValue2.CSS_FUNCTION) {
+		} else if (declType == Type.FUNCTION) {
 			fv = functionValue(styledecl, propertyName, (CSSFunctionValue) cssval, unitType, useDeviceDocumentWidth);
+		} else if (declType == Type.NUMERIC) {
+			if (cssval.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+				fv = percentageValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
+			} else {
+				fv = cssval.getFloatValue(unitType);
+			}
 		} else {
-			fv = cssval.getFloatValue(unitType);
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Unable to evaluate value of type: " + declType);
 		}
 		return fv;
 	}
 
-	private float percentageValue(ComputedCSSStyle styledecl, CSSPrimitiveValue cssval, short unitType,
+	private float percentageValue(ComputedCSSStyle styledecl, CSSTypedValue cssval, short unitType,
 			boolean useDeviceDocumentWidth) {
 		// Get the width of the containing block.
 		styledecl = findContainingBlockStyle(styledecl);
 		if (styledecl == null) {
 			if (useDeviceDocumentWidth) {
 				return deviceDocumentWidth("no enclosing block, and value is percentage.", cssval.getCssText())
-						* cssval.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) / 100f;
+						* cssval.getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
 			} else {
 				getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock(getComputedStyle().getDisplay(),
 						getComputedStyle().getOwnerNode());
@@ -854,7 +863,7 @@ abstract class SimpleBoxModel {
 			}
 		}
 		// We got the enclosing block: let's figure out the width
-		return computeWidth(styledecl, unitType) * cssval.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE) / 100f;
+		return computeWidth(styledecl, unitType) * cssval.getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
 	}
 
 	private static ComputedCSSStyle findContainingBlockStyle(ComputedCSSStyle styledecl) {
@@ -892,7 +901,7 @@ abstract class SimpleBoxModel {
 	private float calcValue(ComputedCSSStyle styledecl, String propertyName, ExpressionValue cssCalc, short unitType,
 			boolean useDeviceDocumentWidth) {
 		BoxEvaluator ev = new BoxEvaluator(styledecl, propertyName, useDeviceDocumentWidth);
-		ExtendedCSSPrimitiveValue result = ev.evaluateExpression(cssCalc);
+		CSSTypedValue result = ev.evaluateExpression(cssCalc);
 		if (result.isNegativeNumber()) {
 			// A negative calculated length is taken as zero.
 			return 0f;
@@ -908,9 +917,9 @@ abstract class SimpleBoxModel {
 
 	private float computeWidth(ComputedCSSStyle styledecl, short unitType) throws StyleDatabaseRequiredException {
 		CSSValue cssval = styledecl.getCSSValue("width");
-		CSSPrimitiveValue2 primi;
-		if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
-				|| isPrimitiveAutoLength(primi = (CSSPrimitiveValue2) cssval)) {
+		CSSTypedValue typed;
+		if (cssval == null || cssval.getCssValueType() != CssType.TYPED
+				|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
 			// width: auto
 			CSSValue cssMarginLeft = styledecl.getCSSValue("margin-left");
 			CSSValue cssBorderLeftWidth = styledecl.getCSSValue("border-left-width");
@@ -932,13 +941,13 @@ abstract class SimpleBoxModel {
 				String display = contblockStyledecl.getPropertyValue("display").toLowerCase(Locale.ROOT);
 				if ("table".equals(display) || display.startsWith("table-")) {
 					cssval = contblockStyledecl.getCSSValue("width");
-					if (cssval == null || cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE
-							|| isPrimitiveAutoLength(primi = (CSSPrimitiveValue2) cssval)
-							|| primi.getPrimitiveType() == CSSPrimitiveValue.CSS_PERCENTAGE) {
+					if (cssval == null || cssval.getCssValueType() != CssType.TYPED
+							|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)
+							|| typed.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
 						throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
 								"Automatic tables not supported by this box model");
 					}
-					contBlockWidth = computeNonAutoWidth(contblockStyledecl, primi, unitType);
+					contBlockWidth = computeNonAutoWidth(contblockStyledecl, typed, unitType);
 				} else {
 					contBlockWidth = computeWidth(contblockStyledecl, unitType);
 				}
@@ -946,10 +955,10 @@ abstract class SimpleBoxModel {
 			return contBlockWidth
 					- (marginLeft + marginRight + borderLeftWidth + borderRightWidth + paddingLeft + paddingRight);
 		}
-		return computeNonAutoWidth(styledecl, primi, unitType);
+		return computeNonAutoWidth(styledecl, typed, unitType);
 	}
 
-	private float computeNonAutoWidth(ComputedCSSStyle styledecl, CSSPrimitiveValue cssWidth, short unitType)
+	private float computeNonAutoWidth(ComputedCSSStyle styledecl, CSSTypedValue cssWidth, short unitType)
 			throws DOMException, StyleDatabaseRequiredException {
 		// width is not 'auto' nor 'inherit'.
 		float fv;
@@ -966,8 +975,8 @@ abstract class SimpleBoxModel {
 
 	private float findWidthautoBoxProperty(ComputedCSSStyle styledecl, String propertyName, CSSValue cssval,
 			short unitType) throws StyleDatabaseRequiredException, DOMException {
-		if (cssval != null && !isAutoLength(cssval)) {
-			while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+		if (cssval != null && !isAutoOrInvalidLength(cssval)) {
+			while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 				styledecl = findContainingBlockStyle(styledecl);
 				if (styledecl != null) {
 					cssval = styledecl.getCSSValue(propertyName);
@@ -977,24 +986,24 @@ abstract class SimpleBoxModel {
 				}
 			}
 			if (cssval != null) {
-				if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+				if (cssval.getCssValueType() != CssType.TYPED) {
 					throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected width value: " + cssval.getCssText());
 				}
-				CSSPrimitiveValue cssprim = (CSSPrimitiveValue) cssval;
+				CSSTypedValue cssprim = (CSSTypedValue) cssval;
 				return findNumericBoxProperty(styledecl, propertyName, cssprim, unitType);
 			}
 		}
 		return 0;
 	}
 
-	private static boolean isAutoLength(CSSValue cssval) {
-		return cssval.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE && isPrimitiveAutoLength((CSSPrimitiveValue2) cssval);
+	private static boolean isAutoOrInvalidLength(CSSValue cssval) {
+		return cssval.getCssValueType() == CssType.TYPED && isTypedAutoOrInvalidLength((CSSTypedValue) cssval);
 	}
 
 	private float findBorderWidthProperty(ComputedCSSStyle styledecl, String propertyName, CSSValue cssval,
 			short unitType) throws StyleDatabaseRequiredException, DOMException {
 		if (cssval != null) {
-			while (cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+			while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 				styledecl = findContainingBlockStyle(styledecl);
 				if (styledecl != null) {
 					cssval = styledecl.getCSSValue(propertyName);
@@ -1004,12 +1013,12 @@ abstract class SimpleBoxModel {
 				}
 			}
 			if (cssval != null) {
-				if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+				if (cssval.getCssValueType() != CssType.TYPED) {
 					throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected border-width value: " + cssval.getCssText());
 				}
 				float fval;
-				CSSPrimitiveValue cssprim = (CSSPrimitiveValue) cssval;
-				if (cssprim.getPrimitiveType() == CSSPrimitiveValue.CSS_IDENT) {
+				CSSTypedValue cssprim = (CSSTypedValue) cssval;
+				if (cssprim.getPrimitiveType() == Type.IDENT) {
 					short declType;
 					if (getStyleDatabase() == null) {
 						if (getComplianceMode() != CSSDocument.ComplianceMode.QUIRKS) {
@@ -1028,7 +1037,7 @@ abstract class SimpleBoxModel {
 								// Otherwise assume medium (default)
 								fval = (float) Math.floor(2d + sz * 0.1d);
 							}
-							declType = CSSPrimitiveValue.CSS_PT;
+							declType = CSSUnit.CSS_PT;
 						}
 					} else {
 						declType = getStyleDatabase().getNaturalUnit();
@@ -1058,7 +1067,7 @@ abstract class SimpleBoxModel {
 		return CSSDocument.ComplianceMode.STRICT;
 	}
 
-	private float findNumericBoxProperty(ComputedCSSStyle styledecl, String propertyName, CSSPrimitiveValue cssprim,
+	private float findNumericBoxProperty(ComputedCSSStyle styledecl, String propertyName, CSSTypedValue cssprim,
 			short unitType) throws StyleDatabaseRequiredException {
 		float fv;
 		try {
@@ -1075,7 +1084,7 @@ abstract class SimpleBoxModel {
 	private float computePaddingSubproperty(ComputedCSSStyle styledecl, String propertyName, short unitType)
 			throws StyleDatabaseRequiredException {
 		CSSValue cssval = styledecl.getCSSValue(propertyName);
-		while (cssval != null && cssval.getCssValueType() == CSSValue.CSS_INHERIT) {
+		while (cssval != null && cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl != null) {
 				cssval = styledecl.getCSSValue(propertyName);
@@ -1088,10 +1097,10 @@ abstract class SimpleBoxModel {
 		if (cssval == null) {
 			return 0f;
 		}
-		if (cssval.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+		if (cssval.getCssValueType() != CssType.TYPED) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected padding value: " + cssval.getCssText());
 		}
-		CSSPrimitiveValue csspri = (CSSPrimitiveValue) cssval;
+		CSSTypedValue csspri = (CSSTypedValue) cssval;
 		float fv;
 		try {
 			fv = floatValue(styledecl, propertyName, csspri, unitType, false);
@@ -1121,12 +1130,17 @@ abstract class SimpleBoxModel {
 		}
 
 		@Override
-		protected ExtendedCSSPrimitiveValue absoluteValue(ExtendedCSSPrimitiveValue partialValue) {
-			return styledecl.absolutePrimitiveValue(propertyName, (PrimitiveValue) partialValue, false);
+		protected TypedValue absoluteTypedValue(TypedValue partialValue) {
+			return styledecl.absoluteTypedValue(propertyName, partialValue, false);
 		}
 
 		@Override
-		protected float percentage(ExtendedCSSPrimitiveValue value, short unitType) throws DOMException {
+		protected StyleValue absoluteProxyValue(CSSPrimitiveValue partialValue) {
+			return styledecl.absoluteProxyValue(propertyName, partialValue, false);
+		}
+
+		@Override
+		protected float percentage(CSSTypedValue value, short unitType) throws DOMException {
 			return percentageValue(styledecl, value, unitType, useDeviceDocumentWidth);
 		}
 

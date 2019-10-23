@@ -82,7 +82,7 @@ public interface StyleFormattingContext {
 	 * @param value        the value to write.
 	 * @throws IOException if an error happened while writing.
 	 */
-	void writeValue(SimpleWriter wri, String propertyName, ExtendedCSSValue value) throws IOException;
+	void writeValue(SimpleWriter wri, String propertyName, CSSValue value) throws IOException;
 
 	/**
 	 * Serialize a css shorthand value to the given writer.

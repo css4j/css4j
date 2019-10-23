@@ -2,12 +2,12 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.ExtendedCSSValue;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 
 class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements DeclarationCondition {
 
-	private ExtendedCSSValue value = null;
+	private CSSValue value = null;
 	private String cssText = null;
 
 	public DeclarationConditionImpl(String propertyName) {
@@ -15,7 +15,7 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 	}
 
 	@Override
-	public ExtendedCSSValue getValue() {
+	public CSSValue getValue() {
 		return value;
 	}
 
@@ -27,7 +27,7 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 	 *                      tested with the condition.
 	 */
 	@Override
-	public void setValue(ExtendedCSSValue value) throws DOMException {
+	public void setValue(CSSValue value) throws DOMException {
 		this.value = value;
 	}
 

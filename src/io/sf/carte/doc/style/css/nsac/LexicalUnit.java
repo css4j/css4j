@@ -101,70 +101,6 @@ public interface LexicalUnit {
 	short SAC_REAL = 14;
 
 	/**
-	 * Relative length<code>em</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_EM = 15;
-
-	/**
-	 * Relative length<code>ex</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_EX = 16;
-
-	/**
-	 * Relative length <code>px</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_PIXEL = 17;
-
-	/**
-	 * Absolute length <code>in</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_INCH = 18;
-
-	/**
-	 * Absolute length <code>cm</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_CENTIMETER = 19;
-
-	/**
-	 * Absolute length <code>mm</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_MILLIMETER = 20;
-
-	/**
-	 * Absolute length <code>pt</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_POINT = 21;
-
-	/**
-	 * Absolute length <code>pc</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_PICA = 22;
-
-	/**
 	 * Percentage.
 	 * 
 	 * @see #getFloatValue
@@ -202,62 +138,6 @@ public interface LexicalUnit {
 	 * @see #getParameters
 	 */
 	short SAC_RGBCOLOR = 27;
-
-	/**
-	 * Angle <code>deg</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_DEGREE = 28;
-
-	/**
-	 * Angle <code>grad</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_GRADIAN = 29;
-
-	/**
-	 * Angle <code>rad</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_RADIAN = 30;
-
-	/**
-	 * Time <code>ms</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_MILLISECOND = 31;
-
-	/**
-	 * Time <code>s</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_SECOND = 32;
-
-	/**
-	 * Frequency <code>Hz</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_HERTZ = 33;
-
-	/**
-	 * Frequency <code>kHz</code>.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_KILOHERTZ = 34;
 
 	/**
 	 * Custom identifier.
@@ -320,153 +200,6 @@ public interface LexicalUnit {
 	short SAC_DIMENSION = 42;
 
 	/**
-	 * cap.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_CAP = 50;
-
-	/**
-	 * ch.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_CH = 51;
-
-	/**
-	 * ic.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_IC = 52;
-
-	/**
-	 * Root EM.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_REM = 53;
-
-	/**
-	 * lh.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_LH = 54;
-
-	/**
-	 * rlh.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_RLH = 55;
-
-	/**
-	 * vw.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_VW = 56;
-
-	/**
-	 * vh.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_VH = 57;
-
-	/**
-	 * vi.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_VI = 58;
-
-	/**
-	 * vb.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_VB = 59;
-
-	/**
-	 * vmin.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_VMIN = 60;
-
-	/**
-	 * vmax.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_VMAX = 61;
-
-	/**
-	 * Q.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_QUARTER_MILLIMETER = 62;
-
-	/**
-	 * turn.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_TURN = 63;
-
-	/**
-	 * dpi.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_DOTS_PER_INCH = 64;
-
-	/**
-	 * dpcm.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_DOTS_PER_CENTIMETER = 65;
-
-	/**
-	 * dppx.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_DOTS_PER_PIXEL = 66;
-
-	/**
-	 * Flex (fr).
-	 * <p>
-	 * Flexible length: a fraction of the leftover space in the grid container. Note
-	 * that it is not a length.
-	 *
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_FR = 67;
-
-	/**
 	 * [
 	 */
 	short SAC_LEFT_BRACKET = 68;
@@ -514,6 +247,21 @@ public interface LexicalUnit {
 	short SAC_ELEMENT_REFERENCE = 73;
 
 	/**
+	 * Keyword <code>initial</code>.
+	 */
+	short SAC_INITIAL = 74;
+
+	/**
+	 * Keyword <code>unset</code>.
+	 */
+	short SAC_UNSET = 75;
+
+	/**
+	 * Keyword <code>revert</code>.
+	 */
+	short SAC_REVERT = 76;
+
+	/**
 	 * <code>AND</code> condition.
 	 * <p>
 	 * Can be cast to a {@link BooleanCondition} of type <code>AND</code>.
@@ -546,46 +294,122 @@ public interface LexicalUnit {
 	short SAC_CONDITION_PREDICATE = 103;
 
 	/**
+	 * Custom property value: <code>var(...)</code>.
+	 * <p>
+	 * See {@link #getStringValue} for the custom property name, and
+	 * {@link #getParameters()} for the fallback.
+	 * </p>
+	 */
+	short SAC_VAR = 77;
+
+	/**
 	 * An integer indicating the type of <code>LexicalUnit</code>.
+	 * 
+	 * @return the type of <code>LexicalUnit</code>.
 	 */
 	short getLexicalUnitType();
 
 	/**
-	 * Returns the next unit.
+	 * An integer indicating the type of css unit that this lexical value
+	 * represents.
 	 * 
-	 * @return the next unit, or <code>null</code> if none.
+	 * @return an integer indicating the type of css unit. If this value does not
+	 *         represent a dimension, must return an invalid unit identifier.
+	 */
+	short getCssUnit();
+
+	/**
+	 * The next lexical unit.
+	 * <p>
+	 * Lexical units can form chains of units which can be traversed with
+	 * {@code getNextLexicalUnit()} and {@link #getPreviousLexicalUnit()}.
+	 * </p>
+	 * 
+	 * @return the next lexical unit, or <code>null</code> if none.
 	 */
 	LexicalUnit getNextLexicalUnit();
 
 	/**
-	 * Returns the previous unit.
+	 * The previous lexical unit.
+	 * <p>
+	 * See also {@link #getNextLexicalUnit}.
+	 * </p>
 	 * 
-	 * @return the previous unit, or <code>null</code> if none.
+	 * @return the previous lexical unit, or <code>null</code> if none.
 	 */
 	LexicalUnit getPreviousLexicalUnit();
 
 	/**
-	 * Returns the integer value.
+	 * Insert the given unit as the next lexical unit.
+	 * <p>
+	 * After the insertion, {@code nextUnit} shall be the next lexical unit, and the
+	 * former next lexical unit will be the next one after the last unit in the
+	 * {@code nextUnit} unit chain.
 	 * 
+	 * @param nextUnit the lexical unit to be set as the next one.
+	 */
+	void insertNextLexicalUnit(LexicalUnit nextUnit);
+
+	/**
+	 * Replace this unit in the chain of lexical units.
+	 * 
+	 * @param replacementUnit the lexical unit that replaces this one.
+	 * @return the unit that replaces this one.
+	 */
+	LexicalUnit replaceBy(LexicalUnit replacementUnit);
+
+	/**
+	 * Returns the integer value represented by this unit.
+	 * 
+	 * @return the integer value, or zero if this is not an integer unit.
 	 * @see #SAC_INTEGER
 	 */
 	int getIntegerValue();
 
 	/**
-	 * Returns the float value.
+	 * Returns the float value represented by this unit.
+	 * 
+	 * @return the float value, or {@code NaN} if this value is not a float.
 	 */
 	float getFloatValue();
 
 	/**
-	 * Returns the string representation of the unit.
-	 * <p>
-	 * if this lexical unit represents a float, the dimension is an empty string.
-	 * </p>
+	 * If this unit is a {@link #SAC_DIMENSION}, returns the string representation
+	 * of the CSS unit returned by {@link #getCssUnit()}.
+	 * 
+	 * @return the string representation of the CSS unit, or the empty string if
+	 *         this lexical unit does not represent a {@link #SAC_DIMENSION}.
 	 */
 	String getDimensionUnitText();
 
 	/**
+	 * Returns the string value.
+	 * <p>
+	 * If the type is <code>SAC_URI</code>, the return value doesn't contain
+	 * <code>uri(....)</code> or quotes.
+	 * <p>
+	 * If the type is <code>SAC_ATTR</code>, the return value doesn't contain
+	 * <code>attr(....)</code>.
+	 * <p>
+	 * If the type is <code>SAC_UNICODE_WILDCARD</code>, the return value is the
+	 * wildcard without the preceding "U+".
+	 * 
+	 * @return the string value, or <code>null</code> if this unit does not have a
+	 *         string to return.
+	 * 
+	 * @see #SAC_URI
+	 * @see #SAC_ATTR
+	 * @see #SAC_IDENT
+	 * @see #SAC_STRING_VALUE
+	 * @see #SAC_UNICODE_WILDCARD
+	 */
+	String getStringValue();
+
+	/**
 	 * Returns the name of the function.
+	 * 
+	 * @return the function name, or <code>null</code> if this unit is not a
+	 *         function.
 	 * 
 	 * @see #SAC_COUNTER_FUNCTION
 	 * @see #SAC_COUNTERS_FUNCTION
@@ -600,6 +424,9 @@ public interface LexicalUnit {
 	 * <code>#000</code> is converted to <code>rgb(0, 0, 0)</code> can return
 	 * <code>null</code> if <code>SAC_FUNCTION</code>.
 	 * 
+	 * @return the parameters of this function, or <code>null</code> if this unit is
+	 *         not a function.
+	 * 
 	 * @see #SAC_COUNTER_FUNCTION
 	 * @see #SAC_COUNTERS_FUNCTION
 	 * @see #SAC_RECT_FUNCTION
@@ -609,29 +436,20 @@ public interface LexicalUnit {
 	LexicalUnit getParameters();
 
 	/**
-	 * Returns the string value.
-	 * <p>
-	 * If the type is <code>SAC_URI</code>, the return value doesn't contain
-	 * <code>uri(....)</code> or quotes.
-	 * <p>
-	 * If the type is <code>SAC_ATTR</code>, the return value doesn't contain
-	 * <code>attr(....)</code>.
-	 * <p>
-	 * If the type is <code>SAC_UNICODE_WILDCARD</code>, the return value is the
-	 * wildcard without the preceding "U+".
-	 *
-	 * @see #SAC_URI
-	 * @see #SAC_ATTR
-	 * @see #SAC_IDENT
-	 * @see #SAC_STRING_VALUE
-	 * @see #SAC_UNICODE_WILDCARD
+	 * Check if this lexical unit is a parameter that was made available through its
+	 * parent's {@link #getParameters()} method.
+	 * 
+	 * @return {@code true} if this lexical unit is a parameter.
 	 */
-	String getStringValue();
+	boolean isParameter();
 
 	/**
-	 * Returns a sequence of units inside the sub expression.
+	 * Returns a sequence of units inside the sub-expression or unicode range.
 	 * 
+	 * @return the values in the sub-expression, or <code>null</code> if this unit
+	 *         is not a sub-expression nor a unicode range.
 	 * @see #SAC_SUB_EXPRESSION
+	 * @see #SAC_UNICODERANGE
 	 */
 	LexicalUnit getSubValues();
 
@@ -650,5 +468,13 @@ public interface LexicalUnit {
 	 * @return the parsable representation of this unit.
 	 */
 	String getCssText();
+
+	/**
+	 * Creates a deep copy of this lexical unit and the next ones, but with
+	 * {@link #getPreviousLexicalUnit()} returning {@code null}.
+	 * 
+	 * @return a copy of this unit.
+	 */
+	LexicalUnit clone();
 
 }

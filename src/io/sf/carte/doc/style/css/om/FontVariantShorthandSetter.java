@@ -37,12 +37,12 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 					normal.setSubproperty(true);
 					String[] sh = getShorthandSubproperties();
 					for (String s : sh) {
-						styleDeclaration.setProperty(s, normal, getPriority());
+						styleDeclaration.setProperty(s, normal, isPriorityImportant());
 					}
 					if (isNone) {
 						IdentifierValue none = new IdentifierValue("none");
 						none.setSubproperty(true);
-						styleDeclaration.setProperty("font-variant-ligatures", none, getPriority());
+						styleDeclaration.setProperty("font-variant-ligatures", none, isPriorityImportant());
 					}
 					initValueString();
 					appendValueItemString(text);

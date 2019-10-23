@@ -22,7 +22,8 @@ import java.util.Iterator;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.w3c.dom.css.CSSValue;
+
+import io.sf.carte.doc.style.css.CSSValue;
 
 public class PropertyDatabaseTest {
 	private static PropertyDatabase pdb;

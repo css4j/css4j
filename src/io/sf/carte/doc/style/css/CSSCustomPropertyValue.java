@@ -12,15 +12,17 @@
 
 package io.sf.carte.doc.style.css;
 
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+
 /**
- * A CSS custom property value ('variable').
+ * A reference to a CSS custom property value ('variable').
  */
-public interface CSSCustomPropertyValue extends ExtendedCSSPrimitiveValue {
+public interface CSSCustomPropertyValue extends CSSPrimitiveValue {
 
 	/**
-	 * Get the name of this custom property.
+	 * Get the name of the custom property.
 	 * 
-	 * @return the name of this custom property.
+	 * @return the name of the custom property.
 	 */
 	String getName();
 
@@ -29,6 +31,6 @@ public interface CSSCustomPropertyValue extends ExtendedCSSPrimitiveValue {
 	 * 
 	 * @return the fallback value, or <code>null</code> if there is no fallback.
 	 */
-	ExtendedCSSValue getFallback();
+	LexicalUnit getFallback();
 
 }

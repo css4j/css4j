@@ -93,6 +93,16 @@ public class FontBuilderTest {
 		assertShorthandText("font:unset!important;", "font: unset!important;");
 	}
 
+	@Test
+	public void testFontRevert() {
+		assertShorthandText("font:revert;", "font: revert;");
+	}
+
+	@Test
+	public void testFontRevertImportant() {
+		assertShorthandText("font:revert!important;", "font: revert!important;");
+	}
+
 	private void assertShorthandText(String expected, String original) {
 		emptyStyleDecl.setCssText(original);
 		assertEquals(expected, emptyStyleDecl.getOptimizedCssText());

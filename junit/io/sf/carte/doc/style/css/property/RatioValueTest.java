@@ -129,6 +129,7 @@ public class RatioValueTest {
 		assertEquals(ratio.getAntecedentValue().getCssText(), clon.getAntecedentValue().getCssText());
 		assertEquals(ratio.getConsequentValue().getCssText(), clon.getConsequentValue().getCssText());
 		assertEquals(ratio.getCssValueType(), clon.getCssValueType());
+		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(ratio.getCssText(), clon.getCssText());
 	}
 

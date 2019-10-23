@@ -13,20 +13,13 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 
-import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSValue;
-
-import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * An <code>inherit</code> value.
  * 
- * @author Carlos Amengual
- *
  */
-public class InheritValue extends StyleValue implements ValueItem {
+public class InheritValue extends KeywordValue {
 	private static InheritValue singleton = new InheritValue();
 
 	/**
@@ -34,11 +27,16 @@ public class InheritValue extends StyleValue implements ValueItem {
 	 *
 	 */
 	protected InheritValue() {
-		super(CSSValue.CSS_INHERIT);
+		super();
 	}
 
 	public static InheritValue getValue() {
 		return singleton;
+	}
+
+	@Override
+	public Type getPrimitiveType() {
+		return Type.INHERIT;
 	}
 
 	@Override
@@ -52,75 +50,8 @@ public class InheritValue extends StyleValue implements ValueItem {
 	}
 
 	@Override
-	public StyleValue getCSSValue() {
+	public KeywordValue getCSSValue() {
 		return singleton;
 	}
 
-	@Override
-	public LexicalUnit getNextLexicalUnit() {
-		return null;
-	}
-
-	@Override
-	public boolean hasWarnings() {
-		return false;
-	}
-
-	@Override
-	public void handleSyntaxWarnings(StyleDeclarationErrorHandler handler) {
-	}
-
-	@Override
-	public void setCssText(String cssText) throws DOMException {
-		throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Attempt to modify inherit value");
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		return prime * super.hashCode() + "inherit".hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj || obj instanceof InheritValue) {
-			return true;
-		}
-		return false;
-	}
-
-	public InheritValue asSubproperty() {
-		return new SubpropertyInheritedValue();
-	}
-
-	@Override
-	public InheritValue clone() {
-		return this;
-	}
-
-	private static class SubpropertyInheritedValue extends InheritValue {
-		SubpropertyInheritedValue() {
-			super();
-		}
-
-		@Override
-		public InheritValue asSubproperty() {
-			return this;
-		}
-
-		@Override
-		public boolean isSubproperty() {
-			return true;
-		}
-
-		@Override
-		public StyleValue getCSSValue() {
-			return this;
-		}
-
-		@Override
-		public InheritValue clone() {
-			return this;
-		}
-	}
 }

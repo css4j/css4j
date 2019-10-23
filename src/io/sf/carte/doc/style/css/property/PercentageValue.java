@@ -12,10 +12,11 @@
 package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSPrimitiveValue;
+
+import io.sf.carte.doc.style.css.CSSUnit;
 
 /**
- * Percentage CSSPrimitiveValue.
+ * Percentage value.
  * 
  * @author Carlos Amengual
  *
@@ -42,9 +43,9 @@ public class PercentageValue extends NumberValue {
 	 */
 	@Override
 	public float getFloatValue(short unitType) throws DOMException {
-		if (unitType == CSSPrimitiveValue.CSS_PERCENTAGE) {
+		if (unitType == CSSUnit.CSS_PERCENTAGE) {
 			return realvalue;
-		} else if (unitType == CSSPrimitiveValue.CSS_NUMBER) {
+		} else if (unitType == CSSUnit.CSS_NUMBER) {
 			return realvalue * 0.01f;
 		} else {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Cannot convert a percentage at this level");

@@ -16,17 +16,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.w3c.dom.css.CSSPrimitiveValue;
+
+import io.sf.carte.doc.style.css.CSSValue;
 
 public class URIValueTest {
 
 	@Test
 	public void testSetStringValueShortString() {
 		URIValue value = new URIValue((byte) 0);
-		value.setStringValue(CSSPrimitiveValue.CSS_URI, "http://www.example.com");
+		value.setStringValue(CSSValue.Type.URI, "http://www.example.com");
 		assertEquals("http://www.example.com", value.getStringValue());
 		assertEquals("url('http://www.example.com')", value.getCssText());
-		value.setStringValue(CSSPrimitiveValue.CSS_URI, "http://www.example.com/app?param='foo'");
+		value.setStringValue(CSSValue.Type.URI, "http://www.example.com/app?param='foo'");
 		assertEquals("http://www.example.com/app?param='foo'", value.getStringValue());
 		assertEquals("url('http://www.example.com/app?param=\\\'foo\\\'')", value.getCssText());
 	}
@@ -145,7 +146,7 @@ public class URIValueTest {
 	@Test
 	public void testClone() {
 		URIValue value = new URIValue((byte) 0);
-		value.setStringValue(CSSPrimitiveValue.CSS_URI, "http://www.example.com");
+		value.setStringValue(CSSValue.Type.URI, "http://www.example.com");
 		URIValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());

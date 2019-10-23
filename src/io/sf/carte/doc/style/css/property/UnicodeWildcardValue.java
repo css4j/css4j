@@ -15,20 +15,19 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Unicode range wildcard CSSPrimitiveValue.
+ * Unicode range wildcard value.
  * 
  */
-public class UnicodeWildcardValue extends PrimitiveValue {
+public class UnicodeWildcardValue extends TypedValue {
 
 	private String wildcard = null;
 
 	public UnicodeWildcardValue() {
-		super(CSSPrimitiveValue2.CSS_UNICODE_WILDCARD);
+		super(Type.UNICODE_WILDCARD);
 	}
 
 	protected UnicodeWildcardValue(UnicodeWildcardValue copied) {
@@ -47,9 +46,9 @@ public class UnicodeWildcardValue extends PrimitiveValue {
 	}
 
 	@Override
-	public void setStringValue(short stringType, String stringValue) throws DOMException {
+	public void setStringValue(Type stringType, String stringValue) throws DOMException {
 		checkModifiableProperty();
-		if (stringType != CSSPrimitiveValue2.CSS_UNICODE_WILDCARD) {
+		if (stringType != Type.UNICODE_WILDCARD) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Only setting wildcards is supported.");
 		}
 		if (stringValue == null) {
@@ -118,13 +117,10 @@ public class UnicodeWildcardValue extends PrimitiveValue {
 		}
 		UnicodeWildcardValue other = (UnicodeWildcardValue) obj;
 		if (wildcard == null) {
-			if (other.wildcard != null) {
-				return false;
-			}
-		} else if (!wildcard.equals(other.wildcard)) {
-			return false;
+			return other.wildcard == null;
+		} else {
+			return wildcard.equals(other.wildcard);
 		}
-		return true;
 	}
 
 	@Override

@@ -20,7 +20,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMStringList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.css.DocumentCSS;
 import org.w3c.dom.stylesheets.DocumentStyle;
 
 import io.sf.carte.doc.agent.CSSCanvas;
@@ -31,7 +30,7 @@ import io.sf.carte.doc.agent.CSSCanvas;
  * @author Carlos
  *
  */
-public interface CSSDocument extends Document, DocumentCSS, DocumentStyle, CSSNode {
+public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 
 	/**
 	 * The style computations operate under a compliance mode. Two modes are supported:
@@ -157,7 +156,7 @@ public interface CSSDocument extends Document, DocumentCSS, DocumentStyle, CSSNo
 	 *            the pseudo-element, or <code>null</code> if none.
 	 * @return the override style sheet for the given element and pseudo-element.
 	 */
-	@Override ExtendedCSSStyleDeclaration getOverrideStyle(Element elt, String pseudoElt);
+	ExtendedCSSStyleDeclaration getOverrideStyle(Element elt, String pseudoElt);
 
 	/**
 	 * Gets the merged style sheet that applies to this document, resulting from

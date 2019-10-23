@@ -18,7 +18,8 @@ import java.util.LinkedList;
 import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
-import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -143,9 +144,10 @@ class SumExpression extends StyleExpression implements AlgebraicExpression {
 				parens = true;
 			} else {
 				if (expr.getPartType() == AlgebraicPart.OPERAND) {
-					ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+					CSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
 					NumberValue number;
-					if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+					if (operand.getPrimitiveType() == Type.NUMERIC
+							&& (number = (NumberValue) operand).isNegativeNumber()) {
 						buf.append(" + ");
 						buf.append(number.minifyAbsolute(""));
 						return;
@@ -169,9 +171,10 @@ class SumExpression extends StyleExpression implements AlgebraicExpression {
 				parens = true;
 			} else {
 				if (expr.getPartType() == AlgebraicPart.OPERAND) {
-					ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+					CSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
 					NumberValue number;
-					if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+					if (operand.getPrimitiveType() == Type.NUMERIC
+							&& (number = (NumberValue) operand).isNegativeNumber()) {
 						buf.append(" + ");
 						buf.append(number.minifyAbsolute(""));
 						return;
@@ -181,9 +184,10 @@ class SumExpression extends StyleExpression implements AlgebraicExpression {
 			}
 		} else {
 			if (expr.getPartType() == AlgebraicPart.OPERAND) {
-				ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+				CSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
 				NumberValue number;
-				if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+				if (operand.getPrimitiveType() == Type.NUMERIC
+						&& (number = (NumberValue) operand).isNegativeNumber()) {
 					buf.append(" - ");
 					buf.append(number.minifyAbsolute(""));
 					return;
@@ -218,9 +222,10 @@ class SumExpression extends StyleExpression implements AlgebraicExpression {
 				parens = true;
 			} else {
 				if (expr.getPartType() == AlgebraicPart.OPERAND) {
-					ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+					CSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
 					NumberValue number;
-					if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+					if (operand.getPrimitiveType() == Type.NUMERIC
+							&& (number = (NumberValue) operand).isNegativeNumber()) {
 						wri.write(" + ");
 						number.serializeAbsolute(wri);
 						return;
@@ -244,9 +249,10 @@ class SumExpression extends StyleExpression implements AlgebraicExpression {
 				parens = true;
 			} else {
 				if (expr.getPartType() == AlgebraicPart.OPERAND) {
-					ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+					CSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
 					NumberValue number;
-					if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+					if (operand.getPrimitiveType() == Type.NUMERIC
+							&& (number = (NumberValue) operand).isNegativeNumber()) {
 						wri.write(" + ");
 						number.serializeAbsolute(wri);
 						return;
@@ -256,9 +262,9 @@ class SumExpression extends StyleExpression implements AlgebraicExpression {
 			}
 		} else {
 			if (expr.getPartType() == AlgebraicPart.OPERAND) {
-				ExtendedCSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
+				CSSPrimitiveValue operand = ((CSSOperandExpression) expr).getOperand();
 				NumberValue number;
-				if (operand instanceof NumberValue && (number = (NumberValue) operand).isNegativeNumber()) {
+				if (operand.getPrimitiveType() == Type.NUMERIC && (number = (NumberValue) operand).isNegativeNumber()) {
 					wri.write(" - ");
 					number.serializeAbsolute(wri);
 					return;
