@@ -184,7 +184,8 @@ public final class ShorthandDatabase {
 	 * <code>shorthandName</code>.
 	 * <p>
 	 * For convenience of the library's internals, the array is incomplete for the
-	 * <code>font</code> shorthand, due to <code>font-variant</code> handling.
+	 * <code>font</code> shorthand, due to <code>font-variant</code> handling,
+	 * and also for <code>border</code> due to interaction with <code>border-image</code>.
 	 * 
 	 * @param shorthandName the shorthand name.
 	 * @return an array with the names of the longhand subproperties, or
