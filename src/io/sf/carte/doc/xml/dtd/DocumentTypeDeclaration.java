@@ -84,7 +84,7 @@ public class DocumentTypeDeclaration {
 	 */
 	public static DocumentTypeDeclaration parse(String documentTypeDeclaration) throws SAXException {
 		int i = documentTypeDeclaration.indexOf('<');
-		int j = documentTypeDeclaration.lastIndexOf('>', documentTypeDeclaration.length() - 1);
+		int j = documentTypeDeclaration.lastIndexOf('>');
 		if (j < i || j <= 0) {
 			throw new SAXException("Not a Document Type Declaration: " + documentTypeDeclaration);
 		}
