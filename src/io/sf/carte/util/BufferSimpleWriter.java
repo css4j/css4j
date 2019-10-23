@@ -41,6 +41,16 @@ public class BufferSimpleWriter implements SimpleWriter {
 	}
 
 	/**
+	 * Initializes a <code>BufferSimpleWriter</code> with the given buffer.
+	 * 
+	 * @param buffer the <code>StringBuilder</code> buffer.
+	 */
+	public BufferSimpleWriter(StringBuilder buffer) {
+		super();
+		this.buffer = buffer;
+	}
+
+	/**
 	 * Get the count of the characters in this object.
 	 * 
 	 * @return the count of the characters.
