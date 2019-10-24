@@ -15,7 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSCustomPropertyValue;
+import io.sf.carte.doc.style.css.CSSVarValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
@@ -25,18 +25,18 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class CustomPropertyValue extends ProxyValue implements CSSCustomPropertyValue {
+public class VarValue extends ProxyValue implements CSSVarValue {
 
 	private String name = null;
 
 	private LexicalUnit fallback = null;
 
-	CustomPropertyValue() {
+	VarValue() {
 		super(Type.VAR);
 		this.fallback = null;
 	}
 
-	protected CustomPropertyValue(CustomPropertyValue copied) {
+	protected VarValue(VarValue copied) {
 		super(copied);
 		this.name = copied.name;
 		this.fallback = copied.fallback;
@@ -136,7 +136,7 @@ public class CustomPropertyValue extends ProxyValue implements CSSCustomProperty
 		if (cssval == null || cssval.getPrimitiveType() != Type.VAR) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a custom property value.");
 		}
-		CustomPropertyValue customp = (CustomPropertyValue) cssval;
+		VarValue customp = (VarValue) cssval;
 		this.name = customp.getName();
 		this.fallback = customp.fallback;
 	}
@@ -161,7 +161,7 @@ public class CustomPropertyValue extends ProxyValue implements CSSCustomProperty
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		CustomPropertyValue other = (CustomPropertyValue) obj;
+		VarValue other = (VarValue) obj;
 		if (name == null) {
 			if (other.name != null) {
 				return false;
@@ -211,8 +211,8 @@ public class CustomPropertyValue extends ProxyValue implements CSSCustomProperty
 	}
 
 	@Override
-	public CustomPropertyValue clone() {
-		return new CustomPropertyValue(this);
+	public VarValue clone() {
+		return new VarValue(this);
 	}
 
 }

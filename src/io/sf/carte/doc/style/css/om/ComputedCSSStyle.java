@@ -49,7 +49,6 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.AttrValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
-import io.sf.carte.doc.style.css.property.CustomPropertyValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.FunctionValue;
@@ -68,6 +67,7 @@ import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.URIValueWrapper;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.doc.style.css.property.VarValue;
 import io.sf.carte.doc.style.css.property.WrappedValue;
 import io.sf.carte.util.SimpleWriter;
 
@@ -382,7 +382,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		Type pritype = pri.getPrimitiveType();
 		// Check for custom properties ('variables')
 		if (pritype == Type.VAR) {
-			value = evaluateCustomProperty(propertyName, (CustomPropertyValue) pri, useParentStyle);
+			value = evaluateCustomProperty(propertyName, (VarValue) pri, useParentStyle);
 			value = absoluteValue(propertyName, value, useParentStyle);
 		} else if (pritype == Type.LEXICAL) {
 			value = evaluateLexicalValue(propertyName, (LexicalValue) pri, useParentStyle);
@@ -821,7 +821,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return null;
 	}
 
-	private StyleValue evaluateCustomProperty(String property, CustomPropertyValue value, boolean useParentStyle) {
+	private StyleValue evaluateCustomProperty(String property, VarValue value, boolean useParentStyle) {
 		String propertyName = getCanonicalPropertyName(value.getName());
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
@@ -985,7 +985,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				break;
 			// Check for custom properties ('variables')
 			case VAR:
-				proxy = evaluateFontCustomProperty((CustomPropertyValue) value);
+				proxy = evaluateFontCustomProperty((VarValue) value);
 				break;
 			case LEXICAL:
 				proxy = evaluateLexicalValue("font-size", (LexicalValue) value, true);
@@ -1290,7 +1290,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return number;
 	}
 
-	private StyleValue evaluateFontCustomProperty(CustomPropertyValue cssSize) {
+	private StyleValue evaluateFontCustomProperty(VarValue cssSize) {
 		String propertyName = getCanonicalPropertyName(cssSize.getName());
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();

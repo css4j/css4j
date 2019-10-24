@@ -14,11 +14,11 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 import java.util.Set;
 
-import io.sf.carte.doc.style.css.CSSCustomPropertyValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSVarValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -587,7 +587,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				String s = primi.getStringValue().toLowerCase(Locale.ROOT);
 				return ColorIdentifiers.getInstance().isColorIdentifier(s) || "transparent".equals(s);
 			} else if (ptype == Type.VAR) {
-				CSSCustomPropertyValue custom = (CSSCustomPropertyValue) primi;
+				CSSVarValue custom = (CSSVarValue) primi;
 				LexicalUnit fallback = custom.getFallback();
 				if (fallback != null) {
 					return BaseCSSStyleDeclaration.testColor(fallback);

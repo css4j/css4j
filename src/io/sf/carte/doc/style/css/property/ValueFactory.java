@@ -985,7 +985,7 @@ public class ValueFactory {
 				if (!isIsolatedLexicalUnit(lunit)) {
 					throw new CSSLexicalProcessingException("var() found.");
 				}
-				primi = new CustomPropertyValue();
+				primi = new VarValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case LexicalUnit.SAC_ATTR:

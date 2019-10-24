@@ -45,14 +45,14 @@ public class CustomPropertyValueTest {
 	@Test
 	public void testEquals() {
 		style.setCssText("foo: var(--my-identifier); ");
-		CustomPropertyValue value = (CustomPropertyValue) style.getPropertyCSSValue("foo");
+		VarValue value = (VarValue) style.getPropertyCSSValue("foo");
 		assertTrue(value.equals(value));
 		style.setCssText("foo: var(--my-identifier); ");
-		CustomPropertyValue value2 = (CustomPropertyValue) style.getPropertyCSSValue("foo");
+		VarValue value2 = (VarValue) style.getPropertyCSSValue("foo");
 		assertTrue(value.equals(value2));
 		assertEquals(value.hashCode(), value2.hashCode());
 		style.setCssText("foo: var(--other-identifier); ");
-		value2 = (CustomPropertyValue) style.getPropertyCSSValue("foo");
+		value2 = (VarValue) style.getPropertyCSSValue("foo");
 		assertFalse(value.equals(value2));
 		assertFalse(value.hashCode() == value2.hashCode());
 	}
@@ -66,7 +66,7 @@ public class CustomPropertyValueTest {
 		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.VAR, cssval.getPrimitiveType());
-		CustomPropertyValue val = (CustomPropertyValue) cssval;
+		VarValue val = (VarValue) cssval;
 		assertEquals("var(--my-identifier)", val.getCssText());
 		assertEquals("--my-identifier", val.getName());
 	}
@@ -80,7 +80,7 @@ public class CustomPropertyValueTest {
 		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.VAR, cssval.getPrimitiveType());
-		CustomPropertyValue val = (CustomPropertyValue) cssval;
+		VarValue val = (VarValue) cssval;
 		assertEquals("var(--my-identifier, #f0c)", val.getCssText());
 		LexicalUnit fallback = val.getFallback();
 		assertEquals(LexicalUnit.SAC_RGBCOLOR, fallback.getLexicalUnitType());
@@ -90,7 +90,7 @@ public class CustomPropertyValueTest {
 
 	@Test
 	public void testSetCssText() {
-		CustomPropertyValue value = new CustomPropertyValue();
+		VarValue value = new VarValue();
 		value.setCssText("var(--my-identifier)");
 		assertEquals("var(--my-identifier)", value.getCssText());
 		assertEquals("var(--my-identifier)", value.getMinifiedCssText(""));
@@ -105,7 +105,7 @@ public class CustomPropertyValueTest {
 
 	@Test
 	public void testSetCssTextError() {
-		CustomPropertyValue value = new CustomPropertyValue();
+		VarValue value = new VarValue();
 		try {
 			value.setCssText("foo");
 			fail("Must throw exception");
@@ -116,7 +116,7 @@ public class CustomPropertyValueTest {
 
 	@Test
 	public void testSetCssTextError2() {
-		CustomPropertyValue value = new CustomPropertyValue();
+		VarValue value = new VarValue();
 		try {
 			value.setCssText("var(--my-identifier, ;)");
 			fail("Must throw exception");
@@ -146,9 +146,9 @@ public class CustomPropertyValueTest {
 	@Test
 	public void testClone() {
 		style.setCssText("foo: var(--my-identifier); ");
-		CustomPropertyValue value = (CustomPropertyValue) style.getPropertyCSSValue("foo");
+		VarValue value = (VarValue) style.getPropertyCSSValue("foo");
 		assertNotNull(value);
-		CustomPropertyValue clon = value.clone();
+		VarValue clon = value.clone();
 		assertNotNull(clon);
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
@@ -161,9 +161,9 @@ public class CustomPropertyValueTest {
 	@Test
 	public void testClone2() {
 		style.setCssText("foo: var(--my-identifier, auto); ");
-		CustomPropertyValue value = (CustomPropertyValue) style.getPropertyCSSValue("foo");
+		VarValue value = (VarValue) style.getPropertyCSSValue("foo");
 		assertNotNull(value);
-		CustomPropertyValue clon = value.clone();
+		VarValue clon = value.clone();
 		assertNotNull(clon);
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());

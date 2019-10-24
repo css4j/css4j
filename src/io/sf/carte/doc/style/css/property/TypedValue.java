@@ -163,7 +163,7 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 		} else if (pType == Type.EXPRESSION) {
 			return expressionContainsType(((ExpressionValue) value).getExpression(), primitiveType);
 		} else if (pType == Type.VAR) {
-			LexicalUnit fallback = ((CustomPropertyValue) value).getFallback();
+			LexicalUnit fallback = ((VarValue) value).getFallback();
 			return fallback != null && isOrContainsType(fallback, primitiveType);
 		}
 		return false;
