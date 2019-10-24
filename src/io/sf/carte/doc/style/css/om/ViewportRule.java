@@ -53,7 +53,7 @@ public class ViewportRule extends BaseCSSDeclarationRule {
 
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
-		context.startRule(wri);
+		context.startRule(wri, this.precedingComments);
 		wri.write("@viewport");
 		context.updateContext(this);
 		context.writeLeftCurlyBracket(wri);
@@ -62,7 +62,7 @@ public class ViewportRule extends BaseCSSDeclarationRule {
 		context.endCurrentContext(this);
 		context.endStyleDeclaration(wri);
 		context.writeRightCurlyBracket(wri);
-		context.endRule(wri);
+		context.endRule(wri, this.trailingComments);
 	}
 
 	@Override

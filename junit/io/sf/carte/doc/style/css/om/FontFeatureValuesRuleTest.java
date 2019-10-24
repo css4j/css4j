@@ -49,7 +49,7 @@ public class FontFeatureValuesRuleTest {
 	@Test
 	public void testParseRule() throws IOException {
 		StringReader re = new StringReader(
-				"/* pre-rule */@font-feature-values /* skip 1 */ Some Font, Other Font /* skip 2 */ {/* pre-swash */@swash /* skip 3 */{ swishy: 1; flowing: 2; } /* pre-styleset */@styleset /* skip 4 */{ double-W: 14; sharp-terminals: 16 1; }}");
+				"/* pre-rule */@font-feature-values /* skip 1 */ Some Font, Other Font /* skip 2 */ {/* pre-swash */@swash /* skip 3 */{ swishy: 1; flowing: 2; } /* post-swash */\n/* pre-styleset */@styleset /* skip 4 */{ double-W: 14; sharp-terminals: 16 1; }}");
 		assertTrue(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
@@ -66,7 +66,7 @@ public class FontFeatureValuesRuleTest {
 				"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"@font-feature-values 'Some Font', 'Other Font' {\n    @swash {\n        swishy: 1;\n        flowing: 2;\n    }\n    @styleset {\n        double-W: 14;\n        sharp-terminals: 16 1;\n    }\n}\n",
+				"/* pre-rule */\n@font-feature-values 'Some Font', 'Other Font' {\n    /* pre-swash */\n    @swash {\n        swishy: 1;\n        flowing: 2;\n    }\n    /* pre-styleset */\n    @styleset {\n        double-W: 14;\n        sharp-terminals: 16 1;\n    }\n}\n",
 				rule.getCssText());
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());

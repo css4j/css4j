@@ -87,7 +87,7 @@ public class KeyframesRuleTest {
 				"@keyframes foo{from{margin-left:100%;width:300%}50%{margin-left:50%;width:50%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"@keyframes foo {\n    /* pre-from */\n    from {\n        margin-left: 100%;\n        width: 300%;\n    }\n    /* pre-50% */\n    50% {\n        margin-left: 50%;\n        width: 50%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
+				"/* pre-rule */\n@keyframes foo {\n    /* pre-from */\n    from {\n        margin-left: 100%;\n        width: 300%;\n    }\n    /* pre-50% */\n    50% {\n        margin-left: 50%;\n        width: 50%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());

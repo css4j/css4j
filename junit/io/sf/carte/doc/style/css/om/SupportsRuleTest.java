@@ -83,7 +83,7 @@ public class SupportsRuleTest {
 	@Test
 	public void testParseSupportsRule1() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"/* pre-rule */@supports /* skip 1 */ (display: table-cell) and (display: list-item) /* skip 2 */ {td {display: table-cell; } li {display: list-item; }}");
+				"/* pre-rule */@supports /* skip 1 */ (display: table-cell) and (display: list-item) /* skip 2 */ {/* pre-td */td {display: table-cell; }/* post-td */ li {display: list-item; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
@@ -97,7 +97,7 @@ public class SupportsRuleTest {
 		assertTrue(rule == nested1.getParentRule());
 		assertEquals("(display: table-cell) and (display: list-item)", rule.getConditionText());
 		assertEquals(
-				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
+				"/* pre-rule */\n@supports (display: table-cell) and (display: list-item) {\n    /* pre-td */\n    td {\n        display: table-cell;\n    } /* post-td */\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());

@@ -63,7 +63,7 @@ public class StyleRuleTest2 {
 	@Test
 	public void getCssText() {
 		assertEquals("display: block;\nborder: none ! important;\n", frameRule.getStyle().getCssText());
-		assertEquals("frame {\n    display: block;\n    border: none ! important;\n}\n", frameRule.getCssText());
+		assertEquals("/* Comment before frame */\nframe {\n    display: block;\n    border: none ! important;\n}\n", frameRule.getCssText());
 	}
 
 	@Test

@@ -18,6 +18,7 @@ import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSUnknownRule;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -26,33 +27,61 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
-	private String cssText = null;
+class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
+	private String cssText = "";
 
-	protected UnknownRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	UnknownRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.UNKNOWN_RULE, origin);
+	}
+
+	UnknownRule(UnknownRule copyMe) {
+		super(copyMe);
+		cssText = copyMe.cssText;
 	}
 
 	@Override
 	public void setCssText(String cssText) throws DOMException {
-		this.cssText = cssText;
+		if (cssText == null) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null text.");
+		}
+		this.cssText = cssText.trim();
 	}
 
 	@Override
 	public String getCssText() {
+		if (cssText.length() == 0) {
+			return "";
+		}
+		StyleFormattingContext context = getStyleFormattingContext();
+		context.setParentContext(getParentRule());
+		BufferSimpleWriter sw = new BufferSimpleWriter(cssText.length());
+		try {
+			writeCssText(sw, context);
+		} catch (IOException e) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+		}
+		return sw.toString();
+	}
+
+	@Override
+	public String getMinifiedCssText() {
 		return cssText;
 	}
 
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
-		wri.write(cssText);
+		if (cssText.length() != 0) {
+			context.startRule(wri, this.precedingComments);
+			wri.write(cssText);
+			context.endRule(wri, this.trailingComments);
+		}
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cssText == null) ? 0 : cssText.hashCode());
+		result = prime * result + cssText.hashCode();
 		return result;
 	}
 
@@ -68,21 +97,12 @@ public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 			return false;
 		}
 		UnknownRule other = (UnknownRule) obj;
-		if (cssText == null) {
-			if (other.cssText != null) {
-				return false;
-			}
-		} else if (!cssText.equals(other.cssText)) {
-			return false;
-		}
-		return true;
+		return cssText.equals(other.cssText);
 	}
 
 	@Override
 	public UnknownRule clone(AbstractCSSStyleSheet parentSheet) {
-		UnknownRule rule = new UnknownRule(parentSheet, getOrigin());
-		rule.cssText = getCssText();
-		return rule;
+		return new UnknownRule(this);
 	}
 
 }

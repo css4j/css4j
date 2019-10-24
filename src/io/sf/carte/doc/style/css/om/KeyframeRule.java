@@ -72,7 +72,7 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
-		context.startRule(wri);
+		context.startRule(wri, this.precedingComments);
 		wri.write(getKeyText());
 		context.updateContext(this);
 		context.writeLeftCurlyBracket(wri);
@@ -81,7 +81,7 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 		context.endCurrentContext(this);
 		context.endStyleDeclaration(wri);
 		context.writeRightCurlyBracket(wri);
-		context.endRule(wri);
+		context.endRule(wri, this.trailingComments);
 	}
 
 	@Override

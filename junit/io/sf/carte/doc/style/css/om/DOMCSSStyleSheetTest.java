@@ -75,7 +75,7 @@ public class DOMCSSStyleSheetTest {
 		assertTrue(sheet.parseStyleSheet(re));
 		re.close();
 		assertEquals(defSz + DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS, sheet.getCssRules().getLength());
-		assertEquals("li {margin-top: 1em; margin-bottom: 1em; }",
+		assertEquals("/* Comment before li */li {margin-top: 1em; margin-bottom: 1em; }",
 				sheet.getCssRules().item(defSz + DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS - 6).getCssText());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet2 = factory.createStyleSheet("", null);

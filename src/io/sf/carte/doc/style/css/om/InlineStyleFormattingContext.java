@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.w3c.dom.css.CSSRule;
 
@@ -35,11 +36,18 @@ public class InlineStyleFormattingContext extends DefaultStyleFormattingContext 
 	}
 
 	@Override
-	public void endRule(SimpleWriter wri) throws IOException {
+	public void endRule(SimpleWriter wri, List<String> trailingComments) throws IOException {
 	}
 
 	@Override
 	public void updateContext(CSSRule rule) {
+	}
+
+	@Override
+	public void writeComment(SimpleWriter wri, String comment) throws IOException {
+		wri.write("/*");
+		wri.write(comment);
+		wri.write("*/");
 	}
 
 	@Override

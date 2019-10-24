@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -94,7 +95,11 @@ public class ContribSheetTest {
 		assertEquals(2, reparsedcomments.size());
 		assertEquals(comments.get(0), reparsedcomments.get(0));
 		for (int i = 0; i < len; i++) {
-			assertTrue(rules.item(i).equals(reparsedrules.item(i)));
+			AbstractCSSRule rule = rules.item(i);
+			AbstractCSSRule reparsedrule = reparsedrules.item(i);
+			assertTrue(rule.equals(reparsedrule));
+			assertTrue(Objects.equals(rule.getPrecedingComments(), reparsedrule.getPrecedingComments()));
+			assertTrue(Objects.equals(rule.getTrailingComments(), reparsedrule.getTrailingComments()));
 		}
 	}
 
@@ -104,7 +109,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadAnimateReader();
-		cssParser.setDocumentHandler(css.createDocumentHandler(ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		cssParser.setDocumentHandler(css.createDocumentHandler(ExtendedCSSStyleSheet.COMMENTS_AUTO));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -116,7 +121,7 @@ public class ContribSheetTest {
 		assertEquals(1, comments.size());
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
-		assertTrue(reparsed.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		assertTrue(reparsed.parseStyleSheet(re));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(0).getPrecedingComments();
@@ -136,7 +141,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadMetroReader();
-		cssParser.setDocumentHandler(css.createDocumentHandler(ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		cssParser.setDocumentHandler(css.createDocumentHandler(ExtendedCSSStyleSheet.COMMENTS_AUTO));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -148,7 +153,7 @@ public class ContribSheetTest {
 		assertEquals(1, comments.size());
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
-		assertTrue(reparsed.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		assertTrue(reparsed.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_AUTO));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(0).getPrecedingComments();

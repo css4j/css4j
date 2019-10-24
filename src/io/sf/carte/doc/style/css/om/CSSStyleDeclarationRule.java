@@ -133,7 +133,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		String seltext = getSelectorText();
 		if (seltext.length() != 0) {
-			context.startRule(wri);
+			context.startRule(wri, this.precedingComments);
 			wri.write(seltext);
 			context.updateContext(this);
 			context.writeLeftCurlyBracket(wri);
@@ -142,7 +142,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			context.endCurrentContext(this);
 			context.endStyleDeclaration(wri);
 			context.writeRightCurlyBracket(wri);
-			context.endRule(wri);
+			context.endRule(wri, this.trailingComments);
 		}
 	}
 

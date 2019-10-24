@@ -63,7 +63,7 @@ public class MarginRule extends BaseCSSDeclarationRule implements CSSMarginRule 
 
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
-		context.startRule(wri);
+		context.startRule(wri, this.precedingComments);
 		wri.write('@');
 		wri.write(ruleName);
 		context.updateContext(this);
@@ -73,7 +73,7 @@ public class MarginRule extends BaseCSSDeclarationRule implements CSSMarginRule 
 		context.endCurrentContext(this);
 		context.endStyleDeclaration(wri);
 		context.writeRightCurlyBracket(wri);
-		context.endRule(wri);
+		context.endRule(wri, this.trailingComments);
 	}
 
 	@Override

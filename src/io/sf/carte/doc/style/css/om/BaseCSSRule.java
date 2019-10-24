@@ -53,6 +53,12 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 		ruleOrigin = origin;
 	}
 
+	protected BaseCSSRule(BaseCSSRule copyMe) {
+		this(copyMe.parentSheet, copyMe.ruleType, copyMe.ruleOrigin);
+		this.precedingComments = copyMe.precedingComments;
+		this.trailingComments = copyMe.trailingComments;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

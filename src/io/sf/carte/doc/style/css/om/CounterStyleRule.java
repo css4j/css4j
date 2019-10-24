@@ -82,7 +82,7 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		if (name != null || getStyle().getLength() != 0) {
-			context.startRule(wri);
+			context.startRule(wri, this.precedingComments);
 			wri.write("@counter-style ");
 			wri.write(getName());
 			context.updateContext(this);
@@ -92,7 +92,7 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 			context.endCurrentContext(this);
 			context.endStyleDeclaration(wri);
 			context.writeRightCurlyBracket(wri);
-			context.endRule(wri);
+			context.endRule(wri, this.trailingComments);
 		}
 	}
 

@@ -55,7 +55,7 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(0).getType());
 		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(0);
 		assertEquals(
-				"html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp {display: block; }",
+				"/*\n * HTML/XHTML CSS, derived from the one in the W3C CSS 2.1 specification,\n * combined with the styles from HTML5 specification.\n */html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp {display: block; }",
 				stylerule.getCssText());
 		assertEquals(
 				"html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp{display:block}",
@@ -68,7 +68,7 @@ public class BaseCSSStyleSheetTest2 {
 		//
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(41).getType());
 		stylerule = (StyleRule) sheet.getCssRules().item(41);
-		assertEquals("ol[start] {counter-reset: list-item calc(attr(start integer, 1) - 1); }", stylerule.getCssText());
+		assertEquals("/* The start attribute on ol elements */ol[start] {counter-reset: list-item calc(attr(start integer, 1) - 1); }", stylerule.getCssText());
 		assertEquals("ol[start]{counter-reset:list-item calc(attr(start integer,1) - 1)}",
 				stylerule.getMinifiedCssText());
 		assertNotNull(stylerule.getPrecedingComments());
@@ -129,7 +129,7 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(1).getType());
 		AbstractCSSRule unknown = sheet.getCssRules().item(1);
 		assertEquals(
-				"@-webkit-viewport /* skip-vw 1-webkit */{/* pre-viewport-decl-webkit */ width: /* skip-vw 2-webkit */device-width; /* post-viewport-decl-webkit */}",
+				"/* pre-rule-1-webkit */@-webkit-viewport /* skip-vw 1-webkit */{/* pre-viewport-decl-webkit */ width: /* skip-vw 2-webkit */device-width; /* post-viewport-decl-webkit */}",
 				unknown.getCssText());
 		//
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(2).getType());
@@ -140,7 +140,7 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(3).getType());
 		AbstractCSSRule unknown2 = sheet.getCssRules().item(3);
 		assertEquals(
-				"@-webkit-keyframes important1 { /* pre-webkit-kf-list */from /* post-webkit-kfsel-from */{ /* pre-webkit-kf-from-decl */margin-top: 50px;/* post-webkit-kf-from-decl */ } /* post-webkit-kf-from */50% /* post-webkit-kfsel-50% */{/* pre-webkit-kf-50%-decl */margin-top: 150px !important; /* post-webkit-kf-50%-decl */} /* post-webkit-kf-50% */to/* post-webkit-kfsel-to */{ margin-top: 100px; }/* post-webkit-kf-to */ /* post-webkit-kf-list */}",
+				"/* pre-webkit-kfs */@-webkit-keyframes important1 { /* pre-webkit-kf-list */from /* post-webkit-kfsel-from */{ /* pre-webkit-kf-from-decl */margin-top: 50px;/* post-webkit-kf-from-decl */ } /* post-webkit-kf-from */50% /* post-webkit-kfsel-50% */{/* pre-webkit-kf-50%-decl */margin-top: 150px !important; /* post-webkit-kf-50%-decl */} /* post-webkit-kf-50% */to/* post-webkit-kfsel-to */{ margin-top: 100px; }/* post-webkit-kf-to */ /* post-webkit-kf-list */}",
 				unknown2.getCssText());
 	}
 
@@ -354,7 +354,7 @@ public class BaseCSSStyleSheetTest2 {
 				"/** Comment 1 **/\n@media print {/** Comment 2 **/\n@page {margin-top: 20%;}h3 {width: 80%}/** Comment 3 **/}\n");
 		assertTrue(css.parseStyleSheet(re));
 		assertEquals(
-				"/** Comment 1 **/\n@media print {\n    /** Comment 2 **/\n    @page {\n        margin-top: 20%;\n    }\n    h3 {\n        width: 80%;\n    }\n}\n",
+				"/** Comment 1 **/\n@media print {\n    /** Comment 2 **/\n    @page {\n        margin-top: 20%;\n    }\n    h3 {\n        width: 80%;\n    } /** Comment 3 **/\n}\n",
 				css.toString());
 	}
 

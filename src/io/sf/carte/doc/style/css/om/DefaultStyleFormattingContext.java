@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.w3c.dom.css.CSSRule;
 
@@ -50,7 +51,15 @@ public class DefaultStyleFormattingContext implements StyleFormattingContext {
 	}
 
 	@Override
-	public void endRule(SimpleWriter wri) throws IOException {
+	public void endRule(SimpleWriter wri, List<String> trailingComments) throws IOException {
+		if (trailingComments != null) {
+			int nc = trailingComments.size();
+			for (int j = 0; j < nc; j++) {
+				wri.write(" /*");
+				wri.write(trailingComments.get(j));
+				wri.write("*/");
+			}
+		}
 		wri.newLine();
 	}
 
@@ -81,7 +90,13 @@ public class DefaultStyleFormattingContext implements StyleFormattingContext {
 	}
 
 	@Override
-	public void startRule(SimpleWriter wri) throws IOException {
+	public void startRule(SimpleWriter wri, List<String> precedingComments) throws IOException {
+		if (precedingComments != null) {
+			int nc = precedingComments.size();
+			for (int j = 0; j < nc; j++) {
+				writeComment(wri, precedingComments.get(j));
+			}
+		}
 		writeFullIndent(wri);
 	}
 

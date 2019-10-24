@@ -183,7 +183,7 @@ public interface CSSValue extends Cloneable {
 		ATTR,
 
 		/**
-		 * Custom property reference. See {@link CSSCustomPropertyValue}.
+		 * Custom property reference. See {@link CSSVarValue}.
 		 */
 		VAR,
 

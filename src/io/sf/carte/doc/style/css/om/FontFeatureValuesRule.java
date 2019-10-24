@@ -256,7 +256,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		if (fontFamily == null) {
 			return;
 		}
-		context.startRule(wri);
+		context.startRule(wri, this.precedingComments);
 		wri.write("@font-feature-values ");
 		writeFontFamily(wri, fontFamily[0]);
 		for (int i = 1; i < fontFamily.length; i++) {
@@ -274,19 +274,20 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		if (mapmap != null) {
 			Iterator<Entry<String, CSSFontFeatureValuesMapImpl>> it = mapmap.entrySet().iterator();
 			while (it.hasNext()) {
-				context.startRule(wri);
 				Entry<String, CSSFontFeatureValuesMapImpl> me = it.next();
+				CSSFontFeatureValuesMapImpl ffvmap = me.getValue();
+				context.startRule(wri, ffvmap.precedingComments);
 				wri.write('@');
 				wri.write(me.getKey());
 				context.writeLeftCurlyBracket(wri);
-				appendFeatureString(wri, context, me.getValue());
+				appendFeatureString(wri, context, ffvmap);
 				context.writeRightCurlyBracket(wri);
-				context.endRule(wri);
+				context.endRule(wri, ffvmap.trailingComments);
 			}
 		}
 		context.endCurrentContext(this);
 		context.writeRightCurlyBracket(wri);
-		context.endRule(wri);
+		context.endRule(wri, this.trailingComments);
 	}
 
 	private static void writeFontFamily(SimpleWriter wri, String ff) throws IOException {
@@ -302,12 +303,12 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	private void writeFeatureBlock(SimpleWriter wri, StyleFormattingContext context, String atFeatureType,
 			CSSFontFeatureValuesMapImpl featureMap) throws IOException {
 		if (!featureMap.isEmpty()) {
-			context.startRule(wri);
+			context.startRule(wri, featureMap.precedingComments);
 			wri.write(atFeatureType);
 			context.writeLeftCurlyBracket(wri);
 			appendFeatureString(wri, context, featureMap);
 			context.writeRightCurlyBracket(wri);
-			context.endRule(wri);
+			context.endRule(wri, featureMap.trailingComments);
 		}
 	}
 

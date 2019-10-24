@@ -211,7 +211,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		if (name != null || !getCssRules().isEmpty()) {
-			context.startRule(wri);
+			context.startRule(wri, this.precedingComments);
 			wri.write("@keyframes ");
 			if (name != null) {
 				String sname = getName();
@@ -229,7 +229,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			context.endCurrentContext(this);
 			context.endRuleList(wri);
 			context.writeRightCurlyBracket(wri);
-			context.endRule(wri);
+			context.endRule(wri, this.trailingComments);
 		}
 	}
 

@@ -31,19 +31,9 @@ abstract public class AbstractCSSRule implements ExtendedCSSRule {
 	@Override
 	abstract public short getType();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.css.CSSRule#getCssText()
-	 */
 	@Override
 	abstract public String getCssText();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.w3c.dom.css.CSSRule#setCssText(java.lang.String)
-	 */
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,

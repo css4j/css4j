@@ -13,11 +13,11 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -76,19 +76,13 @@ public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule>
 	@Override
 	public String toString() {
 		int sz = size();
-		StringBuilder sb = new StringBuilder(sz * 20);
-		for (int i = 0; i < sz; i++) {
-			AbstractCSSRule rule = item(i);
-			List<String> comments = rule.getPrecedingComments();
-			if (comments != null) {
-				int nc = comments.size();
-				for (int j = 0; j < nc; j++) {
-					sb.append("/*").append(comments.get(j)).append("*/\n");
-				}
-			}
-			sb.append(rule.getCssText()).append('\n');
+		StyleFormattingContext context = new DefaultStyleFormattingContext();
+		BufferSimpleWriter wri = new BufferSimpleWriter(sz * 128);
+		try {
+			writeCssText(wri, context);
+		} catch (IOException e) {
 		}
-		return sb.toString();
+		return wri.toString();
 	}
 
 	@Override
@@ -96,13 +90,6 @@ public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule>
 		int sz = size();
 		for (int i = 0; i < sz; i++) {
 			AbstractCSSRule rule = item(i);
-			List<String> comments = rule.getPrecedingComments();
-			if (comments != null) {
-				int nc = comments.size();
-				for (int j = 0; j < nc; j++) {
-					context.writeComment(wri, comments.get(j));
-				}
-			}
 			rule.writeCssText(wri, context);
 		}
 	}

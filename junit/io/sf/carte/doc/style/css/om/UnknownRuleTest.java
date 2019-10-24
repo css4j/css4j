@@ -45,7 +45,7 @@ public class UnknownRuleTest {
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(0).getType());
 		UnknownRule rule = (UnknownRule) sheet.getCssRules().item(0);
 		assertEquals(
-				"@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }",
+				"/* pre-rule */\n@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }\n",
 				rule.getCssText());
 		assertEquals(
 				"@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }",

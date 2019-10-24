@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * Shorthand value.
  * <p>
- * These values are of {@link CSSValue.CssType.SHORTHAND SHORTHAND} type.
+ * These values are of {@link CSSValue.CssType#SHORTHAND SHORTHAND} type.
  */
 public interface CSSShorthandValue extends CSSValue {
 
