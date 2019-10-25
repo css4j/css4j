@@ -56,22 +56,22 @@ public interface LexicalUnit {
 	short SAC_OPERATOR_EXP = 6;
 
 	/**
-	 * <
+	 * &lt;
 	 */
 	short SAC_OPERATOR_LT = 7;
 
 	/**
-	 * >
+	 * &gt;
 	 */
 	short SAC_OPERATOR_GT = 8;
 
 	/**
-	 * <=
+	 * &lt;=
 	 */
 	short SAC_OPERATOR_LE = 9;
 
 	/**
-	 * >=
+	 * &gt;=
 	 */
 	short SAC_OPERATOR_GE = 10;
 
