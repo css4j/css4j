@@ -386,7 +386,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			value = absoluteValue(propertyName, value, useParentStyle);
 		} else if (pritype == Type.LEXICAL) {
 			value = evaluateLexicalValue(propertyName, (LexicalValue) pri, useParentStyle);
-			value = absoluteValue(propertyName, value, useParentStyle);
+			if (value != null) {
+				value = absoluteValue(propertyName, value, useParentStyle);
+			}
 		} else if (pritype == Type.ATTR) {
 			value = computeAttribute(propertyName, (AttrValue) pri, useParentStyle);
 		} else {
@@ -873,7 +875,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		LexicalUnit lunit = lexval.getLexicalUnit().clone();
 		lunit = replaceLexicalVar(property, lunit, new CSSOMParser());
-		return getValueFactory().createCSSValue(lunit, this);
+		try {
+			return getValueFactory().createCSSValue(lunit, this);
+		} catch (DOMException e) {
+			return null;
+		}
 	}
 
 	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, Parser parser) {

@@ -1254,21 +1254,66 @@ public class ComputedCSSStyleTest {
 		assertEquals(13f, box.getMarginBottom(), 0.01f);
 		assertEquals(13f, box.getMarginLeft(), 0.01f);
 		assertEquals(643.1f, box.getWidth(), 0.01f);
-		// Error
+		// Longhand var replacement error
 		elm.getOverrideStyle(null)
-				.setCssText("font: max(110%,var(--foo,1.1rem Helvetica));margin:calc(1em - var(--bar,0.2rem 0.3rem))");
+				.setCssText("margin-left:calc(1em - var(--bar,0.2rem 0.3rem))");
 		style = elm.getComputedStyle(null);
-		assertEquals(15.4f, style.getComputedFontSize(), 0.01f);
+		assertEquals(14f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSUnit.CSS_PT);
 		assertEquals(0f, box.getPaddingTop(), 0.01f);
 		assertEquals(0f, box.getPaddingRight(), 0.01f);
 		assertEquals(0f, box.getPaddingBottom(), 0.01f);
-		assertEquals(5.9f, box.getPaddingLeft(), 0.01f);
+		assertEquals(11.5f, box.getPaddingLeft(), 0.01f);
+		assertEquals(28f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(42f, box.getMarginBottom(), 0.01f);
+		assertEquals(0f, box.getMarginLeft(), 0.01f);
+		assertEquals(663.5f, box.getWidth(), 0.01f);
+		// Font-size longhand var replacement error
+		elm.getOverrideStyle(null)
+				.setCssText("font-size: calc(110% * var(--foo,1.1rem Helvetica))");
+		style = elm.getComputedStyle(null);
+		assertEquals(14f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSUnit.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(11.5f, box.getPaddingLeft(), 0.01f);
+		assertEquals(28f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(42f, box.getMarginBottom(), 0.01f);
+		assertEquals(0f, box.getMarginLeft(), 0.01f);
+		assertEquals(663.5f, box.getWidth(), 0.01f);
+		// Shorthand var replacement error
+		elm.getOverrideStyle(null)
+				.setCssText("margin:calc(1em - var(--bar,0.2rem 0.3rem))");
+		style = elm.getComputedStyle(null);
+		assertEquals(14f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSUnit.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(11.5f, box.getPaddingLeft(), 0.01f);
 		assertEquals(0f, box.getMarginTop(), 0.01f);
 		assertEquals(0f, box.getMarginRight(), 0.01f);
 		assertEquals(0f, box.getMarginBottom(), 0.01f);
 		assertEquals(0f, box.getMarginLeft(), 0.01f);
-		assertEquals(669.1f, box.getWidth(), 0.01f);
+		assertEquals(663.5f, box.getWidth(), 0.01f);
+		// Font shorthand var replacement error
+		elm.getOverrideStyle(null)
+				.setCssText("font: calc(110% *var(--foo,1.1rem Helvetica))");
+		style = elm.getComputedStyle(null);
+		assertEquals(14f, style.getComputedFontSize(), 0.01f);
+		box = style.getBoxValues(CSSUnit.CSS_PT);
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(11.5f, box.getPaddingLeft(), 0.01f);
+		assertEquals(28f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(42f, box.getMarginBottom(), 0.01f);
+		assertEquals(0f, box.getMarginLeft(), 0.01f);
+		assertEquals(663.5f, box.getWidth(), 0.01f);
 	}
 
 	@Test
