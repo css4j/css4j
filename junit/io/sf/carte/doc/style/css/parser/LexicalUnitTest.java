@@ -98,17 +98,56 @@ public class LexicalUnitTest {
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("Times", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
+		assertFalse(lu2.isParameter());
+		assertFalse(lu.isParameter());
+		//
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("Very", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
+		assertSame(lu, lu2);
+		assertFalse(lu.isParameter());
+		//
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("New", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
+		//
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
 		assertEquals("Roman", lu.getStringValue());
+	}
+
+	@Test
+	public void testInsertNextLexicalUnitSubvalue() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("function(one three)");
+		LexicalUnit lu2 = parsePropertyValue("two");
+		LexicalUnit param = lu.getParameters();
+		param.insertNextLexicalUnit(lu2);
+		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals("one", param.getStringValue());
+		assertSame(param, param.getNextLexicalUnit().getPreviousLexicalUnit());
+		assertTrue(param.isParameter());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals("two", param.getStringValue());
+		assertSame(lu2, param.getNextLexicalUnit().getPreviousLexicalUnit());
+		assertTrue(param.isParameter());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals("three", param.getStringValue());
+		assertTrue(param.isParameter());
+		//
+		lu2 = parsePropertyValue("four");
+		param.insertNextLexicalUnit(lu2);
+		assertEquals("three", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals("four", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertSame(param, param.getPreviousLexicalUnit().getNextLexicalUnit());
+		assertTrue(param.isParameter());
 	}
 
 	@Test

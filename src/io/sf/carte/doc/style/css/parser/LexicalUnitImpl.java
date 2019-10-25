@@ -89,7 +89,9 @@ class LexicalUnitImpl implements LexicalUnit {
 			lu = lu.nextLexicalUnit;
 		} while (lu != null);
 		lastlu.nextLexicalUnit = nextLexicalUnit;
-		nextLexicalUnit.previousLexicalUnit = lastlu;
+		if (nextLexicalUnit != null) {
+			nextLexicalUnit.previousLexicalUnit = lastlu;
+		}
 		nextLexicalUnit = nlu;
 	}
 
