@@ -67,7 +67,7 @@ public interface Selector {
 	 * This selector matches a childhood relationship between two elements. Example:
 	 * 
 	 * <pre class="example">
-	 * E > F
+	 * E &gt; F
 	 * </pre>
 	 * 
 	 * @see CombinatorSelector
