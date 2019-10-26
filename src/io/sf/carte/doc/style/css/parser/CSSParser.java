@@ -5390,6 +5390,9 @@ public class CSSParser implements Parser {
 			short lastType = -1;
 			boolean hasCommas = false;
 			boolean hasNoCommas = false;
+			// Color component values are: 0) unknown, 1) integer, 2) %
+			byte compType = 0;
+			boolean hasVar = false;
 			do {
 				short type = lu.getLexicalUnitType();
 				if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
@@ -5397,40 +5400,56 @@ public class CSSParser implements Parser {
 						return false;
 					}
 					hasCommas = true;
-				} else if (type == LexicalUnit.SAC_INTEGER || type == LexicalUnit.SAC_PERCENTAGE) {
-					if (hasCommas) {
-						if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
-							return false;
-						}
+				} else if (isComponentType(type)) {
+					if (type == LexicalUnit.SAC_VAR) {
+						hasVar = true;
+					}
+					// Check component type
+					if (type == LexicalUnit.SAC_INTEGER) {
 						if (valCount == 3) {
 							int value = lu.getIntegerValue();
 							if (value < 0 || value > 1) {
 								return false;
 							}
+						} else if (lastType != LexicalUnit.SAC_OPERATOR_SLASH && lu.getIntegerValue() != 0) {
+							if (compType == 0) {
+								compType = 1;
+							} else if (compType == 2) {
+								return false;
+							}
+						}
+					} else if (type == LexicalUnit.SAC_PERCENTAGE) {
+						if (valCount == 3) {
+							float value = lu.getFloatValue();
+							if (value < 0f || value > 100f) {
+								return false;
+							}
+						} else if (lastType != LexicalUnit.SAC_OPERATOR_SLASH) {
+							if (compType == 0) {
+								compType = 2;
+							} else if (compType == 1) {
+								return false;
+							}
+						}
+					}
+					if (hasCommas) {
+						if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
+							return false;
 						}
 					} else if (lastType != type) {
 						if (lastType != -1) {
 							if (valCount == 3) {
 								if (lastType != LexicalUnit.SAC_OPERATOR_SLASH) {
+									// No commas, must be slash
 									return false;
-								}
-								if (type == LexicalUnit.SAC_INTEGER) {
-									int value = lu.getIntegerValue();
-									if (value < 0 || value > 1) {
-										return false;
-									}
-								} else { // %
-									float value = lu.getFloatValue();
-									if (value < 0 || value > 100f) {
-										return false;
-									}
 								}
 							} else if (lastType == LexicalUnit.SAC_PERCENTAGE) {
 								// We tolerate zeroes mixed with percentages
-								if (lu.getIntegerValue() != 0) {
+								if (type == LexicalUnit.SAC_INTEGER && lu.getIntegerValue() != 0) {
 									return false;
 								}
-							} else if (lastType == LexicalUnit.SAC_INTEGER) {
+							} else if (type == LexicalUnit.SAC_PERCENTAGE && lastType == LexicalUnit.SAC_INTEGER) {
+								// We tolerate zeroes mixed with percentages
 								if (lu.getPreviousLexicalUnit().getIntegerValue() != 0) {
 									return false;
 								}
@@ -5441,13 +5460,12 @@ public class CSSParser implements Parser {
 					}
 					valCount++;
 				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
-					if (valCount != 3 || (lastType != LexicalUnit.SAC_INTEGER && lastType != LexicalUnit.SAC_PERCENTAGE)
-							|| hasCommas) {
+					if (valCount == 4 || (valCount < 3 && !hasVar) || !isComponentType(lastType) || hasCommas) {
 						return false;
 					}
 				} else if (type == LexicalUnit.SAC_REAL) {
 					if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
-							|| valCount != 3) {
+							|| valCount == 4 || (valCount < 3 && !hasVar)) {
 						return false;
 					}
 					valCount = 4;
@@ -5457,7 +5475,12 @@ public class CSSParser implements Parser {
 				lastType = type;
 				lu = lu.nextLexicalUnit;
 			} while (lu != null);
-			return valCount == 3 || valCount == 4;
+			return valCount == 3 || valCount == 4 || (valCount < 3 && hasVar);
+		}
+
+		private boolean isComponentType(short type) {
+			return type == LexicalUnit.SAC_INTEGER || type == LexicalUnit.SAC_PERCENTAGE
+					|| type == LexicalUnit.SAC_VAR;
 		}
 
 		private boolean isValidHSLColor() {
@@ -5466,18 +5489,21 @@ public class CSSParser implements Parser {
 			short lastType = -1; // -2 means angle type
 			boolean hasCommas = false;
 			boolean hasNoCommas = false;
+			boolean hasVar = false;
 			do {
 				short type = lu.getLexicalUnitType();
 				if (type == LexicalUnit.SAC_PERCENTAGE) {
 					if (lastType == -1) {
+						// First type must be angle or VAR
 						return false;
 					}
 					if (hasCommas) {
 						if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
 							return false;
 						}
-					} else if (lastType == LexicalUnit.SAC_INTEGER || lastType == -2) {
-						// last type was integer or angle.
+					} else if (lastType == LexicalUnit.SAC_INTEGER || lastType == -2
+							|| lastType == LexicalUnit.SAC_VAR) {
+						// last type was integer, angle or var().
 						hasNoCommas = true;
 					}
 					pcntCount++;
@@ -5490,7 +5516,7 @@ public class CSSParser implements Parser {
 					if (lastType != -1) {
 						int value;
 						if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
-								|| pcntCount < 2 || (value = lu.getIntegerValue()) < 0 || value > 1) {
+								|| (pcntCount < 2 && !hasVar) || (value = lu.getIntegerValue()) < 0 || value > 1) {
 							return false;
 						}
 					}
@@ -5500,22 +5526,26 @@ public class CSSParser implements Parser {
 					}
 					type = -2;
 				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
-					if (pcntCount != 2 || lastType != LexicalUnit.SAC_PERCENTAGE || hasCommas) {
+					if (((pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)
+							|| (lastType != LexicalUnit.SAC_PERCENTAGE && lastType != LexicalUnit.SAC_VAR))
+							|| hasCommas) {
 						return false;
 					}
 				} else if (type == LexicalUnit.SAC_REAL) {
 					if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
-							|| pcntCount != 2) {
+							|| (pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)) {
 						return false;
 					}
 					pcntCount = 3;
+				} else if (type == LexicalUnit.SAC_VAR) {
+					hasVar = true;
 				} else {
 					return false;
 				}
 				lastType = type;
 				lu = lu.nextLexicalUnit;
 			} while (lu != null);
-			return pcntCount >= 2;
+			return pcntCount >= 2 || (hasVar && pcntCount <= 1);
 		}
 
 		private boolean isAngleType(short type) {

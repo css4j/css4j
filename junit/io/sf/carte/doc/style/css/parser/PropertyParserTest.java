@@ -363,6 +363,16 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyBadImportant3() throws CSSException, IOException {
 		try {
+			parsePropertyValue("rgb(128, 0, 97 !important)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(16, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadImportant4() throws CSSException, IOException {
+		try {
 			parsePropertyValue("# !important");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
@@ -371,7 +381,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadImportant4() throws CSSException, IOException {
+	public void testParsePropertyBadImportant5() throws CSSException, IOException {
 		try {
 			parsePropertyValue("#!important");
 			fail("Must throw exception");
@@ -1964,6 +1974,33 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBA() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgba(1,2,3,0.45)");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(2, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(3, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.45f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(1, 2, 3, 0.45)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueRGBAZeroAlpha() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("rgba(0,0,0,0)");
 		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
@@ -2042,6 +2079,165 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgba", lu.getFunctionName());
 		assertEquals("rgba(1%, 2%, 3%, 0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAVar() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgba(1,var(--foo))");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("var", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		param = param.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals("--foo", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertEquals("rgba(1, var(--foo))", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAVar2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgba(1,var(--foo),0.9)");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("var", param.getStringValue());
+		LexicalUnit subparam = param.getParameters();
+		assertNotNull(subparam);
+		assertEquals(LexicalUnit.SAC_IDENT, subparam.getLexicalUnitType());
+		assertEquals("--foo", subparam.getStringValue());
+		assertNull(subparam.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.9f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba(1, var(--foo), 0.9)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBAVar3() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgba(1,2,3,var(--foo))");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(2, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(3, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("var", param.getStringValue());
+		LexicalUnit subparam = param.getParameters();
+		assertNotNull(subparam);
+		assertEquals(LexicalUnit.SAC_IDENT, subparam.getLexicalUnitType());
+		assertEquals("--foo", subparam.getStringValue());
+		assertNull(subparam.getNextLexicalUnit());
+		assertEquals("rgba", lu.getFunctionName());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgba(1, 2, 3, var(--foo))", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBVarSlash() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgb(1 var(--foo)/0.6)");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("var", param.getStringValue());
+		LexicalUnit subparam = param.getParameters();
+		assertNotNull(subparam);
+		assertEquals(LexicalUnit.SAC_IDENT, subparam.getLexicalUnitType());
+		assertEquals("--foo", subparam.getStringValue());
+		assertNull(subparam.getNextLexicalUnit());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.6f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(1 var(--foo)/0.6)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBVarSlashPcnt() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgb(1 var(--foo)/52%)");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("var", param.getStringValue());
+		LexicalUnit subparam = param.getParameters();
+		assertNotNull(subparam);
+		assertEquals(LexicalUnit.SAC_IDENT, subparam.getLexicalUnitType());
+		assertEquals("--foo", subparam.getStringValue());
+		assertNull(subparam.getNextLexicalUnit());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(52f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(1 var(--foo)/52%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBSlashVar() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgb(1 2 3/var(--foo))");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(2, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(3, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("var", param.getStringValue());
+		LexicalUnit subparam = param.getParameters();
+		assertNotNull(subparam);
+		assertEquals(LexicalUnit.SAC_IDENT, subparam.getLexicalUnitType());
+		assertEquals("--foo", subparam.getStringValue());
+		assertNull(subparam.getNextLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(1 2 3/var(--foo))", lu.toString());
 	}
 
 	@Test
@@ -2601,6 +2797,69 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBBadVar() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(1,var(--foo)/0.2)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadVar2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(1 var(--foo) var(--bar),0.2)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadVar3() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(1 /var(--foo))");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadVar4() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(1 3 5 /var(--foo)/)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadVar5() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(var(--foo)/.8,4)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadVar6() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(var(--foo),var(--foo),var(--foo),var(--foo),var(--foo))");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadVar7() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(var(--foo) var(--foo) var(--foo) var(--foo)/var(--foo))");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
 	public void testParsePropertyValueRGBCommaBadAlpha() throws CSSException, IOException {
 		try {
 			parsePropertyValue("rgba(12,48,127,2)");
@@ -2836,6 +3095,111 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("hsl", lu.getFunctionName());
 		assertEquals("hsl(12deg 25% 48%/0.1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVar() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo))");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("--foo", param.getParameters().getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% var(--foo))", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVar2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(var(--foo) 25% 30%)");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("--foo", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(30f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(var(--foo) 25% 30%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVarSlash() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo)/0.6)");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("--foo", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.6, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% var(--foo)/0.6)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVarSlash2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(var(--foo) 12% 25%/0.6)");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("--foo", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_REAL, param.getLexicalUnitType());
+		assertEquals(0.6, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(var(--foo) 12% 25%/0.6)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVarSlashInt() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo)/1)");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
+		assertEquals("--foo", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% var(--foo)/1)", lu.toString());
 	}
 
 	@Test
