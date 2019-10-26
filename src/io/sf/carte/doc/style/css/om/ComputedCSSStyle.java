@@ -293,6 +293,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				return getCSSValue(property);
 			}
 		} catch (DOMException e) {
+			computedStyleError(property, lunit.toString(), "Problem substituting lexical value in shorthand.", e);
 		}
 		return null;
 	}
@@ -402,6 +403,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			try {
 				pri = absoluteNumberValue((NumberValue) pri, useParentStyle);
 			} catch (DOMException | IllegalStateException e) {
+				computedStyleError(propertyName, pri.getCssText(), "Could not absolutize property value.", e);
 			}
 		} else {
 			Type type = pri.getPrimitiveType();
@@ -412,6 +414,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				try {
 					pri = ev.evaluateExpression(exprval);
 				} catch (DOMException e) {
+					computedStyleWarning(propertyName, pri, "Could not evaluate expression value.", e);
 					// Evaluation failed, convert expressions to absolute anyway.
 					absoluteExpressionValue(propertyName, exprval.getExpression(), useParentStyle);
 				}
@@ -422,6 +425,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				try {
 					pri = (TypedValue) ev.evaluateFunction(function);
 				} catch (DOMException e) {
+					computedStyleWarning(propertyName, pri, "Could not evaluate function value.", e);
 					// Evaluation failed, convert arguments to absolute anyway.
 					LinkedCSSValueList args = function.getArguments();
 					int sz = args.size();
@@ -874,15 +878,16 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			customPropertyStack = new LinkedList<String>();
 		}
 		LexicalUnit lunit = lexval.getLexicalUnit().clone();
-		lunit = replaceLexicalVar(property, lunit, new CSSOMParser());
 		try {
-			return getValueFactory().createCSSValue(lunit, this);
+			LexicalUnit replUnit = replaceLexicalVar(property, lunit, new CSSOMParser());
+			return getValueFactory().createCSSValue(replUnit, this);
 		} catch (DOMException e) {
+			computedStyleError(property, lunit.toString(), "Problem evaluating lexical value.", e);
 			return null;
 		}
 	}
 
-	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, Parser parser) {
+	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, Parser parser) throws DOMException {
 		LexicalUnit lu = lexval;
 		do {
 			if (lu.getLexicalUnitType() == LexicalUnit.SAC_VAR) {
@@ -926,7 +931,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return lexval;
 	}
 
-	private LexicalUnit evaluateCustomPropertyValue(String property, String customProperty, LexicalUnit param, Parser parser) {
+	private LexicalUnit evaluateCustomPropertyValue(String property, String customProperty, LexicalUnit param,
+			Parser parser) throws DOMException {
 		Exception exception = null;
 		try {
 			StyleValue custom = getCSSValue(customProperty);
@@ -940,8 +946,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		// Fallback
 		if (param != null) {
 			// Replace param, just in case
-			param = replaceLexicalVar(property, param, parser);
-			return param;
+			try {
+				param = replaceLexicalVar(property, param, parser);
+				return param;
+			} catch (DOMException e) {
+				exception = e;
+			}
 		}
 		customPropertyStack.clear();
 		DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, "Unable to evaluate custom property " + customProperty);
@@ -1047,6 +1057,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			try {
 				cssSize = ev.evaluateExpression(exprval);
 			} catch (DOMException e) {
+				computedStyleError("font-size", exprval.getCssText(), "Could not evaluate expression value.", e);
 			}
 			return cssSize;
 		case FUNCTION:
@@ -1061,6 +1072,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			try {
 				cssSize = (TypedValue) ev.evaluateFunction(function);
 			} catch (DOMException e) {
+				computedStyleError("font-size", function.getCssText(), "Could not evaluate function value.", e);
 			}
 			return cssSize;
 		case NUMERIC:
@@ -1108,6 +1120,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedFontSize();
 			} else if (force) {
+				reportFontSizeError(cssSize, "Inaccurate conversion from 'rem'.");
 				sz = getInitialFontSize();
 			} else {
 				return cssSize;
@@ -1150,6 +1163,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			if (force) {
 				sz = getInitialFontSize() * factor;
+				reportFontSizeError(cssSize, "Inaccurate conversion from 'cap'.");
 			} else {
 				return cssSize;
 			}
@@ -1166,6 +1180,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			if (force) {
 				sz = getParentElementFontSize() * 0.25f * factor;
+				reportFontSizeWarning(cssSize, "Inaccurate conversion from 'ch'.");
 			} else {
 				return cssSize;
 			}
@@ -1182,6 +1197,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			if (force) {
 				sz = getParentElementFontSize() * factor;
+				reportFontSizeWarning(cssSize, "Inaccurate conversion from 'ic'.");
 			} else {
 				return cssSize;
 			}
@@ -1367,6 +1383,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						sz = Math.round(sz * 100f) * 0.01f;
 						value = asNumericValuePt(sz);
 					} catch (DOMException e) {
+						computedStyleError("font-size", value.getCssText(), "Could not compute relative font-size.", e);
 						value = cssSize;
 					}
 				}
@@ -1557,6 +1574,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		computedStyleError("font-size", cssText, message);
 	}
 
+	private void reportFontSizeWarning(PrimitiveValue cssSize, String message) {
+		computedStyleWarning("font-size", cssSize, message);
+	}
+
 	private float getParentElementFontSize() {
 		float sz;
 		CSSComputedProperties parentCss = getParentComputedStyle();
@@ -1655,6 +1676,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					try {
 						primi = (TypedValue) getValueFactory().parseProperty(spec);
 					} catch (DOMException e) {
+						// This won't happen
 					}
 				}
 			}
@@ -1980,6 +2002,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					try {
 						return primi.getStringValue();
 					} catch (DOMException e) {
+						computedStyleError("font-family", primi.getCssText(), "Bad font-family.");
 					}
 				} else {
 					ValueList list = (ValueList) fontFamily;
@@ -1989,6 +2012,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						try {
 							return primi.getStringValue();
 						} catch (DOMException e) {
+							computedStyleError("font-family", primi.getCssText(), "Bad font-family.");
 						}
 					}
 				}
@@ -2002,16 +2026,35 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private void computedStyleError(String propertyName, String propertyValue, String message, Throwable cause) {
-		if (message == null) {
-			message = cause.getMessage();
+		CSSPropertyValueException ex;
+		if (cause == null) {
+			ex = new CSSPropertyValueException(message);
+		} else {
+			if (message == null) {
+				ex = new CSSPropertyValueException(cause);
+			} else {
+				ex = new CSSPropertyValueException(message, cause);
+			}
 		}
-		CSSPropertyValueException ex = new CSSPropertyValueException(message, cause);
 		ex.setValueText(propertyValue);
 		getOwnerNode().getOwnerDocument().getErrorHandler().computedStyleError(getOwnerNode(), propertyName, ex);
 	}
 
 	private void computedStyleWarning(String propertyName, PrimitiveValue value, String message) {
-		CSSPropertyValueException ex = new CSSPropertyValueException(message);
+		computedStyleWarning(propertyName, value, message, null);
+	}
+
+	private void computedStyleWarning(String propertyName, PrimitiveValue value, String message, Throwable cause) {
+		CSSPropertyValueException ex;
+		if (cause == null) {
+			ex = new CSSPropertyValueException(message);
+		} else {
+			if (message == null) {
+				ex = new CSSPropertyValueException(cause);
+			} else {
+				ex = new CSSPropertyValueException(message, cause);
+			}
+		}
 		ex.setValueText(value.getCssText());
 		getOwnerNode().getOwnerDocument().getErrorHandler().computedStyleWarning(getOwnerNode(), propertyName, ex);
 	}
