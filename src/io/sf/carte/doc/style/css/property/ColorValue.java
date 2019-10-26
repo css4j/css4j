@@ -282,6 +282,8 @@ public class ColorValue extends AbstractTextValue {
 					translateHWB(hue, whiteness, blackness);
 					colorSpace = RGBAColor.ColorSpace.HWB;
 				}
+			} catch (DOMException e) {
+				throw e;
 			} catch (RuntimeException e) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
 			}

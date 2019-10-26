@@ -443,6 +443,20 @@ public class ColorValueTest {
 	}
 
 	@Test
+	public void testVar() {
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		style.setCssText("color: rgb(var(--foo), 0.7); ");
+		assertEquals("rgb(var(--foo), 0.7)", style.getPropertyValue("color"));
+		assertEquals("color: rgb(var(--foo), 0.7); ", style.getCssText());
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, value.getPrimitiveType());
+	}
+
+	@Test
 	public void testEquals() {
 		ColorValue value = new ColorValue();
 		value.setCssText("rgb(8,63,255)");
