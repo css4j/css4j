@@ -1123,14 +1123,13 @@ public class ComputedCSSStyleTest {
 	public void getComputedStyleMediumScreen() throws CSSMediaException {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
-		CSSComputedProperties style = elm.getComputedStyle(null);
-		assertNotNull(style);
 		// medium 'screen'
 		xhtmlDoc.setTargetMedium("screen");
 		/*
 		 * Now the library uses a style database.
 		 */
-		style = elm.getComputedStyle(null);
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
 		assertEquals(14f, style.getComputedFontSize(), 0.01f);
 		BoxValues box = style.getBoxValues(CSSUnit.CSS_PT);
 		assertEquals(0f, box.getPaddingTop(), 0.01f);
@@ -1549,7 +1548,7 @@ public class ComputedCSSStyleTest {
 				style.getMinifiedCssText());
 		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
 		BoxValues box = style.getBoxValues(CSSUnit.CSS_PT);
-		assertEquals(17.55f, box.getPaddingLeft(), 0.01f);
+		assertEquals(19.5f, box.getPaddingLeft(), 0.01f);
 		elm.getOverrideStyle(null).setCssText("font: 120%");
 		style = elm.getComputedStyle(null);
 		assertEquals(

@@ -230,16 +230,24 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				 * The 'unset' keyword acts as either inherit or initial, depending on whether
 				 * the property is inherited or not.
 				 */
-				if (inherited) {
-					value = InheritValue.getValue();
-				} else {
-					value = defaultPropertyValue(property, propertydb);
-				}
+				value = null;
 			} else if (value.getCssValueType() == CssType.SHORTHAND) {
 				return null;
+			} else {
+				try {
+					value = absoluteValue(property, value, false);
+				} catch (DOMException e) {
+					computedStyleError(property, value.getCssText(), null, e);
+					value = null;
+				}
 			}
-		} else {
-			value = defaultPropertyValue(property, propertydb);
+		}
+		if (value == null) {
+			if (inherited) {
+				value = InheritValue.getValue();
+			} else {
+				value = defaultPropertyValue(property, propertydb);
+			}
 		}
 		return value;
 	}

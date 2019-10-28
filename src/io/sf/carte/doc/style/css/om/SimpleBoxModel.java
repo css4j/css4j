@@ -51,6 +51,13 @@ abstract class SimpleBoxModel {
 		super();
 	}
 
+	private enum PADDING {
+		TOP,
+		RIGHT,
+		BOTTOM,
+		LEFT
+	}
+
 	static class MyBoxValues implements BoxValues {
 
 		float marginTop = 0f;
@@ -159,74 +166,66 @@ abstract class SimpleBoxModel {
 	}
 
 	private void computeSharedBoxValues(MyBoxValues box, short unitType) {
+		box.marginTop = computeMarginTop(unitType);
+		box.marginBottom = computeMarginBottom(unitType);
+		ComputedCSSStyle styledecl = getComputedStyle();
+		// Padding (no 'auto' applies to padding)
+		box.paddingTop = computePaddingSubproperty(styledecl, PADDING.TOP, unitType);
+		box.paddingRight = computePaddingSubproperty(styledecl, PADDING.RIGHT, unitType);
+		box.paddingBottom = computePaddingSubproperty(styledecl, PADDING.BOTTOM, unitType);
+		box.paddingLeft = computePaddingSubproperty(styledecl, PADDING.LEFT, unitType);
+		box.borderTopWidth = findBorderWidthProperty(styledecl, "border-top-width", unitType, "border-top-style");
+		box.borderBottomWidth = findBorderWidthProperty(styledecl, "border-bottom-width", unitType,
+				"border-bottom-style");
+		// Border left & right width
+		// If the element is block-level, these values can be later modified when
+		// computing width
+		box.borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width", unitType, "border-left-style");
+		box.borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width", unitType, "border-right-style");
+	}
+
+	private float computeMarginTop(short unitType) {
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCascadedValue("margin-top");
-		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
+		if (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
-			if (styledecl == null) {
-				break;
-			} else {
-				cssval = styledecl.getCascadedValue("margin-top");
+			if (styledecl != null) {
+				return styledecl.getBoxValues(unitType).getMarginTop();
 			}
 		}
-		if (styledecl == null) {
-			box.marginTop = 0f;
+		if (styledecl != null && cssval.getCssValueType() == CssType.TYPED) {
+			CSSTypedValue typed = (CSSTypedValue) cssval;
+			if (!isTypedAutoOrInvalidLength(typed)) {
+				return computeMarginNumberValue(styledecl, "margin-top", typed, unitType);
+			}
 		} else {
-			if (cssval.getCssValueType() == CssType.TYPED) {
-				CSSTypedValue typed = (CSSTypedValue) cssval;
-				if (isTypedAutoOrInvalidLength(typed)) {
-					box.marginTop = 0f;
-				} else {
-					box.marginTop = computeMarginNumberValue(styledecl, "margin-top", typed, unitType);
-				}
-			} else {
-				CSSPropertyValueException e = new CSSPropertyValueException(
-						"Expected primitive value for margin-top, found " + cssval.getCssText());
-				styledecl.getStyleDeclarationErrorHandler().wrongValue("margin-top", e);
-				box.marginTop = 0f;
-			}
+			CSSPropertyValueException e = new CSSPropertyValueException(
+					"Expected primitive value for margin-top, found " + cssval.getCssText());
+			styledecl.getStyleDeclarationErrorHandler().wrongValue("margin-top", e);
 		}
-		cssval = styledecl.getCascadedValue("margin-bottom");
-		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
+		return 0f;
+	}
+
+	private float computeMarginBottom(short unitType) {
+		ComputedCSSStyle styledecl = getComputedStyle();
+		StyleValue cssval = styledecl.getCascadedValue("margin-bottom");
+		if (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
-			if (styledecl == null) {
-				break;
-			} else {
-				cssval = styledecl.getCascadedValue("margin-bottom");
+			if (styledecl != null) {
+				return styledecl.getBoxValues(unitType).getMarginBottom();
 			}
 		}
-		if (styledecl == null) {
-			box.marginBottom = 0f;
+		if (styledecl != null && cssval.getCssValueType() == CssType.TYPED) {
+			CSSTypedValue typed = (CSSTypedValue) cssval;
+			if (!isTypedAutoOrInvalidLength(typed)) {
+				return computeMarginNumberValue(styledecl, "margin-bottom", typed, unitType);
+			}
 		} else {
-			if (cssval.getCssValueType() == CssType.TYPED) {
-				CSSTypedValue typed = (CSSTypedValue) cssval;
-				if (isTypedAutoOrInvalidLength(typed)) {
-					box.marginBottom = 0f;
-				} else {
-					box.marginBottom = computeMarginNumberValue(styledecl, "margin-bottom", typed, unitType);
-				}
-			} else {
-				CSSPropertyValueException e = new CSSPropertyValueException(
-						"Expected primitive value for margin-bottom, found " + cssval.getCssText());
-				styledecl.getStyleDeclarationErrorHandler().wrongValue("margin-bottom", e);
-				box.marginBottom = 0f;
-			}
+			CSSPropertyValueException e = new CSSPropertyValueException(
+					"Expected primitive value for margin-bottom, found " + cssval.getCssText());
+			styledecl.getStyleDeclarationErrorHandler().wrongValue("margin-bottom", e);
 		}
-		// Padding (no 'auto' applies to padding)
-		box.paddingTop = computePaddingSubproperty(styledecl, "padding-top", unitType);
-		box.paddingRight = computePaddingSubproperty(styledecl, "padding-right", unitType);
-		box.paddingBottom = computePaddingSubproperty(styledecl, "padding-bottom", unitType);
-		box.paddingLeft = computePaddingSubproperty(styledecl, "padding-left", unitType);
-		box.borderTopWidth = findBorderWidthProperty(styledecl, "border-top-width",
-				styledecl.getCascadedValue("border-top-width"), unitType);
-		box.borderBottomWidth = findBorderWidthProperty(styledecl, "border-bottom-width",
-				styledecl.getCascadedValue("border-bottom-width"), unitType);
-		// Border left & right width
-		// If the element is block-level, these values can be later modified when computing width
-		box.borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width",
-				styledecl.getCascadedValue("border-left-width"), unitType);
-		box.borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width",
-				styledecl.getCascadedValue("border-right-width"), unitType);
+		return 0f;
 	}
 
 	/**
@@ -922,16 +921,14 @@ abstract class SimpleBoxModel {
 				|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
 			// width: auto
 			CSSValue cssMarginLeft = styledecl.getCascadedValue("margin-left");
-			CSSValue cssBorderLeftWidth = styledecl.getCascadedValue("border-left-width");
 			CSSValue cssMarginRight = styledecl.getCascadedValue("margin-right");
-			CSSValue cssBorderRightWidth = styledecl.getCascadedValue("border-right-width");
 			float marginLeft = findWidthautoBoxProperty(styledecl, "margin-left", cssMarginLeft, unitType);
-			float borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width", cssBorderLeftWidth,
-					unitType);
-			float paddingLeft = computePaddingSubproperty(styledecl, "padding-left", unitType);
-			float paddingRight = computePaddingSubproperty(styledecl, "padding-right", unitType);
-			float borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width", cssBorderRightWidth,
-					unitType);
+			float borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width", unitType,
+					"border-left-style");
+			float paddingLeft = computePaddingSubproperty(styledecl, PADDING.LEFT, unitType);
+			float paddingRight = computePaddingSubproperty(styledecl, PADDING.RIGHT, unitType);
+			float borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width", unitType,
+					"border-right-style");
 			float marginRight = findWidthautoBoxProperty(styledecl, "margin-right", cssMarginRight, unitType);
 			float contBlockWidth;
 			ComputedCSSStyle contblockStyledecl = findContainingBlockStyle(styledecl);
@@ -1000,8 +997,15 @@ abstract class SimpleBoxModel {
 		return cssval.getCssValueType() == CssType.TYPED && isTypedAutoOrInvalidLength((CSSTypedValue) cssval);
 	}
 
-	private float findBorderWidthProperty(ComputedCSSStyle styledecl, String propertyName, CSSValue cssval,
-			short unitType) throws StyleDatabaseRequiredException, DOMException {
+	private float findBorderWidthProperty(ComputedCSSStyle styledecl, String propertyName, short unitType,
+			String stylePropertyName)
+			throws StyleDatabaseRequiredException, DOMException {
+		CSSValue borderStyle = styledecl.getCascadedValue(stylePropertyName);
+		if (borderStyle == null || borderStyle.getPrimitiveType() != CSSValue.Type.IDENT
+				|| "none".equalsIgnoreCase(((CSSTypedValue) borderStyle).getStringValue())) {
+			return 0f;
+		}
+		CSSValue cssval = styledecl.getCascadedValue(propertyName);
 		if (cssval != null) {
 			while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 				styledecl = findContainingBlockStyle(styledecl);
@@ -1053,7 +1057,7 @@ abstract class SimpleBoxModel {
 				return fval;
 			}
 		}
-		return 0;
+		return 0f;
 	}
 
 	private CSSDocument.ComplianceMode getComplianceMode() {
@@ -1081,21 +1085,45 @@ abstract class SimpleBoxModel {
 		return fv;
 	}
 
-	private float computePaddingSubproperty(ComputedCSSStyle styledecl, String propertyName, short unitType)
+	private float computePaddingSubproperty(ComputedCSSStyle styledecl, PADDING paddingProperty, short unitType)
 			throws StyleDatabaseRequiredException {
-		CSSValue cssval = styledecl.getCascadedValue(propertyName);
-		while (cssval != null && cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
+		String propertyName;
+		CSSValue cssval;
+		switch (paddingProperty) {
+		case TOP:
+			propertyName = "padding-top";
+			break;
+		case RIGHT:
+			propertyName = "padding-right";
+			break;
+		case BOTTOM:
+			propertyName = "padding-bottom";
+			break;
+		default:
+			propertyName = "padding-left";
+		}
+		cssval = styledecl.getCascadedValue(propertyName);
+		if (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl != null) {
-				cssval = styledecl.getCascadedValue(propertyName);
+				BoxValues ctbox = styledecl.getBoxValues(unitType);
+				float fv;
+				switch (paddingProperty) {
+				case TOP:
+					fv = ctbox.getPaddingTop();
+				case RIGHT:
+					fv = ctbox.getPaddingRight();
+				case BOTTOM:
+					fv = ctbox.getPaddingBottom();
+				default:
+					fv = ctbox.getPaddingLeft();
+				}
+				return fv;
 			} else {
 				getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock(getComputedStyle().getDisplay(),
 						getComputedStyle().getOwnerNode());
 				return 0f;
 			}
-		}
-		if (cssval == null) {
-			return 0f;
 		}
 		if (cssval.getCssValueType() != CssType.TYPED) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected padding value: " + cssval.getCssText());
