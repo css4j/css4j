@@ -160,13 +160,13 @@ abstract class SimpleBoxModel {
 
 	private void computeSharedBoxValues(MyBoxValues box, short unitType) {
 		ComputedCSSStyle styledecl = getComputedStyle();
-		CSSValue cssval = styledecl.getCSSValue("margin-top");
+		CSSValue cssval = styledecl.getCascadedValue("margin-top");
 		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
-				cssval = styledecl.getCSSValue("margin-top");
+				cssval = styledecl.getCascadedValue("margin-top");
 			}
 		}
 		if (styledecl == null) {
@@ -186,13 +186,13 @@ abstract class SimpleBoxModel {
 				box.marginTop = 0f;
 			}
 		}
-		cssval = styledecl.getCSSValue("margin-bottom");
+		cssval = styledecl.getCascadedValue("margin-bottom");
 		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
-				cssval = styledecl.getCSSValue("margin-bottom");
+				cssval = styledecl.getCascadedValue("margin-bottom");
 			}
 		}
 		if (styledecl == null) {
@@ -218,15 +218,15 @@ abstract class SimpleBoxModel {
 		box.paddingBottom = computePaddingSubproperty(styledecl, "padding-bottom", unitType);
 		box.paddingLeft = computePaddingSubproperty(styledecl, "padding-left", unitType);
 		box.borderTopWidth = findBorderWidthProperty(styledecl, "border-top-width",
-				styledecl.getCSSValue("border-top-width"), unitType);
+				styledecl.getCascadedValue("border-top-width"), unitType);
 		box.borderBottomWidth = findBorderWidthProperty(styledecl, "border-bottom-width",
-				styledecl.getCSSValue("border-bottom-width"), unitType);
+				styledecl.getCascadedValue("border-bottom-width"), unitType);
 		// Border left & right width
 		// If the element is block-level, these values can be later modified when computing width
 		box.borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width",
-				styledecl.getCSSValue("border-left-width"), unitType);
+				styledecl.getCascadedValue("border-left-width"), unitType);
 		box.borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width",
-				styledecl.getCSSValue("border-right-width"), unitType);
+				styledecl.getCascadedValue("border-right-width"), unitType);
 	}
 
 	/**
@@ -258,13 +258,13 @@ abstract class SimpleBoxModel {
 	 */
 	void computeInlineBox(MyBoxValues box, short unitType) throws StyleDatabaseRequiredException {
 		ComputedCSSStyle styledecl = getComputedStyle();
-		CSSValue cssval = styledecl.getCSSValue("margin-right");
+		CSSValue cssval = styledecl.getCascadedValue("margin-right");
 		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
-				cssval = styledecl.getCSSValue("margin-right");
+				cssval = styledecl.getCascadedValue("margin-right");
 			}
 		}
 		if (styledecl == null) {
@@ -283,13 +283,13 @@ abstract class SimpleBoxModel {
 			}
 		}
 		styledecl = getComputedStyle();
-		cssval = styledecl.getCSSValue("margin-left");
+		cssval = styledecl.getCascadedValue("margin-left");
 		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
-				cssval = styledecl.getCSSValue("margin-left");
+				cssval = styledecl.getCascadedValue("margin-left");
 			}
 		}
 		if (styledecl == null) {
@@ -376,13 +376,13 @@ abstract class SimpleBoxModel {
 	void computeBlockBox(MyBoxValues box, short unitType) throws StyleDatabaseRequiredException {
 		boolean margin_right_auto = false;
 		ComputedCSSStyle styledecl = getComputedStyle();
-		CSSValue cssval = styledecl.getCSSValue("margin-right");
+		CSSValue cssval = styledecl.getCascadedValue("margin-right");
 		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
-				cssval = styledecl.getCSSValue("margin-right");
+				cssval = styledecl.getCascadedValue("margin-right");
 			}
 		}
 		if (cssval.getCssValueType() == CssType.TYPED) {
@@ -399,13 +399,13 @@ abstract class SimpleBoxModel {
 		}
 		styledecl = getComputedStyle();
 		boolean margin_left_auto = false;
-		cssval = styledecl.getCSSValue("margin-left");
+		cssval = styledecl.getCascadedValue("margin-left");
 		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl == null) {
 				break;
 			} else {
-				cssval = styledecl.getCSSValue("margin-left");
+				cssval = styledecl.getCascadedValue("margin-left");
 			}
 		}
 		if (cssval.getCssValueType() == CssType.TYPED) {
@@ -423,7 +423,7 @@ abstract class SimpleBoxModel {
 		// The rest of values...
 		styledecl = getComputedStyle();
 		// Width
-		cssval = styledecl.getCSSValue("width");
+		cssval = styledecl.getCascadedValue("width");
 		CSSTypedValue typed;
 		if (cssval == null || cssval.getCssValueType() != CssType.TYPED
 				|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
@@ -597,7 +597,7 @@ abstract class SimpleBoxModel {
 			maxcw += maxrcw[i];
 		}
 		box.colwidth = new float[ncol];
-		StyleValue cssval = style.getCSSValue("width");
+		StyleValue cssval = style.getCascadedValue("width");
 		if (cssval == null || cssval.getCssValueType() != CssType.TYPED
 				|| isTypedAutoOrInvalidLength((CSSTypedValue) cssval)) {
 			// width: auto
@@ -916,15 +916,15 @@ abstract class SimpleBoxModel {
 	}
 
 	private float computeWidth(ComputedCSSStyle styledecl, short unitType) throws StyleDatabaseRequiredException {
-		CSSValue cssval = styledecl.getCSSValue("width");
+		CSSValue cssval = styledecl.getCascadedValue("width");
 		CSSTypedValue typed;
 		if (cssval == null || cssval.getCssValueType() != CssType.TYPED
 				|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
 			// width: auto
-			CSSValue cssMarginLeft = styledecl.getCSSValue("margin-left");
-			CSSValue cssBorderLeftWidth = styledecl.getCSSValue("border-left-width");
-			CSSValue cssMarginRight = styledecl.getCSSValue("margin-right");
-			CSSValue cssBorderRightWidth = styledecl.getCSSValue("border-right-width");
+			CSSValue cssMarginLeft = styledecl.getCascadedValue("margin-left");
+			CSSValue cssBorderLeftWidth = styledecl.getCascadedValue("border-left-width");
+			CSSValue cssMarginRight = styledecl.getCascadedValue("margin-right");
+			CSSValue cssBorderRightWidth = styledecl.getCascadedValue("border-right-width");
 			float marginLeft = findWidthautoBoxProperty(styledecl, "margin-left", cssMarginLeft, unitType);
 			float borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width", cssBorderLeftWidth,
 					unitType);
@@ -940,7 +940,7 @@ abstract class SimpleBoxModel {
 			} else {
 				String display = contblockStyledecl.getPropertyValue("display").toLowerCase(Locale.ROOT);
 				if ("table".equals(display) || display.startsWith("table-")) {
-					cssval = contblockStyledecl.getCSSValue("width");
+					cssval = contblockStyledecl.getCascadedValue("width");
 					if (cssval == null || cssval.getCssValueType() != CssType.TYPED
 							|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)
 							|| typed.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
@@ -979,7 +979,7 @@ abstract class SimpleBoxModel {
 			while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 				styledecl = findContainingBlockStyle(styledecl);
 				if (styledecl != null) {
-					cssval = styledecl.getCSSValue(propertyName);
+					cssval = styledecl.getCascadedValue(propertyName);
 				} else {
 					cssval = null;
 					break;
@@ -1006,7 +1006,7 @@ abstract class SimpleBoxModel {
 			while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 				styledecl = findContainingBlockStyle(styledecl);
 				if (styledecl != null) {
-					cssval = styledecl.getCSSValue(propertyName);
+					cssval = styledecl.getCascadedValue(propertyName);
 				} else {
 					cssval = null;
 					break;
@@ -1083,11 +1083,11 @@ abstract class SimpleBoxModel {
 
 	private float computePaddingSubproperty(ComputedCSSStyle styledecl, String propertyName, short unitType)
 			throws StyleDatabaseRequiredException {
-		CSSValue cssval = styledecl.getCSSValue(propertyName);
+		CSSValue cssval = styledecl.getCascadedValue(propertyName);
 		while (cssval != null && cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
 			styledecl = styledecl.getParentComputedStyle();
 			if (styledecl != null) {
-				cssval = styledecl.getCSSValue(propertyName);
+				cssval = styledecl.getCascadedValue(propertyName);
 			} else {
 				getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock(getComputedStyle().getDisplay(),
 						getComputedStyle().getOwnerNode());

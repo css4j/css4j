@@ -53,6 +53,7 @@ import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.FunctionValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
+import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
 import io.sf.carte.doc.style.css.property.NumberValue;
@@ -213,6 +214,36 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		super.setPropertyCSSValue(propertyName, value, hrefcontext);
 	}
 
+	public StyleValue getCascadedValue(String property) throws StyleDatabaseRequiredException {
+		// Is the property inherited ?
+		PropertyDatabase propertydb = PropertyDatabase.getInstance();
+		boolean inherited = propertydb.isInherited(property) || property.startsWith("--");
+		StyleValue value = super.getCSSValue(property);
+		if (value != null) {
+			if (value.getPrimitiveType() == CSSValue.Type.INTERNAL) {
+				// Pending substitution values.
+				PendingValue pending = (PendingValue) value;
+				value = getSubstitutedValue(property, pending.getShorthandName(), pending.getLexicalUnit().clone(),
+						isPropertyImportant(property));
+			} else if (value.getPrimitiveType() == CSSValue.Type.UNSET) {
+				/*
+				 * The 'unset' keyword acts as either inherit or initial, depending on whether
+				 * the property is inherited or not.
+				 */
+				if (inherited) {
+					value = InheritValue.getValue();
+				} else {
+					value = defaultPropertyValue(property, propertydb);
+				}
+			} else if (value.getCssValueType() == CssType.SHORTHAND) {
+				return null;
+			}
+		} else {
+			value = defaultPropertyValue(property, propertydb);
+		}
+		return value;
+	}
+
 	/**
 	 * Gets the absolute, primitive "computed" value for the given property.
 	 * <p>
@@ -231,15 +262,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 */
 	@Override
 	public StyleValue getCSSValue(String property) throws StyleDatabaseRequiredException {
-		StyleValue value = super.getCSSValue(property);
 		// Is the property inherited ?
 		PropertyDatabase propertydb = PropertyDatabase.getInstance();
 		boolean inherited = propertydb.isInherited(property) || property.startsWith("--");
+		StyleValue value = super.getCSSValue(property);
 		// Check for unset
 		if (value != null) {
-			if (value.getCssValueType() == CssType.SHORTHAND) {
-				return null;
-			}
 			if (value.getPrimitiveType() == CSSValue.Type.INTERNAL) {
 				// Pending substitution values.
 				PendingValue pending = (PendingValue) value;
@@ -251,6 +279,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				 * the property is inherited or not.
 				 */
 				value = null;
+			} else if (value.getCssValueType() == CssType.SHORTHAND) {
+				return null;
 			}
 		}
 		/*
