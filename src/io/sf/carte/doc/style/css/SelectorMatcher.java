@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css;
 
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -41,18 +42,18 @@ public interface SelectorMatcher {
 	/**
 	 * Get the pseudo-element that this matcher will use to match selectors.
 	 *
-	 * @return the pseudo-element, or null if no pseudo-element will be used to
-	 *         match selectors.
+	 * @return the pseudo-element condition, or <code>null</code> if no
+	 *         pseudo-element will be used to match selectors.
 	 */
-	String getPseudoElement();
+	Condition getPseudoElement();
 
 	/**
 	 * Set this selector's pseudo-element.
 	 *
 	 * @param pseudoElt
-	 *            the pseudo-element, or <code>null</code> if none.
+	 *            the pseudo-element condition, or <code>null</code> if none.
 	 */
-	void setPseudoElement(String pseudoElt);
+	void setPseudoElement(Condition pseudoElt);
 
 	/**
 	 * Does this object match the given selector list?

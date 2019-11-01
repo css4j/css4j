@@ -19,7 +19,6 @@ import java.net.URLConnection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMStringList;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.stylesheets.DocumentStyle;
 
 import io.sf.carte.doc.agent.CSSCanvas;
@@ -137,26 +136,6 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	 *            the case-sensitive name of the set to enable.
 	 */
 	void enableStyleSheetsForSet(String name);
-
-	/**
-	 * Gets the override style declaration for an element and pseudo-element.
-	 * <p>
-	 * The getOverrideStyle method provides a mechanism through which a DOM author could
-	 * effect immediate change to the style of an element without modifying the explicitly
-	 * linked style sheets of a document or the inline style of elements.
-	 * </p>
-	 * <p>
-	 * The override style sheet comes after the author style sheet in the cascade algorithm.
-	 * DOM Level 2.
-	 * </p>
-	 *
-	 * @param elt
-	 *            the element.
-	 * @param pseudoElt
-	 *            the pseudo-element, or <code>null</code> if none.
-	 * @return the override style sheet for the given element and pseudo-element.
-	 */
-	ExtendedCSSStyleDeclaration getOverrideStyle(Element elt, String pseudoElt);
 
 	/**
 	 * Gets the merged style sheet that applies to this document, resulting from

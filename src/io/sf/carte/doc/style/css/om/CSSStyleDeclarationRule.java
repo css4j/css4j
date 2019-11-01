@@ -33,6 +33,7 @@ import io.sf.carte.doc.style.css.nsac.LangCondition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.PositionalCondition;
+import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
@@ -400,9 +401,9 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			}
 			return buf.toString();
 		case Condition.SAC_PSEUDO_CLASS_CONDITION:
-			return pseudoClassText((AttributeCondition) condition, simpleSelector);
+			return pseudoClassText((PseudoCondition) condition, simpleSelector);
 		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
-			return pseudoElementText((AttributeCondition) condition, simpleSelector);
+			return pseudoElementText((PseudoCondition) condition, simpleSelector);
 		case Condition.SAC_AND_CONDITION:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
 			return conditionalSelectorText(ccond.getFirstCondition(), simpleSelector)
@@ -428,14 +429,14 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		return buf.toString();
 	}
 
-	private String pseudoClassText(AttributeCondition acond, SimpleSelector simpleSelector) {
+	private String pseudoClassText(PseudoCondition acond, SimpleSelector simpleSelector) {
 		StringBuilder buf = new StringBuilder(24);
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
 		buf.append(':');
-		String name = acond.getLocalName();
-		String value = acond.getValue();
+		String name = acond.getName();
+		String value = acond.getArgument();
 		if (name == null) {
 			buf.append(value);
 		} else {
@@ -584,12 +585,12 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		return quote;
 	}
 
-	private String pseudoElementText(AttributeCondition acond, SimpleSelector simpleSelector) {
+	private String pseudoElementText(PseudoCondition acond, SimpleSelector simpleSelector) {
 		StringBuilder buf = new StringBuilder(16);
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		return buf.append(':').append(':').append(acond.getLocalName()).toString();
+		return buf.append(':').append(':').append(acond.getName()).toString();
 	}
 
 	private String selectorArgumentText(ArgumentCondition condition, SimpleSelector simpleSelector) {

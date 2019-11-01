@@ -31,6 +31,7 @@ import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.om.StyleRule.RuleSpecifity;
 
 /**
@@ -114,11 +115,11 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 	 * @param elm
 	 *            the element.
 	 * @param pseudoElt
-	 *            the pseudo-element.
+	 *            the pseudo-element condition.
 	 * @return the computed style declaration.
 	 */
 	@Override
-	abstract public ComputedCSSStyle getComputedStyle(CSSElement elm, String pseudoElt);
+	abstract public ComputedCSSStyle getComputedStyle(CSSElement elm, Condition pseudoElt);
 
 	abstract protected ComputedCSSStyle createComputedCSSStyle();
 
@@ -156,7 +157,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 	 *         applied or the sheet is disabled.
 	 */
 	protected ComputedCSSStyle computeStyle(ComputedCSSStyle style, SelectorMatcher matcher,
-			String pseudoElt, InlineStyle inlineStyle) {
+			Condition pseudoElt, InlineStyle inlineStyle) {
 		// This check for the disabled attribute is required for spec
 		// compliance.
 		if (getDisabled()) {
@@ -221,7 +222,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 	}
 
 	protected ComputedCSSStyle computeRevertedStyle(ComputedCSSStyle style, SelectorMatcher matcher,
-			String pseudoElt, BaseCSSStyleDeclaration inlineStyle, byte origin) {
+			Condition pseudoElt, BaseCSSStyleDeclaration inlineStyle, byte origin) {
 		// Set the pseudo-element
 		matcher.setPseudoElement(pseudoElt);
 		// Obtain the owner element and look for non-CSS presentational hints.

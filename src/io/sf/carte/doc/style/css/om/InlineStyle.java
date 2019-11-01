@@ -23,6 +23,7 @@ import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.SimpleWriter;
@@ -95,11 +96,11 @@ abstract public class InlineStyle extends BaseCSSStyleDeclaration implements Nod
 	 * Has this style's owner element an override style attached to the given pseudo-element?
 	 * 
 	 * @param pseudoElt
-	 *            the pseudo-element, or <code>null</code> if none.
+	 *            the pseudo-element condition, or <code>null</code> if none.
 	 * @return <code>true</code> if this style's owner element has an override style attached, false
 	 *         otherwise.
 	 */
-	public boolean hasOverrideStyle(String pseudoElt) {
+	public boolean hasOverrideStyle(Condition pseudoElt) {
 		Node node = getOwnerNode();
 		if (node != null) {
 			short type = node.getNodeType();

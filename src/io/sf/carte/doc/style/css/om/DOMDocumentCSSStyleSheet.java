@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.nsac.Condition;
 
 /**
  * CSS Style Sheet for DOM.
@@ -52,7 +53,7 @@ abstract public class DOMDocumentCSSStyleSheet extends BaseDocumentCSSStyleSheet
 	 * @return the computed style declaration.
 	 */
 	@Override
-	public ComputedCSSStyle getComputedStyle(CSSElement elm, String pseudoElt) {
+	public ComputedCSSStyle getComputedStyle(CSSElement elm, Condition pseudoElt) {
 		InlineStyle inline = (InlineStyle) elm.getStyle();
 		ComputedCSSStyle style = createComputedCSSStyle();
 		style.setOwnerNode(elm);

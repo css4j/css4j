@@ -16,7 +16,9 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.DOMCharacterException;
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
@@ -1014,6 +1016,21 @@ public class ParseHelper {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Create a single pseudo-element condition, like {@code ::first-letter}.
+	 * 
+	 * @param pseudoElement the pseudo-element.
+	 * @return the pseudo-element condition.
+	 */
+	public static PseudoCondition createPseudoElementCondition(String pseudoElement) {
+		if (pseudoElement == null) {
+			throw new NullPointerException("Null pseudo-element");
+		}
+		PseudoConditionImpl cond = new PseudoConditionImpl(Condition.SAC_PSEUDO_ELEMENT_CONDITION);
+		cond.name = pseudoElement;
+		return cond;
 	}
 
 }

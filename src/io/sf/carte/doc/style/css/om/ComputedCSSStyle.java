@@ -42,6 +42,7 @@ import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -2130,7 +2131,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return getOptimizedCssText();
 	}
 
-	public ComputedCSSStyle getRevertStyle(String pseudoElt) {
+	public ComputedCSSStyle getRevertStyle(Condition pseudoElt) {
 		ComputedCSSStyle style = ownerSheet.createComputedCSSStyle();
 		CSSElement elt = ComputedCSSStyle.this.getOwnerNode();
 		style.setOwnerNode(elt);
@@ -2171,7 +2172,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 
 		@Override
-		protected CSSComputedProperties getRevertStyle(String pseudoElt) {
+		protected CSSComputedProperties getRevertStyle(Condition pseudoElt) {
 			return ComputedCSSStyle.this.getRevertStyle(pseudoElt);
 		}
 	}

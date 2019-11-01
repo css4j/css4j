@@ -45,6 +45,7 @@ import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.InputSource;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Locator;
@@ -57,13 +58,8 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
 import io.sf.carte.doc.style.css.parser.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionImpl;
-import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
-import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ConditionalSelectorImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ElementSelectorImpl;
-import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.LangConditionImpl;
-import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.PositionalConditionImpl;
-import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.SelectorArgumentConditionImpl;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -1732,6 +1728,27 @@ public class CSSParser implements Parser {
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(seltext);
 		return handler.getSelectorList();
+	}
+
+	public Condition parsePseudoElement(String pseudoElement) throws CSSException {
+		SelectorList peList = parseSelectors(pseudoElement);
+		Selector sel;
+		if (peList.getLength() == 1 && (sel = peList.item(0)).getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
+			Condition cond = ((ConditionalSelector) sel).getCondition();
+			short condType = cond.getConditionType();
+			if (condType == Condition.SAC_PSEUDO_ELEMENT_CONDITION) {
+				return cond;
+			} else if (condType == Condition.SAC_AND_CONDITION) {
+				CombinatorCondition comb = (CombinatorCondition) cond;
+				Condition first = comb.getFirstCondition();
+				Condition second = comb.getSecondCondition();
+				if (first.getConditionType() == Condition.SAC_PSEUDO_ELEMENT_CONDITION
+						&& second.getConditionType() == Condition.SAC_PSEUDO_ELEMENT_CONDITION) {
+					return cond;
+				}
+			}
+		}
+		throw new CSSException("No pseudo-element in: " + pseudoElement);
 	}
 
 	@Override
@@ -4078,7 +4095,7 @@ public class CSSParser implements Parser {
 												"Unexpected functional argument: " + s);
 										return;
 									}
-									((AttributeConditionImpl) cond).value = s;
+									((PseudoConditionImpl) cond).argument = s;
 								}
 								buffer.setLength(0);
 								stage = 1;
@@ -4604,6 +4621,27 @@ public class CSSParser implements Parser {
 			} else {
 				condition = factory.createCondition(condtype);
 			}
+			if (condition.getConditionType() == Condition.SAC_PSEUDO_CLASS_CONDITION) {
+				if (isValidIdentifier(name)) {
+					((PseudoConditionImpl) condition).name = safeUnescapeIdentifier(index, name);
+				} else {
+					handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
+							"Invalid pseudo-class: " + name);
+					return;
+				}
+			} else if (condition.getConditionType() == Condition.SAC_PSEUDO_ELEMENT_CONDITION) {
+				if (!isValidIdentifier(name)) {
+					handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
+							"Invalid pseudo-element: " + name);
+					return;
+				} else if (triggerCp == '(') {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+							"Invalid pseudo-element declaration: " + name + '(');
+					return;
+				} else {
+					((PseudoConditionImpl) condition).name = safeUnescapeIdentifier(index, name);
+				}
+			}
 			if (name.length() != 0 && condition instanceof AttributeConditionImpl) {
 				switch (condition.getConditionType()) {
 				case Condition.SAC_ATTRIBUTE_CONDITION:
@@ -4615,7 +4653,6 @@ public class CSSParser implements Parser {
 					if (namespacePrefix != null) {
 						((AttributeConditionImpl) condition).namespaceURI = getNamespaceURI(index);
 					}
-				case Condition.SAC_PSEUDO_CLASS_CONDITION:
 					if (isValidIdentifier(name)) {
 						((AttributeConditionImpl) condition).localName = safeUnescapeIdentifier(index, name);
 					} else {
@@ -4624,23 +4661,11 @@ public class CSSParser implements Parser {
 						return;
 					}
 					break;
-				case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
-					if (!isValidIdentifier(name)) {
-						handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
-								"Invalid pseudo-element: " + name);
-						return;
-					} else if (triggerCp == '(') {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Invalid pseudo-element declaration: " + name + '(');
-						return;
-					} else {
-						((AttributeConditionImpl) condition).localName = safeUnescapeIdentifier(index, name);
-					}
-					break;
 				default:
 					((AttributeConditionImpl) condition).value = lcname;
 				}
 			}
+			//
 			if (currentsel instanceof CombinatorSelectorImpl) {
 				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				if (simple != null && simple.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
@@ -4833,9 +4858,13 @@ public class CSSParser implements Parser {
 				}
 				switch (condtype) {
 				case Condition.SAC_ATTRIBUTE_CONDITION:
+					if (((AttributeConditionImpl) cond).getLocalName() == null) {
+						return false;
+					}
+					break;
 				case Condition.SAC_PSEUDO_CLASS_CONDITION:
 				case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
-					if (((AttributeConditionImpl) cond).getLocalName() == null) {
+					if (((PseudoConditionImpl) cond).name == null) {
 						return false;
 					}
 					break;

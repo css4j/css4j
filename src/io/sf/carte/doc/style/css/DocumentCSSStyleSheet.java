@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css;
 
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 
 /**
@@ -38,10 +39,10 @@ public interface DocumentCSSStyleSheet extends ExtendedCSSStyleSheet<AbstractCSS
 	 * @param elm
 	 *            the element.
 	 * @param pseudoElt
-	 *            the pseudo-element.
+	 *            the pseudo-element condition.
 	 * @return the computed style declaration.
 	 */
-	CSSComputedProperties getComputedStyle(CSSElement elm, String pseudoElt);
+	CSSComputedProperties getComputedStyle(CSSElement elm, Condition pseudoElt);
 
 	/**
 	 * Clone this style sheet.

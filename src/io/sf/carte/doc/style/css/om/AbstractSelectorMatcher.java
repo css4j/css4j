@@ -27,6 +27,7 @@ import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LangCondition;
 import io.sf.carte.doc.style.css.nsac.PositionalCondition;
+import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
@@ -41,7 +42,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 
 	private String localName = null;
 
-	private String pseudoElt = null;
+	private Condition pseudoElt = null;
 
 	public AbstractSelectorMatcher() {
 		super();
@@ -84,7 +85,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	}
 
 	@Override
-	public String getPseudoElement() {
+	public Condition getPseudoElement() {
 		return pseudoElt;
 	}
 
@@ -95,7 +96,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	 *            the pseudo-element, or <code>null</code> if none.
 	 */
 	@Override
-	public void setPseudoElement(String pseudoElt) {
+	public void setPseudoElement(Condition pseudoElt) {
 		this.pseudoElt = pseudoElt;
 	}
 
@@ -286,8 +287,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			// Non-state pseudo-classes are generally more expensive than other
 			// selectors, so we evaluate the simple selector first.
 			if (matches(simple)) {
-				attrcond = (AttributeCondition) cond;
-				String pseudoClassName = attrcond.getLocalName();
+				PseudoCondition pseudocond = (PseudoCondition) cond;
+				String pseudoClassName = pseudocond.getName();
 				pseudoClassName = pseudoClassName.toLowerCase(Locale.ROOT).intern();
 				if ("only-child".equals(pseudoClassName)) {
 					return isOnlyChild();
@@ -327,7 +328,18 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			break;
 		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
 			if (matches(simple)) {
-				return ((AttributeCondition) cond).getLocalName().equals(getPseudoElement());
+				Condition pe = getPseudoElement();
+				if (pe != null) {
+					PseudoCondition pseudo = (PseudoCondition) cond;
+					if (pe.getConditionType() == Condition.SAC_PSEUDO_ELEMENT_CONDITION) {
+						return pseudo.getName().equals(((PseudoCondition) pe).getName());
+					}
+					if (pe.getConditionType() == Condition.SAC_AND_CONDITION) {
+						CombinatorCondition comb = (CombinatorCondition) pe;
+						return pseudo.getName().equals(((PseudoCondition) comb.getFirstCondition()).getName())
+								|| pseudo.getName().equals(((PseudoCondition) comb.getSecondCondition()).getName());
+					}
+				}
 			}
 			break;
 		case Condition.SAC_AND_CONDITION:
@@ -713,10 +725,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		case Selector.SAC_CONDITIONAL_SELECTOR:
 			Condition condition = ((ConditionalSelector) selector).getCondition();
 			if (condition.getConditionType() == Condition.SAC_PSEUDO_CLASS_CONDITION) {
-				String pseudoClass = ((AttributeCondition) condition).getLocalName();
-				if (pseudoClass == null) {
-					pseudoClass = ((AttributeCondition) condition).getValue();
-				}
+				String pseudoClass = ((PseudoCondition) condition).getName();
 				int idxp = pseudoClass.indexOf('(');
 				if (idxp != -1) {
 					pseudoClass = pseudoClass.substring(0, idxp);

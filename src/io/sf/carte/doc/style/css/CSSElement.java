@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
@@ -49,10 +50,10 @@ public interface CSSElement extends Element, CSSNode {
 	 * </p>
 	 *
 	 * @param pseudoElt
-	 *            the pseudo-element, or <code>null</code> if none.
+	 *            the pseudo-element condition, or <code>null</code> if none.
 	 * @return the override style sheet for the given pseudo-element.
 	 */
-	ExtendedCSSStyleDeclaration getOverrideStyle(String pseudoElt);
+	ExtendedCSSStyleDeclaration getOverrideStyle(Condition pseudoElt);
 
 	/**
 	 * Check whether this element has an override style declaration for the given
@@ -63,11 +64,11 @@ public interface CSSElement extends Element, CSSNode {
 	 * checking its length.
 	 *
 	 * @param pseudoElt
-	 *            the pseudo-element, or <code>null</code> if none.
+	 *            the pseudo-element condition, or <code>null</code> if none.
 	 * @return <code>true</code> if this element has an override style declaration for
 	 *         <code>pseudoElt</code>.
 	 */
-	boolean hasOverrideStyle(String pseudoElt);
+	boolean hasOverrideStyle(Condition pseudoElt);
 
 	/**
 	 * The inline style.
@@ -99,11 +100,11 @@ public interface CSSElement extends Element, CSSNode {
 	 * @param selist
 	 *            the selector list.
 	 * @param pseudoElement
-	 *            the pseudo-element, or null if none.
+	 *            the pseudo-element condition, or <code>null</code> if none.
 	 * @return <code>true</code> if the element would be selected by at least one selector in the specified
 	 *         list, <code>false</code> otherwise.
 	 */
-	boolean matches(SelectorList selist, String pseudoElement);
+	boolean matches(SelectorList selist, Condition pseudoElement);
 
 	/**
 	 * Gets a selector matcher associated to this element.

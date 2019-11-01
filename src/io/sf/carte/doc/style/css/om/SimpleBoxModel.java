@@ -32,6 +32,7 @@ import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
@@ -159,7 +160,7 @@ abstract class SimpleBoxModel {
 
 	abstract protected ComputedCSSStyle getComputedStyle();
 
-	abstract protected CSSComputedProperties getRevertStyle(String pseudoElt);
+	abstract protected CSSComputedProperties getRevertStyle(Condition pseudoElt);
 
 	private StyleDatabase getStyleDatabase() {
 		return getComputedStyle().getStyleDatabase();

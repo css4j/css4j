@@ -51,7 +51,6 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
@@ -2511,29 +2510,6 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * 
 	 */
 	void onStyleModify() {
-	}
-
-	/**
-	 * Gets the override style declaration for an element and pseudo-element.
-	 * <p>
-	 * The getOverrideStyle method provides a mechanism through which a DOM author could
-	 * effect immediate change to the style of an element without modifying the explicitly
-	 * linked style sheets of a document or the inline style of elements.
-	 * </p>
-	 * <p>
-	 * The override style sheet comes after the author style sheet in the cascade algorithm.
-	 * DOM Level 2.
-	 * </p>
-	 * 
-	 * @param elt
-	 *            the element.
-	 * @param pseudoElt
-	 *            the pseudo-element, or <code>null</code> if none.
-	 * @return the override style sheet for the given element and pseudo-element.
-	 */
-	@Override
-	public ExtendedCSSStyleDeclaration getOverrideStyle(Element elt, String pseudoElt) {
-		return ((DOMElement) elt).getOverrideStyle(pseudoElt);
 	}
 
 	/**

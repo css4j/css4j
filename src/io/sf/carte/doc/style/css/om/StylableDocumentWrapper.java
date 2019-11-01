@@ -59,7 +59,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDatabase;
-import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
@@ -767,7 +767,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		WeakReference<SelectorMatcher> selectorMatcherRef = null;
 
-		private Map<String, InlineStyle> overrideStyleSet = null;
+		private Map<Condition, InlineStyle> overrideStyleSet = null;
 
 		MyElement(Element element) {
 			super(element);
@@ -902,18 +902,29 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public boolean matches(String selectorString, String pseudoElement) throws DOMException {
-			Parser parser = new CSSParser();
+			CSSParser parser = new CSSParser();
 			SelectorList list;
 			try {
 				list = parser.parseSelectors(new StringReader(selectorString));
 			} catch (Exception e) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Unable to parse selector in: " + selectorString);
 			}
-			return matches(list, pseudoElement);
+			Condition peCond;
+			if (pseudoElement != null) {
+				try {
+					peCond = parser.parsePseudoElement(pseudoElement);
+				} catch (Exception e) {
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Unable to parse pseudo-element in: " + pseudoElement);
+				}
+			} else {
+				peCond = null;
+			}
+			return matches(list, peCond);
 		}
 
 		@Override
-		public boolean matches(SelectorList selist, String pseudoElement) {
+		public boolean matches(SelectorList selist, Condition pseudoElement) {
 			SelectorMatcher matcher = getSelectorMatcher();
 			matcher.setPseudoElement(pseudoElement);
 			return matcher.matches(selist) != -1;
@@ -948,7 +959,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		@Override
-		public boolean hasOverrideStyle(String pseudoElt) {
+		public boolean hasOverrideStyle(Condition pseudoElt) {
 			if (overrideStyleSet == null) {
 				return false;
 			}
@@ -956,10 +967,10 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		@Override
-		public ExtendedCSSStyleDeclaration getOverrideStyle(String pseudoElt) {
+		public ExtendedCSSStyleDeclaration getOverrideStyle(Condition pseudoElt) {
 			InlineStyle overrideStyle = null;
 			if (overrideStyleSet == null) {
-				overrideStyleSet = new HashMap<String, InlineStyle>(1);
+				overrideStyleSet = new HashMap<Condition, InlineStyle>(1);
 			} else {
 				overrideStyle = overrideStyleSet.get(pseudoElt);
 			}
@@ -979,7 +990,14 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		 */
 		@Override
 		public ComputedCSSStyle getComputedStyle(String pseudoElt) {
-			return (ComputedCSSStyle) getStyleSheet().getComputedStyle(this, pseudoElt);
+			Condition peCond;
+			if (pseudoElt != null) {
+				CSSParser parser = new CSSParser();
+				peCond = parser.parsePseudoElement(pseudoElt);
+			} else {
+				peCond = null;
+			}
+			return (ComputedCSSStyle) getStyleSheet().getComputedStyle(this, peCond);
 		}
 
 		@Override
@@ -1668,34 +1686,6 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		} else if (sheets != null) {
 			sheets.setNeedsUpdate(true);
 		}
-	}
-
-	/**
-	 * Gets the override style sheet for an element and pseudo-element.
-	 * <p>
-	 * The getOverrideStyle method provides a mechanism through which a DOM
-	 * author could effect immediate change to the style of an element without
-	 * modifying the explicitly linked style sheets of a document or the inline
-	 * style of elements in the style sheets.
-	 * </p>
-	 * <p>
-	 * The override style sheet comes after the author style sheet in the
-	 * cascade algorithm. DOM Level 2.
-	 * </p>
-	 * 
-	 * @param elt
-	 *            the element.
-	 * @param pseudoElt
-	 *            the pseudo-element, or null if none.
-	 * @return the override style sheet for the given element and
-	 *         pseudo-element.
-	 */
-	@Override
-	public ExtendedCSSStyleDeclaration getOverrideStyle(Element elt, String pseudoElt) {
-		if (elt instanceof MyElement) {
-			return ((MyElement) elt).getOverrideStyle(pseudoElt);
-		}
-		return null;
 	}
 
 	/**

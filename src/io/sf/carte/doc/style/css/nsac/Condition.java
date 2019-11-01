@@ -118,7 +118,7 @@ public interface Condition {
 	 *   :hover
 	 * </pre>
 	 * 
-	 * @see AttributeCondition
+	 * @see PseudoCondition
 	 */
 	short SAC_PSEUDO_CLASS_CONDITION = 10;
 
@@ -185,7 +185,7 @@ public interface Condition {
 	 *   ::first-letter
 	 * </pre>
 	 *
-	 * @see AttributeCondition#getLocalName()
+	 * @see PseudoCondition#getName()
 	 */
 	short SAC_PSEUDO_ELEMENT_CONDITION = 18;
 

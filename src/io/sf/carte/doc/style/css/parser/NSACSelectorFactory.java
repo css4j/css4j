@@ -15,22 +15,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSException;
-import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.Condition;
-import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
-import io.sf.carte.doc.style.css.nsac.LangCondition;
 import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
-import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.util.SingleElementIterator;
-import io.sf.jclf.text.TokenParser;
 
 /**
  * Based on SAC api.
@@ -124,26 +118,6 @@ class NSACSelectorFactory implements NamespaceMap {
 			}
 		}
 		return null;
-	}
-
-	static abstract class AbstractSelector implements Selector {
-
-		@Override
-		public int hashCode() {
-			return Short.hashCode(getSelectorType());
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (!(obj instanceof Selector))
-				return false;
-			Selector other = (Selector) obj;
-			return getSelectorType() == other.getSelectorType();
-		}
 	}
 
 	/**
@@ -492,11 +466,12 @@ class NSACSelectorFactory implements NamespaceMap {
 		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
 		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
 		case Condition.SAC_ID_CONDITION:
-		case Condition.SAC_PSEUDO_CLASS_CONDITION:
 		case Condition.SAC_ONLY_CHILD_CONDITION:
 		case Condition.SAC_ONLY_TYPE_CONDITION:
-		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
 			return new AttributeConditionImpl(type);
+		case Condition.SAC_PSEUDO_CLASS_CONDITION:
+		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
+			return new PseudoConditionImpl(type);
 		case Condition.SAC_LANG_CONDITION:
 			return new LangConditionImpl();
 		case Condition.SAC_AND_CONDITION:
@@ -507,82 +482,6 @@ class NSACSelectorFactory implements NamespaceMap {
 			return createPositionalCondition();
 		}
 		return null;
-	}
-
-	static class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSelector {
-		SimpleSelector selector;
-		Condition condition;
-
-		ConditionalSelectorImpl(SimpleSelector selector, Condition condition) {
-			super();
-			this.selector = selector;
-			this.condition = condition;
-		}
-
-		@Override
-		public short getSelectorType() {
-			return Selector.SAC_CONDITIONAL_SELECTOR;
-		}
-
-		@Override
-		public SimpleSelector getSimpleSelector() {
-			return this.selector;
-		}
-
-		@Override
-		public Condition getCondition() {
-			return this.condition;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = super.hashCode();
-			result = prime * result + ((condition == null) ? 0 : condition.hashCode());
-			result = prime * result + ((selector == null) ? 0 : selector.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (!super.equals(obj)) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			ConditionalSelectorImpl other = (ConditionalSelectorImpl) obj;
-			if (condition == null) {
-				if (other.condition != null) {
-					return false;
-				}
-			} else if (!condition.equals(other.condition)) {
-				return false;
-			}
-			if (selector == null) {
-				if (other.selector != null) {
-					return false;
-				}
-			} else if (!selector.equals(other.selector)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			short simpletype = selector.getSelectorType();
-			if (simpletype != Selector.SAC_UNIVERSAL_SELECTOR
-					|| ((ElementSelector) selector).getNamespaceURI() != null) {
-				buf.append(selector.toString());
-			}
-			buf.append(condition.toString());
-			return buf.toString();
-		}
 	}
 
 	class AttributeConditionImpl implements AttributeCondition {
@@ -741,12 +640,6 @@ class NSACSelectorFactory implements NamespaceMap {
 			case Condition.SAC_ID_CONDITION:
 				buf.append('#').append(getEscapedValue());
 			break;
-			case Condition.SAC_PSEUDO_CLASS_CONDITION:
-				buf.append(':').append(getEscapedLocalName());
-				if (value != null) {
-					buf.append('(').append(getEscapedValue()).append(')');
-				}
-			break;
 			case Condition.SAC_LANG_CONDITION:
 				buf.append(":lang(").append(getValue())
 					.append(')');
@@ -757,17 +650,10 @@ class NSACSelectorFactory implements NamespaceMap {
 			case Condition.SAC_ONLY_TYPE_CONDITION:
 				buf.append(":only-of-type");
 			break;
-			case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
-				buf.append(':').append(':').append(getEscapedLocalName());
-			break;
 			default:
 				throw new IllegalStateException("Unknown type: " + condtype);
 			}
 			return buf.toString();
-		}
-
-		private String getEscapedLocalName() {
-			return localName != null ? ParseHelper.escape(localName, false, false) : "";
 		}
 
 		private void appendEscapedQName(StringBuilder buf) {
@@ -782,7 +668,7 @@ class NSACSelectorFactory implements NamespaceMap {
 				}
 			}
 			if (localName != null) {
-				buf.append(ParseHelper.escape(localName, false, false));
+				buf.append(escapeName(localName));
 			}
 		}
 
@@ -796,493 +682,8 @@ class NSACSelectorFactory implements NamespaceMap {
 
 	}
 
-	static class LangConditionImpl implements LangCondition {
-
-		String lang = null;
-
-		@Override
-		public short getConditionType() {
-			return Condition.SAC_LANG_CONDITION;
-		}
-
-		@Override
-		public String getLang() {
-			return lang;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((lang == null) ? 0 : lang.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			LangConditionImpl other = (LangConditionImpl) obj;
-			if (lang == null) {
-				if (other.lang != null) {
-					return false;
-				}
-			} else if (!lang.equals(other.lang)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			buf.append(":lang(");
-			String lang = getLang();
-			TokenParser parser = new TokenParser(lang, ", ", "\"'");
-			String s = parser.next();
-			int commaIdx = lang.indexOf(',') + 1;
-			buf.append(escapeLang(s, lang, commaIdx));
-			while (parser.hasNext()) {
-				s = parser.next();
-				commaIdx = lang.indexOf(',', commaIdx) + 1;
-				buf.append(',').append(escapeLang(s, lang, commaIdx));
-			}
-			buf.append(')');
-			return buf.toString();
-		}
-
-		private String escapeLang(String s, String lang, int commaIdx) {
-			int nextCommaIdx = lang.indexOf(',', commaIdx) + 1;
-			int nextDQIdx = lang.indexOf('"', commaIdx);
-			int nextSQIdx = lang.indexOf('\'', commaIdx);
-			boolean noDQ = nextDQIdx == -1 || nextDQIdx > nextCommaIdx;
-			CharSequence escaped;
-			if (s.indexOf(' ') != -1) {
-				char quote = noDQ ? '\'' : '"';
-				s = ParseHelper.quote(s, quote);
-			} else if ((escaped = ParseHelper.escapeCssCharsAndFirstChar(s)) != s) {
-				boolean noSQ = nextSQIdx == -1 || nextSQIdx > nextCommaIdx;
-				if (escaped.length() < s.length() + 2 && noDQ && noSQ) {
-					s = escaped.toString();
-				} else {
-					char quote = noDQ ? '\'' : '"';
-					s = ParseHelper.quote(s, quote);
-				}
-			}
-			return s;
-		}
-
-	}
-
-	static class PositionalConditionImpl implements PositionalCondition {
-
-		int offset = 1; // By default, set to :first-child or :first-of-type
-		int slope = 0;
-		boolean forwardCondition = true;
-		boolean oftype = false;
-		private final boolean hasArgument;
-		boolean hasKeyword = false;
-		SelectorList ofList = null;
-
-		PositionalConditionImpl(boolean needsArgument) {
-			super();
-			this.hasArgument = needsArgument;
-		}
-
-		@Override
-		public short getConditionType() {
-			return Condition.SAC_POSITIONAL_CONDITION;
-		}
-
-		@Override
-		public boolean isForwardCondition() {
-			return forwardCondition;
-		}
-
-		@Override
-		public boolean isOfType() {
-			return oftype;
-		}
-
-		@Override
-		public int getFactor() {
-			return slope;
-		}
-
-		@Override
-		public int getOffset() {
-			return offset;
-		}
-
-		@Override
-		public boolean hasArgument() {
-			return hasArgument;
-		}
-
-		/**
-		 * The AnB expression is a keyword ?
-		 * 
-		 * @return <code>true</code> if the AnB expression is a keyword like
-		 *         <code>odd</code>.
-		 */
-		@Override
-		public boolean hasKeyword() {
-			return hasKeyword;
-		}
-
-		@Override
-		public SelectorList getOfList() {
-			return ofList;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + (forwardCondition ? 1231 : 1237);
-			result = prime * result + (hasArgument ? 1231 : 1237);
-			result = prime * result + (hasKeyword ? 1231 : 1237);
-			result = prime * result + ((ofList == null) ? 0 : ofList.hashCode());
-			result = prime * result + offset;
-			result = prime * result + (oftype ? 1231 : 1237);
-			result = prime * result + slope;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			PositionalConditionImpl other = (PositionalConditionImpl) obj;
-			if (forwardCondition != other.forwardCondition) {
-				return false;
-			}
-			if (hasArgument != other.hasArgument) {
-				return false;
-			}
-			if (hasKeyword != other.hasKeyword) {
-				return false;
-			}
-			if (ofList == null) {
-				if (other.ofList != null) {
-					return false;
-				}
-			} else if (!ParseHelper.equalSelectorList(ofList, other.ofList)) {
-				return false;
-			}
-			if (offset != other.offset) {
-				return false;
-			}
-			if (oftype != other.oftype) {
-				return false;
-			}
-			if (slope != other.slope) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			buf.append(':');
-			if (oftype) {
-				ofTypeSerialization(buf);
-			} else {
-				normalSerialization(buf);
-			}
-			return buf.toString();
-		}
-
-		private void normalSerialization(StringBuilder buf) {
-			if (slope == 0) {
-				if (offset == 1 && ofList == null && !hasArgument) {
-					if (forwardCondition) {
-						buf.append("first-child");
-					} else {
-						buf.append("last-child");
-					}
-				} else {
-					if (forwardCondition) {
-						buf.append("nth-child(");
-					} else {
-						buf.append("nth-last-child(");
-					}
-					buf.append(offset);
-					if (!isUniversalOfList()) {
-						buf.append(" of ").append(ofList.toString());
-					}
-					buf.append(')');
-				}
-			} else {
-				if (forwardCondition) {
-					buf.append("nth-child(");
-				} else {
-					buf.append("nth-last-child(");
-				}
-				appendAnB(buf);
-				if (!isUniversalOfList()) {
-					buf.append(" of ").append(ofList.toString());
-				}
-				buf.append(')');
-			}
-		}
-
-		private void ofTypeSerialization(StringBuilder buf) {
-			if (slope == 0) {
-				if (offset == 1 && ofList == null && !hasArgument) {
-					if (forwardCondition) {
-						buf.append("first-of-type");
-					} else {
-						buf.append("last-of-type");
-					}
-				} else {
-					if (forwardCondition) {
-						buf.append("nth-of-type(");
-					} else {
-						buf.append("nth-last-of-type(");
-					}
-					buf.append(offset).append(')');
-				}
-			} else {
-				if (forwardCondition) {
-					buf.append("nth-of-type(");
-				} else {
-					buf.append("nth-last-of-type(");
-				}
-				appendAnB(buf);
-				buf.append(')');
-			}
-		}
-
-		private void appendAnB(StringBuilder buf) {
-			if (hasKeyword && slope == 2) {
-				if (offset == 0) {
-					buf.append("even");
-				} else {
-					buf.append("odd");
-				}
-				return;
-			}
-			if (slope == -1) {
-				buf.append('-');
-			} else if (slope != 1) {
-				buf.append(slope);
-			}
-			buf.append('n');
-			if (offset > 0) {
-				buf.append('+');
-				buf.append(offset);
-			} else if (offset != 0) {
-				buf.append(offset);
-			}
-		}
-
-		private boolean isUniversalOfList() {
-			if (ofList == null) {
-				return true;
-			}
-			for (int i = 0; i < ofList.getLength(); i++) {
-				Selector sel = ofList.item(i);
-				if (sel.getSelectorType() == Selector.SAC_UNIVERSAL_SELECTOR
-						&& ((ElementSelector) sel).getNamespaceURI() == null) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-	}
-
-	static class CombinatorConditionImpl implements CombinatorCondition {
-
-		Condition first = null;
-		Condition second = null;
-
-		CombinatorConditionImpl() {
-			super();
-		}
-
-		@Override
-		public short getConditionType() {
-			return Condition.SAC_AND_CONDITION;
-		}
-
-		@Override
-		public Condition getFirstCondition() {
-			return first;
-		}
-
-		@Override
-		public Condition getSecondCondition() {
-			return second;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((first == null) ? 0 : first.hashCode());
-			result = prime * result + ((second == null) ? 0 : second.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			CombinatorConditionImpl other = (CombinatorConditionImpl) obj;
-			if (first == null) {
-				if (other.first != null) {
-					return false;
-				}
-			} else if (!first.equals(other.first)) {
-				return false;
-			}
-			if (second == null) {
-				if (other.second != null) {
-					return false;
-				}
-			} else if (!second.equals(other.second)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			buf.append(getFirstCondition().toString());
-			if (second != null) {
-				buf.append(second.toString());
-			} else  {
-				buf.append('?');
-			}
-			return buf.toString();
-		}
-
-	}
-
-	static class SelectorArgumentConditionImpl implements ArgumentCondition {
-
-		String name = null;
-		SelectorList arguments = null;
-
-		SelectorArgumentConditionImpl() {
-			super();
-		}
-
-		@Override
-		public short getConditionType() {
-			return Condition.SAC_SELECTOR_ARGUMENT_CONDITION;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public SelectorList getSelectors() {
-			return arguments;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((arguments == null) ? 0 : arguments.hashCode());
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			SelectorArgumentConditionImpl other = (SelectorArgumentConditionImpl) obj;
-			if (arguments == null) {
-				if (other.arguments != null) {
-					return false;
-				}
-			} else if (!ParseHelper.equalSelectorList(arguments, other.arguments)) {
-				return false;
-			}
-			if (name == null) {
-				if (other.name != null) {
-					return false;
-				}
-			} else if (!name.equals(other.name)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
-			buf.append(':').append(getName()).append('(');
-			if (arguments != null) {
-				buf.append(arguments.toString());
-			}
-			buf.append(')');
-			return buf.toString();
-		}
-
-	}
-
-	/**
-	 * Universal selector (for all namespaces).
-	 */
-	static class ScopeSelector extends AbstractSelector {
-
-		@Override
-		public short getSelectorType() {
-			return Selector.SAC_SCOPE_SELECTOR;
-		}
-
-		@Override
-		public int hashCode() {
-			return 31 * super.hashCode();
-		}
-
-		@Override
-		public String toString() {
-			return "";
-		}
-
+	static String escapeName(String name) {
+		return name != null ? ParseHelper.escape(name, false, false) : "";
 	}
 
 }
