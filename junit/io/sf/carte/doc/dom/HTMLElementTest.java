@@ -368,7 +368,7 @@ public class HTMLElementTest {
 		assertTrue(div1.matches("div:first-child", null));
 		assertFalse(div2.matches("div:first-child", null));
 		assertTrue(div2.matches("div:last-child", null));
-		assertTrue(div1.matches("div:first-line", "first-line"));
+		assertTrue(div1.matches("div:first-line", "::first-line"));
 		body.removeAttribute("class");
 		assertFalse(body.matches(".bar", null));
 	}

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.css.sac.Selector;
 import org.w3c.css.sac.SelectorList;
+import org.w3c.dom.DOMException;
 
 /**
  * CSS Selector matcher.
@@ -52,7 +53,7 @@ public interface SelectorMatcher {
 	 * @param pseudoElt
 	 *            the pseudo-element, or <code>null</code> if none.
 	 */
-	void setPseudoElement(String pseudoElt);
+	void setPseudoElement(String pseudoElt) throws DOMException;
 
 	/**
 	 * Does this object match the given selector list?

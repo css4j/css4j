@@ -30,6 +30,7 @@ import org.w3c.css.sac.Selector;
 import org.w3c.css.sac.SelectorList;
 import org.w3c.css.sac.SiblingSelector;
 import org.w3c.css.sac.SimpleSelector;
+import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.DOMTokenSetImpl;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -106,7 +107,17 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	 *            the pseudo-element, or <code>null</code> if none.
 	 */
 	@Override
-	public void setPseudoElement(String pseudoElt) {
+	public void setPseudoElement(String pseudoElt) throws DOMException {
+		if (pseudoElt != null) {
+			if (pseudoElt.length() < 3 || pseudoElt.charAt(0) != ':') {
+				throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad pseudo-element: " + pseudoElt);
+			}
+			if (pseudoElt.charAt(1) != ':') {
+				pseudoElt = pseudoElt.substring(1);
+			} else {
+				pseudoElt = pseudoElt.substring(2);
+			}
+		}
 		this.pseudoElt = pseudoElt;
 	}
 
