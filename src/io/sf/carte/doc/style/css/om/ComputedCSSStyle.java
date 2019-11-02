@@ -1422,7 +1422,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						sz = Math.round(sz * 100f) * 0.01f;
 						value = asNumericValuePt(sz);
 					} catch (DOMException e) {
-						computedStyleError("font-size", value.getCssText(), "Could not compute relative font-size.", e);
+						// Could not compute relative font-size.
 						value = cssSize;
 					}
 				}
