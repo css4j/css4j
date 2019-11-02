@@ -229,6 +229,41 @@ public class FontFaceRuleTest {
 	}
 
 	@Test
+	public void testEquals2() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@font-face{font-family:Montserrat;font-style:normal;font-weight:700;src:local('Montserrat-Bold'),url(//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2) format(\"woff2\");unicode-range:u+00??,u+0131,u+0152-0153,u+02c6,u+02da,u+02dc,u+2000-206f,u+2074,u+20ac,u+2212,u+2215,u+e0ff,u+effd,u+f000}");
+		assertTrue(sheet.parseStyleSheet(re));
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
+		FontFaceRule rule = (FontFaceRule) sheet.getCssRules().item(0);
+		FontFaceRule rule2 = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule2.setCssText("@font-face{font-family:Montserrat;font-style:normal;font-weight:700;src:local('Montserrat-Bold'),url(//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2) format(\"woff2\");unicode-range:u+00??,u+0131,u+0152-0153,u+02c6,u+02da,u+02dc,u+2000-206f,u+2074,u+20ac,u+2212,u+2215,u+e0ff,u+effd,u+f000}");
+		assertTrue(rule.equals(rule2));
+		assertEquals(rule.hashCode(), rule2.hashCode());
+		rule2.setCssText(
+				"@font-face{font-family:Montserrat;font-style:normal;font-weight:700;src:local('Montserrat-Bold'),url(//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2) format(\"woff2\");unicode-range:u+00??,u+0131,u+0152-0153,u+02c6,u+02da,u+02dc,u+2000-206f,u+2074,u+20ac,u+2212,u+2215,u+e0ff,u+effd}");
+		assertFalse(rule.equals(rule2));
+	}
+
+	@Test
+	public void testEquals3() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@font-face{font-family:icons-ibm-v12;src:url(https://example.com/common/fonts/icons-ibm-v12.eot);src:url(https://example.com/common/fonts/icons-ibm-v12.woff) format(\"woff\"),url(https://example.com/common/fonts/icons-ibm-v12.ttf) format(\"truetype\"),url(https://example.com/common/fonts/icons-ibm-v12.svg#icons-ibm-v12) format(\"svg\");font-weight:400;font-style:normal}");
+		assertTrue(sheet.parseStyleSheet(re));
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());
+		FontFaceRule rule = (FontFaceRule) sheet.getCssRules().item(0);
+		FontFaceRule rule2 = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule2.setCssText(
+				"@font-face{font-family:icons-ibm-v12;src:url(https://example.com/common/fonts/icons-ibm-v12.eot);src:url(https://example.com/common/fonts/icons-ibm-v12.woff) format(\"woff\"),url(https://example.com/common/fonts/icons-ibm-v12.ttf) format(\"truetype\"),url(https://example.com/common/fonts/icons-ibm-v12.svg#icons-ibm-v12) format(\"svg\");font-weight:400;font-style:normal}");
+		assertTrue(rule.equals(rule2));
+		assertEquals(rule.hashCode(), rule2.hashCode());
+		rule2.setCssText(
+				"@font-face{font-family:icons-ibm-v12;src:url(https://example.com/common/fonts/icons-ibm-v12.eot);src:url(https://example.com/common/fonts/icons-ibm-v12.woff) format(\"woff\"),url(https://example.com/common/fonts/icons-ibm-v12.ttf) format(\"truetype\");font-weight:400;font-style:normal}");
+		assertFalse(rule.equals(rule2));
+	}
+
+	@Test
 	public void testSetCssTextStringWrongRule() {
 		FontFaceRule rule = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {
