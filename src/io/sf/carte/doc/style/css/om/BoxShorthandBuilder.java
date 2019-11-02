@@ -114,6 +114,10 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		if (hasPropertiesToExclude(declaredSet)) {
 			return false;
 		}
+		// pending value check
+		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
+			return false;
+		}
 		// Compute keyword state
 		keyword_state_top = keywordState(getCSSValue(topProperty));
 		keyword_state_bottom = keywordState(getCSSValue(bottomProperty));

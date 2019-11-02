@@ -74,6 +74,11 @@ public class FontBuilderTest {
 	}
 
 	@Test
+	public void testFontVar() {
+		assertShorthandText("font:var(--foo, 12pt Arial);", "font: var(--foo,12pt Arial)");
+	}
+
+	@Test
 	public void testFontInherit() {
 		assertShorthandText("font:inherit;", "font: inherit;");
 	}

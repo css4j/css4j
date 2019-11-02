@@ -184,25 +184,25 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private byte checkForCssKeyword(CSSValue.Type keyword, StringBuilder buf) {
 		byte ucount = 0;
-		if (isCssKeywordValue(keyword, bgposition)) {
+		if (isCssValueOfType(keyword, bgposition)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, bgsize)) {
+		if (isCssValueOfType(keyword, bgsize)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, bgrepeat)) {
+		if (isCssValueOfType(keyword, bgrepeat)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, bgattachment)) {
+		if (isCssValueOfType(keyword, bgattachment)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, bgclip)) {
+		if (isCssValueOfType(keyword, bgclip)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, bgorigin)) {
+		if (isCssValueOfType(keyword, bgorigin)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, getCSSValue("background-color"))) {
+		if (isCssValueOfType(keyword, getCSSValue("background-color"))) {
 			ucount++;
 		}
 		switch (ucount) {
@@ -221,22 +221,22 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private byte checkForCssKeyword(CSSValue.Type keyword, StringBuilder buf, int layerIdx, int lastIndex) {
 		byte ucount = 0;
-		if (isCssKeywordValue(keyword, ((ValueList) bgposition).item(layerIdx))) {
+		if (isCssValueOfType(keyword, ((ValueList) bgposition).item(layerIdx))) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, ((ValueList) bgsize).item(layerIdx))) {
+		if (isCssValueOfType(keyword, ((ValueList) bgsize).item(layerIdx))) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, ((ValueList) bgrepeat).item(layerIdx))) {
+		if (isCssValueOfType(keyword, ((ValueList) bgrepeat).item(layerIdx))) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, ((ValueList) bgattachment).item(layerIdx))) {
+		if (isCssValueOfType(keyword, ((ValueList) bgattachment).item(layerIdx))) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, ((ValueList) bgclip).item(layerIdx))) {
+		if (isCssValueOfType(keyword, ((ValueList) bgclip).item(layerIdx))) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, ((ValueList) bgorigin).item(layerIdx))) {
+		if (isCssValueOfType(keyword, ((ValueList) bgorigin).item(layerIdx))) {
 			ucount++;
 		}
 		final byte fullset;
@@ -244,7 +244,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 			fullset = 6;
 		} else {
 			fullset = 7;
-			if (isCssKeywordValue(keyword, getCSSValue("background-color"))) {
+			if (isCssValueOfType(keyword, getCSSValue("background-color"))) {
 				ucount++;
 			}
 		}
@@ -258,7 +258,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 	}
 
 	private boolean isRevertValue(StyleValue cssValue) {
-		return isCssKeywordValue(CSSValue.Type.REVERT, cssValue);
+		return isCssValueOfType(CSSValue.Type.REVERT, cssValue);
 	}
 
 	private void appendText(StringBuilder buf, String text) {

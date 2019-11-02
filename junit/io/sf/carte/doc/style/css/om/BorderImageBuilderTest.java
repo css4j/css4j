@@ -34,8 +34,13 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImageNone() {
-		emptyStyleDecl.setCssText("border-image: none");
-		assertEquals("border-image:none;", emptyStyleDecl.getOptimizedCssText());
+		assertShorthandText("border-image-source:none;", "border-image-source:none;");
+	}
+
+	@Test
+	public void testBorderImageVar() {
+		assertShorthandText("border-image:var(--foo, url('/img/border.png'));",
+				"border-image:var(--foo,url('/img/border.png'));");
 	}
 
 	@Test

@@ -54,6 +54,11 @@ public class PaddingBuilderTest {
 	}
 
 	@Test
+	public void testPaddingVar() {
+		assertShorthandText("padding:var(--foo, 1px);", "padding:var(--foo,1px);");
+	}
+
+	@Test
 	public void testPaddingImportant() {
 		assertShorthandText("padding:1px!important;", "padding:1px!important;");
 		assertShorthandText("padding:1px 2px!important;", "padding:1px 2px!important;");

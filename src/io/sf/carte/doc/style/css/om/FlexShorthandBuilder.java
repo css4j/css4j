@@ -52,7 +52,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
-		check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+		check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 		if (check == 1) {
 			// All values are revert
 			buf.append("revert");

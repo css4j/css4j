@@ -107,6 +107,10 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 		} else if (revertcheck == 2) {
 			return false;
 		}
+		// pending value check
+		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
+			return false;
+		}
 		StyleValue topLeftValue = getCSSValue("border-top-left-radius");
 		StyleValue topRightValue = getCSSValue("border-top-right-radius");
 		StyleValue bottomRightValue = getCSSValue("border-bottom-right-radius");

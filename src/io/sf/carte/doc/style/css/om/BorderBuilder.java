@@ -90,20 +90,20 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	}
 
 	/**
-	 * Inefficient check for keyword identifiers in 'border' values.
+	 * Inefficient check for a specific type in 'border' values.
 	 * 
-	 * @param keyword
-	 *            the keyword.
+	 * @param type the type to look for.
 	 * 
-	 * @return 0 if no keyword was found; 1 if all values are keyword; 2 if both keyword and
-	 *         non-keyword values are mixed in at least one of width, style or color; 3 if
-	 *         width, style or color are keyword but at least one isn't.
+	 * @return 0 if no {@code type} was found; 1 if all values are {@code type}; 2
+	 *         if both {@code type} and non-{@code type} values are mixed in at
+	 *         least one of width, style or color; 3 if width, style or color are
+	 *         {@code type} but at least one isn't.
 	 */
 	@Override
-	byte checkValuesForKeyword(CSSValue.Type keyword, Set<String> declaredSet) {
-		byte wcheck = checkValuesForKeyword(keyword, "border-width", declaredSet);
-		byte scheck = checkValuesForKeyword(keyword, "border-style", declaredSet);
-		byte ccheck = checkValuesForKeyword(keyword, "border-color", declaredSet);
+	byte checkValuesForType(CSSValue.Type type, Set<String> declaredSet) {
+		byte wcheck = checkValuesForType(type, "border-width", declaredSet);
+		byte scheck = checkValuesForType(type, "border-style", declaredSet);
+		byte ccheck = checkValuesForType(type, "border-color", declaredSet);
 		if (wcheck == 1 && scheck == 1 && ccheck == 1 && fullBorderImage) {
 			// All values are 'keyword', and border-image is set
 			return 1;
@@ -122,6 +122,10 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		if (hasPropertiesToExclude(declaredSet)) {
 			return false;
 		}
+		// pending value check
+		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
+			return false;
+		}
 		if (declaredSet.size() == 12 || (!important && getTotalSetSize() == 12)) {
 			// All border properties are available
 			// 'inherit' check
@@ -135,7 +139,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				return false;
 			}
 			// 'revert' check
-			byte ucheck = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+			byte ucheck = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 			if (ucheck == 1) {
 				// All values are revert
 				buf.append("border:revert");

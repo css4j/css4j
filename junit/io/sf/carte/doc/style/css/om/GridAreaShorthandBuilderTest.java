@@ -80,6 +80,11 @@ public class GridAreaShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderVar() {
+		assertShorthandText("grid-area:var(--foo, span 2/3);", "grid-area: var(--foo,span 2/3);");
+	}
+
+	@Test
 	public void testBuilderImportant() {
 		assertShorthandText("grid-area:2 foo/bar!important;", "grid-area: 2 foo / bar ! important");
 	}

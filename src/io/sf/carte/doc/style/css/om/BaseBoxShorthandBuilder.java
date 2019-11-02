@@ -35,7 +35,7 @@ abstract class BaseBoxShorthandBuilder extends ShorthandBuilder {
 		if (isInherit(value)) {
 			return 1;
 		}
-		if (isCssKeywordValue(CSSValue.Type.REVERT, value)) {
+		if (isCssValueOfType(CSSValue.Type.REVERT, value)) {
 			return 5;
 		}
 		return 0;

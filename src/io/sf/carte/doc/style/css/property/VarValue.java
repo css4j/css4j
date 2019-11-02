@@ -85,17 +85,14 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 		wri.write(')');
 	}
 
-	private void writeFallback(SimpleWriter wri) {
+	private void writeFallback(SimpleWriter wri) throws IOException {
 		ValueFactory vf = new ValueFactory();
 		StyleValue cssval;
 		try {
 			cssval = vf.createCSSValue(fallback);
 			cssval.writeCssText(wri);
-		} catch (DOMException | IOException e) {
-			try {
-				wri.write(fallback.toString());
-			} catch (IOException e1) {
-			}
+		} catch (DOMException e) {
+			wri.write(fallback.toString());
 		}
 	}
 

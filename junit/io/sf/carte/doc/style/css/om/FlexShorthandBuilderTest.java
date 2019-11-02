@@ -89,6 +89,11 @@ public class FlexShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderVar() {
+		assertShorthandText("flex:var(--foo, 1%);", "flex: var(--foo,1%); ");
+	}
+
+	@Test
 	public void testBuilderInitial() {
 		assertShorthandText("flex:0;", "flex: initial; ");
 	}

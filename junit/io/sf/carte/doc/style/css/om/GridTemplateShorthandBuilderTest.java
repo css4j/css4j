@@ -176,6 +176,11 @@ public class GridTemplateShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderVar() {
+		assertShorthandText("grid-template:var(--foo, repeat(1, 10px));", "grid-template: var(--foo,repeat(1,10px));");
+	}
+
+	@Test
 	public void testGridTemplateImportant() {
 		assertShorthandText("grid-template:none!important;", "grid-template: none !important");
 	}

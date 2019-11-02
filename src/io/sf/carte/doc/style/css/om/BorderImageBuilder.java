@@ -39,6 +39,11 @@ class BorderImageBuilder extends ShorthandBuilder {
 	}
 
 	@Override
+	protected boolean isResponsibleShorthand(String shname) {
+		return false;
+	}
+
+	@Override
 	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
@@ -77,6 +82,10 @@ class BorderImageBuilder extends ShorthandBuilder {
 			appendPriority(buf, important);
 			return true;
 		} else if (revertcheck == 2) {
+			return false;
+		}
+		// pending value check
+		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
 			return false;
 		}
 		// Now append the values as appropriate
@@ -167,19 +176,19 @@ class BorderImageBuilder extends ShorthandBuilder {
 	private byte checkValuesForRevert(Set<String> declaredSet, StyleValue biSource, StyleValue biSlice, StyleValue biWidth,
 			StyleValue biOutset, StyleValue biRepeat) {
 		byte ucount = 0, total = (byte) declaredSet.size();
-		if (declaredSet.contains("border-image-source") && isCssKeywordValue(CSSValue.Type.REVERT, biSource)) {
+		if (declaredSet.contains("border-image-source") && isCssValueOfType(CSSValue.Type.REVERT, biSource)) {
 			ucount++;
 		}
-		if (declaredSet.contains("border-image-slice") && isCssKeywordValue(CSSValue.Type.REVERT, biSlice)) {
+		if (declaredSet.contains("border-image-slice") && isCssValueOfType(CSSValue.Type.REVERT, biSlice)) {
 			ucount++;
 		}
-		if (declaredSet.contains("border-image-width") && isCssKeywordValue(CSSValue.Type.REVERT, biWidth)) {
+		if (declaredSet.contains("border-image-width") && isCssValueOfType(CSSValue.Type.REVERT, biWidth)) {
 			ucount++;
 		}
-		if (declaredSet.contains("border-image-outset") && isCssKeywordValue(CSSValue.Type.REVERT, biOutset)) {
+		if (declaredSet.contains("border-image-outset") && isCssValueOfType(CSSValue.Type.REVERT, biOutset)) {
 			ucount++;
 		}
-		if (declaredSet.contains("border-image-repeat") && isCssKeywordValue(CSSValue.Type.REVERT, biRepeat)) {
+		if (declaredSet.contains("border-image-repeat") && isCssValueOfType(CSSValue.Type.REVERT, biRepeat)) {
 			ucount++;
 		}
 		if (ucount == 0) {

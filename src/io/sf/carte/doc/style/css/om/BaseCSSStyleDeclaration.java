@@ -395,8 +395,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			if (ptyname.charAt(0) == '&') {
 				builders.get(ptyname).appendMinifiedCssText(sb);
 			} else {
+				StyleValue value = getCSSValue(ptyname);
 				sb.append(ptyname).append(':');
-				appendMinifiedCssText(sb, getCSSValue(ptyname), ptyname);
+				appendMinifiedCssText(sb, value, ptyname);
 				if (prioSet.contains(ptyname)) {
 					sb.append("!important");
 				}

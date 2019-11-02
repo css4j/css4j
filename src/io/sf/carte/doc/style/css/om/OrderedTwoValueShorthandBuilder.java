@@ -52,7 +52,7 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 			return false;
 		}
 		// Revert
-		check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+		check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 		if (check == 1) {
 			// All values are revert
 			buf.append("revert");
@@ -62,7 +62,7 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 			return false;
 		}
 		// Unset
-		check = checkValuesForKeyword(CSSValue.Type.UNSET, declaredSet);
+		check = checkValuesForType(CSSValue.Type.UNSET, declaredSet);
 		if (check == 1) {
 			// All values are unset
 			buf.append("unset");
@@ -71,6 +71,11 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 		} else if (check == 2 && isInheritedProperty()) {
 			return false;
 		}
+		// pending value check
+		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
+			return false;
+		}
+		//
 		String[] subp = getSubproperties();
 		if (subp.length != 2) {
 			throw new IllegalStateException("This class is only for two subproperties");

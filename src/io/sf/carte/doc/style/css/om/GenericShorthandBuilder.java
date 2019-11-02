@@ -54,7 +54,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 		}
 		// Unset
 		if (isInheritedProperty()) {
-			check = checkValuesForKeyword(CSSValue.Type.UNSET, declaredSet);
+			check = checkValuesForType(CSSValue.Type.UNSET, declaredSet);
 			if (check == 1) {
 				// All values are unset
 				buf.append("unset");
@@ -65,13 +65,17 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 			}
 		}
 		// Revert
-		check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+		check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 		if (check == 1) {
 			// All values are revert
 			buf.append("revert");
 			appendPriority(buf, important);
 			return true;
 		} else if (check == 2) {
+			return false;
+		}
+		// pending value check
+		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
 			return false;
 		}
 		boolean appended = false;

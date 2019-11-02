@@ -69,6 +69,11 @@ public class FontVariantBuilderTest {
 	}
 
 	@Test
+	public void testFontVariantVar() {
+		assertShorthandText("font-variant:var(--foo, small-caps);", "font-variant: var(--foo,small-caps);");
+	}
+
+	@Test
 	public void testFontVariantPlusImportant() {
 		assertShorthandText("font-variant:small-caps;font-variant-east-asian:ruby!important;",
 				"font-variant: small-caps ; font-variant-east-asian: ruby !important;");

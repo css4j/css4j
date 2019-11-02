@@ -236,22 +236,22 @@ class FontBuilder extends ShorthandBuilder {
 	private byte checkValuesForKeyword(CSSValue.Type keyword, StyleValue vFontStyle, StyleValue vFontWeight,
 			StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily, StyleValue vLineHeight) {
 		byte ucount = 0;
-		if (isCssKeywordValue(keyword, vFontStyle)) {
+		if (isCssValueOfType(keyword, vFontStyle)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, vFontWeight)) {
+		if (isCssValueOfType(keyword, vFontWeight)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, vFontStretch)) {
+		if (isCssValueOfType(keyword, vFontStretch)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, vFontSize)) {
+		if (isCssValueOfType(keyword, vFontSize)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, vFontFamily)) {
+		if (isCssValueOfType(keyword, vFontFamily)) {
 			ucount++;
 		}
-		if (isCssKeywordValue(keyword, vLineHeight)) {
+		if (isCssValueOfType(keyword, vLineHeight)) {
 			ucount++;
 		}
 		switch (ucount) {
@@ -267,25 +267,25 @@ class FontBuilder extends ShorthandBuilder {
 	private boolean checkValuesForInitial(StyleValue vFontStyle, StyleValue vFontVariant,
 			StyleValue vFontWeight, StyleValue vFontStretch, StyleValue vFontSize,
 			StyleValue vFontFamily, StyleValue vLineHeight) {
-		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontStyle) && isNotInitialValue(vFontStyle, "font-style")) {
+		if (!isCssValueOfType(CSSValue.Type.INITIAL, vFontStyle) && isNotInitialValue(vFontStyle, "font-style")) {
 			return false;
 		}
-		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontVariant) && isNotInitialValue(vFontVariant, "font-variant")) {
+		if (!isCssValueOfType(CSSValue.Type.INITIAL, vFontVariant) && isNotInitialValue(vFontVariant, "font-variant")) {
 			return false;
 		}
-		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontWeight) && isNotInitialValue(vFontWeight, "font-weight")) {
+		if (!isCssValueOfType(CSSValue.Type.INITIAL, vFontWeight) && isNotInitialValue(vFontWeight, "font-weight")) {
 			return false;
 		}
-		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontStretch) && isNotInitialValue(vFontStretch, "font-stretch")) {
+		if (!isCssValueOfType(CSSValue.Type.INITIAL, vFontStretch) && isNotInitialValue(vFontStretch, "font-stretch")) {
 			return false;
 		}
-		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontSize) && isNotInitialValue(vFontSize, "font-size")) {
+		if (!isCssValueOfType(CSSValue.Type.INITIAL, vFontSize) && isNotInitialValue(vFontSize, "font-size")) {
 			return false;
 		}
-		if (!isCssKeywordValue(CSSValue.Type.INITIAL, vFontFamily) && isNotInitialValue(vFontFamily, "font-family")) {
+		if (!isCssValueOfType(CSSValue.Type.INITIAL, vFontFamily) && isNotInitialValue(vFontFamily, "font-family")) {
 			return false;
 		}
-        return isCssKeywordValue(CSSValue.Type.INITIAL, vLineHeight) || !isNotInitialValue(vLineHeight, "line-height");
+        return isCssValueOfType(CSSValue.Type.INITIAL, vLineHeight) || !isNotInitialValue(vLineHeight, "line-height");
     }
 
 	private boolean isFontVariantCss21(StyleValue vFontVariant) {

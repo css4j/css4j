@@ -56,6 +56,11 @@ public class ListStyleShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderVar() {
+		assertShorthandText("list-style:var(--foo, square);", "list-style: var(--foo,square)");
+	}
+
+	@Test
 	public void testBuilderNoShorthandIEHack() {
 		assertShorthandText("list-style-image:none;list-style-position:inside;list-style-type:square \\9 ;",
 				"list-style-image: none; list-style-position: inside; list-style-type: square \\9;");

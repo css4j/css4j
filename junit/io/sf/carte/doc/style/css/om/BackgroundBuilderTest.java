@@ -200,6 +200,16 @@ public class BackgroundBuilderTest {
 	}
 
 	@Test
+	public void testBackgroundPendingSubstitution() {
+		assertShorthandText("background:var(--foo, #f6ac43);", "background: var(--foo, #f6ac43);");
+	}
+
+	@Test
+	public void testBackgroundPendingSubstitutionImportant() {
+		assertShorthandText("background:var(--foo, #f6ac43)!important;", "background: var(--foo, #f6ac43)!important;");
+	}
+
+	@Test
 	public void testBackgroundBad() {
 		emptyStyleDecl.setCssText("background: url('bkg.png') 40% / 10em gray round fixed border-box, url('foo.png');");
 		assertEquals("", emptyStyleDecl.getOptimizedCssText());

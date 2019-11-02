@@ -52,6 +52,11 @@ public class AnimationShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderVar() {
+		assertShorthandText("animation:var(--foo, 3500ms 5s);", "animation: var(--foo,3500ms 5s)");
+	}
+
+	@Test
 	public void testBuilderMix() {
 		assertShorthandText(
 				"animation-delay:1s;animation-direction:normal;animation-duration:3200ms;animation-fill-mode:inherit;animation-iteration-count:1;animation-name:foo;animation-play-state:running;animation-timing-function:ease-in;",

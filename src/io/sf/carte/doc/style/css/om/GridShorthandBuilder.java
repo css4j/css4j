@@ -95,13 +95,17 @@ class GridShorthandBuilder extends ShorthandBuilder {
 				return false;
 			}
 			//
-			check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+			check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 			if (check == 1) {
 				// All values are revert
 				buf.append("revert");
 				appendPriority(buf, important);
 				return true;
 			} else if (check == 2) {
+				return false;
+			}
+			// pending value check
+			if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
 				return false;
 			}
 			// Make sure that it is not a layered property
@@ -167,13 +171,17 @@ class GridShorthandBuilder extends ShorthandBuilder {
 				return false;
 			}
 			//
-			check = checkValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
+			check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 			if (check == 1) {
 				// All values are revert
 				buf.append("revert");
 				appendPriority(buf, important);
 				return true;
 			} else if (check == 2) {
+				return false;
+			}
+			// pending value check
+			if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
 				return false;
 			}
 			// Make sure that it is not a layered property

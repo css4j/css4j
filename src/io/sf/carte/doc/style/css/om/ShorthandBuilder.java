@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -151,18 +152,50 @@ abstract class ShorthandBuilder {
 	}
 
 	private void appendImportantProperties(StringBuilder buf) {
+		HashSet<String> pendingSet = null;
 		for (String property : impPtySet) {
-			buf.append(property).append(':');
-			BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(property), property);
-			buf.append("!important;");
+			StyleValue value = getCSSValue(property);
+			if (value.getPrimitiveType() == CSSValue.Type.INTERNAL) {
+				String shname = ((PendingValue) value).getShorthandName();
+				if (pendingSet == null) {
+					pendingSet = new HashSet<String>();
+				}
+				if (pendingSet.add(shname) && (shname.equals(getShorthandName())
+						|| isResponsibleShorthand(shname))) {
+					ShorthandValue shval = (ShorthandValue) getCSSValue(shname);
+					parentStyle.appendShorthandMinifiedCssText(buf, shname, shval);
+				}
+			} else {
+				buf.append(property).append(':');
+				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, value, property);
+				buf.append("!important;");
+			}
 		}
 	}
 
+	protected boolean isResponsibleShorthand(String shname) {
+		return true;
+	}
+
 	private void appendNonImportantProperties(StringBuilder buf) {
+		HashSet<String> pendingSet = null;
 		for (String property : ptySet) {
-			buf.append(property).append(':');
-			BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(property), property);
-			buf.append(';');
+			StyleValue value = getCSSValue(property);
+			if (value.getPrimitiveType() == CSSValue.Type.INTERNAL) {
+				String shname = ((PendingValue) value).getShorthandName();
+				if (pendingSet == null) {
+					pendingSet = new HashSet<String>();
+				}
+				if (pendingSet.add(shname) && (shname.equals(getShorthandName())
+						|| isResponsibleShorthand(shname))) {
+					ShorthandValue shval = (ShorthandValue) getCSSValue(shname);
+					parentStyle.appendShorthandMinifiedCssText(buf, shname, shval);
+				}
+			} else {
+				buf.append(property).append(':');
+				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(property), property);
+				buf.append(';');
+			}
 		}
 	}
 
@@ -323,17 +356,17 @@ abstract class ShorthandBuilder {
 	 * Only works if the declaredSet only contains properties that are within the
 	 * set that has to be tested.
 	 * 
-	 * @param keyword     the keyword.
+	 * @param type        the type to look for.
 	 * @param declaredSet the declared set.
 	 * 
-	 * @return 0 if no keyword was found, 1 if all values are keyword, 2 if both
-	 *         keyword and non-keyword values were found.
+	 * @return 0 if no {@code type} was found, 1 if all values are {@code type}, 2
+	 *         if both {@code type} and non-{@code type} values were found.
 	 */
-	byte checkDeclaredValuesForKeyword(CSSValue.Type keyword, Set<String> declaredSet) {
+	byte checkDeclaredValuesForKeyword(CSSValue.Type type, Set<String> declaredSet) {
 		byte count = 0;
 		for (String propertyName : declaredSet) {
 			StyleValue val = getCSSValue(propertyName);
-			if (keyword == val.getPrimitiveType()) {
+			if (type == val.getPrimitiveType()) {
 				count++;
 			}
 		}
@@ -346,32 +379,33 @@ abstract class ShorthandBuilder {
 	}
 
 	/**
-	 * Inefficient check for keyword identifier values.
+	 * Inefficient check for keyword values.
 	 * 
-	 * @param keyword the keyword.
-	 * @return 0 if no keyword was found, 1 if all values are keyword, 2 if both keyword and
-	 *         non-keyword values were found.
+	 * @param type the type to look for.
+	 * @return 0 if no value of {@code type} was found, 1 if all values are
+	 *         {@code type}, 2 if both {@code type} and non-{@code type} values were
+	 *         found.
 	 */
-	byte checkValuesForKeyword(CSSValue.Type keyword, Set<String> declaredSet) {
-		return checkValuesForKeyword(keyword, getShorthandName(), declaredSet);
+	byte checkValuesForType(CSSValue.Type type, Set<String> declaredSet) {
+		return checkValuesForType(type, getShorthandName(), declaredSet);
 	}
 
 	/**
 	 * Inefficient check for keyword identifier values.
 	 * 
-	 * @param keyword   the keyword.
+	 * @param type      the type to look for.
 	 * @param shorthand the shorthand name.
-	 * @return 0 if no keyword was found, 1 if all values are keyword, 2 if both
-	 *         keyword and non-keyword values were found.
+	 * @return 0 if no {@code type} was found, 1 if all values are {@code type}, 2
+	 *         if both {@code type} and non-{@code type} values were found.
 	 */
-	byte checkValuesForKeyword(CSSValue.Type keyword, String shorthand, Set<String> declaredSet) {
+	byte checkValuesForType(CSSValue.Type type, String shorthand, Set<String> declaredSet) {
 		byte count = 0, expect = 0;
 		String[] properties = getLonghandProperties(shorthand);
 		for (String propertyName : properties) {
 			if (declaredSet.contains(propertyName)) {
 				expect++;
 				StyleValue cssValue = getCSSValue(propertyName);
-				if (cssValue.getPrimitiveType() == keyword) {
+				if (cssValue.getPrimitiveType() == type) {
 					count++;
 				}
 			}
@@ -384,7 +418,7 @@ abstract class ShorthandBuilder {
 		return 2;
 	}
 
-	static boolean isCssKeywordValue(CSSValue.Type keyword, StyleValue cssValue) {
+	static boolean isCssValueOfType(CSSValue.Type keyword, StyleValue cssValue) {
 		return cssValue != null && cssValue.getPrimitiveType() == keyword;
 	}
 

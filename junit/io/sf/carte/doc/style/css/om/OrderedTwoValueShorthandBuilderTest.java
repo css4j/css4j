@@ -60,6 +60,11 @@ public class OrderedTwoValueShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderVar() {
+		assertShorthandText("place-content:var(--foo, center start);", "place-content: var(--foo,center start)");
+	}
+
+	@Test
 	public void testBuilderMix() {
 		assertShorthandText("align-content:normal;justify-content:inherit;",
 				"align-content: normal; justify-content: inherit;");

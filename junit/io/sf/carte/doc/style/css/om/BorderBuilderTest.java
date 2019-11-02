@@ -72,6 +72,11 @@ public class BorderBuilderTest {
 	}
 
 	@Test
+	public void testBorderVar() {
+		assertShorthandText("border:1px solid var(--foo, #abcde4);", "border:1px solid var(--foo, #abcde4);");
+	}
+
+	@Test
 	public void testBorderWTrailingSubproperty() {
 		assertShorthandText("border:none;border-top-width:2px;", "border: none; border-top-width: 2px; ");
 		assertShorthandText("border:1px dashed blue;border-top-width:2px;",
