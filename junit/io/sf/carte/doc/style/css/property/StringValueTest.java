@@ -156,6 +156,15 @@ public class StringValueTest {
 	}
 
 	@Test
+	public void testSetCssTextStringEscaped5() {
+		StringValue value = createCSSStringValue();
+		value.setCssText("\"a \\A b\"");
+		assertEquals("a \nb", value.getStringValue());
+		assertEquals("\"a \\A b\"", value.getCssText());
+		assertEquals("\"a \\a b\"", value.getMinifiedCssText(""));
+	}
+
+	@Test
 	public void testLexicalSetter() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
 		InputSource source = new InputSource(new StringReader("\"\\\\5FAE\\8F6F\""));

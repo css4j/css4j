@@ -482,7 +482,7 @@ public class ParseHelper {
 					buf.append(text.subSequence(0, i));
 				}
 				buf.append('\\').append(Integer.toHexString(cp));
-				if (!endOfString) {
+				if (!endOfString || i != len - 1) {
 					buf.append(' ');
 				}
 			} else if (cp == 0x5c) {
