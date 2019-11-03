@@ -228,6 +228,26 @@ public class FontFeatureValuesRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringError5() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText("@font-feature-values myfont");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+		}
+	}
+
+	@Test
+	public void testSetCssTextStringError6() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText("@font-feature-values ");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+		}
+	}
+
+	@Test
 	public void testSetCssTextStringErrorKeyword1() {
 		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {

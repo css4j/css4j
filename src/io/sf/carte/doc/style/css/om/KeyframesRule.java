@@ -237,7 +237,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 	public void setCssText(String cssText) throws DOMException {
 		cssText = cssText.trim();
 		int len = cssText.length();
-		if (len < 16 || cssText.charAt(len - 1) != '}') {
+		if (len < 14) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @keyframes rule: " + cssText);
 		}
 		CharSequence atkeyword = cssText.subSequence(0, 11);

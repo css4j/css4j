@@ -2159,6 +2159,9 @@ public class CSSParser implements Parser {
 					endBlockList();
 				}
 				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
+			} else if (stage != STAGE_END_BLOCK_LIST) {
+				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Malformed " + blockRuleName + " rule.",
+						STAGE_SELECTOR_ERROR);
 			}
 		}
 

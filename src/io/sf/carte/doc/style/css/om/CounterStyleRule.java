@@ -99,10 +99,8 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		cssText = cssText.trim();
-		int lenm1 = cssText.length() - 1;
-		int endIdx = cssText.lastIndexOf('}');
 		int idx = cssText.indexOf('{');
-		if (idx < 2 || endIdx != lenm1 || idx == endIdx) {
+		if (idx < 16) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad counter-style rule: " + cssText);
 		}
 		if (!ParseHelper.startsWithIgnoreCase(cssText, "@counter-style ")) {

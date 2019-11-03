@@ -70,6 +70,27 @@ public class CounterStyleRuleTest {
 	}
 
 	@Test
+	public void testParseRuleError3() throws DOMException, IOException {
+		StringReader re = new StringReader("@counter-style outside {");
+		sheet.parseStyleSheet(re);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
+	public void testParseRuleError4() throws DOMException, IOException {
+		StringReader re = new StringReader("@counter-style outside");
+		sheet.parseStyleSheet(re);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
+	public void testParseRuleError5() throws DOMException, IOException {
+		StringReader re = new StringReader("@counter-style ");
+		sheet.parseStyleSheet(re);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
 	public void testSetCssTextString() {
 		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		// Rule taken from mozilla website
@@ -95,7 +116,8 @@ public class CounterStyleRuleTest {
 	public void testSetCssTextStringWrongRule() {
 		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {
-			rule.setCssText("@page {margin-top: 20%;}");
+			rule.setCssText(
+					"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);

@@ -339,7 +339,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	public void setCssText(String cssText) throws DOMException {
 		cssText = cssText.trim();
 		int len = cssText.length();
-		if (len < 21 || cssText.charAt(len - 1) != '}') {
+		if (len < 24) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @font-feature-values rule: " + cssText);
 		}
 		CharSequence atkeyword = cssText.subSequence(0, 21);

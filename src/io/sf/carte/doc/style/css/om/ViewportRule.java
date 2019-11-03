@@ -70,7 +70,7 @@ public class ViewportRule extends BaseCSSDeclarationRule {
 		cssText = cssText.trim();
 		int len = cssText.length();
 		int idx = cssText.indexOf('{');
-		if (len < 15 || cssText.charAt(len - 1) != '}' || idx == -1) {
+		if (len < 15 || idx == -1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @viewport rule: " + cssText);
 		}
 		if (!ParseHelper.startsWithIgnoreCase(cssText, "@viewport")) {

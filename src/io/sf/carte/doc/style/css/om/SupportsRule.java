@@ -171,7 +171,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 		cssText = cssText.trim();
 		int lm1 = cssText.length() - 1;
 		int idx = cssText.indexOf('{');
-		if (idx == -1 || lm1 < 16 || cssText.charAt(lm1) != '}') {
+		if (idx == -1 || lm1 < 16) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @supports rule: " + cssText);
 		}
 		CharSequence atkeyword = cssText.subSequence(0, 9);

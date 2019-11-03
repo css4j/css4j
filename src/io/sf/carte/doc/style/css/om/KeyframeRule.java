@@ -87,10 +87,8 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		cssText = cssText.trim();
-		int lenm1 = cssText.length() - 1;
-		int endIdx = cssText.lastIndexOf('}');
 		int idx = cssText.indexOf('{');
-		if (idx < 2 || endIdx != lenm1 || idx == endIdx) {
+		if (idx < 2) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad keyframe rule: " + cssText);
 		}
 		String selector = cssText.substring(0, idx).trim();
