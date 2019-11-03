@@ -1475,6 +1475,104 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueCalcNegDenom() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(1em + (0.4vw + 0.25vh)/-2)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(1f, param.getFloatValue(), 0.01);
+		assertEquals("em", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_PLUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_SUB_EXPRESSION, param.getLexicalUnitType());
+		LexicalUnit subvalues = param.getSubValues();
+		// Subexpression
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_DIMENSION, subvalues.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VW, subvalues.getCssUnit());
+		assertEquals(0.4f, subvalues.getFloatValue(), 0.01);
+		subvalues = subvalues.getNextLexicalUnit();
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_OPERATOR_PLUS, subvalues.getLexicalUnitType());
+		subvalues = subvalues.getNextLexicalUnit();
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_DIMENSION, subvalues.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VH, subvalues.getCssUnit());
+		assertEquals(0.25f, subvalues.getFloatValue(), 0.01);
+		assertNull(subvalues.getNextLexicalUnit());
+		// End of subvalue checking
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(-2, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(1em + (0.4vw + 0.25vh)/-2)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueCalcNegDenom2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc((75vw*9/16 - 100vh)/-2)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_SUB_EXPRESSION, param.getLexicalUnitType());
+		LexicalUnit subvalues = param.getSubValues();
+		// Subexpression
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_DIMENSION, subvalues.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VW, subvalues.getCssUnit());
+		assertEquals(75f, subvalues.getFloatValue(), 1e-5);
+		subvalues = subvalues.getNextLexicalUnit();
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_OPERATOR_MULTIPLY, subvalues.getLexicalUnitType());
+		subvalues = subvalues.getNextLexicalUnit();
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_INTEGER, subvalues.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, subvalues.getCssUnit());
+		assertEquals(9, subvalues.getIntegerValue());
+		subvalues = subvalues.getNextLexicalUnit();
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, subvalues.getLexicalUnitType());
+		subvalues = subvalues.getNextLexicalUnit();
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_INTEGER, subvalues.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, subvalues.getCssUnit());
+		assertEquals(16, subvalues.getIntegerValue());
+		subvalues = subvalues.getNextLexicalUnit();
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_OPERATOR_MINUS, subvalues.getLexicalUnitType());
+		subvalues = subvalues.getNextLexicalUnit();
+		assertNotNull(subvalues);
+		assertEquals(LexicalUnit.SAC_DIMENSION, subvalues.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VH, subvalues.getCssUnit());
+		assertEquals(100f, subvalues.getFloatValue(), 1e-5);
+		assertNull(subvalues.getNextLexicalUnit());
+		// End of subvalue checking
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
+		assertEquals(-2, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc((75vw*9/16 - 100vh)/-2)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueCalcAttr() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(attr(start integer, 1) - 1)");
 		assertEquals("calc", lu.getFunctionName());
