@@ -2767,7 +2767,9 @@ public class CSSParser implements Parser2 {
 		public void commented(int index, int commentType, String comment) {
 			if (stage == 5 || stage == 7) {
 				// Unknown rule
-				buffer.append("/*").append(comment).append("*/");
+				if (commentType == 0) {
+					buffer.append("/*").append(comment).append("*/");
+				}
 			} else if (contextHandler != null) {
 				contextHandler.commented(index, commentType, comment);
 			} else {
