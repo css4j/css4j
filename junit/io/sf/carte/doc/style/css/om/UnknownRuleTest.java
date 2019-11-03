@@ -61,7 +61,23 @@ public class UnknownRuleTest {
 		rule.setCssText(
 				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }");
 		assertEquals(
+				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }\n",
+				rule.getCssText());
+		assertEquals(
 				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }",
+				rule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testSetCssTextStringComment() {
+		UnknownRule rule = new UnknownRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText(
+				"/* pre-comment */\n@-webkit-keyframes foo{from{background-position:0 0;}to{background-position:-200% 0;}}");
+		assertEquals(
+				"/* pre-comment */\n@-webkit-keyframes foo{from{background-position:0 0;}to{background-position:-200% 0;}}\n",
+				rule.getCssText());
+		assertEquals(
+				"@-webkit-keyframes foo{from{background-position:0 0;}to{background-position:-200% 0;}}",
 				rule.getMinifiedCssText());
 	}
 

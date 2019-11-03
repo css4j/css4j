@@ -131,6 +131,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 		this.styleSheetURI = imp.getHref();
 		this.mediaList = imp.getMedia();
 		this.precedingComments = imp.precedingComments;
+		this.trailingComments = imp.trailingComments;
 		this.importedSheet = null;
 		if (css.hasRuleErrorsOrWarnings()) {
 			parentSS.getErrorHandler().mergeState(css.getErrorHandler());

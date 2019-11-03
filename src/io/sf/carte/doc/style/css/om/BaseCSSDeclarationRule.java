@@ -85,6 +85,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 
 	void clear() {
 		declaration.clear();
+		resetComments();
 	}
 
 	PropertyCSSHandler createPropertyDocumentHandler() {

@@ -174,6 +174,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 			GroupingRule groupingRule = (GroupingRule) firstRule;
 			setGroupingRule(groupingRule);
 			this.precedingComments = groupingRule.precedingComments;
+			this.trailingComments = groupingRule.trailingComments;
 			cssRules.clear();
 			cssRules.addAll(groupingRule.getCssRules());
 			for (AbstractCSSRule rule : cssRules) {

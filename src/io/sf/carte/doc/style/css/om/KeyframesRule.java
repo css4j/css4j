@@ -285,6 +285,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			KeyframesRule.this.name = name;
 			KeyframesRule.this.cssRules.clear();
 			KeyframesRule.this.cssRules.addAll(cssRules);
+			resetComments();
 		}
 
 		@Override

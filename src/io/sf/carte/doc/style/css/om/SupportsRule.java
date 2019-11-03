@@ -201,6 +201,9 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 		for (AbstractCSSRule rule : cssRules) {
 			rule.setParentRule(this);
 		}
+		// Comments
+		resetComments();
+		// Merge errors
 		if (css.hasRuleErrorsOrWarnings()) {
 			parentSS.getErrorHandler().mergeState(css.getErrorHandler());
 		}

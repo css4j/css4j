@@ -147,6 +147,11 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 		return getCssText();
 	}
 
+	void resetComments() {
+		precedingComments = null;
+		trailingComments = null;
+	}
+
 	protected StyleFormattingContext getStyleFormattingContext() {
 		StyleFormattingContext context;
 		AbstractCSSStyleSheet sheet = getParentStyleSheet();
