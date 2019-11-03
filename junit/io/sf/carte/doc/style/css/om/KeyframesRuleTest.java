@@ -265,6 +265,7 @@ public class KeyframesRuleTest {
 				"@keyframes \\61  name{0%{opacity:1;position:absolute;top:auto}99.99%{opacity:0;position:absolute;top:auto}100%{opacity:0;position:absolute;top:-99999px}}"));
 		sheet.parseStyleSheet(source);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
 	}
 
 	/*
@@ -316,11 +317,26 @@ public class KeyframesRuleTest {
 	}
 
 	@Test
+	public void testParseRuleError13() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader("@keyframes \"My Animation\""));
+		sheet.parseStyleSheet(source);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
+	public void testParseRuleError14() throws DOMException, IOException {
+		InputSource source = new InputSource(new StringReader("@keyframes "));
+		sheet.parseStyleSheet(source);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
 	public void testParseRuleErrorKeyword1() throws DOMException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@keyframes initial {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
 		sheet.parseStyleSheet(source);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
 	}
 
 	@Test
@@ -329,6 +345,7 @@ public class KeyframesRuleTest {
 				"@keyframes None {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
 		sheet.parseStyleSheet(source);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
 	}
 
 	@Test
@@ -337,6 +354,7 @@ public class KeyframesRuleTest {
 				"@keyframes Inherit {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
 		sheet.parseStyleSheet(source);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
 	}
 
 	@Test
@@ -345,6 +363,7 @@ public class KeyframesRuleTest {
 				"@keyframes unset {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}"));
 		sheet.parseStyleSheet(source);
 		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasOMErrors());
 	}
 
 	@Test
@@ -365,6 +384,14 @@ public class KeyframesRuleTest {
 		assertEquals(
 				"@keyframes foo{from{-webkit-transform:translate(-70%,-62.5%) scale(1);-moz-transform:translate(-70%,-62.5%) scale(1);-o-transform:translate(-70%,-62.5%) scale(1);transform:translate(-70%,-62.5%) scale(1)}to{-webkit-transform:translate(-70%,-62.5%) scale(1.05);-moz-transform:translate(-70%,-62.5%) scale(1.05);-o-transform:translate(-70%,-62.5%) scale(1.05);transform:translate(-70%,-62.5%) scale(1.05)}}",
 				rule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testSetCssTextString3() {
+		KeyframesRule rule = new KeyframesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("@keyframes opacity-closing {0% {opacity: 1;} 100% {opacity: 0;}} /*!rtl:end:ignore*/");
+		assertEquals("opacity-closing", rule.getName());
+		assertEquals("@keyframes opacity-closing{0%{opacity:1}100%{opacity:0}}", rule.getMinifiedCssText());
 	}
 
 	@Test
