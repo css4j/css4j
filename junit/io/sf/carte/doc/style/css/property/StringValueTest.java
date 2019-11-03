@@ -189,6 +189,21 @@ public class StringValueTest {
 	}
 
 	@Test
+	public void testLexicalSetter3() throws CSSException, IOException {
+		CSSParser parser = new CSSParser();
+		StringReader re = new StringReader("\"\\1f4e5\"");
+		LexicalUnit lu = parser.parsePropertyValue(re);
+		assertNotNull(lu);
+		StringValue value = createCSSStringValue();
+		LexicalSetter setter = value.newLexicalSetter();
+		setter.setLexicalUnit(lu);
+		assertNull(setter.getNextLexicalUnit());
+		assertEquals("\ud83d\udce5", value.getStringValue());
+		assertEquals("\"\\1f4e5\"", value.getCssText());
+		assertEquals("\"\\1f4e5\"", value.getMinifiedCssText(""));
+	}
+
+	@Test
 	public void testSetCssTextStringProgId() {
 		StringValue value = createCSSStringValue();
 		value.setCssText("progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");

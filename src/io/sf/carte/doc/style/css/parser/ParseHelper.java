@@ -485,9 +485,11 @@ public class ParseHelper {
 					buf.append(text.subSequence(0, i));
 				}
 				buf.append('\\').append(Integer.toHexString(cp));
-				if (!endOfString || i != len - 1) {
+				i = text.offsetByCodePoints(i, 1);
+				if (!endOfString || i != len) {
 					buf.append(' ');
 				}
+				continue;
 			} else if (cp == 0x5c) {
 				if (i != len - 1 && isPrivateOrUnassignedEscape(text, i + 1)) {
 					if (!noesc) {
