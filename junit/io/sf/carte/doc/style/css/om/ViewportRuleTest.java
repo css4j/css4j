@@ -93,6 +93,7 @@ public class ViewportRuleTest {
 			rule.setCssText("@namespace svg url('http://www.w3.org/2000/svg');");
 			fail("Must throw exception");
 		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
 		}
 		assertEquals("", rule.getMinifiedCssText());
 		assertEquals("", rule.getCssText());

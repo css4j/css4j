@@ -188,8 +188,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 	}
 
-	protected void setGroupingRule(GroupingRule rule) throws DOMException {
-	}
+	abstract protected void setGroupingRule(GroupingRule rule) throws DOMException;
 
 	private class RuleHandler extends SheetHandler {
 		private AbstractCSSRule currentRule = null;

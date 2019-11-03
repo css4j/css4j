@@ -12,15 +12,13 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSUnknownRule;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.uparser.CommentRemovalHandler;
-import io.sf.carte.uparser.TokenProducer;
+import io.sf.carte.doc.style.css.parser.CommentRemover;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -69,15 +67,7 @@ class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 
 	@Override
 	public String getMinifiedCssText() {
-		final String[] opening = {"/*", "<!--"};
-		final String[] closing = {"*/", "-->"};
-		CommentRemovalHandler handler = new MyCommentRemovalHandler(cssText.length());
-		TokenProducer tp = new TokenProducer(handler);
-		try {
-			tp.parseMultiComment(new StringReader(cssText), opening, closing);
-		} catch (IOException e) {
-		}
-		return handler.getBuffer().toString();
+		return CommentRemover.removeComments(cssText).toString();
 	}
 
 	@Override
@@ -115,18 +105,6 @@ class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 	@Override
 	public UnknownRule clone(AbstractCSSStyleSheet parentSheet) {
 		return new UnknownRule(this);
-	}
-
-	private class MyCommentRemovalHandler extends CommentRemovalHandler {
-
-		public MyCommentRemovalHandler(int bufSize) {
-			super(bufSize);
-		}
-
-		@Override
-		public void control(int index, int codePoint) {
-		}
-
 	}
 
 }

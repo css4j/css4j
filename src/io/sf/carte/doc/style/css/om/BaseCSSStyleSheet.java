@@ -46,6 +46,7 @@ import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.Condition;
@@ -1035,6 +1036,10 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			throw ex;
 		} catch (CSSBudgetException e) {
 			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (CSSParseException e) {
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSException e) {

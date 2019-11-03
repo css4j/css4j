@@ -88,6 +88,9 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		resetComments();
 	}
 
+	void startAtRule(String name, String pseudoSelector) {
+	}
+
 	PropertyCSSHandler createPropertyDocumentHandler() {
 		return new DeclarationRuleCSSHandler();
 	}
@@ -232,6 +235,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 
 		@Override
 		public void startAtRule(String name, String pseudoSelector) {
+			BaseCSSDeclarationRule.this.startAtRule(name, pseudoSelector);
 		}
 
 		@Override

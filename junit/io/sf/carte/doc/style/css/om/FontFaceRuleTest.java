@@ -216,6 +216,15 @@ public class FontFaceRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringComment() {
+		FontFaceRule rule = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("/* pre-rule */ @font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
+		assertEquals("@font-face{font-family:'FooSans';src:url('font/FooSans.woff2') format('woff2')}",
+				rule.getMinifiedCssText());
+		assertEquals(2, rule.getStyle().getLength());
+	}
+
+	@Test
 	public void testEquals() {
 		FontFaceRule rule = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
@@ -268,6 +277,19 @@ public class FontFaceRuleTest {
 		FontFaceRule rule = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {
 			rule.setCssText("@page {margin-top: 20%;}");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+		}
+		assertEquals("", rule.getMinifiedCssText());
+		assertEquals("", rule.getCssText());
+	}
+
+	@Test
+	public void testSetCssTextStringWrongRule2() {
+		FontFaceRule rule = new FontFaceRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText("/* pre-rule */ @page {margin-top: 20%;}");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);

@@ -151,6 +151,14 @@ public class PageRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringPreComment() throws DOMException {
+		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("/* pre-rule */ @page :first{margin-top:20%;@top-left{content:'foo';color:blue}}");
+		assertEquals("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}", rule.getMinifiedCssText());
+		assertEquals(":first", rule.getSelectorText());
+	}
+
+	@Test
 	public void testSetCssTextStringPageSelector() throws DOMException {
 		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@page foo :first{margin-top: 20%;}");
@@ -174,6 +182,7 @@ public class PageRuleTest {
 			rule.setCssText("@namespace svg url('http://www.w3.org/2000/svg');");
 			fail("Must throw exception");
 		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
 		}
 		assertEquals("", rule.getMinifiedCssText());
 		assertEquals("", rule.getCssText());
@@ -185,6 +194,20 @@ public class PageRuleTest {
 		try {
 			rule.setCssText(
 					"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+		}
+		assertEquals("", rule.getMinifiedCssText());
+		assertEquals("", rule.getCssText());
+	}
+
+	@Test
+	public void testSetCssTextStringWrongRule3() {
+		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText(
+					"/* pre-rule */ @supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);

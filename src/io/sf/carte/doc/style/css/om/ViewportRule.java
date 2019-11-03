@@ -17,7 +17,6 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -73,14 +72,18 @@ public class ViewportRule extends BaseCSSDeclarationRule {
 		if (len < 15 || idx == -1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @viewport rule: " + cssText);
 		}
-		if (!ParseHelper.startsWithIgnoreCase(cssText, "@viewport")) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Not a @viewport rule: " + cssText);
-		}
 		String empty = cssText.substring(9, idx).trim();
 		if (empty.length() != 0) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @viewport rule: " + cssText);
 		}
 		super.setCssText(cssText);
+	}
+
+	@Override
+	void startAtRule(String name, String pseudoSelector) {
+		if (!"viewport".equalsIgnoreCase(name)) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Cannot set rule of type: " + name);
+		}
 	}
 
 	@Override

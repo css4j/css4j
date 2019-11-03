@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.util.StringTokenizer;
 
 import org.w3c.dom.DOMException;
 
@@ -79,6 +80,25 @@ public class MarginRule extends BaseCSSDeclarationRule implements CSSMarginRule 
 	@Override
 	public String getName() {
 		return ruleName;
+	}
+
+	@Override
+	void startAtRule(String name, String pseudoSelector) {
+		if (!isMarginRuleName(name)) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Cannot set rule of type: " + name);
+		}
+	}
+
+	private boolean isMarginRuleName(String ruleName) {
+		StringTokenizer st = new StringTokenizer(ruleName, "-");
+		while (st.hasMoreElements()) {
+			String s = st.nextToken();
+			if (!"top".equals(s) && !"left".equals(s) && !"center".equals(s) && !"right".equals(s)
+					&& !"corner".equals(s) && !"bottom".equals(s) && !"middle".equals(s)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

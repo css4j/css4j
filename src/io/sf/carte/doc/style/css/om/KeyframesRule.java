@@ -30,6 +30,7 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.CommentRemover;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -237,14 +238,16 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 	public void setCssText(String cssText) throws DOMException {
 		cssText = cssText.trim();
 		int len = cssText.length();
-		if (len < 14) {
+		int atIdx = cssText.indexOf('@');
+		if (len < 14 || atIdx == -1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @keyframes rule: " + cssText);
 		}
-		CharSequence atkeyword = cssText.subSequence(0, 11);
+		String ncText = CommentRemover.removeComments(cssText).toString().trim();
+		CharSequence atkeyword = ncText.subSequence(0, 11);
 		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@keyframes ")) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @keyframes rule: " + cssText);
 		}
-		String body = cssText.substring(11, len);
+		String body = cssText.substring(atIdx + 11);
 		PropertyCSSHandler handler = new MyKeyframesHandler();
 		CSSParser parser = (CSSParser) createSACParser();
 		parser.setDocumentHandler(handler);

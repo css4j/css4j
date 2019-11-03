@@ -24,6 +24,7 @@ import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.CommentRemover;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -143,13 +144,19 @@ public class PageRule extends BaseCSSDeclarationRule implements ExtendedCSSPageR
 		cssText = cssText.trim();
 		int len = cssText.length();
 		int idx = cssText.indexOf('{');
-		if (len < 10 || idx == -1) {
+		int atIdx = cssText.indexOf('@');
+		if (len < 10 || atIdx == -1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @page rule: " + cssText);
 		}
-		if (!ParseHelper.startsWithIgnoreCase(cssText, "@page")) {
+		String ncText = CommentRemover.removeComments(cssText).toString().trim();
+		CharSequence atkeyword = ncText.subSequence(0, 11);
+		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@page ")) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @page rule: " + cssText);
 		}
-		String body = cssText.substring(5, len);
+		if (idx == -1) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @page rule: " + cssText);
+		}
+		String body = cssText.substring(atIdx + 5, len);
 		PropertyCSSHandler handler = new PageRuleHandler();
 		handler.setLexicalPropertyListener(getLexicalPropertyListener());
 		CSSParser parser = (CSSParser) createSACParser();

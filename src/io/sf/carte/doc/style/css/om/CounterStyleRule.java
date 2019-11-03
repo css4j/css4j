@@ -103,12 +103,18 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 		if (idx < 16) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad counter-style rule: " + cssText);
 		}
-		if (!ParseHelper.startsWithIgnoreCase(cssText, "@counter-style ")) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @counter-style rule: " + cssText);
-		}
 		super.setCssText(cssText);
-		// All seems OK, so we set the name
-		setName(cssText.substring(15, idx).trim());
+	}
+
+	@Override
+	void startAtRule(String name, String pseudoSelector) {
+		if (!"counter-style".equalsIgnoreCase(name)) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Cannot set rule of type: " + name);
+		}
+		if (pseudoSelector == null) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "No counter-style name.");
+		}
+		setName(pseudoSelector.trim());
 	}
 
 	@Override

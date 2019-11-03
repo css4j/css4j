@@ -105,6 +105,20 @@ public class CounterStyleRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringComment() {
+		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		// Rule taken from mozilla website
+		// https://developer.mozilla.org/en-US/docs/Web/CSS/@counter-style
+		rule.setCssText("/* pre-rule */ @counter-style thumbs {system: cyclic;\nsymbols: \\1F44D;\n suffix: \" \";\n}");
+		assertEquals("thumbs", rule.getName());
+		assertEquals(3, rule.getStyle().getLength());
+		assertEquals("@counter-style thumbs {system:cyclic;symbols:\uD83D\uDC4D;suffix:\" \"}",
+				rule.getMinifiedCssText());
+		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1F44D;\n    suffix: \" \";\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
 	public void testSetCssTextStringBad() {
 		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@counter-style thumbs {@system:cyclic;symbols:@12;suffix:\" \"}");
@@ -118,6 +132,20 @@ public class CounterStyleRuleTest {
 		try {
 			rule.setCssText(
 					"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+		}
+		assertEquals("", rule.getMinifiedCssText());
+		assertEquals("", rule.getCssText());
+	}
+
+	@Test
+	public void testSetCssTextStringWrongRule2() {
+		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText(
+					"/* pre-rule */ @font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);

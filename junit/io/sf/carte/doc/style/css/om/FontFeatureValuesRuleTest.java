@@ -184,6 +184,18 @@ public class FontFeatureValuesRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringComment() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText(
+				"/* pre-rule */ @font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+		assertEquals("Some Font", rule.getFontFamily()[0]);
+		assertEquals("Other Font", rule.getFontFamily()[1]);
+		assertEquals(
+				"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}",
+				rule.getMinifiedCssText());
+	}
+
+	@Test
 	public void testSetCssTextStringError() {
 		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {
@@ -342,6 +354,20 @@ public class FontFeatureValuesRuleTest {
 		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {
 			rule.setCssText("@page {margin-top: 20%;}");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+		}
+		assertEquals("", rule.getMinifiedCssText());
+		assertEquals("", rule.getCssText());
+	}
+
+	@Test
+	public void testSetCssTextStringWrongRule2() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText(
+					"@keyframes Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);

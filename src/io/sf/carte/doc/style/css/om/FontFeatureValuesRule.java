@@ -36,6 +36,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Locator;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.CommentRemover;
 import io.sf.carte.doc.style.css.parser.EmptyCSSHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.NumberValue;
@@ -339,15 +340,17 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	public void setCssText(String cssText) throws DOMException {
 		cssText = cssText.trim();
 		int len = cssText.length();
-		if (len < 24) {
+		int atIdx = cssText.indexOf('@');
+		if (len < 24 || atIdx == -1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @font-feature-values rule: " + cssText);
 		}
-		CharSequence atkeyword = cssText.subSequence(0, 21);
+		String ncText = CommentRemover.removeComments(cssText).toString().trim();
+		CharSequence atkeyword = ncText.subSequence(0, 21);
 		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@font-feature-values ")) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
 					"Not a @font-feature-values rule: " + cssText);
 		}
-		String body = cssText.substring(21, len);
+		String body = cssText.substring(atIdx + 21);
 		CSSHandler handler = new MyFontFeatureValuesHandler();
 		CSSParser parser = (CSSParser) createSACParser();
 		parser.setDocumentHandler(handler);

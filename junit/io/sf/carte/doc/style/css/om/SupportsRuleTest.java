@@ -431,6 +431,19 @@ public class SupportsRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringWrongRule2() {
+		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		try {
+			rule.setCssText("/* pre-rule */ @page {margin-top: 20%;}");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+		}
+		assertEquals("", rule.getMinifiedCssText());
+		assertEquals("", rule.getCssText());
+	}
+
+	@Test
 	public void testSetCssTextStringWrongCondition() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {

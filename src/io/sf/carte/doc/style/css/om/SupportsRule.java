@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
@@ -24,7 +23,6 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -167,46 +165,9 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	}
 
 	@Override
-	public void setCssText(String cssText) throws DOMException {
-		cssText = cssText.trim();
-		int lm1 = cssText.length() - 1;
-		int idx = cssText.indexOf('{');
-		if (idx == -1 || lm1 < 16) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @supports rule: " + cssText);
-		}
-		CharSequence atkeyword = cssText.subSequence(0, 9);
-		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@supports")) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @supports rule: " + cssText);
-		}
-		// Parse the internal rules
-		AbstractCSSStyleSheet parentSS = getParentStyleSheet();
-		if (parentSS == null) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "This rule must be added to a sheet first");
-		}
-		// Create sheet & parse text
-		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this,
-				null, null);
-		StringReader re = new StringReader(cssText.substring(idx + 1, lm1));
-		try {
-			css.parseStyleSheet(re);
-		} catch (IOException e) {
-			// This should never happen!
-			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
-		}
-		// All seems fine, let's parse the condition text
-		parseConditionText(cssText.substring(9, idx).trim());
-		// If we are reaching this, we can clear the old rules and load the new ones
-		cssRules.clear();
-		cssRules.addAll(css.getCssRules());
-		for (AbstractCSSRule rule : cssRules) {
-			rule.setParentRule(this);
-		}
-		// Comments
-		resetComments();
-		// Merge errors
-		if (css.hasRuleErrorsOrWarnings()) {
-			parentSS.getErrorHandler().mergeState(css.getErrorHandler());
-		}
+	protected void setGroupingRule(GroupingRule rule) throws DOMException {
+		SupportsRule supportsRule = (SupportsRule) rule;
+		this.condition = supportsRule.condition;
 	}
 
 	@Override
