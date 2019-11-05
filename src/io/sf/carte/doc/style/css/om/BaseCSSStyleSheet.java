@@ -591,20 +591,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	@Override
 	public boolean hasRuleErrorsOrWarnings() {
-		return hasRuleErrorsOrWarnings(cssRules);
-	}
-
-	private static boolean hasRuleErrorsOrWarnings(CSSRuleArrayList rules) {
-		for (ExtendedCSSRule rule : rules) {
-			if (rule instanceof BaseCSSDeclarationRule) {
-				BaseCSSDeclarationRule stylerule = (BaseCSSDeclarationRule) rule;
-				if (stylerule.hasErrorsOrWarnings()) {
-					return true;
-				}
-			} else if (rule instanceof GroupingRule) {
-				if (hasRuleErrorsOrWarnings(((GroupingRule) rule).getCssRules())) {
-					return true;
-				}
+		for (AbstractCSSRule rule : cssRules) {
+			if (rule.hasErrorsOrWarnings()) {
+				return true;
 			}
 		}
 		return false;

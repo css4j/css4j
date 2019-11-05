@@ -176,6 +176,11 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 	}
 
 	@Override
+	boolean hasErrorsOrWarnings() {
+		return mediaList != null && mediaList.hasErrors();
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

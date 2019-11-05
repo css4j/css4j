@@ -244,7 +244,8 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		}
 		String ncText = CommentRemover.removeComments(cssText).toString().trim();
 		CharSequence atkeyword = ncText.subSequence(0, 11);
-		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@keyframes ")) {
+		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@keyframes")
+				|| !Character.isWhitespace(atkeyword.charAt(10))) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @keyframes rule: " + cssText);
 		}
 		String body = cssText.substring(atIdx + 11);
@@ -368,10 +369,20 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 	}
 
 	@Override
+	boolean hasErrorsOrWarnings() {
+		for (AbstractCSSRule rule : cssRules) {
+			if (rule.hasErrorsOrWarnings()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cssRules == null) ? 0 : cssRules.hashCode());
+		result = prime * result + cssRules.hashCode();
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}

@@ -152,6 +152,11 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 		trailingComments = null;
 	}
 
+	@Override
+	boolean hasErrorsOrWarnings() {
+		return false;
+	}
+
 	protected StyleFormattingContext getStyleFormattingContext() {
 		StyleFormattingContext context;
 		AbstractCSSStyleSheet sheet = getParentStyleSheet();

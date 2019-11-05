@@ -346,7 +346,8 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 		String ncText = CommentRemover.removeComments(cssText).toString().trim();
 		CharSequence atkeyword = ncText.subSequence(0, 21);
-		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@font-feature-values ")) {
+		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@font-feature-values")
+				|| !Character.isWhitespace((atkeyword.charAt(20)))) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
 					"Not a @font-feature-values rule: " + cssText);
 		}

@@ -675,14 +675,28 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("Times New Roman", ((CSSTypedValue) value).getStringValue());
 		assertEquals("'Times New Roman', Verdana, Chicago",
 				emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void setCssTextBackgroundFontError() {
+		emptyStyleDecl.setCssText("background-font:bold 14px/32px \"Courier New\", Arial, sans-serif");
+		assertNull(emptyStyleDecl.getPropertyCSSValue("background-font"));
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void setCssTextForBackgroundPosition() {
 		emptyStyleDecl.setCssText("background-position: 10% 20%; background-position: 50% left top");
 		assertEquals("10% 20%", emptyStyleDecl.getPropertyValue("background-position"));
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void setCssTextForBackgroundPosition2() {
 		emptyStyleDecl.setCssText("background-position: 10% 20%; background-position: top left top left");
 		assertEquals("10% 20%", emptyStyleDecl.getPropertyValue("background-position"));
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -709,6 +723,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals(CssType.TYPED, ((ValueList) value).item(2).getCssValueType());
 		assertEquals("center", ((ValueList) value).item(3).getCssText());
 		assertEquals(CssType.TYPED, ((ValueList) value).item(3).getCssValueType());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test

@@ -67,10 +67,6 @@ public class CommentRemover {
 			super(bufSize);
 		}
 
-		@Override
-		public void control(int index, int codePoint) {
-		}
-
 	}
 
 	private static class CommentRemoveUntilHandler extends MyCommentRemovalHandler {

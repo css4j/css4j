@@ -57,6 +57,8 @@ abstract public class AbstractCSSRule implements ExtendedCSSRule {
 	@Override
 	abstract public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException;
 
+	abstract boolean hasErrorsOrWarnings();
+
 	@Override
 	abstract public AbstractCSSStyleSheet getParentStyleSheet();
 

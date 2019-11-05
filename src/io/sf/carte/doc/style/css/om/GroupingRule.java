@@ -248,6 +248,16 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 	}
 
 	@Override
+	boolean hasErrorsOrWarnings() {
+		for (AbstractCSSRule rule : cssRules) {
+			if (rule.hasErrorsOrWarnings()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

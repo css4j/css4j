@@ -184,6 +184,18 @@ public class FontFeatureValuesRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringCR() {
+		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText(
+				"@font-feature-values\nSome Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}");
+		assertEquals("Some Font", rule.getFontFamily()[0]);
+		assertEquals("Other Font", rule.getFontFamily()[1]);
+		assertEquals(
+				"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}",
+				rule.getMinifiedCssText());
+	}
+
+	@Test
 	public void testSetCssTextStringComment() {
 		FontFeatureValuesRule rule = new FontFeatureValuesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText(

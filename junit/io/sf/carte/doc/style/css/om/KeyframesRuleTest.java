@@ -408,6 +408,14 @@ public class KeyframesRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringCR() {
+		KeyframesRule rule = new KeyframesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("@keyframes\nopacity-closing {0% {opacity: 1;} 100% {opacity: 0;}} /*!rtl:end:ignore*/");
+		assertEquals("opacity-closing", rule.getName());
+		assertEquals("@keyframes opacity-closing{0%{opacity:1}100%{opacity:0}}", rule.getMinifiedCssText());
+	}
+
+	@Test
 	public void testSetCssTextStringError() {
 		KeyframesRule rule = new KeyframesRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {

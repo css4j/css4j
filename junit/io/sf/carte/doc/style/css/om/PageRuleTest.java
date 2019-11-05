@@ -145,6 +145,22 @@ public class PageRuleTest {
 	@Test
 	public void testSetCssTextString2() throws DOMException {
 		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("@page{margin-top: 20%;}");
+		assertEquals("", rule.getSelectorText());
+		assertEquals("@page{margin-top:20%}", rule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testSetCssTextStringCR() throws DOMException {
+		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("@page\n{margin-top: 20%;}");
+		assertEquals("", rule.getSelectorText());
+		assertEquals("@page{margin-top:20%}", rule.getMinifiedCssText());
+	}
+
+	@Test
+	public void testSetCssTextStringMargin() throws DOMException {
+		PageRule rule = new PageRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}");
 		assertEquals("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}", rule.getMinifiedCssText());
 		assertEquals(":first", rule.getSelectorText());

@@ -112,6 +112,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		return sdErrorHandler;
 	}
 
+	@Override
 	boolean hasErrorsOrWarnings() {
 		return sdErrorHandler != null && (sdErrorHandler.hasErrors() || sdErrorHandler.hasWarnings());
 	}

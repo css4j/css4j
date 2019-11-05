@@ -150,7 +150,9 @@ public class PageRule extends BaseCSSDeclarationRule implements ExtendedCSSPageR
 		}
 		String ncText = CommentRemover.removeComments(cssText).toString().trim();
 		CharSequence atkeyword = ncText.subSequence(0, 11);
-		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@page ")) {
+		char c5;
+		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@page")
+				|| (!Character.isWhitespace((c5 = atkeyword.charAt(5))) && c5 != '{')) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @page rule: " + cssText);
 		}
 		if (idx == -1) {

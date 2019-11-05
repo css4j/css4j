@@ -67,7 +67,7 @@ class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 
 	@Override
 	public String getMinifiedCssText() {
-		return CommentRemover.removeComments(cssText).toString();
+		return CommentRemover.removeComments(cssText).toString().trim();
 	}
 
 	@Override

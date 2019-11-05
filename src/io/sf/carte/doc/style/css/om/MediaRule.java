@@ -99,6 +99,11 @@ public class MediaRule extends GroupingRule implements ExtendedCSSMediaRule {
 	}
 
 	@Override
+	boolean hasErrorsOrWarnings() {
+		return super.hasErrorsOrWarnings() || (mediaList != null && mediaList.hasErrors());
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
