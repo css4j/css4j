@@ -687,7 +687,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				try {
 					value = factory.parseProperty(attrvalue);
 				} catch (DOMException e) {
-					DOMException ex = new DOMException(e.code, "Error parsing attribute: " + attrvalue);
+					DOMException ex = new DOMException(e.code,
+							"Error parsing attribute '" + attrname + "', value: " + attrvalue);
 					ex.initCause(e);
 					throw ex;
 				}
