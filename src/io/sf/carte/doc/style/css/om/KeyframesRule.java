@@ -244,7 +244,8 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @keyframes rule: " + cssText);
 		}
 		CharSequence atkeyword = cssText.subSequence(0, 11);
-		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@keyframes ")) {
+		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@keyframes")
+				|| !Character.isWhitespace(cssText.charAt(10))) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @keyframes rule: " + cssText);
 		}
 		String body = cssText.substring(11, len);

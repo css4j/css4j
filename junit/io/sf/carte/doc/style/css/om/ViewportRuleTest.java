@@ -67,6 +67,13 @@ public class ViewportRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringCR() {
+		ViewportRule rule = new ViewportRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("@viewport\n{orientation:landscape}");
+		assertEquals("@viewport{orientation:landscape}", rule.getMinifiedCssText());
+	}
+
+	@Test
 	public void testSetCssTextStringBad() {
 		ViewportRule rule = new ViewportRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@viewport{@orientation: landscape; min-width: 640px;}");

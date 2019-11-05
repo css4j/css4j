@@ -339,7 +339,8 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @font-feature-values rule: " + cssText);
 		}
 		CharSequence atkeyword = cssText.subSequence(0, 21);
-		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@font-feature-values ")) {
+		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@font-feature-values")
+				|| !Character.isWhitespace(cssText.charAt(20))) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
 					"Not a @font-feature-values rule: " + cssText);
 		}

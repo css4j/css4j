@@ -414,6 +414,21 @@ public class SupportsRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringCR() {
+		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText(
+				"@supports\n(background: radial-gradient(closest-side,#ff0000,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}");
+		assertEquals(
+				"@supports(background:radial-gradient(closest-side,#f00,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}",
+				rule.getMinifiedCssText());
+		SupportsRule rule2 = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule2.setCssText(
+				"@supports (background: radial-gradient(closest-side, #f00, #a2f3a1)) {.foo .bar:first-child {background: radial-gradient(closest-side, rgb(32 45 46 / 0), #da212e), url('//example.com/img/image.jpg');background-size: 600px 600px;}}");
+		assertTrue(rule.equals(rule2));
+		assertEquals(rule.hashCode(), rule2.hashCode());
+	}
+
+	@Test
 	public void testSetCssTextStringWrongRule() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		try {

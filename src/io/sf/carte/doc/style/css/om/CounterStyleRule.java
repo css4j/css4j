@@ -102,7 +102,8 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 		if (idx < 16) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad counter-style rule: " + cssText);
 		}
-		if (!ParseHelper.startsWithIgnoreCase(cssText, "@counter-style ")) {
+		if (!ParseHelper.startsWithIgnoreCase(cssText, "@counter-style")
+				|| !Character.isWhitespace(cssText.charAt(14))) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @counter-style rule: " + cssText);
 		}
 		super.setCssText(cssText);

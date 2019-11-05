@@ -104,6 +104,17 @@ public class CounterStyleRuleTest {
 	}
 
 	@Test
+	public void testSetCssTextStringCR() {
+		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		rule.setCssText("@counter-style\nthumbs {system: cyclic;\nsymbols: \\1F44D;\n suffix: \" \";\n}");
+		assertEquals("thumbs", rule.getName());
+		assertEquals(3, rule.getStyle().getLength());
+		assertEquals("@counter-style thumbs {system:cyclic;symbols:\uD83D\uDC4D;suffix:\" \"}", rule.getMinifiedCssText());
+		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1F44D;\n    suffix: \" \";\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
 	public void testSetCssTextStringBad() {
 		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@counter-style thumbs {@system:cyclic;symbols:@12;suffix:\" \"}");
