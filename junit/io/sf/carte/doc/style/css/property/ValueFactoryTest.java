@@ -128,6 +128,17 @@ public class ValueFactoryTest {
 	}
 
 	@Test
+	public void testCreateCSSValueListMix() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("bold 14px \"Courier New\", Arial, sans-serif");
+		StyleValue value = factory.createCSSValue(lunit);
+		assertEquals(CssType.LIST, value.getCssValueType());
+		ValueList list = (ValueList) value;
+		assertEquals(3, list.getLength());
+		assertTrue(list.isCommaSeparated());
+	}
+
+	@Test
 	public void testIsSizeSACUnit() throws CSSException, IOException {
 		LexicalUnit lunit = parsePropertyValue("1px");
 		assertTrue(ValueFactory.isSizeSACUnit(lunit));

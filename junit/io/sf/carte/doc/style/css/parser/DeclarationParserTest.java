@@ -373,6 +373,50 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationFont() throws CSSException, IOException {
+		parseStyleDeclaration("font:bold 14px/32px \"Courier New\", Arial, sans-serif");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("font", handler.propertyNames.getFirst());
+		LexicalUnit lunit = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_IDENT, lunit.getLexicalUnitType());
+		assertEquals("bold", lunit.getStringValue());
+		LexicalUnit lu = lunit.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
+		assertEquals(14f, lu.getFloatValue(), 1e-7);
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
+		assertEquals(32f, lu.getFloatValue(), 1e-7);
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
+		assertEquals("Courier New", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("Arial", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("sans-serif", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("bold 14px/32px \"Courier New\", Arial, sans-serif", lunit.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseStyleDeclarationComments() throws CSSException, IOException {
 		parseStyleDeclaration(
 				"-moz-foo:moz-bar;/*!rtl:ignore*/-o-foo:o-bar;/*!rtl:ignore*/foo:bar/*(skipped)!rtl:ignore*/;/*!rtl:ignore*/");
