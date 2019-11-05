@@ -2200,12 +2200,6 @@ public class CSSParser implements Parser {
 			}
 
 			@Override
-			protected void skipDeclarationBlock(int index) {
-				TokenHandler ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl(), NestedRuleTH.this);
-				getTokenControl().setTokenHandler(ignoreth);
-			}
-
-			@Override
 			TokenControl getTokenControl() {
 				return NestedRuleTH.this.getTokenControl();
 			}
@@ -2268,12 +2262,6 @@ public class CSSParser implements Parser {
 
 			@Override
 			protected void endDeclarationList() {
-			}
-
-			@Override
-			protected void skipDeclarationBlock(int index) {
-				TokenHandler ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl(), NestedRuleTH.this);
-				getTokenControl().setTokenHandler(ignoreth);
 			}
 
 			@Override
@@ -5263,7 +5251,7 @@ public class CSSParser implements Parser {
 				if (!parseError) {
 					handleLeftCurlyBracket(index);
 				} else {
-					skipDeclarationBlock(index);
+					skipDeclaration(index);
 				}
 			} else if (codepoint == 91) { // '['
 				squareBracketDepth++;
@@ -5309,11 +5297,11 @@ public class CSSParser implements Parser {
 
 		protected void handleLeftCurlyBracket(int index) {
 			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
-			skipDeclarationBlock(index);
+			skipDeclaration(index);
 		}
 
-		protected void skipDeclarationBlock(int index) {
-			TokenHandler ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl(), this);
+		protected void skipDeclaration(int index) {
+			TokenHandler ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl());
 			getTokenControl().setTokenHandler(ignoreth);
 		}
 
@@ -6645,12 +6633,12 @@ public class CSSParser implements Parser {
 	private class CallbackIgnoredDeclarationTH extends IgnoredDeclarationTokenHandler {
 
 		private final TokenControl parserctl;
-		private final CSSTokenHandler parent;
+		private final TokenHandler parent;
 
-		CallbackIgnoredDeclarationTH(TokenControl parserctl, CSSTokenHandler parent) {
+		CallbackIgnoredDeclarationTH(TokenControl parserctl) {
 			super();
 			this.parserctl = parserctl;
-			this.parent = parent;
+			this.parent = parserctl.getTokenHandler();
 		}
 
 		@Override

@@ -47,6 +47,13 @@ public interface TokenControl {
 	void setAcceptEofEndingQuoted(boolean accept);
 
 	/**
+	 * Get the current {@code TokenHandler}.
+	 * 
+	 * @return the {@code TokenHandler}.
+	 */
+	TokenHandler getTokenHandler();
+
+	/**
 	 * Set a new {@code TokenHandler}.
 	 * 
 	 * @param handler

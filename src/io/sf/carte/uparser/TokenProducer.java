@@ -613,6 +613,11 @@ public class TokenProducer {
 			}
 
 			@Override
+			public TokenHandler getTokenHandler() {
+				return TokenProducer.this.handler;
+			}
+
+			@Override
 			public void setTokenHandler(TokenHandler handler) {
 				TokenProducer.this.handler = handler;
 			}

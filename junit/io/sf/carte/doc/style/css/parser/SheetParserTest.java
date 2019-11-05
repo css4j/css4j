@@ -108,6 +108,53 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseSheetTwoRules() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		Reader re = new StringReader(
+			".fooclass{zoom:expression(function(ele){ele.style.zoom = \"1\"; document.execCommand(\"BackgroundImageCache\", false, true); skip-me:skip-value}(this))}#fooid .fooclass{margin-right:auto;}");
+		parser.parseStyleSheet(re);
+		assertEquals(2, handler.selectors.size());
+		assertEquals(".fooclass", handler.selectors.getFirst().toString());
+		assertEquals("#fooid .fooclass", handler.selectors.get(1).toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin-right", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("auto", lu.getStringValue());
+		assertTrue(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseSheetTwoRulesTwoProperties() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		Reader re = new StringReader(
+			".fooclass{zoom:expression(function(ele){ele.style.zoom = \"1\"; document.execCommand(\"BackgroundImageCache\", false, true); }(this));margin-left:0}#fooid .fooclass{margin-right:auto;}");
+		parser.parseStyleSheet(re);
+		assertEquals(2, handler.selectors.size());
+		assertEquals(".fooclass", handler.selectors.getFirst().toString());
+		assertEquals("#fooid .fooclass", handler.selectors.get(1).toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("margin-left", handler.propertyNames.getFirst());
+		assertEquals("margin-right", handler.propertyNames.getLast());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(0, lu.getIntegerValue());
+		lu = handler.lexicalValues.getLast();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("auto", lu.getStringValue());
+		assertTrue(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
 	public void testParseSheetStyleRuleBad() throws CSSException, IOException {
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
