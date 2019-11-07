@@ -1675,6 +1675,19 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationEmptyFunction() throws CSSException, IOException {
+		parseStyleDeclaration("filter:mask()");
+		assertEquals("filter", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("mask", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertNull(lu.getParameters());
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationCustomFunction() throws CSSException, IOException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		parseStyleDeclaration("filter: --my-function(min-color = 5)");

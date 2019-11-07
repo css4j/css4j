@@ -1218,6 +1218,26 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueCountersError() throws CSSException, IOException {
+		try {
+			parsePropertyValue("counters()");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(10, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueCounterError() throws CSSException, IOException {
+		try {
+			parsePropertyValue("counter()");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(9, e.getColumnNumber());
+		}
+	}
+
+	@Test
 	public void testParsePropertyValueCalc() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(100% - 3em)");
 		assertEquals("calc", lu.getFunctionName());
@@ -3561,6 +3581,16 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrError() throws CSSException, IOException {
+		try {
+			parsePropertyValue("attr()");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueAttrError2() throws CSSException, IOException {
 		try {
 			parsePropertyValue("attr(-)");
 			fail("Must throw exception");
