@@ -63,7 +63,9 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	/*
 	 * Style-related fields
 	 */
-	private WeakReference<SelectorMatcher> selectorMatcherRef = null;
+	// Weak reference to selector matcher
+	private transient WeakReference<SelectorMatcher> selectorMatcherRef = null;
+	// Map from pseudo-elements to override styles
 	private Map<Condition, ExtendedCSSStyleDeclaration> overrideStyleSet = null;
 
 	private boolean rawTextElement = false;
