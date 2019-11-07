@@ -61,9 +61,9 @@ abstract public class DOMComputedStyle extends ComputedCSSStyle {
 	 */
 	@Override
 	public StyleDatabase getStyleDatabase() {
-		Node node = getOwnerNode();
+		CSSElement node = getOwnerNode();
 		if (node != null) {
-			CSSDocument doc = (CSSDocument) node.getOwnerDocument();
+			CSSDocument doc = node.getOwnerDocument();
 			return doc.getStyleDatabase();
 		}
 		return null;
