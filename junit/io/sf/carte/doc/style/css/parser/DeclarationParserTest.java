@@ -1696,6 +1696,20 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationEmptyFunction() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("filter:mask()"));
+		parser.parseStyleDeclaration(source);
+		assertEquals("filter", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("mask", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertNull(lu.getParameters());
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationCustomFunction() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("filter: --my-function(min-color = 5)"));
 		parser.setFlag(Parser2.Flag.IEVALUES);

@@ -4654,9 +4654,16 @@ public class CSSParser implements Parser2 {
 		private void checkFunction(int index) {
 			String name;
 			short type = currentlu.getLexicalUnitType();
-			if (type != LexicalUnit.SAC_URI && type != LexicalUnit2.SAC_ELEMENT_REFERENCE
-					&& (currentlu.parameters == null || !lastParamIsOperand())) {
+			// We allow empty functions only for URI and FUNCTION
+			if (currentlu.parameters == null) {
+				if (type != LexicalUnit.SAC_FUNCTION && type != LexicalUnit.SAC_URI
+						&& type != LexicalUnit2.SAC_ELEMENT_REFERENCE) {
+					unexpectedCharError(index, ')');
+				}
+				return;
+			} else if (!lastParamIsOperand()) {
 				unexpectedCharError(index, ')');
+				return;
 			}
 			if ((type == LexicalUnit.SAC_RGBCOLOR && !isValidRGBColor()) || (type == LexicalUnit.SAC_FUNCTION
 					&& ("hsl".equalsIgnoreCase((name = currentlu.getFunctionName())) || "hsla".equalsIgnoreCase(name))
