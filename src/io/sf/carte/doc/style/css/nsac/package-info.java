@@ -11,15 +11,6 @@
  * The SAC jar file is no longer necessary, as NSAC 2.0 contains all the
  * required classes and interfaces.
  * </p>
- * <h3>Changes to SAC behaviour</h3>
- * <p>
- * Although NSAC adds constants, methods and interfaces to SAC, it also
- * introduces a different behaviour in one pre-existing method: the names of
- * pseudo-classes are retrieved with the <code>AttributeCondition</code>'s
- * <code>getLocalName()</code> method instead of <code>getValue()</code>. This
- * leaves <code>getValue()</code> to retrieve the pseudo-class argument if there
- * is any, like in <code>:dir(ltr)</code>.
- * </p>
  * <h3>Selector Serialization</h3>
  * <p>
  * Implementations of the selector interfaces are not required to provide a

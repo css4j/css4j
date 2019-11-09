@@ -11,11 +11,11 @@ targets several different use cases, with functionalities from style sheet error
 <p>This implementation can be used in several ways: with stand-alone style sheets, with its own <a href="http://www.w3.org/DOM/" target="_blank">DOM</a>
 implementation, combined with DOM4J, or by wrapping a pre-existing DOM tree.</p>
 <p>You can play with independent style sheets created with the <code>createStyleSheet("<i>title</i>", "<i>media</i>")</code> method of the
-<a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html"><code>CSSStyleSheetFactory</code></a> interface.
+<a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html"><code>CSSStyleSheetFactory</code></a> interface.
 There are three implementations of that interface:</p>
 <ul>
-<li><a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/dom/CSSDOMImplementation.html"><code>CSSDOMImplementation</code></a>, the native DOM implementation.</li>
-<li><a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/DOMCSSStyleSheetFactory.html"><code>DOMCSSStyleSheetFactory</code></a> for the DOM Wrapper.</li>
+<li><a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/dom/CSSDOMImplementation.html"><code>CSSDOMImplementation</code></a>, the native DOM implementation.</li>
+<li><a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/om/DOMCSSStyleSheetFactory.html"><code>DOMCSSStyleSheetFactory</code></a> for the DOM Wrapper.</li>
 <li>If you use DOM4J, get it through <code>XHTMLDocumentFactory.getStyleSheetFactory()</code>.</li>
 </ul>
 <p>The document back-end is only important if you plan to use the sheets inside a document.
@@ -30,7 +30,7 @@ the objects required by media queries to work).</p>
 </div>
 <div style="margin: 2em 0 2.7em 0" id="nativedom">
 <h3>Using css4j's native DOM implementation</h3>
-<p>You can create a DOM document from scratch and use the related DOM methods to programatically build a document: just use the provided DOM implementation
+<p>You can create a DOM document from scratch and use the related DOM methods to programmatically build a document: just use the provided DOM implementation
 (<code>io.sf.carte.doc.dom.CSSDOMImplementation</code>). If you want to parse an existing document, the procedure depends on the type of document: to parse
 an XML document (including XHTML documents), you can use this library's <code>XMLDocumentBuilder</code>, while to parse an HTML one (or an
 XHTML document that does not use namespace prefixes) you can use the <a href="https://about.validator.nu/htmlparser/" target="_blank">validator.nu
@@ -90,7 +90,7 @@ String image_uri = ((CSSTypedValue) style.getPropertyCSSValue("background-image"
 // image_css will be set to "url('http://www.example.com/css/foo.png')",
 // and image_uri to "http://www.example.com/css/foo.png"
 </pre>
-<p>The <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSComputedProperties.html"><code>CSSComputedProperties</code></a>
+<p>The <a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/CSSComputedProperties.html"><code>CSSComputedProperties</code></a>
 interface extends from an interface similar to W3C's
 <a href="https://www.w3.org/TR/cssom-1/#the-cssstyledeclaration-interface" target="_blank"><code>CSSStyleDeclaration</code></a>,
 adding methods like <code>getComputedFontSize()</code> or <code>getComputedLineHeight()</code>.</p>
@@ -199,7 +199,7 @@ Several web sites contain information about that, including:</p>
 library supports them.</p>
 <p>By default, a factory is configured to use a flagless NSAC parser which would produce an error on any of those non-standard constructs,
 but a set of compatibility flags can be specified in the constructors for the factory implementations. The different flags
-are documented in the <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/nsac/package-summary.html">NSAC javadocs</a>.</p>
+are documented in the <a href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/nsac/package-summary.html">NSAC javadocs</a>.</p>
 <p>The flags available at the time of this guide's update are the following:</p>
 <ul>
 <li><code>STARHACK</code>. When set, the parser will handle asterisk-prefixed property names as accepted, normal names.</li>
@@ -234,23 +234,23 @@ width: 890px;
 </pre>
 <p>If you want to use these flags at the NSAC level (instead of the Object Model), you may want to read the 'Parser Flags' section in the
 NSAC package description, as well as the documentation for the individual flags in
-<a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/nsac/Parser2.Flag.html"><code>Parser2.Flag</code></a>.</p>
+<a href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/nsac/Parser.Flag.html"><code>Parser2.Flag</code></a>.</p>
 </div>
 <div style="margin: 2em 0 2.7em 0" id="styleformatting">
 <h3>CSS Style Formatting</h3>
 <p>The serialization of the <code>cssText</code> attribute in <a href="https://www.w3.org/TR/cssom-1/#dom-cssrule-csstext" target="_blank">rules</a> and
 <a href="https://www.w3.org/TR/cssom-1/#dom-cssstyledeclaration-csstext" target="_blank">style declarations</a> can be customized with an implementation
-of the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleFormattingContext.html">StyleFormattingContext</a> interface.
-You can set your <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleFormattingFactory.html">StyleFormattingFactory</a>
-(which produces your customized formatting context) to the sheet factory with the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setStyleFormattingFactory-io.sf.carte.doc.style.css.StyleFormattingFactory-">CSSStyleSheetFactory.setStyleFormattingFactory</a>
-method, or subclass your base factory and override the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/BaseCSSStyleSheetFactory.html#createDefaultStyleFormattingFactory--">createDefaultStyleFormattingFactory</a> method.</p>
-<p>Look at the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/DefaultStyleFormattingContext.html">DefaultStyleFormattingContext</a> class for an example of a formatting context implementation.</p>
-<p>There is also the possibility to customize the default serialization of string values, with the <a href="api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setFactoryFlag(byte)">CSSStyleSheetFactory.setFactoryFlag(byte)</a>
+of the <a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/StyleFormattingContext.html">StyleFormattingContext</a> interface.
+You can set your <a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/StyleFormattingFactory.html">StyleFormattingFactory</a>
+(which produces your customized formatting context) to the sheet factory with the <a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setStyleFormattingFactory-io.sf.carte.doc.style.css.StyleFormattingFactory-">CSSStyleSheetFactory.setStyleFormattingFactory</a>
+method, or subclass your base factory and override the <a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/om/BaseCSSStyleSheetFactory.html#createDefaultStyleFormattingFactory--">createDefaultStyleFormattingFactory</a> method.</p>
+<p>Look at the <a class="codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/om/DefaultStyleFormattingContext.html">DefaultStyleFormattingContext</a> class for an example of a formatting context implementation.</p>
+<p>There is also the possibility to customize the default serialization of string values, with the <a href="api/2.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setFactoryFlag(byte)">CSSStyleSheetFactory.setFactoryFlag(byte)</a>
 method. You can set two flags that govern which quotation you prefer, or keep the default behaviour:</p>
 <ul><li><b>Default:</b> Try to keep the original quotation (single or double quotes), unless the alternative is more efficient.</li>
-<li><b><a href="api/1.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_DOUBLE_QUOTE">STRING_DOUBLE_QUOTE</a>:</b>
+<li><b><a href="api/2.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_DOUBLE_QUOTE">STRING_DOUBLE_QUOTE</a>:</b>
 Use double quotes unless single quotes are more efficient (when the string contains more double quotes than single).</li>
-<li><b><a href="api/1.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_SINGLE_QUOTE">STRING_SINGLE_QUOTE</a>:</b>
+<li><b><a href="api/2.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_SINGLE_QUOTE">STRING_SINGLE_QUOTE</a>:</b>
 Use single quotes unless double quotes are more efficient (when the string contains more single quotes than double).</li>
 </ul>
 </div>
@@ -269,14 +269,14 @@ while other comments (located at places that cannot be easily related to a rule)
 <div style="margin: 2em 0 2.7em 0" id="renderinterfaces">
 <h3>Rendering-oriented interfaces</h3>
 <p>To help with the determination of 'used' values and the actual rendering, this library provides a few helper interfaces. The most important are:</p>
-<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/DeviceFactory.html">DeviceFactory</a>. It is not a "factory of devices",
+<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/agent/DeviceFactory.html">DeviceFactory</a>. It is not a "factory of devices",
 but instead the object that delivers the relevant abstractions for a requested medium: <code>StyleDatabase</code> and <code>CSSCanvas</code>.</li></ul>
-<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleDatabase.html">StyleDatabase</a>.
+<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/StyleDatabase.html">StyleDatabase</a>.
 Provides medium-specific information like available fonts and colors.</li></ul>
-<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/CSSCanvas.html">CSSCanvas</a>.
+<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/agent/CSSCanvas.html">CSSCanvas</a>.
 Has knowledge of medium-specific information that depends (or may depend) on a specific viewport, like supported media features. It is linked
 to a viewport, if there is any. This interface is used to determine the state of active pseudo-classes.</li></ul>
-<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/Viewport.html">Viewport</a>. It represents a viewport defined
+<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/2.0/io/sf/carte/doc/agent/Viewport.html">Viewport</a>. It represents a viewport defined
 as per the CSS specifications.</li></ul>
 <p>The differences between style databases and canvases can be subtle, and for some media features it could be argued that they belong to
 one or the other. The basic idea is that style databases should be relatively easy to implement for a given medium, while canvases are
