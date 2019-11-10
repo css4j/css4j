@@ -96,7 +96,7 @@ public class NumberValue extends TypedValue {
 
 	private String serializeNumber(float real) {
 		String s;
-		if (specified) {
+		if (specified && !calculated) {
 			s = Float.toString(real);
 		} else {
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
@@ -661,6 +661,7 @@ public class NumberValue extends TypedValue {
 		case CSSUnit.CSS_MS:
 		case CSSUnit.CSS_DEG:
 		case CSSUnit.CSS_GRAD:
+		case CSSUnit.CSS_PERCENTAGE:
 			return 2;
 		case CSSUnit.CSS_KHZ:
 		case CSSUnit.CSS_CM:
