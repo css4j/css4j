@@ -640,6 +640,11 @@ public class NumberValue extends TypedValue {
 			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This value is immutable");
 		}
 
+		@Override
+		public NumberValue clone() {
+			return this;
+		}
+
 	}
 
 	private static int fractionDigits(short primitiveType) {
