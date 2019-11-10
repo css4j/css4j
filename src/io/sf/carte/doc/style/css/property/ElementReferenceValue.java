@@ -120,6 +120,14 @@ class ElementReferenceValue extends TypedValue {
 	}
 
 	@Override
+	public void setStringValue(Type stringType, String stringValue) throws DOMException {
+		if (stringType != getPrimitiveType()) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Type not supported.");
+		}
+		refname = stringValue;
+	}
+
+	@Override
 	public ElementReferenceValue clone() {
 		return new ElementReferenceValue(this);
 	}

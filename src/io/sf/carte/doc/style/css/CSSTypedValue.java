@@ -49,9 +49,11 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	float getFloatValue(short unitType) throws DOMException;
 
 	/**
-	 * If this value is a string, identifier or URI, set its value.
+	 * If this value is a string, identifier, URI, unicode wildcard or element
+	 * reference, set its value.
 	 * <p>
-	 * The string value has to be supplied unescaped and unquoted.
+	 * The string value has to be supplied unescaped and unquoted. If it is a
+	 * unicode wildcard, it must not have the preceding {@code U+}.
 	 * </p>
 	 * 
 	 * @param stringType  the type of value.
@@ -66,6 +68,10 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 
 	/**
 	 * If this value represents a string value, get it.
+	 * <p>
+	 * This method is useful for values like strings, identifiers, URIs, element
+	 * references, etc. For functions, it returns the function name.
+	 * </p>
 	 * 
 	 * @return the string value.
 	 * @throws DOMException INVALID_ACCESS_ERR if this value is not a string.
