@@ -77,13 +77,12 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			type = Type.NUMERIC;
 			break;
 		case LexicalUnit.SAC_RGBCOLOR:
-			type = Type.RGBCOLOR;
+			type = Type.COLOR;
 			break;
 		case LexicalUnit.SAC_FUNCTION:
 			String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
-			if ("rgb".equals(func) || "rgba".equals(func) || "hsl".equals(func) || "hsla".equals(func)
-					|| "hwb".equals(func)) {
-				type = Type.RGBCOLOR;
+			if ("hsl".equals(func) || "hsla".equals(func) || "hwb".equals(func)) {
+				type = Type.COLOR;
 			} else if ("calc".equals(func)) {
 				type = Type.EXPRESSION;
 			} else if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")

@@ -54,6 +54,23 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 		return arguments;
 	}
 
+	@Override
+	public StyleValue getComponent(int index) {
+		try {
+			return arguments.get(index);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public void setComponent(int index, StyleValue component) {
+		try {
+			arguments.set(index, component);
+		} catch (IndexOutOfBoundsException e) {
+		}
+	}
+
 	void setFunctionName(String functionName) {
 		this.functionName = functionName;
 	}
@@ -161,7 +178,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 				switch (pType) {
 				case STRING:
 				case IDENT:
-				case RGBCOLOR:
+				case COLOR:
 				case URI:
 				case ATTR:
 				case COUNTER:

@@ -103,9 +103,9 @@ public interface CSSValue extends Cloneable {
 		IDENT,
 
 		/**
-		 * RGB color.
+		 * Color.
 		 */
-		RGBCOLOR,
+		COLOR,
 
 		/**
 		 * URI.

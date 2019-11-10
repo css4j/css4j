@@ -1962,9 +1962,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			return colorids.isColorIdentifier(sv) || "transparent".equals(sv) || "currentcolor".equals(sv);
 		} else if (LexicalUnit.SAC_FUNCTION == utype) {
 			String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-			// Assume the SAC parser is old and knows about 'rgb' but not 'rgba'
 			if (func.length() <= 5 && ("hsla".equals(func) || "hsl".equals(func)
-					|| "hwb".equals(func) || "color".equals(func) || "rgba".equals(func))) {
+					|| "hwb".equals(func) || "color".equals(func))) {
 				return true;
 			}
 		} else if (LexicalUnit.SAC_VAR == utype) {

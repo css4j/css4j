@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -46,13 +47,25 @@ public class RatioValueTest {
 		RatioValue ratio = (RatioValue) value;
 		assertEquals("3", ratio.getAntecedentValue().getCssText());
 		assertEquals("2", ratio.getConsequentValue().getCssText());
+		assertEquals("3", ratio.getComponent(0).getCssText());
+		assertEquals("2", ratio.getComponent(1).getCssText());
 		assertEquals("3/2", ratio.getCssText());
 		//
-		ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("9"));
+		PrimitiveValue primi = (PrimitiveValue) vf.parseProperty("9");
+		ratio.setAntecedentValue(primi);
 		assertEquals("9/2", ratio.getCssText());
 		//
+		primi = (PrimitiveValue) vf.parseProperty("7");
+		ratio.setComponent(0, primi);
+		assertSame(primi, ratio.getComponent(0));
+		ratio.setComponent(2, primi);
+		assertEquals("7/2", ratio.getCssText());
+		primi = (PrimitiveValue) vf.parseProperty("3");
+		ratio.setComponent(1, primi);
+		assertEquals("7/3", ratio.getCssText());
+		//
 		ratio.setConsequentValue((PrimitiveValue) vf.parseProperty("5"));
-		assertEquals("9/5", ratio.getCssText());
+		assertEquals("7/5", ratio.getCssText());
 		//
 		ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("11.8"));
 		assertEquals("11.8/5", ratio.getCssText());

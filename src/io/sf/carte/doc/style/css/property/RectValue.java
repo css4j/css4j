@@ -44,6 +44,9 @@ public class RectValue extends TypedValue implements CSSRectValue {
 	}
 
 	public void setTop(PrimitiveValue top) {
+		if (top == null) {
+			throw new NullPointerException();
+		}
 		this.top = top;
 	}
 
@@ -53,6 +56,9 @@ public class RectValue extends TypedValue implements CSSRectValue {
 	}
 
 	public void setRight(PrimitiveValue right) {
+		if (right == null) {
+			throw new NullPointerException();
+		}
 		this.right = right;
 	}
 
@@ -62,6 +68,9 @@ public class RectValue extends TypedValue implements CSSRectValue {
 	}
 
 	public void setBottom(PrimitiveValue bottom) {
+		if (bottom == null) {
+			throw new NullPointerException();
+		}
 		this.bottom = bottom;
 	}
 
@@ -71,12 +80,51 @@ public class RectValue extends TypedValue implements CSSRectValue {
 	}
 
 	public void setLeft(PrimitiveValue left) {
+		if (left == null) {
+			throw new NullPointerException();
+		}
 		this.left = left;
 	}
 
 	@Override
 	public PrimitiveValue getLeft() {
 		return left;
+	}
+
+	@Override
+	public StyleValue getComponent(int index) {
+		switch (index) {
+		case 0:
+			return top;
+		case 1:
+			return right;
+		case 2:
+			return bottom;
+		case 3:
+			return left;
+		}
+		return null;
+	}
+
+	@Override
+	public void setComponent(int index, StyleValue component) {
+		if (component == null) {
+			throw new NullPointerException();
+		}
+		PrimitiveValue primi = (PrimitiveValue) component;
+		switch (index) {
+		case 0:
+			top = primi;
+			break;
+		case 1:
+			right = primi;
+			break;
+		case 2:
+			bottom = primi;
+			break;
+		case 3:
+			left = primi;
+		}
 	}
 
 	@Override

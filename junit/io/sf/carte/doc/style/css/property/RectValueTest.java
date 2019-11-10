@@ -14,12 +14,14 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import io.sf.carte.doc.style.css.CSSRectValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
@@ -85,6 +87,25 @@ public class RectValueTest {
 		assertEquals("12em", rect.getRight().getCssText());
 		assertEquals("3em", rect.getBottom().getCssText());
 		assertEquals("2pt", rect.getLeft().getCssText());
+	}
+
+	@Test
+	public void testRect() {
+		style.setCssText("clip: rect(2px 12em 3em 2pt); ");
+		RectValue value = (RectValue) style.getPropertyCSSValue("clip");
+		NumberValue number = new NumberValue();
+		number.setFloatValue(CSSUnit.CSS_PT, 3f);
+		value.setTop(number);
+		assertEquals("rect(3pt, 12em, 3em, 2pt)", value.getCssText());
+		number.setFloatValue(CSSUnit.CSS_PC, 2f);
+		value.setComponent(0, number);
+		assertEquals("rect(2pc, 12em, 3em, 2pt)", value.getCssText());
+		assertSame(number, value.getComponent(0));
+		value.setComponent(1, number);
+		value.setComponent(2, number);
+		value.setComponent(3, number);
+		value.setComponent(4, number);
+		assertEquals("rect(2pc, 2pc, 2pc, 2pc)", value.getCssText());
 	}
 
 	@Test

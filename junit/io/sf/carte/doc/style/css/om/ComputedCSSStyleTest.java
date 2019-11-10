@@ -152,15 +152,51 @@ public class ComputedCSSStyleTest {
 		CSSElement elm = xhtmlDoc.getElementById("firstH3");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertNotNull(style);
-		assertEquals("#000080", style.getCSSColor().getStringValue());
+		assertEquals("#000080", style.getCSSColor().getCssText());
+		assertEquals(0,
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getRed()).getFloatValue(CSSUnit.CSS_NUMBER),
+				0.001f);
+		assertEquals(0,
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getGreen()).getFloatValue(CSSUnit.CSS_NUMBER),
+				0.001f);
 		assertEquals(128f,
-				((CSSTypedValue) style.getCSSColor().getRGBColorValue().getBlue()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getBlue()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
-		assertEquals(0,
-				((CSSTypedValue) style.getCSSColor().getRGBColorValue().getRed()).getFloatValue(CSSUnit.CSS_NUMBER),
+	}
+
+	@Test
+	public void getColorCalc() throws CSSPropertyValueException {
+		CSSElement elm = xhtmlDoc.getElementById("firstH3");
+		elm.getOverrideStyle(null).setCssText("color: rgb(calc(2*102) 37 120)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals("#cc2578", style.getCSSColor().getCssText());
+		assertEquals(204f,
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getRed()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
-		assertEquals(0,
-				((CSSTypedValue) style.getCSSColor().getRGBColorValue().getGreen()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(37f,
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getGreen()).getFloatValue(CSSUnit.CSS_NUMBER),
+				0.001f);
+		assertEquals(120f,
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getBlue()).getFloatValue(CSSUnit.CSS_NUMBER),
+				0.001f);
+	}
+
+	@Test
+	public void getColorCalcPcnt() throws CSSPropertyValueException {
+		CSSElement elm = xhtmlDoc.getElementById("firstH3");
+		elm.getOverrideStyle(null).setCssText("color: rgb(calc(2*12%) 37% 67%)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals("#3d5eab", style.getCSSColor().getCssText());
+		assertEquals(24f,
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				0.001f);
+		assertEquals(37f,
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				0.001f);
+		assertEquals(67f,
+				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.001f);
 	}
 
@@ -1011,8 +1047,8 @@ public class ComputedCSSStyleTest {
 		elm.getOverrideStyle(null).setCssText("color:BLUE");
 		style = elm.getComputedStyle(null);
 		CSSTypedValue color = (CSSTypedValue) style.getPropertyCSSValue("color");
-		assertEquals(CSSValue.Type.RGBCOLOR, color.getPrimitiveType());
-		RGBAColor rgb = color.getRGBColorValue();
+		assertEquals(CSSValue.Type.COLOR, color.getPrimitiveType());
+		RGBAColor rgb = color.toRGBColorValue();
 		assertEquals("#00f", rgb.toString());
 		/*
 		 * attr() value, fallback.

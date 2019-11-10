@@ -38,8 +38,23 @@ import io.sf.carte.doc.style.css.CSSValueList;
  */
 public class Evaluator {
 
+	private final short preferredUnit;
+
+	/**
+	 * Constructs an evaluator with a preferred unit of typographic points ({@code pt}).
+	 */
 	public Evaluator() {
+		this(CSSUnit.CSS_PT);
+	}
+
+	/**
+	 * Constructs an evaluator with the given preferred unit.
+	 * 
+	 * @param preferredUnit the preferred unit according to {@link CSSUnit}.
+	 */
+	public Evaluator(short preferredUnit) {
 		super();
+		this.preferredUnit = preferredUnit;
 	}
 
 	/**
@@ -417,8 +432,8 @@ public class Evaluator {
 		} else if (type != CSSUnit.CSS_PERCENTAGE) {
 			result = value.getFloatValue(resultType);
 		} else {
-			result = percentage(value, CSSUnit.CSS_PT);
-			resultUnit.setUnitType(CSSUnit.CSS_PT);
+			result = percentage(value, preferredUnit);
+			resultUnit.setUnitType(preferredUnit);
 		}
 		return result;
 	}

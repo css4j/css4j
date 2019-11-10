@@ -509,12 +509,12 @@ abstract class ShorthandBuilder {
 			TypedValue pvalue2 = (TypedValue) value2;
 			Type type2 = pvalue2.getPrimitiveType();
 			if (type1 == Type.IDENT) {
-				if (type2 == Type.RGBCOLOR) {
+				if (type2 == Type.COLOR) {
 					return testColorIdentifier(pvalue2, pvalue1.getStringValue().toLowerCase(Locale.ROOT));
 				} else if (type2 == Type.IDENT) {
 					return pvalue1.getStringValue().equalsIgnoreCase(pvalue2.getStringValue());
 				}
-			} else if (type1 == Type.RGBCOLOR) {
+			} else if (type1 == Type.COLOR) {
 				if (type2 == Type.IDENT) {
 					return testColorIdentifier(pvalue1, pvalue2.getStringValue());
 				}
@@ -534,7 +534,7 @@ abstract class ShorthandBuilder {
 			ValueFactory factory = new ValueFactory();
 			try {
 				CSSTypedValue val = (CSSTypedValue) factory.parseProperty(spec);
-				return val.getRGBColorValue().equals(color.getRGBColorValue());
+				return val.toRGBColorValue().equals(color.toRGBColorValue());
 			} catch (DOMException e) {
 			}
 		}

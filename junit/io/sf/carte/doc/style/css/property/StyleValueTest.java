@@ -69,7 +69,7 @@ public class StyleValueTest {
 		value = factory.parseProperty("#f0be4f", cssParser);
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals(CSSValue.Type.RGBCOLOR, value.getPrimitiveType());
+		assertEquals(CSSValue.Type.COLOR, value.getPrimitiveType());
 		assertEquals("#f0be4f", value.getCssText());
 		assertEquals("#f0be4f", value.getMinifiedCssText("color"));
 		value = factory.parseProperty("'Times New Roman'", cssParser);

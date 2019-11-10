@@ -12,31 +12,24 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.RGBAColor;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Color-specific value.
- * 
- * @author Carlos Amengual
- *
+ * Color value.
  */
-public class ColorValue extends AbstractTextValue {
+abstract public class ColorValue extends TypedValue implements CSSColorValue {
 
-	/*
-	 * TODO handle hsl()/hwb() functions with non-numeric arguments.
-	 */
-
-	public static final NumberValue opaqueAlpha;
+	static final NumberValue opaqueAlpha;
 
 	static {
 		NumberValue alpha = new NumberValue();
@@ -44,23 +37,16 @@ public class ColorValue extends AbstractTextValue {
 		opaqueAlpha = alpha.immutable();
 	}
 
-	private CSSRGBColor color = null;
-
-	private RGBAColor.ColorSpace colorSpace = RGBAColor.ColorSpace.RGB;
-
 	private boolean systemDefault = false;
 
-	private boolean commaSyntax = false;
+	boolean commaSyntax = false;
 
 	ColorValue() {
-		super(Type.RGBCOLOR);
-		color = new CSSRGBColor();
+		super(Type.COLOR);
 	}
 
-	protected ColorValue(ColorValue copied) {
+	ColorValue(ColorValue copied) {
 		super(copied);
-		this.color = copied.color.clone();
-		this.colorSpace = copied.colorSpace;
 		this.systemDefault = copied.systemDefault;
 	}
 
@@ -78,7 +64,7 @@ public class ColorValue extends AbstractTextValue {
 		checkModifiableProperty();
 		ValueFactory factory = new ValueFactory();
 		StyleValue value = factory.parseProperty(cssText);
-		if (value.getCssValueType() == CssType.TYPED) {
+		if (value.getCssValueType() == CSSColorValue.CssType.TYPED) {
 			Type ptype = value.getPrimitiveType();
 			if (ptype == Type.IDENT) {
 				String ident = ((CSSTypedValue) value).getStringValue().toLowerCase(Locale.ROOT);
@@ -90,349 +76,63 @@ public class ColorValue extends AbstractTextValue {
 				} else {
 					failSetCssText();
 				}
-			} else if (ptype != Type.RGBCOLOR) {
+			} else if (ptype != Type.COLOR || ((ColorValue) value).getColorSpace() != getColorSpace()) {
 				failSetCssText();
 			}
-			setPlainCssText(cssText);
-			set((ColorValue) value);
+			set(value);
 		} else {
 			failSetCssText();
 		}
 	}
 
 	private void failSetCssText() {
-		throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "This property can only be set to a color value");
+		throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+				"This value can only be set to a color in the " + getColorSpace() + " color space.");
 	}
 
-	private void set(ColorValue setfrom) {
-		this.color = setfrom.color;
-		this.colorSpace = setfrom.colorSpace;
+	void set(StyleValue value) {
+		ColorValue setfrom = (ColorValue) value;
 		this.systemDefault = setfrom.systemDefault;
-	}
-
-	public RGBAColor.ColorSpace getColorSpace() {
-		return colorSpace;
+		this.commaSyntax = setfrom.commaSyntax;
 	}
 
 	@Override
 	public String getCssText() {
-		if (colorSpace == RGBAColor.ColorSpace.HSL) {
-			String css = color.toHSLString();
-			if (css != null) {
-				return css;
-			}
-		}
-		return getRGBColorValue().toString();
+		return toRGBColorValue().toString();
 	}
 
 	@Override
 	public String getMinifiedCssText(String propertyValue) {
-		if (colorSpace == RGBAColor.ColorSpace.HSL && (color.getAlpha().getPrimitiveType() != Type.NUMERIC
-				|| ((CSSTypedValue) color.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER) != 1f)) {
-			String css = color.toHSLMinifiedString();
-			if (css != null) {
-				return css;
-			}
-		}
-		return ((CSSRGBColor) getRGBColorValue()).toMinifiedString();
+		return ((CSSRGBColor) toRGBColorValue()).toMinifiedString();
 	}
 
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
-		if (colorSpace == RGBAColor.ColorSpace.HSL) {
-			String css = color.toHSLString();
-			if (css != null) {
-				wri.write(css);
-				return;
-			}
-		}
-		wri.write(getRGBColorValue().toString());
+		wri.write(toRGBColorValue().toString());
 	}
+
+	/**
+	 * Get the color component at {@code index}.
+	 * <p>
+	 * This method allows to access the color components like if they were indexed.
+	 * It is convenient to perform common tasks at the components (like when
+	 * computing values).
+	 * </p>
+	 * 
+	 * @param index the index. Index {@code 0} is always the alpha channel.
+	 * @return the color component, or {@code null} if the index is incorrect.
+	 */
+	@Override
+	abstract public PrimitiveValue getComponent(int index);
 
 	@Override
-	public String getStringValue() throws DOMException {
-		return getCssText();
-	}
+	abstract public ColorValue clone();
 
-	@Override
-	public RGBAColor getRGBColorValue() throws DOMException {
-		if (color.red == null || color.green == null || color.blue == null) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "Color not set");
-		}
-		return color;
-	}
-
-	@Override
-	LexicalSetter newLexicalSetter() {
-		return new MyLexicalSetter();
-	}
-
-	class MyLexicalSetter extends LexicalSetter {
-
-		@Override
-		void setLexicalUnit(LexicalUnit lunit) {
-			ValueFactory factory = new ValueFactory();
-			LexicalUnit lu = lunit.getParameters();
-			String func = lunit.getFunctionName();
-			try {
-				if ("rgb".equalsIgnoreCase(func) || "rgba".equalsIgnoreCase(func)) {
-					// red
-					PrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					color.setRed(basiccolor);
-					// comma ?
-					lu = lu.getNextLexicalUnit();
-					if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-						// green
-						lu = lu.getNextLexicalUnit();
-					}
-					basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					color.setGreen(basiccolor);
-					if (commaSyntax) {
-						// comma
-						lu = lu.getNextLexicalUnit();
-					}
-					// blue
-					lu = lu.getNextLexicalUnit();
-					basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					color.setBlue(basiccolor);
-					// comma, slash or null
-					lu = lu.getNextLexicalUnit();
-					if (lu != null) {
-						// alpha
-						lu = lu.getNextLexicalUnit();
-						color.setAlpha(factory.createCSSPrimitiveValue(lu, true));
-						lu = lu.getNextLexicalUnit();
-					}
-					colorSpace = RGBAColor.ColorSpace.RGB;
-				} else if ("hsl".equalsIgnoreCase(func) || "hsla".equalsIgnoreCase(func)) {
-					// hue
-					PrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					if (basiccolor.getPrimitiveType() != Type.NUMERIC) {
-						throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
-					}
-					float hue = ((CSSTypedValue) basiccolor).getFloatValue(CSSUnit.CSS_DEG) / 360f;
-					// comma
-					lu = lu.getNextLexicalUnit();
-					if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-						// saturation
-						lu = lu.getNextLexicalUnit();
-					}
-					basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					if (basiccolor.getPrimitiveType() != Type.NUMERIC) {
-						throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
-					}
-					float sat = ((CSSTypedValue) basiccolor).getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
-					if (commaSyntax) {
-						// comma
-						lu = lu.getNextLexicalUnit();
-					}
-					// lightness
-					lu = lu.getNextLexicalUnit();
-					basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					if (basiccolor.getPrimitiveType() != Type.NUMERIC) {
-						throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
-					}
-					float light = ((CSSTypedValue) basiccolor).getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
-					// comma, slash or null
-					lu = lu.getNextLexicalUnit();
-					if (lu != null) {
-						lu = lu.getNextLexicalUnit(); // Alpha
-						color.setAlpha(factory.createCSSPrimitiveValue(lu, true));
-						lu = lu.getNextLexicalUnit();
-					}
-					translateHSL(hue, sat, light);
-					colorSpace = RGBAColor.ColorSpace.HSL;
-				} else if ("hwb".equalsIgnoreCase(func)) {
-					// hue
-					PrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					if (basiccolor.getPrimitiveType() != Type.NUMERIC) {
-						throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
-					}
-					float hue = ((CSSTypedValue) basiccolor).getFloatValue(CSSUnit.CSS_DEG) / 360f;
-					// comma
-					lu = lu.getNextLexicalUnit();
-					boolean commaSyntax;
-					if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-						// whiteness
-						lu = lu.getNextLexicalUnit();
-					}
-					basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					if (basiccolor.getPrimitiveType() != Type.NUMERIC) {
-						throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
-					}
-					float whiteness = ((CSSTypedValue) basiccolor).getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
-					if (commaSyntax) {
-						// comma
-						lu = lu.getNextLexicalUnit();
-					}
-					// blackness
-					lu = lu.getNextLexicalUnit();
-					basiccolor = factory.createCSSPrimitiveValue(lu, true);
-					if (basiccolor.getPrimitiveType() != Type.NUMERIC) {
-						throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
-					}
-					float blackness = ((CSSTypedValue) basiccolor).getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
-					// comma, slash or null
-					lu = lu.getNextLexicalUnit();
-					if (lu != null) {
-						lu = lu.getNextLexicalUnit(); // Alpha
-						color.setAlpha(factory.createCSSPrimitiveValue(lu, true));
-						lu = lu.getNextLexicalUnit();
-					}
-					translateHWB(hue, whiteness, blackness);
-					colorSpace = RGBAColor.ColorSpace.HWB;
-				}
-			} catch (DOMException e) {
-				throw e;
-			} catch (RuntimeException e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
-			}
-			nextLexicalUnit = lunit.getNextLexicalUnit();
-		}
-	}
-
-	void translateHSL(float hue, float sat, float light) {
-		if (hue > 1f) {
-			hue -= (float) Math.floor(hue);
-		} else if (hue < 0f) {
-			hue = hue - (float) Math.floor(hue) + 1f;
-		}
-		float m2;
-		if (light <= 0.5f) {
-			m2 = light * (sat + 1f);
-		} else {
-			m2 = light + sat - light * sat;
-		}
-		float m1 = light * 2f - m2;
-		NumberValue red = new NumberValue();
-		red.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue + 1f / 3f));
-		NumberValue green = new NumberValue();
-		green.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue));
-		NumberValue blue = new NumberValue();
-		blue.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue - 1f / 3f));
-		color.red = red;
-		color.green = green;
-		color.blue = blue;
-	}
-
-	private static float hueToRgb(float m1, float m2, float h) {
-		if (h < 0f) {
-			h = h + 1f;
-		} else if (h > 1f) {
-			h = h - 1f;
-		}
-		if (h * 6f < 1f) {
-			return (m1 + (m2 - m1) * h * 6f) * 100f;
-		}
-		if (h * 2f < 1f) {
-			return m2 * 100f;
-		}
-		if (h * 3f < 2f) {
-			return (m1 + (m2 - m1) * (2f / 3f - h) * 6f) * 100f;
-		}
-		return m1 * 100f;
-	}
-
-	void translateHWB(float hue, float whiteness, float blackness) {
-		if (hue > 1f) {
-			hue -= (float) Math.floor(hue);
-		} else if (hue < 0f) {
-			hue = hue - (float) Math.floor(hue) + 1f;
-		}
-		hue *= 6f;
-		float fh = (float) Math.floor(hue);
-		float f = hue - fh;
-		int ifh = (int) fh;
-		if (ifh % 2 == 1) {
-			f = 1f -f;
-		}
-		float value = 1f - blackness;
-		float wv = whiteness + f * (value - whiteness);
-		float r, g, b;
-		switch (ifh) {
-		case 1:
-			r = wv;
-			g = value;
-			b = whiteness;
-			break;
-		case 2:
-			r = whiteness;
-			g = value;
-			b = wv;
-			break;
-		case 3:
-			r = whiteness;
-			g = wv;
-			b = value;
-			break;
-		case 4:
-			r = wv;
-			g = whiteness;
-			b = value;
-			break;
-		case 5:
-			r = value;
-			g = whiteness;
-			b = wv;
-			break;
-		default:
-			r = value;
-			g = wv;
-			b = whiteness;
-		}
-		NumberValue red = new NumberValue();
-		red.setFloatValue(CSSUnit.CSS_NUMBER, Math.round(r * 255f));
-		NumberValue green = new NumberValue();
-		green.setFloatValue(CSSUnit.CSS_NUMBER, Math.round(g * 255f));
-		NumberValue blue = new NumberValue();
-		blue.setFloatValue(CSSUnit.CSS_NUMBER, Math.round(b * 255f));
-		color.red = red;
-		color.green = green;
-		color.blue = blue;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((color == null) ? 0 : color.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!super.equals(obj)) {
-			return false;
-		}
-		if (!(obj instanceof ColorValue)) {
-			return false;
-		}
-		ColorValue other = (ColorValue) obj;
-		if (color == null) {
-			return other.color == null;
-		} else {
-			return color.equals(other.color);
-		}
-	}
-
-	@Override
-	public ColorValue clone() {
-		return new ColorValue(this);
-	}
-
-	private static class Hsl {
-		int h, s, l;
-	}
-
-	class CSSRGBColor implements RGBAColor {
+	class CSSRGBColor extends BaseColor implements RGBAColor {
 
 		private PrimitiveValue red = null;
 		private PrimitiveValue green = null;
 		private PrimitiveValue blue = null;
-		private PrimitiveValue alpha = opaqueAlpha;
 
 
 		CSSRGBColor() {
@@ -440,6 +140,9 @@ public class ColorValue extends AbstractTextValue {
 		}
 
 		public void setRed(PrimitiveValue red) {
+			if (red == null) {
+				throw new NullPointerException();
+			}
 			this.red = red;
 		}
 
@@ -449,6 +152,9 @@ public class ColorValue extends AbstractTextValue {
 		}
 
 		public void setGreen(PrimitiveValue green) {
+			if (green == null) {
+				throw new NullPointerException();
+			}
 			this.green = green;
 		}
 
@@ -458,21 +164,15 @@ public class ColorValue extends AbstractTextValue {
 		}
 
 		public void setBlue(PrimitiveValue blue) {
+			if (blue == null) {
+				throw new NullPointerException();
+			}
 			this.blue = blue;
 		}
 
 		@Override
 		public PrimitiveValue getBlue() {
 			return blue;
-		}
-
-		public void setAlpha(PrimitiveValue alpha) {
-			this.alpha = alpha;
-		}
-
-		@Override
-		public PrimitiveValue getAlpha() {
-			return alpha;
 		}
 
 		@Override
@@ -488,7 +188,7 @@ public class ColorValue extends AbstractTextValue {
 			int r = componentByte(red);
 			int g = componentByte(green);
 			int b = componentByte(blue);
-			boolean nonOpaque = alpha.getPrimitiveType() != Type.NUMERIC || getFloatAlpha() != 1f;
+			boolean nonOpaque = isNonOpaque();
 			if (nonOpaque || r > 255 || g > 255 || b > 255) {
 				if (minify) {
 					if (commaSyntax) {
@@ -615,64 +315,30 @@ public class ColorValue extends AbstractTextValue {
 		}
 
 		private StringBuilder appendComponentCssText(StringBuilder buf, PrimitiveValue component, boolean minify) {
-			if (colorSpace == RGBAColor.ColorSpace.RGB || component.getPrimitiveType() != Type.NUMERIC
-					|| component.getUnitType() != CSSUnit.CSS_PERCENTAGE) {
-				return buf.append(component.getCssText());
-			}
-			float val = ((CSSTypedValue) component).getFloatValue(CSSUnit.CSS_PERCENTAGE);
-			float rval = (float) (Math.rint(val * 10f) * 0.1f);
-			if (rval == 0f && minify) {
-				return buf.append('0');
-			}
-			double rintValue = Math.rint(val);
-			String strVal;
-			if (rval == rintValue) {
-				strVal = Integer.toString((int) rval);
-			} else {
-				strVal = Float.toString(rval);
-			}
-			return buf.append(strVal).append('%');
-		}
-
-		private StringBuilder appendAlphaChannel(StringBuilder buf) {
-			String text;
-			if (alpha.getUnitType() == CSSUnit.CSS_NUMBER) {
-				float f = ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_NUMBER);
-				text = formattedNumber(f);
-			} else {
-				text = alpha.getCssText();
-			}
-			return buf.append(text);
-		}
-
-		private StringBuilder appendAlphaChannelMinified(StringBuilder buf) {
-			String text;
-			if (alpha.getUnitType() == CSSUnit.CSS_NUMBER) {
-				float f = ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_NUMBER);
-				text = formattedNumberMinified(f);
-			} else {
-				text = alpha.getMinifiedCssText("");
-			}
-			return buf.append(text);
-		}
-
-		private String formattedNumber(float f) {
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMaximumFractionDigits(3);
-			format.setMinimumFractionDigits(0);
-			return format.format(f);
-		}
-
-		private String formattedNumberMinified(float f) {
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMaximumFractionDigits(3);
-			format.setMinimumFractionDigits(0);
-			format.setMinimumIntegerDigits(0);
-			return format.format(f);
+			return buf.append(component.getCssText());
 		}
 
 		private boolean notSameChar(String hexr) {
 			return hexr.length() == 1 || hexr.charAt(0) != hexr.charAt(1);
+		}
+
+		HSLColor toHSLColor() {
+			Hsl hsl = toHSL();
+			if (hsl == null) {
+				throw new DOMException(DOMException.INVALID_STATE_ERR, "Conversion to hsl() failed.");
+			}
+			NumberValue h = new NumberValue();
+			h.setFloatValue(CSSUnit.CSS_DEG, hsl.h);
+			PercentageValue s = new PercentageValue();
+			s.setFloatValue(CSSUnit.CSS_PERCENTAGE, hsl.s);
+			PercentageValue l = new PercentageValue();
+			l.setFloatValue(CSSUnit.CSS_PERCENTAGE, hsl.l);
+			HSLColorImpl hslColor = new MyHSLColorImpl();
+			hslColor.setHue(h);
+			hslColor.setSaturation(s);
+			hslColor.setLightness(l);
+			hslColor.setAlpha(getAlpha());
+			return hslColor;
 		}
 
 		/**
@@ -769,7 +435,7 @@ public class ColorValue extends AbstractTextValue {
 			if (hsl == null) {
 				return null;
 			}
-			boolean nonOpaque = getFloatAlpha() != 1f;
+			boolean nonOpaque = isNonOpaque();
 			if (commaSyntax) {
 				return oldHSLString(hsl, nonOpaque);
 			} else {
@@ -811,7 +477,7 @@ public class ColorValue extends AbstractTextValue {
 			if (hsl == null) {
 				return null;
 			}
-			boolean nonOpaque = getFloatAlpha() != 1f;
+			boolean nonOpaque = isNonOpaque();
 			if (commaSyntax) {
 				return oldHSLMinifiedString(hsl, nonOpaque);
 			} else {
@@ -909,18 +575,6 @@ public class ColorValue extends AbstractTextValue {
 			return Objects.equals(alpha, other.alpha);
 		}
 
-		/**
-		 * Get the floating-point value for the alpha channel.
-		 * <p>
-		 * Before calling this method, make sure that the alpha channel
-		 * is a number type.
-		 * 
-		 * @return the floating-point value for the alpha channel.
-		 */
-		private float getFloatAlpha() {
-			return ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_NUMBER);
-		}
-
 		@Override
 		public CSSRGBColor clone() {
 			CSSRGBColor clon = new CSSRGBColor();
@@ -929,6 +583,19 @@ public class ColorValue extends AbstractTextValue {
 			clon.blue = this.blue.clone();
 			clon.setAlpha(alpha.clone());
 			return clon;
+		}
+
+	}
+
+	private static class Hsl {
+		int h, s, l;
+	}
+
+	class MyHSLColorImpl extends HSLColorImpl {
+
+		@Override
+		public String toString() {
+			return toString(commaSyntax);
 		}
 
 	}

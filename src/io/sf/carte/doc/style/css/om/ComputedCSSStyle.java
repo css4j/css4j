@@ -58,6 +58,7 @@ import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
 import io.sf.carte.doc.style.css.property.NumberValue;
+import io.sf.carte.doc.style.css.property.PercentageEvaluator;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
@@ -472,6 +473,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						args.set(i, absoluteValue(propertyName, args.get(i), useParentStyle));
 					}
 				}
+			} else if (type == Type.COLOR) {
+				pri = computeColor(propertyName, pri);
+			} else {
+				// Handle rect() and ratio()
+				pri = relativizeComponents(propertyName, pri);
 			}
 		}
 		return pri;
@@ -630,6 +636,62 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		}
 		throw new StyleDatabaseRequiredException("Unit conversion failed.");
+	}
+
+	private TypedValue computeColor(String propertyName, TypedValue color) {
+		TypedValue color2 = null;
+		int i = 0;
+		while (true) {
+			PrimitiveValue comp = (PrimitiveValue) color.getComponent(i);
+			if (comp == null) {
+				break;
+			}
+			if (comp.getPrimitiveType() == Type.EXPRESSION) {
+				if (color2 == null) {
+					color2 = color.clone();
+				}
+				ExpressionValue exprval = (ExpressionValue) comp;
+				Evaluator ev = new PercentageEvaluator();
+				try {
+					comp = ev.evaluateExpression(exprval);
+				} catch (DOMException e) {
+					computedStyleError(propertyName, color.getCssText(), "Could not evaluate expression value.",
+							e);
+					return color;
+				}
+				color2.setComponent(i, comp);
+			}
+			i++;
+		}
+		return color2 == null ? color : color2;
+	}
+
+	private TypedValue relativizeComponents(String propertyName, TypedValue pri) {
+		TypedValue pri2 = null;
+		int i = 0;
+		while (true) {
+			StyleValue comp = pri.getComponent(i);
+			if (comp == null) {
+				break;
+			}
+			if (comp.getPrimitiveType() == Type.EXPRESSION) {
+				if (pri2 == null) {
+					pri2 = pri.clone();
+				}
+				ExpressionValue exprval = (ExpressionValue) comp;
+				Evaluator ev = new MyEvaluator(propertyName);
+				try {
+					comp = ev.evaluateExpression(exprval);
+				} catch (DOMException e) {
+					computedStyleError(propertyName, pri.getCssText(), "Could not evaluate expression value.",
+							e);
+					return pri;
+				}
+				pri2.setComponent(i, comp);
+			}
+			i++;
+		}
+		return pri2 == null ? pri : pri2;
 	}
 
 	private void absoluteExpressionValue(String propertyName, CSSExpression expr, boolean useParentStyle) {
@@ -801,7 +863,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	private TypedValue attrValueOfType(TypedValue value, String type) throws DOMException {
 		if ("color".equalsIgnoreCase(type)) {
 			value = colorValue("", value);
-			if (value.getPrimitiveType() == Type.RGBCOLOR) {
+			if (value.getPrimitiveType() == Type.COLOR) {
 				return value;
 			}
 		} else {

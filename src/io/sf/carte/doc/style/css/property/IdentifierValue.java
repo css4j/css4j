@@ -13,9 +13,11 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -115,6 +117,28 @@ public class IdentifierValue extends AbstractTextValue {
 	@Override
 	LexicalSetter newLexicalSetter() {
 		return new MyLexicalSetter();
+	}
+
+	@Override
+	public RGBAColor toRGBColorValue() throws DOMException {
+		String ident = getStringValue().toLowerCase(Locale.ROOT);
+		String spec;
+		if ("transparent".equals(ident)) {
+			spec = "rgba(0,0,0,0)";
+		} else {
+			spec = ColorIdentifiers.getInstance().getColor(ident);
+		}
+		if (spec != null) {
+			ValueFactory factory = new ValueFactory();
+			try {
+				StyleValue val = factory.parseProperty(spec);
+				if (val.getCssValueType() == CssType.TYPED && val.getPrimitiveType() == Type.COLOR) {
+					return ((TypedValue) val).toRGBColorValue();
+				}
+			} catch (DOMException e) {
+			}
+		}
+		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not an RGB Color");
 	}
 
 	class MyLexicalSetter extends LexicalSetter {

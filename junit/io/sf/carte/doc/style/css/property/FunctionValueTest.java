@@ -14,7 +14,10 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -86,6 +89,18 @@ public class FunctionValueTest {
 		assertEquals(4, val.getArguments().size());
 		assertEquals("cubic-bezier(0.42, 0, 1, 1)", val.getCssText());
 		assertEquals("cubic-bezier(.42,0,1,1)", val.getMinifiedCssText("transition-timing-function"));
+		//
+		NumberValue number = new NumberValue();
+		number.setFloatValue(CSSUnit.CSS_NUMBER, 0.27f);
+		val.setComponent(0, number);
+		assertSame(val.getArguments().get(0), val.getComponent(0));
+		val.setComponent(100, number);
+		assertNull(val.getComponent(100));
+		try {
+			val.setComponent(0, null);
+			fail("Must throw exception.");
+		} catch (NullPointerException e) {
+		}
 	}
 
 	@Test

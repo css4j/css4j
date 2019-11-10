@@ -18,11 +18,6 @@ package io.sf.carte.doc.style.css;
 public interface RGBAColor {
 
 	/**
-	 * Enumeration of color spaces.
-	 */
-	enum ColorSpace {RGB, HSL, HWB}
-
-	/**
 	 * Get the red component of this colour.
 	 * 
 	 * @return the red component.

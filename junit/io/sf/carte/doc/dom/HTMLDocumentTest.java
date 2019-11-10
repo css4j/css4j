@@ -1142,7 +1142,7 @@ public class HTMLDocumentTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		// Currentcolor
-		assertEquals(CSSValue.Type.RGBCOLOR, marginLeft.getPrimitiveType());
+		assertEquals(CSSValue.Type.COLOR, marginLeft.getPrimitiveType());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());

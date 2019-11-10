@@ -79,13 +79,14 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	String getStringValue() throws DOMException;
 
 	/**
-	 * If this value represents a RGB(A) color, get it.
+	 * If this value represents a color, get it or transform to a RGB color.
 	 *
 	 * @return the RGBA color value.
 	 * @exception DOMException INVALID_ACCESS_ERR: if this value can't return a RGB
-	 *                         color value (this is not a <code>RGBCOLOR</code>).
+	 *                         color value (either is not a <code>COLOR</code> or it
+	 *                         could not be converted to RGB for any reason).
 	 */
-	RGBAColor getRGBColorValue() throws DOMException;
+	RGBAColor toRGBColorValue() throws DOMException;
 
 	/**
 	 * Test whether this is a numeric value that was the result of a

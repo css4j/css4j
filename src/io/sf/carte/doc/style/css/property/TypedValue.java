@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import java.util.Locale;
-
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.AlgebraicExpression;
@@ -65,27 +63,7 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 	}
 
 	@Override
-	public RGBAColor getRGBColorValue() throws DOMException {
-		if (getPrimitiveType() == Type.IDENT) {
-			String ident = getStringValue().toLowerCase(Locale.ROOT);
-			String spec;
-			if ("transparent".equals(ident)) {
-				spec = "rgba(0,0,0,0)";
-			} else {
-				spec = ColorIdentifiers.getInstance().getColor(ident);
-			}
-			if (spec != null) {
-				ValueFactory factory = new ValueFactory();
-				try {
-					StyleValue val = factory.parseProperty(spec);
-					if (val.getCssValueType() == CssType.TYPED
-							&& val.getPrimitiveType() == Type.RGBCOLOR) {
-						return ((TypedValue) val).getRGBColorValue();
-					}
-				} catch (DOMException e) {
-				}
-			}
-		}
+	public RGBAColor toRGBColorValue() throws DOMException {
 		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not an RGB Color");
 	}
 
@@ -216,6 +194,40 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 			lunit = lunit.getNextLexicalUnit();
 		} while (lunit != null);
 		return false;
+	}
+
+	/**
+	 * Get the component at {@code index}.
+	 * <p>
+	 * This method allows to access the components regardless of them being indexed
+	 * or not. It is convenient to perform common tasks at the components (like when
+	 * computing values).
+	 * </p>
+	 * 
+	 * @param index the index. For colors, index {@code 0} is always the alpha
+	 *              channel.
+	 * @return the component, or {@code null} if the index is incorrect.
+	 */
+	public StyleValue getComponent(int index) {
+		return null;
+	}
+
+	/**
+	 * If this value has components, set the component at {@code index}.
+	 * <p>
+	 * This method allows to access the components regardless of them being formally
+	 * indexed or not. It is convenient to perform common tasks at the components
+	 * (like when computing values).
+	 * </p>
+	 * 
+	 * @param index     the index. For colors, index {@code 0} is always the alpha
+	 *                  channel. Setting a component at an index that does not exist
+	 *                  has no effect.
+	 * @param component the new color component.
+	 * @throws NullPointerException if the index is valid but the {@code component}
+	 *                              is {@code null}.
+	 */
+	public void setComponent(int index, StyleValue component) {
 	}
 
 	/**

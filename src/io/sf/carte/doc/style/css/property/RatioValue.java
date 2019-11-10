@@ -129,6 +129,32 @@ public class RatioValue extends TypedValue implements CSSRatioValue {
 	}
 
 	@Override
+	public PrimitiveValue getComponent(int index) {
+		switch (index) {
+		case 0:
+			return antecedentValue;
+		case 1:
+			return consequentValue;
+		}
+		return null;
+	}
+
+	@Override
+	public void setComponent(int index, StyleValue component) {
+		if (component == null) {
+			throw new NullPointerException();
+		}
+		PrimitiveValue primi = (PrimitiveValue) component;
+		switch (index) {
+		case 0:
+			antecedentValue = primi;
+			break;
+		case 1:
+			consequentValue = primi;
+		}
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

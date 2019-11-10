@@ -50,8 +50,8 @@ class SafeSystemDefaultValue extends SystemDefaultValue {
 	}
 
 	@Override
-	public RGBAColor getRGBColorValue() throws DOMException {
-		return defvalue.getRGBColorValue();
+	public RGBAColor toRGBColorValue() throws DOMException {
+		return defvalue.toRGBColorValue();
 	}
 
 	@Override
