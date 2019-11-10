@@ -92,7 +92,7 @@ public class RectValue extends TypedValue implements CSSRectValue {
 	}
 
 	@Override
-	public StyleValue getComponent(int index) {
+	public PrimitiveValue getComponent(int index) {
 		switch (index) {
 		case 0:
 			return top;
