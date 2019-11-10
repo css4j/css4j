@@ -2377,6 +2377,67 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBCalc() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgb(calc(12) 127 calc(48))");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getParameters().getLexicalUnitType());
+		assertEquals(12, param.getParameters().getIntegerValue());
+		assertNull(param.getParameters().getNextLexicalUnit());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getParameters().getLexicalUnitType());
+		assertEquals(48, param.getParameters().getIntegerValue());
+		assertNull(param.getParameters().getNextLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(calc(12) 127 calc(48))", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBCalcAlpha() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgb(calc(12) 127 calc(48)/calc(80%))");
+		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getParameters().getLexicalUnitType());
+		assertEquals(12, param.getParameters().getIntegerValue());
+		assertNull(param.getParameters().getNextLexicalUnit());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(127, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getParameters().getLexicalUnitType());
+		assertEquals(48, param.getParameters().getIntegerValue());
+		assertNull(param.getParameters().getNextLexicalUnit());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getParameters().getLexicalUnitType());
+		assertEquals(80f, param.getParameters().getFloatValue(), 1e-5);
+		assertNull(param.getParameters().getNextLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(calc(12) 127 calc(48)/calc(80%))", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueRGBPcnt() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("rgb(12% 27% 48%)");
 		assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
@@ -3318,6 +3379,126 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("hsl", lu.getFunctionName());
 		assertEquals("hsl(12 25% var(--foo)/1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLCalcHue() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(calc(12) 25% 48%)");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getParameters().getLexicalUnitType());
+		assertEquals(12, param.getParameters().getIntegerValue());
+		assertNull(param.getParameters().getNextLexicalUnit());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(calc(12) 25% 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLCalcSat() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(12 calc(25%) 48%)");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getParameters().getLexicalUnitType());
+		assertEquals(25f, param.getParameters().getFloatValue(), 1e-7);
+		assertNull(param.getParameters().getNextLexicalUnit());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 calc(25%) 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLCalcLig() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(12 25% calc(48%))");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getParameters().getLexicalUnitType());
+		assertEquals(48f, param.getParameters().getFloatValue(), 1e-7);
+		assertNull(param.getParameters().getNextLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% calc(48%))", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLCalcAlpha() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48%/calc(0.9))");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_REAL, param.getParameters().getLexicalUnitType());
+		assertEquals(0.9f, param.getParameters().getFloatValue(), 1e-7);
+		assertNull(param.getParameters().getNextLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% 48%/calc(0.9))", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLCalcAlphaPcnt() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48%/calc(90%))");
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-4);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
+		assertEquals("calc", param.getFunctionName());
+		assertNotNull(param.getParameters());
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, param.getParameters().getLexicalUnitType());
+		assertEquals(90f, param.getParameters().getFloatValue(), 1e-7);
+		assertNull(param.getParameters().getNextLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(12 25% 48%/calc(90%))", lu.toString());
 	}
 
 	@Test

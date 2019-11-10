@@ -5509,7 +5509,7 @@ public class CSSParser implements Parser {
 
 		private boolean isComponentType(short type) {
 			return type == LexicalUnit.SAC_INTEGER || type == LexicalUnit.SAC_PERCENTAGE
-					|| type == LexicalUnit.SAC_VAR;
+					|| type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_FUNCTION;
 		}
 
 		private boolean isValidHSLColor() {
@@ -5523,7 +5523,7 @@ public class CSSParser implements Parser {
 				short type = lu.getLexicalUnitType();
 				if (type == LexicalUnit.SAC_PERCENTAGE) {
 					if (lastType == -1) {
-						// First type must be angle or VAR
+						// First type must be integer, angle or VAR
 						return false;
 					}
 					if (hasCommas) {
@@ -5566,6 +5566,25 @@ public class CSSParser implements Parser {
 						return false;
 					}
 					pcntCount = 3;
+				} else if (type == LexicalUnit.SAC_FUNCTION && "calc".equalsIgnoreCase(lu.getFunctionName())) {
+					if (lastType == -1) {
+						type = LexicalUnit.SAC_INTEGER;
+					} else if (lastType == LexicalUnit.SAC_OPERATOR_SLASH) {
+						type = LexicalUnit.SAC_REAL;
+						pcntCount = 3;
+					} else {
+						if (hasCommas) {
+							if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
+								return false;
+							}
+						} else if (lastType == LexicalUnit.SAC_INTEGER || lastType == -2
+								|| lastType == LexicalUnit.SAC_VAR) {
+							// last type was integer, angle or var().
+							hasNoCommas = true;
+						}
+						pcntCount++;
+						type = LexicalUnit.SAC_PERCENTAGE;
+					}
 				} else if (type == LexicalUnit.SAC_VAR) {
 					hasVar = true;
 				} else {
