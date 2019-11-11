@@ -23,11 +23,11 @@ import io.sf.carte.uparser.TokenProducer;
 public class CommentRemover {
 
 	/**
-	 * Takes a string and returns a {@link StringBuider} with the CSS comments
+	 * Takes a string and returns a {@link StringBuilder} with the CSS comments
 	 * removed.
 	 * 
 	 * @param cssText the CSS text to remove comments from.
-	 * @return a {@code StringBuider} containing the text with the comments removed.
+	 * @return a {@code StringBuilder} containing the text with the comments removed.
 	 */
 	public static StringBuilder removeComments(String cssText) {
 		final String[] opening = { "/*", "<!--" };
@@ -42,12 +42,12 @@ public class CommentRemover {
 	}
 
 	/**
-	 * Takes a string and returns a {@link StringBuider} with the CSS comments
+	 * Takes a string and returns a {@link StringBuilder} with the CSS comments
 	 * preceding the given index removed.
 	 * 
 	 * @param cssText        the CSS text to remove comments from.
 	 * @param removeUntilIdx the index after which the comments won't be removed.
-	 * @return a {@code StringBuider} containing the text with the comments removed.
+	 * @return a {@code StringBuilder} containing the text with the comments removed.
 	 */
 	public static StringBuilder removeCommentsUntil(String cssText, int removeUntilIdx) {
 		final String[] opening = { "/*", "<!--" };

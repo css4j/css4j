@@ -60,7 +60,7 @@ public interface CSSElement extends Element, CSSNode {
 	 * pseudo-element.
 	 * <p>
 	 * This method allows checking for override styles without the overhead of
-	 * producing and retrieving one with {@link #getOverrideStyle(String)} and
+	 * producing and retrieving one with {@link #getOverrideStyle(Condition)} and
 	 * checking its length.
 	 *
 	 * @param pseudoElt
