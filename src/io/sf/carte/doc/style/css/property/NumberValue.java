@@ -84,7 +84,7 @@ public class NumberValue extends PrimitiveValue {
 
 	private String serializeNumber(float real) {
 		String s;
-		if (specified) {
+		if (specified && !calculated) {
 			s = Float.toString(real);
 		} else {
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
@@ -737,6 +737,7 @@ public class NumberValue extends PrimitiveValue {
 		case CSSPrimitiveValue.CSS_MS:
 		case CSSPrimitiveValue.CSS_DEG:
 		case CSSPrimitiveValue.CSS_GRAD:
+		case CSSPrimitiveValue.CSS_PERCENTAGE:
 			return 2;
 		case CSSPrimitiveValue.CSS_KHZ:
 		case CSSPrimitiveValue.CSS_CM:
