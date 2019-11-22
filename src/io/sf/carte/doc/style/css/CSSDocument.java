@@ -249,7 +249,7 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	/**
 	 * Has any of the linked or embedded style sheets any error or warning ?
 	 *
-	 * @return <code>true</code> if any of the linked or embedded style sheets has any SAC or rule error
+	 * @return <code>true</code> if any of the linked or embedded style sheets has any NSAC or rule error
 	 *         or warning, <code>false</code> otherwise.
 	 */
 	boolean hasStyleIssues();

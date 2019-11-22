@@ -40,7 +40,7 @@ public class BaseCSSStyleSheetTest1 {
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
-		cssParser.setDocumentHandler(css.createDocumentHandler(ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		cssParser.setDocumentHandler(css.createSheetHandler(ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();

@@ -75,7 +75,6 @@
 				<overview>${project.basedir}/src/overview.html</overview>
 				<links>
 					<link>https://www.w3.org/2003/01/dom2-javadoc/</link>
-					<link>https://www.w3.org/Style/CSS/SAC/doc/</link>
 				</links>
 				<quiet>true</quiet>
 			</configuration>

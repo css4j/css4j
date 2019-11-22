@@ -16,7 +16,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
- * This interface listens to properties found by SAC event handlers.
+ * This interface listens to properties found by NSAC event handlers.
  *
  * @author Carlos Amengual
  *
@@ -24,7 +24,8 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 interface LexicalPropertyListener {
 
 	/**
-	 * Set a CSS property, based on lexixal value.
+	 * Set a CSS property, based on lexical value.
+	 * 
 	 * @param propertyName
 	 *            the name of the property.
 	 * @param value

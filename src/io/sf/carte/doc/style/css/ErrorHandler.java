@@ -169,12 +169,12 @@ public interface ErrorHandler {
 
 	/**
 	 * Report a problem with setting an inline style, that caused an exception to be
-	 * thrown by lower-level parsing (SAC).
+	 * thrown by lower-level parsing (NSAC).
 	 * <p>
 	 * This method is triggered only in two (unlikely) cases:
 	 * <ol>
-	 * <li>If a problem appears when instantiating a SAC parser.</li>
-	 * <li>When the SAC parser throws a <code>CSSException</code>.</li>
+	 * <li>If a problem appears when instantiating a NSAC parser.</li>
+	 * <li>When the NSAC parser throws a <code>CSSException</code>.</li>
 	 * </ol>
 	 * <p>
 	 * The NSAC parser does not throw a <code>CSSException</code> if there is an

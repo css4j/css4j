@@ -112,7 +112,7 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	void unknownRule(String rule);
 
 	/**
-	 * the SAC parser is malfunctioning. Implementations may just ignore this method.
+	 * the NSAC parser is malfunctioning. Implementations may just ignore this method.
 	 * <p>
 	 * It may be called if a property was received for being processed outside of a rule.
 	 * </p>
@@ -139,7 +139,7 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	/**
 	 * Merge the error state from the error handler of another sheet.
 	 * <p>
-	 * Implementations are only required to merge boolean state of SAC errors and warnings.
+	 * Implementations are only required to merge boolean state of NSAC errors and warnings.
 	 * Merging other state is optional.
 	 * 
 	 * @param other

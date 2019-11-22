@@ -215,7 +215,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		// The following may cause an (undocumented)
 		// DOMException.NOT_SUPPORTED_ERR
 		Parser psr = getStyleSheetFactory().createSACParser();
-		SheetHandler handler = createDocumentHandler(ExtendedCSSStyleSheet.COMMENTS_IGNORE);
+		SheetHandler handler = createSheetHandler(ExtendedCSSStyleSheet.COMMENTS_IGNORE);
 		psr.setDocumentHandler(handler);
 		psr.setErrorHandler(handler);
 		currentInsertionIndex = index - 1;
@@ -709,7 +709,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @param referrerPolicy
 	 *            the content of the <code>referrerpolicy</code> content attribute, if any, or
 	 *            the empty string.
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, <code>false</code> otherwise.
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, <code>false</code> otherwise.
 	 * @throws DOMException
 	 *             if there is a serious problem parsing the style sheet.
 	 * @throws IOException
@@ -945,23 +945,23 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Creates a SAC document handler that fills this style sheet.
+	 * Creates a NSAC sheet handler that fills this style sheet.
 	 * 
 	 * @param commentMode the comment processing mode.
-	 * @return the new SAC document handler.
+	 * @return the new NSAC sheet handler.
 	 */
-	SheetHandler createDocumentHandler(short commentMode) {
+	SheetHandler createSheetHandler(short commentMode) {
 		return new SheetHandler(this, getOrigin(), commentMode);
 	}
 
 	/**
-	 * Creates a SAC document handler that fills this style sheet.
+	 * Creates a NSAC sheet handler that fills this style sheet.
 	 * 
 	 * @param origin the origin for this style sheet.
 	 * @param commentMode the comment processing mode.
-	 * @return the new SAC document handler.
+	 * @return the new NSAC sheet handler.
 	 */
-	SheetHandler createDocumentHandler(byte origin, short commentMode) {
+	SheetHandler createSheetHandler(byte origin, short commentMode) {
 		return new SheetHandler(this, origin, commentMode);
 	}
 
@@ -1014,7 +1014,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			}
 		}
 		Parser parser = getStyleSheetFactory().createSACParser();
-		CSSHandler handler = createDocumentHandler(origin, commentMode);
+		CSSHandler handler = createSheetHandler(origin, commentMode);
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler((CSSErrorHandler) handler);
 		try {
@@ -1049,25 +1049,26 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Does the given SAC media list contain any media present in
+	 * Does the given media query list contain any media present in
 	 * <code>media</code>?
 	 * 
-	 * @param media    the media list to match to.
-	 * @param sacMedia the SAC media list to test.
-	 * @return <code>true</code> if the SAC media contains any media which applies
-	 *         to <code>media</code> list, <code>false</code> otherwise.
+	 * @param media the media query list to match to.
+	 * @param mql   the media query list to test.
+	 * @return <code>true</code> if the second media query list contains any media
+	 *         which applies to the first <code>media</code> list,
+	 *         <code>false</code> otherwise.
 	 */
-	boolean match(MediaQueryList media, MediaQueryList sacMedia) {
+	boolean match(MediaQueryList media, MediaQueryList mql) {
 		if (media.isAllMedia()) {
 			return true;
 		}
-		if (sacMedia == null) {
+		if (mql == null) {
 			return !media.isNotAllMedia(); // null list handled as "all"
 		}
-		if (sacMedia.isAllMedia()) {
+		if (mql.isAllMedia()) {
 			return true;
 		}
-		return media.matches(sacMedia);
+		return media.matches(mql);
 	}
 
 }

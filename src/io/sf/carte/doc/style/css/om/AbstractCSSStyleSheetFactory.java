@@ -88,7 +88,7 @@ abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFacto
 	/**
 	 * Create a NSAC Parser with the proper flags enabled.
 	 * 
-	 * @return the SAC parser.
+	 * @return the NSAC parser.
 	 */
 	abstract protected Parser createSACParser();
 

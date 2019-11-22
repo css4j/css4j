@@ -216,7 +216,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	/**
 	 * Merge the error state from the error handler of another sheet.
 	 * <p>
-	 * Implementations are only required to merge boolean state of SAC errors and warnings.
+	 * Implementations are only required to merge boolean state of NSAC errors and warnings.
 	 * Merging other state is optional.
 	 * 
 	 * @param other
@@ -252,7 +252,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	public String toString() {
 		StringBuilder buf = new StringBuilder(64);
 		if (hasSacErrors()) {
-			buf.append("SAC Errors:");
+			buf.append("NSAC Errors:");
 			if (sacErrors != null) {
 				buf.append('\n');
 				for (int i = 0; i < sacErrors.size(); i++) {
@@ -269,16 +269,16 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 				buf.append(" only merged.\n");
 			}
 		} else {
-			buf.append("No SAC errors.\n");
+			buf.append("No NSAC errors.\n");
 		}
 		if (sacWarnings != null) {
-			buf.append("SAC Warnings:");
+			buf.append("NSAC Warnings:");
 			Iterator<CSSParseException> it = sacWarnings.iterator();
 			while (it.hasNext()) {
 				buf.append(' ').append(it.next().getMessage());
 			}
 		} else {
-			buf.append("No SAC warnings.\n");
+			buf.append("No NSAC warnings.\n");
 		}
 		return buf.toString();
 	}
@@ -296,7 +296,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 				text = "at " + uri;
 			}
 		}
-		message = "SAC malfuntion in sheet " + text + ": " + message;
+		message = "NSAC malfuntion in sheet " + text + ": " + message;
 		throw new IllegalStateException(message);
 	}
 

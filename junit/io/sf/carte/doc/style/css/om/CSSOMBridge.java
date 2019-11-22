@@ -31,7 +31,7 @@ public class CSSOMBridge {
 	}
 
 	public static CSSHandler createDocumentHandler(BaseCSSStyleSheet css, short commentMode) {
-		return css.createDocumentHandler(commentMode);
+		return css.createSheetHandler(commentMode);
 	}
 
 }

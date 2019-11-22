@@ -282,7 +282,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * 
 	 * @param reader
 	 *            the character stream containing the CSS sheet.
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, <code>false</code> otherwise.
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, <code>false</code> otherwise.
 	 * @throws DOMException
 	 *             if a DOM problem is found parsing the sheet.
 	 * @throws CSSException
@@ -314,7 +314,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *                    comments are considered as preceding a rule, {@code 2} if
 	 *                    the parser should try to figure out which comments are
 	 *                    preceding and trailing a rule (auto mode).
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal
 	 *         errors, <code>false</code> otherwise.
 	 * @throws DOMException if a problem is found parsing the sheet.
 	 * @throws IOException  if a problem is found reading the sheet.

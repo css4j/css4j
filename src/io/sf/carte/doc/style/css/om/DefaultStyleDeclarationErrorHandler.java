@@ -42,7 +42,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	private Map<String, String> wrongValue = null;
 	private LinkedList<String> valueWarnings = null;
 	private Map<String, String> unassignedValue = null;
-	// SAC Errors
+	// NSAC Errors
 	private List<CSSParseException> sacWarnings = null;
 	private List<CSSParseException> sacErrors = null;
 
@@ -328,13 +328,13 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 			buf.append('\n');
 		}
 		if (sacErrors != null) {
-			buf.append("There were ").append(sacErrors.size()).append(" SAC errors.\n");
+			buf.append("There were ").append(sacErrors.size()).append(" NSAC errors.\n");
 		}
 	}
 
 	public void warningSummary(StringBuilder buf) {
 		if (sacWarnings != null) {
-			buf.append("There were ").append(sacWarnings.size()).append(" SAC warnings.\n");
+			buf.append("There were ").append(sacWarnings.size()).append(" NSAC warnings.\n");
 		}
 		if (valueWarnings != null) {
 			buf.append("There were ").append(valueWarnings.size()).append(" value warnings:\n");

@@ -72,7 +72,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * 
 	 * @param reader
 	 *            the character stream containing the CSS sheet.
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, false
 	 *         otherwise.
 	 * @throws DOMException
 	 *             if a problem is found parsing the sheet.
@@ -109,7 +109,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *                    comments are considered as preceding a rule, {@code 2} if
 	 *                    the parser should try to figure out which comments are
 	 *                    preceding and trailing a rule (auto mode).
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal
 	 *         errors, false otherwise.
 	 * @throws DOMException if a problem is found parsing the sheet.
 	 * @throws IOException  if a problem is found reading the sheet.
@@ -138,7 +138,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * @param referrerPolicy
 	 *            the content of the <code>referrerpolicy</code> content attribute, if any, or
 	 *            the empty string.
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, <code>false</code> otherwise.
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, <code>false</code> otherwise.
 	 * @throws DOMException
 	 *             if there is a serious problem parsing the style sheet.
 	 * @throws IOException

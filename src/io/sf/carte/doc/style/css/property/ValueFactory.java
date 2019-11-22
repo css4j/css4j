@@ -49,11 +49,11 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the unit type of the given SAC lexical unit can apply to size (e.g.
+	 * Tests whether the unit type of the given NSAC lexical unit can apply to size (e.g.
 	 * block size).
 	 * 
 	 * @param unit
-	 *            the SAC lexical unit.
+	 *            the NSAC lexical unit.
 	 * @return <code>true</code> if it is a size type (including percentage and unknown dimension), false
 	 *         otherwise.
 	 */
@@ -62,11 +62,11 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Finds the unit type of the given SAC lexical unit that can apply to size (e.g.
+	 * Finds the unit type of the given NSAC lexical unit that can apply to size (e.g.
 	 * block size).
 	 * 
 	 * @param unit
-	 *            the SAC lexical unit.
+	 *            the NSAC lexical unit.
 	 * @return the CSS unit type if it is a size type (including percentage),
 	 *         CSS_INVALID otherwise.
 	 */
@@ -114,10 +114,10 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the unit type of the given SAC lexical unit is a resolution unit.
+	 * Tests whether the unit type of the given NSAC lexical unit is a resolution unit.
 	 * 
 	 * @param unit
-	 *            the SAC lexical unit value.
+	 *            the NSAC lexical unit value.
 	 * @return <code>true</code> if it is a resolution type, <code>false</code> otherwise.
 	 */
 	public static boolean isResolutionSACUnit(LexicalUnit unit) {
@@ -139,7 +139,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the given SAC value could represent a size greater than zero (e.g. font
+	 * Tests whether the given NSAC value could represent a size greater than zero (e.g. font
 	 * size).
 	 * 
 	 * @param unit
@@ -189,7 +189,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the given SAC unit type is a size or numeric unit.
+	 * Tests whether the given NSAC unit type is a size or numeric unit.
 	 * 
 	 * @param unit the lexical value.
 	 * @return <code>true</code> if it is a size or numeric type (including
@@ -235,7 +235,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the given SAC unit type is a plain number (real or integer) or a percentage.
+	 * Tests whether the given NSAC unit type is a plain number (real or integer) or a percentage.
 	 * 
 	 * @param unit
 	 *            the lexical value.
@@ -254,7 +254,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the given SAC unit type is an angle unit.
+	 * Tests whether the given NSAC unit type is an angle unit.
 	 * 
 	 * @param unit
 	 *            the lexical value.
@@ -285,7 +285,7 @@ public class ValueFactory {
 	}
 
 	/**
-	 * Tests whether the given SAC unit type is a time unit.
+	 * Tests whether the given NSAC unit type is a time unit.
 	 * 
 	 * @param unit
 	 *            the lexical value.
@@ -427,7 +427,7 @@ public class ValueFactory {
 	 * @param value
 	 *            the string containing the property value.
 	 * @param parser
-	 *            the SAC parser.
+	 *            the NSAC parser.
 	 * @return the CSSValue object containing the parsed value.
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.
@@ -458,7 +458,7 @@ public class ValueFactory {
 	 * @param value
 	 *            the string containing the property value.
 	 * @param parser
-	 *            the SAC parser.
+	 *            the NSAC parser.
 	 * @return the CSSValue object containing the parsed value.
 	 * @throws DOMException
 	 *             if a problem was found parsing the property.

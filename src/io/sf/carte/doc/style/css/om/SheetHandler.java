@@ -560,7 +560,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			} else {
 				/*
 				 * A property was received for being processed outside of a rule. This should
-				 * never happen, and if it happens it means that the SAC parser is
+				 * never happen, and if it happens it means that the NSAC parser is
 				 * malfunctioning.
 				 */
 				parentSheet.getErrorHandler().sacMalfunction("Unexpected property " + name + ": " + value.toString());

@@ -87,7 +87,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 	/**
 	 * Loads and parses an imported CSS style sheet.
 	 * 
-	 * @return <code>true</code> if the SAC parser reported no errors or fatal errors, false
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, false
 	 *         otherwise.
 	 * @throws IOException
 	 *             if a problem appears fetching or resolving the uri contents.
