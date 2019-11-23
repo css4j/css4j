@@ -25,7 +25,8 @@ import java.util.Map;
  * 
  */
 public class ColorIdentifiers {
-	private static ColorIdentifiers singleton = new ColorIdentifiers();
+
+	private static final ColorIdentifiers singleton = new ColorIdentifiers();
 
 	private final Map<String, String> colorKeywords = new HashMap<String, String>(147);
 	private final HashSet<String> systemColors = new HashSet<String>();
