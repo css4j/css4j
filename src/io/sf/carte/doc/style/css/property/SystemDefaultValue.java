@@ -24,7 +24,7 @@ import io.sf.carte.util.SimpleWriter;
  * 
  */
 public class SystemDefaultValue extends PrimitiveValue {
-	private static SystemDefaultValue strictmode = new SystemDefaultValue();
+	private static final SystemDefaultValue strictmode = new SystemDefaultValue();
 
 	/**
 	 * Must access instance through static method.
