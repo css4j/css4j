@@ -3781,6 +3781,24 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueVarElementRef() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("var(--foo, element(#bar))");
+		assertEquals(LexicalUnit.SAC_VAR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals("--foo", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_ELEMENT_REFERENCE, param.getLexicalUnitType());
+		assertEquals("bar", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("var", lu.getFunctionName());
+		assertEquals("var(--foo, element(#bar))", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueProgidError() throws CSSException, IOException {
 		try {
 			parsePropertyValue(

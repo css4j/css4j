@@ -895,7 +895,7 @@ public class ParseHelper {
 		return CSSUnit.CSS_OTHER;
 	}
 
-	public static boolean isFunctionUnitType(short unitType) {
+	static boolean isFunctionUnitType(short unitType) {
 		switch (unitType) {
 		case LexicalUnit.SAC_FUNCTION:
 		case LexicalUnit.SAC_RGBCOLOR:
@@ -905,6 +905,7 @@ public class ParseHelper {
 		case LexicalUnit.SAC_COUNTER_FUNCTION:
 		case LexicalUnit.SAC_COUNTERS_FUNCTION:
 		case LexicalUnit.SAC_ATTR:
+		case LexicalUnit.SAC_ELEMENT_REFERENCE:
 			return true;
 		}
 		return false;
