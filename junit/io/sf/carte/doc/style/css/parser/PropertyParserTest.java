@@ -821,6 +821,25 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueVarElementRef() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("var(--foo, element(#bar))"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals("--foo", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalUnit2.SAC_ELEMENT_REFERENCE, param.getLexicalUnitType());
+		assertEquals("bar", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("var", lu.getFunctionName());
+		assertEquals("var(--foo, element(#bar))", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyProgidError() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')"));

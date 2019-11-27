@@ -901,6 +901,7 @@ public class ParseHelper {
 		case LexicalUnit.SAC_COUNTER_FUNCTION:
 		case LexicalUnit.SAC_COUNTERS_FUNCTION:
 		case LexicalUnit.SAC_ATTR:
+		case LexicalUnit2.SAC_ELEMENT_REFERENCE:
 			return true;
 		}
 		return false;
