@@ -5274,6 +5274,8 @@ public class CSSParser implements Parser {
 				lu = newLexicalUnit(LexicalUnit.SAC_URI);
 			} else if ("rgb".equalsIgnoreCase(name) || "rgba".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
+			} else if ("hsl".equalsIgnoreCase(name) || "hsla".equalsIgnoreCase(name)) {
+				lu = newLexicalUnit(LexicalUnit.SAC_HSLCOLOR);
 			} else if ("attr".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_ATTR);
 			} else if ("var".equalsIgnoreCase(name)) {
@@ -5372,7 +5374,6 @@ public class CSSParser implements Parser {
 		}
 
 		private void checkFunction(int index) {
-			String name;
 			short type = currentlu.getLexicalUnitType();
 			// We allow empty functions only for URI and FUNCTION
 			if (currentlu.parameters == null) {
@@ -5385,9 +5386,8 @@ public class CSSParser implements Parser {
 				unexpectedCharError(index, ')');
 				return;
 			}
-			if ((type == LexicalUnit.SAC_RGBCOLOR && !isValidRGBColor()) || (type == LexicalUnit.SAC_FUNCTION
-					&& ("hsl".equalsIgnoreCase((name = currentlu.getFunctionName())) || "hsla".equalsIgnoreCase(name))
-					&& !isValidHSLColor())) {
+			if ((type == LexicalUnit.SAC_RGBCOLOR && !isValidRGBColor()) ||
+					(type == LexicalUnit.SAC_HSLCOLOR && !isValidHSLColor())) {
 				String s;
 				try {
 					s = "Wrong color: " + currentlu.toString();

@@ -262,6 +262,23 @@ public interface LexicalUnit {
 	short SAC_REVERT = 76;
 
 	/**
+	 * Custom property value: <code>var(...)</code>.
+	 * <p>
+	 * See {@link #getStringValue} for the custom property name, and
+	 * {@link #getParameters()} for the fallback.
+	 * </p>
+	 */
+	short SAC_VAR = 77;
+
+	/**
+	 * HSL(A) Colors: <code>hsl(0 0% 0% / 0)</code> and <code>hsla(0, 0%, 0%, 0)</code>
+	 * 
+	 * @see #getFunctionName
+	 * @see #getParameters
+	 */
+	short SAC_HSLCOLOR = 78;
+
+	/**
 	 * <code>AND</code> condition.
 	 * <p>
 	 * Can be cast to a {@link BooleanCondition} of type <code>AND</code>.
@@ -292,15 +309,6 @@ public interface LexicalUnit {
 	 * </p>
 	 */
 	short SAC_CONDITION_PREDICATE = 103;
-
-	/**
-	 * Custom property value: <code>var(...)</code>.
-	 * <p>
-	 * See {@link #getStringValue} for the custom property name, and
-	 * {@link #getParameters()} for the fallback.
-	 * </p>
-	 */
-	short SAC_VAR = 77;
 
 	/**
 	 * An integer indicating the type of <code>LexicalUnit</code>.

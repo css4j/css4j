@@ -150,9 +150,8 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			String func = lunit.getFunctionName();
 			try {
-				if ("hsl".equalsIgnoreCase(func) || "hsla".equalsIgnoreCase(func)) {
+				if (lunit.getLexicalUnitType() == LexicalUnit.SAC_HSLCOLOR) {
 					setLexicalHSL(lunit);
 				} else {
 					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "No hsl() value: " + lunit.toString());

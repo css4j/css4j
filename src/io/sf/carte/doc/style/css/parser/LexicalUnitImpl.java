@@ -276,6 +276,7 @@ class LexicalUnitImpl implements LexicalUnit {
 		case LexicalUnit.SAC_RECT_FUNCTION:
 		case LexicalUnit.SAC_VAR:
 		case LexicalUnit.SAC_ATTR:
+		case LexicalUnit.SAC_HSLCOLOR:
 		case LexicalUnit.SAC_COUNTER_FUNCTION:
 		case LexicalUnit.SAC_COUNTERS_FUNCTION:
 			buf = new StringBuilder();

@@ -1950,7 +1950,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	public static boolean testColor(LexicalUnit lunit) {
 		short utype = lunit.getLexicalUnitType();
-		if (LexicalUnit.SAC_RGBCOLOR == utype) {
+		if (LexicalUnit.SAC_RGBCOLOR == utype || LexicalUnit.SAC_HSLCOLOR == utype) {
 			return true;
 		} else if (LexicalUnit.SAC_IDENT == utype) {
 			String sv = lunit.getStringValue();
@@ -1962,8 +1962,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			return colorids.isColorIdentifier(sv) || "transparent".equals(sv) || "currentcolor".equals(sv);
 		} else if (LexicalUnit.SAC_FUNCTION == utype) {
 			String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-			if (func.length() <= 5 && ("hsla".equals(func) || "hsl".equals(func)
-					|| "hwb".equals(func) || "color".equals(func))) {
+			if ("hwb".equals(func) || "color".equals(func)) {
 				return true;
 			}
 		} else if (LexicalUnit.SAC_VAR == utype) {

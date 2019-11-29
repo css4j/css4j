@@ -3077,7 +3077,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSL() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48%)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3095,7 +3095,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLComma() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12, 25%, 48%)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3117,7 +3117,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLA() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsla(12, 25%, 48%,.2)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3144,7 +3144,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLSlash() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48% / 0.1)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3167,7 +3167,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLSlashPcnt() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48% / 24%)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3190,7 +3190,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLSlashIntegerAlpha() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48% / 1)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3213,7 +3213,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLSlashIntegerAlpha2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48% / 0)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3236,7 +3236,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLDeg() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12deg 25% 48%)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
@@ -3255,7 +3255,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLDegAlpha() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12deg 25% 48%/0.1)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
@@ -3279,7 +3279,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLVar() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo))");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3297,7 +3297,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLVar2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(var(--foo) 25% 30%)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
 		assertEquals("--foo", param.getParameters().getStringValue());
@@ -3315,7 +3315,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLVarSlash() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo)/0.6)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3338,7 +3338,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLVarSlash2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(var(--foo) 12% 25%/0.6)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_VAR, param.getLexicalUnitType());
 		assertEquals("--foo", param.getParameters().getStringValue());
@@ -3361,7 +3361,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLVarSlashInt() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo)/1)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3384,7 +3384,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLCalcHue() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(calc(12) 25% 48%)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_FUNCTION, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
@@ -3406,7 +3406,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLCalcSat() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 calc(25%) 48%)");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3428,7 +3428,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLCalcLig() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% calc(48%))");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3450,7 +3450,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLCalcAlpha() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48%/calc(0.9))");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
@@ -3477,7 +3477,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueHSLCalcAlphaPcnt() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48%/calc(90%))");
-		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalUnit.SAC_HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalUnit.SAC_INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());

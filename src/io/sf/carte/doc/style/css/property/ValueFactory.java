@@ -386,7 +386,7 @@ public class ValueFactory {
 
 	private static boolean isColorFunction(LexicalUnit lunit) {
 		String name = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-		return "hsl".equals(name) || "hsla".equals(name) || "hwb".equals(name) || name.endsWith("-gradient");
+		return "hwb".equals(name) || name.endsWith("-gradient");
 	}
 
 	/**
@@ -942,11 +942,13 @@ public class ValueFactory {
 				primi = new RGBColorValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case LexicalUnit.SAC_HSLCOLOR:
+				primi = new HSLColorValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case LexicalUnit.SAC_FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-				if ("hsl".equals(func) || "hsla".equals(func)) {
-					primi = new HSLColorValue();
-				} else if ("hwb".equals(func)) {
+				if ("hwb".equals(func)) {
 					primi = new HWBColorValue();
 				} else if ("calc".equals(func)) {
 					primi = new CalcValue();

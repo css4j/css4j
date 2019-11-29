@@ -901,6 +901,7 @@ public class ParseHelper {
 		case LexicalUnit.SAC_RGBCOLOR:
 		case LexicalUnit.SAC_URI:
 		case LexicalUnit.SAC_VAR:
+		case LexicalUnit.SAC_HSLCOLOR:
 		case LexicalUnit.SAC_RECT_FUNCTION:
 		case LexicalUnit.SAC_COUNTER_FUNCTION:
 		case LexicalUnit.SAC_COUNTERS_FUNCTION:
