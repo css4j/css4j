@@ -16,18 +16,18 @@ import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 
 class PseudoConditionImpl implements PseudoCondition {
 
-	private final short condType;
+	private final ConditionType condType;
 
 	String name = null;
 	String argument = null;
 
-	PseudoConditionImpl(short condType) {
+	PseudoConditionImpl(ConditionType condType) {
 		super();
 		this.condType = condType;
 	}
 
 	@Override
-	public short getConditionType() {
+	public ConditionType getConditionType() {
 		return condType;
 	}
 
@@ -45,7 +45,7 @@ class PseudoConditionImpl implements PseudoCondition {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + condType;
+		result = prime * result + condType.hashCode();
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((argument == null) ? 0 : argument.hashCode());
 		return result;
@@ -86,7 +86,7 @@ class PseudoConditionImpl implements PseudoCondition {
 	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
-		if (condType == Condition.SAC_PSEUDO_CLASS_CONDITION) {
+		if (condType == Condition.ConditionType.PSEUDO_CLASS) {
 			buf.append(':');
 		} else {
 			buf.append("::");

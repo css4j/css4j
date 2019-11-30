@@ -390,7 +390,7 @@ public class SheetParserTest {
 		SelectorList selist = handler.selectors.getFirst();
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(Selector.SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());

@@ -45,6 +45,7 @@ import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.InputSource;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -53,6 +54,7 @@ import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
@@ -1733,17 +1735,17 @@ public class CSSParser implements Parser {
 	public Condition parsePseudoElement(String pseudoElement) throws CSSException {
 		SelectorList peList = parseSelectors(pseudoElement);
 		Selector sel;
-		if (peList.getLength() == 1 && (sel = peList.item(0)).getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
+		if (peList.getLength() == 1 && (sel = peList.item(0)).getSelectorType() == SelectorType.CONDITIONAL) {
 			Condition cond = ((ConditionalSelector) sel).getCondition();
-			short condType = cond.getConditionType();
-			if (condType == Condition.SAC_PSEUDO_ELEMENT_CONDITION) {
+			ConditionType condType = cond.getConditionType();
+			if (condType == ConditionType.PSEUDO_ELEMENT) {
 				return cond;
-			} else if (condType == Condition.SAC_AND_CONDITION) {
+			} else if (condType == ConditionType.AND) {
 				CombinatorCondition comb = (CombinatorCondition) cond;
 				Condition first = comb.getFirstCondition();
 				Condition second = comb.getSecondCondition();
-				if (first.getConditionType() == Condition.SAC_PSEUDO_ELEMENT_CONDITION
-						&& second.getConditionType() == Condition.SAC_PSEUDO_ELEMENT_CONDITION) {
+				if (first.getConditionType() == ConditionType.PSEUDO_ELEMENT
+						&& second.getConditionType() == ConditionType.PSEUDO_ELEMENT) {
 					return cond;
 				}
 			}
@@ -3756,7 +3758,7 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		protected void newCombinatorSelector(int index, short type, int triggerCp) {
+		protected void newCombinatorSelector(int index, SelectorType type, int triggerCp) {
 			if (currentsel == null) {
 				currentsel = factory.createScopeSelector();
 			} else if (!isValidCurrentSelector()) {
@@ -3829,7 +3831,7 @@ public class CSSParser implements Parser {
 					buffer.append(word);
 				} else if (stage == STAGE_COMBINATOR_OR_END) {
 					buffer.append(word);
-					newCombinatorSelector(Selector.SAC_DESCENDANT_SELECTOR);
+					newCombinatorSelector(SelectorType.DESCENDANT);
 					stage = 1;
 				} else if (stage == STAGE_ATTR_POST_SYMBOL && isPrevCpWhitespace()) {
 					if (word.length() == 1) {
@@ -3967,17 +3969,17 @@ public class CSSParser implements Parser {
 
 		private void setAttributeConditionFlag(AttributeCondition.Flag flag) {
 			Selector simple = getActiveSelector();
-			if (simple == null || simple.getSelectorType() != Selector.SAC_CONDITIONAL_SELECTOR) {
+			if (simple == null || simple.getSelectorType() != SelectorType.CONDITIONAL) {
 				throw new IllegalStateException(
 						"Processing attribute modifier of non-conditional selector");
 			}
 			Condition cond = ((ConditionalSelectorImpl) simple).getCondition();
-			if (cond.getConditionType() == Condition.SAC_AND_CONDITION) {
+			if (cond.getConditionType() == ConditionType.AND) {
 				// If it wasn't the second condition, we would not be here
 				cond = ((CombinatorCondition) cond).getSecondCondition();
 			}
 			// Unlikely to happen, but checking is nicer than class cast error
-			if (cond.getConditionType() != Condition.SAC_ATTRIBUTE_CONDITION) {
+			if (cond.getConditionType() != ConditionType.ATTRIBUTE) {
 				throw new IllegalStateException(
 						"Processing attribute modifier of non-attribute conditional selector");
 			}
@@ -4000,7 +4002,7 @@ public class CSSParser implements Parser {
 					if (prevcp != 65 || buffer.length() == 0 || stage != STAGE_EXPECT_PSEUDOCLASS_NAME) {
 						unexpectedCharError(index, codepoint);
 					} else {
-						newConditionalSelector(index, codepoint, Condition.SAC_PSEUDO_CLASS_CONDITION);
+						newConditionalSelector(index, codepoint, ConditionType.PSEUDO_CLASS);
 						if (!parseError) {
 							stage = STAGE_EXPECT_PSEUDOCLASS_ARGUMENT;
 							functionToken = true;
@@ -4039,12 +4041,12 @@ public class CSSParser implements Parser {
 				if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 					if (parendepth == 0) {
 						Selector sel = getActiveSelector();
-						if (sel.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
+						if (sel.getSelectorType() == SelectorType.CONDITIONAL) {
 							Condition cond = ((ConditionalSelectorImpl) sel).condition;
 							cond = getActiveCondition(cond);
-							short condtype = cond.getConditionType();
+							ConditionType condtype = cond.getConditionType();
 							if (buffer.length() != 0) {
-								if (condtype == Condition.SAC_SELECTOR_ARGUMENT_CONDITION) {
+								if (condtype == ConditionType.SELECTOR_ARGUMENT) {
 									try {
 										((SelectorArgumentConditionImpl) cond).arguments = parseSelectorArgument(
 												rawBuffer(), factory);
@@ -4064,7 +4066,7 @@ public class CSSParser implements Parser {
 											throw ex;
 										}
 									}
-								} else if (condtype == Condition.SAC_POSITIONAL_CONDITION) {
+								} else if (condtype == ConditionType.POSITIONAL) {
 									if (((PositionalConditionImpl) cond).hasArgument()) {
 										String arg = rawBuffer();
 										if (!parsePositionalArgument((PositionalConditionImpl) cond, arg)) {
@@ -4072,7 +4074,7 @@ public class CSSParser implements Parser {
 													"Wrong subexpression: " + arg);
 										}
 									}
-								} else if (condtype == Condition.SAC_LANG_CONDITION) {
+								} else if (condtype == ConditionType.LANG) {
 									String s = unescapeBuffer(index);
 									int len = s.length();
 									if (s.charAt(len - 1) == ',') {
@@ -4081,7 +4083,7 @@ public class CSSParser implements Parser {
 										return;
 									}
 									((LangConditionImpl) cond).lang = s;
-								} else if (condtype == Condition.SAC_PSEUDO_CLASS_CONDITION) {
+								} else if (condtype == ConditionType.PSEUDO_CLASS) {
 									String s = unescapeBuffer(index);
 									if (!isValidIdentifier(s)) {
 										handleError(index - s.length() - 1, ParseHelper.ERR_UNEXPECTED_TOKEN,
@@ -4093,9 +4095,9 @@ public class CSSParser implements Parser {
 								buffer.setLength(0);
 								stage = 1;
 							} else {
-								if (condtype == Condition.SAC_LANG_CONDITION
-										|| condtype == Condition.SAC_SELECTOR_ARGUMENT_CONDITION
-										|| condtype == Condition.SAC_POSITIONAL_CONDITION) {
+								if (condtype == ConditionType.LANG
+										|| condtype == ConditionType.SELECTOR_ARGUMENT
+										|| condtype == ConditionType.POSITIONAL) {
 									unexpectedCharError(index, codepoint);
 								} else {
 									unexpectedCharError(index - 1, codepoint);
@@ -4129,7 +4131,7 @@ public class CSSParser implements Parser {
 					stage = 1;
 				} else if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE) {
 					if (buffer.length() != 0) {
-						newConditionalSelector(index, codepoint, Condition.SAC_ATTRIBUTE_CONDITION);
+						newConditionalSelector(index, codepoint, ConditionType.ATTRIBUTE);
 						stage = 1;
 					} else {
 						// Error
@@ -4161,7 +4163,7 @@ public class CSSParser implements Parser {
 		}
 
 		private Condition getActiveCondition(Condition cond) {
-			while (cond.getConditionType() == Condition.SAC_AND_CONDITION) {
+			while (cond.getConditionType() == ConditionType.AND) {
 				cond = ((CombinatorConditionImpl) cond).getSecondCondition();
 			}
 			return cond;
@@ -4185,12 +4187,12 @@ public class CSSParser implements Parser {
 
 		private void processBuffer(int index, int triggerCp, boolean lastStage) {
 			if (prevcp == 42) { // *
-				if (currentsel == null || currentsel.getSelectorType() != Selector.SAC_UNIVERSAL_SELECTOR) {
+				if (currentsel == null || currentsel.getSelectorType() != SelectorType.UNIVERSAL) {
 					setSimpleSelector(index, factory.getUniversalSelector(namespacePrefix));
 				}
 			} else if (stage == STAGE_COMBINATOR_OR_END) {
 				if (!lastStage) {
-					newCombinatorSelector(Selector.SAC_DESCENDANT_SELECTOR);
+					newCombinatorSelector(SelectorType.DESCENDANT);
 					if (buffer.length() != 0) {
 						// Type selectors are identifiers and could be escaped
 						ElementSelectorImpl sel = newElementSelector(index);
@@ -4240,10 +4242,10 @@ public class CSSParser implements Parser {
 						return;
 					}
 				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_NAME) {
-					newConditionalSelector(index, triggerCp, Condition.SAC_PSEUDO_CLASS_CONDITION);
+					newConditionalSelector(index, triggerCp, ConditionType.PSEUDO_CLASS);
 					stage = 1;
 				} else if (stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
-					newConditionalSelector(index, triggerCp, Condition.SAC_PSEUDO_ELEMENT_CONDITION);
+					newConditionalSelector(index, triggerCp, ConditionType.PSEUDO_ELEMENT);
 					stage = 1;
 				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 				} else if (stage == STAGE_ATTR_POST_SYMBOL) {
@@ -4324,22 +4326,22 @@ public class CSSParser implements Parser {
 						}
 						// Process the buffer according to the previous character
 						if (prevcp == TokenProducer.CHAR_VERTICAL_LINE) { // |
-							newConditionalSelector(index, codepoint, Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, ConditionType.BEGIN_HYPHEN_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 126) { // ~
-							newConditionalSelector(index, codepoint, Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, ConditionType.ONE_OF_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 36) { // $
-							newConditionalSelector(index, codepoint, Condition.SAC_ENDS_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, ConditionType.ENDS_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 94) { // ^
-							newConditionalSelector(index, codepoint, Condition.SAC_BEGINS_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, ConditionType.BEGINS_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 42) { // *
-							newConditionalSelector(index, codepoint, Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, ConditionType.SUBSTRING_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 65) {
-							newConditionalSelector(index, codepoint, Condition.SAC_ATTRIBUTE_CONDITION);
+							newConditionalSelector(index, codepoint, ConditionType.ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else {
 							unexpectedCharError(index, codepoint);
@@ -4354,7 +4356,7 @@ public class CSSParser implements Parser {
 					if (stage == 0) {
 						stage = 1;
 					} else if (stage == STAGE_COMBINATOR_OR_END) {
-						newCombinatorSelector(Selector.SAC_DESCENDANT_SELECTOR);
+						newCombinatorSelector(SelectorType.DESCENDANT);
 						((CombinatorSelectorImpl) currentsel).simpleSelector = factory
 								.getUniversalSelector(namespacePrefix);
 						namespacePrefix = null;
@@ -4380,11 +4382,11 @@ public class CSSParser implements Parser {
 						} else {
 							processBuffer(index, codepoint, false);
 						}
-						newCombinatorSelector(index, Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, codepoint);
+						newCombinatorSelector(index, SelectorType.SUBSEQUENT_SIBLING, codepoint);
 					} else if (codepoint == 46) { // .
 						if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
 							processBuffer(index, codepoint, false);
-							newConditionalSelector(index, codepoint, Condition.SAC_CLASS_CONDITION);
+							newConditionalSelector(index, codepoint, ConditionType.CLASS);
 							stage = STAGE_EXPECT_ID_OR_CLASSNAME;
 						} else {
 							unexpectedCharError(index, codepoint);
@@ -4392,7 +4394,7 @@ public class CSSParser implements Parser {
 					} else if (codepoint == 35) { // #
 						if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
 							processBuffer(index, codepoint, false);
-							newConditionalSelector(index, codepoint, Condition.SAC_ID_CONDITION);
+							newConditionalSelector(index, codepoint, ConditionType.ID);
 							stage = STAGE_EXPECT_ID_OR_CLASSNAME;
 						} else {
 							unexpectedCharError(index, codepoint);
@@ -4410,7 +4412,7 @@ public class CSSParser implements Parser {
 						}
 						processBuffer(index, codepoint, false);
 						if (stage < 2) {
-							newCombinatorSelector(index, Selector.SAC_CHILD_SELECTOR, codepoint);
+							newCombinatorSelector(index, SelectorType.CHILD, codepoint);
 						} else {
 							unexpectedCharError(index, codepoint);
 						}
@@ -4419,7 +4421,7 @@ public class CSSParser implements Parser {
 							stage = 1;
 						}
 						processBuffer(index, codepoint, false);
-						newCombinatorSelector(index, Selector.SAC_DIRECT_ADJACENT_SELECTOR, codepoint);
+						newCombinatorSelector(index, SelectorType.DIRECT_ADJACENT, codepoint);
 					} else if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
 						// |
 						if (stage == STAGE_EXPECT_ID_OR_CLASSNAME || stage == STAGE_EXPECT_PSEUDOCLASS_NAME
@@ -4487,10 +4489,10 @@ public class CSSParser implements Parser {
 						return;
 					}
 				}
-				newCombinatorSelector(index, Selector.SAC_COLUMN_COMBINATOR_SELECTOR, TokenProducer.CHAR_VERTICAL_LINE);
+				newCombinatorSelector(index, SelectorType.COLUMN_COMBINATOR, TokenProducer.CHAR_VERTICAL_LINE);
 			} else if (stage == 0 && buffer.length() == 0 && currentsel == null) {
 				namespacePrefix = null;
-				newCombinatorSelector(index, Selector.SAC_COLUMN_COMBINATOR_SELECTOR, TokenProducer.CHAR_VERTICAL_LINE);
+				newCombinatorSelector(index, SelectorType.COLUMN_COMBINATOR, TokenProducer.CHAR_VERTICAL_LINE);
 			} else {
 				unexpectedCharError(index, TokenProducer.CHAR_VERTICAL_LINE);
 			}
@@ -4532,14 +4534,14 @@ public class CSSParser implements Parser {
 			unexpectedCharError(index, 64);
 		}
 
-		private void newConditionalSelector(int index, int triggerCp, short condtype) {
+		private void newConditionalSelector(int index, int triggerCp, ConditionType condtype) {
 			String name = rawBuffer();
 			String lcname = name.toLowerCase(Locale.ROOT).intern();
 			Condition condition;
-			if (condtype == Condition.SAC_PSEUDO_CLASS_CONDITION) {
+			if (condtype == ConditionType.PSEUDO_CLASS) {
 				// See if we can specify the pseudo class.
 				if ("lang".equals(lcname)) {
-					condition = factory.createCondition(Condition.SAC_LANG_CONDITION);
+					condition = factory.createCondition(ConditionType.LANG);
 				} else if ("first-child".equals(lcname)) {
 					if (triggerCp == '(') {
 						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
@@ -4585,13 +4587,13 @@ public class CSSParser implements Parser {
 						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
 						return;
 					}
-					condition = factory.createCondition(Condition.SAC_ONLY_CHILD_CONDITION);
+					condition = factory.createCondition(ConditionType.ONLY_CHILD);
 				} else if ("only-of-type".equals(lcname)) {
 					if (triggerCp == '(') {
 						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
 						return;
 					}
-					condition = factory.createCondition(Condition.SAC_ONLY_TYPE_CONDITION);
+					condition = factory.createCondition(ConditionType.ONLY_TYPE);
 				} else if ("not".equals(lcname) || "is".equals(lcname) || "has".equals(lcname)
 						|| "where".equals(lcname)) {
 					if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
@@ -4601,20 +4603,20 @@ public class CSSParser implements Parser {
 						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, buf.toString());
 						return;
 					}
-					condition = factory.createCondition(Condition.SAC_SELECTOR_ARGUMENT_CONDITION);
+					condition = factory.createCondition(ConditionType.SELECTOR_ARGUMENT);
 					((SelectorArgumentConditionImpl) condition).setName(lcname);
 				} else { // Other pseudo-classes
 					if ("first-line".equals(lcname) || "first-letter".equals(lcname) || "before".equals(lcname)
 							|| "after".equals(lcname)) {
 						// Old-syntax pseudo-element
-						condtype = Condition.SAC_PSEUDO_ELEMENT_CONDITION;
+						condtype = ConditionType.PSEUDO_ELEMENT;
 					}
 					condition = factory.createCondition(condtype);
 				}
 			} else {
 				condition = factory.createCondition(condtype);
 			}
-			if (condition.getConditionType() == Condition.SAC_PSEUDO_CLASS_CONDITION) {
+			if (condition.getConditionType() == ConditionType.PSEUDO_CLASS) {
 				if (isValidIdentifier(name)) {
 					((PseudoConditionImpl) condition).name = safeUnescapeIdentifier(index, name);
 				} else {
@@ -4622,7 +4624,7 @@ public class CSSParser implements Parser {
 							"Invalid pseudo-class: " + name);
 					return;
 				}
-			} else if (condition.getConditionType() == Condition.SAC_PSEUDO_ELEMENT_CONDITION) {
+			} else if (condition.getConditionType() == ConditionType.PSEUDO_ELEMENT) {
 				if (!isValidIdentifier(name)) {
 					handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 							"Invalid pseudo-element: " + name);
@@ -4637,12 +4639,12 @@ public class CSSParser implements Parser {
 			}
 			if (name.length() != 0 && condition instanceof AttributeConditionImpl) {
 				switch (condition.getConditionType()) {
-				case Condition.SAC_ATTRIBUTE_CONDITION:
-				case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-				case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-				case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
-				case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
-				case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
+				case ATTRIBUTE:
+				case BEGIN_HYPHEN_ATTRIBUTE:
+				case ONE_OF_ATTRIBUTE:
+				case ENDS_ATTRIBUTE:
+				case SUBSTRING_ATTRIBUTE:
+				case BEGINS_ATTRIBUTE:
 					if (namespacePrefix != null) {
 						((AttributeConditionImpl) condition).namespaceURI = getNamespaceURI(index);
 					}
@@ -4661,9 +4663,9 @@ public class CSSParser implements Parser {
 			//
 			if (currentsel instanceof CombinatorSelectorImpl) {
 				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
-				if (simple != null && simple.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
+				if (simple != null && simple.getSelectorType() == SelectorType.CONDITIONAL) {
 					CombinatorConditionImpl andcond = (CombinatorConditionImpl) factory
-							.createCondition(Condition.SAC_AND_CONDITION);
+							.createCondition(ConditionType.AND);
 					andcond.first = ((ConditionalSelectorImpl) simple).getCondition();
 					andcond.second = condition;
 					((CombinatorSelectorImpl) currentsel).simpleSelector = factory
@@ -4673,9 +4675,9 @@ public class CSSParser implements Parser {
 							.createConditionalSelector(((CombinatorSelectorImpl) currentsel).simpleSelector, condition);
 				}
 			} else {
-				if (currentsel != null && currentsel.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
+				if (currentsel != null && currentsel.getSelectorType() == SelectorType.CONDITIONAL) {
 					CombinatorConditionImpl andcond = (CombinatorConditionImpl) factory
-							.createCondition(Condition.SAC_AND_CONDITION);
+							.createCondition(ConditionType.AND);
 					andcond.first = ((ConditionalSelectorImpl) currentsel).getCondition();
 					andcond.second = condition;
 					currentsel = factory.createConditionalSelector(
@@ -4755,7 +4757,7 @@ public class CSSParser implements Parser {
 			}
 		}
 
-		protected void newCombinatorSelector(int index, short type, int triggerCp) {
+		protected void newCombinatorSelector(int index, SelectorType type, int triggerCp) {
 			if (currentsel != null && isValidCurrentSelector()) {
 				newCombinatorSelector(type);
 			} else {
@@ -4763,7 +4765,7 @@ public class CSSParser implements Parser {
 			}
 		}
 
-		void newCombinatorSelector(short type) {
+		void newCombinatorSelector(SelectorType type) {
 			currentsel = factory.createCombinatorSelector(type, currentsel);
 			stage = 0;
 		}
@@ -4777,10 +4779,10 @@ public class CSSParser implements Parser {
 					buffer.append('\\');
 				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 					Selector sel = getActiveSelector();
-					if (sel.getSelectorType() == Selector.SAC_CONDITIONAL_SELECTOR) {
+					if (sel.getSelectorType() == SelectorType.CONDITIONAL) {
 						Condition cond = ((ConditionalSelectorImpl) sel).condition;
 						cond = getActiveCondition(cond);
-						if (cond.getConditionType() == Condition.SAC_SELECTOR_ARGUMENT_CONDITION) {
+						if (cond.getConditionType() == ConditionType.SELECTOR_ARGUMENT) {
 							buffer.append('\\');
 						}
 					}
@@ -4832,17 +4834,17 @@ public class CSSParser implements Parser {
 		boolean isValidCurrentSelector() {
 			Selector last = null;
 			switch (currentsel.getSelectorType()) {
-			case Selector.SAC_CHILD_SELECTOR:
-			case Selector.SAC_DESCENDANT_SELECTOR:
-			case Selector.SAC_COLUMN_COMBINATOR_SELECTOR:
-			case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-			case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+			case CHILD:
+			case DESCENDANT:
+			case COLUMN_COMBINATOR:
+			case DIRECT_ADJACENT:
+			case SUBSEQUENT_SIBLING:
 				last = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				break;
-			case Selector.SAC_CONDITIONAL_SELECTOR:
+			case CONDITIONAL:
 				Condition cond = ((ConditionalSelectorImpl) currentsel).getCondition();
-				short condtype = cond.getConditionType();
-				while (condtype == Condition.SAC_AND_CONDITION) {
+				ConditionType condtype = cond.getConditionType();
+				while (condtype == ConditionType.AND) {
 					cond = ((CombinatorCondition) cond).getSecondCondition();
 					if (cond == null) {
 						return false;
@@ -4850,36 +4852,37 @@ public class CSSParser implements Parser {
 					condtype = cond.getConditionType();
 				}
 				switch (condtype) {
-				case Condition.SAC_ATTRIBUTE_CONDITION:
+				case ATTRIBUTE:
 					if (((AttributeConditionImpl) cond).getLocalName() == null) {
 						return false;
 					}
 					break;
-				case Condition.SAC_PSEUDO_CLASS_CONDITION:
-				case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
+				case PSEUDO_CLASS:
+				case PSEUDO_ELEMENT:
 					if (((PseudoConditionImpl) cond).name == null) {
 						return false;
 					}
 					break;
-				case Condition.SAC_CLASS_CONDITION:
-				case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-				case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-				case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
-				case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
-				case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+				case CLASS:
+				case BEGIN_HYPHEN_ATTRIBUTE:
+				case ONE_OF_ATTRIBUTE:
+				case BEGINS_ATTRIBUTE:
+				case ENDS_ATTRIBUTE:
+				case SUBSTRING_ATTRIBUTE:
 					if (((AttributeConditionImpl) cond).getValue() == null) {
 						return false;
 					}
 					break;
-				case Condition.SAC_LANG_CONDITION:
+				case LANG:
 					if (((LangConditionImpl) cond).getLang() == null) {
 						return false;
 					}
 					break;
-				case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
+				case SELECTOR_ARGUMENT:
 					if (((SelectorArgumentConditionImpl) cond).getSelectors() == null) {
 						return false;
 					}
+				default:
 				}
 			default:
 				return true;

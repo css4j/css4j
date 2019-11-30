@@ -146,27 +146,27 @@ public class DOMCSSStyleSheetTest {
 	 * 
 	 */
 	private static boolean selectorEquals(Selector s, Selector s2) {
-		short stype = s.getSelectorType();
+		Selector.SelectorType stype = s.getSelectorType();
 		if (stype != s2.getSelectorType()) {
 			return false;
 		}
 		switch (stype) {
-		case Selector.SAC_ELEMENT_NODE_SELECTOR:
+		case ELEMENT:
 			String local = ((ElementSelector) s).getLocalName();
 			if (local != null) {
 				return local.equals(((ElementSelector) s2).getLocalName());
 			} else {
 				return ((ElementSelector) s2).getLocalName() == null;
 			}
-		case Selector.SAC_CHILD_SELECTOR:
-		case Selector.SAC_DESCENDANT_SELECTOR:
+		case CHILD:
+		case DESCENDANT:
 			CombinatorSelector dsel = (CombinatorSelector) s;
 			CombinatorSelector dsel2 = (CombinatorSelector) s2;
 			if (dsel.getSelector().getSelectorType() != dsel2.getSelector().getSelectorType()) {
 				return false;
 			}
 			return selectorEquals(dsel.getSecondSelector(), dsel2.getSecondSelector());
-		case Selector.SAC_CONDITIONAL_SELECTOR:
+		case CONDITIONAL:
 			ConditionalSelector csel = (ConditionalSelector) s;
 			ConditionalSelector csel2 = (ConditionalSelector) s2;
 			SimpleSelector ssel = csel.getSimpleSelector();
@@ -174,7 +174,7 @@ public class DOMCSSStyleSheetTest {
 				return false;
 			}
 			return csel.getCondition().getConditionType() == csel2.getCondition().getConditionType();
-		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
+		case DIRECT_ADJACENT:
 			CombinatorSelector asel = (CombinatorSelector) s;
 			CombinatorSelector asel2 = (CombinatorSelector) s2;
 			return selectorEquals(asel.getSelector(), asel2.getSelector())

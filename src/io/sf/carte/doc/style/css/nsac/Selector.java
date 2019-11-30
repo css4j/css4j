@@ -18,109 +18,114 @@ package io.sf.carte.doc.style.css.nsac;
  */
 public interface Selector {
 
-	/**
-	 * This is a conditional selector. Example:
-	 * 
-	 * <pre class="example">
-	 *   simple[role="private"]
-	 *   .part1
-	 *   H1#myId
-	 *   P:lang(fr).p1
-	 * </pre>
-	 *
-	 * @see ConditionalSelector
-	 */
-	short SAC_CONDITIONAL_SELECTOR = 0;
+	enum SelectorType {
 
-	/**
-	 * The universal selector.
-	 * 
-	 * @see ElementSelector
-	 */
-	short SAC_UNIVERSAL_SELECTOR = 1;
+		/**
+		 * The universal selector.
+		 * 
+		 * @see ElementSelector
+		 */
+		UNIVERSAL,
 
-	/**
-	 * This selector matches only element node. Example:
-	 * 
-	 * <pre class="example">
-	 *   H1
-	 *   animate
-	 * </pre>
-	 * 
-	 * @see ElementSelector
-	 */
-	short SAC_ELEMENT_NODE_SELECTOR = 4;
+		/**
+		 * This is a conditional selector. Example:
+		 * 
+		 * <pre class="example">
+		 *   simple[role="private"]
+		 *   .part1
+		 *   H1#myId
+		 *   P:lang(fr).p1
+		 * </pre>
+		 *
+		 * @see ConditionalSelector
+		 */
+		CONDITIONAL,
 
-	/**
-	 * This selector matches an arbitrary descendant of some ancestor element.
-	 * Example:
-	 * 
-	 * <pre class="example">
-	 *   E F
-	 * </pre>
-	 * 
-	 * @see CombinatorSelector
-	 */
-	short SAC_DESCENDANT_SELECTOR = 10;
+		/**
+		 * This selector matches only element node. Example:
+		 * 
+		 * <pre class="example">
+		 *   H1
+		 *   animate
+		 * </pre>
+		 * 
+		 * @see ElementSelector
+		 */
+		ELEMENT,
 
-	/**
-	 * This selector matches a childhood relationship between two elements. Example:
-	 * 
-	 * <pre class="example">
-	 * E &gt; F
-	 * </pre>
-	 * 
-	 * @see CombinatorSelector
-	 */
-	short SAC_CHILD_SELECTOR = 11;
-	/**
-	 * This selector matches two selectors who shared the same parent in the
-	 * document tree and the element represented by the first sequence immediately
-	 * precedes the element represented by the second one. Example:
-	 * 
-	 * <pre class="example">
-	 * E + F
-	 * </pre>
-	 * 
-	 * @see CombinatorSelector
-	 */
-	short SAC_DIRECT_ADJACENT_SELECTOR = 12;
+		/**
+		 * This selector matches an arbitrary descendant of some ancestor element.
+		 * Example:
+		 * 
+		 * <pre class="example">
+		 *   E F
+		 * </pre>
+		 * 
+		 * @see CombinatorSelector
+		 */
+		DESCENDANT,
 
-	/**
-	 * <pre class="example">
-	 *   E ~ F
-	 * </pre>
-	 *
-	 * @see CombinatorSelector
-	 */
-	short SAC_SUBSEQUENT_SIBLING_SELECTOR = 13;
+		/**
+		 * This selector matches a childhood relationship between two elements. Example:
+		 * 
+		 * <pre class="example">
+		 * E &gt; F
+		 * </pre>
+		 * 
+		 * @see CombinatorSelector
+		 */
+		CHILD,
 
-	/**
-	 * <pre class="example">
-	 * E || F
-	 * </pre>
-	 *
-	 * @see CombinatorSelector
-	 */
-	short SAC_COLUMN_COMBINATOR_SELECTOR = 14;
+		/**
+		 * This selector matches two selectors who shared the same parent in the
+		 * document tree and the element represented by the first sequence immediately
+		 * precedes the element represented by the second one. Example:
+		 * 
+		 * <pre class="example">
+		 * E + F
+		 * </pre>
+		 * 
+		 * @see CombinatorSelector
+		 */
+		DIRECT_ADJACENT,
 
-	/**
-	 * Scope pseudo-selector in selector arguments.
-	 * <p>
-	 * Scope should be applied where this pseudo-selector is found.
-	 * <p>
-	 * This selector has no serialization.
-	 * <p>
-	 * 
-	 * @see Condition#SAC_SELECTOR_ARGUMENT_CONDITION
-	 */
-	short SAC_SCOPE_SELECTOR = 15;
+		/**
+		 * <pre class="example">
+		 *   E ~ F
+		 * </pre>
+		 *
+		 * @see CombinatorSelector
+		 */
+		SUBSEQUENT_SIBLING,
+
+		/**
+		 * <pre class="example">
+		 * E || F
+		 * </pre>
+		 *
+		 * @see CombinatorSelector
+		 */
+		COLUMN_COMBINATOR,
+
+		/**
+		 * Scope pseudo-selector in selector arguments.
+		 * <p>
+		 * Scope should be applied where this pseudo-selector is found.
+		 * <p>
+		 * This selector has no serialization.
+		 * <p>
+		 * 
+		 * @see Condition.ConditionType#SELECTOR_ARGUMENT
+		 */
+		SCOPE_MARKER
+
+	}
 
 	/**
 	 * An integer indicating the type of <code>Selector</code>
 	 * 
 	 * @return the type of selector.
 	 */
-	short getSelectorType();
+	SelectorType getSelectorType();
 
 }

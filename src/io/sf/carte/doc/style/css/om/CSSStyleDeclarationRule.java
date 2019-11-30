@@ -279,9 +279,9 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 
 	private String selectorText(Selector sel, boolean omitUniversal, boolean scoped) {
 		switch (sel.getSelectorType()) {
-		case Selector.SAC_UNIVERSAL_SELECTOR:
+		case UNIVERSAL:
 			return omitUniversal ? "" : "*";
-		case Selector.SAC_ELEMENT_NODE_SELECTOR:
+		case ELEMENT:
 			ElementSelector esel = (ElementSelector) sel;
 			String lname = esel.getLocalName();
 			String nsuri = esel.getNamespaceURI();
@@ -307,11 +307,11 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 				}
 				return lname != null ? lname : (omitUniversal ? "" : "*");
 			}
-		case Selector.SAC_CHILD_SELECTOR:
+		case CHILD:
 			CombinatorSelector dsel = (CombinatorSelector) sel;
 			Selector ancsel = dsel.getSelector();
 			String anctext;
-			if (!scoped || ancsel.getSelectorType() != Selector.SAC_UNIVERSAL_SELECTOR) {
+			if (!scoped || ancsel.getSelectorType() != Selector.SelectorType.UNIVERSAL) {
 				anctext = selectorText(ancsel, false, scoped);
 			} else {
 				anctext = "";
@@ -322,10 +322,10 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			buf.append('>');
 			buf.append(desctext);
 			return buf.toString();
-		case Selector.SAC_CONDITIONAL_SELECTOR:
+		case CONDITIONAL:
 			ConditionalSelector csel = (ConditionalSelector) sel;
 			return conditionalSelectorText(csel.getCondition(), csel.getSimpleSelector());
-		case Selector.SAC_DESCENDANT_SELECTOR:
+		case DESCENDANT:
 			dsel = (CombinatorSelector) sel;
 			Selector ancestor = dsel.getSelector();
 			anctext = selectorText(ancestor, false, scoped);
@@ -335,19 +335,19 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			buf.append(' ');
 			buf.append(desctext);
 			return buf.toString();
-		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
+		case DIRECT_ADJACENT:
 			CombinatorSelector asel = (CombinatorSelector) sel;
 			return selectorText(asel.getSelector(), omitUniversal, scoped) + " + "
 					+ selectorText(asel.getSecondSelector(), false, scoped);
-		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+		case SUBSEQUENT_SIBLING:
 			asel = (CombinatorSelector) sel;
 			return selectorText(asel.getSelector(), omitUniversal, scoped) + "~"
 					+ selectorText(asel.getSecondSelector(), false, scoped);
-		case Selector.SAC_COLUMN_COMBINATOR_SELECTOR:
+		case COLUMN_COMBINATOR:
 			dsel = (CombinatorSelector) sel;
 			return selectorText(dsel.getSelector(), omitUniversal, scoped) + "||"
 					+ selectorText(dsel.getSecondSelector(), false, scoped);
-		case Selector.SAC_SCOPE_SELECTOR:
+		case SCOPE_MARKER:
 			return "";
 		default:
 			return null;
@@ -356,37 +356,37 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 
 	private String conditionalSelectorText(Condition condition, SimpleSelector simpleSelector) {
 		switch (condition.getConditionType()) {
-		case Condition.SAC_CLASS_CONDITION:
+		case CLASS:
 			return classText((AttributeCondition) condition, simpleSelector);
-		case Condition.SAC_ID_CONDITION:
+		case ID:
 			return "#" + ParseHelper.escape(((AttributeCondition) condition).getValue(), false, false);
-		case Condition.SAC_ATTRIBUTE_CONDITION:
+		case ATTRIBUTE:
 			return attributeText((AttributeCondition) condition, simpleSelector);
-		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
+		case BEGINS_ATTRIBUTE:
 			return attributeBeginsText((AttributeCondition) condition, simpleSelector);
-		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
+		case BEGIN_HYPHEN_ATTRIBUTE:
 			return attributeBeginHyphenText((AttributeCondition) condition, simpleSelector);
-		case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
+		case ENDS_ATTRIBUTE:
 			return attributeEndsText((AttributeCondition) condition, simpleSelector);
-		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+		case SUBSTRING_ATTRIBUTE:
 			return attributeSubstringText((AttributeCondition) condition, simpleSelector);
-		case Condition.SAC_LANG_CONDITION:
+		case LANG:
 			return langText((LangCondition) condition, simpleSelector);
-		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
+		case ONE_OF_ATTRIBUTE:
 			return attributeOneOfText((AttributeCondition) condition, simpleSelector);
-		case Condition.SAC_ONLY_CHILD_CONDITION:
+		case ONLY_CHILD:
 			StringBuilder buf = new StringBuilder(16);
 			if (simpleSelector != null) {
 				appendSimpleSelector(simpleSelector, buf);
 			}
 			return buf.append(":only-child").toString();
-		case Condition.SAC_ONLY_TYPE_CONDITION:
+		case ONLY_TYPE:
 			buf = new StringBuilder(16);
 			if (simpleSelector != null) {
 				appendSimpleSelector(simpleSelector, buf);
 			}
 			return buf.append(":only-of-type").toString();
-		case Condition.SAC_POSITIONAL_CONDITION:
+		case POSITIONAL:
 			buf = new StringBuilder(50);
 			if (simpleSelector != null) {
 				appendSimpleSelector(simpleSelector, buf);
@@ -400,15 +400,15 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 				appendPositional(pcond, buf);
 			}
 			return buf.toString();
-		case Condition.SAC_PSEUDO_CLASS_CONDITION:
+		case PSEUDO_CLASS:
 			return pseudoClassText((PseudoCondition) condition, simpleSelector);
-		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
+		case PSEUDO_ELEMENT:
 			return pseudoElementText((PseudoCondition) condition, simpleSelector);
-		case Condition.SAC_AND_CONDITION:
+		case AND:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
 			return conditionalSelectorText(ccond.getFirstCondition(), simpleSelector)
 					+ conditionalSelectorText(ccond.getSecondCondition(), null);
-		case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
+		case SELECTOR_ARGUMENT:
 			return selectorArgumentText((ArgumentCondition) condition, simpleSelector);
 		default:
 			// return null to ease the identification of unhandled cases.
@@ -708,7 +708,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			return true;
 		}
 		for (int i = 0; i < selist.getLength(); i++) {
-			if (selist.item(i).getSelectorType() == Selector.SAC_UNIVERSAL_SELECTOR) {
+			if (selist.item(i).getSelectorType() == Selector.SelectorType.UNIVERSAL) {
 				return true;
 			}
 		}

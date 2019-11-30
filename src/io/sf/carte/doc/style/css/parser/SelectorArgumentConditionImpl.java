@@ -25,8 +25,8 @@ class SelectorArgumentConditionImpl implements ArgumentCondition {
 	}
 
 	@Override
-	public short getConditionType() {
-		return Condition.SAC_SELECTOR_ARGUMENT_CONDITION;
+	public ConditionType getConditionType() {
+		return Condition.ConditionType.SELECTOR_ARGUMENT;
 	}
 
 	@Override

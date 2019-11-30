@@ -28,8 +28,8 @@ class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSel
 	}
 
 	@Override
-	public short getSelectorType() {
-		return Selector.SAC_CONDITIONAL_SELECTOR;
+	public SelectorType getSelectorType() {
+		return SelectorType.CONDITIONAL;
 	}
 
 	@Override
@@ -83,8 +83,8 @@ class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSel
 	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
-		short simpletype = selector.getSelectorType();
-		if (simpletype != Selector.SAC_UNIVERSAL_SELECTOR
+		SelectorType simpletype = selector.getSelectorType();
+		if (simpletype != Selector.SelectorType.UNIVERSAL
 				|| ((ElementSelector) selector).getNamespaceURI() != null) {
 			buf.append(selector.toString());
 		}

@@ -11,16 +11,14 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import io.sf.carte.doc.style.css.nsac.Selector;
-
 /**
  * Universal selector (for all namespaces).
  */
 class ScopeSelector extends AbstractSelector {
 
 	@Override
-	public short getSelectorType() {
-		return Selector.SAC_SCOPE_SELECTOR;
+	public SelectorType getSelectorType() {
+		return SelectorType.SCOPE_MARKER;
 	}
 
 	@Override

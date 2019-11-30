@@ -441,18 +441,18 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	private static boolean selectorHasNamespace(Selector sel, String namespaceURI) {
 		switch (sel.getSelectorType()) {
-		case Selector.SAC_ELEMENT_NODE_SELECTOR:
-		case Selector.SAC_UNIVERSAL_SELECTOR:
+		case ELEMENT:
+		case UNIVERSAL:
 			return namespaceURI.equals(((ElementSelector) sel).getNamespaceURI());
-		case Selector.SAC_CONDITIONAL_SELECTOR:
+		case CONDITIONAL:
 			ConditionalSelector csel = (ConditionalSelector) sel;
 			return selectorHasNamespace(csel.getSimpleSelector(), namespaceURI) ||
 					conditionHasNamespace(csel.getCondition(), namespaceURI);
-		case Selector.SAC_CHILD_SELECTOR:
-		case Selector.SAC_DESCENDANT_SELECTOR:
-		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
-		case Selector.SAC_COLUMN_COMBINATOR_SELECTOR:
+		case CHILD:
+		case DESCENDANT:
+		case DIRECT_ADJACENT:
+		case SUBSEQUENT_SIBLING:
+		case COLUMN_COMBINATOR:
 			CombinatorSelector dsel = (CombinatorSelector) sel;
 			return selectorHasNamespace(dsel.getSelector(), namespaceURI) ||
 					selectorHasNamespace(dsel.getSecondSelector(), namespaceURI);
@@ -463,30 +463,31 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	private static boolean conditionHasNamespace(Condition condition, String namespaceURI) {
 		switch (condition.getConditionType()) {
-		case Condition.SAC_ATTRIBUTE_CONDITION:
-		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
-		case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
-		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+		case ATTRIBUTE:
+		case BEGIN_HYPHEN_ATTRIBUTE:
+		case ONE_OF_ATTRIBUTE:
+		case BEGINS_ATTRIBUTE:
+		case ENDS_ATTRIBUTE:
+		case SUBSTRING_ATTRIBUTE:
 			AttributeCondition acond = (AttributeCondition) condition;
 			return namespaceURI.equals(acond.getNamespaceURI());
-		case Condition.SAC_AND_CONDITION:
+		case AND:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
 			return conditionHasNamespace(ccond.getFirstCondition(), namespaceURI) ||
 					conditionHasNamespace(ccond.getSecondCondition(), namespaceURI);
-		case Condition.SAC_POSITIONAL_CONDITION:
+		case POSITIONAL:
 			SelectorList oflist = ((PositionalCondition) condition).getOfList();
 			if (oflist != null) {
 				return selectorListHasNamespace(oflist, namespaceURI);
 			}
 			break;
-		case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
+		case SELECTOR_ARGUMENT:
 			ArgumentCondition argcond = (ArgumentCondition) condition;
 			SelectorList selist = argcond.getSelectors();
 			if (selist != null) {
 				return selectorListHasNamespace(selist, namespaceURI);
 			}
+		default:
 		}
 		return false;
 	}

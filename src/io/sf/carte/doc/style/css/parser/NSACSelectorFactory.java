@@ -67,7 +67,7 @@ class NSACSelectorFactory implements NamespaceMap {
 		return new ElementSelectorImpl();
 	}
 
-	CombinatorSelectorImpl createCombinatorSelector(short type, Selector firstSelector) {
+	CombinatorSelectorImpl createCombinatorSelector(Selector.SelectorType type, Selector firstSelector) {
 		if (firstSelector == null) {
 			firstSelector = getUniversalSelector();
 		}
@@ -126,8 +126,8 @@ class NSACSelectorFactory implements NamespaceMap {
 	static class AnyNodeSelector extends AbstractSelector implements ElementSelector {
 
 		@Override
-		public short getSelectorType() {
-			return Selector.SAC_UNIVERSAL_SELECTOR;
+		public SelectorType getSelectorType() {
+			return SelectorType.UNIVERSAL;
 		}
 
 		@Override
@@ -166,8 +166,8 @@ class NSACSelectorFactory implements NamespaceMap {
 		}
 
 		@Override
-		public short getSelectorType() {
-			return Selector.SAC_UNIVERSAL_SELECTOR;
+		public SelectorType getSelectorType() {
+			return SelectorType.UNIVERSAL;
 		}
 
 		@Override
@@ -264,8 +264,8 @@ class NSACSelectorFactory implements NamespaceMap {
 		}
 
 		@Override
-		public short getSelectorType() {
-			return Selector.SAC_ELEMENT_NODE_SELECTOR;
+		public SelectorType getSelectorType() {
+			return SelectorType.ELEMENT;
 		}
 
 		@Override
@@ -335,24 +335,24 @@ class NSACSelectorFactory implements NamespaceMap {
 
 	static class CombinatorSelectorImpl extends AbstractSelector implements CombinatorSelector {
 
-		private short type;
+		private SelectorType type;
 
 		SimpleSelector simpleSelector = null;
 
 		Selector selector;
 
-		CombinatorSelectorImpl(short type, Selector selector) {
+		CombinatorSelectorImpl(SelectorType type, Selector selector) {
 			super();
 			this.type = type;
 			this.selector = selector;
 		}
 
 		@Override
-		public short getSelectorType() {
+		public SelectorType getSelectorType() {
 			return type;
 		}
 
-		void setSelectorType(short newType) {
+		void setSelectorType(SelectorType newType) {
 			this.type = newType;
 		}
 
@@ -372,7 +372,7 @@ class NSACSelectorFactory implements NamespaceMap {
 			int result = super.hashCode();
 			result = prime * result + ((selector == null) ? 0 : selector.hashCode());
 			result = prime * result + ((simpleSelector == null) ? 0 : simpleSelector.hashCode());
-			result = prime * result + type;
+			result = prime * result + type.hashCode();
 			return result;
 		}
 
@@ -413,23 +413,23 @@ class NSACSelectorFactory implements NamespaceMap {
 			StringBuilder buf = new StringBuilder();
 			buf.append(selector.toString());
 			switch (this.type) {
-			case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
+			case DIRECT_ADJACENT:
 				buf.append('+');
 			break;
-			case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+			case SUBSEQUENT_SIBLING:
 				buf.append('~');
 				break;
-			case Selector.SAC_CHILD_SELECTOR:
+			case CHILD:
 				buf.append('>');
 			break;
-			case Selector.SAC_DESCENDANT_SELECTOR:
-				if (selector.getSelectorType() != Selector.SAC_SCOPE_SELECTOR) {
+			case DESCENDANT:
+				if (selector.getSelectorType() != SelectorType.SCOPE_MARKER) {
 					buf.append(' ');
 				} else {
 					buf.append(">>");
 				}
 			break;
-			case Selector.SAC_COLUMN_COMBINATOR_SELECTOR:
+			case COLUMN_COMBINATOR:
 				buf.append("||");
 			break;
 			default:
@@ -454,31 +454,31 @@ class NSACSelectorFactory implements NamespaceMap {
 		return cond;
 	}
 
-	Condition createCondition(short type) {
+	Condition createCondition(Condition.ConditionType type) {
 		switch (type) {
-		case Condition.SAC_CLASS_CONDITION:
+		case CLASS:
 			AttributeConditionImpl cond = new AttributeConditionImpl(type);
 			return cond;
-		case Condition.SAC_ATTRIBUTE_CONDITION:
-		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-		case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
-		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
-		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
-		case Condition.SAC_ID_CONDITION:
-		case Condition.SAC_ONLY_CHILD_CONDITION:
-		case Condition.SAC_ONLY_TYPE_CONDITION:
+		case ATTRIBUTE:
+		case BEGIN_HYPHEN_ATTRIBUTE:
+		case ONE_OF_ATTRIBUTE:
+		case ENDS_ATTRIBUTE:
+		case SUBSTRING_ATTRIBUTE:
+		case BEGINS_ATTRIBUTE:
+		case ID:
+		case ONLY_CHILD:
+		case ONLY_TYPE:
 			return new AttributeConditionImpl(type);
-		case Condition.SAC_PSEUDO_CLASS_CONDITION:
-		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
+		case PSEUDO_CLASS:
+		case PSEUDO_ELEMENT:
 			return new PseudoConditionImpl(type);
-		case Condition.SAC_LANG_CONDITION:
+		case LANG:
 			return new LangConditionImpl();
-		case Condition.SAC_AND_CONDITION:
+		case AND:
 			return new CombinatorConditionImpl();
-		case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
+		case SELECTOR_ARGUMENT:
 			return new SelectorArgumentConditionImpl();
-		case Condition.SAC_POSITIONAL_CONDITION:
+		case POSITIONAL:
 			return createPositionalCondition();
 		}
 		return null;
@@ -486,19 +486,19 @@ class NSACSelectorFactory implements NamespaceMap {
 
 	class AttributeConditionImpl implements AttributeCondition {
 
-		short type;
+		ConditionType type;
 		String namespaceURI = null;
 		String localName = null;
 		String value = null;
 		private Flag flag = null;
 
-		AttributeConditionImpl(short type) {
+		AttributeConditionImpl(ConditionType type) {
 			super();
 			this.type = type;
 		}
 
 		@Override
-		public short getConditionType() {
+		public ConditionType getConditionType() {
 			return type;
 		}
 
@@ -533,7 +533,7 @@ class NSACSelectorFactory implements NamespaceMap {
 			result = prime * result + ((flag == null) ? 0 : flag.hashCode());
 			result = prime * result + ((localName == null) ? 0 : localName.hashCode());
 			result = prime * result + ((namespaceURI == null) ? 0 : namespaceURI.hashCode());
-			result = prime * result + type;
+			result = prime * result + type.hashCode();
 			result = prime * result + ((value == null) ? 0 : value.hashCode());
 			return result;
 		}
@@ -583,9 +583,9 @@ class NSACSelectorFactory implements NamespaceMap {
 		@Override
 		public String toString() {
 			StringBuilder buf = new StringBuilder();
-			short condtype = getConditionType();
+			ConditionType condtype = getConditionType();
 			switch (condtype) {
-			case Condition.SAC_ATTRIBUTE_CONDITION:
+			case ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
 				if (value != null) {
@@ -599,55 +599,55 @@ class NSACSelectorFactory implements NamespaceMap {
 				}
 				buf.append(']');
 			break;
-			case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
+			case BEGIN_HYPHEN_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
 				buf.append('|').append('=').append('"')
 						.append(getControlEscapedValue()).append('"');
 				buf.append(']');
 			break;
-			case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
+			case ONE_OF_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
 				buf.append('~').append('=').append('"')
 					.append(getControlEscapedValue()).append('"');
 				buf.append(']');
 			break;
-			case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
+			case BEGINS_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
 				buf.append('^').append('=').append('"')
 					.append(getControlEscapedValue()).append('"');
 				buf.append(']');
 			break;
-			case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
+			case ENDS_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
 				buf.append('$').append('=').append('"')
 					.append(getControlEscapedValue()).append('"');
 				buf.append(']');
 			break;
-			case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+			case SUBSTRING_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
 				buf.append('*').append('=').append('"')
 					.append(getControlEscapedValue()).append('"');
 				buf.append(']');
 			break;
-			case Condition.SAC_CLASS_CONDITION:
+			case CLASS:
 				buf.append('.').append(getEscapedValue());
 			break;
-			case Condition.SAC_ID_CONDITION:
+			case ID:
 				buf.append('#').append(getEscapedValue());
 			break;
-			case Condition.SAC_LANG_CONDITION:
+			case LANG:
 				buf.append(":lang(").append(getValue())
 					.append(')');
 			break;
-			case Condition.SAC_ONLY_CHILD_CONDITION:
+			case ONLY_CHILD:
 				buf.append(":only-child");
 			break;
-			case Condition.SAC_ONLY_TYPE_CONDITION:
+			case ONLY_TYPE:
 				buf.append(":only-of-type");
 			break;
 			default:

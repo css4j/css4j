@@ -23,6 +23,7 @@ import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LangCondition;
@@ -141,7 +142,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	@Override
 	public boolean matches(Selector selector) {
 		switch (selector.getSelectorType()) {
-		case Selector.SAC_ELEMENT_NODE_SELECTOR:
+		case ELEMENT:
 			String elname = ((ElementSelector) selector).getLocalName();
 			String nsuri = ((ElementSelector) selector).getNamespaceURI();
 			if (nsuri == null || nsuri.equals(getNamespaceURI())) {
@@ -151,13 +152,13 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				return true;
 			}
 			break;
-		case Selector.SAC_CONDITIONAL_SELECTOR:
+		case CONDITIONAL:
 			ConditionalSelector condsel = (ConditionalSelector) selector;
 			return matchCondition(condsel.getCondition(), condsel.getSimpleSelector());
-		case Selector.SAC_UNIVERSAL_SELECTOR:
-		case Selector.SAC_SCOPE_SELECTOR:
+		case UNIVERSAL:
+		case SCOPE_MARKER:
 			return true;
-		case Selector.SAC_CHILD_SELECTOR:
+		case CHILD:
 			SimpleSelector desc = ((CombinatorSelector) selector).getSecondSelector();
 			if (matches(desc)) {
 				Selector ancestor = ((CombinatorSelector) selector).getSelector();
@@ -168,7 +169,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Selector.SAC_DESCENDANT_SELECTOR:
+		case DESCENDANT:
 			desc = ((CombinatorSelector) selector).getSecondSelector();
 			if (matches(desc)) {
 				Selector ancestor = ((CombinatorSelector) selector).getSelector();
@@ -181,14 +182,14 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
+		case DIRECT_ADJACENT:
 			if (matches(((CombinatorSelector) selector).getSecondSelector())) {
 				Selector sel = ((CombinatorSelector) selector).getSelector();
 				SelectorMatcher siblingSM = getPreviousSiblingSelectorMatcher();
 				return siblingSM != null && siblingSM.matches(sel);
 			}
 			break;
-		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+		case SUBSEQUENT_SIBLING:
 			CombinatorSelector sibling = (CombinatorSelector) selector;
 			if (matches(sibling.getSecondSelector())) {
 				Selector sel = sibling.getSelector();
@@ -200,19 +201,20 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 					siblingSM = siblingSM.getPreviousSiblingSelectorMatcher();
 				}
 			}
+		default:
 		}
 		return false;
 	}
 
 	boolean matchCondition(Condition cond, SimpleSelector simple) {
 		switch (cond.getConditionType()) {
-		case Condition.SAC_CLASS_CONDITION:
+		case CLASS:
 			AttributeCondition attrcond = (AttributeCondition) cond;
 			String cond_value = attrcond.getValue();
 			return matchesClass(cond_value) && matches(simple);
-		case Condition.SAC_ID_CONDITION:
+		case ID:
 			return matchesId(((AttributeCondition) cond).getValue());
-		case Condition.SAC_ATTRIBUTE_CONDITION:
+		case ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			String attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
@@ -228,7 +230,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
+		case ONE_OF_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
@@ -243,7 +245,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
+		case BEGIN_HYPHEN_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
@@ -258,32 +260,32 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Condition.SAC_BEGINS_ATTRIBUTE_CONDITION:
+		case BEGINS_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
 				return getAttributeValue(attrName).startsWith(attrcond.getValue());
 			}
 			break;
-		case Condition.SAC_ENDS_ATTRIBUTE_CONDITION:
+		case ENDS_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
 				return getAttributeValue(attrName).endsWith(attrcond.getValue());
 			}
 			break;
-		case Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
+		case SUBSTRING_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
 				return getAttributeValue(attrName).contains(attrcond.getValue());
 			}
 			break;
-		case Condition.SAC_LANG_CONDITION:
+		case LANG:
 			attrName = ((LangCondition) cond).getLang();
 			String lang = getLanguage();
 			return lang.startsWith(attrName);
-		case Condition.SAC_PSEUDO_CLASS_CONDITION:
+		case PSEUDO_CLASS:
 			// Non-state pseudo-classes are generally more expensive than other
 			// selectors, so we evaluate the simple selector first.
 			if (matches(simple)) {
@@ -326,15 +328,15 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				return isActivePseudoClass(pseudoClassName);
 			}
 			break;
-		case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
+		case PSEUDO_ELEMENT:
 			if (matches(simple)) {
 				Condition pe = getPseudoElement();
 				if (pe != null) {
 					PseudoCondition pseudo = (PseudoCondition) cond;
-					if (pe.getConditionType() == Condition.SAC_PSEUDO_ELEMENT_CONDITION) {
+					if (pe.getConditionType() == ConditionType.PSEUDO_ELEMENT) {
 						return pseudo.getName().equals(((PseudoCondition) pe).getName());
 					}
-					if (pe.getConditionType() == Condition.SAC_AND_CONDITION) {
+					if (pe.getConditionType() == ConditionType.AND) {
 						CombinatorCondition comb = (CombinatorCondition) pe;
 						return pseudo.getName().equals(((PseudoCondition) comb.getFirstCondition()).getName())
 								|| pseudo.getName().equals(((PseudoCondition) comb.getSecondCondition()).getName());
@@ -342,15 +344,15 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Condition.SAC_AND_CONDITION:
+		case AND:
 			CombinatorCondition comb = (CombinatorCondition) cond;
 			return matchCondition(comb.getFirstCondition(), simple)
 					&& matchCondition(comb.getSecondCondition(), simple);
-		case Condition.SAC_ONLY_CHILD_CONDITION:
+		case ONLY_CHILD:
 			return matches(simple) && isOnlyChild();
-		case Condition.SAC_ONLY_TYPE_CONDITION:
+		case ONLY_TYPE:
 			return matches(simple) && isOnlyOfType();
-		case Condition.SAC_POSITIONAL_CONDITION:
+		case POSITIONAL:
 			if (matches(simple)) {
 				PositionalCondition pcond = (PositionalCondition) cond;
 				int pos = pcond.getOffset();
@@ -377,7 +379,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				}
 			}
 			break;
-		case Condition.SAC_SELECTOR_ARGUMENT_CONDITION:
+		case SELECTOR_ARGUMENT:
 			if (matches(simple)) {
 				String name = ((ArgumentCondition) cond).getName();
 				SelectorList selist = ((ArgumentCondition) cond).getSelectors();
@@ -472,15 +474,16 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 
 	private boolean scopeMatch(Selector selector, SimpleSelector scope) {
 		switch (selector.getSelectorType()) {
-		case Selector.SAC_ELEMENT_NODE_SELECTOR:
-		case Selector.SAC_CONDITIONAL_SELECTOR:
+		case ELEMENT:
+		case CONDITIONAL:
 			return scopeMatch(new CombinatorSelectorImpl(scope, (SimpleSelector) selector), scope);
-		case Selector.SAC_CHILD_SELECTOR:
-		case Selector.SAC_DESCENDANT_SELECTOR:
+		case CHILD:
+		case DESCENDANT:
 			return scopeMatchChild((CombinatorSelector) selector);
-		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
-		case Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR:
+		case DIRECT_ADJACENT:
+		case SUBSEQUENT_SIBLING:
 			return scopeMatchDirectAdjacent((CombinatorSelector) selector);
+		default:
 		}
 		return false;
 	}
@@ -497,8 +500,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		}
 
 		@Override
-		public short getSelectorType() {
-			return Selector.SAC_DESCENDANT_SELECTOR;
+		public SelectorType getSelectorType() {
+			return SelectorType.DESCENDANT;
 		}
 
 		@Override
@@ -722,9 +725,9 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	 */
 	public static void findStatePseudoClasses(Selector selector, List<String> statePseudoClasses) {
 		switch (selector.getSelectorType()) {
-		case Selector.SAC_CONDITIONAL_SELECTOR:
+		case CONDITIONAL:
 			Condition condition = ((ConditionalSelector) selector).getCondition();
-			if (condition.getConditionType() == Condition.SAC_PSEUDO_CLASS_CONDITION) {
+			if (condition.getConditionType() == ConditionType.PSEUDO_CLASS) {
 				String pseudoClass = ((PseudoCondition) condition).getName();
 				int idxp = pseudoClass.indexOf('(');
 				if (idxp != -1) {
@@ -751,13 +754,14 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			}
 			findStatePseudoClasses(((ConditionalSelector) selector).getSimpleSelector(), statePseudoClasses);
 			break;
-		case Selector.SAC_CHILD_SELECTOR:
-		case Selector.SAC_DESCENDANT_SELECTOR:
+		case CHILD:
+		case DESCENDANT:
 			findStatePseudoClasses(((CombinatorSelector) selector).getSecondSelector(), statePseudoClasses);
 			findStatePseudoClasses(((CombinatorSelector) selector).getSelector(), statePseudoClasses);
 			break;
-		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
+		case DIRECT_ADJACENT:
 			findStatePseudoClasses(((CombinatorSelector) selector).getSecondSelector(), statePseudoClasses);
+		default:
 		}
 	}
 

@@ -1032,7 +1032,7 @@ public class ParseHelper {
 		if (pseudoElement == null) {
 			throw new NullPointerException("Null pseudo-element");
 		}
-		PseudoConditionImpl cond = new PseudoConditionImpl(Condition.SAC_PSEUDO_ELEMENT_CONDITION);
+		PseudoConditionImpl cond = new PseudoConditionImpl(Condition.ConditionType.PSEUDO_ELEMENT);
 		cond.name = pseudoElement;
 		return cond;
 	}

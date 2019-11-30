@@ -24,8 +24,8 @@ class CombinatorConditionImpl implements CombinatorCondition {
 	}
 
 	@Override
-	public short getConditionType() {
-		return Condition.SAC_AND_CONDITION;
+	public ConditionType getConditionType() {
+		return Condition.ConditionType.AND;
 	}
 
 	@Override

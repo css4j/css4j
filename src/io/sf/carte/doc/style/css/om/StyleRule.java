@@ -106,7 +106,7 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 
 		private void specifity(Selector selector) {
 			switch (selector.getSelectorType()) {
-			case Selector.SAC_ELEMENT_NODE_SELECTOR:
+			case ELEMENT:
 				String elname = ((ElementSelector) selector).getLocalName();
 				if (elname == null || elname.equals("*")) {
 					// "ignore the universal selector"
@@ -114,39 +114,40 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 				}
 				names_pseudoelements_count++;
 				break;
-			case Selector.SAC_CONDITIONAL_SELECTOR:
+			case CONDITIONAL:
 				ConditionalSelector condsel = (ConditionalSelector) selector;
 				conditionSpecificity(condsel.getCondition(), condsel.getSimpleSelector(), this);
 				break;
-			case Selector.SAC_DESCENDANT_SELECTOR:
-			case Selector.SAC_CHILD_SELECTOR:
-			case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
+			case DESCENDANT:
+			case CHILD:
+			case DIRECT_ADJACENT:
 				specifity(((CombinatorSelector) selector).getSecondSelector());
 				specifity(((CombinatorSelector) selector).getSelector());
 				break;
+			default:
 			}
 		}
 
 		private static void conditionSpecificity(Condition cond, SimpleSelector selector, Specifity sp) {
 			switch (cond.getConditionType()) {
-			case Condition.SAC_CLASS_CONDITION:
-			case Condition.SAC_ATTRIBUTE_CONDITION:
-			case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-			case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-			case Condition.SAC_PSEUDO_CLASS_CONDITION:
-			case Condition.SAC_LANG_CONDITION:
-			case Condition.SAC_ONLY_CHILD_CONDITION:
-			case Condition.SAC_ONLY_TYPE_CONDITION:
-			case Condition.SAC_POSITIONAL_CONDITION:
+			case CLASS:
+			case ATTRIBUTE:
+			case ONE_OF_ATTRIBUTE:
+			case BEGIN_HYPHEN_ATTRIBUTE:
+			case PSEUDO_CLASS:
+			case LANG:
+			case ONLY_CHILD:
+			case ONLY_TYPE:
+			case POSITIONAL:
 				sp.attrib_classes_count++;
 				break;
-			case Condition.SAC_PSEUDO_ELEMENT_CONDITION:
+			case PSEUDO_ELEMENT:
 				sp.names_pseudoelements_count++;
 				break;
-			case Condition.SAC_ID_CONDITION:
+			case ID:
 				sp.id_count++;
 				break;
-			case Condition.SAC_AND_CONDITION:
+			case AND:
 				CombinatorCondition comb = (CombinatorCondition) cond;
 				Specifity firstsp = new Specifity(selector);
 				conditionSpecificity(comb.getFirstCondition(), selector, firstsp);
@@ -176,6 +177,7 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 					}
 				}
 				return;
+			default:
 			}
 			sp.specifity(selector);
 		}

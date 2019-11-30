@@ -700,7 +700,7 @@ public class DOMWriter {
 						SelectorList selist = stylerule.getSelectorList();
 						for (int i = 0; i < selist.getLength(); i++) {
 							Selector sel = selist.item(i);
-							if (sel.getSelectorType() == Selector.SAC_ELEMENT_NODE_SELECTOR
+							if (sel.getSelectorType() == Selector.SelectorType.ELEMENT
 									&& localName.equals(((ElementSelector) sel).getLocalName())) {
 								display = stylerule.getStyle().getPropertyValue("display");
 								if (display != null) {

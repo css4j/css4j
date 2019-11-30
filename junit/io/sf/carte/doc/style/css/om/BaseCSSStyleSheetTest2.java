@@ -149,7 +149,7 @@ public class BaseCSSStyleSheetTest2 {
 		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
 		Selector[] selectors = sheet.getSelectorsForPropertyValue("display", "table-caption");
 		assertEquals(1, selectors.length);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, selectors[0].getSelectorType());
+		assertEquals(Selector.SelectorType.ELEMENT, selectors[0].getSelectorType());
 		assertEquals("caption", ((ElementSelector) selectors[0]).getLocalName());
 	}
 
@@ -158,8 +158,8 @@ public class BaseCSSStyleSheetTest2 {
 		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
 		Selector[] selectors = sheet.getSelectorsForPropertyValue("outline", "auto");
 		assertEquals(1, selectors.length);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, selectors[0].getSelectorType());
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION,
+		assertEquals(Selector.SelectorType.CONDITIONAL, selectors[0].getSelectorType());
+		assertEquals(Condition.ConditionType.PSEUDO_CLASS,
 				((ConditionalSelector) selectors[0]).getCondition().getConditionType());
 	}
 
@@ -168,8 +168,8 @@ public class BaseCSSStyleSheetTest2 {
 		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
 		Selector[] selectors = sheet.getSelectorsForProperty("outline-style");
 		assertEquals(2, selectors.length);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, selectors[0].getSelectorType());
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION,
+		assertEquals(Selector.SelectorType.CONDITIONAL, selectors[0].getSelectorType());
+		assertEquals(Condition.ConditionType.PSEUDO_CLASS,
 				((ConditionalSelector) selectors[0]).getCondition().getConditionType());
 	}
 

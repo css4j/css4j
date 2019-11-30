@@ -33,8 +33,8 @@ class PositionalConditionImpl implements PositionalCondition {
 	}
 
 	@Override
-	public short getConditionType() {
-		return Condition.SAC_POSITIONAL_CONDITION;
+	public ConditionType getConditionType() {
+		return Condition.ConditionType.POSITIONAL;
 	}
 
 	@Override
@@ -234,7 +234,7 @@ class PositionalConditionImpl implements PositionalCondition {
 		}
 		for (int i = 0; i < ofList.getLength(); i++) {
 			Selector sel = ofList.item(i);
-			if (sel.getSelectorType() == Selector.SAC_UNIVERSAL_SELECTOR
+			if (sel.getSelectorType() == Selector.SelectorType.UNIVERSAL
 					&& ((ElementSelector) sel).getNamespaceURI() == null) {
 				return true;
 			}

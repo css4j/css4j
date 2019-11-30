@@ -31,12 +31,14 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LangCondition;
 import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
@@ -55,7 +57,7 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, sel.getSelectorType());
 		assertEquals("*", sel.toString());
 	}
 
@@ -65,7 +67,7 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
 		assertNull(((ElementSelector) sel).getNamespaceURI());
 		assertEquals("p", sel.toString());
@@ -77,7 +79,7 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("a", ((ElementSelector) sel).getLocalName());
 		assertNull(((ElementSelector) sel).getNamespaceURI());
 		assertEquals("a", sel.toString());
@@ -89,7 +91,7 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("div", ((ElementSelector) sel).getLocalName());
 		assertNull(((ElementSelector) sel).getNamespaceURI());
 		assertEquals("div", sel.toString());
@@ -128,11 +130,11 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
 		assertEquals("p", sel.toString());
 		sel = selist.item(1);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("span", ((ElementSelector) sel).getLocalName());
 	}
 
@@ -142,17 +144,17 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
 		assertEquals("p", sel.toString());
 		sel = selist.item(1);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		CombinatorSelector desc = (CombinatorSelector) sel;
 		Selector anc = desc.getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, anc.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, anc.getSelectorType());
 		assertEquals("p", ((ElementSelector) anc).getLocalName());
 		SimpleSelector simple = desc.getSecondSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 	}
 
@@ -162,19 +164,19 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
 		assertEquals("p", sel.toString());
 		sel = selist.item(1);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		CombinatorSelector desc = (CombinatorSelector) sel;
 		Selector anc = desc.getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, anc.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, anc.getSelectorType());
 		assertEquals("p", ((ElementSelector) anc).getLocalName());
 		SimpleSelector simple = desc.getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("class", ((AttributeCondition) cond).getValue());
 	}
 
@@ -193,7 +195,7 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
 		assertEquals("p", sel.toString());
 	}
@@ -204,14 +206,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("class", ((AttributeCondition) cond).getValue());
 		sel = selist.item(1);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_ELEMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_ELEMENT, cond.getConditionType());
 		assertEquals("first-line", ((PseudoCondition) cond).getName());
 	}
 
@@ -221,7 +223,7 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
 		assertNull(((ElementSelector) sel).getNamespaceURI());
 		assertEquals("p", sel.toString());
@@ -317,20 +319,20 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("[title]", sel.toString());
 		sel = selist.item(1);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getLocalName());
 		simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("[foo]", sel.toString());
 	}
 
@@ -340,13 +342,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertNull(((AttributeCondition) cond).getNamespaceURI());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title]", sel.toString());
 	}
@@ -357,13 +359,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertNull(((AttributeCondition) cond).getNamespaceURI());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title]", sel.toString());
 	}
@@ -374,14 +376,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, firstcond.getConditionType());
+		assertEquals(ConditionType.CLASS, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getValue());
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("title", ((AttributeCondition) secondcond).getLocalName());
 		assertNull(((AttributeCondition) secondcond).getNamespaceURI());
 		assertEquals(".foo[title]", sel.toString());
@@ -393,13 +395,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertNull(((AttributeCondition) cond).getNamespaceURI());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals("[title]", sel.toString());
 	}
@@ -500,14 +502,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertNull(((AttributeCondition) cond).getNamespaceURI());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\"]", sel.toString());
 	}
@@ -518,14 +520,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertNull(((AttributeCondition) cond).getNamespaceURI());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\"]", sel.toString());
 	}
@@ -536,14 +538,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertNull(((AttributeCondition) cond).getNamespaceURI());
 		assertEquals("*foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"*foo\"]", sel.toString());
 	}
@@ -554,14 +556,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertNull(((AttributeCondition) cond).getNamespaceURI());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\"]", sel.toString());
 	}
@@ -572,14 +574,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertNull(((AttributeCondition) cond).getNamespaceURI());
 		assertEquals("hi:", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi:\"]", sel.toString());
 	}
@@ -590,13 +592,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\"]", sel.toString());
 	}
@@ -607,13 +609,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\"]", sel.toString());
 	}
@@ -624,16 +626,16 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		if (cond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\" i]", sel.toString());
 	}
@@ -644,16 +646,16 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		if (cond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\" i]", sel.toString());
 	}
@@ -664,16 +666,16 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		if (cond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\" i]", sel.toString());
 	}
@@ -684,16 +686,16 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		if (cond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\" i]", sel.toString());
 	}
@@ -768,25 +770,25 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, firstcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) firstcond).getValue());
 		if (firstcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertFalse(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
 		assertEquals("input[type=\"text\" i][dir=\"auto\"]", sel.toString());
 	}
@@ -797,25 +799,25 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, firstcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) firstcond).getValue());
 		if (firstcond instanceof AttributeCondition) {
 			assertFalse(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
 		assertEquals("input[type=\"text\"][dir=\"auto\" i]", sel.toString());
 	}
@@ -826,35 +828,35 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		//
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, firstcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
 		if (firstcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
 		assertEquals("input[foo=\"bar\" i][type=\"text\" i][dir=\"auto\" i]", sel.toString());
 	}
@@ -865,41 +867,41 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		//
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, firstcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
 		if (firstcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple2 = ((ConditionalSelector) simple).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple2.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple2.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple2).getLocalName());
 		assertEquals("div input[foo=\"bar\" i][type=\"text\" i][dir=\"auto\" i]", sel.toString());
 	}
@@ -910,41 +912,41 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		//
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, firstcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
 		if (firstcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple2 = ((ConditionalSelector) simple).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple2.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple2.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple2).getLocalName());
 		assertEquals("div+input[foo=\"bar\" i][type=\"text\" i][dir=\"auto\" i]", sel.toString());
 	}
@@ -955,41 +957,41 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.SUBSEQUENT_SIBLING, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		//
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, firstcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
 		if (firstcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, secondcond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
 		SimpleSelector simple2 = ((ConditionalSelector) simple).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple2.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple2.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple2).getLocalName());
 		assertEquals("div~input[foo=\"bar\" i][type=\"text\" i][dir=\"auto\" i]", sel.toString());
 	}
@@ -1000,13 +1002,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ONE_OF_ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title~=\"hi\"]", sel.toString());
 	}
@@ -1017,13 +1019,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ONE_OF_ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title~=\"hi\"]", sel.toString());
 	}
@@ -1034,13 +1036,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ONE_OF_ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title~=\"hi\"]", sel.toString());
 	}
@@ -1051,13 +1053,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.BEGIN_HYPHEN_ATTRIBUTE, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("en", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang|=\"en\"]", sel.toString());
 	}
@@ -1068,13 +1070,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.BEGIN_HYPHEN_ATTRIBUTE, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("en", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang|=\"en\"]", sel.toString());
 	}
@@ -1085,13 +1087,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.BEGIN_HYPHEN_ATTRIBUTE, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("en", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang|=\"en\"]", sel.toString());
 	}
@@ -1120,13 +1122,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("CH", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang*=\"CH\"]", sel.toString());
 	}
@@ -1137,13 +1139,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("CH", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang*=\"CH\"]", sel.toString());
 	}
@@ -1154,13 +1156,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ENDS_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ENDS_ATTRIBUTE, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("CH", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang$=\"CH\"]", sel.toString());
 	}
@@ -1171,13 +1173,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ENDS_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ENDS_ATTRIBUTE, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("CH", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang$=\"CH\"]", sel.toString());
 	}
@@ -1188,13 +1190,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_BEGINS_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.BEGINS_ATTRIBUTE, cond.getConditionType());
 		assertEquals("style", ((AttributeCondition) cond).getLocalName());
 		assertEquals("display:", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[style^=\"display:\"]", sel.toString());
 	}
@@ -1205,13 +1207,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_BEGINS_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.BEGINS_ATTRIBUTE, cond.getConditionType());
 		assertEquals("lang", ((AttributeCondition) cond).getLocalName());
 		assertEquals("en", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang^=\"en\"]", sel.toString());
 	}
@@ -1222,12 +1224,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_LANG_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.LANG, cond.getConditionType());
 		assertEquals("en", ((LangCondition) cond).getLang());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:lang(en)", sel.toString());
 	}
@@ -1238,12 +1240,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_LANG_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.LANG, cond.getConditionType());
 		assertEquals("zh,\"*-hant\"", ((LangCondition) cond).getLang());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:lang(zh,\"*-hant\")", sel.toString());
 	}
@@ -1254,12 +1256,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_LANG_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.LANG, cond.getConditionType());
 		assertEquals("zh,'*-hant'", ((LangCondition) cond).getLang());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:lang(zh,'*-hant')", sel.toString());
 	}
@@ -1270,12 +1272,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_LANG_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.LANG, cond.getConditionType());
 		assertEquals("es,fr,*-Latn", ((LangCondition) cond).getLang());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:lang(es,fr,\\*-Latn)", sel.toString());
 	}
@@ -1306,9 +1308,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("exampleclass", ((AttributeCondition) cond).getValue());
 		assertEquals(".exampleclass", sel.toString());
 	}
@@ -1319,12 +1321,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("exampleclass", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p.exampleclass", sel.toString());
 	}
@@ -1335,9 +1337,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("exampleclass⁑", ((AttributeCondition) cond).getValue());
 		assertEquals(".exampleclass⁑", sel.toString());
 	}
@@ -1348,9 +1350,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo\ud950\udc90", ((AttributeCondition) cond).getValue());
 		assertEquals(".foo\ud950\udc90", sel.toString());
 	}
@@ -1361,9 +1363,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo🚧", ((AttributeCondition) cond).getValue());
 		assertEquals(".foo🚧", sel.toString());
 	}
@@ -1374,9 +1376,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo/1", ((AttributeCondition) cond).getValue());
 		assertEquals(".foo\\/1", sel.toString());
 	}
@@ -1387,15 +1389,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		assertEquals(".foo", sel.toString());
 		sel = selist.item(1);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond).getValue());
 		assertEquals(".bar", sel.toString());
 	}
@@ -1406,15 +1408,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		assertEquals(".foo", sel.toString());
 		sel = selist.item(1);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond).getValue());
 		assertEquals(".bar", sel.toString());
 	}
@@ -1585,12 +1587,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("example\u000class", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p.example\\c lass", sel.toString());
 	}
@@ -1671,9 +1673,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo(-.3)", ((AttributeCondition) cond).getValue());
 		assertEquals(".foo\\(-\\.3\\)", sel.toString());
 	}
@@ -1684,14 +1686,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("1foo&-", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.CLASS, cond2.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond2).getValue());
 		assertEquals(".\\31 foo\\&-.bar", sel.toString());
 	}
@@ -1702,14 +1704,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("1jkl&-", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.CLASS, cond2.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond2).getValue());
 		assertEquals(".\\31 jkl\\&-.bar", sel.toString());
 	}
@@ -1720,14 +1722,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("1jkl&-", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.CLASS, cond2.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond2).getValue());
 		assertEquals(".\\31 jkl\\&-.bar", sel.toString());
 	}
@@ -1738,9 +1740,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		assertEquals("#exampleid", sel.toString());
 	}
@@ -1751,9 +1753,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("foo/1", ((AttributeCondition) cond).getValue());
 		assertEquals("#foo\\/1", sel.toString());
 	}
@@ -1814,15 +1816,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CHILD, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("#exampleid>span", sel.toString());
 	}
@@ -1833,15 +1835,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CHILD, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("#exampleid>span", sel.toString());
 	}
@@ -1852,17 +1854,17 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CHILD, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getLocalName());
 		assertEquals("#exampleid>[foo]", sel.toString());
 	}
@@ -1873,17 +1875,17 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CHILD, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getLocalName());
 		assertEquals("#exampleid>[foo]", sel.toString());
 	}
@@ -1894,13 +1896,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CHILD, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, ancestor.getSelectorType());
 		assertEquals("*", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("*>span", sel.toString());
 	}
@@ -1911,13 +1913,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CHILD, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("span", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals("span>*", sel.toString());
 	}
@@ -2108,13 +2110,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("li", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("li span", sel.toString());
 	}
@@ -2125,13 +2127,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("a", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("a span", sel.toString());
 	}
@@ -2142,13 +2144,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("a", ((ElementSelector) simple).getLocalName());
 		assertEquals("div a", sel.toString());
 	}
@@ -2159,13 +2161,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("body", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("div", ((ElementSelector) simple).getLocalName());
 		assertEquals("body div", sel.toString());
 	}
@@ -2176,15 +2178,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("#exampleid span", sel.toString());
 	}
@@ -2195,15 +2197,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("1exampleid/2", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("#\\31 exampleid\\/2 span", sel.toString());
 	}
@@ -2214,15 +2216,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals(".foo span", sel.toString());
 	}
@@ -2233,15 +2235,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("myattr", ((AttributeCondition) cond).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("[myattr] span", sel.toString());
 	}
@@ -2252,13 +2254,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, ancestor.getSelectorType());
 		assertEquals("*", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("* span", sel.toString());
 	}
@@ -2269,18 +2271,18 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Selector ancSimple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(ancSimple);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, ancSimple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, ancSimple.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
 		assertEquals("rtl", ((PseudoCondition) cond).getName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals(":rtl *", sel.toString());
 	}
 
@@ -2290,15 +2292,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, ancestor.getSelectorType());
 		assertEquals("*", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		assertEquals("* .foo", sel.toString());
 	}
@@ -2309,13 +2311,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("span", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals("span *", sel.toString());
 	}
@@ -2326,35 +2328,35 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("body", ((ElementSelector) simple).getLocalName());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition first = ((CombinatorCondition) cond).getFirstCondition();
 		Condition second = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, first.getConditionType());
-		assertEquals(Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION, second.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, first.getConditionType());
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, second.getConditionType());
 		assertEquals("not", ((ArgumentCondition) first).getName());
 		SelectorList notlist = ((ArgumentCondition) first).getSelectors();
 		assertNotNull(notlist);
 		assertEquals(1, notlist.getLength());
 		Selector not1 = notlist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, not1.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, not1.getSelectorType());
 		Condition not1cond = ((ConditionalSelector) not1).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, not1cond.getConditionType());
+		assertEquals(ConditionType.CLASS, not1cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) not1cond).getValue());
 		assertEquals("id", ((AttributeCondition) second).getLocalName());
 		assertEquals("substring", ((AttributeCondition) second).getValue());
 		simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition simplecond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, simplecond.getConditionType());
+		assertEquals(ConditionType.CLASS, simplecond.getConditionType());
 		assertEquals("header", ((AttributeCondition) simplecond).getValue());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header", sel.toString());
 	}
@@ -2365,25 +2367,25 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		AttributeCondition attcond = (AttributeCondition) cond;
 		assertEquals("fooclass", attcond.getValue());
 		simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition first = ((CombinatorCondition) cond).getFirstCondition();
 		Condition second = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, first.getConditionType());
-		assertEquals(Condition.SAC_CLASS_CONDITION, second.getConditionType());
+		assertEquals(ConditionType.ID, first.getConditionType());
+		assertEquals(ConditionType.CLASS, second.getConditionType());
 		assertEquals("descid", ((AttributeCondition) first).getValue());
 		assertEquals("barclass", ((AttributeCondition) second).getValue());
 		assertEquals(".fooclass #descid.barclass", sel.toString());
@@ -2395,33 +2397,33 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, ancestor.getSelectorType());
 		Selector ancestor2 = ((CombinatorSelector) ancestor).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor2.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor2.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) ancestor2).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
 		Condition cond = ((ConditionalSelector) ancestor2).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		AttributeCondition attcond = (AttributeCondition) cond;
 		assertEquals("fooclass", attcond.getValue());
 		simple = ((CombinatorSelector) ancestor).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition first = ((CombinatorCondition) cond).getFirstCondition();
 		Condition second = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, first.getConditionType());
-		assertEquals(Condition.SAC_CLASS_CONDITION, second.getConditionType());
+		assertEquals(ConditionType.ID, first.getConditionType());
+		assertEquals(ConditionType.CLASS, second.getConditionType());
 		assertEquals("descid", ((AttributeCondition) first).getValue());
 		assertEquals("barclass", ((AttributeCondition) second).getValue());
 		simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("someclass", ((AttributeCondition) cond).getValue());
 		attcond = (AttributeCondition) cond;
 		assertEquals("someclass", attcond.getValue());
@@ -2434,31 +2436,31 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition second = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, second.getConditionType());
+		assertEquals(ConditionType.CLASS, second.getConditionType());
 		assertEquals("otherclass", ((AttributeCondition) second).getValue());
 		Condition first = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, first.getConditionType());
+		assertEquals(ConditionType.AND, first.getConditionType());
 		CombinatorCondition combcond = (CombinatorCondition) first;
 		second = combcond.getSecondCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, second.getConditionType());
+		assertEquals(ConditionType.ID, second.getConditionType());
 		assertEquals("otherid", ((AttributeCondition) second).getValue());
 		first = combcond.getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, first.getConditionType());
+		assertEquals(ConditionType.CLASS, first.getConditionType());
 		assertEquals("barclass", ((AttributeCondition) first).getValue());
 		simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("someclass", ((AttributeCondition) cond).getValue());
 		assertEquals(".barclass#otherid.otherclass .someclass", sel.toString());
 	}
@@ -2469,13 +2471,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, sel.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, first.getSelectorType());
 		assertEquals("li", ((ElementSelector) first).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("li+span", sel.toString());
 	}
@@ -2486,20 +2488,20 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, sel.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, first.getSelectorType());
 		Condition cond = ((ConditionalSelector) first).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sibling.getSelectorType());
 		cond = ((ConditionalSelector) sibling).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
 		assertEquals("empty", ((PseudoCondition) cond).getName());
 		Selector simple = ((ConditionalSelector) sibling).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("#exampleid+span:empty", sel.toString());
 	}
@@ -2510,20 +2512,20 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, sel.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, first.getSelectorType());
 		Condition cond = ((ConditionalSelector) first).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sibling.getSelectorType());
 		cond = ((ConditionalSelector) sibling).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
 		assertEquals("empty", ((PseudoCondition) cond).getName());
 		Selector simple = ((ConditionalSelector) sibling).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("#exampleid+span:empty", sel.toString());
 	}
@@ -2534,24 +2536,24 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, sel.getSelectorType());
 		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sibling.getSelectorType());
 		Condition cond = ((ConditionalSelector) sibling).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond).getValue());
 		Selector simple = ((ConditionalSelector) sibling).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, first.getSelectorType());
 		cond = ((ConditionalSelector) first).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("myclass", ((AttributeCondition) cond1).getValue());
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond2.getConditionType());
 		assertEquals("foo", ((PseudoCondition) cond2).getName());
 		assertEquals(".myclass:foo+.bar", sel.toString());
 	}
@@ -2562,13 +2564,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, sel.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, first.getSelectorType());
 		assertEquals("*", ((ElementSelector) first).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("*+span", sel.toString());
 	}
@@ -2579,13 +2581,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, sel.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, first.getSelectorType());
 		assertEquals("*", ((ElementSelector) first).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("*+span", sel.toString());
 	}
@@ -2646,15 +2648,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.SUBSEQUENT_SIBLING, sel.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, first.getSelectorType());
 		Condition cond = ((ConditionalSelector) first).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sibling.getSelectorType());
 		assertEquals("span", ((ElementSelector) sibling).getLocalName());
 		assertEquals("#exampleid~span", sel.toString());
 	}
@@ -2665,15 +2667,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.SUBSEQUENT_SIBLING, sel.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, first.getSelectorType());
 		Condition cond = ((ConditionalSelector) first).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, sibling.getSelectorType());
 		assertEquals("span", ((ElementSelector) sibling).getLocalName());
 		assertEquals("#exampleid~span", sel.toString());
 	}
@@ -2684,13 +2686,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.SUBSEQUENT_SIBLING, sel.getSelectorType());
 		Selector first = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, first.getSelectorType());
 		assertEquals("li", ((ElementSelector) first).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		assertEquals("li~span", sel.toString());
 	}
@@ -2701,43 +2703,43 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.SUBSEQUENT_SIBLING, ancestor.getSelectorType());
 		Selector first = ((CombinatorSelector) ancestor).getSelector(); // .foo .bar.class
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, first.getSelectorType());
 		Selector ancestorfirst = ((CombinatorSelector) first).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestorfirst.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestorfirst.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestorfirst).getCondition(); // foo
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		Selector simplefirst = ((CombinatorSelector) first).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simplefirst.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simplefirst.getSelectorType());
 		cond = ((ConditionalSelector) simplefirst).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.CLASS, cond2.getConditionType());
 		assertEquals("class", ((AttributeCondition) cond2).getValue());
 		SimpleSelector sibling = ((CombinatorSelector) ancestor).getSecondSelector();
 		assertNotNull(sibling);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sibling.getSelectorType());
 		Condition condsibling = ((ConditionalSelector) sibling).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, condsibling.getConditionType());
+		assertEquals(ConditionType.CLASS, condsibling.getConditionType());
 		assertEquals("otherclass", ((AttributeCondition) condsibling).getValue());
 		//
 		Selector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		PositionalCondition pcond = (PositionalCondition) cond;
 		assertEquals(1, pcond.getOffset());
 		assertEquals(0, pcond.getFactor());
 		simple = ((ConditionalSelector) simple).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("li", ((ElementSelector) simple).getLocalName());
 		assertEquals(".foo .bar.class~.otherclass li:first-child", sel.toString());
 	}
@@ -2768,13 +2770,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.COLUMN_COMBINATOR, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("col", ((ElementSelector) ancestor).getLocalName());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("td", ((ElementSelector) simple).getLocalName());
 		assertEquals("col||td", sel.toString());
 	}
@@ -2803,19 +2805,19 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.COLUMN_COMBINATOR, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Selector ancSimple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(ancSimple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancSimple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancSimple.getSelectorType());
 		assertEquals("col", ((ElementSelector) ancSimple).getLocalName());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("td", ((ElementSelector) simple).getLocalName());
 		assertEquals("col.foo||td", sel.toString());
 	}
@@ -2826,19 +2828,19 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_COLUMN_COMBINATOR_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.COLUMN_COMBINATOR, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Selector ancSimple = ((ConditionalSelector) ancestor).getSimpleSelector();
 		assertNotNull(ancSimple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancSimple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancSimple.getSelectorType());
 		assertEquals("col", ((ElementSelector) ancSimple).getLocalName());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("td", ((ElementSelector) simple).getLocalName());
 		assertEquals("col.foo||td", sel.toString());
 	}
@@ -2849,41 +2851,41 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.SUBSEQUENT_SIBLING, sel.getSelectorType());
 		SimpleSelector sibling = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(sibling);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sibling.getSelectorType());
 		Condition cond = ((ConditionalSelector) sibling).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("childsibling", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond2.getConditionType());
 		assertEquals("foo", ((PseudoCondition) cond2).getName());
 		Selector first = ((CombinatorSelector) sel).getSelector();
 		assertNotNull(first);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.CHILD, first.getSelectorType());
 		SimpleSelector simple = ((CombinatorSelector) first).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("child", ((AttributeCondition) cond).getValue());
 		first = ((CombinatorSelector) first).getSelector();
 		assertNotNull(first);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, first.getSelectorType());
 		simple = ((CombinatorSelector) first).getSecondSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("parent", ((AttributeCondition) cond).getValue());
 		first = ((CombinatorSelector) first).getSelector();
 		assertNotNull(first);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, first.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, first.getSelectorType());
 		cond = ((ConditionalSelector) first).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("ancestor", ((AttributeCondition) cond).getValue());
 		assertEquals(".ancestor .parent>.child~.childsibling:foo", sel.toString());
 	}
@@ -2894,13 +2896,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_ELEMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_ELEMENT, cond.getConditionType());
 		assertEquals("first-line", ((PseudoCondition) cond).getName());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p::first-line", sel.toString());
 	}
@@ -2911,13 +2913,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_ELEMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_ELEMENT, cond.getConditionType());
 		assertEquals("-webkit-foo", ((PseudoCondition) cond).getName());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p::-webkit-foo", sel.toString());
 	}
@@ -2964,13 +2966,13 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_ELEMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_ELEMENT, cond.getConditionType());
 		assertEquals("first-line", ((PseudoCondition) cond).getName());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p::first-line", sel.toString());
 	}
@@ -2981,18 +2983,18 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition first = ((CombinatorCondition) cond).getFirstCondition();
 		Condition second = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_PSEUDO_ELEMENT_CONDITION, first.getConditionType());
+		assertEquals(ConditionType.PSEUDO_ELEMENT, first.getConditionType());
 		assertEquals("first-letter", ((PseudoCondition) first).getName());
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, second.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, second.getConditionType());
 		assertEquals("hover", ((PseudoCondition) second).getName());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p::first-letter:hover", sel.toString());
 	}
@@ -3003,14 +3005,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
 		assertEquals("blank", ((PseudoCondition) cond).getName());
 		assertNull(((PseudoCondition) cond).getArgument());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("div", ((ElementSelector) simple).getLocalName());
 		assertEquals("div:blank", sel.toString());
 	}
@@ -3039,14 +3041,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
 		assertEquals("dir", ((PseudoCondition) cond).getName());
 		assertEquals("ltr", ((PseudoCondition) cond).getArgument());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:dir(ltr)", sel.toString());
 	}
@@ -3075,9 +3077,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(1, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3093,9 +3095,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(1, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3109,16 +3111,16 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(1, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
 		assertFalse(((PositionalCondition) cond).isOfType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:first-child", sel.toString());
 	}
@@ -3147,9 +3149,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(1, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertFalse(((PositionalCondition) cond).isForwardCondition());
@@ -3181,12 +3183,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ONLY_CHILD_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ONLY_CHILD, cond.getConditionType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:only-child", sel.toString());
 	}
@@ -3197,12 +3199,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ONLY_CHILD_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ONLY_CHILD, cond.getConditionType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals(":only-child", sel.toString());
 	}
@@ -3360,9 +3362,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(2, ((PositionalCondition) cond).getFactor());
 		assertEquals(0, ((PositionalCondition) cond).getOffset());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3379,9 +3381,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(2, ((PositionalCondition) cond).getFactor());
 		assertEquals(1, ((PositionalCondition) cond).getOffset());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3409,9 +3411,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(5, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3427,9 +3429,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(0, ((PositionalCondition) cond).getOffset());
 		assertEquals(10, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3443,9 +3445,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(9, ((PositionalCondition) cond).getOffset());
 		assertEquals(10, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3459,9 +3461,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(9, ((PositionalCondition) cond).getOffset());
 		assertEquals(10, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3475,9 +3477,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(0, ((PositionalCondition) cond).getOffset());
 		assertEquals(10, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3491,9 +3493,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(2, ((PositionalCondition) cond).getOffset());
 		assertEquals(1, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3509,9 +3511,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(5, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertFalse(((PositionalCondition) cond).isForwardCondition());
@@ -3527,9 +3529,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(0, ((PositionalCondition) cond).getOffset());
 		assertEquals(3, ((PositionalCondition) cond).getFactor());
 		assertFalse(((PositionalCondition) cond).isForwardCondition());
@@ -3545,9 +3547,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(2, ((PositionalCondition) cond).getOffset());
 		assertEquals(-1, ((PositionalCondition) cond).getFactor());
 		assertFalse(((PositionalCondition) cond).isForwardCondition());
@@ -3563,9 +3565,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(0, ((PositionalCondition) cond).getOffset());
 		assertEquals(2, ((PositionalCondition) cond).getFactor());
 		assertFalse(((PositionalCondition) cond).isForwardCondition());
@@ -3581,9 +3583,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(5, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3592,7 +3594,7 @@ public class SelectorParserTest {
 		assertNotNull(oflist);
 		assertEquals(1, oflist.getLength());
 		Selector simple = oflist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(":nth-child(5 of p)", sel.toString());
 	}
@@ -3603,9 +3605,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(5, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertFalse(((PositionalCondition) cond).isForwardCondition());
@@ -3614,7 +3616,7 @@ public class SelectorParserTest {
 		assertNotNull(oflist);
 		assertEquals(1, oflist.getLength());
 		Selector simple = oflist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(":nth-last-child(5 of p)", sel.toString());
 	}
@@ -3625,9 +3627,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(3, ((PositionalCondition) cond).getOffset());
 		assertEquals(6, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3636,7 +3638,7 @@ public class SelectorParserTest {
 		assertNotNull(oflist);
 		assertEquals(1, oflist.getLength());
 		Selector simple = oflist.item(0);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(":nth-child(6n+3 of p)", sel.toString());
 	}
@@ -3656,9 +3658,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(1, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isOfType());
@@ -3672,9 +3674,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(2, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
@@ -3688,15 +3690,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(2, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
 		assertTrue(((PositionalCondition) cond).isOfType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:nth-of-type(2)", sel.toString());
 	}
@@ -3707,15 +3709,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(0, ((PositionalCondition) cond).getOffset());
 		assertEquals(2, ((PositionalCondition) cond).getFactor());
 		assertTrue(((PositionalCondition) cond).isForwardCondition());
 		assertTrue(((PositionalCondition) cond).isOfType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:nth-of-type(2n)", sel.toString());
 	}
@@ -3726,9 +3728,9 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(1, ((PositionalCondition) cond).getOffset());
 		assertEquals(0, ((PositionalCondition) cond).getFactor());
 		assertFalse(((PositionalCondition) cond).isForwardCondition());
@@ -3742,15 +3744,15 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond.getConditionType());
 		assertEquals(0, ((PositionalCondition) cond).getOffset());
 		assertEquals(2, ((PositionalCondition) cond).getFactor());
 		assertFalse(((PositionalCondition) cond).isForwardCondition());
 		assertTrue(((PositionalCondition) cond).isOfType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:nth-last-of-type(2n)", sel.toString());
 	}
@@ -3761,12 +3763,12 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_ONLY_TYPE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ONLY_TYPE, cond.getConditionType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p:only-of-type", sel.toString());
 	}
@@ -3777,14 +3779,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("exampleclass", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_POSITIONAL_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.POSITIONAL, cond2.getConditionType());
 		assertEquals(1, ((PositionalCondition) cond2).getOffset());
 		assertFalse(((PositionalCondition) cond2).isOfType());
 		assertEquals(".exampleclass:first-child", sel.toString());
@@ -3796,14 +3798,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.ID, cond1.getConditionType());
 		assertEquals("example-ID", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond2.getConditionType());
 		assertEquals("foo", ((PseudoCondition) cond2).getName());
 		assertEquals("#example-ID:foo", sel.toString());
 	}
@@ -3814,14 +3816,14 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.ID, cond1.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.ID, cond2.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond2).getValue());
 		assertEquals("#foo#bar", sel.toString());
 	}
@@ -3832,18 +3834,18 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond1.getConditionType());
 		assertEquals("class", ((AttributeCondition) cond1).getLocalName());
 		assertEquals("example", ((AttributeCondition) cond1).getValue());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("span", ((ElementSelector) simple).getLocalName());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond2.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond2).getLocalName());
 		assertEquals("bar", ((AttributeCondition) cond2).getValue());
 		assertEquals("span[class=\"example\"][foo=\"bar\"]", sel.toString());
@@ -3855,19 +3857,19 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList args = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(3, args.getLength());
 		Selector arg = args.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(":not(p.foo,span:first-child,div a)", sel.toString());
 	}
@@ -3878,34 +3880,34 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList args = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(3, args.getLength());
 		Selector arg = args.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("disabled", ((AttributeCondition) cond).getLocalName());
 		SimpleSelector simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		arg = args.item(1);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		arg = args.item(2);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("type", ((AttributeCondition) cond).getLocalName());
 		assertEquals("submit", ((AttributeCondition) cond).getValue());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals(":not([disabled],.foo,[type=\"submit\"])", sel.toString());
 	}
 
@@ -3915,31 +3917,31 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("myclass", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond2.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond2).getName());
 		SelectorList args = ((ArgumentCondition) cond2).getSelectors();
 		assertEquals(1, args.getLength());
 		Selector arg = args.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond).getValue());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals(".foo .myclass:not(.bar)", sel.toString());
 	}
 
@@ -3949,31 +3951,31 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, sel.getSelectorType());
 		Selector sibling = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sibling.getSelectorType());
 		Condition cond = ((ConditionalSelector) sibling).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("myclass", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond2.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond2).getName());
 		SelectorList args = ((ArgumentCondition) cond2).getSelectors();
 		assertEquals(1, args.getLength());
 		Selector arg = args.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond).getValue());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals(".foo+.myclass:not(.bar)", sel.toString());
 	}
 
@@ -3983,31 +3985,31 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.SUBSEQUENT_SIBLING, sel.getSelectorType());
 		Selector sibling = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sibling.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sibling.getSelectorType());
 		Condition cond = ((ConditionalSelector) sibling).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_AND_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.CLASS, cond1.getConditionType());
 		assertEquals("myclass", ((AttributeCondition) cond1).getValue());
 		Condition cond2 = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond2.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond2).getName());
 		SelectorList args = ((ArgumentCondition) cond2).getSelectors();
 		assertEquals(1, args.getLength());
 		Selector arg = args.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond).getValue());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals(".foo~.myclass:not(.bar)", sel.toString());
 	}
 
@@ -4017,21 +4019,21 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(2, arglist.getLength());
 		Selector item0 = arglist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, item0.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
 		Condition cond0 = ((ConditionalSelector) item0).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond0.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond0.getConditionType());
 		assertEquals("visited", ((PseudoCondition) cond0).getName());
 		Selector item1 = arglist.item(1);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, item1.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, item1.getSelectorType());
 		Condition cond1 = ((ConditionalSelector) item1).getCondition();
-		assertEquals(Condition.SAC_PSEUDO_CLASS_CONDITION, cond1.getConditionType());
+		assertEquals(ConditionType.PSEUDO_CLASS, cond1.getConditionType());
 		assertEquals("hover", ((PseudoCondition) cond1).getName());
 		assertEquals(":not(:visited,:hover)", sel.toString());
 	}
@@ -4042,16 +4044,16 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector item0 = arglist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, item0.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
 		Condition cond0 = ((ConditionalSelector) item0).getCondition();
-		assertEquals(Condition.SAC_LANG_CONDITION, cond0.getConditionType());
+		assertEquals(ConditionType.LANG, cond0.getConditionType());
 		assertEquals("en", ((LangCondition) cond0).getLang());
 		assertEquals(":not(:lang(en))", sel.toString());
 	}
@@ -4062,16 +4064,16 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector item0 = arglist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, item0.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
 		Condition cond0 = ((ConditionalSelector) item0).getCondition();
-		assertEquals(Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION, cond0.getConditionType());
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond0.getConditionType());
 		assertEquals("style", ((AttributeCondition) cond0).getLocalName());
 		assertEquals("background", ((AttributeCondition) cond0).getValue());
 		assertEquals(":not([style*=\"background\"])", sel.toString());
@@ -4083,22 +4085,22 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("html", ((ElementSelector) simple).getLocalName());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("html:not(.foo)", sel.toString());
 	}
 
@@ -4108,38 +4110,38 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, ancestor.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) ancestor).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("html", ((ElementSelector) simple).getLocalName());
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) cond).getValue());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		simple = ((CombinatorSelector) sel).getSecondSelector();
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		arg = arglist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
 		cond = ((ConditionalSelector) arg).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("bar", ((AttributeCondition) cond).getValue());
 		simple = ((ConditionalSelector) arg).getSimpleSelector();
-		assertEquals(Selector.SAC_UNIVERSAL_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("html:not(.foo) body:not(.bar)", sel.toString());
 	}
 
@@ -4150,9 +4152,9 @@ public class SelectorParserTest {
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals("html:not(.foo) body:not(.bar) .myclass.otherclass", sel.toString());
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) sel).getSelector();
-		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.DESCENDANT, ancestor.getSelectorType());
 	}
 
 	@Test
@@ -4161,30 +4163,30 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(4, arglist.getLength());
 		Selector item0 = arglist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, item0.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
 		Condition cond0 = ((ConditionalSelector) item0).getCondition();
-		assertEquals(Condition.SAC_SUBSTRING_ATTRIBUTE_CONDITION, cond0.getConditionType());
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond0.getConditionType());
 		assertEquals("style", ((AttributeCondition) cond0).getLocalName());
 		assertEquals("*foo", ((AttributeCondition) cond0).getValue());
 		Selector item1 = arglist.item(1);
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, item1.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, item1.getSelectorType());
 		assertEquals("div", ((ElementSelector) item1).getLocalName());
 		Selector item2 = arglist.item(2);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, item2.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, item2.getSelectorType());
 		Condition cond2 = ((ConditionalSelector) item2).getCondition();
-		assertEquals(Condition.SAC_CLASS_CONDITION, cond2.getConditionType());
+		assertEquals(ConditionType.CLASS, cond2.getConditionType());
 		assertEquals("9z", ((AttributeCondition) cond2).getValue());
 		Selector item3 = arglist.item(3);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, item3.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, item3.getSelectorType());
 		Condition cond3 = ((ConditionalSelector) item3).getCondition();
-		assertEquals(Condition.SAC_ID_CONDITION, cond3.getConditionType());
+		assertEquals(ConditionType.ID, cond3.getConditionType());
 		assertEquals("123", ((AttributeCondition) cond3).getValue());
 		assertEquals(":not([style*=\"*foo\"],div,.\\39 z,#\\31 23)", sel.toString());
 	}
@@ -4277,21 +4279,21 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("html", ((ElementSelector) simple).getLocalName());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("has", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CHILD, arg.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) arg).getSelector();
-		assertEquals(Selector.SAC_SCOPE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.SCOPE_MARKER, ancestor.getSelectorType());
 		simple = ((CombinatorSelector) arg).getSecondSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("img", ((ElementSelector) simple).getLocalName());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
 		assertEquals("html:has(>img)", sel.toString());
@@ -4303,21 +4305,21 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("html", ((ElementSelector) simple).getLocalName());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("has", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
-		assertEquals(Selector.SAC_DIRECT_ADJACENT_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.DIRECT_ADJACENT, arg.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) arg).getSelector();
-		assertEquals(Selector.SAC_SCOPE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.SCOPE_MARKER, ancestor.getSelectorType());
 		simple = ((CombinatorSelector) arg).getSecondSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("img", ((ElementSelector) simple).getLocalName());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
 		assertEquals("html:has(+img)", sel.toString());
@@ -4329,22 +4331,22 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("html", ((ElementSelector) simple).getLocalName());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("has", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
-		assertEquals(Selector.SAC_CHILD_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.CHILD, arg.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) arg).getSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, ancestor.getSelectorType());
 		assertEquals("div", ((ElementSelector) ancestor).getLocalName());
 		simple = ((CombinatorSelector) arg).getSecondSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("img", ((ElementSelector) simple).getLocalName());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
 		assertEquals("html:has(div>img)", sel.toString());
@@ -4356,21 +4358,21 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("html", ((ElementSelector) simple).getLocalName());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("has", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
-		assertEquals(Selector.SAC_SUBSEQUENT_SIBLING_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.SUBSEQUENT_SIBLING, arg.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) arg).getSelector();
-		assertEquals(Selector.SAC_SCOPE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.SCOPE_MARKER, ancestor.getSelectorType());
 		simple = ((CombinatorSelector) arg).getSecondSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("img", ((ElementSelector) simple).getLocalName());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
 		assertEquals("html:has(~img)", sel.toString());
@@ -4382,21 +4384,21 @@ public class SelectorParserTest {
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
-		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("tr", ((ElementSelector) simple).getLocalName());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(Condition.SAC_SELECTOR_ARGUMENT_CONDITION, cond.getConditionType());
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
 		assertEquals("has", ((ArgumentCondition) cond).getName());
 		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
-		assertEquals(Selector.SAC_COLUMN_COMBINATOR_SELECTOR, arg.getSelectorType());
+		assertEquals(SelectorType.COLUMN_COMBINATOR, arg.getSelectorType());
 		Selector ancestor = ((CombinatorSelector) arg).getSelector();
-		assertEquals(Selector.SAC_SCOPE_SELECTOR, ancestor.getSelectorType());
+		assertEquals(SelectorType.SCOPE_MARKER, ancestor.getSelectorType());
 		simple = ((CombinatorSelector) arg).getSecondSelector();
-		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("img", ((ElementSelector) simple).getLocalName());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
 		assertEquals("tr:has(||img)", sel.toString());

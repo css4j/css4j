@@ -19,10 +19,10 @@ package io.sf.carte.doc.style.css.nsac;
  * This interface is used by selectors like:
  * </p>
  * <ul>
- * <li>{@link Selector#SAC_CHILD_SELECTOR}</li>
- * <li>{@link Selector#SAC_DESCENDANT_SELECTOR}</li>
- * <li>{@link Selector#SAC_SUBSEQUENT_SIBLING_SELECTOR}</li>
- * <li>{@link Selector#SAC_DIRECT_ADJACENT_SELECTOR}</li>
+ * <li>{@link Selector#CHILD}</li>
+ * <li>{@link Selector#DESCENDANT}</li>
+ * <li>{@link Selector#SUBSEQUENT_SIBLING}</li>
+ * <li>{@link Selector#DIRECT_ADJACENT}</li>
  */
 public interface CombinatorSelector extends Selector {
 

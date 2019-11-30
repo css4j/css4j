@@ -17,7 +17,7 @@ abstract class AbstractSelector implements Selector {
 
 	@Override
 	public int hashCode() {
-		return Short.hashCode(getSelectorType());
+		return getSelectorType().hashCode();
 	}
 
 	@Override

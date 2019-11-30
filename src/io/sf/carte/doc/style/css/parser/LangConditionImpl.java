@@ -20,8 +20,8 @@ class LangConditionImpl implements LangCondition {
 	String lang = null;
 
 	@Override
-	public short getConditionType() {
-		return Condition.SAC_LANG_CONDITION;
+	public ConditionType getConditionType() {
+		return Condition.ConditionType.LANG;
 	}
 
 	@Override
