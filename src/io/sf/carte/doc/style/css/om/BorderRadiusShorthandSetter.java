@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -42,7 +42,7 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 			return false;
 		}
 		if (currentValue != null) {
-			if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
+			if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
 				nextCurrentValue();
 				StyleValue topLeftValue2 = createBorderRadiusValue(null);
 				StyleValue topRightValue2 = createBorderRadiusValue(topLeftValue2);
@@ -78,7 +78,7 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 		if (currentValue == null) {
 			return defval;
 		} else {
-			if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
+			if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
 				return defval;
 			} else if (ValueFactory.isSizeSACUnit(currentValue) || isCustomProperty()) {
 				StyleValue value = createCSSValue(getShorthandName(), currentValue);
@@ -98,7 +98,7 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean isCustomProperty() {
-		return currentValue.getLexicalUnitType() == LexicalUnit.SAC_VAR;
+		return currentValue.getLexicalUnitType() == LexicalType.VAR;
 	}
 
 }

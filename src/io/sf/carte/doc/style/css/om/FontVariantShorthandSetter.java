@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
@@ -28,7 +28,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 	@Override
 	public boolean assignSubproperties() {
 		// Check whether value is 'normal' or 'none'.
-		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+		if (currentValue.getLexicalUnitType() == LexicalType.IDENT) {
 			String text = currentValue.getStringValue();
 			boolean isNone = false;
 			if (text.equalsIgnoreCase("normal") || (isNone = text.equalsIgnoreCase("none"))) {
@@ -65,7 +65,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 	protected boolean assignSubproperty(String subproperty) {
 		// Rest of properties
 		switch (currentValue.getLexicalUnitType()) {
-		case LexicalUnit.SAC_IDENT:
+		case IDENT:
 			if (subproperty.equals("font-variant-alternates")) {
 				if (testFontVariantAlternates()) {
 					return true;
@@ -78,7 +78,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 					addSubpropertyValue(subproperty, cssValue, false);
 					is_set = true;
 					nextCurrentValue();
-					if (currentValue == null || currentValue.getLexicalUnitType() != LexicalUnit.SAC_IDENT) {
+					if (currentValue == null || currentValue.getLexicalUnitType() != LexicalType.IDENT) {
 						break;
 					}
 				} else {
@@ -86,7 +86,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 				}
 			}
 			return is_set;
-		case LexicalUnit.SAC_FUNCTION:
+		case FUNCTION:
 			if (subproperty.equals("font-variant-alternates")) {
 				if (testFontVariantAlternates()) {
 					return true;
@@ -101,7 +101,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 		boolean is_set = false;
 		while (currentValue != null) {
 			switch (currentValue.getLexicalUnitType()) {
-			case LexicalUnit.SAC_IDENT:
+			case IDENT:
 				if (testIdentifiers("font-variant-alternates")) {
 					StyleValue cssValue = createCSSValue("font-variant-alternates", currentValue);
 					addSubpropertyValue("font-variant-alternates", cssValue, false);
@@ -111,11 +111,12 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 					return is_set;
 				}
 				break;
-			case LexicalUnit.SAC_FUNCTION:
+			case FUNCTION:
 				StyleValue cssValue = createCSSValue("font-variant-alternates", currentValue);
 				addSubpropertyValue("font-variant-alternates", cssValue, false);
 				nextCurrentValue();
 				is_set = true;
+			default:
 			}
 		}
 		return is_set;

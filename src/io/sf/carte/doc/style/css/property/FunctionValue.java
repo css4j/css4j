@@ -20,6 +20,7 @@ import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -97,11 +98,11 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 			while (lu != null) {
 				ValueItem item;
 				StyleValue newval;
-				short type = lu.getLexicalUnitType();
-				if (type == LexicalUnit.SAC_SUB_EXPRESSION) {
+				LexicalType type = lu.getLexicalUnitType();
+				if (type == LexicalType.SUB_EXPRESSION) {
 					item = subExpression(lu);
 					newval = item.getCSSValue();
-				} else if (type == LexicalUnit.SAC_LEFT_BRACKET) {
+				} else if (type == LexicalType.LEFT_BRACKET) {
 					LexicalUnit nlu = lu.getNextLexicalUnit();
 					item = factory.parseBracketList(nlu, null, false);
 					if (item != null) {
@@ -110,7 +111,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 						lu = nlu.getNextLexicalUnit();
 						continue;
 					}
-				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+				} else if (type == LexicalType.OPERATOR_SLASH) {
 					if (list != null && list.getLength() == 1 && isOperand(list.item(0))) {
 						list = null;
 						item = expressionItem(lu);
@@ -124,8 +125,8 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 						((UnknownValue) newval).setPlainCssText("/");
 					}
 				} else if (list != null
-						&& (type == LexicalUnit.SAC_OPERATOR_PLUS || type == LexicalUnit.SAC_OPERATOR_MINUS
-								|| type == LexicalUnit.SAC_OPERATOR_MULTIPLY)
+						&& (type == LexicalType.OPERATOR_PLUS || type == LexicalType.OPERATOR_MINUS
+								|| type == LexicalType.OPERATOR_MULTIPLY)
 						&& list.getLength() == 1 && isOperand(list.item(0))) {
 					list = null;
 					item = expressionItem(lu);
@@ -136,7 +137,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 				}
 				lu = item.getNextLexicalUnit();
 				if (lu != null) {
-					if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						lu = lu.getNextLexicalUnit();
 						if (!commaSep && !arguments.isEmpty()) {
 							list = ValueList.createWSValueList();
@@ -203,8 +204,8 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 			setter.setLexicalUnitFromSubValues(lu.getSubValues());
 			LexicalUnit nextlex = lu.getNextLexicalUnit();
 			if (nextlex != null) {
-				short type = nextlex.getLexicalUnitType();
-				if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+				LexicalType type = nextlex.getLexicalUnitType();
+				if (type == LexicalType.OPERATOR_SLASH) {
 					// slash exception
 					setter.setLexicalUnitFromSubValues(lu);
 				} else {
@@ -219,7 +220,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 			arguments.removeLast();
 			LexicalUnit firstOpLu = lu.getPreviousLexicalUnit();
 			LexicalUnit delimLu = firstOpLu.getPreviousLexicalUnit();
-			if (delimLu == null || delimLu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (delimLu == null || delimLu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 				ExpressionValue expr = new ExpressionValue();
 				ExpressionValue.ExpressionLexicalSetter setter = expr.newLexicalSetter();
 				setter.setLexicalUnitFromSubValues(firstOpLu);

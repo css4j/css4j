@@ -87,39 +87,39 @@ public class UnknownValue extends AbstractTextValue {
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 			String text;
 			switch (lunit.getLexicalUnitType()) {
-			case LexicalUnit.SAC_OPERATOR_EXP:
+			case OPERATOR_EXP:
 				text = "^";
 				break;
-			case LexicalUnit.SAC_OPERATOR_GE:
+			case OPERATOR_GE:
 				text = ">=";
 				break;
-			case LexicalUnit.SAC_OPERATOR_GT:
+			case OPERATOR_GT:
 				text = ">";
 				break;
-			case LexicalUnit.SAC_OPERATOR_LE:
+			case OPERATOR_LE:
 				text = "<=";
 				break;
-			case LexicalUnit.SAC_OPERATOR_LT:
+			case OPERATOR_LT:
 				text = "<";
 				break;
-			case LexicalUnit.SAC_OPERATOR_MINUS:
+			case OPERATOR_MINUS:
 				text = "-";
 				break;
-			case LexicalUnit.SAC_OPERATOR_MOD:
+			case OPERATOR_MOD:
 				text = "%";
 				break;
-			case LexicalUnit.SAC_OPERATOR_MULTIPLY:
+			case OPERATOR_MULTIPLY:
 				text = "*";
 				break;
-			case LexicalUnit.SAC_OPERATOR_PLUS:
+			case OPERATOR_PLUS:
 				text = "+";
 				break;
-			case LexicalUnit.SAC_OPERATOR_TILDE:
+			case OPERATOR_TILDE:
 				text = "~";
 				break;
-			case LexicalUnit.SAC_COMPAT_PRIO:
+			case COMPAT_PRIO:
 				priorityCompat = true;
-			case LexicalUnit.SAC_COMPAT_IDENT:
+			case COMPAT_IDENT:
 				text = lunit.toString();
 				nextLexicalUnit = null;
 				break;

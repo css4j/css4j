@@ -50,7 +50,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 		super();
 		this.lexicalUnit = lexicalUnit;
 		this.important = important;
-		priorityCompat = lexicalUnit.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_PRIO;
+		priorityCompat = lexicalUnit.getLexicalUnitType() == LexicalUnit.LexicalType.COMPAT_PRIO;
 		this.longhands = new HashSet<String>(Arrays.asList(longhands));
 	}
 

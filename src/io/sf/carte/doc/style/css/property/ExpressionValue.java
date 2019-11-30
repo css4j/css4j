@@ -19,6 +19,7 @@ import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -64,15 +65,15 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 
 		private StyleExpression fillExpressionLevel(LexicalUnit lu, ValueFactory factory) {
 			StyleExpression expression = null;
-			short lastlutype = -1;
+			LexicalType lastlutype = LexicalType.UNKNOWN;
 			while (lu != null) {
 				StyleExpression operation;
 				boolean inverse = false;
-				short lutype = lu.getLexicalUnitType();
+				LexicalType lutype = lu.getLexicalUnitType();
 				switch (lutype) {
-				case LexicalUnit.SAC_OPERATOR_MINUS:
+				case OPERATOR_MINUS:
 					inverse = true;
-				case LexicalUnit.SAC_OPERATOR_PLUS:
+				case OPERATOR_PLUS:
 					if (expression == null) {
 						if (inverse) {
 							expression = new SumExpression();
@@ -101,9 +102,9 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 						}
 					}
 					break;
-				case LexicalUnit.SAC_OPERATOR_SLASH:
+				case OPERATOR_SLASH:
 					inverse = true;
-				case LexicalUnit.SAC_OPERATOR_MULTIPLY:
+				case OPERATOR_MULTIPLY:
 					if (expression == null) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Missing factor");
 					} else if (expression.getPartType() == AlgebraicPart.OPERAND) {
@@ -113,7 +114,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 						expression = operation;
 					} else if (expression.getPartType() == AlgebraicPart.SUM) {
 						operation = new ProductExpression();
-						if (lastlutype != LexicalUnit.SAC_SUB_EXPRESSION) {
+						if (lastlutype != LexicalType.SUB_EXPRESSION) {
 							expression.replaceLastExpression(operation);
 						} else {
 							operation.addExpression(expression);
@@ -124,7 +125,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 						expression.nextOperandInverse = inverse;
 					}
 					break;
-				case LexicalUnit.SAC_SUB_EXPRESSION:
+				case SUB_EXPRESSION:
 					LexicalUnit subval = lu.getSubValues();
 					if (subval == null) {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Empty sub-expression");
@@ -143,17 +144,17 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad subexpression");
 					}
 					break;
-				case LexicalUnit.SAC_OPERATOR_COMMA: // We are probably in function context
+				case OPERATOR_COMMA: // We are probably in function context
 					if (nextLexicalUnit != null || expression.getParentExpression() != null) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operand: ','");
 					}
 					nextLexicalUnit = lu;
 					return expression;
-				case LexicalUnit.SAC_FUNCTION:
+				case FUNCTION:
 					String funcname = lu.getFunctionName();
 					if (funcname.equals(getStringValue())) {
 						// Handle as a subexpression
-						lutype = LexicalUnit.SAC_SUB_EXPRESSION;
+						lutype = LexicalType.SUB_EXPRESSION;
 						subval = lu.getParameters();
 						if (subval == null) {
 							throw new DOMException(DOMException.SYNTAX_ERR, "Empty sub-" + getStringValue() + "()");
@@ -208,20 +209,21 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 		return expression;
 	}
 
-	protected boolean isInvalidOperand(PrimitiveValue primi, short lutype, short lastlutype) {
+	protected boolean isInvalidOperand(PrimitiveValue primi, LexicalType lutype, LexicalType lastlutype) {
 		if (isOperatorType(lutype)) {
 			return isOperatorType(lastlutype);
 		}
-		return !isOperatorType(lastlutype) && lastlutype != -1 && lutype != LexicalUnit.SAC_OPERATOR_COMMA;
+		return !isOperatorType(lastlutype) && lastlutype != LexicalType.UNKNOWN && lutype != LexicalType.OPERATOR_COMMA;
 	}
 
-	private boolean isOperatorType(short lutype) {
+	private boolean isOperatorType(LexicalType lutype) {
 		switch (lutype) {
-		case LexicalUnit.SAC_OPERATOR_PLUS:
-		case LexicalUnit.SAC_OPERATOR_MINUS:
-		case LexicalUnit.SAC_OPERATOR_MULTIPLY:
-		case LexicalUnit.SAC_OPERATOR_SLASH:
+		case OPERATOR_PLUS:
+		case OPERATOR_MINUS:
+		case OPERATOR_MULTIPLY:
+		case OPERATOR_SLASH:
 			return true;
+		default:
 		}
 		return false;
 	}

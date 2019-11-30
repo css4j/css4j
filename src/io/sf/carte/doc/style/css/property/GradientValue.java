@@ -17,6 +17,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSGradientValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 
 /**
@@ -132,7 +133,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			do {
 				colorStopLU = processLinearColorStop(colorStopLU, factory);
 				if (colorStopLU != null) {
-					if (colorStopLU.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
 					} else {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Expected color stops, found: " + lu.toString());
@@ -147,7 +148,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		 */
 		private LexicalUnit setAngleArguments(LexicalUnit lu, ValueFactory factory) {
 			LexicalUnit finalLU = null;
-			if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
 				String ident = lu.getStringValue().toLowerCase(Locale.ROOT);
 				ValueList list = ValueList.createWSValueList();
 				if ("to".equals(ident)) {
@@ -158,13 +159,13 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				} else {
 					reportSyntaxWarning("Missing 'to' in side/corner specification in gradient: " + lu.toString());
 				}
-				if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+				if (lu.getLexicalUnitType() == LexicalType.IDENT) {
 					ident = lu.getStringValue().toLowerCase(Locale.ROOT);
 					if (isSideValue(ident)) {
 						list.add(factory.createCSSPrimitiveValue(lu, true));
 						lu = lu.getNextLexicalUnit();
 						finalLU = lu;
-						if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+						if (lu.getLexicalUnitType() == LexicalType.IDENT) {
 							ident = lu.getStringValue().toLowerCase(Locale.ROOT);
 							if (isSideValue(ident)) {
 								list.add(factory.createCSSPrimitiveValue(lu, true));
@@ -179,7 +180,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				finalLU = lu.getNextLexicalUnit();
 			}
 			if (finalLU != null) {
-				if (finalLU.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (finalLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					finalLU = finalLU.getNextLexicalUnit();
 				} else {
 					finalLU = null;
@@ -230,7 +231,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				list.add(factory.createCSSPrimitiveValue(lu, true));
 				getArguments().add(list);
 				finalLU = lu2.getNextLexicalUnit();
-			} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			} else if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 				finalLU = lu;
 			}
 			return finalLU;
@@ -253,7 +254,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			do {
 				colorStopLU = processLinearColorStop(colorStopLU, factory);
 				if (colorStopLU != null) {
-					if (colorStopLU.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
 					} else {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Expected color stops, found: " + lu.toString());
@@ -265,7 +266,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		private LexicalUnit processNonColorStop(LexicalUnit lu, ValueFactory factory) {
 			ValueList list = ValueList.createWSValueList();
 			while (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					lu = lu.getNextLexicalUnit();
 					break;
 				}
@@ -293,7 +294,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			if (!isAngularColorStop(lu)) {
 				ValueList list = ValueList.createWSValueList();
 				while (lu != null) {
-					if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						lu = lu.getNextLexicalUnit();
 						break;
 					}
@@ -313,7 +314,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			do {
 				colorStopLU = processAngularColorStop(colorStopLU, factory);
 				if (colorStopLU != null) {
-					if (colorStopLU.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
 					} else {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Expected color stops, found: " + lu.toString());
@@ -332,7 +333,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			} else {
 				return lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
 						&& (ValueFactory.isAngleSACUnit(lu)
-								|| lu.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE);
+								|| lu.getLexicalUnitType() == LexicalType.PERCENTAGE);
 			}
 		}
 
@@ -344,13 +345,13 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
 			if (BaseCSSStyleDeclaration.testColor(lu)) {
 				PrimitiveValue color = factory.createCSSPrimitiveValue(lu, true);
-				if (lu2 != null && (ValueFactory.isAngleSACUnit(lu2) || lu2.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE)) {
+				if (lu2 != null && (ValueFactory.isAngleSACUnit(lu2) || lu2.getLexicalUnitType() == LexicalType.PERCENTAGE)) {
 					ValueList list = ValueList.createWSValueList();
 					list.add(color);
 					list.add(factory.createCSSPrimitiveValue(lu2, true));
 					getArguments().add(list);
 					lu2 = lu2.getNextLexicalUnit();
-					if (lu2 != null && (ValueFactory.isAngleSACUnit(lu2) || lu2.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE)) {
+					if (lu2 != null && (ValueFactory.isAngleSACUnit(lu2) || lu2.getLexicalUnitType() == LexicalType.PERCENTAGE)) {
 						list.add(factory.createCSSPrimitiveValue(lu2, true));
 						lu2 = lu2.getNextLexicalUnit();
 					}
@@ -359,17 +360,17 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				}
 				finalLU = lu2;
 			} else if (lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
-					&& (ValueFactory.isAngleSACUnit(lu) || lu.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE)) {
+					&& (ValueFactory.isAngleSACUnit(lu) || lu.getLexicalUnitType() == LexicalType.PERCENTAGE)) {
 				ValueList list = ValueList.createWSValueList();
 				list.add(factory.createCSSPrimitiveValue(lu2, true));
 				list.add(factory.createCSSPrimitiveValue(lu, true));
 				getArguments().add(list);
 				finalLU = lu2.getNextLexicalUnit();
-			} else if (ValueFactory.isAngleSACUnit(lu) || lu.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE) {
+			} else if (ValueFactory.isAngleSACUnit(lu) || lu.getLexicalUnitType() == LexicalType.PERCENTAGE) {
 				// Hint
 				getArguments().add(factory.createCSSPrimitiveValue(lu, true));
 				finalLU = lu2;
-			} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			} else if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 				finalLU = lu;
 			}
 			return finalLU;

@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.UnknownValue;
 import io.sf.carte.util.SimpleWriter;
@@ -77,12 +78,12 @@ class CompatDeclarationSet {
 
 	private static boolean containsIdentCompat(LexicalUnit value) {
 		while (value != null) {
-			short type = value.getLexicalUnitType();
-			if (type == LexicalUnit.SAC_COMPAT_IDENT || type == LexicalUnit.SAC_COMPAT_PRIO) {
+			LexicalType type = value.getLexicalUnitType();
+			if (type == LexicalType.COMPAT_IDENT || type == LexicalType.COMPAT_PRIO) {
 				return true;
-			} else if (type == LexicalUnit.SAC_FUNCTION) {
+			} else if (type == LexicalType.FUNCTION) {
 				return containsIdentCompat(value.getParameters());
-			} else if (type == LexicalUnit.SAC_SUB_EXPRESSION) {
+			} else if (type == LexicalType.SUB_EXPRESSION) {
 				return containsIdentCompat(value.getSubValues());
 			}
 			value = value.getNextLexicalUnit();

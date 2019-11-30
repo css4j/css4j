@@ -20,6 +20,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.util.SimpleWriter;
 
@@ -49,7 +50,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		// Check for ratio
 		LexicalUnit nlu = lexicalUnit.getNextLexicalUnit();
 		if (nlu != null) {
-			if (nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH
+			if (nlu.getLexicalUnitType() == LexicalType.OPERATOR_SLASH
 					&& isRatioCompUnit(lexicalUnit.getLexicalUnitType()) && (nlu = nlu.getNextLexicalUnit()) != null
 					&& isRatioCompUnit(nlu.getLexicalUnitType())) {
 				return Type.RATIO;
@@ -58,29 +59,29 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		}
 		Type type;
 		switch (lexicalUnit.getLexicalUnitType()) {
-		case LexicalUnit.SAC_IDENT:
+		case IDENT:
 			type = Type.IDENT;
 			break;
-		case LexicalUnit.SAC_ATTR:
+		case ATTR:
 			type = Type.ATTR;
 			break;
-		case LexicalUnit.SAC_STRING_VALUE:
+		case STRING:
 			type = Type.STRING;
 			break;
-		case LexicalUnit.SAC_URI:
+		case URI:
 			type = Type.URI;
 			break;
-		case LexicalUnit.SAC_DIMENSION:
-		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_REAL:
-		case LexicalUnit.SAC_INTEGER:
+		case DIMENSION:
+		case PERCENTAGE:
+		case REAL:
+		case INTEGER:
 			type = Type.NUMERIC;
 			break;
-		case LexicalUnit.SAC_RGBCOLOR:
-		case LexicalUnit.SAC_HSLCOLOR:
+		case RGBCOLOR:
+		case HSLCOLOR:
 			type = Type.COLOR;
 			break;
-		case LexicalUnit.SAC_FUNCTION:
+		case FUNCTION:
 			String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
 			if ("hwb".equals(func) || "color".equals(func)) {
 				type = Type.COLOR;
@@ -95,22 +96,22 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				type = Type.FUNCTION;
 			}
 			break;
-		case LexicalUnit.SAC_UNICODERANGE:
+		case UNICODE_RANGE:
 			type = Type.UNICODE_RANGE;
 			break;
-		case LexicalUnit.SAC_UNICODE_WILDCARD:
+		case UNICODE_WILDCARD:
 			type = Type.UNICODE_WILDCARD;
 			break;
-		case LexicalUnit.SAC_RECT_FUNCTION:
+		case RECT_FUNCTION:
 			type = Type.RECT;
 			break;
-		case LexicalUnit.SAC_COUNTER_FUNCTION:
+		case COUNTER_FUNCTION:
 			type = Type.COUNTER;
 			break;
-		case LexicalUnit.SAC_COUNTERS_FUNCTION:
+		case COUNTERS_FUNCTION:
 			type = Type.COUNTERS;
 			break;
-		case LexicalUnit.SAC_ELEMENT_REFERENCE:
+		case ELEMENT_REFERENCE:
 			type = Type.ELEMENT_REFERENCE;
 			break;
 		default:
@@ -119,9 +120,9 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		return type;
 	}
 
-	private boolean isRatioCompUnit(short lutype) {
-		return lutype == LexicalUnit.SAC_INTEGER || lutype == LexicalUnit.SAC_REAL
-				|| lutype == LexicalUnit.SAC_FUNCTION;
+	private boolean isRatioCompUnit(LexicalType lutype) {
+		return lutype == LexicalType.INTEGER || lutype == LexicalType.REAL
+				|| lutype == LexicalType.FUNCTION;
 	}
 
 	@Override

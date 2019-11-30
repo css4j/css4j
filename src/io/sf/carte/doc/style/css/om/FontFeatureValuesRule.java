@@ -33,6 +33,7 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Locator;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -481,15 +482,15 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		public void property(String name, LexicalUnit value, boolean important, int index) {
 			LinkedList<PrimitiveValue> values = new LinkedList<PrimitiveValue>();
 			for (; value != null; value = value.getNextLexicalUnit()) {
-				short lutype = value.getLexicalUnitType();
-				if (lutype == LexicalUnit.SAC_INTEGER) {
+				LexicalType lutype = value.getLexicalUnitType();
+				if (lutype == LexicalType.INTEGER) {
 					NumberValue number = new NumberValue();
 					int ival = value.getIntegerValue();
 					number.setIntegerValue(ival);
 					values.add(number);
 					continue;
-				} else if (lutype == LexicalUnit.SAC_VAR
-						|| (lutype == LexicalUnit.SAC_FUNCTION && "calc".equalsIgnoreCase(value.getFunctionName()))) {
+				} else if (lutype == LexicalType.VAR
+						|| (lutype == LexicalType.FUNCTION && "calc".equalsIgnoreCase(value.getFunctionName()))) {
 					ValueFactory valueFactory = new ValueFactory();
 					StyleValue cssval = valueFactory.createCSSValue(value);
 					PrimitiveValue pri = (PrimitiveValue) cssval;

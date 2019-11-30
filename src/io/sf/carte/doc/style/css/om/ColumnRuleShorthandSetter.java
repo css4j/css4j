@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -24,7 +24,7 @@ class ColumnRuleShorthandSetter extends ShorthandSetter {
 	@Override
 	protected boolean assignSubproperty(String subproperty) {
 		if ("column-rule-width".equals(subproperty)) {
-			if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subproperty))
+			if ((LexicalType.IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subproperty))
 					|| ValueFactory.isSizeSACUnit(currentValue)) {
 				StyleValue cssValue = createCSSValue("column-rule-width", currentValue);
 				setSubpropertyValue(subproperty, cssValue);
@@ -32,8 +32,8 @@ class ColumnRuleShorthandSetter extends ShorthandSetter {
 				return true;
 			}
 		} else if ("column-rule-style".equals(subproperty)) {
-			short utype = currentValue.getLexicalUnitType();
-			if (LexicalUnit.SAC_IDENT == utype && testIdentifiers(subproperty)) {
+			LexicalType utype = currentValue.getLexicalUnitType();
+			if (LexicalType.IDENT == utype && testIdentifiers(subproperty)) {
 				StyleValue cssValue = createCSSValue("column-rule-style", currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();

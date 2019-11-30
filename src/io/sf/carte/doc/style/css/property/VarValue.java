@@ -183,13 +183,13 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
-			if (lu == null || lu.getLexicalUnitType() != LexicalUnit.SAC_IDENT) {
+			if (lu == null || lu.getLexicalUnitType() != LexicalUnit.LexicalType.IDENT) {
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Variable name must be an identifier");
 			}
 			name = lu.getStringValue();
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
-				if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
 					throw new DOMException(DOMException.SYNTAX_ERR, "Fallback must be separated by comma");
 				}
 				lu = lu.getNextLexicalUnit();

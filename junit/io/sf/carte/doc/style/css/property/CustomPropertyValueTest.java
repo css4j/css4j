@@ -83,7 +83,7 @@ public class CustomPropertyValueTest {
 		VarValue val = (VarValue) cssval;
 		assertEquals("var(--my-identifier, #f0c)", val.getCssText());
 		LexicalUnit fallback = val.getFallback();
-		assertEquals(LexicalUnit.SAC_RGBCOLOR, fallback.getLexicalUnitType());
+		assertEquals(LexicalUnit.LexicalType.RGBCOLOR, fallback.getLexicalUnitType());
 		assertEquals("#f0c", fallback.getCssText());
 		assertEquals("--my-identifier", val.getName());
 	}

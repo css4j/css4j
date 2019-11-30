@@ -44,7 +44,7 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 
 	@Override
 	protected void setLonghandProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException {
-		if (value.getLexicalUnitType() != LexicalUnit.SAC_COMPAT_PRIO) {
+		if (value.getLexicalUnitType() != LexicalUnit.LexicalType.COMPAT_PRIO) {
 			super.setLonghandProperty(propertyName, value, important);
 		} else {
 			ValueFactory factory = getValueFactory();

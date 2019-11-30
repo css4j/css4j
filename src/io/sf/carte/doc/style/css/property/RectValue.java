@@ -144,7 +144,7 @@ public class RectValue extends TypedValue implements CSSRectValue {
 			setTop(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
-			if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (lu.getLexicalUnitType() == LexicalUnit.LexicalType.OPERATOR_COMMA) {
 				lu = lu.getNextLexicalUnit();
 				commaFound = true;
 			}
@@ -153,7 +153,7 @@ public class RectValue extends TypedValue implements CSSRectValue {
 			setRight(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
-			if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
 				if (commaFound) {
 					throw new DOMException(DOMException.SYNTAX_ERR, "Bad syntax for rect.");
 				}
@@ -168,7 +168,7 @@ public class RectValue extends TypedValue implements CSSRectValue {
 			setBottom(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
-			if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
 				if (commaFound) {
 					throw new DOMException(DOMException.SYNTAX_ERR, "Bad syntax for rect.");
 				}

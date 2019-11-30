@@ -21,6 +21,7 @@ import java.util.Set;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -58,7 +59,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		layerCount = 0;
 		int valueCount = 0;
 		for (LexicalUnit value = shorthandValue; value != null; value = value.getNextLexicalUnit()) {
-			if (value.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (value.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 				if (valueCount > 0) {
 					layerCount++;
 					valueCount = 0;
@@ -96,7 +97,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			Set<String> subp = new HashSet<String>(subparray.length);
 			subp.addAll(Arrays.asList(subparray.clone()));
 			valueLoop: while (currentValue != null) {
-				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					if (validLayer) {
 						i++;
 						appendToValueBuffer(layerBuffer, miniLayerBuffer);
@@ -119,13 +120,13 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					break;
 				}
 				// If a css-wide keyword is found, set the entire layer to it
-				short lutype = currentValue.getLexicalUnitType();
-				if (lutype == LexicalUnit.SAC_INHERIT || lutype == LexicalUnit.SAC_UNSET
-						|| lutype == LexicalUnit.SAC_REVERT) {
+				LexicalType lutype = currentValue.getLexicalUnitType();
+				if (lutype == LexicalType.INHERIT || lutype == LexicalType.UNSET
+						|| lutype == LexicalType.REVERT) {
 					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 					// Full layer is 'keyword'
 					while (currentValue != null) {
-						boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
+						boolean commaFound = currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA;
 						currentValue = currentValue.getNextLexicalUnit();
 						if (commaFound) {
 							break;
@@ -276,7 +277,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			subp.remove("background-position");
 			nextCurrentValue();
 			retVal = 0;
-			if (currentValue != null && LexicalUnit.SAC_OPERATOR_SLASH == currentValue.getLexicalUnitType()) {
+			if (currentValue != null && LexicalType.OPERATOR_SLASH == currentValue.getLexicalUnitType()) {
 				// Size
 				currentValue = currentValue.getNextLexicalUnit();
 				if (currentValue != null && testBackgroundSize(i, subp)) {
@@ -333,7 +334,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean lastChanceLayerAssign(String property, LexicalUnit lUnit) {
-		if (lUnit.getLexicalUnitType() == LexicalUnit.SAC_VAR) {
+		if (lUnit.getLexicalUnitType() == LexicalType.VAR) {
 			StyleValue cssValue = createCSSValue(property, lUnit);
 			setSubpropertyValue(property, cssValue);
 			return true;
@@ -345,7 +346,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
 		if (prule != null) {
 			StyleDeclarationErrorHandler eh = prule.getStyleDeclarationErrorHandler();
-			if (unknownValues.size() == 1 && unknownValues.get(0).getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			if (unknownValues.size() == 1 && unknownValues.get(0).getLexicalUnitType() == LexicalType.IDENT) {
 				eh.unknownIdentifier("background", unknownValues.get(0).getStringValue());
 			} else {
 				eh.unassignedShorthandValues("background", subp.toArray(new String[0]),
@@ -395,7 +396,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			lstImage.add(createCSSValue("background-image", currentValue));
 			subp.remove("background-image");
 			return true;
-		} else if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+		} else if (currentValue.getLexicalUnitType() == LexicalType.IDENT
 				&& "none".equals(currentValue.getStringValue())) {
 			lstImage.add(createCSSValue("background-image", currentValue));
 			subp.remove("background-image");
@@ -405,7 +406,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean testBackgroundPosition(ValueList posList) {
-		if ((currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT && testIdentifiers("background-position"))
+		if ((currentValue.getLexicalUnitType() == LexicalType.IDENT && testIdentifiers("background-position"))
 				|| ValueFactory.isSizeSACUnit(currentValue)) {
 			ValueList list = ValueList.createWSValueList();
 			StyleValue value = createCSSValue("background-position", currentValue);
@@ -413,7 +414,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			short count = 1;
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
 			while (nlu != null && count < 4) { // Up to 4 values per layer
-				if ((nlu.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+				if ((nlu.getLexicalUnitType() == LexicalType.IDENT
 						&& getShorthandDatabase().isIdentifierValue("background-position", nlu.getStringValue()))
 						|| ValueFactory.isSizeSACUnit(nlu)) {
 					value = createCSSValue("background-position", nlu);
@@ -467,7 +468,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean testBackgroundSize(int i, Set<String> subp) {
-		if ((currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT && testIdentifiers("background-size"))
+		if ((currentValue.getLexicalUnitType() == LexicalType.IDENT && testIdentifiers("background-size"))
 				|| ValueFactory.isSizeSACUnit(currentValue)) {
 			ValueList list = ValueList.createWSValueList();
 			StyleValue value = createCSSValue("background-size", currentValue);
@@ -476,7 +477,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			miniLayerBuffer.append('/');
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
 			if (nlu != null) {
-				if ((nlu.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+				if ((nlu.getLexicalUnitType() == LexicalType.IDENT
 						&& getShorthandDatabase().isIdentifierValue("background-size", nlu.getStringValue()))
 						|| ValueFactory.isSizeSACUnit(nlu)) {
 					value = createCSSValue("background-size", nlu);
@@ -496,13 +497,13 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean testBackgroundRepeat(ValueList rptList) {
-		if (LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers("background-repeat")) {
+		if (LexicalType.IDENT == currentValue.getLexicalUnitType() && testIdentifiers("background-repeat")) {
 			StyleValue value = createCSSValue("background-repeat", currentValue);
 			String s = value.getCssText();
 			nextCurrentValue();
 			if (s.equals("repeat-y") || s.equals("repeat-x")) {
 				rptList.add(value);
-			} else if (currentValue != null && LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType()
+			} else if (currentValue != null && LexicalType.IDENT == currentValue.getLexicalUnitType()
 					&& testIdentifiers("background-repeat")) {
 				ValueList list = ValueList.createWSValueList();
 				list.add(value);
@@ -519,7 +520,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 
 	private boolean testIdentifierProperty(int layer, Set<String> subp, String subpropertyName,
 			ValueList lst) {
-		if (LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subpropertyName)) {
+		if (LexicalType.IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subpropertyName)) {
 			StyleValue value = createCSSValue(subpropertyName, currentValue);
 			lst.add(value);
 			return true;

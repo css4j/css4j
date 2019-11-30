@@ -29,6 +29,7 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
@@ -74,11 +75,11 @@ public class RuleParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -93,11 +94,11 @@ public class RuleParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -172,7 +173,7 @@ public class RuleParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
 		assertEquals("*just a comment*", handler.comments.getFirst());
@@ -191,7 +192,7 @@ public class RuleParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
 		assertEquals("*just a comment*", handler.comments.getFirst());
@@ -290,11 +291,11 @@ public class RuleParserTest {
 		assertEquals("color", handler.propertyNames.getFirst());
 		assertEquals("margin-left", handler.propertyNames.get(1));
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("blue", lu.getStringValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_DIMENSION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
 		assertEquals(5, lu.getFloatValue(), 0.01f);
 		assertFalse(errorHandler.hasError());
@@ -661,7 +662,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("*width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(80, lu.getFloatValue(), 0.01);
 		handler.checkRuleEndings();
 	}

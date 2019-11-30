@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Iterator;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
@@ -36,14 +37,14 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 	}
 
 	boolean isNoneDeclaration() {
-		return currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+		return currentValue.getLexicalUnitType() == LexicalType.IDENT
 				&& "none".equalsIgnoreCase(currentValue.getStringValue()) && currentValue.getNextLexicalUnit() == null;
 	}
 
 	boolean isTemplateAreasSyntax() {
 		LexicalUnit lu = currentValue;
 		do {
-			if (lu.getLexicalUnitType() == LexicalUnit.SAC_STRING_VALUE) {
+			if (lu.getLexicalUnitType() == LexicalType.STRING) {
 				// Has grid-template-areas
 				return true;
 			}
@@ -77,14 +78,14 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 		ValueList gridTemplateAreas = ValueList.createWSValueList();
 		ValueList lineNames = null;
 		boolean missSlash = !setTemplateAreas;
-		short lasttype = -1;
+		LexicalType lasttype = LexicalType.UNKNOWN;
 		topLoop: do {
 			StyleValue value;
-			short type;
+			LexicalType type;
 			switch (type = currentValue.getLexicalUnitType()) {
-			case LexicalUnit.SAC_LEFT_BRACKET:
+			case LEFT_BRACKET:
 				// Line name
-				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {
+				if (lasttype == LexicalType.STRING) {
 					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
 				}
 				LexicalUnit nlu = currentValue.getNextLexicalUnit();
@@ -104,8 +105,8 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 					currentValue = nlu.getNextLexicalUnit();
 				}
 				break;
-			case LexicalUnit.SAC_STRING_VALUE:
-				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {
+			case STRING:
+				if (lasttype == LexicalType.STRING) {
 					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
 				}
 				lineNames = null;
@@ -114,8 +115,8 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 				appendValueItemString(value);
 				lasttype = type;
 				break;
-			case LexicalUnit.SAC_OPERATOR_SLASH:
-				if (lasttype != -1) {
+			case OPERATOR_SLASH:
+				if (lasttype != LexicalType.UNKNOWN) {
 					currentValue = currentValue.getNextLexicalUnit();
 					if (currentValue != null) {
 						value = valueFactory.createCSSValue(currentValue, styleDeclaration);
@@ -135,7 +136,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 				}
 				return false;
 			default:
-				if (setTemplateAreas && type == LexicalUnit.SAC_FUNCTION
+				if (setTemplateAreas && type == LexicalType.FUNCTION
 						&& "repeat".equalsIgnoreCase(currentValue.getFunctionName())) {
 					syntaxError("This syntax does not allow repeat(): "
 							+ BaseCSSStyleDeclaration.lexicalUnitToString(fullValue));

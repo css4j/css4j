@@ -24,7 +24,7 @@ class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {
 	@Override
 	boolean setFirstValue() {
 		StyleValue cssval;
-		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+		if (currentValue.getLexicalUnitType() == LexicalUnit.LexicalType.IDENT) {
 			String sv = currentValue.getStringValue();
 			if (getShorthandDatabase().isIdentifierValue(subparray[0], sv)) {
 				cssval = createCSSValue(subparray[0], currentValue);
@@ -49,7 +49,7 @@ class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {
 	@Override
 	boolean setSecondValue() {
 		StyleValue cssval;
-		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+		if (currentValue.getLexicalUnitType() == LexicalUnit.LexicalType.IDENT) {
 			String sv = currentValue.getStringValue();
 			if (getShorthandDatabase().isIdentifierValue(subparray[1], sv)) {
 				cssval = createCSSValue(subparray[1], currentValue);

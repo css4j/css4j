@@ -895,19 +895,20 @@ public class ParseHelper {
 		return CSSUnit.CSS_OTHER;
 	}
 
-	static boolean isFunctionUnitType(short unitType) {
+	static boolean isFunctionUnitType(LexicalUnit.LexicalType unitType) {
 		switch (unitType) {
-		case LexicalUnit.SAC_FUNCTION:
-		case LexicalUnit.SAC_RGBCOLOR:
-		case LexicalUnit.SAC_URI:
-		case LexicalUnit.SAC_VAR:
-		case LexicalUnit.SAC_HSLCOLOR:
-		case LexicalUnit.SAC_RECT_FUNCTION:
-		case LexicalUnit.SAC_COUNTER_FUNCTION:
-		case LexicalUnit.SAC_COUNTERS_FUNCTION:
-		case LexicalUnit.SAC_ATTR:
-		case LexicalUnit.SAC_ELEMENT_REFERENCE:
+		case FUNCTION:
+		case RGBCOLOR:
+		case URI:
+		case VAR:
+		case HSLCOLOR:
+		case RECT_FUNCTION:
+		case COUNTER_FUNCTION:
+		case COUNTERS_FUNCTION:
+		case ATTR:
+		case ELEMENT_REFERENCE:
 			return true;
+		default:
 		}
 		return false;
 	}

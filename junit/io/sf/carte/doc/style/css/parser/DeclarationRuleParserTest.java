@@ -28,6 +28,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 public class DeclarationRuleParserTest {
 
@@ -60,10 +61,10 @@ public class DeclarationRuleParserTest {
 		assertEquals("color", handler.propertyNames.getLast());
 		assertEquals(2, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
+		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("foo", lu.getStringValue());
 		lu = handler.lexicalValues.getLast();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("blue", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
 		assertTrue(handler.streamEnded);
@@ -80,7 +81,7 @@ public class DeclarationRuleParserTest {
 		assertEquals("orientation", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("landscape", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
 		assertTrue(handler.streamEnded);
@@ -98,10 +99,10 @@ public class DeclarationRuleParserTest {
 		assertEquals("min-width", handler.propertyNames.getLast());
 		assertEquals(2, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("landscape", lu.getStringValue());
 		lu = handler.lexicalValues.getLast();
-		assertEquals(LexicalUnit.SAC_DIMENSION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
 		assertEquals(640, lu.getFloatValue(), 0.01f);
 		assertEquals("px", lu.getDimensionUnitText());
@@ -121,7 +122,7 @@ public class DeclarationRuleParserTest {
 		assertEquals("orientation", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("landscape", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
 		assertTrue(handler.streamEnded);
@@ -140,13 +141,13 @@ public class DeclarationRuleParserTest {
 		assertEquals("suffix", handler.propertyNames.get(2));
 		assertEquals(3, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("cyclic", lu.getStringValue());
 		lu = handler.lexicalValues.get(1);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
 		lu = handler.lexicalValues.get(2);
-		assertEquals(LexicalUnit.SAC_STRING_VALUE, lu.getLexicalUnitType());
+		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals(" ", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
 		assertTrue(handler.streamEnded);

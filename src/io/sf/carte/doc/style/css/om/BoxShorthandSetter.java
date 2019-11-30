@@ -17,6 +17,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -39,7 +40,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 	 */
 	boolean scanForInherited(LexicalUnit lunit) {
 		while (lunit != null) {
-			if (lunit.getLexicalUnitType() != LexicalUnit.SAC_INHERIT) {
+			if (lunit.getLexicalUnitType() != LexicalType.INHERIT) {
 				return false;
 			}
 			lunit = lunit.getNextLexicalUnit();
@@ -136,12 +137,12 @@ class BoxShorthandSetter extends ShorthandSetter {
 	 */
 	short boxValueCount(LexicalUnit topLevelUnit) {
 		short valueCount = 0;
-		short lutype;
+		LexicalType lutype;
 		for (LexicalUnit value = topLevelUnit; value != null; value = value.getNextLexicalUnit()) {
 			if (isValueOfType(value)) {
 				valueCount++;
 				continue;
-			} else if ((lutype = value.getLexicalUnitType()) == LexicalUnit.SAC_IDENT) {
+			} else if ((lutype = value.getLexicalUnitType()) == LexicalType.IDENT) {
 				String sv = value.getStringValue();
 				// only auto (and css-wide keywords) for margin properties
 				String lcsv = sv.toLowerCase(Locale.ROOT).intern();
@@ -149,12 +150,12 @@ class BoxShorthandSetter extends ShorthandSetter {
 					valueCount++;
 					continue;
 				}
-			} else if (lutype == LexicalUnit.SAC_INHERIT || lutype == LexicalUnit.SAC_INITIAL
-					|| lutype == LexicalUnit.SAC_UNSET || lutype == LexicalUnit.SAC_REVERT) {
+			} else if (lutype == LexicalType.INHERIT || lutype == LexicalType.INITIAL
+					|| lutype == LexicalType.UNSET || lutype == LexicalType.REVERT) {
 				nonmixed = false;
 				valueCount++;
 				continue;
-			} else if (value.getLexicalUnitType() == LexicalUnit.SAC_VAR) {
+			} else if (value.getLexicalUnitType() == LexicalType.VAR) {
 				valueCount++;
 				continue;
 			}

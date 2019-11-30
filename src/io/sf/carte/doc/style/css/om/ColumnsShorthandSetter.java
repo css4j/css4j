@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -38,8 +38,8 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 				if (count == 2) {
 					return false;
 				}
-				short lut = currentValue.getLexicalUnitType();
-				if (columnCountUnset && lut == LexicalUnit.SAC_INTEGER) {
+				LexicalType lut = currentValue.getLexicalUnitType();
+				if (columnCountUnset && lut == LexicalType.INTEGER) {
 					int intValue = currentValue.getIntegerValue();
 					if (intValue < 1) {
 						return false;
@@ -54,7 +54,7 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 					setSubpropertyValue("column-width", createCSSValue("column-width", currentValue));
 					count++;
 					columnWidthUnset = false;
-				} else if (lut == LexicalUnit.SAC_IDENT) {
+				} else if (lut == LexicalType.IDENT) {
 					// Only 'auto' is acceptable
 					String ident = currentValue.getStringValue();
 					if (!"auto".equalsIgnoreCase(ident)) {

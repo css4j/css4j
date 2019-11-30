@@ -15,7 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -40,14 +40,14 @@ public class CalcValue extends ExpressionValue {
 	}
 
 	@Override
-	protected boolean isInvalidOperand(PrimitiveValue primi, short lutype, short lastlutype) {
+	protected boolean isInvalidOperand(PrimitiveValue primi, LexicalType lutype, LexicalType lastlutype) {
 		if (super.isInvalidOperand(primi, lutype, lastlutype)) {
 			return true;
 		}
 		if (primi.getPrimitiveType() == Type.NUMERIC) {
-			return lastlutype == LexicalUnit.SAC_SUB_EXPRESSION;
+			return lastlutype == LexicalType.SUB_EXPRESSION;
 		}
-		return lutype != LexicalUnit.SAC_FUNCTION && lutype != LexicalUnit.SAC_VAR && lutype != LexicalUnit.SAC_ATTR;
+		return lutype != LexicalType.FUNCTION && lutype != LexicalType.VAR && lutype != LexicalType.ATTR;
 	}
 
 	@Override

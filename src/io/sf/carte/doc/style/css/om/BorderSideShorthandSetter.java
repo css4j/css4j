@@ -35,15 +35,16 @@ class BorderSideShorthandSetter extends ShorthandSetter {
 	@Override
 	protected boolean assignSubproperty(String subproperty) {
 		if (pnameWidth.equals(subproperty)) {
-			if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers("border-width"))
-					|| ValueFactory.isSizeSACUnit(currentValue)) {
+			if ((LexicalUnit.LexicalType.IDENT == currentValue.getLexicalUnitType()
+					&& testIdentifiers("border-width")) || ValueFactory.isSizeSACUnit(currentValue)) {
 				StyleValue cssValue = createCSSValue(subproperty, currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();
 				return true;
 			}
 		} else if (pnameStyle.equals(subproperty)) {
-			if (LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers("border-style")) {
+			if (LexicalUnit.LexicalType.IDENT == currentValue.getLexicalUnitType()
+					&& testIdentifiers("border-style")) {
 				StyleValue cssValue = createCSSValue(subproperty, currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();

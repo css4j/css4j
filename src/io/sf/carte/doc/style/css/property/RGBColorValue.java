@@ -104,7 +104,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			try {
-				if (lunit.getLexicalUnitType() == LexicalUnit.SAC_RGBCOLOR) {
+				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.RGBCOLOR) {
 					setLexicalRGB(lunit);
 				} else {
 					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "No rgb() value: " + lunit.toString());
@@ -125,7 +125,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			color.setRed(basiccolor);
 			// comma ?
 			lu = lu.getNextLexicalUnit();
-			if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.LexicalType.OPERATOR_COMMA) {
 				// green
 				lu = lu.getNextLexicalUnit();
 			}

@@ -19,7 +19,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 class LexicalUnitImpl implements LexicalUnit {
 
-	private short unitType;
+	private LexicalType unitType;
 
 	private short cssUnit = CSSUnit.CSS_INVALID;
 
@@ -41,17 +41,17 @@ class LexicalUnitImpl implements LexicalUnit {
 
 	LexicalUnitImpl ownerLexicalUnit = null;
 
-	public LexicalUnitImpl(short unitType) {
+	public LexicalUnitImpl(LexicalType unitType) {
 		super();
 		this.unitType = unitType;
 	}
 
 	@Override
-	public short getLexicalUnitType() {
+	public LexicalType getLexicalUnitType() {
 		return unitType;
 	}
 
-	void setUnitType(short unitType) {
+	void setUnitType(LexicalType unitType) {
 		this.unitType = unitType;
 	}
 
@@ -151,7 +151,7 @@ class LexicalUnitImpl implements LexicalUnit {
 
 	@Override
 	public LexicalUnit getParameters() {
-		if (unitType != LexicalUnit.SAC_SUB_EXPRESSION) {
+		if (unitType != LexicalType.SUB_EXPRESSION) {
 			return parameters;
 		}
 		return null;
@@ -164,7 +164,7 @@ class LexicalUnitImpl implements LexicalUnit {
 
 	@Override
 	public String getStringValue() {
-		if (unitType == LexicalUnit.SAC_ATTR) {
+		if (unitType == LexicalType.ATTR) {
 			StringBuilder buf = new StringBuilder();
 			LexicalUnit lu = this.parameters;
 			if (lu != null) {
@@ -177,7 +177,7 @@ class LexicalUnitImpl implements LexicalUnit {
 
 	@Override
 	public LexicalUnit getSubValues() {
-		if (unitType == LexicalUnit.SAC_SUB_EXPRESSION || unitType == LexicalUnit.SAC_UNICODERANGE) {
+		if (unitType == LexicalType.SUB_EXPRESSION || unitType == LexicalType.UNICODE_RANGE) {
 			return parameters;
 		} else {
 			return null;
@@ -223,19 +223,19 @@ class LexicalUnitImpl implements LexicalUnit {
 		boolean needSpaces = false;
 		while (lu != null) {
 			switch(lu.getLexicalUnitType()) {
-			case LexicalUnit.SAC_OPERATOR_EXP:
-			case LexicalUnit.SAC_OPERATOR_GE:
-			case LexicalUnit.SAC_OPERATOR_GT:
-			case LexicalUnit.SAC_OPERATOR_LE:
-			case LexicalUnit.SAC_OPERATOR_LT:
-			case LexicalUnit.SAC_OPERATOR_MULTIPLY:
-			case LexicalUnit.SAC_OPERATOR_SLASH:
-			case LexicalUnit.SAC_OPERATOR_TILDE:
-			case LexicalUnit.SAC_LEFT_BRACKET:
+			case OPERATOR_EXP:
+			case OPERATOR_GE:
+			case OPERATOR_GT:
+			case OPERATOR_LE:
+			case OPERATOR_LT:
+			case OPERATOR_MULTIPLY:
+			case OPERATOR_SLASH:
+			case OPERATOR_TILDE:
+			case LEFT_BRACKET:
 				needSpaces = false;
-			case LexicalUnit.SAC_OPERATOR_COMMA:
+			case OPERATOR_COMMA:
 				break;
-			case LexicalUnit.SAC_RIGHT_BRACKET:
+			case RIGHT_BRACKET:
 				needSpaces = true;
 				break;
 			default:
@@ -253,11 +253,11 @@ class LexicalUnitImpl implements LexicalUnit {
 
 	CharSequence currentToString() {
 		switch (unitType) {
-		case LexicalUnit.SAC_INTEGER:
+		case INTEGER:
 			return Integer.toString(intValue);
-		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_REAL:
-		case LexicalUnit.SAC_DIMENSION:
+		case PERCENTAGE:
+		case REAL:
+		case DIMENSION:
 			StringBuilder buf = new StringBuilder();
 			if(floatValue % 1 != 0) {
 			    buf.append(String.format(Locale.ROOT, "%s", floatValue));
@@ -268,17 +268,17 @@ class LexicalUnitImpl implements LexicalUnit {
 				buf.append(dimensionUnitText);
 			}
 			return buf.toString();
-		case LexicalUnit.SAC_RGBCOLOR:
+		case RGBCOLOR:
 			if (identCssText != null) {
 				return identCssText;
 			}
-		case LexicalUnit.SAC_FUNCTION:
-		case LexicalUnit.SAC_RECT_FUNCTION:
-		case LexicalUnit.SAC_VAR:
-		case LexicalUnit.SAC_ATTR:
-		case LexicalUnit.SAC_HSLCOLOR:
-		case LexicalUnit.SAC_COUNTER_FUNCTION:
-		case LexicalUnit.SAC_COUNTERS_FUNCTION:
+		case FUNCTION:
+		case RECT_FUNCTION:
+		case VAR:
+		case ATTR:
+		case HSLCOLOR:
+		case COUNTER_FUNCTION:
+		case COUNTERS_FUNCTION:
 			buf = new StringBuilder();
 			buf.append(value).append('(');
 			LexicalUnit lu = this.parameters;
@@ -287,7 +287,7 @@ class LexicalUnitImpl implements LexicalUnit {
 			}
 			buf.append(')');
 			return buf.toString();
-		case LexicalUnit.SAC_SUB_EXPRESSION:
+		case SUB_EXPRESSION:
 			buf = new StringBuilder();
 			buf.append('(');
 			lu = this.parameters;
@@ -296,11 +296,11 @@ class LexicalUnitImpl implements LexicalUnit {
 			}
 			buf.append(')');
 			return buf.toString();
-		case LexicalUnit.SAC_IDENT:
+		case IDENT:
 			return identCssText != null ? identCssText : value;
-		case LexicalUnit.SAC_STRING_VALUE:
+		case STRING:
 			return identCssText;
-		case LexicalUnit.SAC_URI:
+		case URI:
 			String quri;
 			if (identCssText != null) {
 				quri = identCssText;
@@ -308,15 +308,15 @@ class LexicalUnitImpl implements LexicalUnit {
 				quri = ParseHelper.quote(value, '\'');
 			}
 			return "url(" + quri + ")";
-		case LexicalUnit.SAC_INHERIT:
+		case INHERIT:
 			return "inherit";
-		case LexicalUnit.SAC_INITIAL:
+		case INITIAL:
 			return "initial";
-		case LexicalUnit.SAC_UNSET:
+		case UNSET:
 			return "unset";
-		case LexicalUnit.SAC_REVERT:
+		case REVERT:
 			return "revert";
-		case LexicalUnit.SAC_ELEMENT_REFERENCE:
+		case ELEMENT_REFERENCE:
 			if (value == null) {
 				return "element(#)";
 			}
@@ -324,11 +324,11 @@ class LexicalUnitImpl implements LexicalUnit {
 			buf = new StringBuilder(len + 10);
 			buf.append("element(#").append(value).append(')');
 			return buf.toString();
-		case LexicalUnit.SAC_UNICODERANGE:
+		case UNICODE_RANGE:
 			buf = new StringBuilder();
 			lu = this.parameters;
 			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER) {
+				if (lu.getLexicalUnitType() == LexicalType.INTEGER) {
 					buf.append("U+").append(Integer.toHexString(lu.getIntegerValue()));
 				} else {
 					buf.append("U+").append(lu.getStringValue());
@@ -336,7 +336,7 @@ class LexicalUnitImpl implements LexicalUnit {
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
 					buf.append('-');
-					if (lu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER) {
+					if (lu.getLexicalUnitType() == LexicalType.INTEGER) {
 						buf.append(Integer.toHexString(lu.getIntegerValue()));
 					} else {
 						buf.append(lu.getStringValue());
@@ -344,39 +344,40 @@ class LexicalUnitImpl implements LexicalUnit {
 				}
 			}
 			return buf.toString();
-		case LexicalUnit.SAC_UNICODE_WILDCARD:
+		case UNICODE_WILDCARD:
 			return getStringValue();
-		case LexicalUnit.SAC_OPERATOR_COMMA:
+		case OPERATOR_COMMA:
 			return ",";
-		case LexicalUnit.SAC_OPERATOR_EXP:
+		case OPERATOR_EXP:
 			return "^";
-		case LexicalUnit.SAC_OPERATOR_GE:
+		case OPERATOR_GE:
 			return ">=";
-		case LexicalUnit.SAC_OPERATOR_GT:
+		case OPERATOR_GT:
 			return ">";
-		case LexicalUnit.SAC_OPERATOR_LE:
+		case OPERATOR_LE:
 			return "<=";
-		case LexicalUnit.SAC_OPERATOR_LT:
+		case OPERATOR_LT:
 			return "<";
-		case LexicalUnit.SAC_OPERATOR_MINUS:
+		case OPERATOR_MINUS:
 			return "-";
-		case LexicalUnit.SAC_OPERATOR_MOD:
+		case OPERATOR_MOD:
 			return "%";
-		case LexicalUnit.SAC_OPERATOR_MULTIPLY:
+		case OPERATOR_MULTIPLY:
 			return "*";
-		case LexicalUnit.SAC_OPERATOR_PLUS:
+		case OPERATOR_PLUS:
 			return "+";
-		case LexicalUnit.SAC_OPERATOR_SLASH:
+		case OPERATOR_SLASH:
 			return "/";
-		case LexicalUnit.SAC_OPERATOR_TILDE:
+		case OPERATOR_TILDE:
 			return "~";
-		case LexicalUnit.SAC_LEFT_BRACKET:
+		case LEFT_BRACKET:
 			return "[";
-		case LexicalUnit.SAC_RIGHT_BRACKET:
+		case RIGHT_BRACKET:
 			return "]";
-		case LexicalUnit.SAC_COMPAT_IDENT:
-		case LexicalUnit.SAC_COMPAT_PRIO:
+		case COMPAT_IDENT:
+		case COMPAT_PRIO:
 			return ParseHelper.escapeControl(value);
+		default:
 		}
 		return "";
 	}
@@ -385,7 +386,7 @@ class LexicalUnitImpl implements LexicalUnit {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + unitType;
+		result = prime * result + unitType.hashCode();
 		result = prime * result + cssUnit;
 		result = prime * result + ((dimensionUnitText == null) ? 0 : dimensionUnitText.hashCode());
 		result = prime * result + Float.floatToIntBits(floatValue);

@@ -63,7 +63,7 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 			return true;
 		} else {
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
-			if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.LexicalType.IDENT) {
 				String nsv = sv + " " + nlu.getStringValue();
 				if (getShorthandDatabase().isIdentifierValue(subparray[0], nsv)) {
 					ValueList list = ValueList.createWSValueList();
@@ -106,7 +106,7 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 	}
 
 	boolean isValidType(LexicalUnit lu) {
-		return lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT;
+		return lu.getLexicalUnitType() == LexicalUnit.LexicalType.IDENT;
 	}
 
 }

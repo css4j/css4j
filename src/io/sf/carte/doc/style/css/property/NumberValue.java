@@ -564,7 +564,7 @@ public class NumberValue extends TypedValue {
 			super.setLexicalUnit(lunit);
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 			switch (lunit.getLexicalUnitType()) {
-			case LexicalUnit.SAC_INTEGER:
+			case INTEGER:
 				realvalue = lunit.getIntegerValue();
 				asInteger = true;
 				setUnitType(CSSUnit.CSS_NUMBER);

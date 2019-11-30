@@ -19,6 +19,7 @@ import java.util.Set;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -55,7 +56,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		layerCount = 0;
 		int valueCount = 0;
 		for (LexicalUnit value = shorthandValue; value != null; value = value.getNextLexicalUnit()) {
-			if (value.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (value.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 				if (valueCount > 0) {
 					layerCount++;
 					valueCount = 0;
@@ -92,7 +93,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 			Set<String> subp = new HashSet<String>(subparray.length);
 			subp.addAll(Arrays.asList(subparray.clone()));
 			valueLoop: while (currentValue != null) {
-				if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					if (validLayer) {
 						i++;
 						appendToValueBuffer(layerBuffer, miniLayerBuffer);
@@ -109,13 +110,13 @@ class AnimationShorthandSetter extends ShorthandSetter {
 					break;
 				}
 				// If a css-wide keyword is found, set the entire layer to it
-				short lutype = currentValue.getLexicalUnitType();
-				if (lutype == LexicalUnit.SAC_INHERIT || lutype == LexicalUnit.SAC_UNSET
-						|| lutype == LexicalUnit.SAC_REVERT) {
+				LexicalType lutype = currentValue.getLexicalUnitType();
+				if (lutype == LexicalType.INHERIT || lutype == LexicalType.UNSET
+						|| lutype == LexicalType.REVERT) {
 					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 					// Full layer is 'keyword'
 					while (currentValue != null) {
-						boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
+						boolean commaFound = currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA;
 						currentValue = currentValue.getNextLexicalUnit();
 						if (commaFound) {
 							break;
@@ -230,8 +231,9 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	 * @return <code>true</code> if the value was successfully assigned.
 	 */
 	private boolean assignLayerValue(Set<String> subp) {
-		short type = currentValue.getCssUnit();
-		if (type == CSSUnit.CSS_S || type == CSSUnit.CSS_MS) {
+		short cssunit = currentValue.getCssUnit();
+		LexicalType type;
+		if (cssunit == CSSUnit.CSS_S || cssunit == CSSUnit.CSS_MS) {
 			ValueList list;
 			String property = "animation-duration";
 			if (!subp.contains(property)) {
@@ -246,26 +248,26 @@ class AnimationShorthandSetter extends ShorthandSetter {
 			list.add(createCSSValue(property, currentValue));
 			subp.remove(property);
 			nextCurrentValue();
-		} else if ((type = currentValue.getLexicalUnitType()) == LexicalUnit.SAC_INTEGER) {
+		} else if ((type = currentValue.getLexicalUnitType()) == LexicalType.INTEGER) {
 			int ivalue = currentValue.getIntegerValue();
 			if (ivalue < 0) {
 				return false;
 			}
 			return setIterationCountValue(subp);
-		} else if (type == LexicalUnit.SAC_REAL) {
+		} else if (type == LexicalType.REAL) {
 			float fvalue = currentValue.getFloatValue();
 			if (fvalue < 0f) {
 				return false;
 			}
 			return setIterationCountValue(subp);
-		} else if (type == LexicalUnit.SAC_FUNCTION) {
+		} else if (type == LexicalType.FUNCTION) {
 			if (!subp.contains("animation-timing-function")) {
 				return false;
 			}
 			lstTimingFunction.add(createCSSValue("animation-timing-function", currentValue));
 			subp.remove("animation-timing-function");
 			nextCurrentValue();
-		} else if (type == LexicalUnit.SAC_IDENT) {
+		} else if (type == LexicalType.IDENT) {
 			if (subp.contains("animation-timing-function") && testIdentifiers("transition-timing-function")) {
 				lstTimingFunction.add(createCSSValue("animation-timing-function", currentValue));
 				nextCurrentValue();
@@ -293,7 +295,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 			} else {
 				return false;
 			}
-		} else if (type == LexicalUnit.SAC_STRING_VALUE) {
+		} else if (type == LexicalType.STRING) {
 			if (!subp.contains("animation-name")) {
 				return false;
 			}
@@ -320,7 +322,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
 		if (prule != null) {
 			StyleDeclarationErrorHandler eh = prule.getStyleDeclarationErrorHandler();
-			if (unknownValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			if (unknownValue.getLexicalUnitType() == LexicalType.IDENT) {
 				eh.unknownIdentifier("animation", unknownValue.getStringValue());
 			} else {
 				eh.unassignedShorthandValues("animation", subp.toArray(new String[0]),

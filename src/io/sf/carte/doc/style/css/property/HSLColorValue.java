@@ -151,7 +151,7 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			try {
-				if (lunit.getLexicalUnitType() == LexicalUnit.SAC_HSLCOLOR) {
+				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.HSLCOLOR) {
 					setLexicalHSL(lunit);
 				} else {
 					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "No hsl() value: " + lunit.toString());
@@ -172,7 +172,7 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			checkHueValidity(primihue, lunit);
 			// comma
 			lu = lu.getNextLexicalUnit();
-			if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.LexicalType.OPERATOR_COMMA) {
 				// saturation
 				lu = lu.getNextLexicalUnit();
 			}
@@ -191,10 +191,10 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			PrimitiveValue alpha = null;
 			if (lu != null) {
 				if (commaSyntax) {
-					if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
 					}
-				} else if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_SLASH) {
+				} else if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
 					throw new DOMException(DOMException.SYNTAX_ERR, "Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha

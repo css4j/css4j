@@ -66,7 +66,8 @@ class ElementReferenceValue extends TypedValue {
 			ex.initCause(e);
 			throw ex;
 		}
-		if (lu.getLexicalUnitType() != LexicalUnit.SAC_ELEMENT_REFERENCE || lu.getNextLexicalUnit() != null) {
+		if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.ELEMENT_REFERENCE
+				|| lu.getNextLexicalUnit() != null) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an element reference: " + cssText);
 		}
 		LexicalSetter setter = newLexicalSetter();

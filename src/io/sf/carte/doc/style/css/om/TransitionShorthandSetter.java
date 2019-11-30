@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
@@ -52,15 +53,15 @@ class TransitionShorthandSetter extends ShorthandSetter {
 		StringBuilder miniValueBuffer = new StringBuilder(64);
 		do {
 			switch (value.getLexicalUnitType()) {
-			case LexicalUnit.SAC_OPERATOR_COMMA:
+			case OPERATOR_COMMA:
 				valueBuffer.append(',');
 				miniValueBuffer.append(',');
 				break;
-			case LexicalUnit.SAC_OPERATOR_SLASH:
+			case OPERATOR_SLASH:
 				valueBuffer.append('/');
 				miniValueBuffer.append('/');
 				break;
-			case LexicalUnit.SAC_OPERATOR_EXP:
+			case OPERATOR_EXP:
 				valueBuffer.append('^');
 				miniValueBuffer.append('^');
 				break;
@@ -104,7 +105,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 		transitionsCount = 0;
 		int valueCount = 0;
 		for (LexicalUnit value = shorthandValue; value != null; value = value.getNextLexicalUnit()) {
-			if (value.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+			if (value.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 				if (valueCount > 0) {
 					transitionsCount++;
 					valueCount = 0;
@@ -127,20 +128,20 @@ class TransitionShorthandSetter extends ShorthandSetter {
 			boolean ttfUnset = true;
 			boolean tdelayUnset = true;
 			while (currentValue != null) {
-				short lut = currentValue.getLexicalUnitType();
-				if (lut == LexicalUnit.SAC_OPERATOR_COMMA) {
+				LexicalType lut = currentValue.getLexicalUnitType();
+				if (lut == LexicalType.OPERATOR_COMMA) {
 					i++;
 					nextCurrentValue();
 					break;
 				}
 				// If a css-wide keyword is found, set the entire layer to it
-				short lutype = currentValue.getLexicalUnitType();
-				if (lutype == LexicalUnit.SAC_INHERIT || lutype == LexicalUnit.SAC_UNSET
-						|| lutype == LexicalUnit.SAC_REVERT) {
+				LexicalType lutype = currentValue.getLexicalUnitType();
+				if (lutype == LexicalType.INHERIT || lutype == LexicalType.UNSET
+						|| lutype == LexicalType.REVERT) {
 					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 					// Full layer is 'keyword'
 					while (currentValue != null) {
-						boolean commaFound = currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA;
+						boolean commaFound = currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA;
 						currentValue = currentValue.getNextLexicalUnit();
 						if (commaFound) {
 							break;
@@ -173,7 +174,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 					}
 				}
 				if (ttfUnset) {
-					if (LexicalUnit.SAC_IDENT == lut) {
+					if (LexicalType.IDENT == lut) {
 						if (testIdentifiers("transition-timing-function")) {
 							StyleValue value = createCSSValue("transition-timing-function", currentValue);
 							lstTiming.add(value);
@@ -181,7 +182,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 							nextCurrentValue();
 							continue;
 						}
-					} else if (lut == LexicalUnit.SAC_FUNCTION) {
+					} else if (lut == LexicalType.FUNCTION) {
 						// transition-timing-function
 						StyleValue value = createCSSValue("transition-timing-function", currentValue);
 						if (value != null) {
@@ -192,7 +193,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 						}
 					}
 				}
-				if (tpropUnset && (lut == LexicalUnit.SAC_IDENT || lut == LexicalUnit.SAC_STRING_VALUE)) {
+				if (tpropUnset && (lut == LexicalType.IDENT || lut == LexicalType.STRING)) {
 					// Assume a property
 					StyleValue value = createCSSValue("transition-property", currentValue);
 					if (!"none".equals(value.getCssText()) || transitionsCount == 1) {
@@ -217,7 +218,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				// Report error
 				StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
 				if (errHandler != null) {
-					if (lut == LexicalUnit.SAC_IDENT) {
+					if (lut == LexicalType.IDENT) {
 						errHandler.unknownIdentifier("transition", currentValue.getStringValue());
 					} else {
 						StyleValue val = createCSSValue("transition", currentValue);

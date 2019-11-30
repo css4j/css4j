@@ -131,15 +131,15 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
-			if (lu == null || lu.getLexicalUnitType() != LexicalUnit.SAC_IDENT) {
+			if (lu == null || lu.getLexicalUnitType() != LexicalUnit.LexicalType.IDENT) {
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Variable name must be an identifier");
 			}
 			name = lu.getStringValue();
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
-				short type = lu.getLexicalUnitType();
+				LexicalUnit.LexicalType type = lu.getLexicalUnitType();
 				lu = lu.getNextLexicalUnit();
-				if (type != LexicalUnit.SAC_OPERATOR_COMMA || lu == null) {
+				if (type != LexicalUnit.LexicalType.OPERATOR_COMMA || lu == null) {
 					throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Unexpected character");
 				}
 				ValueFactory factory = new ValueFactory();

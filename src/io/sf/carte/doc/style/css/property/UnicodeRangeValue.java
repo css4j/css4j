@@ -17,6 +17,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSUnicodeRangeValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -136,12 +137,12 @@ public class UnicodeRangeValue extends TypedValue implements CSSUnicodeRangeValu
 		}
 
 		private TypedValue readValue(LexicalUnit lu) {
-			short type = lu.getLexicalUnitType();
-			if (type == LexicalUnit.SAC_INTEGER) {
+			LexicalType type = lu.getLexicalUnitType();
+			if (type == LexicalType.INTEGER) {
 				UnicodeValue val = new UnicodeValue();
 				val.setCodePoint(lu.getIntegerValue());
 				return val;
-			} else if (type == LexicalUnit.SAC_UNICODE_WILDCARD) {
+			} else if (type == LexicalType.UNICODE_WILDCARD) {
 				UnicodeWildcardValue val = new UnicodeWildcardValue();
 				val.setWildcard(lu.getStringValue());
 				return val;

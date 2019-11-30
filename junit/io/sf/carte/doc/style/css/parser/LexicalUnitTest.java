@@ -28,6 +28,7 @@ import org.junit.Test;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class LexicalUnitTest {
@@ -78,15 +79,15 @@ public class LexicalUnitTest {
 		LexicalUnit lu = parsePropertyValue("Times Roman");
 		LexicalUnit lu2 = parsePropertyValue("New");
 		lu.insertNextLexicalUnit(lu2);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Times", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
 		lu = lu.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("New", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
 		lu = lu.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Roman", lu.getStringValue());
 	}
 
@@ -95,26 +96,26 @@ public class LexicalUnitTest {
 		LexicalUnit lu = parsePropertyValue("Times Roman");
 		LexicalUnit lu2 = parsePropertyValue("Very New");
 		lu.insertNextLexicalUnit(lu2);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Times", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
 		assertFalse(lu2.isParameter());
 		assertFalse(lu.isParameter());
 		//
 		lu = lu.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Very", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
 		assertSame(lu, lu2);
 		assertFalse(lu.isParameter());
 		//
 		lu = lu.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("New", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
 		//
 		lu = lu.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Roman", lu.getStringValue());
 	}
 
@@ -124,17 +125,17 @@ public class LexicalUnitTest {
 		LexicalUnit lu2 = parsePropertyValue("two");
 		LexicalUnit param = lu.getParameters();
 		param.insertNextLexicalUnit(lu2);
-		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("one", param.getStringValue());
 		assertSame(param, param.getNextLexicalUnit().getPreviousLexicalUnit());
 		assertTrue(param.isParameter());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("two", param.getStringValue());
 		assertSame(lu2, param.getNextLexicalUnit().getPreviousLexicalUnit());
 		assertTrue(param.isParameter());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("three", param.getStringValue());
 		assertTrue(param.isParameter());
 		//
@@ -143,7 +144,7 @@ public class LexicalUnitTest {
 		assertEquals("three", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalUnit.SAC_IDENT, param.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("four", param.getStringValue());
 		assertNull(param.getNextLexicalUnit());
 		assertSame(param, param.getPreviousLexicalUnit().getNextLexicalUnit());

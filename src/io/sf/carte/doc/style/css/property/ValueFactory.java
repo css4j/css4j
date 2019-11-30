@@ -23,6 +23,7 @@ import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
@@ -71,11 +72,11 @@ public class ValueFactory {
 	 *         CSS_INVALID otherwise.
 	 */
 	private static short sizeSACUnit(LexicalUnit unit) {
-		short type = unit.getLexicalUnitType();
+		LexicalType type = unit.getLexicalUnitType();
 		short cssUnit;
-		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
+		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
 			cssUnit = functionDimensionArgumentUnit(unit);
-		} else if (type == LexicalUnit.SAC_SUB_EXPRESSION) {
+		} else if (type == LexicalType.SUB_EXPRESSION) {
 			cssUnit = subexpressionDimensionUnit(unit);
 		} else {
 			cssUnit = unit.getCssUnit();
@@ -106,7 +107,7 @@ public class ValueFactory {
 		case CSSUnit.CSS_VW:
 			return cssUnit;
 		default:
-			if (type == LexicalUnit.SAC_INTEGER && unit.getIntegerValue() == 0) {
+			if (type == LexicalType.INTEGER && unit.getIntegerValue() == 0) {
 				return CSSUnit.CSS_NUMBER;
 			}
 			return CSSUnit.CSS_INVALID;
@@ -121,14 +122,15 @@ public class ValueFactory {
 	 * @return <code>true</code> if it is a resolution type, <code>false</code> otherwise.
 	 */
 	public static boolean isResolutionSACUnit(LexicalUnit unit) {
-		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
+		LexicalType type = unit.getLexicalUnitType();
+		short cssUnit;
+		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
 			unit = firstDimensionArgument(unit);
 			return unit != null && isResolutionSACUnit(unit);
 		} else {
-			type = unit.getCssUnit();
+			cssUnit = unit.getCssUnit();
 		}
-		switch (type) {
+		switch (cssUnit) {
 		case CSSUnit.CSS_DPCM:
 		case CSSUnit.CSS_DPI:
 		case CSSUnit.CSS_DPPX:
@@ -148,17 +150,17 @@ public class ValueFactory {
 	 *         otherwise.
 	 */
 	public static boolean isPositiveSizeSACUnit(LexicalUnit unit) {
-		final short utype = unit.getLexicalUnitType();
+		final LexicalType utype = unit.getLexicalUnitType();
+		short cssUnit;
 		boolean function;
-		short type = utype;
-		if (utype == LexicalUnit.SAC_FUNCTION || utype == LexicalUnit.SAC_VAR || utype == LexicalUnit.SAC_ATTR) {
-			type = functionDimensionArgumentUnit(unit);
+		if (utype == LexicalType.FUNCTION || utype == LexicalType.VAR || utype == LexicalType.ATTR) {
+			cssUnit = functionDimensionArgumentUnit(unit);
 			function = true;
 		} else {
-			type = unit.getCssUnit();
+			cssUnit = unit.getCssUnit();
 			function = false;
 		}
-		switch (type) {
+		switch (cssUnit) {
 		case CSSUnit.CSS_PERCENTAGE:
 		case CSSUnit.CSS_PX:
 		case CSSUnit.CSS_PT:
@@ -196,15 +198,16 @@ public class ValueFactory {
 	 *         percentage), false otherwise.
 	 */
 	public static boolean isSizeOrNumberSACUnit(LexicalUnit unit) {
-		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
-			type = functionDimensionArgumentUnit(unit);
-		} else if (type == LexicalUnit.SAC_INTEGER || type == LexicalUnit.SAC_REAL) {
+		LexicalType type = unit.getLexicalUnitType();
+		short cssUnit;
+		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
+			cssUnit = functionDimensionArgumentUnit(unit);
+		} else if (type == LexicalType.INTEGER || type == LexicalType.REAL) {
 			return true;
 		} else {
-			type = unit.getCssUnit();
+			cssUnit = unit.getCssUnit();
 		}
-		switch (type) {
+		switch (cssUnit) {
 		case CSSUnit.CSS_PERCENTAGE:
 		case CSSUnit.CSS_PX:
 		case CSSUnit.CSS_PT:
@@ -242,11 +245,11 @@ public class ValueFactory {
 	 * @return <code>true</code> if is a plain number or a percentage, <code>false</code> otherwise.
 	 */
 	public static boolean isPlainNumberOrPercentSACUnit(LexicalUnit unit) {
-		short type = unit.getLexicalUnitType();
+		LexicalType type = unit.getLexicalUnitType();
 		switch (type) {
-		case LexicalUnit.SAC_PERCENTAGE:
-		case LexicalUnit.SAC_INTEGER:
-		case LexicalUnit.SAC_REAL:
+		case PERCENTAGE:
+		case INTEGER:
+		case REAL:
 			return true;
 		default:
 			return false;
@@ -261,19 +264,20 @@ public class ValueFactory {
 	 * @return <code>true</code> if is an angle type, <code>false</code> otherwise.
 	 */
 	public static boolean isAngleSACUnit(LexicalUnit unit) {
-		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
+		LexicalType type = unit.getLexicalUnitType();
+		short cssunit;
+		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
 			if (isColorFunction(unit)) {
 				return false;
 			}
 			unit = firstDimensionArgument(unit);
 			return unit != null && isAngleSACUnit(unit);
-		} else if (type == LexicalUnit.SAC_INTEGER) {
+		} else if (type == LexicalType.INTEGER) {
 			return unit.getIntegerValue() == 0;
 		} else {
-			type = unit.getCssUnit();
+			cssunit = unit.getCssUnit();
 		}
-		switch (type) {
+		switch (cssunit) {
 		case CSSUnit.CSS_DEG:
 		case CSSUnit.CSS_RAD:
 		case CSSUnit.CSS_GRAD:
@@ -292,16 +296,17 @@ public class ValueFactory {
 	 * @return <code>true</code> if is a time type, <code>false</code> otherwise.
 	 */
 	public static boolean isTimeSACUnit(LexicalUnit unit) {
-		short type = unit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_FUNCTION || type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_ATTR) {
+		LexicalType type = unit.getLexicalUnitType();
+		short cssunit;
+		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
 			unit = firstDimensionArgument(unit);
 			return unit != null && isTimeSACUnit(unit);
-		} else if (type == LexicalUnit.SAC_INTEGER) {
+		} else if (type == LexicalType.INTEGER) {
 			return unit.getIntegerValue() == 0;
 		} else {
-			type = unit.getCssUnit();
+			cssunit = unit.getCssUnit();
 		}
-		switch (type) {
+		switch (cssunit) {
 		case CSSUnit.CSS_MS:
 		case CSSUnit.CSS_S:
 			return true;
@@ -331,7 +336,7 @@ public class ValueFactory {
 			}
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					lu = lu.getNextLexicalUnit();
 				}
 			}
@@ -356,7 +361,7 @@ public class ValueFactory {
 			}
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					lu = lu.getNextLexicalUnit();
 				}
 			}
@@ -375,8 +380,8 @@ public class ValueFactory {
 	private static LexicalUnit firstDimensionArgument(LexicalUnit lunit) {
 		LexicalUnit lu = lunit.getParameters();
 		while (lu != null) {
-			short sacType = lu.getLexicalUnitType();
-			if (sacType == LexicalUnit.SAC_DIMENSION) {
+			LexicalType sacType = lu.getLexicalUnitType();
+			if (sacType == LexicalType.DIMENSION) {
 				return lu;
 			}
 			lu = lu.getNextLexicalUnit();
@@ -485,17 +490,17 @@ public class ValueFactory {
 
 	private UnknownValue createUnknownValue(String value, LexicalUnit lunit) {
 		switch (lunit.getLexicalUnitType()) {
-		case LexicalUnit.SAC_OPERATOR_COMMA:
-		case LexicalUnit.SAC_OPERATOR_EXP:
-		case LexicalUnit.SAC_OPERATOR_GE:
-		case LexicalUnit.SAC_OPERATOR_GT:
-		case LexicalUnit.SAC_OPERATOR_LE:
-		case LexicalUnit.SAC_OPERATOR_LT:
-		case LexicalUnit.SAC_OPERATOR_MINUS:
-		case LexicalUnit.SAC_OPERATOR_MULTIPLY:
-		case LexicalUnit.SAC_OPERATOR_PLUS:
-		case LexicalUnit.SAC_OPERATOR_SLASH:
-		case LexicalUnit.SAC_OPERATOR_TILDE:
+		case OPERATOR_COMMA:
+		case OPERATOR_EXP:
+		case OPERATOR_GE:
+		case OPERATOR_GT:
+		case OPERATOR_LE:
+		case OPERATOR_LT:
+		case OPERATOR_MINUS:
+		case OPERATOR_MULTIPLY:
+		case OPERATOR_PLUS:
+		case OPERATOR_SLASH:
+		case OPERATOR_TILDE:
 			return null;
 		default:
 			UnknownValue css = new UnknownValue();
@@ -589,7 +594,7 @@ public class ValueFactory {
 				do {
 					StyleValue value;
 					// Check for bracket list.
-					if (nlu.getLexicalUnitType() != LexicalUnit.SAC_LEFT_BRACKET) {
+					if (nlu.getLexicalUnitType() != LexicalType.LEFT_BRACKET) {
 						ValueItem item = createCSSValueItem(nlu, false);
 						if (item.hasWarnings() && style != null) {
 							StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
@@ -621,7 +626,7 @@ public class ValueFactory {
 						}
 					}
 					if (nlu != null) {
-						if (nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+						if (nlu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 							nlu = nlu.getNextLexicalUnit();
 							if (superlist == null) {
 								superlist = ValueList.createCSValueList();
@@ -686,7 +691,7 @@ public class ValueFactory {
 		ListValueItem listitem = new ListValueItem();
 		listitem.list = ValueList.createBracketValueList();
 		try {
-			while (nlu.getLexicalUnitType() != LexicalUnit.SAC_RIGHT_BRACKET) {
+			while (nlu.getLexicalUnitType() != LexicalType.RIGHT_BRACKET) {
 				ValueItem item = createCSSValueItem(nlu, subproperty);
 				if (item.hasWarnings() && style != null) {
 					StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
@@ -702,7 +707,7 @@ public class ValueFactory {
 				}
 				listitem.list.add(value);
 				if (nlu != null) {
-					if (nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (nlu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						// Ignoring
 						nlu = nlu.getNextLexicalUnit();
 						if (nlu == null) {
@@ -796,22 +801,22 @@ public class ValueFactory {
 	 */
 	public ValueItem createCSSValueItem(LexicalUnit lunit, boolean subproperty) throws DOMException {
 		switch (lunit.getLexicalUnitType()) {
-		case LexicalUnit.SAC_INHERIT:
+		case INHERIT:
 			KeywordValue value = InheritValue.getValue();
 			if (subproperty)
 				value = value.asSubproperty();
 			return value;
-		case LexicalUnit.SAC_UNSET:
+		case UNSET:
 			value = UnsetValue.getValue();
 			if (subproperty)
 				value = value.asSubproperty();
 			return value;
-		case LexicalUnit.SAC_REVERT:
+		case REVERT:
 			value = RevertValue.getValue();
 			if (subproperty)
 				value = value.asSubproperty();
 			return value;
-		case LexicalUnit.SAC_INITIAL:
+		case INITIAL:
 			value = InitialValue.getValue();
 			if (subproperty)
 				value = value.asSubproperty();
@@ -868,28 +873,28 @@ public class ValueFactory {
 	 */
 	LexicalSetter createCSSPrimitiveValueItem(LexicalUnit lunit, boolean ratioContext, boolean subp)
 			throws DOMException {
-		short unitType = lunit.getLexicalUnitType();
+		LexicalType unitType = lunit.getLexicalUnitType();
 		PrimitiveValue primi;
 		LexicalSetter setter;
 		try {
 			typeLoop: switch (unitType) {
-			case LexicalUnit.SAC_IDENT:
+			case IDENT:
 				primi = new IdentifierValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_STRING_VALUE:
+			case STRING:
 				primi = new StringValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_URI:
+			case URI:
 				primi = new URIValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_PERCENTAGE:
+			case PERCENTAGE:
 				primi = new PercentageValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_DIMENSION:
+			case DIMENSION:
 				switch (lunit.getCssUnit()) {
 				case CSSUnit.CSS_CM:
 				case CSSUnit.CSS_EM:
@@ -921,7 +926,7 @@ public class ValueFactory {
 					(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 					break typeLoop;
 				}
-			case LexicalUnit.SAC_REAL:
+			case REAL:
 				primi = new NumberValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				if (ratioContext) {
@@ -929,7 +934,7 @@ public class ValueFactory {
 					return checkForRatio(setter, subp);
 				}
 				break;
-			case LexicalUnit.SAC_INTEGER:
+			case INTEGER:
 				primi = new NumberValue();
 				((NumberValue) primi).setIntegerValue(lunit.getIntegerValue());
 				(setter = primi.newLexicalSetter()).nextLexicalUnit = lunit.getNextLexicalUnit();
@@ -938,15 +943,15 @@ public class ValueFactory {
 					return checkForRatio(setter, subp);
 				}
 				break;
-			case LexicalUnit.SAC_RGBCOLOR:
+			case RGBCOLOR:
 				primi = new RGBColorValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_HSLCOLOR:
+			case HSLCOLOR:
 				primi = new HSLColorValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_FUNCTION:
+			case FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 				if ("hwb".equals(func)) {
 					primi = new HWBColorValue();
@@ -982,42 +987,42 @@ public class ValueFactory {
 				}
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_VAR:
+			case VAR:
 				if (!isIsolatedLexicalUnit(lunit)) {
 					throw new CSSLexicalProcessingException("var() found.");
 				}
 				primi = new VarValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_ATTR:
+			case ATTR:
 				primi = new AttrValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_UNICODERANGE:
+			case UNICODE_RANGE:
 				primi = new UnicodeRangeValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_UNICODE_WILDCARD:
+			case UNICODE_WILDCARD:
 				primi = new UnicodeWildcardValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_RECT_FUNCTION:
+			case RECT_FUNCTION:
 				primi = new RectValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_COUNTER_FUNCTION:
+			case COUNTER_FUNCTION:
 				primi = new CounterValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_COUNTERS_FUNCTION:
+			case COUNTERS_FUNCTION:
 				primi = new CountersValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_ELEMENT_REFERENCE:
+			case ELEMENT_REFERENCE:
 				primi = new ElementReferenceValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case LexicalUnit.SAC_OPERATOR_COMMA:
+			case OPERATOR_COMMA:
 				throw new DOMException(DOMException.SYNTAX_ERR, "A comma is not a valid primitive");
 			default:
 				// Unknown value
@@ -1047,7 +1052,7 @@ public class ValueFactory {
 
 	private LexicalSetter checkForRatio(LexicalSetter setter, boolean subp) throws DOMException {
 		LexicalUnit nlu = setter.getNextLexicalUnit();
-		if (nlu != null && nlu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
+		if (nlu != null && nlu.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
 			nlu = nlu.getNextLexicalUnit();
 			if (nlu != null) {
 				LexicalSetter consec = createCSSPrimitiveValueItem(nlu, false, false);
@@ -1069,14 +1074,14 @@ public class ValueFactory {
 
 	public LexicalUnit appendValueString(StringBuilder buf, LexicalUnit lunit) {
 		LexicalUnit nlu;
-		short type = lunit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
+		LexicalType type = lunit.getLexicalUnitType();
+		if (type == LexicalType.OPERATOR_COMMA) {
 			nlu = lunit.getNextLexicalUnit();
 			buf.append(',');
-		} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+		} else if (type == LexicalType.OPERATOR_SLASH) {
 			nlu = lunit.getNextLexicalUnit();
 			buf.append(' ').append('/');
-		} else if (type != LexicalUnit.SAC_LEFT_BRACKET) {
+		} else if (type != LexicalType.LEFT_BRACKET) {
 			ValueItem item = createCSSValueItem(lunit, true);
 			nlu = item.getNextLexicalUnit();
 			StyleValue cssValue = item.getCSSValue();
@@ -1100,14 +1105,14 @@ public class ValueFactory {
 
 	public LexicalUnit appendMinifiedValueString(StringBuilder buf, LexicalUnit lunit) {
 		LexicalUnit nlu;
-		short type = lunit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
+		LexicalType type = lunit.getLexicalUnitType();
+		if (type == LexicalType.OPERATOR_COMMA) {
 			nlu = lunit.getNextLexicalUnit();
 			buf.append(',');
-		} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+		} else if (type == LexicalType.OPERATOR_SLASH) {
 			nlu = lunit.getNextLexicalUnit();
 			buf.append('/');
-		} else if (type != LexicalUnit.SAC_LEFT_BRACKET) {
+		} else if (type != LexicalType.LEFT_BRACKET) {
 			ValueItem item = createCSSValueItem(lunit, true);
 			nlu = item.getNextLexicalUnit();
 			StyleValue cssValue = item.getCSSValue();

@@ -17,6 +17,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.StringValue;
@@ -60,7 +61,7 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	private LexicalUnit filterNormalIdentifier(LexicalUnit lu) {
-		while (lu != null && lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+		while (lu != null && lu.getLexicalUnitType() == LexicalType.IDENT
 				&& "normal".equalsIgnoreCase(lu.getStringValue())) {
 			// Ignore 'normal'
 			lu = lu.getNextLexicalUnit();
@@ -74,7 +75,7 @@ class FontShorthandSetter extends ShorthandSetter {
 		if (subproperty.equals("font-size")) {
 			if (assignFontSize()) {
 				// Check for line-height
-				if (currentValue != null && currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
+				if (currentValue != null && currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
 					// the line-height value
 					nextCurrentValue();
 					StyleValue cssValue = createCSSValue(subproperty, currentValue);
@@ -87,7 +88,7 @@ class FontShorthandSetter extends ShorthandSetter {
 		}
 		// Rest of properties
 		switch (currentValue.getLexicalUnitType()) {
-		case LexicalUnit.SAC_IDENT:
+		case IDENT:
 			if (subproperty.equals("font-variant-css21")) {
 				if ("small-caps".equalsIgnoreCase(currentValue.getStringValue())) {
 					setSubpropertyValue("font-variant-caps", createCSSValue("font-variant-caps", currentValue));
@@ -102,8 +103,8 @@ class FontShorthandSetter extends ShorthandSetter {
 				// as strings, or unquoted as a sequence of one or more identifiers.
 				consumeFontFamilyIdent();
 				while (currentValue != null) {
-					short type = currentValue.getLexicalUnitType();
-					if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
+					LexicalType type = currentValue.getLexicalUnitType();
+					if (type == LexicalType.OPERATOR_COMMA) {
 						nextCurrentValue();
 						if (currentValue == null) {
 							throw new DOMException(DOMException.SYNTAX_ERR,
@@ -111,9 +112,9 @@ class FontShorthandSetter extends ShorthandSetter {
 						}
 						type = currentValue.getLexicalUnitType();
 					}
-					if (type == LexicalUnit.SAC_IDENT) {
+					if (type == LexicalType.IDENT) {
 						consumeFontFamilyIdent();
-					} else if (type == LexicalUnit.SAC_STRING_VALUE) {
+					} else if (type == LexicalType.STRING) {
 						consumeFontFamilyString();
 					} else {
 						break;
@@ -122,12 +123,12 @@ class FontShorthandSetter extends ShorthandSetter {
 				return true;
 			}
 			break;
-		case LexicalUnit.SAC_STRING_VALUE:
+		case STRING:
 			if (subproperty.equals("font-family")) {
 				consumeFontFamilyString();
 				while (currentValue != null) {
-					short type = currentValue.getLexicalUnitType();
-					if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
+					LexicalType type = currentValue.getLexicalUnitType();
+					if (type == LexicalType.OPERATOR_COMMA) {
 						nextCurrentValue();
 						if (currentValue == null) {
 							throw new DOMException(DOMException.SYNTAX_ERR,
@@ -135,9 +136,9 @@ class FontShorthandSetter extends ShorthandSetter {
 						}
 						type = currentValue.getLexicalUnitType();
 					}
-					if (type == LexicalUnit.SAC_IDENT) {
+					if (type == LexicalType.IDENT) {
 						consumeFontFamilyIdent();
-					} else if (type == LexicalUnit.SAC_STRING_VALUE) {
+					} else if (type == LexicalType.STRING) {
 						consumeFontFamilyString();
 					} else {
 						break;
@@ -146,12 +147,13 @@ class FontShorthandSetter extends ShorthandSetter {
 				return true;
 			}
 			break;
-		case LexicalUnit.SAC_INTEGER:
+		case INTEGER:
 			if (subproperty.equals("font-weight")) {
 				setSubpropertyValue("font-weight", createCSSValue("font-size", currentValue));
 				nextCurrentValue();
 				return true;
 			}
+		default:
 		}
 		return false;
 	}
@@ -160,7 +162,7 @@ class FontShorthandSetter extends ShorthandSetter {
 		Type stringType = Type.IDENT;
 		String str = currentValue.getStringValue();
 		super.nextCurrentValue();
-		while (currentValue != null && currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+		while (currentValue != null && currentValue.getLexicalUnitType() == LexicalType.IDENT) {
 			String s = currentValue.getStringValue();
 			str += " " + s;
 			stringType = Type.STRING;
@@ -184,7 +186,7 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean assignFontSize() {
-		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+		if (currentValue.getLexicalUnitType() == LexicalType.IDENT) {
 			return super.assignSubproperty("font-size");
 		} else if (ValueFactory.isPositiveSizeSACUnit(currentValue)) {
 			StyleValue cssValue = createCSSValue("font-size", currentValue);

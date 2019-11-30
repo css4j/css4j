@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -41,7 +41,7 @@ class BorderShorthandSetter extends ShorthandSetter {
 	@Override
 	protected boolean assignSubproperty(String subproperty) {
 		if ("border-width".equals(subproperty)) {
-			if ((LexicalUnit.SAC_IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subproperty))
+			if ((LexicalType.IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subproperty))
 					|| ValueFactory.isSizeSACUnit(currentValue)) {
 				StyleValue cssValue = createCSSValue("border-width", currentValue);
 				setSubpropertyValue(subproperty, cssValue);
@@ -49,8 +49,8 @@ class BorderShorthandSetter extends ShorthandSetter {
 				return true;
 			}
 		} else if ("border-style".equals(subproperty)) {
-			short utype = currentValue.getLexicalUnitType();
-			if (LexicalUnit.SAC_IDENT == utype && testIdentifiers(subproperty)) {
+			LexicalType utype = currentValue.getLexicalUnitType();
+			if (LexicalType.IDENT == utype && testIdentifiers(subproperty)) {
 				StyleValue cssValue = createCSSValue("border-style", currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();

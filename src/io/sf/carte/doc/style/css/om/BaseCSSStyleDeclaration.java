@@ -45,6 +45,7 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
@@ -1620,7 +1621,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		if (sdb.isShorthand(propertyName)) {
 			SubpropertySetter setter;
 			// Check for var()
-			if (isOrContainsType(value, LexicalUnit.SAC_VAR)) {
+			if (isOrContainsType(value, LexicalType.VAR)) {
 				setter = new PendingSubstitutionSetter(this, propertyName);
 				setter.init(value, important);
 				setter.assignSubproperties();
@@ -1630,7 +1631,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			if ("font".equals(propertyName)) {
 				if (getStyleDatabase() != null) {
 					// Check for system font identifier
-					if (value.getLexicalUnitType() == LexicalUnit.SAC_IDENT && value.getNextLexicalUnit() == null) {
+					if (value.getLexicalUnitType() == LexicalType.IDENT && value.getNextLexicalUnit() == null) {
 						String decl = getStyleDatabase().getSystemFontDeclaration(value.getStringValue());
 						if (decl != null) {
 							return setSystemFont(decl, important);
@@ -1706,7 +1707,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	private static boolean isOrContainsType(LexicalUnit lunit, short unitType) {
+	private static boolean isOrContainsType(LexicalUnit lunit, LexicalType unitType) {
 		do {
 			if (lunit.getLexicalUnitType() == unitType
 					|| (lunit.getParameters() != null && isOrContainsType(lunit.getParameters(), unitType))
@@ -1949,10 +1950,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 * @return true if the value is a color.
 	 */
 	public static boolean testColor(LexicalUnit lunit) {
-		short utype = lunit.getLexicalUnitType();
-		if (LexicalUnit.SAC_RGBCOLOR == utype || LexicalUnit.SAC_HSLCOLOR == utype) {
+		LexicalType utype = lunit.getLexicalUnitType();
+		if (LexicalType.RGBCOLOR == utype || LexicalType.HSLCOLOR == utype) {
 			return true;
-		} else if (LexicalUnit.SAC_IDENT == utype) {
+		} else if (LexicalType.IDENT == utype) {
 			String sv = lunit.getStringValue();
 			if (sv == null) {
 				return false;
@@ -1960,12 +1961,12 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			sv = sv.toLowerCase(Locale.ROOT);
 			ColorIdentifiers colorids = ColorIdentifiers.getInstance();
 			return colorids.isColorIdentifier(sv) || "transparent".equals(sv) || "currentcolor".equals(sv);
-		} else if (LexicalUnit.SAC_FUNCTION == utype) {
+		} else if (LexicalType.FUNCTION == utype) {
 			String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 			if ("hwb".equals(func) || "color".equals(func)) {
 				return true;
 			}
-		} else if (LexicalUnit.SAC_VAR == utype) {
+		} else if (LexicalType.VAR == utype) {
 			LexicalUnit lu = findCustomPropertyFallback(lunit);
 			if (lu != null) {
 				return testColor(lu);
@@ -1977,10 +1978,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	private static LexicalUnit findCustomPropertyFallback(LexicalUnit lunit) {
 		LexicalUnit lu = lunit.getParameters();
 		if (lu != null) {
-			if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						lu = lu.getNextLexicalUnit();
 					} else {
 						lu = null;

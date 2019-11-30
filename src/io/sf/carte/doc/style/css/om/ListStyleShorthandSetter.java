@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 class ListStyleShorthandSetter extends ShorthandSetter {
 
@@ -34,12 +34,12 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 		boolean styleImageUnset = true;
 		boolean styleTypeUnset = true;
 		while (currentValue != null) {
-			short lut;
+			LexicalType lut;
 			if (isImage()) {
 				// list-style-image
 				setSubpropertyValue("list-style-image", createCSSValue("list-style-image", currentValue));
 				styleImageUnset = false;
-			} else if ((lut = currentValue.getLexicalUnitType()) == LexicalUnit.SAC_IDENT) {
+			} else if ((lut = currentValue.getLexicalUnitType()) == LexicalType.IDENT) {
 				// Test for list-style-type
 				if (stylePositionUnset && testIdentifiers("list-style-position")) {
 					setSubpropertyValue("list-style-position", createCSSValue("list-style-position", currentValue));
@@ -62,7 +62,7 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 					return false;
 				}
 			} else if (styleTypeUnset) {
-				if (lut == LexicalUnit.SAC_STRING_VALUE || (lut == LexicalUnit.SAC_FUNCTION
+				if (lut == LexicalType.STRING || (lut == LexicalType.FUNCTION
 						&& "symbols".equalsIgnoreCase(currentValue.getFunctionName()))) {
 					setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
 					styleTypeUnset = false;

@@ -20,308 +20,321 @@ import io.sf.carte.doc.style.css.parser.BooleanCondition;
  */
 public interface LexicalUnit {
 
-	/**
-	 * ,
-	 */
-	short SAC_OPERATOR_COMMA = 0;
+	enum LexicalType {
+		/**
+		 * ,
+		 */
+		OPERATOR_COMMA,
+
+		/**
+		 * +
+		 */
+		OPERATOR_PLUS,
+
+		/**
+		 * -
+		 */
+		OPERATOR_MINUS,
+
+		/**
+		 * *
+		 */
+		OPERATOR_MULTIPLY,
+
+		/**
+		 * /
+		 */
+		OPERATOR_SLASH,
+
+		/**
+		 * %
+		 */
+		OPERATOR_MOD,
+
+		/**
+		 * ^
+		 */
+		OPERATOR_EXP,
+
+		/**
+		 * &lt;
+		 */
+		OPERATOR_LT,
+
+		/**
+		 * &gt;
+		 */
+		OPERATOR_GT,
+
+		/**
+		 * &lt;=
+		 */
+		OPERATOR_LE,
+
+		/**
+		 * &gt;=
+		 */
+		OPERATOR_GE,
+
+		/**
+		 * ~
+		 */
+		OPERATOR_TILDE,
+
+		/**
+		 * Keyword <code>inherit</code>.
+		 */
+		INHERIT,
+
+		/**
+		 * Keyword <code>initial</code>.
+		 */
+		INITIAL,
+
+		/**
+		 * Keyword <code>unset</code>.
+		 */
+		UNSET,
+
+		/**
+		 * Keyword <code>revert</code>.
+		 */
+		REVERT,
+
+		/**
+		 * Integers.
+		 * 
+		 * @see #getIntegerValue
+		 */
+		INTEGER,
+
+		/**
+		 * reals.
+		 * 
+		 * @see #getFloatValue
+		 * @see #getDimensionUnitText
+		 */
+		REAL,
+
+		/**
+		 * Percentage.
+		 * 
+		 * @see #getFloatValue
+		 * @see #getDimensionUnitText
+		 */
+		PERCENTAGE,
+
+		/**
+		 * unknown dimension.
+		 * 
+		 * @see #getFloatValue
+		 * @see #getDimensionUnitText
+		 */
+		DIMENSION,
+
+		/**
+		 * RGB Colors. <code>rgb(0, 0, 0)</code> and <code>#000</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		RGBCOLOR,
+
+		/**
+		 * HSL(A) Colors: <code>hsl(0 0% 0% / 0)</code> and
+		 * <code>hsla(0, 0%, 0%, 0)</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		HSLCOLOR,
+
+		/**
+		 * Custom identifier.
+		 * 
+		 * @see #getStringValue
+		 */
+		IDENT,
+
+		/**
+		 * A string.
+		 * 
+		 * @see #getStringValue
+		 */
+		STRING,
+
+		/**
+		 * URI: <code>uri(...)</code>.
+		 * 
+		 * @see #getStringValue
+		 */
+		URI,
+
+		/**
+		 * A unicode range.
+		 * 
+		 * @see #getSubValues
+		 */
+		UNICODE_RANGE,
+
+		/**
+		 * Unicode range wildcard.
+		 * <p>
+		 * For example: <code>U+4??</code>.
+		 * <p>
+		 * The {@link #getStringValue()} method returns the wildcard without the
+		 * preceding "U+".
+		 */
+		UNICODE_WILDCARD,
+
+		/**
+		 * An element reference.
+		 * <p>
+		 * For example: <code>element(#someId)</code>.
+		 * <p>
+		 *
+		 * @see #getStringValue
+		 */
+		ELEMENT_REFERENCE,
+
+		/**
+		 * Custom property value: <code>var(...)</code>.
+		 * <p>
+		 * See {@link #getStringValue} for the custom property name, and
+		 * {@link #getParameters()} for the fallback.
+		 * </p>
+		 */
+		VAR,
+
+		/**
+		 * Attribute: <code>attr(...)</code>.
+		 * 
+		 * @see #getStringValue
+		 */
+		ATTR,
+
+		/**
+		 * function <code>counter</code>.
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		COUNTER_FUNCTION,
+
+		/**
+		 * function <code>counters</code>.
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		COUNTERS_FUNCTION,
+
+		/**
+		 * function <code>rect</code>.
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		RECT_FUNCTION,
+
+		/**
+		 * A function.
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		FUNCTION,
+
+		/**
+		 * sub expressions <code>(a)</code> <code>(a + b)</code>
+		 * <code>(normal/none)</code>
+		 * 
+		 * @see #getSubValues
+		 */
+		SUB_EXPRESSION,
+
+		/**
+		 * [
+		 */
+		LEFT_BRACKET,
+
+		/**
+		 * ]
+		 */
+		RIGHT_BRACKET,
+
+		/**
+		 * Compat identifier: invalid value accepted for IE compatibility as an
+		 * ident-like value.
+		 *
+		 * @see #getStringValue
+		 */
+		COMPAT_IDENT,
+
+		/**
+		 * Value with invalid priority accepted for IE compatibility, but it is
+		 * interpreted as being of <code>!important</code> priority by the compatible
+		 * browsers, which makes it different from <code>COMPAT_IDENT</code>.
+		 *
+		 * @see #getStringValue
+		 */
+		COMPAT_PRIO,
+
+		/**
+		 * <code>AND</code> condition.
+		 * <p>
+		 * Can be cast to a {@link BooleanCondition} of type <code>AND</code>.
+		 * </p>
+		 */
+		CONDITION_AND,
+
+		/**
+		 * <code>OR</code> condition.
+		 * <p>
+		 * Can be cast to a {@link BooleanCondition} of type <code>OR</code>.
+		 * </p>
+		 */
+		CONDITION_OR,
+
+		/**
+		 * <code>NOT</code> condition.
+		 * <p>
+		 * Can be cast to a {@link BooleanCondition} of type <code>NOT</code>.
+		 * </p>
+		 */
+		CONDITION_NOT,
+
+		/**
+		 * Fundamental <code>PREDICATE</code> inside a condition.
+		 * <p>
+		 * Can be cast to a {@link BooleanCondition} of type <code>PREDICATE</code>.
+		 * </p>
+		 */
+		CONDITION_PREDICATE,
+
+		/**
+		 * Useful as initial value and for external extensions.
+		 */
+		UNKNOWN,
+
+		/**
+		 * Useful for external extensions.
+		 */
+		EXT1, EXT2, EXT3, EXT4
+	}
 
 	/**
-	 * +
-	 */
-	short SAC_OPERATOR_PLUS = 1;
-
-	/**
-	 * -
-	 */
-	short SAC_OPERATOR_MINUS = 2;
-
-	/**
-	 * *
-	 */
-	short SAC_OPERATOR_MULTIPLY = 3;
-
-	/**
-	 * /
-	 */
-	short SAC_OPERATOR_SLASH = 4;
-
-	/**
-	 * %
-	 */
-	short SAC_OPERATOR_MOD = 5;
-
-	/**
-	 * ^
-	 */
-	short SAC_OPERATOR_EXP = 6;
-
-	/**
-	 * &lt;
-	 */
-	short SAC_OPERATOR_LT = 7;
-
-	/**
-	 * &gt;
-	 */
-	short SAC_OPERATOR_GT = 8;
-
-	/**
-	 * &lt;=
-	 */
-	short SAC_OPERATOR_LE = 9;
-
-	/**
-	 * &gt;=
-	 */
-	short SAC_OPERATOR_GE = 10;
-
-	/**
-	 * ~
-	 */
-	short SAC_OPERATOR_TILDE = 11;
-
-	/**
-	 * Keyword <code>inherit</code>.
-	 */
-	short SAC_INHERIT = 12;
-
-	/**
-	 * Integers.
-	 * 
-	 * @see #getIntegerValue
-	 */
-	short SAC_INTEGER = 13;
-
-	/**
-	 * reals.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_REAL = 14;
-
-	/**
-	 * Percentage.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_PERCENTAGE = 23;
-
-	/**
-	 * URI: <code>uri(...)</code>.
-	 * 
-	 * @see #getStringValue
-	 */
-	short SAC_URI = 24;
-
-	/**
-	 * function <code>counter</code>.
-	 * 
-	 * @see #getFunctionName
-	 * @see #getParameters
-	 */
-	short SAC_COUNTER_FUNCTION = 25;
-
-	/**
-	 * function <code>counters</code>.
-	 * 
-	 * @see #getFunctionName
-	 * @see #getParameters
-	 */
-	short SAC_COUNTERS_FUNCTION = 26;
-
-	/**
-	 * RGB Colors. <code>rgb(0, 0, 0)</code> and <code>#000</code>
-	 * 
-	 * @see #getFunctionName
-	 * @see #getParameters
-	 */
-	short SAC_RGBCOLOR = 27;
-
-	/**
-	 * Custom identifier.
-	 * 
-	 * @see #getStringValue
-	 */
-	short SAC_IDENT = 35;
-
-	/**
-	 * A string.
-	 * 
-	 * @see #getStringValue
-	 */
-	short SAC_STRING_VALUE = 36;
-
-	/**
-	 * Attribute: <code>attr(...)</code>.
-	 * 
-	 * @see #getStringValue
-	 */
-	short SAC_ATTR = 37;
-
-	/**
-	 * function <code>rect</code>.
-	 * 
-	 * @see #getFunctionName
-	 * @see #getParameters
-	 */
-	short SAC_RECT_FUNCTION = 38;
-
-	/**
-	 * A unicode range.
-	 * 
-	 * @see #getSubValues
-	 */
-	short SAC_UNICODERANGE = 39;
-
-	/**
-	 * sub expressions <code>(a)</code> <code>(a + b)</code>
-	 * <code>(normal/none)</code>
-	 * 
-	 * @see #getSubValues
-	 */
-	short SAC_SUB_EXPRESSION = 40;
-
-	/**
-	 * A function.
-	 * 
-	 * @see #getFunctionName
-	 * @see #getParameters
-	 */
-	short SAC_FUNCTION = 41;
-
-	/**
-	 * unknown dimension.
-	 * 
-	 * @see #getFloatValue
-	 * @see #getDimensionUnitText
-	 */
-	short SAC_DIMENSION = 42;
-
-	/**
-	 * [
-	 */
-	short SAC_LEFT_BRACKET = 68;
-
-	/**
-	 * ]
-	 */
-	short SAC_RIGHT_BRACKET = 69;
-
-	/**
-	 * Unicode range wildcard.
-	 * <p>
-	 * For example: <code>U+4??</code>.
-	 * <p>
-	 * The {@link #getStringValue()} method returns the wildcard without the
-	 * preceding "U+".
-	 */
-	short SAC_UNICODE_WILDCARD = 70;
-
-	/**
-	 * Compat identifier: invalid value accepted for IE compatibility as an
-	 * ident-like value.
-	 *
-	 * @see #getStringValue
-	 */
-	short SAC_COMPAT_IDENT = 71;
-
-	/**
-	 * Value with invalid priority accepted for IE compatibility, but it is
-	 * interpreted as being of <code>!important</code> priority by the compatible
-	 * browsers, which makes it different from <code>SAC_COMPAT_IDENT</code>.
-	 *
-	 * @see #getStringValue
-	 */
-	short SAC_COMPAT_PRIO = 72;
-
-	/**
-	 * An element reference.
-	 * <p>
-	 * For example: <code>element(#someId)</code>.
-	 * <p>
-	 *
-	 * @see #getStringValue
-	 */
-	short SAC_ELEMENT_REFERENCE = 73;
-
-	/**
-	 * Keyword <code>initial</code>.
-	 */
-	short SAC_INITIAL = 74;
-
-	/**
-	 * Keyword <code>unset</code>.
-	 */
-	short SAC_UNSET = 75;
-
-	/**
-	 * Keyword <code>revert</code>.
-	 */
-	short SAC_REVERT = 76;
-
-	/**
-	 * Custom property value: <code>var(...)</code>.
-	 * <p>
-	 * See {@link #getStringValue} for the custom property name, and
-	 * {@link #getParameters()} for the fallback.
-	 * </p>
-	 */
-	short SAC_VAR = 77;
-
-	/**
-	 * HSL(A) Colors: <code>hsl(0 0% 0% / 0)</code> and <code>hsla(0, 0%, 0%, 0)</code>
-	 * 
-	 * @see #getFunctionName
-	 * @see #getParameters
-	 */
-	short SAC_HSLCOLOR = 78;
-
-	/**
-	 * <code>AND</code> condition.
-	 * <p>
-	 * Can be cast to a {@link BooleanCondition} of type <code>AND</code>.
-	 * </p>
-	 */
-	short SAC_CONDITION_AND = 100;
-
-	/**
-	 * <code>OR</code> condition.
-	 * <p>
-	 * Can be cast to a {@link BooleanCondition} of type <code>OR</code>.
-	 * </p>
-	 */
-	short SAC_CONDITION_OR = 101;
-
-	/**
-	 * <code>NOT</code> condition.
-	 * <p>
-	 * Can be cast to a {@link BooleanCondition} of type <code>NOT</code>.
-	 * </p>
-	 */
-	short SAC_CONDITION_NOT = 102;
-
-	/**
-	 * Fundamental <code>PREDICATE</code> inside a condition.
-	 * <p>
-	 * Can be cast to a {@link BooleanCondition} of type <code>PREDICATE</code>.
-	 * </p>
-	 */
-	short SAC_CONDITION_PREDICATE = 103;
-
-	/**
-	 * An integer indicating the type of <code>LexicalUnit</code>.
+	 * Gives the type of <code>LexicalUnit</code>.
 	 * 
 	 * @return the type of <code>LexicalUnit</code>.
 	 */
-	short getLexicalUnitType();
+	LexicalType getLexicalUnitType();
 
 	/**
-	 * An integer indicating the type of css unit that this lexical value
+	 * An integer indicating the type of CSS unit that this lexical value
 	 * represents.
 	 * 
-	 * @return an integer indicating the type of css unit. If this value does not
+	 * @return an integer indicating the type of CSS unit. If this value does not
 	 *         represent a dimension, must return an invalid unit identifier.
 	 */
 	short getCssUnit();
@@ -370,7 +383,7 @@ public interface LexicalUnit {
 	 * Returns the integer value represented by this unit.
 	 * 
 	 * @return the integer value, or zero if this is not an integer unit.
-	 * @see #SAC_INTEGER
+	 * @see #INTEGER
 	 */
 	int getIntegerValue();
 
@@ -382,34 +395,34 @@ public interface LexicalUnit {
 	float getFloatValue();
 
 	/**
-	 * If this unit is a {@link #SAC_DIMENSION}, returns the string representation
-	 * of the CSS unit returned by {@link #getCssUnit()}.
+	 * If this unit is a {@link #DIMENSION}, returns the string representation of
+	 * the CSS unit returned by {@link #getCssUnit()}.
 	 * 
 	 * @return the string representation of the CSS unit, or the empty string if
-	 *         this lexical unit does not represent a {@link #SAC_DIMENSION}.
+	 *         this lexical unit does not represent a {@link #DIMENSION}.
 	 */
 	String getDimensionUnitText();
 
 	/**
 	 * Returns the string value.
 	 * <p>
-	 * If the type is <code>SAC_URI</code>, the return value doesn't contain
+	 * If the type is <code>URI</code>, the return value doesn't contain
 	 * <code>uri(....)</code> or quotes.
 	 * <p>
-	 * If the type is <code>SAC_ATTR</code>, the return value doesn't contain
+	 * If the type is <code>ATTR</code>, the return value doesn't contain
 	 * <code>attr(....)</code>.
 	 * <p>
-	 * If the type is <code>SAC_UNICODE_WILDCARD</code>, the return value is the
+	 * If the type is <code>UNICODE_WILDCARD</code>, the return value is the
 	 * wildcard without the preceding "U+".
 	 * 
 	 * @return the string value, or <code>null</code> if this unit does not have a
 	 *         string to return.
 	 * 
-	 * @see #SAC_URI
-	 * @see #SAC_ATTR
-	 * @see #SAC_IDENT
-	 * @see #SAC_STRING_VALUE
-	 * @see #SAC_UNICODE_WILDCARD
+	 * @see #URI
+	 * @see #ATTR
+	 * @see #IDENT
+	 * @see #STRING
+	 * @see #UNICODE_WILDCARD
 	 */
 	String getStringValue();
 
@@ -419,27 +432,27 @@ public interface LexicalUnit {
 	 * @return the function name, or <code>null</code> if this unit is not a
 	 *         function.
 	 * 
-	 * @see #SAC_COUNTER_FUNCTION
-	 * @see #SAC_COUNTERS_FUNCTION
-	 * @see #SAC_RECT_FUNCTION
-	 * @see #SAC_FUNCTION
-	 * @see #SAC_RGBCOLOR
+	 * @see #COUNTER_FUNCTION
+	 * @see #COUNTERS_FUNCTION
+	 * @see #RECT_FUNCTION
+	 * @see #FUNCTION
+	 * @see #RGBCOLOR
 	 */
 	String getFunctionName();
 
 	/**
 	 * The function parameters including operators (like the comma).
 	 * <code>#000</code> is converted to <code>rgb(0, 0, 0)</code> can return
-	 * <code>null</code> if <code>SAC_FUNCTION</code>.
+	 * <code>null</code> if <code>FUNCTION</code>.
 	 * 
 	 * @return the parameters of this function, or <code>null</code> if this unit is
 	 *         not a function.
 	 * 
-	 * @see #SAC_COUNTER_FUNCTION
-	 * @see #SAC_COUNTERS_FUNCTION
-	 * @see #SAC_RECT_FUNCTION
-	 * @see #SAC_FUNCTION
-	 * @see #SAC_RGBCOLOR
+	 * @see #COUNTER_FUNCTION
+	 * @see #COUNTERS_FUNCTION
+	 * @see #RECT_FUNCTION
+	 * @see #FUNCTION
+	 * @see #RGBCOLOR
 	 */
 	LexicalUnit getParameters();
 
@@ -456,8 +469,8 @@ public interface LexicalUnit {
 	 * 
 	 * @return the values in the sub-expression, or <code>null</code> if this unit
 	 *         is not a sub-expression nor a unicode range.
-	 * @see #SAC_SUB_EXPRESSION
-	 * @see #SAC_UNICODERANGE
+	 * @see #SUB_EXPRESSION
+	 * @see #UNICODE_RANGE
 	 */
 	LexicalUnit getSubValues();
 
@@ -470,7 +483,7 @@ public interface LexicalUnit {
 	 * <p>
 	 * The text should be close to how the value was specified (for example,
 	 * preserving hex or functional notation in rgb colors) but must parse without
-	 * errors (except for compatibility values like <code>SAC_COMPAT_IDENT</code>).
+	 * errors (except for compatibility values like <code>COMPAT_IDENT</code>).
 	 * </p>
 	 *
 	 * @return the parsable representation of this unit.

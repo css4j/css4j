@@ -15,8 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-
 /**
  * LexicalUnit-based boolean conditions.
  * <p>
@@ -30,7 +28,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 
 	private BooleanCondition parent = null;
 
-	BooleanConditionUnit(short unitType) {
+	BooleanConditionUnit(LexicalType unitType) {
 		super(unitType);
 	}
 
@@ -128,7 +126,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 	static abstract class GroupCondition extends BooleanConditionUnit {
 		LinkedList<BooleanCondition> nestedConditions;
 
-		GroupCondition(short unitType) {
+		GroupCondition(LexicalType unitType) {
 			super(unitType);
 			nestedConditions = new LinkedList<BooleanCondition>();
 		}
@@ -184,7 +182,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 	static class AndCondition extends GroupCondition {
 
 		AndCondition() {
-			super(LexicalUnit.SAC_CONDITION_AND);
+			super(LexicalType.CONDITION_AND);
 			nestedConditions = new LinkedList<BooleanCondition>();
 		}
 
@@ -213,7 +211,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 	static class OrCondition extends GroupCondition {
 
 		OrCondition() {
-			super(LexicalUnit.SAC_CONDITION_OR);
+			super(LexicalType.CONDITION_OR);
 		}
 
 		@Override
@@ -242,7 +240,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 		BooleanCondition nestedCondition;
 
 		NotCondition() {
-			super(LexicalUnit.SAC_CONDITION_NOT);
+			super(LexicalType.CONDITION_NOT);
 		}
 
 		@Override
@@ -312,7 +310,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 		private final String name;
 
 		Predicate(String name) {
-			super(LexicalUnit.SAC_CONDITION_PREDICATE);
+			super(LexicalType.CONDITION_PREDICATE);
 			this.name = name;
 		}
 

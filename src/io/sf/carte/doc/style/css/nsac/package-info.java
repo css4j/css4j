@@ -50,12 +50,12 @@
  * <li><code>IEVALUES</code> accepts values with some IE hacks like IE
  * expressions (progid included), and also values ending with <code>\9</code>
  * and <code>\0</code>. The non-standard values produce
- * <code>LexicalUnit.SAC_COMPAT_IDENT</code> values as a result.</li>
+ * <code>LexicalType.COMPAT_IDENT</code> values as a result.</li>
  * <li><code>IEPRIO</code> accepts values with the <code>!ie</code> priority
- * hack, and again produces <code>LexicalUnit.SAC_COMPAT_IDENT</code>
+ * hack, and again produces <code>LexicalType.COMPAT_IDENT</code>
  * values.</li>
  * <li><code>IEPRIOCHAR</code> accepts values with the <code>!important!</code>
- * priority hack, and instead produces <code>LexicalUnit.SAC_COMPAT_PRIO</code>
+ * priority hack, and instead produces <code>LexicalType.COMPAT_PRIO</code>
  * values.</li>
  * </ul>
  * </p>
@@ -65,10 +65,10 @@
  * two pseudo-values that do not follow standard CSS syntax:
  * </p>
  * <ul>
- * <li><code>SAC_COMPAT_IDENT</code> values are produced only when the
+ * <li><code>COMPAT_IDENT</code> values are produced only when the
  * <code>IEVALUES</code> and <code>IEPRIO</code> flags are used, and contain
  * ident-like values.</li>
- * <li><code>SAC_COMPAT_PRIO</code> values are produced by the
+ * <li><code>COMPAT_PRIO</code> values are produced by the
  * <code>IEPRIOCHAR</code> flag, representing values that its compatible browser
  * interprets as being of <code>!important</code> priority.</li>
  * </ul>

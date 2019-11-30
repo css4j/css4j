@@ -56,19 +56,19 @@ public interface Parser {
 
 		/**
 		 * Accepts values with some IE hacks, producing
-		 * {@link LexicalUnit#SAC_COMPAT_IDENT} values.
+		 * {@link LexicalUnit#COMPAT_IDENT} values.
 		 */
 		IEVALUES,
 
 		/**
 		 * Allows values ending with the '!ie' priority hack (and puts them into
-		 * <code>SAC_COMPAT_IDENT</code> compatibility values).
+		 * <code>COMPAT_IDENT</code> compatibility values).
 		 */
 		IEPRIO,
 
 		/**
 		 * Accepts values with an '!important!' priority, and sets it to
-		 * {@link LexicalUnit#SAC_COMPAT_PRIO} pseudo-values. Those values must be
+		 * {@link LexicalUnit#COMPAT_PRIO} pseudo-values. Those values must be
 		 * handled as of !important priority.
 		 */
 		IEPRIOCHAR
@@ -282,7 +282,7 @@ public interface Parser {
 	 *            the query factory.
 	 * @param mqhandler
 	 *            the media query list handler.
-	 * @throws CSSException <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a
+	 * @throws CSSException <code>CSSException.NOT_SUPPORTED_ERR</code> if a
 	 *                      hard-coded limit in nested expressions was reached.
 	 */
 	void parseMediaQueryList(String media, MediaQueryFactory queryFactory,

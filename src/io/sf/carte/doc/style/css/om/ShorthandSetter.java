@@ -25,6 +25,7 @@ import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.InitialValue;
 import io.sf.carte.doc.style.css.property.KeywordValue;
@@ -92,7 +93,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	/**
 	 * Check whether this shorthand contains any IE compatibility value
-	 * (<code>SAC_COMPAT_IDENT</code> or <code>SAC_COMPAT_PRIO</code>).
+	 * (<code>COMPAT_IDENT</code> or <code>COMPAT_PRIO</code>).
 	 * <p>
 	 * If any of those values is present, that means that the factory is configured
 	 * for compatibility (no need to check for that).
@@ -103,8 +104,8 @@ class ShorthandSetter extends BaseShorthandSetter {
 	boolean hasCompatValue() {
 		LexicalUnit lu = currentValue;
 		while (lu != null) {
-			short type = lu.getLexicalUnitType();
-			if (type == LexicalUnit.SAC_COMPAT_IDENT || type == LexicalUnit.SAC_COMPAT_PRIO) {
+			LexicalType type = lu.getLexicalUnitType();
+			if (type == LexicalType.COMPAT_IDENT || type == LexicalType.COMPAT_PRIO) {
 				return true;
 			}
 			lu = lu.getNextLexicalUnit();
@@ -122,7 +123,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	boolean scanUnassigned(List<LexicalUnit> unassignedValues) {
 		valueloop: for (LexicalUnit lu : unassignedValues) {
-			if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
 				if (!isNotValidIdentifier(lu)) {
 					continue;
 				}
@@ -136,7 +137,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 						continue valueloop;
 					}
 				}
-			} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_FUNCTION) {
+			} else if (lu.getLexicalUnitType() == LexicalType.FUNCTION) {
 				List<String> unass = getUnassignedProperties();
 				Iterator<String> it = unass.iterator();
 				while (it.hasNext()) {
@@ -153,7 +154,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 						}
 					}
 				}
-			} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_VAR) {
+			} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
 				List<String> unass = getUnassignedProperties();
 				Iterator<String> it = unass.iterator();
 				while (it.hasNext()) {
@@ -209,16 +210,16 @@ class ShorthandSetter extends BaseShorthandSetter {
 	KeywordValue createKeywordValueSubproperty(LexicalUnit lunit) {
 		KeywordValue kwval;
 		switch (lunit.getLexicalUnitType()) {
-		case LexicalUnit.SAC_INHERIT:
+		case INHERIT:
 			kwval = InheritValue.getValue().asSubproperty();
 			break;
-		case LexicalUnit.SAC_INITIAL:
+		case INITIAL:
 			kwval = InitialValue.getValue().asSubproperty();
 			break;
-		case LexicalUnit.SAC_UNSET:
+		case UNSET:
 			kwval = UnsetValue.getValue().asSubproperty();
 			break;
-		case LexicalUnit.SAC_REVERT:
+		case REVERT:
 			kwval = RevertValue.getValue().asSubproperty();
 			break;
 		default:
@@ -416,8 +417,8 @@ class ShorthandSetter extends BaseShorthandSetter {
 	}
 
 	protected boolean assignSubproperty(String subproperty) {
-		short lutype = currentValue.getLexicalUnitType();
-		if (lutype == LexicalUnit.SAC_IDENT) {
+		LexicalType lutype = currentValue.getLexicalUnitType();
+		if (lutype == LexicalType.IDENT) {
 			if (assignIdentifiers(subproperty)) {
 				return true;
 			}
@@ -437,9 +438,9 @@ class ShorthandSetter extends BaseShorthandSetter {
 	}
 
 	boolean isImage() {
-		short type = currentValue.getLexicalUnitType();
-		return type == LexicalUnit.SAC_URI || (type == LexicalUnit.SAC_FUNCTION && isImageFunctionOrGradientName())
-				|| type == LexicalUnit.SAC_ELEMENT_REFERENCE;
+		LexicalType type = currentValue.getLexicalUnitType();
+		return type == LexicalType.URI || (type == LexicalType.FUNCTION && isImageFunctionOrGradientName())
+				|| type == LexicalType.ELEMENT_REFERENCE;
 	}
 
 	private boolean isImageFunctionOrGradientName() {

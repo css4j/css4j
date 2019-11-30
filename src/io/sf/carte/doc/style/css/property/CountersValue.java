@@ -17,6 +17,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSCountersValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -65,21 +66,21 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 			setName(lu.getStringValue());
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					lu = lu.getNextLexicalUnit();
-					if (lu == null || lu.getLexicalUnitType() != LexicalUnit.SAC_STRING_VALUE) {
+					if (lu == null || lu.getLexicalUnitType() != LexicalType.STRING) {
 						badSyntax(lunit);
 					}
 					setSeparator(lu.getStringValue());
 					lu = lu.getNextLexicalUnit();
 					if (lu != null) {
-						if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+						if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 							lu = lu.getNextLexicalUnit();
 							if (lu == null) {
 								badSyntax(lunit);
 							}
-							short lutype = lu.getLexicalUnitType();
-							if (lutype == LexicalUnit.SAC_IDENT || (lutype == LexicalUnit.SAC_FUNCTION
+							LexicalType lutype = lu.getLexicalUnitType();
+							if (lutype == LexicalType.IDENT || (lutype == LexicalType.FUNCTION
 									&& "symbols".equalsIgnoreCase(lu.getFunctionName()))) {
 								ValueFactory vf = new ValueFactory();
 								LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, false);

@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -43,9 +43,9 @@ class FlexShorthandSetter extends ShorthandSetter {
 			if (count == 2) {
 				return false;
 			}
-			short lut = currentValue.getLexicalUnitType();
+			LexicalType lut = currentValue.getLexicalUnitType();
 			if (flexGrowUnset) {
-				if (lut == LexicalUnit.SAC_INTEGER) {
+				if (lut == LexicalType.INTEGER) {
 					int intValue = currentValue.getIntegerValue();
 					if (intValue < 0) {
 						return false;
@@ -59,7 +59,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 					} else {
 						continue;
 					}
-				} else if (lut == LexicalUnit.SAC_REAL) {
+				} else if (lut == LexicalType.REAL) {
 					float floatValue = currentValue.getFloatValue();
 					if (floatValue < 0f) {
 						return false;
@@ -87,7 +87,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 				setSubpropertyValue("flex-basis", value);
 				count++;
 				flexBasisUnset = false;
-			} else if (lut == LexicalUnit.SAC_IDENT) {
+			} else if (lut == LexicalType.IDENT) {
 				// Only 'auto', 'content' and 'none' are acceptable
 				String ident = currentValue.getStringValue();
 				if ("none".equalsIgnoreCase(ident)) {
@@ -139,8 +139,8 @@ class FlexShorthandSetter extends ShorthandSetter {
 	private byte checkFlexShrink() {
 		nextCurrentValue();
 		if (currentValue != null) {
-			short lut = currentValue.getLexicalUnitType();
-			if (lut == LexicalUnit.SAC_INTEGER) {
+			LexicalType lut = currentValue.getLexicalUnitType();
+			if (lut == LexicalType.INTEGER) {
 				int intValue = currentValue.getIntegerValue();
 				if (intValue >= 0) {
 					setFlexShrink(intValue);
@@ -149,7 +149,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 				} else {
 					return -1;
 				}
-			} else if (lut == LexicalUnit.SAC_REAL) {
+			} else if (lut == LexicalType.REAL) {
 				float floatValue = currentValue.getFloatValue();
 				if (floatValue >= 0f) {
 					setFlexShrink(floatValue);

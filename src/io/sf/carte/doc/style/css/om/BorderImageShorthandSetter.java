@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -43,14 +43,14 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 		boolean bioutsetUnset = true;
 		boolean birepeatUnset = true;
 		while (currentValue != null) {
-			short lut;
+			LexicalType lut;
 			if (isImage()) {
 				// border-image-source
 				setSubpropertyValue("border-image-source", createCSSValue("border-image-source", currentValue));
 				bisourceUnset = false;
 				nextCurrentValue();
 				continue;
-			} else if ((lut = currentValue.getLexicalUnitType()) == LexicalUnit.SAC_IDENT) {
+			} else if ((lut = currentValue.getLexicalUnitType()) == LexicalType.IDENT) {
 				// Test for repeat
 				if (testIdentifiers("border-image-repeat")) {
 					setSubpropertyValue("border-image-repeat", createCSSValue("border-image-repeat", currentValue));
@@ -84,11 +84,11 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 						break;
 					}
 					lut = currentValue.getLexicalUnitType();
-				} while (lut != LexicalUnit.SAC_OPERATOR_SLASH && lut != LexicalUnit.SAC_IDENT);
+				} while (lut != LexicalType.OPERATOR_SLASH && lut != LexicalType.IDENT);
 				setSubpropertyValue("border-image-slice", list);
 				bisliceUnset = false;
 				if (currentValue != null) {
-					if (lut == LexicalUnit.SAC_IDENT) {
+					if (lut == LexicalType.IDENT) {
 						if ("fill".equals(currentValue.getStringValue().toLowerCase(Locale.ROOT))) {
 							list.add(createCSSValue("border-image-slice", currentValue));
 							nextCurrentValue();
@@ -100,11 +100,11 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 							continue;
 						}
 					}
-					if (lut == LexicalUnit.SAC_OPERATOR_SLASH) {
+					if (lut == LexicalType.OPERATOR_SLASH) {
 						// width / outset
 						nextCurrentValue();
 						lut = currentValue.getLexicalUnitType();
-						if (lut == LexicalUnit.SAC_OPERATOR_SLASH) {
+						if (lut == LexicalType.OPERATOR_SLASH) {
 							// Empty width: set outset
 							nextCurrentValue();
 							if (!ValueFactory.isSizeOrNumberSACUnit(currentValue)) {
@@ -136,7 +136,7 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 							continue;
 						} else {
 							// width / outset
-							if (lut == LexicalUnit.SAC_IDENT) {
+							if (lut == LexicalType.IDENT) {
 								// auto
 								if (!"auto".equalsIgnoreCase(currentValue.getStringValue())) {
 									continue;
@@ -159,13 +159,13 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 									}
 									lut = currentValue.getLexicalUnitType();
 									c++;
-								} while (lut != LexicalUnit.SAC_OPERATOR_SLASH && lut != LexicalUnit.SAC_IDENT
+								} while (lut != LexicalType.OPERATOR_SLASH && lut != LexicalType.IDENT
 										&& c < 4);
 								if (list.getLength() != 0) {
 									setSubpropertyValue("border-image-width", list);
 									biwidthUnset = false;
 								}
-								if (lut == LexicalUnit.SAC_OPERATOR_SLASH) {
+								if (lut == LexicalType.OPERATOR_SLASH) {
 									// outset
 									nextCurrentValue();
 									if (currentValue == null) {

@@ -28,6 +28,7 @@ import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.CommentRemover;
@@ -142,7 +143,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		LexicalUnit lu = selunit.getNextLexicalUnit();
 		while (lu != null) {
 			LexicalUnit nextlu = lu.getNextLexicalUnit();
-			if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_COMMA || nextlu == null) {
+			if (lu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA || nextlu == null) {
 				throw new DOMException(DOMException.SYNTAX_ERR,
 						"Wrong keyframe selector syntax: " + selunit.toString());
 			}
@@ -154,10 +155,10 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 	}
 
 	private static void appendSelector(StringBuilder buffer, LexicalUnit selunit) {
-		short type = selunit.getLexicalUnitType();
-		if (type == LexicalUnit.SAC_IDENT || type == LexicalUnit.SAC_STRING_VALUE) {
+		LexicalType type = selunit.getLexicalUnitType();
+		if (type == LexicalType.IDENT || type == LexicalType.STRING) {
 			buffer.append(selunit.getStringValue());
-		} else if (type == LexicalUnit.SAC_PERCENTAGE) {
+		} else if (type == LexicalType.PERCENTAGE) {
 			float floatValue = selunit.getFloatValue();
 			if(floatValue % 1 != 0) {
 				buffer.append(String.format(Locale.ROOT, "%s", floatValue));
@@ -165,7 +166,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 				buffer.append(String.format(Locale.ROOT, "%.0f", floatValue));
 			}
 			buffer.append('%');
-		} else if (type == LexicalUnit.SAC_INTEGER && selunit.getIntegerValue() == 0) {
+		} else if (type == LexicalType.INTEGER && selunit.getIntegerValue() == 0) {
 			buffer.append('0');
 		} else {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Wrong keyframe selector: " + selunit.toString());

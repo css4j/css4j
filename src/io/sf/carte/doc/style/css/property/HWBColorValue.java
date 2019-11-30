@@ -180,7 +180,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue alpha = null;
 			if (lu != null) {
-				if (lu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_SLASH) {
+				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
 					throw new DOMException(DOMException.SYNTAX_ERR, "Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha

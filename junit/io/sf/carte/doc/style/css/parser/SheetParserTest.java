@@ -33,6 +33,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
@@ -97,11 +98,11 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -122,7 +123,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-right", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -144,11 +145,11 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -168,11 +169,11 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -194,11 +195,11 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -223,11 +224,11 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -250,11 +251,11 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -277,11 +278,11 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -304,11 +305,11 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -411,7 +412,7 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
 		assertEquals("*just a comment*", handler.comments.getFirst());
@@ -434,7 +435,7 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
 		assertEquals("*just a comment*", handler.comments.getFirst());
@@ -456,7 +457,7 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
 		assertEquals("Newline\nhere", handler.comments.getFirst());
@@ -481,7 +482,7 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(0, handler.comments.size());
 		assertTrue(errorHandler.hasError());
@@ -506,7 +507,7 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -527,7 +528,7 @@ public class SheetParserTest {
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -670,11 +671,11 @@ public class SheetParserTest {
 		assertEquals("color", handler.propertyNames.getFirst());
 		assertEquals("margin-left", handler.propertyNames.get(1));
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("blue", lu.getStringValue());
 		lu = handler.lexicalValues.getLast();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_DIMENSION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
 		assertEquals(5, lu.getFloatValue(), 0.01f);
 		assertFalse(errorHandler.hasError());
@@ -971,14 +972,14 @@ public class SheetParserTest {
 		assertEquals("display", handler.propertyNames.getLast());
 		assertEquals(108, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Verdana", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
+		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertEquals("Arial", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
-		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu.getLexicalUnitType());
+		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertEquals("Helvetica", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
@@ -1772,7 +1773,7 @@ public class SheetParserTest {
 		assertEquals("page-break-before", handler.propertyNames.getLast());
 		assertEquals(150, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("avoid", handler.lexicalValues.getLast().toString());
@@ -1798,7 +1799,7 @@ public class SheetParserTest {
 		assertEquals("page-break-before", handler.propertyNames.getLast());
 		assertEquals(168, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("avoid", handler.lexicalValues.getLast().toString());
@@ -2098,7 +2099,7 @@ public class SheetParserTest {
 		assertEquals("device-width", handler.lexicalValues.get(0).toString());
 		LexicalUnit lu = handler.lexicalValues.get(1);
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("red", lu.getStringValue());
 		//
 		assertEquals(8, handler.comments.size());
@@ -2136,7 +2137,7 @@ public class SheetParserTest {
 		assertEquals("color", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("red", lu.getStringValue());
 		// The comments found do not apply to a valid rule
 		assertEquals(0, handler.comments.size());
@@ -2159,7 +2160,7 @@ public class SheetParserTest {
 		assertEquals("color", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
-		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("red", lu.getStringValue());
 		// The comments found do not apply to a valid rule
 		assertEquals(0, handler.comments.size());
@@ -2187,7 +2188,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("*width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalUnit.SAC_PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(80, lu.getFloatValue(), 0.01);
 	}
 

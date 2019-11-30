@@ -75,7 +75,7 @@ public class IdentifierValue extends AbstractTextValue {
 			ex.initCause(e);
 			throw ex;
 		}
-		if (lu.getLexicalUnitType() != LexicalUnit.SAC_IDENT || lu.getNextLexicalUnit() != null) {
+		if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.IDENT || lu.getNextLexicalUnit() != null) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an identifier: " + cssText);
 		}
 		LexicalSetter setter = newLexicalSetter();

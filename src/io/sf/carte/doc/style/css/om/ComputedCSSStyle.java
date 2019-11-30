@@ -992,7 +992,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, Parser parser) throws DOMException {
 		LexicalUnit lu = lexval;
 		do {
-			if (lu.getLexicalUnitType() == LexicalUnit.SAC_VAR) {
+			if (lu.getLexicalUnitType() == LexicalUnit.LexicalType.VAR) {
 				LexicalUnit newlu;
 				LexicalUnit param = lu.getParameters();
 				String propertyName = param.getStringValue(); // Property name

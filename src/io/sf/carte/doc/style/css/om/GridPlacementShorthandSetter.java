@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -61,8 +61,8 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 	}
 
 	StyleValue gridLine() {
-		short lut = currentValue.getLexicalUnitType();
-		if (lut == LexicalUnit.SAC_IDENT) {
+		LexicalType lut = currentValue.getLexicalUnitType();
+		if (lut == LexicalType.IDENT) {
 			String sv = currentValue.getStringValue();
 			if ("auto".equalsIgnoreCase(sv)) {
 				nextCurrentValue();
@@ -78,7 +78,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 				nextCurrentValue();
 				if (currentValue != null) {
 					lut = currentValue.getLexicalUnitType();
-					if (lut == LexicalUnit.SAC_INTEGER || lut == LexicalUnit.SAC_IDENT) {
+					if (lut == LexicalType.INTEGER || lut == LexicalType.IDENT) {
 						list.add(valueFactory.createCSSValueItem(currentValue, true).getCSSValue());
 						nextCurrentValue();
 						if (isFinalCurrentValue()) {
@@ -93,13 +93,13 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 					return customIdent;
 				}
 			}
-		} else if (lut == LexicalUnit.SAC_INTEGER) {
+		} else if (lut == LexicalType.INTEGER) {
 			// <integer> && <custom-ident>?
 			StyleValue cssInt = createCSSValue(getShorthandName(), currentValue);
 			nextCurrentValue();
 			if (isFinalCurrentValue()) {
 				return cssInt;
-			} else if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			} else if (currentValue.getLexicalUnitType() == LexicalType.IDENT) {
 				ValueList list = ValueList.createWSValueList();
 				list.add(cssInt);
 				list.add(valueFactory.createCSSValueItem(currentValue, true).getCSSValue());
@@ -113,7 +113,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 	}
 
 	boolean isFinalCurrentValue() {
-		return currentValue == null || currentValue.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH;
+		return currentValue == null || currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH;
 	}
 
 }

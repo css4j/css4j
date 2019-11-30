@@ -65,7 +65,7 @@ public class URIValue extends StringValue {
 		} catch (IOException e) {
 			lunit = null;
 		}
-		if (lunit == null || lunit.getLexicalUnitType() != LexicalUnit.SAC_URI) {
+		if (lunit == null || lunit.getLexicalUnitType() != LexicalUnit.LexicalType.URI) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a URI value.");
 		}
 		setter.setLexicalUnit(lunit);

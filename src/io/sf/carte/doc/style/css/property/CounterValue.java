@@ -52,13 +52,13 @@ class CounterValue extends AbstractCounterValue {
 			setName(lu.getStringValue());
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
+				if (lu.getLexicalUnitType() == LexicalUnit.LexicalType.OPERATOR_COMMA) {
 					lu = lu.getNextLexicalUnit();
 					if (lu == null) {
 						badSyntax(lunit);
 					}
-					short lutype = lu.getLexicalUnitType();
-					if (lutype == LexicalUnit.SAC_IDENT || (lutype == LexicalUnit.SAC_FUNCTION
+					LexicalUnit.LexicalType lutype = lu.getLexicalUnitType();
+					if (lutype == LexicalUnit.LexicalType.IDENT || (lutype == LexicalUnit.LexicalType.FUNCTION
 							&& "symbols".equalsIgnoreCase(lu.getFunctionName()))) {
 						ValueFactory vf = new ValueFactory();
 						LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, false);

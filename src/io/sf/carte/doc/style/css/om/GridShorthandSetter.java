@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory.ListValueItem;
@@ -85,14 +86,14 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 			}
 		}
 		boolean missSlash = true;
-		short lasttype = -1;
+		LexicalType lasttype = LexicalType.UNKNOWN;
 		topLoop: do {
 			StyleValue value;
-			short type;
+			LexicalType type;
 			switch (type = currentValue.getLexicalUnitType()) {
-			case LexicalUnit.SAC_LEFT_BRACKET:
+			case LEFT_BRACKET:
 				// Line name
-				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {
+				if (lasttype == LexicalType.STRING) {
 					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
 				}
 				LexicalUnit nlu = currentValue.getNextLexicalUnit();
@@ -112,8 +113,8 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 					currentValue = nlu.getNextLexicalUnit();
 				}
 				break;
-			case LexicalUnit.SAC_STRING_VALUE:
-				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {
+			case STRING:
+				if (lasttype == LexicalType.STRING) {
 					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
 				}
 				setTemplateAreas = true;
@@ -123,8 +124,8 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 				appendValueItemString(value);
 				lasttype = type;
 				break;
-			case LexicalUnit.SAC_OPERATOR_SLASH:
-				if (lasttype != -1) {
+			case OPERATOR_SLASH:
+				if (lasttype != LexicalType.UNKNOWN) {
 					currentValue = currentValue.getNextLexicalUnit();
 					if (currentValue != null) {
 						getValueItemBuffer().append(" /");
@@ -163,7 +164,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 				}
 				return false;
 			default:
-				if (setTemplateAreas && type == LexicalUnit.SAC_FUNCTION
+				if (setTemplateAreas && type == LexicalType.FUNCTION
 						&& "repeat".equalsIgnoreCase(currentValue.getFunctionName())) {
 					syntaxError("This syntax does not allow repeat(): "
 							+ BaseCSSStyleDeclaration.lexicalUnitToString(fullValue));
@@ -239,7 +240,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 
 	private byte isAutoflowOrDenseKeyword() {
 		byte ret = 0;
-		if (currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+		if (currentValue.getLexicalUnitType() == LexicalType.IDENT) {
 			String sv = currentValue.getStringValue();
 			if ("auto-flow".equalsIgnoreCase(sv)) {
 				StringBuilder buf = getValueItemBuffer();
@@ -247,7 +248,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 					buf.append(' ');
 				}
 				currentValue = currentValue.getNextLexicalUnit();
-				if (currentValue != null && currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+				if (currentValue != null && currentValue.getLexicalUnitType() == LexicalType.IDENT
 						&& "dense".equalsIgnoreCase(currentValue.getStringValue())) {
 					appendValueItemString("auto-flow dense");
 					ret = 2;
@@ -264,7 +265,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 					getValueItemBufferMini().append(' ');
 				}
 				currentValue = currentValue.getNextLexicalUnit();
-				if (currentValue != null && currentValue.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+				if (currentValue != null && currentValue.getLexicalUnitType() == LexicalType.IDENT
 						&& "auto-flow".equalsIgnoreCase(currentValue.getStringValue())) {
 					currentValue = currentValue.getNextLexicalUnit();
 					appendValueItemString("auto-flow dense");

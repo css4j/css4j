@@ -49,6 +49,7 @@ import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.InputSource;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Locator;
 import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.Parser;
@@ -426,13 +427,13 @@ public class CSSParser implements Parser {
 	 * @param rule
 	 *            the rule that would process the error. if <code>null</code>, a problem while
 	 *            parsing shall result in an exception. Note that
-	 *            <code>SAC_NOT_SUPPORTED_ERR</code> exceptions are always thrown instead of
+	 *            <code>NOT_SUPPORTED_ERR</code> exceptions are always thrown instead of
 	 *            being processed by the rule.
 	 * @return the <code>{@literal @}supports</code> condition, or <code>null</code> if a rule
 	 *         was specified to handle the errors, and an error was produced.
 	 * @throws CSSException
 	 *             if there is a syntax problem and there is no error handler, or
-	 *             <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a hard-coded limit in
+	 *             <code>CSSException.NOT_SUPPORTED_ERR</code> if a hard-coded limit in
 	 *             nested expressions was reached.
 	 */
 	public BooleanCondition parseSupportsCondition(String conditionText, ExtendedCSSRule rule)
@@ -461,7 +462,7 @@ public class CSSParser implements Parser {
 	 *            the query factory.
 	 * @param mqhandler
 	 *            the media query list handler.
-	 * @throws CSSException <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a
+	 * @throws CSSException <code>CSSException.NOT_SUPPORTED_ERR</code> if a
 	 *                      hard-coded limit in nested expressions was reached.
 	 */
 	@Override
@@ -487,7 +488,7 @@ public class CSSParser implements Parser {
 	 * @param owner
 	 *            the node that owns the responsibility to handle the errors in
 	 *            the query list.
-	 * @throws CSSException <code>CSSException.SAC_NOT_SUPPORTED_ERR</code> if a
+	 * @throws CSSException <code>CSSException.NOT_SUPPORTED_ERR</code> if a
 	 *                      hard-coded limit in nested expressions was reached.
 	 */
 	@Override
@@ -1331,7 +1332,7 @@ public class CSSParser implements Parser {
 								handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 							} else {
 								handlePredicate(featureName, rangeType, value1);
-								if (value1.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT) {
+								if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
 									handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 											"Probable hack in media feature.");
 								}
@@ -1343,7 +1344,7 @@ public class CSSParser implements Parser {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 								} else {
 									handlePredicate(featureName, (byte) 0, value);
-									if (value.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT) {
+									if (value.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
 										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 												"Probable hack in media feature.");
 									}
@@ -1357,8 +1358,8 @@ public class CSSParser implements Parser {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 								} else {
 									handlePredicate(featureName, rangeType, value1, value2);
-									if (value1.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT
-											|| value2.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT) {
+									if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT
+											|| value2.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
 										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 												"Probable hack in media feature.");
 									}
@@ -1397,7 +1398,7 @@ public class CSSParser implements Parser {
 					return null;
 				}
 				LexicalUnit nlu = lunit.getNextLexicalUnit();
-				if (nlu != null && (nlu.getLexicalUnitType() != LexicalUnit.SAC_OPERATOR_SLASH
+				if (nlu != null && (nlu.getLexicalUnitType() != LexicalType.OPERATOR_SLASH
 						|| nlu.getNextLexicalUnit() == null)) {
 					handleError(index, ParseHelper.ERR_EXPR_SYNTAX, "Invalid feature value: " + feature);
 				}
@@ -5240,7 +5241,7 @@ public class CSSParser implements Parser {
 							prevcp = codepoint;
 						} else if (buffer.length() == 0) {
 							// Sub-values
-							newLexicalUnit(LexicalUnit.SAC_SUB_EXPRESSION);
+							newLexicalUnit(LexicalType.SUB_EXPRESSION);
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
 									"Unexpected token: " + buffer.toString());
@@ -5261,7 +5262,7 @@ public class CSSParser implements Parser {
 				if (!parseError) {
 					if (propertyName != null) {
 						processBuffer(index);
-						newLexicalUnit(LexicalUnit.SAC_LEFT_BRACKET);
+						newLexicalUnit(LexicalType.LEFT_BRACKET);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -5274,27 +5275,27 @@ public class CSSParser implements Parser {
 			LexicalUnitImpl lu;
 			String name = unescapeBuffer(index);
 			if ("url".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_URI);
+				lu = newLexicalUnit(LexicalType.URI);
 			} else if ("rgb".equalsIgnoreCase(name) || "rgba".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
+				lu = newLexicalUnit(LexicalType.RGBCOLOR);
 			} else if ("hsl".equalsIgnoreCase(name) || "hsla".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_HSLCOLOR);
+				lu = newLexicalUnit(LexicalType.HSLCOLOR);
 			} else if ("attr".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_ATTR);
+				lu = newLexicalUnit(LexicalType.ATTR);
 			} else if ("var".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_VAR);
+				lu = newLexicalUnit(LexicalType.VAR);
 			} else if ("element".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_ELEMENT_REFERENCE);
+				lu = newLexicalUnit(LexicalType.ELEMENT_REFERENCE);
 				functionToken = true;
 				return;
 			} else if ("rect".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_RECT_FUNCTION);
+				lu = newLexicalUnit(LexicalType.RECT_FUNCTION);
 			} else if ("counter".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_COUNTER_FUNCTION);
+				lu = newLexicalUnit(LexicalType.COUNTER_FUNCTION);
 			} else if ("counters".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalUnit.SAC_COUNTERS_FUNCTION);
+				lu = newLexicalUnit(LexicalType.COUNTERS_FUNCTION);
 			} else {
-				lu = newLexicalUnit(LexicalUnit.SAC_FUNCTION);
+				lu = newLexicalUnit(LexicalType.FUNCTION);
 			}
 			lu.value = name;
 			functionToken = true;
@@ -5310,16 +5311,16 @@ public class CSSParser implements Parser {
 			getTokenControl().setTokenHandler(ignoreth);
 		}
 
-		private LexicalUnitImpl newLexicalUnit(short unitType) {
+		private LexicalUnitImpl newLexicalUnit(LexicalType unitType) {
 			LexicalUnitImpl lu;
 			if (functionToken) {
-				if (currentlu.getLexicalUnitType() == LexicalUnit.SAC_URI) {
+				if (currentlu.getLexicalUnitType() == LexicalType.URI) {
 					// Special case
 					lu = currentlu;
 				} else {
 					lu = new LexicalUnitImpl(unitType);
 					currentlu.addFunctionParameter(lu);
-					if (ParseHelper.isFunctionUnitType(unitType) || unitType == LexicalUnit.SAC_SUB_EXPRESSION) {
+					if (ParseHelper.isFunctionUnitType(unitType) || unitType == LexicalType.SUB_EXPRESSION) {
 						currentlu = lu;
 					}
 				}
@@ -5367,7 +5368,7 @@ public class CSSParser implements Parser {
 				if (!parseError) {
 					if (propertyName != null) {
 						processBuffer(index);
-						newLexicalUnit(LexicalUnit.SAC_RIGHT_BRACKET);
+						newLexicalUnit(LexicalType.RIGHT_BRACKET);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -5377,11 +5378,11 @@ public class CSSParser implements Parser {
 		}
 
 		private void checkFunction(int index) {
-			short type = currentlu.getLexicalUnitType();
+			LexicalType type = currentlu.getLexicalUnitType();
 			// We allow empty functions only for URI and FUNCTION
 			if (currentlu.parameters == null) {
-				if (type != LexicalUnit.SAC_FUNCTION && type != LexicalUnit.SAC_URI
-						&& type != LexicalUnit.SAC_ELEMENT_REFERENCE) {
+				if (type != LexicalType.FUNCTION && type != LexicalType.URI
+						&& type != LexicalType.ELEMENT_REFERENCE) {
 					unexpectedCharError(index, ')');
 				}
 				return;
@@ -5389,8 +5390,8 @@ public class CSSParser implements Parser {
 				unexpectedCharError(index, ')');
 				return;
 			}
-			if ((type == LexicalUnit.SAC_RGBCOLOR && !isValidRGBColor()) ||
-					(type == LexicalUnit.SAC_HSLCOLOR && !isValidHSLColor())) {
+			if ((type == LexicalType.RGBCOLOR && !isValidRGBColor()) ||
+					(type == LexicalType.HSLCOLOR && !isValidHSLColor())) {
 				String s;
 				try {
 					s = "Wrong color: " + currentlu.toString();
@@ -5402,61 +5403,61 @@ public class CSSParser implements Parser {
 		}
 
 		private boolean lastParamIsOperand() {
-			short type = findLastValue(currentlu.parameters).getLexicalUnitType();
-			return type != LexicalUnit.SAC_OPERATOR_COMMA && !typeIsAlgebraicOperator(type);
+			LexicalType type = findLastValue(currentlu.parameters).getLexicalUnitType();
+			return type != LexicalType.OPERATOR_COMMA && !typeIsAlgebraicOperator(type);
 		}
 
 		private boolean lastParamIsAlgebraicOperator() {
-			short type = findLastValue(currentlu.parameters).getLexicalUnitType();
+			LexicalType type = findLastValue(currentlu.parameters).getLexicalUnitType();
 			return typeIsAlgebraicOperator(type);
 		}
 
-		private boolean typeIsAlgebraicOperator(short type) {
-			return type == LexicalUnit.SAC_OPERATOR_PLUS || type == LexicalUnit.SAC_OPERATOR_MINUS
-					|| type == LexicalUnit.SAC_OPERATOR_MULTIPLY || type == LexicalUnit.SAC_OPERATOR_SLASH;
+		private boolean typeIsAlgebraicOperator(LexicalType type) {
+			return type == LexicalType.OPERATOR_PLUS || type == LexicalType.OPERATOR_MINUS
+					|| type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
 		}
 
 		private boolean isValidRGBColor() {
 			LexicalUnitImpl lu = currentlu.parameters;
 			short valCount = 0;
-			short lastType = -1;
+			LexicalType lastType = LexicalType.UNKNOWN;
 			boolean hasCommas = false;
 			boolean hasNoCommas = false;
 			// Color component values are: 0) unknown, 1) integer, 2) %
 			byte compType = 0;
 			boolean hasVar = false;
 			do {
-				short type = lu.getLexicalUnitType();
-				if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
-					if (lastType == LexicalUnit.SAC_OPERATOR_COMMA || lastType == -1 || hasNoCommas) {
+				LexicalType type = lu.getLexicalUnitType();
+				if (type == LexicalType.OPERATOR_COMMA) {
+					if (lastType == LexicalType.OPERATOR_COMMA || lastType == LexicalType.UNKNOWN || hasNoCommas) {
 						return false;
 					}
 					hasCommas = true;
 				} else if (isComponentType(type)) {
-					if (type == LexicalUnit.SAC_VAR) {
+					if (type == LexicalType.VAR) {
 						hasVar = true;
 					}
 					// Check component type
-					if (type == LexicalUnit.SAC_INTEGER) {
+					if (type == LexicalType.INTEGER) {
 						if (valCount == 3) {
 							int value = lu.getIntegerValue();
 							if (value < 0 || value > 1) {
 								return false;
 							}
-						} else if (lastType != LexicalUnit.SAC_OPERATOR_SLASH && lu.getIntegerValue() != 0) {
+						} else if (lastType != LexicalType.OPERATOR_SLASH && lu.getIntegerValue() != 0) {
 							if (compType == 0) {
 								compType = 1;
 							} else if (compType == 2) {
 								return false;
 							}
 						}
-					} else if (type == LexicalUnit.SAC_PERCENTAGE) {
+					} else if (type == LexicalType.PERCENTAGE) {
 						if (valCount == 3) {
 							float value = lu.getFloatValue();
 							if (value < 0f || value > 100f) {
 								return false;
 							}
-						} else if (lastType != LexicalUnit.SAC_OPERATOR_SLASH) {
+						} else if (lastType != LexicalType.OPERATOR_SLASH) {
 							if (compType == 0) {
 								compType = 2;
 							} else if (compType == 1) {
@@ -5465,22 +5466,22 @@ public class CSSParser implements Parser {
 						}
 					}
 					if (hasCommas) {
-						if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
+						if (lastType != LexicalType.OPERATOR_COMMA) {
 							return false;
 						}
 					} else if (lastType != type) {
-						if (lastType != -1) {
+						if (lastType != LexicalType.UNKNOWN) {
 							if (valCount == 3) {
-								if (lastType != LexicalUnit.SAC_OPERATOR_SLASH) {
+								if (lastType != LexicalType.OPERATOR_SLASH) {
 									// No commas, must be slash
 									return false;
 								}
-							} else if (lastType == LexicalUnit.SAC_PERCENTAGE) {
+							} else if (lastType == LexicalType.PERCENTAGE) {
 								// We tolerate zeroes mixed with percentages
-								if (type == LexicalUnit.SAC_INTEGER && lu.getIntegerValue() != 0) {
+								if (type == LexicalType.INTEGER && lu.getIntegerValue() != 0) {
 									return false;
 								}
-							} else if (type == LexicalUnit.SAC_PERCENTAGE && lastType == LexicalUnit.SAC_INTEGER) {
+							} else if (type == LexicalType.PERCENTAGE && lastType == LexicalType.INTEGER) {
 								// We tolerate zeroes mixed with percentages
 								if (lu.getPreviousLexicalUnit().getIntegerValue() != 0) {
 									return false;
@@ -5491,12 +5492,12 @@ public class CSSParser implements Parser {
 						hasNoCommas = true;
 					}
 					valCount++;
-				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+				} else if (type == LexicalType.OPERATOR_SLASH) {
 					if (valCount == 4 || (valCount < 3 && !hasVar) || !isComponentType(lastType) || hasCommas) {
 						return false;
 					}
-				} else if (type == LexicalUnit.SAC_REAL) {
-					if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
+				} else if (type == LexicalType.REAL) {
+					if ((lastType != LexicalType.OPERATOR_SLASH && lastType != LexicalType.OPERATOR_COMMA)
 							|| valCount == 4 || (valCount < 3 && !hasVar)) {
 						return false;
 					}
@@ -5510,85 +5511,85 @@ public class CSSParser implements Parser {
 			return valCount == 3 || valCount == 4 || (valCount < 3 && hasVar);
 		}
 
-		private boolean isComponentType(short type) {
-			return type == LexicalUnit.SAC_INTEGER || type == LexicalUnit.SAC_PERCENTAGE
-					|| type == LexicalUnit.SAC_VAR || type == LexicalUnit.SAC_FUNCTION;
+		private boolean isComponentType(LexicalType type) {
+			return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE
+					|| type == LexicalType.VAR || type == LexicalType.FUNCTION;
 		}
 
 		private boolean isValidHSLColor() {
 			LexicalUnitImpl lu = currentlu.parameters;
 			short pcntCount = 0;
-			short lastType = -1; // -2 means angle type
+			LexicalType lastType = LexicalType.UNKNOWN; // EXT1 means angle type
 			boolean hasCommas = false;
 			boolean hasNoCommas = false;
 			boolean hasVar = false;
 			do {
-				short type = lu.getLexicalUnitType();
-				if (type == LexicalUnit.SAC_PERCENTAGE) {
-					if (lastType == -1) {
+				LexicalType type = lu.getLexicalUnitType();
+				if (type == LexicalType.PERCENTAGE) {
+					if (lastType == LexicalType.UNKNOWN) {
 						// First type must be integer, angle or VAR
 						return false;
 					}
 					if (hasCommas) {
-						if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
+						if (lastType != LexicalType.OPERATOR_COMMA) {
 							return false;
 						}
-					} else if (lastType == LexicalUnit.SAC_INTEGER || lastType == -2
-							|| lastType == LexicalUnit.SAC_VAR) {
+					} else if (lastType == LexicalType.INTEGER || lastType == LexicalType.EXT1
+							|| lastType == LexicalType.VAR) {
 						// last type was integer, angle or var().
 						hasNoCommas = true;
 					}
 					pcntCount++;
-				} else if (type == LexicalUnit.SAC_OPERATOR_COMMA) {
-					if (lastType == LexicalUnit.SAC_OPERATOR_COMMA || lastType == -1 || hasNoCommas) {
+				} else if (type == LexicalType.OPERATOR_COMMA) {
+					if (lastType == LexicalType.OPERATOR_COMMA || lastType == LexicalType.UNKNOWN || hasNoCommas) {
 						return false;
 					}
 					hasCommas = true;
-				} else if (type == LexicalUnit.SAC_INTEGER) {
-					if (lastType != -1) {
+				} else if (type == LexicalType.INTEGER) {
+					if (lastType != LexicalType.UNKNOWN) {
 						int value;
-						if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
+						if ((lastType != LexicalType.OPERATOR_SLASH && lastType != LexicalType.OPERATOR_COMMA)
 								|| (pcntCount < 2 && !hasVar) || (value = lu.getIntegerValue()) < 0 || value > 1) {
 							return false;
 						}
 					}
 				} else if (isAngleType(lu.getCssUnit())) {
-					if (lastType != -1) {
+					if (lastType != LexicalType.UNKNOWN) {
 						return false;
 					}
-					type = -2;
-				} else if (type == LexicalUnit.SAC_OPERATOR_SLASH) {
+					type = LexicalType.EXT1;
+				} else if (type == LexicalType.OPERATOR_SLASH) {
 					if (((pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)
-							|| (lastType != LexicalUnit.SAC_PERCENTAGE && lastType != LexicalUnit.SAC_VAR))
+							|| (lastType != LexicalType.PERCENTAGE && lastType != LexicalType.VAR))
 							|| hasCommas) {
 						return false;
 					}
-				} else if (type == LexicalUnit.SAC_REAL) {
-					if ((lastType != LexicalUnit.SAC_OPERATOR_SLASH && lastType != LexicalUnit.SAC_OPERATOR_COMMA)
+				} else if (type == LexicalType.REAL) {
+					if ((lastType != LexicalType.OPERATOR_SLASH && lastType != LexicalType.OPERATOR_COMMA)
 							|| (pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)) {
 						return false;
 					}
 					pcntCount = 3;
-				} else if (type == LexicalUnit.SAC_FUNCTION && "calc".equalsIgnoreCase(lu.getFunctionName())) {
-					if (lastType == -1) {
-						type = LexicalUnit.SAC_INTEGER;
-					} else if (lastType == LexicalUnit.SAC_OPERATOR_SLASH) {
-						type = LexicalUnit.SAC_REAL;
+				} else if (type == LexicalType.FUNCTION && "calc".equalsIgnoreCase(lu.getFunctionName())) {
+					if (lastType == LexicalType.UNKNOWN) {
+						type = LexicalType.INTEGER;
+					} else if (lastType == LexicalType.OPERATOR_SLASH) {
+						type = LexicalType.REAL;
 						pcntCount = 3;
 					} else {
 						if (hasCommas) {
-							if (lastType != LexicalUnit.SAC_OPERATOR_COMMA) {
+							if (lastType != LexicalType.OPERATOR_COMMA) {
 								return false;
 							}
-						} else if (lastType == LexicalUnit.SAC_INTEGER || lastType == -2
-								|| lastType == LexicalUnit.SAC_VAR) {
+						} else if (lastType == LexicalType.INTEGER || lastType == LexicalType.EXT1
+								|| lastType == LexicalType.VAR) {
 							// last type was integer, angle or var().
 							hasNoCommas = true;
 						}
 						pcntCount++;
-						type = LexicalUnit.SAC_PERCENTAGE;
+						type = LexicalType.PERCENTAGE;
 					}
-				} else if (type == LexicalUnit.SAC_VAR) {
+				} else if (type == LexicalType.VAR) {
 					hasVar = true;
 				} else {
 					return false;
@@ -5623,7 +5624,7 @@ public class CSSParser implements Parser {
 			// = 61
 			// > 62
 			// @ 64
-			if (functionToken && currentlu.getLexicalUnitType() == LexicalUnit.SAC_URI) {
+			if (functionToken && currentlu.getLexicalUnitType() == LexicalType.URI) {
 				bufferAppend(codepoint);
 			} else if (codepoint == 59) {
 				handleSemicolon(index);
@@ -5651,7 +5652,7 @@ public class CSSParser implements Parser {
 					if (codepoint == 33 && priorityImportant && parserFlags.contains(Flag.IEPRIOCHAR)
 							&& (compatText = setFullIdentCompat()) != null) { // !
 						warnIdentCompat(index, compatText);
-						lunit.setUnitType(LexicalUnit.SAC_COMPAT_PRIO);
+						lunit.setUnitType(LexicalType.COMPAT_PRIO);
 						lunit.setCssUnit(CSSUnit.CSS_INVALID);
 					} else {
 						unexpectedCharError(index, codepoint);
@@ -5660,7 +5661,7 @@ public class CSSParser implements Parser {
 					if (!functionToken || currentlu.parameters == null || !addToIdentCompat()) {
 						processBuffer(index);
 					}
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_COMMA);
+					newLexicalUnit(LexicalType.OPERATOR_COMMA);
 				} else if (codepoint == 33) { // !
 					if (!functionToken) {
 						processBuffer(index);
@@ -5673,7 +5674,7 @@ public class CSSParser implements Parser {
 						if (functionToken && !unicodeRange) {
 							processBuffer(index);
 							if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-								newLexicalUnit(LexicalUnit.SAC_OPERATOR_MINUS);
+								newLexicalUnit(LexicalType.OPERATOR_MINUS);
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
@@ -5692,18 +5693,18 @@ public class CSSParser implements Parser {
 								buffer.append('%');
 							} else {
 								processBuffer(index);
-								newLexicalUnit(LexicalUnit.SAC_OPERATOR_MOD);
+								newLexicalUnit(LexicalType.OPERATOR_MOD);
 							}
 						} else if (codepoint == 35) { // #
 							if (buffer.length() != 0) {
 								if (functionToken
-										&& currentlu.getLexicalUnitType() != LexicalUnit.SAC_ELEMENT_REFERENCE) {
+										&& currentlu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
 									buffer.append('#');
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
 							} else if (currentlu == null
-									|| currentlu.getLexicalUnitType() != LexicalUnit.SAC_ELEMENT_REFERENCE) {
+									|| currentlu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
 								hexColor = true;
 							} else if (currentlu.value == null) {
 								buffer.append('#');
@@ -5722,7 +5723,7 @@ public class CSSParser implements Parser {
 							} else if (functionToken) {
 								processBuffer(index);
 								if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-									newLexicalUnit(LexicalUnit.SAC_OPERATOR_PLUS);
+									newLexicalUnit(LexicalType.OPERATOR_PLUS);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
@@ -5732,7 +5733,7 @@ public class CSSParser implements Parser {
 						} else if (codepoint == 47) { // '/'
 							processBuffer(index);
 							if (!functionToken || (currentlu.parameters != null && lastParamIsOperand())) {
-								newLexicalUnit(LexicalUnit.SAC_OPERATOR_SLASH);
+								newLexicalUnit(LexicalType.OPERATOR_SLASH);
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
@@ -5740,7 +5741,7 @@ public class CSSParser implements Parser {
 							if (codepoint == 42) { // '*'
 								processBuffer(index);
 								if (currentlu.parameters != null && lastParamIsOperand()) {
-									newLexicalUnit(LexicalUnit.SAC_OPERATOR_MULTIPLY);
+									newLexicalUnit(LexicalType.OPERATOR_MULTIPLY);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
@@ -5802,7 +5803,7 @@ public class CSSParser implements Parser {
 						if (escapedTokenIndex == -1) {
 							buffer.append('=');
 							String s = buffer.toString();
-							newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = s;
+							newLexicalUnit(LexicalType.COMPAT_IDENT).value = s;
 							buffer.setLength(0);
 							hexColor = false;
 							warnIdentCompat(index - buflen, s);
@@ -5812,18 +5813,18 @@ public class CSSParser implements Parser {
 						// We are in functional context, find last argument
 						lu = findLastValue(lu);
 						// Add '=' to the last parameter if ident, or to buffer if not empty
-						short lutype = lu.getLexicalUnitType();
-						if (lutype == LexicalUnit.SAC_IDENT) {
-							lu.setUnitType(LexicalUnit.SAC_COMPAT_IDENT);
+						LexicalType lutype = lu.getLexicalUnitType();
+						if (lutype == LexicalType.IDENT) {
+							lu.setUnitType(LexicalType.COMPAT_IDENT);
 							String s = lu.getStringValue();
 							lu.value += '=';
 							warnIdentCompat(index - s.length(), s);
 							return true;
-						} else if (lutype == LexicalUnit.SAC_COMPAT_IDENT) {
+						} else if (lutype == LexicalType.COMPAT_IDENT) {
 							lu.value += '=';
 							return true;
-						} else if (lutype == LexicalUnit.SAC_RIGHT_BRACKET) {
-							newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = "=";
+						} else if (lutype == LexicalType.RIGHT_BRACKET) {
+							newLexicalUnit(LexicalType.COMPAT_IDENT).value = "=";
 							warnIdentCompat(index, "=");
 							return true;
 						}
@@ -5842,10 +5843,10 @@ public class CSSParser implements Parser {
 		}
 
 		/**
-		 * If the latest processed value was a <code>SAC_COMPAT_IDENT</code>, add the contents of
+		 * If the latest processed value was a <code>COMPAT_IDENT</code>, add the contents of
 		 * the current buffer -if any- to it.
 		 * 
-		 * @return <code>true</code> if the latest processed value was a <code>SAC_COMPAT_IDENT</code> and the
+		 * @return <code>true</code> if the latest processed value was a <code>COMPAT_IDENT</code> and the
 		 *         buffer was either empty or contained no escaped content.
 		 */
 		private boolean addToIdentCompat() {
@@ -5853,8 +5854,8 @@ public class CSSParser implements Parser {
 				// We are in functional context, find last argument
 				LexicalUnitImpl lu = findLastValue(currentlu.parameters);
 				// Add buffer to the last parameter if ident
-				short lutype = lu.getLexicalUnitType();
-				if (lutype == LexicalUnit.SAC_COMPAT_IDENT) {
+				LexicalType lutype = lu.getLexicalUnitType();
+				if (lutype == LexicalType.COMPAT_IDENT) {
 					if (hexColor) {
 						lu.value += '#';
 						hexColor = false;
@@ -5875,7 +5876,7 @@ public class CSSParser implements Parser {
 			if (lu != null) {
 				lu = findLastValue(lu);
 				// Add buffer to the last parameter if compat ident
-				if (lu.getLexicalUnitType() == LexicalUnit.SAC_COMPAT_IDENT) {
+				if (lu.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
 					if (hexColor) {
 						lu.value += '#';
 						hexColor = false;
@@ -5895,7 +5896,7 @@ public class CSSParser implements Parser {
 				LexicalUnitImpl lastValue;
 				if (prevcp == 45 && functionToken && escapedTokenIndex == -1
 						&& this.currentlu.parameters != null && (lastValue = findLastValue(currentlu.parameters))
-								.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_MINUS) {
+								.getLexicalUnitType() == LexicalType.OPERATOR_MINUS) {
 					LexicalUnitImpl prev = lastValue.previousLexicalUnit;
 					if (prev != null) {
 						prev.nextLexicalUnit = null;
@@ -6010,10 +6011,10 @@ public class CSSParser implements Parser {
 				} else if (unicodeRange) {
 					parseUnicodeRange(index, buflen);
 				} else if (functionToken) {
-					if (currentlu.getLexicalUnitType() == LexicalUnit.SAC_URI) {
+					if (currentlu.getLexicalUnitType() == LexicalType.URI) {
 						// uri
 						currentlu.value = rawBuffer();
-					} else if (currentlu.getLexicalUnitType() == LexicalUnit.SAC_ELEMENT_REFERENCE) {
+					} else if (currentlu.getLexicalUnitType() == LexicalType.ELEMENT_REFERENCE) {
 						String s = unescapeStringValue(index);
 						if (s.length() > 1 && s.charAt(0) == '#') {
 							currentlu.value = s.substring(1);
@@ -6118,13 +6119,13 @@ public class CSSParser implements Parser {
 			}
 			if (i == -1) {
 				if (ident.equalsIgnoreCase("inherit")) {
-					newLexicalUnit(LexicalUnit.SAC_INHERIT);
+					newLexicalUnit(LexicalType.INHERIT);
 				} else if (ident.equalsIgnoreCase("initial")) {
-					newLexicalUnit(LexicalUnit.SAC_INITIAL);
+					newLexicalUnit(LexicalType.INITIAL);
 				} else if (ident.equalsIgnoreCase("unset")) {
-					newLexicalUnit(LexicalUnit.SAC_UNSET);
+					newLexicalUnit(LexicalType.UNSET);
 				} else if (ident.equalsIgnoreCase("revert")) {
-					newLexicalUnit(LexicalUnit.SAC_REVERT);
+					newLexicalUnit(LexicalType.REVERT);
 				} else {
 					if (!newIdentifier(raw, ident, cssText)) {
 						handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
@@ -6142,10 +6143,10 @@ public class CSSParser implements Parser {
 			if (idx == -1) {
 				byte check = rangeLengthCheck(s);
 				if (check == 1) {
-					lu1 = new LexicalUnitImpl(LexicalUnit.SAC_INTEGER);
+					lu1 = new LexicalUnitImpl(LexicalType.INTEGER);
 					lu1.intValue = Integer.parseInt(s, 16);
 				} else if (check == 2) {
-					lu1 = new LexicalUnitImpl(LexicalUnit.SAC_UNICODE_WILDCARD);
+					lu1 = new LexicalUnitImpl(LexicalType.UNICODE_WILDCARD);
 					lu1.value = s;
 				} else {
 					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
@@ -6156,7 +6157,7 @@ public class CSSParser implements Parser {
 				String range2 = s.substring(idx + 1);
 				byte check = rangeLengthCheck(range1);
 				if (check == 1) {
-					lu1 = new LexicalUnitImpl(LexicalUnit.SAC_INTEGER);
+					lu1 = new LexicalUnitImpl(LexicalType.INTEGER);
 					lu1.intValue = Integer.parseInt(range1, 16);
 				} else {
 					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
@@ -6164,7 +6165,7 @@ public class CSSParser implements Parser {
 				}
 				check = rangeLengthCheck(range2);
 				if (check == 1) {
-					lu2 = new LexicalUnitImpl(LexicalUnit.SAC_INTEGER);
+					lu2 = new LexicalUnitImpl(LexicalType.INTEGER);
 					lu2.intValue = Integer.parseInt(range2, 16);
 				} else {
 					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
@@ -6174,7 +6175,7 @@ public class CSSParser implements Parser {
 				handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
 				return;
 			}
-			LexicalUnitImpl range = newLexicalUnit(LexicalUnit.SAC_UNICODERANGE);
+			LexicalUnitImpl range = newLexicalUnit(LexicalType.UNICODE_RANGE);
 			range.addFunctionParameter(lu1);
 			if (lu2 != null) {
 				range.addFunctionParameter(lu2);
@@ -6210,11 +6211,11 @@ public class CSSParser implements Parser {
 				unit = s.substring(i);
 				unit = unit.trim().toLowerCase(Locale.ROOT).intern();
 				short cssUnit = ParseHelper.unitFromString(unit);
-				final short unitType;
+				final LexicalType unitType;
 				if (cssUnit == CSSUnit.CSS_PERCENTAGE) {
-					unitType = LexicalUnit.SAC_PERCENTAGE;
+					unitType = LexicalType.PERCENTAGE;
 				} else {
-					unitType = LexicalUnit.SAC_DIMENSION;
+					unitType = LexicalType.DIMENSION;
 				}
 				String strnum = s.substring(0, i);
 				float flval;
@@ -6235,7 +6236,7 @@ public class CSSParser implements Parser {
 					} catch (NumberFormatException e) {
 						return false;
 					}
-					lu = newNumberUnit(LexicalUnit.SAC_INTEGER);
+					lu = newNumberUnit(LexicalType.INTEGER);
 					lu.intValue = intval;
 				} else {
 					float flval;
@@ -6245,10 +6246,10 @@ public class CSSParser implements Parser {
 						return false;
 					}
 					if (flval == 0f) {
-						lu = newNumberUnit(LexicalUnit.SAC_INTEGER);
+						lu = newNumberUnit(LexicalType.INTEGER);
 						lu.intValue = (int) flval;
 					} else {
-						lu = newNumberUnit(LexicalUnit.SAC_REAL);
+						lu = newNumberUnit(LexicalType.REAL);
 						lu.floatValue = flval;
 					}
 				}
@@ -6259,7 +6260,7 @@ public class CSSParser implements Parser {
 		private boolean parseHexColor(int buflen) {
 			try {
 				if (buflen == 3) {
-					newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
+					newLexicalUnit(LexicalType.RGBCOLOR);
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -6269,7 +6270,7 @@ public class CSSParser implements Parser {
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 6) {
-					newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
+					newLexicalUnit(LexicalType.RGBCOLOR);
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -6279,7 +6280,7 @@ public class CSSParser implements Parser {
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 8) {
-					newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
+					newLexicalUnit(LexicalType.RGBCOLOR);
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -6287,12 +6288,12 @@ public class CSSParser implements Parser {
 					parseHexComponent(2, 4, false);
 					parseHexComponent(4, 6, false);
 					int comp = hexComponent(6, 8, false);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_SLASH);
-					newNumberUnit(LexicalUnit.SAC_REAL).floatValue = comp / 255f;
+					newLexicalUnit(LexicalType.OPERATOR_SLASH);
+					newNumberUnit(LexicalType.REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 4) {
-					newLexicalUnit(LexicalUnit.SAC_RGBCOLOR);
+					newLexicalUnit(LexicalType.RGBCOLOR);
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -6300,8 +6301,8 @@ public class CSSParser implements Parser {
 					parseHexComponent(1, 2, true);
 					parseHexComponent(2, 3, true);
 					int comp = hexComponent(3, 4, true);
-					newLexicalUnit(LexicalUnit.SAC_OPERATOR_SLASH);
-					newNumberUnit(LexicalUnit.SAC_REAL).floatValue = comp / 255f;
+					newLexicalUnit(LexicalType.OPERATOR_SLASH);
+					newNumberUnit(LexicalType.REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else {
@@ -6315,10 +6316,10 @@ public class CSSParser implements Parser {
 
 		private void parseHexComponent(int start, int end, boolean doubleDigit) {
 			int comp = hexComponent(start, end, doubleDigit);
-			newNumberUnit(LexicalUnit.SAC_INTEGER).intValue = comp;
+			newNumberUnit(LexicalType.INTEGER).intValue = comp;
 		}
 
-		private LexicalUnitImpl newNumberUnit(short sacType) {
+		private LexicalUnitImpl newNumberUnit(LexicalType sacType) {
 			LexicalUnitImpl lu = newLexicalUnit(sacType);
 			lu.setCssUnit(CSSUnit.CSS_NUMBER);
 			return lu;
@@ -6362,7 +6363,7 @@ public class CSSParser implements Parser {
 						}
 					}
 				}
-				LexicalUnitImpl lu = newLexicalUnit(LexicalUnit.SAC_IDENT);
+				LexicalUnitImpl lu = newLexicalUnit(LexicalType.IDENT);
 				lu.value = ident;
 				lu.identCssText = cssText;
 				return true;
@@ -6376,7 +6377,7 @@ public class CSSParser implements Parser {
 
 		private boolean isPreviousValueCustomIdent() {
 			String s;
-			return currentlu != null && currentlu.getLexicalUnitType() == LexicalUnit.SAC_IDENT
+			return currentlu != null && currentlu.getLexicalUnitType() == LexicalType.IDENT
 					&& (s = currentlu.getStringValue()) != s.toLowerCase(Locale.ROOT);
 		}
 
@@ -6386,7 +6387,7 @@ public class CSSParser implements Parser {
 				processBuffer(index);
 				if (!parseError) {
 					String s = quoted.toString();
-					LexicalUnitImpl lu = newLexicalUnit(LexicalUnit.SAC_STRING_VALUE);
+					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING);
 					lu.value = safeUnescapeIdentifier(index, s);
 					char c = (char) quoteChar;
 					StringBuilder buf = new StringBuilder(s.length() + 2);
@@ -6408,7 +6409,7 @@ public class CSSParser implements Parser {
 				processBuffer(index);
 				if (!parseError) {
 					String s = quoted.toString();
-					LexicalUnitImpl lu = newLexicalUnit(LexicalUnit.SAC_STRING_VALUE);
+					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING);
 					lu.value = safeUnescapeIdentifier(index, s);
 					char c = (char) quoteChar;
 					lu.identCssText = c + ParseHelper.escapeControl(s) + c;
@@ -6560,10 +6561,10 @@ public class CSSParser implements Parser {
 				}
 				currentlu.reset();
 				currentlu.value = prev + ' ' + lastvalue;
-				currentlu.setUnitType(LexicalUnit.SAC_COMPAT_IDENT);
+				currentlu.setUnitType(LexicalType.COMPAT_IDENT);
 				currentlu.setCssUnit(CSSUnit.CSS_INVALID);
 			} else {
-				newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = lastvalue;
+				newLexicalUnit(LexicalType.COMPAT_IDENT).value = lastvalue;
 			}
 			warnIdentCompat(index, lastvalue);
 			return true;
@@ -6592,10 +6593,10 @@ public class CSSParser implements Parser {
 					lunit.reset();
 				}
 				lunit.value = newval;
-				lunit.setUnitType(LexicalUnit.SAC_COMPAT_IDENT);
+				lunit.setUnitType(LexicalType.COMPAT_IDENT);
 				lunit.setCssUnit(CSSUnit.CSS_INVALID);
 			} else {
-				newLexicalUnit(LexicalUnit.SAC_COMPAT_IDENT).value = newval;
+				newLexicalUnit(LexicalType.COMPAT_IDENT).value = newval;
 			}
 			return newval;
 		}

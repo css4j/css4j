@@ -181,12 +181,12 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 
 	private static boolean isOrContainsType(LexicalUnit lunit, Type primitiveType) {
 		if (primitiveType == Type.ATTR) {
-			return hasLexicalUnitType(lunit, LexicalUnit.SAC_ATTR);
+			return hasLexicalUnitType(lunit, LexicalUnit.LexicalType.ATTR);
 		}
 		return false;
 	}
 
-	private static boolean hasLexicalUnitType(LexicalUnit lunit, short unitType) {
+	private static boolean hasLexicalUnitType(LexicalUnit lunit, LexicalUnit.LexicalType unitType) {
 		do {
 			if (lunit.getLexicalUnitType() == unitType) {
 				return true;
