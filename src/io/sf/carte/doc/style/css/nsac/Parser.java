@@ -56,7 +56,7 @@ public interface Parser {
 
 		/**
 		 * Accepts values with some IE hacks, producing
-		 * {@link LexicalUnit#COMPAT_IDENT} values.
+		 * {@link LexicalUnit.LexicalType#COMPAT_IDENT COMPAT_IDENT} values.
 		 */
 		IEVALUES,
 
@@ -68,8 +68,8 @@ public interface Parser {
 
 		/**
 		 * Accepts values with an '!important!' priority, and sets it to
-		 * {@link LexicalUnit#COMPAT_PRIO} pseudo-values. Those values must be
-		 * handled as of !important priority.
+		 * {@link LexicalUnit.LexicalType#COMPAT_PRIO COMPAT_PRIO} pseudo-values. Those
+		 * values must be handled as of !important priority.
 		 */
 		IEPRIOCHAR
 	}

@@ -383,7 +383,7 @@ public interface LexicalUnit {
 	 * Returns the integer value represented by this unit.
 	 * 
 	 * @return the integer value, or zero if this is not an integer unit.
-	 * @see #INTEGER
+	 * @see LexicalType#INTEGER
 	 */
 	int getIntegerValue();
 
@@ -395,11 +395,11 @@ public interface LexicalUnit {
 	float getFloatValue();
 
 	/**
-	 * If this unit is a {@link #DIMENSION}, returns the string representation of
-	 * the CSS unit returned by {@link #getCssUnit()}.
+	 * If this unit is a {@link LexicalType#DIMENSION}, returns the string
+	 * representation of the CSS unit returned by {@link #getCssUnit()}.
 	 * 
 	 * @return the string representation of the CSS unit, or the empty string if
-	 *         this lexical unit does not represent a {@link #DIMENSION}.
+	 *         this lexical unit does not represent a {@link LexicalType#DIMENSION}.
 	 */
 	String getDimensionUnitText();
 
@@ -418,11 +418,11 @@ public interface LexicalUnit {
 	 * @return the string value, or <code>null</code> if this unit does not have a
 	 *         string to return.
 	 * 
-	 * @see #URI
-	 * @see #ATTR
-	 * @see #IDENT
-	 * @see #STRING
-	 * @see #UNICODE_WILDCARD
+	 * @see LexicalType#URI
+	 * @see LexicalType#ATTR
+	 * @see LexicalType#IDENT
+	 * @see LexicalType#STRING
+	 * @see LexicalType#UNICODE_WILDCARD
 	 */
 	String getStringValue();
 
@@ -432,11 +432,11 @@ public interface LexicalUnit {
 	 * @return the function name, or <code>null</code> if this unit is not a
 	 *         function.
 	 * 
-	 * @see #COUNTER_FUNCTION
-	 * @see #COUNTERS_FUNCTION
-	 * @see #RECT_FUNCTION
-	 * @see #FUNCTION
-	 * @see #RGBCOLOR
+	 * @see LexicalType#COUNTER_FUNCTION
+	 * @see LexicalType#COUNTERS_FUNCTION
+	 * @see LexicalType#RECT_FUNCTION
+	 * @see LexicalType#FUNCTION
+	 * @see LexicalType#RGBCOLOR
 	 */
 	String getFunctionName();
 
@@ -448,11 +448,11 @@ public interface LexicalUnit {
 	 * @return the parameters of this function, or <code>null</code> if this unit is
 	 *         not a function.
 	 * 
-	 * @see #COUNTER_FUNCTION
-	 * @see #COUNTERS_FUNCTION
-	 * @see #RECT_FUNCTION
-	 * @see #FUNCTION
-	 * @see #RGBCOLOR
+	 * @see LexicalType#COUNTER_FUNCTION
+	 * @see LexicalType#COUNTERS_FUNCTION
+	 * @see LexicalType#RECT_FUNCTION
+	 * @see LexicalType#FUNCTION
+	 * @see LexicalType#RGBCOLOR
 	 */
 	LexicalUnit getParameters();
 
@@ -469,8 +469,8 @@ public interface LexicalUnit {
 	 * 
 	 * @return the values in the sub-expression, or <code>null</code> if this unit
 	 *         is not a sub-expression nor a unicode range.
-	 * @see #SUB_EXPRESSION
-	 * @see #UNICODE_RANGE
+	 * @see LexicalType#SUB_EXPRESSION
+	 * @see LexicalType#UNICODE_RANGE
 	 */
 	LexicalUnit getSubValues();
 
