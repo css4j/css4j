@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
  * <a href="https://www.w3.org/TR/css-fonts-4/#font-feature-values">CSS Fonts Module Level
  * 4: the {@literal @}font-feature-values rule</a>.
  */
-public interface CSSFontFeatureValuesRule extends ExtendedCSSRule {
+public interface CSSFontFeatureValuesRule extends CSSRule {
 
 	/**
 	 * Get the list of font families for which a given set of feature values is

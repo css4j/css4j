@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRuleList;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSRuleList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.util.SimpleWriter;
 
@@ -26,8 +26,8 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-class AbstractRuleList<T extends ExtendedCSSRule> extends ArrayList<T>
-		implements ExtendedCSSRuleList<T> {
+class AbstractRuleList<T extends CSSRule> extends ArrayList<T>
+		implements CSSRuleList<T> {
 
 	private static final long serialVersionUID = 2L;
 

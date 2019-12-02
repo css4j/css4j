@@ -12,9 +12,12 @@
 package io.sf.carte.doc.style.css;
 
 /**
- * A CSS font-face rule.
+ * A CSS {@literal @}media rule.
  *
  */
-public interface ExtendedCSSFontFaceRule extends CSSDeclarationRule {
+public interface CSSMediaRule extends CSSGroupingRule, org.w3c.dom.css.CSSMediaRule {
+
+	@Override
+	MediaQueryList getMedia();
 
 }

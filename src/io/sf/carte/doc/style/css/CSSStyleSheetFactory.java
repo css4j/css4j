@@ -41,7 +41,7 @@ public interface CSSStyleSheetFactory {
 	 *            the target media for style.
 	 * @return the style sheet.
 	 */
-	ExtendedCSSStyleSheet<? extends ExtendedCSSRule> createStyleSheet(String title, MediaQueryList media);
+	CSSStyleSheet<? extends CSSRule> createStyleSheet(String title, MediaQueryList media);
 
 	/**
 	 * Create a style declaration for an anonymous inline box, associated to a text/cdata
@@ -149,7 +149,7 @@ public interface CSSStyleSheetFactory {
 	 *            the style sheet whose errors are to be handled.
 	 * @return the error handler.
 	 */
-	SheetErrorHandler createSheetErrorHandler(ExtendedCSSStyleSheet<? extends ExtendedCSSRule> sheet);
+	SheetErrorHandler createSheetErrorHandler(CSSStyleSheet<? extends CSSRule> sheet);
 
 	/**
 	 * Parses <code>mediaQueryString</code> and creates a new media query list.

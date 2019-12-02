@@ -179,7 +179,7 @@ document.getOverrideStyle(element, null).setCssText("padding: 6pt;");
 <div style="margin: 2em 0 2.7em 0" id="sheetparsing">
 <h3>Parsing a Style Sheet</h3>
 <p>Although document's style sheet fetching and parsing is automatic with this library,
-it is possible to manually parse rules from a source stream with the <code>ExtendedCSSStyleSheet.parseStyleSheet(Reader, short)</code> method:</p>
+it is possible to manually parse rules from a source stream with the <code>CSSStyleSheet.parseStyleSheet(Reader, short)</code> method:</p>
 <pre style="padding: 0.8em;background-color: #f8f5e1">
 Reader re = ...
 sheet.parseStyleSheet(re, COMMENTS_AUTO);

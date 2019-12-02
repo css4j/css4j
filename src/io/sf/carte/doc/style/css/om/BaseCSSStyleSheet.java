@@ -28,14 +28,13 @@ import java.util.Map.Entry;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.agent.AgentUtil;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -215,7 +214,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		// The following may cause an (undocumented)
 		// DOMException.NOT_SUPPORTED_ERR
 		Parser psr = getStyleSheetFactory().createSACParser();
-		SheetHandler handler = createSheetHandler(ExtendedCSSStyleSheet.COMMENTS_IGNORE);
+		SheetHandler handler = createSheetHandler(CSSStyleSheet.COMMENTS_IGNORE);
 		psr.setDocumentHandler(handler);
 		psr.setErrorHandler(handler);
 		currentInsertionIndex = index - 1;
@@ -257,7 +256,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 */
 	@Override
 	public void addRule(AbstractCSSRule cssrule) throws DOMException {
-		if (cssrule.getType() == ExtendedCSSRule.NAMESPACE_RULE) {
+		if (cssrule.getType() == CSSRule.NAMESPACE_RULE) {
 			CSSNamespaceRule nsrule = (CSSNamespaceRule) cssrule;
 			if (namespaces.containsKey(nsrule.getNamespaceURI())) {
 				throw new DOMException(DOMException.NAMESPACE_ERR,
@@ -308,13 +307,13 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 */
 	@Override
 	public void deleteRule(int index) throws DOMException {
-		ExtendedCSSRule rule;
+		CSSRule rule;
 		try {
 			rule = cssRules.get(index);
 		} catch (IndexOutOfBoundsException e) {
 			throw new DOMException(DOMException.INDEX_SIZE_ERR, e.getMessage());
 		}
-		if (rule.getType() == ExtendedCSSRule.NAMESPACE_RULE
+		if (rule.getType() == CSSRule.NAMESPACE_RULE
 				&& containsRuleWithNamespace(((CSSNamespaceRule) rule).getNamespaceURI())) {
 			throw new DOMException(DOMException.NAMESPACE_ERR, "There are style rules with ");
 		}
@@ -324,7 +323,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	private boolean containsRuleWithNamespace(String namespaceURI) {
 		Iterator<AbstractCSSRule> it = cssRules.iterator();
 		while (it.hasNext()) {
-			ExtendedCSSRule rule = it.next();
+			CSSRule rule = it.next();
 			if (rule.getType() == CSSRule.STYLE_RULE) {
 				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
 				if (selectorListHasNamespace(stylerule.getSelectorList(), namespaceURI)) {
@@ -793,7 +792,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				}
 				break;
 			case CSSRule.MEDIA_RULE:
-			case ExtendedCSSRule.SUPPORTS_RULE:
+			case CSSRule.SUPPORTS_RULE:
 				GroupingRule grouping = (GroupingRule) rule;
 				scanRulesForPropertyDeclaration(grouping.getCssRules(), propertyName, subset);
 				break;
@@ -837,7 +836,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				}
 				break;
 			case CSSRule.MEDIA_RULE:
-			case ExtendedCSSRule.SUPPORTS_RULE:
+			case CSSRule.SUPPORTS_RULE:
 				GroupingRule grouping = (GroupingRule) rule;
 				scanRulesForPropertyDeclaration(grouping.getCssRules(), propertyName, selectors);
 				break;

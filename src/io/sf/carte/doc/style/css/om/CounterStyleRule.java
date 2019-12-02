@@ -16,7 +16,7 @@ import java.io.IOException;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSCounterStyleRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -33,7 +33,7 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 	private String name = null;
 
 	public CounterStyleRule(AbstractCSSStyleSheet parentSheet, byte origin) {
-		super(parentSheet, ExtendedCSSRule.COUNTER_STYLE_RULE, origin);
+		super(parentSheet, CSSRule.COUNTER_STYLE_RULE, origin);
 	}
 
 	/**

@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.util.SimpleWriter;
 
@@ -26,7 +26,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-abstract public class AbstractCSSRule implements ExtendedCSSRule {
+abstract public class AbstractCSSRule implements CSSRule {
 
 	@Override
 	abstract public short getType();

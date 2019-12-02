@@ -17,9 +17,9 @@ import java.io.StringReader;
 import java.util.Comparator;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
@@ -37,7 +37,7 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
  * @author Carlos Amengual
  * 
  */
-public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSStyleRule {
+public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 
 	public StyleRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.STYLE_RULE, origin);

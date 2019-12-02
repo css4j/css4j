@@ -14,9 +14,9 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSUnknownRule;
 
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.CommentRemover;
 import io.sf.carte.util.BufferSimpleWriter;

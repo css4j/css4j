@@ -46,13 +46,13 @@ import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.dom.HTMLDocument.LinkElement;
 import io.sf.carte.doc.dom.HTMLDocument.StyleElement;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
@@ -1604,7 +1604,7 @@ public class HTMLDocumentTest {
 		sheet = style.getSheet();
 		CSSRuleArrayList rules = sheet.getCssRules();
 		assertEquals(szp1, rules.getLength());
-		assertEquals(ExtendedCSSRule.NAMESPACE_RULE, rules.item(0).getType());
+		assertEquals(CSSRule.NAMESPACE_RULE, rules.item(0).getType());
 		// Replace
 		Text text2 = xhtmlDoc.createTextNode(
 				"@font-feature-values Some Font, Other Font {@swash{swishy:1;flowing:2;}@styleset{double-W:14;sharp-terminals:16 1;}}\n");
@@ -1613,7 +1613,7 @@ public class HTMLDocumentTest {
 		sheet = style.getSheet();
 		rules = sheet.getCssRules();
 		assertEquals(szp1, rules.getLength());
-		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, rules.item(0).getType());
+		assertEquals(CSSRule.FONT_FEATURE_VALUES_RULE, rules.item(0).getType());
 		// Remove
 		try {
 			style.removeChild(text);
@@ -1626,7 +1626,7 @@ public class HTMLDocumentTest {
 		sheet = style.getSheet();
 		rules = sheet.getCssRules();
 		assertEquals(sz, rules.getLength());
-		assertNotEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, rules.item(0).getType());
+		assertNotEquals(CSSRule.FONT_FEATURE_VALUES_RULE, rules.item(0).getType());
 	}
 
 	@Test

@@ -19,11 +19,10 @@ import java.net.URLConnection;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 
 /**
@@ -32,7 +31,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
  * @author Carlos Amengual
  *
  */
-abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implements ExtendedCSSStyleSheet<AbstractCSSRule> {
+abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implements CSSStyleSheet<AbstractCSSRule> {
 
 	/*
 	 * The title is in the constructor because it being intern is part of the
@@ -64,7 +63,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * Even if a specific media is set at the <code>InputSource</code>, this method
 	 * does not alter the sheet's current media attribute.
 	 * <p>
-	 * The comments shall be processed according to {@link ExtendedCSSStyleSheet#COMMENTS_AUTO}.
+	 * The comments shall be processed according to {@link CSSStyleSheet#COMMENTS_AUTO}.
 	 * <p>
 	 * To create a sheet, see
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
@@ -219,7 +218,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 		if (getOwnerNode() != null) {
 			doc = (CSSDocument) getOwnerNode().getOwnerDocument();
 		} else if (getOwnerRule() != null) {
-			CSSStyleSheet pss = getOwnerRule().getParentStyleSheet();
+			AbstractCSSStyleSheet pss = getOwnerRule().getParentStyleSheet();
 			if (pss != null) {
 				Node node = pss.getOwnerNode();
 				if (node != null) {

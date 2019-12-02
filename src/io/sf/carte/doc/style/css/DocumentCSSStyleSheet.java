@@ -23,7 +23,7 @@ import io.sf.carte.doc.style.css.om.AbstractCSSRule;
  * origins (author, user, etc).
  *
  */
-public interface DocumentCSSStyleSheet extends ExtendedCSSStyleSheet<AbstractCSSRule> {
+public interface DocumentCSSStyleSheet extends CSSStyleSheet<AbstractCSSRule> {
 
 	/**
 	 * Gets the target medium for this sheet.

@@ -26,15 +26,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-import org.w3c.dom.css.CSSRule;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.EntityResolver2;
 
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRuleList;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSRuleList;
+import io.sf.carte.doc.style.css.CSSStyleRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
@@ -65,7 +64,7 @@ public class DOMWriter {
 	private HashMap<Integer, String> entityMap = null;
 	private EntityResolver2 resolver = null;
 
-	private ExtendedCSSStyleSheet<?> uaSheet;
+	private CSSStyleSheet<?> uaSheet;
 	private HashMap<String, String> displayMap = null;
 
 	private Node rootNode = null;
@@ -89,7 +88,7 @@ public class DOMWriter {
 	 * 
 	 * @param refSheet the reference sheet.
 	 */
-	public DOMWriter(ExtendedCSSStyleSheet<? extends ExtendedCSSRule> refSheet) {
+	public DOMWriter(CSSStyleSheet<? extends CSSRule> refSheet) {
 		super();
 		uaSheet = refSheet;
 	}
@@ -227,7 +226,7 @@ public class DOMWriter {
 	 */
 	public void writeNode(Node root, SimpleWriter writer) throws IOException {
 		this.rootNode = root;
-		ExtendedCSSStyleSheet<?> oldUaSheet = uaSheet;
+		CSSStyleSheet<?> oldUaSheet = uaSheet;
 		if (oldUaSheet == null) {
 			DOMDocument doc = (DOMDocument) getOwnerDocument();
 			uaSheet = doc.getImplementation().getUserAgentStyleSheet(doc.getComplianceMode());
@@ -690,13 +689,13 @@ public class DOMWriter {
 		}
 		String display = displayMap.get(localName);
 		if (display == null && uaSheet != null) {
-			ExtendedCSSRuleList<? extends ExtendedCSSRule> list = uaSheet.getRulesForProperty("display");
+			CSSRuleList<? extends CSSRule> list = uaSheet.getRulesForProperty("display");
 			if (list != null) {
-				Iterator<? extends ExtendedCSSRule> it = list.iterator();
+				Iterator<? extends CSSRule> it = list.iterator();
 				while (it.hasNext()) {
-					ExtendedCSSRule rule = it.next();
+					CSSRule rule = it.next();
 					if (rule.getType() == CSSRule.STYLE_RULE) {
-						ExtendedCSSStyleRule stylerule = (ExtendedCSSStyleRule) rule;
+						CSSStyleRule stylerule = (CSSStyleRule) rule;
 						SelectorList selist = stylerule.getSelectorList();
 						for (int i = 0; i < selist.getLength(); i++) {
 							Selector sel = selist.item(i);

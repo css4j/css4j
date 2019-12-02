@@ -14,14 +14,14 @@ import org.w3c.dom.DOMException;
 /**
  * Represents an at-rule that contains other rules nested inside itself.
  */
-public interface CSSGroupingRule extends ExtendedCSSRule {
+public interface CSSGroupingRule extends CSSRule {
 
 	/**
 	 * Get the list of CSS rules nested inside the grouping rule.
 	 * 
 	 * @return a CSSRuleList object for the list of CSS rules nested inside the grouping rule.
 	 */
-	ExtendedCSSRuleList<? extends ExtendedCSSRule> getCssRules();
+	CSSRuleList<? extends CSSRule> getCssRules();
 
 	/**
 	 * Inserts a new rule into this grouping rule collection.

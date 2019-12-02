@@ -25,7 +25,7 @@ import java.util.Objects;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
@@ -44,7 +44,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadFontAwesomeReader();
-		cssParser.setDocumentHandler(css.createSheetHandler(ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_PRECEDING));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -56,7 +56,7 @@ public class ContribSheetTest {
 		assertEquals(1, comments.size());
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
-		assertTrue(reparsed.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		assertTrue(reparsed.parseStyleSheet(re, CSSStyleSheet.COMMENTS_PRECEDING));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(0).getPrecedingComments();
@@ -74,7 +74,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadNormalizeReader();
-		cssParser.setDocumentHandler(css.createSheetHandler(ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_PRECEDING));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -87,7 +87,7 @@ public class ContribSheetTest {
 		assertEquals(" Grouping content", comments.get(0).substring(0, 17));
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
-		assertTrue(reparsed.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_PRECEDING));
+		assertTrue(reparsed.parseStyleSheet(re, CSSStyleSheet.COMMENTS_PRECEDING));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(4).getPrecedingComments();
@@ -109,7 +109,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadAnimateReader();
-		cssParser.setDocumentHandler(css.createSheetHandler(ExtendedCSSStyleSheet.COMMENTS_AUTO));
+		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_AUTO));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -141,7 +141,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		Reader re = DOMCSSStyleSheetFactoryTest.loadMetroReader();
-		cssParser.setDocumentHandler(css.createSheetHandler(ExtendedCSSStyleSheet.COMMENTS_AUTO));
+		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_AUTO));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
@@ -153,7 +153,7 @@ public class ContribSheetTest {
 		assertEquals(1, comments.size());
 		BaseCSSStyleSheet reparsed = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		re = new StringReader(css.toString());
-		assertTrue(reparsed.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_AUTO));
+		assertTrue(reparsed.parseStyleSheet(re, CSSStyleSheet.COMMENTS_AUTO));
 		CSSRuleArrayList reparsedrules = reparsed.getCssRules();
 		assertEquals(len, reparsedrules.getLength());
 		List<String> reparsedcomments = reparsedrules.item(0).getPrecedingComments();

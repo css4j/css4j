@@ -13,26 +13,87 @@ package io.sf.carte.doc.style.css;
 
 import java.io.IOException;
 
-import org.w3c.dom.css.CSSRule;
-
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * An extended CSS rule.
+ * A CSS rule.
  *
  */
-public interface ExtendedCSSRule extends CSSRule {
+public interface CSSRule extends org.w3c.dom.css.CSSRule {
 
+	/**
+	 * Rule is a <code>CSSUnknownRule</code>.
+	 */
+	short UNKNOWN_RULE = org.w3c.dom.css.CSSRule.UNKNOWN_RULE;
+
+	/**
+	 * Rule is a {@link CSSStyleRule}.
+	 */
+	short STYLE_RULE = org.w3c.dom.css.CSSRule.STYLE_RULE;
+
+	/**
+	 * Rule is a <code>CSSImportRule</code>.
+	 */
+	short IMPORT_RULE = org.w3c.dom.css.CSSRule.IMPORT_RULE;
+
+	/**
+	 * Rule is a {@link CSSMediaRule}.
+	 */
+	short MEDIA_RULE = org.w3c.dom.css.CSSRule.MEDIA_RULE;
+
+	/**
+	 * Rule is a {@link CSSFontFaceRule}.
+	 */
+	short FONT_FACE_RULE = org.w3c.dom.css.CSSRule.FONT_FACE_RULE;
+
+	/**
+	 * Rule is a {@link CSSPageRule}.
+	 */
+	short PAGE_RULE = org.w3c.dom.css.CSSRule.PAGE_RULE;
+
+	/**
+	 * Rule is a {@link CSSKeyframesRule}.
+	 */
 	short KEYFRAMES_RULE = 7;
+
+	/**
+	 * Rule is a {@link CSSKeyframeRule}.
+	 */
 	short KEYFRAME_RULE = 8;
+
+	/**
+	 * Rule is a {@link CSSMarginRule}.
+	 */
 	short MARGIN_RULE = 9;
+
+	/**
+	 * Rule is a {@link CSSNamespaceRule}.
+	 */
 	short NAMESPACE_RULE = 10;
+
+	/**
+	 * Rule is a {@link CSSCounterStyleRule}.
+	 */
 	short COUNTER_STYLE_RULE = 11;
+
+	/**
+	 * Rule is a {@link CSSSupportsRule}.
+	 */
 	short SUPPORTS_RULE = 12;
+
 	short DOCUMENT_RULE = 13;
+
+	/**
+	 * Rule is a {@link CSSFontFeatureValuesRule}.
+	 */
 	short FONT_FEATURE_VALUES_RULE = 14;
+
+	/**
+	 * Rule is a {@code @viewport} rule.
+	 */
 	short VIEWPORT_RULE = 15;
+
 	short REGION_STYLE_RULE = 16;
 	short CUSTOM_MEDIA_RULE = 17;
 
@@ -42,7 +103,7 @@ public interface ExtendedCSSRule extends CSSRule {
 	 * @param parentSheet the parent sheet for the new rule.
 	 * @return a clone of this rule with the given parent sheet.
 	 */
-	ExtendedCSSRule clone(AbstractCSSStyleSheet parentSheet);
+	CSSRule clone(AbstractCSSStyleSheet parentSheet);
 
 	/**
 	 * A minified parsable textual representation of the rule. This reflects the current state
@@ -58,14 +119,16 @@ public interface ExtendedCSSRule extends CSSRule {
 	 *
 	 * @return the containing rule, if any, otherwise <code>null</code>.
 	 */
-	@Override ExtendedCSSRule getParentRule();
+	@Override
+	CSSRule getParentRule();
 
 	/**
 	 * Get the style sheet that contains this rule.
 	 *
 	 * @return the style sheet, or null if no sheet contains this rule.
 	 */
-	@Override ExtendedCSSStyleSheet<? extends ExtendedCSSRule> getParentStyleSheet();
+	@Override
+	CSSStyleSheet<? extends CSSRule> getParentStyleSheet();
 
 	/**
 	 * Write a serialization of this rule to the given simple writer, according to the given

@@ -23,8 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
 
 public class CounterStyleRuleTest {
 
@@ -46,7 +46,7 @@ public class CounterStyleRuleTest {
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		CounterStyleRule rule = (CounterStyleRule) sheet.getCssRules().item(0);
-		assertEquals(ExtendedCSSRule.COUNTER_STYLE_RULE, rule.getType());
+		assertEquals(CSSRule.COUNTER_STYLE_RULE, rule.getType());
 		assertEquals("@counter-style thumbs {system:cyclic;symbols:\uD83D\uDC4D;suffix:\" \"}",
 				rule.getMinifiedCssText());
 		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1F44D;\n    suffix: \" \";\n}\n",

@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
@@ -101,7 +100,7 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 * @param rule the font-face rule.
 	 * @param exception the exception describing the error.
 	 */
-	void fontFormatError(ExtendedCSSFontFaceRule rule, Exception exception);
+	void fontFormatError(CSSFontFaceRule rule, Exception exception);
 
 	/**
 	 * Notify this handler that a rule of unknown type was found.

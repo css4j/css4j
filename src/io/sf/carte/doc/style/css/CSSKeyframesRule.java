@@ -16,7 +16,7 @@ import io.sf.carte.doc.style.css.om.CSSRuleArrayList;
  * animation.
  *
  */
-public interface CSSKeyframesRule extends ExtendedCSSRule {
+public interface CSSKeyframesRule extends CSSRule {
 
 	/**
 	 * Gets the name of the keyframes.

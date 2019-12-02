@@ -23,7 +23,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSKeyframesRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
@@ -48,12 +48,12 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 	private final CSSRuleArrayList cssRules;
 
 	protected KeyframesRule(AbstractCSSStyleSheet parentSheet, byte origin) {
-		super(parentSheet, ExtendedCSSRule.KEYFRAMES_RULE, origin);
+		super(parentSheet, CSSRule.KEYFRAMES_RULE, origin);
 		this.cssRules = new CSSRuleArrayList();
 	}
 
 	KeyframesRule(AbstractCSSStyleSheet parentSheet, KeyframesRule copyfrom) {
-		super(parentSheet, ExtendedCSSRule.KEYFRAMES_RULE, copyfrom.getOrigin());
+		super(parentSheet, CSSRule.KEYFRAMES_RULE, copyfrom.getOrigin());
 		this.name = copyfrom.name;
 		this.cssRules = copyfrom.cssRules;
 	}

@@ -18,19 +18,18 @@ import java.util.List;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
+import io.sf.carte.doc.style.css.CSSFontFaceRule;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 public class DefaultSheetErrorHandler implements SheetErrorHandler {
 
-	private final ExtendedCSSStyleSheet<?> sheet;
+	private final CSSStyleSheet<?> sheet;
 
 	private LinkedList<String> unknownRules = null;
 	private LinkedList<String> ignoredImports = null;
@@ -54,7 +53,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 
 	private boolean omErrorMergedState = false;
 
-	public DefaultSheetErrorHandler(ExtendedCSSStyleSheet<? extends ExtendedCSSRule> sheet) {
+	public DefaultSheetErrorHandler(CSSStyleSheet<? extends CSSRule> sheet) {
 		super();
 		this.sheet = sheet;
 	}
@@ -152,7 +151,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	}
 
 	@Override
-	public void fontFormatError(ExtendedCSSFontFaceRule rule, Exception exception) {
+	public void fontFormatError(CSSFontFaceRule rule, Exception exception) {
 	}
 
 	@Override
@@ -193,7 +192,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 		return ignoredImports;
 	}
 
-	public ExtendedCSSRule getRuleAtError(int index) {
+	public CSSRule getRuleAtError(int index) {
 		return ruleList == null ? null : ruleList.get(index);
 	}
 
@@ -257,7 +256,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 				buf.append('\n');
 				for (int i = 0; i < sacErrors.size(); i++) {
 					CSSParseException ex = sacErrors.get(i);
-					ExtendedCSSRule rule = ruleList.get(i);
+					CSSRule rule = ruleList.get(i);
 					buf.append('[').append(ex.getLineNumber()).append(':').append(ex.getColumnNumber()).append("] ")
 							.append(ex.getMessage());
 					if (rule != null) {

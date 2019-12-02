@@ -15,10 +15,10 @@ package io.sf.carte.doc.style.css;
  * See <a href="https://www.w3.org/TR/cssom-1/#the-stylesheetlist-interface">The
  *      <code>StyleSheetList</code> Interface</a>.
  */
-public interface CSSStyleSheetList<T extends ExtendedCSSRule> extends org.w3c.dom.stylesheets.StyleSheetList {
+public interface CSSStyleSheetList<T extends CSSRule> extends org.w3c.dom.stylesheets.StyleSheetList {
 
 	/**
-	 * retrieve an <code>ExtendedCSSStyleSheet</code> by ordinal index.
+	 * retrieve a <code>CSSStyleSheet</code> by ordinal index.
 	 * 
 	 * @param index the index in this list.
 	 * @return the sheet at <code>index</code>, or <code>null</code> if
@@ -26,6 +26,6 @@ public interface CSSStyleSheetList<T extends ExtendedCSSRule> extends org.w3c.do
 	 *         length.
 	 */
 	@Override
-	ExtendedCSSStyleSheet<T> item(int index);
+	CSSStyleSheet<T> item(int index);
 
 }

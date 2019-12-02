@@ -16,10 +16,9 @@ import java.util.Iterator;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.ExtendedCSSPageRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSPageRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.PageSelectorList;
@@ -35,7 +34,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-public class PageRule extends BaseCSSDeclarationRule implements ExtendedCSSPageRule {
+public class PageRule extends BaseCSSDeclarationRule implements CSSPageRule {
 
 	private PageSelectorList selectorList = null;
 
@@ -75,7 +74,7 @@ public class PageRule extends BaseCSSDeclarationRule implements ExtendedCSSPageR
 				}
 				Iterator<MarginRule> it = marginRules.iterator();
 				while (it.hasNext()) {
-					buf.append(((ExtendedCSSRule) it.next()).getMinifiedCssText());
+					buf.append(((CSSRule) it.next()).getMinifiedCssText());
 				}
 			}
 			buf.append('}');
@@ -104,7 +103,7 @@ public class PageRule extends BaseCSSDeclarationRule implements ExtendedCSSPageR
 				context.updateContext(this);
 				Iterator<MarginRule> it = marginRules.iterator();
 				while (it.hasNext()) {
-					ExtendedCSSRule rule = it.next();
+					CSSRule rule = it.next();
 					rule.writeCssText(wri, context);
 				}
 				context.endCurrentContext(this);

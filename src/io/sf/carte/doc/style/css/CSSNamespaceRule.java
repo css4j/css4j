@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css;
  * <a href="https://www.w3.org/TR/cssom-1/#the-cssnamespacerule-interface">The
  * <code>CSSNamespaceRule</code> Interface</a>.
  */
-public interface CSSNamespaceRule extends ExtendedCSSRule {
+public interface CSSNamespaceRule extends CSSRule {
 
 	/**
 	 * Get the namespace URI defined by this rule.

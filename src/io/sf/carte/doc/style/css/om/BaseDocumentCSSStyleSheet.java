@@ -18,16 +18,15 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.StyleDatabase;
@@ -314,7 +313,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 						scanMediaRule(matcher, targetMedium, getCanvas(), (MediaRule) rule);
 					} else if (type == CSSRule.FONT_FACE_RULE) {
 						processFontFaceRule((FontFaceRule) rule, targetMedium);
-					} else if (type == ExtendedCSSRule.SUPPORTS_RULE) {
+					} else if (type == CSSRule.SUPPORTS_RULE) {
 						SupportsRule supports = (SupportsRule) rule;
 						DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
 						StyleDatabase sdb;
@@ -374,7 +373,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 							scanMediaRule(matcher, targetMedium, getCanvas(), (MediaRule) rule);
 						} else if (type == CSSRule.FONT_FACE_RULE) {
 							processFontFaceRule((FontFaceRule) rule, targetMedium);
-						} else if (type == ExtendedCSSRule.SUPPORTS_RULE) {
+						} else if (type == CSSRule.SUPPORTS_RULE) {
 							SupportsRule supports = (SupportsRule) rule;
 							DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
 							StyleDatabase sdb;

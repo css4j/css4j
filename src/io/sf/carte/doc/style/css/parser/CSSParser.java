@@ -32,8 +32,8 @@ import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.agent.AgentUtil;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
@@ -436,7 +436,7 @@ public class CSSParser implements Parser {
 	 *             <code>CSSException.NOT_SUPPORTED_ERR</code> if a hard-coded limit in
 	 *             nested expressions was reached.
 	 */
-	public BooleanCondition parseSupportsCondition(String conditionText, ExtendedCSSRule rule)
+	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule)
 			throws CSSException {
 		int[] allowInWords = { 45, 46 }; // -.
 		SupportsTokenHandler handler = new SupportsTokenHandler(rule);
@@ -858,9 +858,9 @@ public class CSSParser implements Parser {
 		 */
 		private byte errorCode = 0;
 		private CSSParseException errorException = null;
-		private final ExtendedCSSRule rule;
+		private final CSSRule rule;
 
-		SupportsTokenHandler(ExtendedCSSRule rule) {
+		SupportsTokenHandler(CSSRule rule) {
 			super(new SupportsConditionFactory());
 			this.rule = rule;
 			setPredicateHandler(new SupportsDelegateHandler());

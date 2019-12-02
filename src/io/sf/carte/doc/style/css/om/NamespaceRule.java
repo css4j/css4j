@@ -15,10 +15,9 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -36,7 +35,7 @@ public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 	private String prefix = null;
 
 	protected NamespaceRule(AbstractCSSStyleSheet parentSheet, byte origin, String prefix, String namespaceURI) {
-		super(parentSheet, ExtendedCSSRule.NAMESPACE_RULE, origin);
+		super(parentSheet, CSSRule.NAMESPACE_RULE, origin);
 		this.prefix = prefix;
 		this.namespaceURI = namespaceURI;
 	}
@@ -65,7 +64,7 @@ public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 	private void updateSelectorText(CSSRuleArrayList rules) {
 		Iterator<AbstractCSSRule> it = rules.iterator();
 		while (it.hasNext()) {
-			ExtendedCSSRule rule = it.next();
+			CSSRule rule = it.next();
 			short type = rule.getType();
 			if (type == CSSRule.STYLE_RULE) {
 				((CSSStyleDeclarationRule) rule).updateSelectorText();

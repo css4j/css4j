@@ -15,11 +15,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
@@ -65,12 +64,12 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		super();
 		this.parentSheet = sheet;
 		this.sheetOrigin = origin;
-		if (commentsMode != ExtendedCSSStyleSheet.COMMENTS_IGNORE) {
+		if (commentsMode != CSSStyleSheet.COMMENTS_IGNORE) {
 			comments = new LinkedList<String>();
 		} else {
 			comments = null;
 		}
-		allCommentsPrecede = commentsMode != ExtendedCSSStyleSheet.COMMENTS_AUTO;
+		allCommentsPrecede = commentsMode != CSSStyleSheet.COMMENTS_AUTO;
 	}
 
 	@Override
@@ -209,7 +208,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			SheetErrorHandler eh;
 			if (currentRule != null) {
 				short ruleType = currentRule.getType();
-				if (ruleType == CSSRule.MEDIA_RULE || ruleType == ExtendedCSSRule.SUPPORTS_RULE) {
+				if (ruleType == CSSRule.MEDIA_RULE || ruleType == CSSRule.SUPPORTS_RULE) {
 					SupportsRule rule = new SupportsRule(parentSheet, condition, sheetOrigin);
 					addToCurrentRule(rule);
 					currentRule = rule;
@@ -263,7 +262,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			SheetErrorHandler eh;
 			if (currentRule != null) {
 				short ruleType = currentRule.getType();
-				if (ruleType == CSSRule.MEDIA_RULE || ruleType == ExtendedCSSRule.SUPPORTS_RULE) {
+				if (ruleType == CSSRule.MEDIA_RULE || ruleType == CSSRule.SUPPORTS_RULE) {
 					MediaRule rule = new MediaRule(parentSheet, media, sheetOrigin);
 					addToCurrentRule(rule);
 					currentRule = rule;
@@ -323,7 +322,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void endMargin() {
 		if (ignoreGroupingRules == 0) {
-			assert(currentRule != null && currentRule.getType() == ExtendedCSSRule.MARGIN_RULE);
+			assert(currentRule != null && currentRule.getType() == CSSRule.MARGIN_RULE);
 			lastRule = currentRule;
 			AbstractCSSRule pRule = currentRule.getParentRule();
 			PageRule pageRule = (PageRule) pRule;
@@ -437,7 +436,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void endKeyframe() {
 		if (ignoreGroupingRules == 0) {
-			assert(currentRule != null && currentRule.getType() == ExtendedCSSRule.KEYFRAME_RULE);
+			assert(currentRule != null && currentRule.getType() == CSSRule.KEYFRAME_RULE);
 			lastRule = currentRule;
 			currentRule = currentRule.getParentRule();
 		}

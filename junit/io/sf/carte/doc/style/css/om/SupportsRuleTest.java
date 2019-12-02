@@ -27,11 +27,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSMediaRule;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.BooleanCondition;
@@ -86,7 +85,7 @@ public class SupportsRuleTest {
 				"/* pre-rule */@supports /* skip 1 */ (display: table-cell) and (display: list-item) /* skip 2 */ {/* pre-td */td {display: table-cell; }/* post-td */ li {display: list-item; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals(2, rule.getCssRules().getLength());
 		AbstractCSSRule nested0 = rule.getCssRules().get(0);
@@ -110,7 +109,7 @@ public class SupportsRuleTest {
 				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: table-cell) and (display: list-item)", rule.getConditionText());
 		assertEquals(
@@ -127,7 +126,7 @@ public class SupportsRuleTest {
 				"@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: flexbox) and (not (display: inline-grid))", rule.getConditionText());
 		assertEquals(
@@ -141,7 +140,7 @@ public class SupportsRuleTest {
 				"@supports (display: table-cell) and (display: list-item) and (display: run-in) {td {display: table-cell; } li {display: list-item; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: table-cell) and (display: list-item) and (display: run-in)", rule.getConditionText());
 		assertEquals(
@@ -155,7 +154,7 @@ public class SupportsRuleTest {
 				"@supports ((display: table-cell) and (display: list-item) and (display: run-in)) or ((display: table-cell) and (not (display: inline-grid))) {td {display: table-cell; } li {display: list-item; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals(
 				"((display: table-cell) and (display: list-item) and (display: run-in)) or ((display: table-cell) and (not (display: inline-grid)))",
@@ -171,7 +170,7 @@ public class SupportsRuleTest {
 				"@supports (display: table-cell) and (display: list-item) and (not ((display: run-in) or (display: table-cell))) {td {display: table-cell; } li {display: list-item; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals(
 				"(display: table-cell) and (display: list-item) and (not ((display: run-in) or (display: table-cell)))",
@@ -187,7 +186,7 @@ public class SupportsRuleTest {
 				"@supports (display: table-cell) and (display: list-item) and (not (display: run-in) or (display: table-cell)) {td {display: table-cell; } li {display: list-item; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals(
 				"(display: table-cell) and (display: list-item) and ((not (display: run-in)) or (display: table-cell))",
@@ -203,7 +202,7 @@ public class SupportsRuleTest {
 				"@supports (text-decoration:underline dotted){abbr[title],.explain[title]{border-bottom:0;text-decoration:underline dotted}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(text-decoration: underline dotted)", rule.getConditionText());
 		assertEquals(
@@ -223,7 +222,7 @@ public class SupportsRuleTest {
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		CSSMediaRule mediarule = (CSSMediaRule) sheet.getCssRules().item(0);
 		assertEquals(1, mediarule.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, mediarule.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, mediarule.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) mediarule.getCssRules().item(0);
 		assertEquals("(text-decoration: underline dotted)", rule.getConditionText());
 		assertEquals(
@@ -240,7 +239,7 @@ public class SupportsRuleTest {
 				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){#fooid.fooclass .barclass{-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);background-color:rgb(255 255 255/0.7)}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(-webkit-backdrop-filter: initial) or (backdrop-filter: initial)", rule.getConditionText());
 		assertEquals(
@@ -257,7 +256,7 @@ public class SupportsRuleTest {
 				"@supports ((-webkit-backdrop-filter: initial) or (backdrop-filter: initial)){.fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass{background-color:rgb(11 11 11/0.7)}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(-webkit-backdrop-filter: initial) or (backdrop-filter: initial)", rule.getConditionText());
 		assertEquals(
@@ -274,7 +273,7 @@ public class SupportsRuleTest {
 				"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals(
 				"(-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px))",
@@ -290,7 +289,7 @@ public class SupportsRuleTest {
 				"@supports ((position: -webkit-sticky) or (position: sticky)){html:not(.foo) body:not(.bar) .myclass{position:sticky;bottom:-0.08em}html:not(.foo) body:not(.bar) .myclass.otherclass{top:-0.06em}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(position: -webkit-sticky) or (position: sticky)", rule.getConditionText());
 		assertEquals(
@@ -307,7 +306,7 @@ public class SupportsRuleTest {
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		CSSMediaRule mediarule = (CSSMediaRule) sheet.getCssRules().item(0);
 		assertEquals(1, mediarule.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, mediarule.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, mediarule.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) mediarule.getCssRules().item(0);
 		assertEquals(3, rule.getCssRules().getLength());
 		assertEquals("(display: table-cell) and (display: list-item)", rule.getConditionText());
@@ -325,7 +324,7 @@ public class SupportsRuleTest {
 				"@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: table-cell) or (display: list-item)", rule.getConditionText());
 		assertEquals(
@@ -342,7 +341,7 @@ public class SupportsRuleTest {
 				"@supports not((display:table-cell) or (display:list-item)){td{display:table-cell}li{display:list-item}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("not ((display: table-cell) or (display: list-item))", rule.getConditionText());
 		assertEquals(
@@ -362,7 +361,7 @@ public class SupportsRuleTest {
 				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell; filter:alpha(opacity=0); } li {display: list-item; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals(2, rule.getCssRules().getLength());
 		AbstractCSSRule nested0 = rule.getCssRules().get(0);

@@ -27,7 +27,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesMap;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
@@ -66,7 +66,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	private HashMap<String, CSSFontFeatureValuesMapImpl> mapmap = null;
 
 	protected FontFeatureValuesRule(AbstractCSSStyleSheet parentSheet, byte origin) {
-		super(parentSheet, ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, origin);
+		super(parentSheet, CSSRule.FONT_FEATURE_VALUES_RULE, origin);
 	}
 
 	@Override
@@ -432,7 +432,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			}
 			//
 			if (parentHandler != null) {
-				parentHandler.endSubHandler(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE);
+				parentHandler.endSubHandler(CSSRule.FONT_FEATURE_VALUES_RULE);
 			}
 		}
 

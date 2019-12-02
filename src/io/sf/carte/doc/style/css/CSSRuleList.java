@@ -14,14 +14,12 @@ package io.sf.carte.doc.style.css;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.w3c.dom.css.CSSRuleList;
-
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * A rule list with additional utility methods.
  */
-public interface ExtendedCSSRuleList<T extends ExtendedCSSRule> extends CSSRuleList, Iterable<T> {
+public interface CSSRuleList<T extends CSSRule> extends org.w3c.dom.css.CSSRuleList, Iterable<T> {
 
 	/**
 	 * Remove all the rules in this list.

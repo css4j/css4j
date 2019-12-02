@@ -18,9 +18,8 @@ import java.net.URL;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSImportRule;
-import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -33,7 +32,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCSSRule {
+public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 
 	private AbstractCSSStyleSheet importedSheet = null;
 

@@ -24,12 +24,12 @@ import org.w3c.dom.Node;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorValue;
@@ -153,7 +153,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	}
 
 	@Override
-	public void loadFontFaceRule(ExtendedCSSFontFaceRule rule) {
+	public void loadFontFaceRule(CSSFontFaceRule rule) {
 		String familyName = rule.getStyle().getPropertyValue("font-family");
 		if (familyName == null) {
 			rule.getStyleDeclarationErrorHandler().missingRequiredProperty(familyName);
@@ -190,7 +190,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		}
 	}
 
-	private boolean loadFont(String familyName, ValueList value, ExtendedCSSFontFaceRule rule) {
+	private boolean loadFont(String familyName, ValueList value, CSSFontFaceRule rule) {
 		if (!value.isCommaSeparated()) {
 			ValueList list = value;
 			Iterator<StyleValue> it = list.iterator();
@@ -239,7 +239,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		rule.getStyleDeclarationErrorHandler().wrongValue("src", ex);
 	}
 
-	private boolean loadFont(String familyName, TypedValue value, String format, ExtendedCSSFontFaceRule rule) {
+	private boolean loadFont(String familyName, TypedValue value, String format, CSSFontFaceRule rule) {
 		Type pType = value.getPrimitiveType();
 		if (pType == Type.URI) {
 			String uri = value.getStringValue();
@@ -347,7 +347,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	}
 
 	protected boolean loadFontFace(String familyName, FontFormat fontFormat, InputStream is,
-			ExtendedCSSFontFaceRule rule) throws IOException {
+			CSSFontFaceRule rule) throws IOException {
 		return false;
 	}
 

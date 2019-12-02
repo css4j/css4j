@@ -33,9 +33,9 @@ import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 
@@ -135,7 +135,7 @@ public class ImportRuleTest {
 		assertEquals(1, mediaRule.getCssRules().getLength());
 		rule = mediaRule.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
-		ExtendedCSSStyleRule srule = (ExtendedCSSStyleRule) rule;
+		CSSStyleRule srule = (CSSStyleRule) rule;
 		assertEquals("body", srule.getSelectorText());
 		CSSStyleDeclaration styleDecl = srule.getStyle();
 		assertEquals(2, styleDecl.getLength());
@@ -144,7 +144,7 @@ public class ImportRuleTest {
 		// Rule 2
 		rule = docsheet.getCssRules().item(1);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
-		srule = (ExtendedCSSStyleRule) rule;
+		srule = (CSSStyleRule) rule;
 		assertEquals("p", srule.getSelectorText());
 		styleDecl = srule.getStyle();
 		assertEquals(1, styleDecl.getLength());
@@ -168,7 +168,7 @@ public class ImportRuleTest {
 		assertEquals(1, mediaRule.getCssRules().getLength());
 		rule = mediaRule.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
-		srule = (ExtendedCSSStyleRule) rule;
+		srule = (CSSStyleRule) rule;
 		assertEquals("body", srule.getSelectorText());
 		styleDecl = srule.getStyle();
 		assertEquals(2, styleDecl.getLength());
@@ -177,7 +177,7 @@ public class ImportRuleTest {
 		// Rule 2
 		rule = docsheet.getCssRules().item(1);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
-		srule = (ExtendedCSSStyleRule) rule;
+		srule = (CSSStyleRule) rule;
 		assertEquals("p", srule.getSelectorText());
 		styleDecl = srule.getStyle();
 		assertEquals(1, styleDecl.getLength());
@@ -242,7 +242,7 @@ public class ImportRuleTest {
 		assertEquals(2, mediaRule.getCssRules().getLength());
 		rule = mediaRule.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
-		ExtendedCSSStyleRule srule = (ExtendedCSSStyleRule) rule;
+		CSSStyleRule srule = (CSSStyleRule) rule;
 		assertEquals("body", srule.getSelectorText());
 		CSSStyleDeclaration styleDecl = srule.getStyle();
 		assertEquals(2, styleDecl.getLength());
@@ -251,7 +251,7 @@ public class ImportRuleTest {
 		// Rule 2
 		rule = mediaRule.getCssRules().item(1);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
-		srule = (ExtendedCSSStyleRule) rule;
+		srule = (CSSStyleRule) rule;
 		assertEquals("p", srule.getSelectorText());
 		styleDecl = srule.getStyle();
 		assertEquals(1, styleDecl.getLength());
@@ -275,7 +275,7 @@ public class ImportRuleTest {
 		assertEquals(2, mediaRule.getCssRules().getLength());
 		rule = mediaRule.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
-		srule = (ExtendedCSSStyleRule) rule;
+		srule = (CSSStyleRule) rule;
 		assertEquals("body", srule.getSelectorText());
 		styleDecl = srule.getStyle();
 		assertEquals(2, styleDecl.getLength());
@@ -284,7 +284,7 @@ public class ImportRuleTest {
 		// Rule 2
 		rule = mediaRule.getCssRules().item(1);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
-		srule = (ExtendedCSSStyleRule) rule;
+		srule = (CSSStyleRule) rule;
 		assertEquals("p", srule.getSelectorText());
 		styleDecl = srule.getStyle();
 		assertEquals(1, styleDecl.getLength());

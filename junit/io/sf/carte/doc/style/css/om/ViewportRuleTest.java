@@ -23,8 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
 
 public class ViewportRuleTest {
 
@@ -42,7 +42,7 @@ public class ViewportRuleTest {
 		StringReader re = new StringReader("@viewport {\norientation: landscape;\n}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
 		ViewportRule rule = (ViewportRule) sheet.getCssRules().item(0);
 		assertEquals("@viewport {\n    orientation: landscape;\n}\n", rule.getCssText());
 		assertEquals("@viewport{orientation:landscape}", rule.getMinifiedCssText());
@@ -54,7 +54,7 @@ public class ViewportRuleTest {
 		StringReader re = new StringReader("@viewport{orientation:landscape}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
 		ViewportRule rule = (ViewportRule) sheet.getCssRules().item(0);
 		assertEquals("@viewport {\n    orientation: landscape;\n}\n", rule.getCssText());
 		assertEquals("@viewport{orientation:landscape}", rule.getMinifiedCssText());

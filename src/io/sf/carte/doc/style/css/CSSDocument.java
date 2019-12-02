@@ -93,7 +93,7 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	 * in a document. For HTML documents, this includes external style sheets,
 	 * included via the HTML LINK element, and inline STYLE elements.
 	 */
-	@Override CSSStyleSheetList<? extends ExtendedCSSRule> getStyleSheets();
+	@Override CSSStyleSheetList<? extends CSSRule> getStyleSheets();
 
 	/**
 	 * Gets the list of available style set titles.

@@ -36,7 +36,7 @@ import io.sf.carte.doc.dom.TestDOMImplementation;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Parser;
@@ -1301,7 +1301,7 @@ public class SelectorMatcherTest {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		StringReader re = new StringReader(style);
-		cssParser.setDocumentHandler(css.createSheetHandler(ExtendedCSSStyleSheet.COMMENTS_IGNORE));
+		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_IGNORE));
 		cssParser.parseStyleSheet(re);
 		return css;
 	}

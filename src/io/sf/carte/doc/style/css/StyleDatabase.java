@@ -109,7 +109,7 @@ public interface StyleDatabase {
 	 * @param rule
 	 *            the font face rule.
 	 */
-	void loadFontFaceRule(ExtendedCSSFontFaceRule rule);
+	void loadFontFaceRule(CSSFontFaceRule rule);
 
 	/**
 	 * Gets the identifier of the device's natural unit.

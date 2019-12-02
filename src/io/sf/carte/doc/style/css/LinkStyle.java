@@ -10,13 +10,13 @@
 
 package io.sf.carte.doc.style.css;
 
-public interface LinkStyle<R extends ExtendedCSSRule> {
+public interface LinkStyle<R extends CSSRule> {
 
 	/**
 	 * Get the style sheet that this node links to.
 	 * 
 	 * @return the style sheet.
 	 */
-	ExtendedCSSStyleSheet<R> getSheet();
+	CSSStyleSheet<R> getSheet();
 
 }

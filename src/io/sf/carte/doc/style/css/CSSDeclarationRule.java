@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
  * A CSS rule that contains style declarations.
  *
  */
-public interface CSSDeclarationRule extends ExtendedCSSRule {
+public interface CSSDeclarationRule extends CSSRule {
 
 	/**
 	 * Get the style that is declared by this rule.

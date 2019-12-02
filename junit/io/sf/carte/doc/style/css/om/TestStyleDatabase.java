@@ -17,8 +17,8 @@ import java.util.HashSet;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 
 /**
  * Style database mock.
@@ -121,7 +121,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 
 	@Override
 	protected boolean loadFontFace(String familyName, FontFormat fontFormat, InputStream is,
-			ExtendedCSSFontFaceRule rule) throws IOException {
+			CSSFontFaceRule rule) throws IOException {
 		if (fontFormat != null) {
 			fontfaceNames.add(familyName);
 			return true;

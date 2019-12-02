@@ -16,7 +16,7 @@ import java.io.IOException;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
@@ -36,7 +36,7 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 	private String keyText;
 
 	public KeyframeRule(KeyframesRule parentRule) {
-		super(parentRule.getParentStyleSheet(), ExtendedCSSRule.KEYFRAME_RULE, parentRule.getOrigin());
+		super(parentRule.getParentStyleSheet(), CSSRule.KEYFRAME_RULE, parentRule.getOrigin());
 		this.parentRule = parentRule;
 	}
 

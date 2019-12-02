@@ -19,14 +19,13 @@ import java.util.EnumSet;
 import java.util.Locale;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.agent.HeadlessDeviceFactory;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -276,7 +275,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		try {
 			re = new InputStreamReader(is, "UTF-8");
 			cssSheet = createDocumentStyleSheet(ORIGIN_USER_AGENT);
-			cssSheet.parseStyleSheet(re, ExtendedCSSStyleSheet.COMMENTS_IGNORE);
+			cssSheet.parseStyleSheet(re, CSSStyleSheet.COMMENTS_IGNORE);
 		} catch (IOException e) {
 			throw e;
 		} finally {
@@ -423,7 +422,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @return the error handler.
 	 */
 	@Override
-	public SheetErrorHandler createSheetErrorHandler(ExtendedCSSStyleSheet<? extends ExtendedCSSRule> sheet) {
+	public SheetErrorHandler createSheetErrorHandler(CSSStyleSheet<? extends CSSRule> sheet) {
 		return new DefaultSheetErrorHandler(sheet);
 	}
 

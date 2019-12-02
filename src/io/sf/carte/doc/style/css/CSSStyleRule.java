@@ -19,7 +19,7 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
  * A CSS style rule.
  * 
  */
-public interface ExtendedCSSStyleRule extends CSSDeclarationRule {
+public interface CSSStyleRule extends CSSDeclarationRule {
 
 	/**
 	 * Get a parsable serialization of the selector(s).

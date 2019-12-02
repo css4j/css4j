@@ -15,7 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -29,7 +29,7 @@ import io.sf.carte.util.SimpleWriter;
 public class ViewportRule extends BaseCSSDeclarationRule {
 
 	public ViewportRule(AbstractCSSStyleSheet parentSheet, byte origin) {
-		super(parentSheet, ExtendedCSSRule.VIEWPORT_RULE, origin);
+		super(parentSheet, CSSRule.VIEWPORT_RULE, origin);
 	}
 
 	@Override

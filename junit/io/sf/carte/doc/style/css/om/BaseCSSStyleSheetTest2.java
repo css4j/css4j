@@ -28,9 +28,8 @@ import java.util.EnumSet;
 
 import org.junit.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.ExtendedCSSRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Condition;
@@ -121,7 +120,7 @@ public class BaseCSSStyleSheetTest2 {
 		re.close();
 		//
 		assertEquals(4, sheet.getCssRules().getLength());
-		assertEquals(ExtendedCSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
+		assertEquals(CSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
 		ViewportRule vprule = (ViewportRule) sheet.getCssRules().item(0);
 		assertEquals("@viewport{width:device-width}", vprule.getMinifiedCssText());
 		assertEquals(1, vprule.getStyle().getLength());
@@ -282,7 +281,7 @@ public class BaseCSSStyleSheetTest2 {
 		assertTrue(css.parseStyleSheet(re));
 		CSSRuleArrayList rules = css.getCssRules();
 		assertEquals(1, rules.getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, rules.item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, rules.item(0).getType());
 		SupportsRule rule = (SupportsRule) rules.item(0);
 		assertEquals("(display: list-item) and (width: max-content)", rule.getConditionText());
 		BooleanCondition cond = rule.getCondition();
@@ -303,7 +302,7 @@ public class BaseCSSStyleSheetTest2 {
 		assertTrue(css.parseStyleSheet(re));
 		CSSRuleArrayList rules = css.getCssRules();
 		assertEquals(1, rules.getLength());
-		assertEquals(ExtendedCSSRule.SUPPORTS_RULE, rules.item(0).getType());
+		assertEquals(CSSRule.SUPPORTS_RULE, rules.item(0).getType());
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		assertFalse(css.getErrorHandler().hasOMErrors());
 		assertEquals(csstext, css.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));

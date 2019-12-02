@@ -16,7 +16,6 @@ import java.io.Reader;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSImportRule;
-import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.css.CSSUnknownRule;
 
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -32,7 +31,7 @@ import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
  * factory methods create rules that have the same origin specificity (like 'author' or
  * 'user') as this style sheet.
  */
-public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSStyleSheet {
+public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSStyleSheet {
 
 	/**
 	 * Ignore all comments when parsing a sheet.
@@ -79,7 +78,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @return the list of all CSS rules contained within the style sheet.
 	 */
 	@Override
-	ExtendedCSSRuleList<R> getCssRules();
+	CSSRuleList<R> getCssRules();
 
 	/**
 	 * Get the destination media for this sheet.
@@ -94,7 +93,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *
 	 * @return the cloned style sheet.
 	 */
-	ExtendedCSSStyleSheet<R> clone();
+	CSSStyleSheet<R> clone();
 
 	/**
 	 * Create a CSSCounterStyleRule compatible with this implementation.
@@ -111,7 +110,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *
 	 * @return a CSS Font Face rule object.
 	 */
-	ExtendedCSSFontFaceRule createFontFaceRule();
+	CSSFontFaceRule createFontFaceRule();
 
 	/**
 	 * Create a CSSFontFeatureValuesRule compatible with this implementation.
@@ -159,7 +158,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *            a list of media types for the new rule.
 	 * @return a CSS media rule.
 	 */
-	ExtendedCSSMediaRule createMediaRule(MediaQueryList mediaList);
+	CSSMediaRule createMediaRule(MediaQueryList mediaList);
 
 	/**
 	 * Create a CSS namespace rule compatible with this implementation.
@@ -180,7 +179,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *
 	 * @return a CSS page rule.
 	 */
-	ExtendedCSSPageRule createPageRule();
+	CSSPageRule createPageRule();
 
 	/**
 	 * Create a CSS style rule.
@@ -213,7 +212,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	/**
 	 * Create a CSS unknown rule.
 	 * <p>
-	 * Its contents can be set with {@link ExtendedCSSRule#setCssText(String)}. Be
+	 * Its contents can be set with {@link CSSRule#setCssText(String)}. Be
 	 * careful to set a text that is compatible with a CSS rule, with an ending
 	 * semicolon or balanced curly brackets, otherwise its serialization may break
 	 * the style sheet serialization.
@@ -249,7 +248,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * @return the list of rules, or <code>null</code> if no rules declare that property,
 	 *         or the property is a shorthand.
 	 */
-	ExtendedCSSRuleList<? extends ExtendedCSSRule> getRulesForProperty(String longhandPropertyName);
+	CSSRuleList<? extends CSSRule> getRulesForProperty(String longhandPropertyName);
 
 	/**
 	 * Returns an array of selectors that apply to a style where the given longhand property
@@ -277,7 +276,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 * If this style sheet is not empty, the rules from the parsed source will be added at the
 	 * end of the rule list.
 	 * <p>
-	 * The comments shall be processed according to {@link ExtendedCSSStyleSheet#COMMENTS_AUTO}.
+	 * The comments shall be processed according to {@link CSSStyleSheet#COMMENTS_AUTO}.
 	 * </p>
 	 * 
 	 * @param reader

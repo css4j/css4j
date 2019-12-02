@@ -12,7 +12,7 @@ package io.sf.carte.doc.style.css;
 /**
  * Counter-style rule. @see <a href="https://www.w3.org/TR/css-counter-styles-3/">CSS Counter Styles Level 3</a>.
  */
-public interface CSSCounterStyleRule extends ExtendedCSSRule {
+public interface CSSCounterStyleRule extends CSSRule {
 
 	/**
 	 * Gets the counter-style name.

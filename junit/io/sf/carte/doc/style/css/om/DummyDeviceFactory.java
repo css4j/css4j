@@ -24,8 +24,8 @@ import io.sf.carte.doc.agent.Viewport;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
 import io.sf.carte.doc.style.css.StyleDatabase;
 
 /**
@@ -110,7 +110,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		public void loadFontFaceRule(ExtendedCSSFontFaceRule rule) {
+		public void loadFontFaceRule(CSSFontFaceRule rule) {
 			String familyName = rule.getStyle().getPropertyValue("font-family");
 			if (familyName == null) {
 				rule.getStyleDeclarationErrorHandler().missingRequiredProperty(familyName);

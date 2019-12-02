@@ -14,9 +14,9 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
+import io.sf.carte.doc.style.css.CSSFontFaceRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -27,7 +27,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-public class FontFaceRule extends BaseCSSDeclarationRule implements ExtendedCSSFontFaceRule {
+public class FontFaceRule extends BaseCSSDeclarationRule implements CSSFontFaceRule {
 
 	public FontFaceRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.FONT_FACE_RULE, origin);
