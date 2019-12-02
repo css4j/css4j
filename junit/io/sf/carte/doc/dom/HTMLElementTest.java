@@ -26,7 +26,7 @@ import org.w3c.dom.DocumentType;
 
 import io.sf.carte.doc.DOMTokenList;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 
 public class HTMLElementTest {
 	TestDOMImplementation impl;
@@ -90,7 +90,7 @@ public class HTMLElementTest {
 		HTMLElement html = xhtmlDoc.getDocumentElement();
 		assertNull(html.getStyle());
 		html.setAttributeNode(attr);
-		ExtendedCSSStyleDeclaration style = html.getStyle();
+		CSSStyleDeclaration style = html.getStyle();
 		assertNotNull(style);
 		assertEquals("display: block; ", style.getCssText());
 		assertEquals("display:block", style.getMinifiedCssText());
@@ -422,7 +422,7 @@ public class HTMLElementTest {
 		assertTrue(body.hasAttributes());
 		assertTrue(body.hasAttribute("style"));
 		assertEquals("font-family: Arial; ", body.getAttribute("style"));
-		ExtendedCSSStyleDeclaration style = body.getStyle();
+		CSSStyleDeclaration style = body.getStyle();
 		assertNotNull(style);
 		assertEquals(1, style.getLength());
 		assertEquals("font-family: Arial; ", style.getCssText());

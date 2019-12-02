@@ -30,8 +30,8 @@ import io.sf.carte.doc.DOMTokenList;
 import io.sf.carte.doc.DOMTokenSetImpl;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
@@ -66,7 +66,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	// Weak reference to selector matcher
 	private transient WeakReference<SelectorMatcher> selectorMatcherRef = null;
 	// Map from pseudo-elements to override styles
-	private Map<Condition, ExtendedCSSStyleDeclaration> overrideStyleSet = null;
+	private Map<Condition, CSSStyleDeclaration> overrideStyleSet = null;
 
 	private boolean rawTextElement = false;
 
@@ -748,7 +748,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExtendedCSSStyleDeclaration getStyle() {
+	public CSSStyleDeclaration getStyle() {
 		DOMDocument.StyleAttr styleAttr = (DOMDocument.StyleAttr) getAttributeNode("style");
 		if (styleAttr == null) {
 			if (getOwnerDocument().getComplianceMode() == CSSDocument.ComplianceMode.QUIRKS) {
@@ -780,10 +780,10 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExtendedCSSStyleDeclaration getOverrideStyle(Condition pseudoElt) {
-		ExtendedCSSStyleDeclaration overrideStyle = null;
+	public CSSStyleDeclaration getOverrideStyle(Condition pseudoElt) {
+		CSSStyleDeclaration overrideStyle = null;
 		if (overrideStyleSet == null) {
-			overrideStyleSet = new HashMap<Condition, ExtendedCSSStyleDeclaration>(1);
+			overrideStyleSet = new HashMap<Condition, CSSStyleDeclaration>(1);
 		} else {
 			overrideStyle = overrideStyleSet.get(pseudoElt);
 		}
@@ -806,7 +806,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
+	public void exportHintsToStyle(CSSStyleDeclaration style) {
 	}
 
 	/**

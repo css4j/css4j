@@ -16,7 +16,7 @@ import org.w3c.dom.Node;
 /**
  * This style declaration belongs to a DOM node.
  */
-public interface NodeStyleDeclaration extends ExtendedCSSStyleDeclaration {
+public interface NodeStyleDeclaration extends CSSStyleDeclaration {
 
 	/**
 	 * Gets the owner node.

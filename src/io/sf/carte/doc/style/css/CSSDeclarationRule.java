@@ -22,7 +22,7 @@ public interface CSSDeclarationRule extends ExtendedCSSRule {
 	 *
 	 * @return the style declaration.
 	 */
-	ExtendedCSSStyleDeclaration getStyle();
+	CSSStyleDeclaration getStyle();
 
 	/**
 	 * Gets the error handler.

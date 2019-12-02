@@ -13,8 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -26,7 +26,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-abstract public class AbstractCSSStyleDeclaration implements LexicalPropertyListener, ExtendedCSSStyleDeclaration {
+abstract public class AbstractCSSStyleDeclaration implements LexicalPropertyListener, CSSStyleDeclaration {
 
 	abstract void addProperty(String propertyName, StyleValue cssValue, String priority);
 

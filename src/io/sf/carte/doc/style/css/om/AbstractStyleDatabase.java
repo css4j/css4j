@@ -24,12 +24,12 @@ import org.w3c.dom.Node;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.ExtendedCSSFontFaceRule;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorValue;
@@ -161,7 +161,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 		}
 		familyName = familyName.toLowerCase(Locale.ROOT);
 		if (!isFontFaceName(familyName)) {
-			ExtendedCSSStyleDeclaration decl = rule.getStyle();
+			CSSStyleDeclaration decl = rule.getStyle();
 			CSSValue value = decl.getPropertyCSSValue("src");
 			if (value.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) value;

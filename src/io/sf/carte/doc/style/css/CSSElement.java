@@ -53,7 +53,7 @@ public interface CSSElement extends Element, CSSNode {
 	 *            the pseudo-element condition, or <code>null</code> if none.
 	 * @return the override style sheet for the given pseudo-element.
 	 */
-	ExtendedCSSStyleDeclaration getOverrideStyle(Condition pseudoElt);
+	CSSStyleDeclaration getOverrideStyle(Condition pseudoElt);
 
 	/**
 	 * Check whether this element has an override style declaration for the given
@@ -76,7 +76,7 @@ public interface CSSElement extends Element, CSSNode {
 	 * @return the inline style specified by the <code>style</code> attribute, or
 	 *         <code>null</code> if that attribute is not present.
 	 */
-	ExtendedCSSStyleDeclaration getStyle();
+	CSSStyleDeclaration getStyle();
 
 	/**
 	 * Does this element (with the provided pseudo-element, if any) match the provided
@@ -119,7 +119,7 @@ public interface CSSElement extends Element, CSSNode {
 	 * A document may contain non-CSS presentational hints (like the <code>width</code>
 	 * attribute in HTML). This method can return <code>true</code> only if this specific
 	 * element do contain such hints, which can be exported to a style declaration by using
-	 * the {@link #exportHintsToStyle(ExtendedCSSStyleDeclaration)} method.
+	 * the {@link #exportHintsToStyle(CSSStyleDeclaration)} method.
 	 *
 	 * @return <code>true</code> if this element has presentational hints.
 	 */
@@ -127,10 +127,10 @@ public interface CSSElement extends Element, CSSNode {
 
 	/**
 	 * Export this element's non-CSS presentational hints (if any) to the supplied
-	 * {@link ExtendedCSSStyleDeclaration}.
+	 * {@link CSSStyleDeclaration}.
 	 *
 	 * @param style
 	 *            the style declaration to export to.
 	 */
-	void exportHintsToStyle(ExtendedCSSStyleDeclaration style) throws DOMException;
+	void exportHintsToStyle(CSSStyleDeclaration style) throws DOMException;
 }

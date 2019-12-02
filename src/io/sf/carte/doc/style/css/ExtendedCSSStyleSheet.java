@@ -208,7 +208,7 @@ public interface ExtendedCSSStyleSheet<R extends ExtendedCSSRule> extends CSSSty
 	 *
 	 * @return a CSS style declaration.
 	 */
-	ExtendedCSSStyleDeclaration createStyleDeclaration();
+	CSSStyleDeclaration createStyleDeclaration();
 
 	/**
 	 * Create a CSS unknown rule.

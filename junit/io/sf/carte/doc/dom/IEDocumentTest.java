@@ -26,10 +26,10 @@ import org.junit.Test;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
@@ -105,11 +105,11 @@ public class IEDocumentTest {
 	public void getElementgetStyle() {
 		CSSElement elm = xhtmlDoc.getElementById("firstH3");
 		assertNotNull(elm);
-		ExtendedCSSStyleDeclaration style = elm.getStyle();
+		CSSStyleDeclaration style = elm.getStyle();
 		assertEquals("font-family: 'Does Not Exist', Neither; color: navy; ", style.getCssText());
 		assertEquals(2, style.getLength());
 		DocumentCSSStyleSheet sheet = xhtmlDoc.getStyleSheet();
-		ExtendedCSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(19, styledecl.getLength());
 		assertEquals("#000080", styledecl.getPropertyValue("color"));
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
@@ -127,7 +127,7 @@ public class IEDocumentTest {
 	public void getElementgetStyleHack() {
 		CSSElement elm = xhtmlDoc.getElementById("cell62");
 		assertNotNull(elm);
-		ExtendedCSSStyleDeclaration style = elm.getStyle();
+		CSSStyleDeclaration style = elm.getStyle();
 		assertEquals("padding: 2pt 3pt; padding: 5pt 6pt\\9; margin-left: 8pt; margin-left: 9pt\\9; ",
 				style.getCssText());
 		assertEquals(5, style.getLength());
@@ -135,7 +135,7 @@ public class IEDocumentTest {
 		assertNull(style.getPropertyCSSValue("does-not-exist"));
 		assertEquals("", style.getPropertyValue("does-not-exist"));
 		DocumentCSSStyleSheet sheet = xhtmlDoc.getStyleSheet();
-		ExtendedCSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(12, styledecl.getLength());
 		assertEquals("8pt", styledecl.getPropertyValue("margin-left"));
 		assertEquals("2pt", styledecl.getPropertyValue("padding-top"));
@@ -147,7 +147,7 @@ public class IEDocumentTest {
 		CSSElement elm = xhtmlDoc.getElementById("fooimg");
 		assertNotNull(elm);
 		DocumentCSSStyleSheet sheet = xhtmlDoc.getStyleSheet();
-		ExtendedCSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(2, styledecl.getLength());
 		assertEquals("200px", styledecl.getPropertyValue("width"));
 		assertEquals("180px", styledecl.getPropertyValue("height"));
@@ -215,10 +215,10 @@ public class IEDocumentTest {
 	public void testCompatComputedStyle() {
 		CSSElement elm = xhtmlDoc.getElementById("cell12");
 		assertNotNull(elm);
-		ExtendedCSSStyleDeclaration style = elm.getStyle();
+		CSSStyleDeclaration style = elm.getStyle();
 		assertNull(style);
 		DocumentCSSStyleSheet sheet = xhtmlDoc.getStyleSheet();
-		ExtendedCSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(12, styledecl.getLength());
 		assertEquals("5pt", styledecl.getPropertyValue("margin-left"));
 		assertEquals("4pt", styledecl.getPropertyValue("padding-top"));

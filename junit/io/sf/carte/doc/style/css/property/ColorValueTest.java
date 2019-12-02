@@ -23,11 +23,11 @@ import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.RGBAColor;
@@ -251,7 +251,7 @@ public class ColorValueTest {
 
 	@Test
 	public void testGetRGBColorValue() {
-		ExtendedCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		CSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("color: rgb(8 63 255/0.5); ");
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
@@ -290,7 +290,7 @@ public class ColorValueTest {
 
 	@Test
 	public void testHSLColorspace() {
-		ExtendedCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		CSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("color: hsl(120, 100%, 50%); ");
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
@@ -424,7 +424,7 @@ public class ColorValueTest {
 
 	@Test
 	public void testHWBColorspace() {
-		ExtendedCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		CSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("color: hwb(205 19% 14%); ");
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
@@ -547,7 +547,7 @@ public class ColorValueTest {
 
 	@Test
 	public void testClone() {
-		ExtendedCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		CSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("color: rgba(8,63,255,0.5); ");
 		ColorValue value = (ColorValue) style.getPropertyCSSValue("color");
 		ColorValue clon = value.clone();
@@ -560,7 +560,7 @@ public class ColorValueTest {
 
 	@Test
 	public void testRGBAColor() throws CSSPropertyValueException {
-		ExtendedCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		CSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("color: rgba(8,63,255,0.5); ");
 		CSSValue cssColor = style.getPropertyCSSValue("color");
 		assertNotNull(cssColor);

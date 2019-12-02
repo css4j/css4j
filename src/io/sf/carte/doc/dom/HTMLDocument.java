@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.UserDataHandler;
 
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactory;
@@ -576,7 +576,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
+		public void exportHintsToStyle(CSSStyleDeclaration style) {
 			AttributeToStyle.width(getAttribute("width"), style);
 			AttributeToStyle.height(getAttribute("height"), style);
 			AttributeToStyle.hspace(getAttribute("hspace"), style);
@@ -603,7 +603,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
+		public void exportHintsToStyle(CSSStyleDeclaration style) {
 			AttributeToStyle.face(getAttribute("face"), style);
 			AttributeToStyle.size(getAttribute("size"), style);
 			AttributeToStyle.color(getAttribute("color"), style);
@@ -625,7 +625,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
+		public void exportHintsToStyle(CSSStyleDeclaration style) {
 			AttributeToStyle.bgcolor(getAttribute("bgcolor"), style);
 			AttributeToStyle.cellSpacing(getAttribute("cellspacing"), style);
 			AttributeToStyle.width(getAttribute("width"), style);
@@ -650,7 +650,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
+		public void exportHintsToStyle(CSSStyleDeclaration style) {
 			AttributeToStyle.bgcolor(getAttribute("bgcolor"), style);
 			AttributeToStyle.height(getAttribute("height"), style);
 			AttributeToStyle.background(getAttribute("background"), style);
@@ -676,7 +676,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
+		public void exportHintsToStyle(CSSStyleDeclaration style) {
 			AttributeToStyle.bgcolor(getAttribute("bgcolor"), style);
 			AttributeToStyle.width(getAttribute("width"), style);
 			AttributeToStyle.height(getAttribute("height"), style);

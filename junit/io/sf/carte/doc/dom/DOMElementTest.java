@@ -28,7 +28,7 @@ import org.w3c.dom.Text;
 
 import io.sf.carte.doc.DOMTokenList;
 import io.sf.carte.doc.style.css.CSSDocument;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 
 public class DOMElementTest {
 
@@ -647,7 +647,7 @@ public class DOMElementTest {
 		assertTrue(body.hasAttributes());
 		assertTrue(body.hasAttribute("style"));
 		assertEquals("font-family: Arial; ", body.getAttribute("style"));
-		ExtendedCSSStyleDeclaration style = body.getStyle();
+		CSSStyleDeclaration style = body.getStyle();
 		assertNotNull(style);
 		assertEquals(1, style.getLength());
 		assertEquals("font-family: Arial; ", style.getCssText());

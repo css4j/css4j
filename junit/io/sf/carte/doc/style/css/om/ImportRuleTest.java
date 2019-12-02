@@ -32,9 +32,9 @@ import org.w3c.dom.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -137,7 +137,7 @@ public class ImportRuleTest {
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
 		ExtendedCSSStyleRule srule = (ExtendedCSSStyleRule) rule;
 		assertEquals("body", srule.getSelectorText());
-		ExtendedCSSStyleDeclaration styleDecl = srule.getStyle();
+		CSSStyleDeclaration styleDecl = srule.getStyle();
 		assertEquals(2, styleDecl.getLength());
 		assertEquals("background-color", styleDecl.item(0));
 		assertEquals("color", styleDecl.item(1));
@@ -244,7 +244,7 @@ public class ImportRuleTest {
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
 		ExtendedCSSStyleRule srule = (ExtendedCSSStyleRule) rule;
 		assertEquals("body", srule.getSelectorText());
-		ExtendedCSSStyleDeclaration styleDecl = srule.getStyle();
+		CSSStyleDeclaration styleDecl = srule.getStyle();
 		assertEquals(2, styleDecl.getLength());
 		assertEquals("background-color", styleDecl.item(0));
 		assertEquals("color", styleDecl.item(1));

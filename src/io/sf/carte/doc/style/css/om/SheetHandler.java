@@ -17,8 +17,8 @@ import java.util.LinkedList;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.ExtendedCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
@@ -598,7 +598,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		if (currentRule != null && currentRule instanceof BaseCSSDeclarationRule
 				&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
 			int previousIndex = -1;
-			ExtendedCSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
+			CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
 			if (style != null) {
 				previousIndex = style.getLength() - 1;
 			}
@@ -614,7 +614,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void error(CSSParseException exception) throws CSSParseException {
 		if (currentRuleCanHandleError()) {
 			int previousIndex = -1;
-			ExtendedCSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
+			CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
 			if (style != null) {
 				previousIndex = style.getLength() - 1;
 			}

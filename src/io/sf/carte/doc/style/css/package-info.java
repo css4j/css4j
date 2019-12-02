@@ -15,7 +15,7 @@
  * <h3>Serialization and <code>getCssText()</code></h3>
  * <p>
  * The CSSOM specification requires
- * {@link io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration#getCssText()
+ * {@link io.sf.carte.doc.style.css.CSSStyleDeclaration#getCssText()
  * getCssText()} to return the serialization of property declarations, following
  * an algorithm that -whenever possible- builds shorthand properties from the
  * longhands. However, this is inconvenient for most use cases of this library,
@@ -40,9 +40,9 @@
  * some browser does), only those values that come from the cascade or are
  * inherited from another element are included in both the <code>item</code>
  * collection and <code>getCssText()</code>. Note that
- * {@link io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration#getPropertyCSSValue(String)
+ * {@link io.sf.carte.doc.style.css.CSSStyleDeclaration#getPropertyCSSValue(String)
  * getPropertyCSSValue(String)} and
- * {@link io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration#getPropertyValue(String)
+ * {@link io.sf.carte.doc.style.css.CSSStyleDeclaration#getPropertyValue(String)
  * getPropertyValue(String)} both return values for properties that are not
  * included in the <code>item</code> collection, although this may seem
  * counter-intuitive.
@@ -54,8 +54,8 @@
  * re-parsing texts that are too large). Also, downstream users can check
  * whether declared styles ended up in an element's computed style by just
  * checking
- * {@link io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration#getLength()
- * ExtendedCSSStyleDeclaration.getLength()}.
+ * {@link io.sf.carte.doc.style.css.CSSStyleDeclaration#getLength()
+ * CSSStyleDeclaration.getLength()}.
  * </p>
  */
 package io.sf.carte.doc.style.css;

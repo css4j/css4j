@@ -51,7 +51,7 @@ public interface CSSStyleSheetFactory {
 	 *            the node that has the declaration associated to it.
 	 * @return the anonymous style declaration.
 	 */
-	ExtendedCSSStyleDeclaration createAnonymousStyleDeclaration(Node node);
+	CSSStyleDeclaration createAnonymousStyleDeclaration(Node node);
 
 	/**
 	 * Gets the User Agent default CSS style sheet to be used by this factory.

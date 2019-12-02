@@ -18,9 +18,9 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Extended CSS style declaration.
+ * CSS style declaration.
  */
-public interface ExtendedCSSStyleDeclaration {
+public interface CSSStyleDeclaration {
 
 	/**
 	 * A parsable serialization of the declaration.

@@ -51,9 +51,9 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSNode;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
-import io.sf.carte.doc.style.css.ExtendedCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
@@ -931,7 +931,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		@Override
-		public ExtendedCSSStyleDeclaration getStyle() {
+		public CSSStyleDeclaration getStyle() {
 			StyleAttr styleAttr = (StyleAttr) getAttributeNode("style");
 			if (styleAttr == null) {
 				if (StylableDocumentWrapper.this.getComplianceMode() == CSSDocument.ComplianceMode.QUIRKS) {
@@ -955,7 +955,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		@Override
-		public void exportHintsToStyle(ExtendedCSSStyleDeclaration style) {
+		public void exportHintsToStyle(CSSStyleDeclaration style) {
 		}
 
 		@Override
@@ -967,7 +967,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		@Override
-		public ExtendedCSSStyleDeclaration getOverrideStyle(Condition pseudoElt) {
+		public CSSStyleDeclaration getOverrideStyle(Condition pseudoElt) {
 			InlineStyle overrideStyle = null;
 			if (overrideStyleSet == null) {
 				overrideStyleSet = new HashMap<Condition, InlineStyle>(1);
