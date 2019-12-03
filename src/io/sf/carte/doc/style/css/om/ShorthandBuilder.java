@@ -152,24 +152,41 @@ abstract class ShorthandBuilder {
 	}
 
 	private void appendImportantProperties(StringBuilder buf) {
-		HashSet<String> pendingSet = null;
+		int iniLen = buf.length();
+		for (String property : impPtySet) {
+			StyleValue value = getCSSValue(property);
+			if (value.getPrimitiveType() != CSSValue.Type.INTERNAL) {
+				buf.append(property).append(':');
+				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, value, property);
+				buf.append("!important;");
+			} else {
+				buf.setLength(iniLen);
+				appendImportantPropertiesWithInternal(buf);
+				break;
+			}
+		}
+	}
+
+	private void appendImportantPropertiesWithInternal(StringBuilder buf) {
+		HashSet<String> pendingSet = new HashSet<String>();
+		HashSet<String> nonPendingSet = new HashSet<String>(impPtySet.size() - 1);
 		for (String property : impPtySet) {
 			StyleValue value = getCSSValue(property);
 			if (value.getPrimitiveType() == CSSValue.Type.INTERNAL) {
 				String shname = ((PendingValue) value).getShorthandName();
-				if (pendingSet == null) {
-					pendingSet = new HashSet<String>();
-				}
 				if (pendingSet.add(shname) && (shname.equals(getShorthandName())
 						|| isResponsibleShorthand(shname))) {
 					ShorthandValue shval = (ShorthandValue) getCSSValue(shname);
 					parentStyle.appendShorthandMinifiedCssText(buf, shname, shval);
 				}
 			} else {
-				buf.append(property).append(':');
-				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, value, property);
-				buf.append("!important;");
+				nonPendingSet.add(property);
 			}
+		}
+		for (String property : nonPendingSet) {
+			buf.append(property).append(':');
+			BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(property), property);
+			buf.append("!important;");
 		}
 	}
 
@@ -178,24 +195,41 @@ abstract class ShorthandBuilder {
 	}
 
 	private void appendNonImportantProperties(StringBuilder buf) {
-		HashSet<String> pendingSet = null;
+		int iniLen = buf.length();
+		for (String property : ptySet) {
+			StyleValue value = getCSSValue(property);
+			if (value.getPrimitiveType() != CSSValue.Type.INTERNAL) {
+				buf.append(property).append(':');
+				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, value, property);
+				buf.append(';');
+			} else {
+				buf.setLength(iniLen);
+				appendNonImportantPropertiesWithInternal(buf);
+				break;
+			}
+		}
+	}
+
+	private void appendNonImportantPropertiesWithInternal(StringBuilder buf) {
+		HashSet<String> pendingSet = new HashSet<String>();
+		HashSet<String> nonPendingSet = new HashSet<String>(ptySet.size() - 1);
 		for (String property : ptySet) {
 			StyleValue value = getCSSValue(property);
 			if (value.getPrimitiveType() == CSSValue.Type.INTERNAL) {
 				String shname = ((PendingValue) value).getShorthandName();
-				if (pendingSet == null) {
-					pendingSet = new HashSet<String>();
-				}
 				if (pendingSet.add(shname) && (shname.equals(getShorthandName())
 						|| isResponsibleShorthand(shname))) {
 					ShorthandValue shval = (ShorthandValue) getCSSValue(shname);
 					parentStyle.appendShorthandMinifiedCssText(buf, shname, shval);
 				}
 			} else {
-				buf.append(property).append(':');
-				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(property), property);
-				buf.append(';');
+				nonPendingSet.add(property);
 			}
+		}
+		for (String property : nonPendingSet) {
+			buf.append(property).append(':');
+			BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(property), property);
+			buf.append(';');
 		}
 	}
 

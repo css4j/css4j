@@ -77,6 +77,29 @@ public class BorderBuilderTest {
 	}
 
 	@Test
+	public void testBorderVarImportant() {
+		assertShorthandText("border:1px solid var(--foo, #abcde4)!important;",
+				"border:1px solid var(--foo, #abcde4)!important;");
+	}
+
+	@Test
+	public void testBorderMixVar() {
+		assertShorthandText(
+				"border-style:var(--my--border-style, solid);border-bottom-width:0;border-bottom-style:none;border-bottom-color:currentcolor;border-left-width:0;border-top-width:2px;border-right-width:2px;",
+				"border-style: var(--my--border-style, solid); border-width: 2px 2px 0 0; border-bottom: 0;");
+	}
+
+	@Test
+	public void testBorderMixVarImportant() {
+		assertShorthandText(
+				"border-style:var(--my--border-style, solid)!important;border-bottom-width:0!important;border-bottom-style:none!important;border-bottom-color:currentcolor!important;border-left-width:0;border-right-width:2px;border-top-width:2px;",
+				"border-style: var(--my--border-style, solid)!important; border-width: 2px 2px 1px 0; border-bottom: 0!important;");
+		assertShorthandText(
+				"border-style:var(--my--border-style, solid)!important;border-bottom-width:0!important;border-bottom-style:none!important;border-bottom-color:currentcolor!important;border-left-width:0!important;border-top-width:2px!important;border-right-width:2px!important;",
+				"border-style: var(--my--border-style, solid)!important; border-width: 2px 2px 0 0!important; border-bottom: 0!important;");
+	}
+
+	@Test
 	public void testBorderWTrailingSubproperty() {
 		assertShorthandText("border:none;border-top-width:2px;", "border: none; border-top-width: 2px; ");
 		assertShorthandText("border:1px dashed blue;border-top-width:2px;",
