@@ -172,9 +172,9 @@ or charset rules found in the wrong place.</p>
 <h3>Override Styles</h3>
 <p>Override styles, that come after the author style sheet in the cascade algorithm, are supported. For example:</p>
 <pre style="padding: 0.8em;background-color: #f8f5e1">
-document.getOverrideStyle(element, null).setCssText("padding: 6pt;");
+element.getOverrideStyle(null).setCssText("padding: 6pt;");
 </pre>
-<p>The <code>getOverrideStyle</code> method is defined at the <a href="https://www.w3.org/TR/2000/REC-DOM-Level-2-Style-20001113/css.html#CSS-DocumentCSS" target="_blank">DocumentCSS interface</a>.</p>
+<p>Override styles are defined at the <a href="https://www.w3.org/TR/2000/REC-DOM-Level-2-Style-20001113/css.html#CSS-DocumentCSS" target="_blank">DocumentCSS interface</a>.</p>
 </div>
 <div style="margin: 2em 0 2.7em 0" id="sheetparsing">
 <h3>Parsing a Style Sheet</h3>
@@ -234,7 +234,7 @@ width: 890px;
 </pre>
 <p>If you want to use these flags at the NSAC level (instead of the Object Model), you may want to read the 'Parser Flags' section in the
 NSAC package description, as well as the documentation for the individual flags in
-<a href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/nsac/Parser.Flag.html"><code>Parser2.Flag</code></a>.</p>
+<a href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/nsac/Parser.Flag.html"><code>Parser.Flag</code></a>.</p>
 </div>
 <div style="margin: 2em 0 2.7em 0" id="styleformatting">
 <h3>CSS Style Formatting</h3>
@@ -248,9 +248,9 @@ method, or subclass your base factory and override the <a class="codeitem" href=
 <p>There is also the possibility to customize the default serialization of string values, with the <a href="api/2.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setFactoryFlag(byte)">CSSStyleSheetFactory.setFactoryFlag(byte)</a>
 method. You can set two flags that govern which quotation you prefer, or keep the default behaviour:</p>
 <ul><li><b>Default:</b> Try to keep the original quotation (single or double quotes), unless the alternative is more efficient.</li>
-<li><b><a href="api/2.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_DOUBLE_QUOTE">STRING_DOUBLE_QUOTE</a>:</b>
+<li><b><a href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_DOUBLE_QUOTE">STRING_DOUBLE_QUOTE</a>:</b>
 Use double quotes unless single quotes are more efficient (when the string contains more double quotes than single).</li>
-<li><b><a href="api/2.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_SINGLE_QUOTE">STRING_SINGLE_QUOTE</a>:</b>
+<li><b><a href="https://css4j.github.io/api/2.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_SINGLE_QUOTE">STRING_SINGLE_QUOTE</a>:</b>
 Use single quotes unless double quotes are more efficient (when the string contains more single quotes than double).</li>
 </ul>
 </div>
