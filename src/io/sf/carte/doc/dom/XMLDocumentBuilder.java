@@ -205,6 +205,9 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	/**
 	 * Configure the builder to ignore (or not) element content whitespace when
 	 * building the document.
+	 * <p>
+	 * Default is <code>false</code>.
+	 * </p>
 	 * 
 	 * @param ignore set it to <code>true</code> to ignore element content
 	 *               whitespace.
@@ -216,6 +219,9 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	/**
 	 * Configure the builder to ignore (or not) <code>IMPLIED</code> attributes when
 	 * building the document.
+	 * <p>
+	 * Default is <code>true</code>.
+	 * </p>
 	 * 
 	 * @param ignore set it to <code>true</code> to ignore <code>IMPLIED</code>
 	 *               attributes.
@@ -227,6 +233,9 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	/**
 	 * Set the <code>strictErrorChecking</code> flag on the documents created by the
 	 * DOM implementation.
+	 * <p>
+	 * Default is <code>true</code>.
+	 * </p>
 	 * 
 	 * @param strictErrorChecking the value of the <code>strictErrorChecking</code>
 	 *                            flag.
