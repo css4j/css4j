@@ -75,7 +75,6 @@ public class DefaultEntityResolverTest {
 
 	@Test
 	public void resolveEntityStringStringXHTML11() throws SAXException, IOException {
-		resolver = new DefaultEntityResolver(true);
 		InputSource isrc = resolver.resolveEntity("-//W3C//DTD XHTML 1.1//EN", null);
 		assertNotNull(isrc);
 		assertEquals("-//W3C//DTD XHTML 1.1//EN", isrc.getPublicId());
@@ -87,7 +86,6 @@ public class DefaultEntityResolverTest {
 
 	@Test
 	public void resolveEntityStringStringXHTML11Meta() throws SAXException, IOException {
-		resolver = new DefaultEntityResolver(true);
 		InputSource isrc = resolver.resolveEntity(null, "http://www.w3.org/MarkUp/DTD/xhtml-meta-1.mod");
 		assertNotNull(isrc);
 		assertEquals("http://www.w3.org/MarkUp/DTD/xhtml-meta-1.mod", isrc.getSystemId());
@@ -110,7 +108,6 @@ public class DefaultEntityResolverTest {
 
 	@Test
 	public void resolveEntityStringStringRemoteDisallowConstructor1Arg() throws SAXException, IOException {
-		resolver = new DefaultEntityResolver(true);
 		try {
 			resolver.resolveEntity("-//W3C//DTD SVG 1.1//EN", "https://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd");
 			fail("Must throw exception");
@@ -188,16 +185,14 @@ public class DefaultEntityResolverTest {
 
 	@Test
 	public void testIsInvalidPath() throws SAXException, IOException {
-		DefaultEntityResolver wlresolver = new DefaultEntityResolver();
-		assertTrue(wlresolver.isInvalidPath(new URL("http://dtd.example.com/etc/passwd").getPath()));
-		assertTrue(wlresolver.isInvalidPath(new URL("http://dtd.example.com/etc/passwd#fake.dtd").getPath()));
-		assertFalse(wlresolver.isInvalidPath(new URL("http://foo.example.com/bar.dtd").getPath()));
-		assertTrue(wlresolver.isInvalidPath(new URL("http://dtd.example.com/etc/passwd").getPath()));
+		assertTrue(resolver.isInvalidPath(new URL("http://dtd.example.com/etc/passwd").getPath()));
+		assertTrue(resolver.isInvalidPath(new URL("http://dtd.example.com/etc/passwd#fake.dtd").getPath()));
+		assertFalse(resolver.isInvalidPath(new URL("http://foo.example.com/bar.dtd").getPath()));
+		assertTrue(resolver.isInvalidPath(new URL("http://dtd.example.com/etc/passwd").getPath()));
 	}
 
 	@Test
 	public void testIsValidContentType() throws SAXException, IOException {
-		DefaultEntityResolver resolver = new DefaultEntityResolver();
 		assertTrue(resolver.isValidContentType("application/xml-dtd"));
 		assertTrue(resolver.isValidContentType("application/xml-external-parsed-entity"));
 		assertTrue(resolver.isValidContentType("text/xml-external-parsed-entity"));

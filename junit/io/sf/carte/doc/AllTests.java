@@ -134,6 +134,8 @@ import io.sf.carte.doc.xml.dtd.ContentModelTest;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolverTest;
 import io.sf.carte.doc.xml.dtd.DocumentTypeDeclarationTest;
 import io.sf.carte.doc.xml.dtd.EntityFinderTest;
+import io.sf.carte.doc.xml.dtd.StackedEntityResolverTest;
+import io.sf.carte.doc.xml.dtd.StackedEntityResolverTest2;
 import io.sf.carte.uparser.TokenProducerTest;
 import io.sf.carte.util.BufferSimpleWriterTest;
 import io.sf.carte.util.SingleElementIteratorTest;
@@ -262,6 +264,8 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		DefaultEntityResolverTest.class,
 		DocumentTypeDeclarationTest.class,
 		EntityFinderTest.class,
+		StackedEntityResolverTest.class,
+		StackedEntityResolverTest2.class,
 		TokenProducerTest.class,
 		BufferSimpleWriterTest.class,
 		SingleElementIteratorTest.class
