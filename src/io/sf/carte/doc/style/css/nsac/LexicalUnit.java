@@ -109,7 +109,7 @@ public interface LexicalUnit {
 		INTEGER,
 
 		/**
-		 * reals.
+		 * Real numbers.
 		 * 
 		 * @see #getFloatValue
 		 * @see #getDimensionUnitText
@@ -125,7 +125,7 @@ public interface LexicalUnit {
 		PERCENTAGE,
 
 		/**
-		 * unknown dimension.
+		 * Unknown dimension.
 		 * 
 		 * @see #getFloatValue
 		 * @see #getDimensionUnitText
@@ -133,7 +133,8 @@ public interface LexicalUnit {
 		DIMENSION,
 
 		/**
-		 * RGB Colors. <code>rgb(0, 0, 0)</code> and <code>#000</code>
+		 * RGB colors in functional (<code>rgb(0, 0, 0)</code>) and hex
+		 * (<code>#000</code>) notations.
 		 * 
 		 * @see #getFunctionName
 		 * @see #getParameters
@@ -141,7 +142,7 @@ public interface LexicalUnit {
 		RGBCOLOR,
 
 		/**
-		 * HSL(A) Colors: <code>hsl(0 0% 0% / 0)</code> and
+		 * HSL(A) colors, for example: <code>hsl(0 0% 0% / 0)</code> or
 		 * <code>hsla(0, 0%, 0%, 0)</code>
 		 * 
 		 * @see #getFunctionName
@@ -150,7 +151,7 @@ public interface LexicalUnit {
 		HSLCOLOR,
 
 		/**
-		 * Custom identifier.
+		 * Identifier, both predefined and custom.
 		 * 
 		 * @see #getStringValue
 		 */
@@ -366,6 +367,7 @@ public interface LexicalUnit {
 	 * After the insertion, {@code nextUnit} shall be the next lexical unit, and the
 	 * former next lexical unit will be the next one after the last unit in the
 	 * {@code nextUnit} unit chain.
+	 * </p>
 	 * 
 	 * @param nextUnit the lexical unit to be set as the next one.
 	 */
@@ -373,9 +375,14 @@ public interface LexicalUnit {
 
 	/**
 	 * Replace this unit in the chain of lexical units.
+	 * <p>
+	 * The replaced unit always returns {@code null} for
+	 * {@link #getNextLexicalUnit()} and {@link #getPreviousLexicalUnit()},
+	 * {@code false} for {@link #isParameter()}.
+	 * </p>
 	 * 
 	 * @param replacementUnit the lexical unit that replaces this one.
-	 * @return the unit that replaces this one.
+	 * @return the unit that replaces this one (<em>i.e.</em> the argument).
 	 */
 	LexicalUnit replaceBy(LexicalUnit replacementUnit);
 
@@ -408,12 +415,15 @@ public interface LexicalUnit {
 	 * <p>
 	 * If the type is <code>URI</code>, the return value doesn't contain
 	 * <code>uri(....)</code> or quotes.
+	 * </p>
 	 * <p>
 	 * If the type is <code>ATTR</code>, the return value doesn't contain
 	 * <code>attr(....)</code>.
+	 * </p>
 	 * <p>
 	 * If the type is <code>UNICODE_WILDCARD</code>, the return value is the
 	 * wildcard without the preceding "U+".
+	 * </p>
 	 * 
 	 * @return the string value, or <code>null</code> if this unit does not have a
 	 *         string to return.
@@ -437,22 +447,28 @@ public interface LexicalUnit {
 	 * @see LexicalType#RECT_FUNCTION
 	 * @see LexicalType#FUNCTION
 	 * @see LexicalType#RGBCOLOR
+	 * @see LexicalType#HSLCOLOR
 	 */
 	String getFunctionName();
 
 	/**
 	 * The function parameters including operators (like the comma).
-	 * <code>#000</code> is converted to <code>rgb(0, 0, 0)</code> can return
-	 * <code>null</code> if <code>FUNCTION</code>.
+	 * <p>
+	 * A RGB color like <code>#000</code> is converted to <code>rgb(0, 0, 0)</code>.
+	 * </p>
+	 * <p>
+	 * May return <code>null</code> if type is <code>FUNCTION</code>.
+	 * </p>
 	 * 
 	 * @return the parameters of this function, or <code>null</code> if this unit is
-	 *         not a function.
+	 *         not a function, or an empty <code>FUNCTION</code>.
 	 * 
 	 * @see LexicalType#COUNTER_FUNCTION
 	 * @see LexicalType#COUNTERS_FUNCTION
 	 * @see LexicalType#RECT_FUNCTION
 	 * @see LexicalType#FUNCTION
 	 * @see LexicalType#RGBCOLOR
+	 * @see LexicalType#HSLCOLOR
 	 */
 	LexicalUnit getParameters();
 
@@ -486,13 +502,18 @@ public interface LexicalUnit {
 	 * errors (except for compatibility values like <code>COMPAT_IDENT</code>).
 	 * </p>
 	 *
-	 * @return the parsable representation of this unit.
+	 * @return the parsable serialization of this unit.
 	 */
 	String getCssText();
 
 	/**
-	 * Creates a deep copy of this lexical unit and the next ones, but with
-	 * {@link #getPreviousLexicalUnit()} returning {@code null}.
+	 * Creates a deep copy of this lexical unit and the next ones, unlinked to any
+	 * previous lexical unit.
+	 * <p>
+	 * The clone's {@link #getPreviousLexicalUnit()} returns {@code null} (and
+	 * {@link #isParameter()} {@code false}) regardless of what the the original
+	 * object returned.
+	 * </p>
 	 * 
 	 * @return a copy of this unit.
 	 */

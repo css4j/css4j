@@ -155,6 +155,9 @@ public class CSSParser implements Parser {
 
 	@Override
 	public void parseStyleSheet(String uri) throws CSSParseException, IOException {
+		if (this.handler == null) {
+			throw new IllegalStateException("No document handler was set.");
+		}
 		URL url = new URL(uri);
 		URLConnection ucon = url.openConnection();
 		ucon.connect();
