@@ -40,6 +40,9 @@ public class StackedEntityResolver implements EntityResolver2 {
 	 */
 	public StackedEntityResolver(EntityResolver2 firstResolver, EntityResolver2 fallbackResolver) {
 		super();
+		if (firstResolver == null || fallbackResolver == null) {
+			throw new NullPointerException("Null resolver.");
+		}
 		this.firstResolver = firstResolver;
 		this.fallbackResolver = fallbackResolver;
 	}
@@ -47,19 +50,26 @@ public class StackedEntityResolver implements EntityResolver2 {
 	@Override
 	public InputSource getExternalSubset(String name, String baseURI) throws SAXException, IOException {
 		InputSource source;
-		SAXException ex = null;
+		SAXException saxex = null;
+		IOException ioex = null;
 		try {
 			source = firstResolver.getExternalSubset(name, baseURI);
 		} catch (SAXException e) {
-			ex = e;
+			saxex = e;
 			source = null;
 		} catch (IOException e) {
+			ioex = e;
 			source = null;
 		}
 		if (source == null) {
 			source = fallbackResolver.getExternalSubset(name, baseURI);
-			if (source == null && ex != null) {
-				throw ex;
+			if (source == null) {
+				if (ioex != null) {
+					throw ioex;
+				}
+				if (saxex != null) {
+					throw saxex;
+				}
 			}
 		}
 		return source;
@@ -69,19 +79,26 @@ public class StackedEntityResolver implements EntityResolver2 {
 	public final InputSource resolveEntity(String name, String publicId, String baseURI, String systemId)
 			throws SAXException, IOException {
 		InputSource source;
-		SAXException ex = null;
+		SAXException saxex = null;
+		IOException ioex = null;
 		try {
 			source = firstResolver.resolveEntity(name, publicId, baseURI, systemId);
 		} catch (SAXException e) {
-			ex = e;
+			saxex = e;
 			source = null;
 		} catch (IOException e) {
+			ioex = e;
 			source = null;
 		}
 		if (source == null) {
 			source = fallbackResolver.resolveEntity(name, publicId, baseURI, systemId);
-			if (source == null && ex != null) {
-				throw ex;
+			if (source == null) {
+				if (ioex != null) {
+					throw ioex;
+				}
+				if (saxex != null) {
+					throw saxex;
+				}
 			}
 		}
 		return source;
@@ -90,19 +107,26 @@ public class StackedEntityResolver implements EntityResolver2 {
 	@Override
 	public final InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
 		InputSource source;
-		SAXException ex = null;
+		SAXException saxex = null;
+		IOException ioex = null;
 		try {
 			source = firstResolver.resolveEntity(publicId, systemId);
 		} catch (SAXException e) {
-			ex = e;
+			saxex = e;
 			source = null;
 		} catch (IOException e) {
+			ioex = e;
 			source = null;
 		}
 		if (source == null) {
 			source = fallbackResolver.resolveEntity(publicId, systemId);
-			if (source == null && ex != null) {
-				throw ex;
+			if (source == null) {
+				if (ioex != null) {
+					throw ioex;
+				}
+				if (saxex != null) {
+					throw saxex;
+				}
 			}
 		}
 		return source;

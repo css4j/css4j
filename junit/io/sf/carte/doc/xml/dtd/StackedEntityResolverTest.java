@@ -119,6 +119,17 @@ public class StackedEntityResolverTest {
 	}
 
 	@Test
+	public void resolveEntityStringStringBadSystemId() throws SAXException, IOException {
+		try {
+			stackedResolver.resolveEntity(null, "foo:");
+			fail("Must throw exception");
+		} catch (SAXException e) {
+			fail("Should throw IOException, not SAXException");
+		} catch (IOException e) {
+		}
+	}
+
+	@Test
 	public void resolveNonexistent() {
 		InputSource isrc = null;
 		try {

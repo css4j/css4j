@@ -12,13 +12,15 @@
 package io.sf.carte.doc.xml.dtd;
 
 import java.io.IOException;
+import java.net.URL;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.EntityResolver2;
 
 /**
- * A {@link EntityResolver2} that always returns {@code null}.
+ * A {@link EntityResolver2} that always returns {@code null}, except for
+ * malformed {@code system ID} URLs (where it throws a {@link IOException}).
  */
 public class NullEntityResolver implements EntityResolver2 {
 
@@ -37,11 +39,14 @@ public class NullEntityResolver implements EntityResolver2 {
 	@Override
 	public final InputSource resolveEntity(String name, String publicId, String baseURI, String systemId)
 			throws SAXException, IOException {
-		return null;
+		return resolveEntity(publicId, systemId);
 	}
 
 	@Override
 	public final InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+		if (systemId != null) {
+			new URL(systemId);
+		}
 		return null;
 	}
 
