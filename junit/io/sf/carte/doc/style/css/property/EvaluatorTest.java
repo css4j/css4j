@@ -688,6 +688,90 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testSignPos() {
+		style.setCssText("foo: sign(1.2)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertTrue(1f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
+	}
+
+	@Test
+	public void testSignNeg() {
+		style.setCssText("foo: sign(1.2 - 3)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertTrue(-1f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
+	}
+
+	@Test
+	public void testSignZero() {
+		style.setCssText("foo: sign(0)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertTrue(0f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
+	}
+
+	@Test
+	public void testSignZeroNeg() {
+		style.setCssText("foo: sign(0 / (-1/0))");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertTrue(-0.0f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
+	}
+
+	@Test
+	public void testSignUnitPos() {
+		style.setCssText("foo: sign(1.2pt)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testSignUnitNeg() {
+		style.setCssText("foo: sign(1.2pt - 3pt)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testSignUnitZero() {
+		style.setCssText("foo: sign(0pt)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testSignPcnt() {
+		style.setCssText("foo: sign(18%)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.NOT_SUPPORTED_ERR, e.code);
+		}
+	}
+
+	@Test
 	public void testUnitConversion() {
 		Unit unit = new Unit(CSSUnit.CSS_PT);
 		assertEquals(1f, unit.convert(1f, CSSUnit.CSS_PT), 1e-5);

@@ -116,6 +116,8 @@ public class Evaluator {
 			return functionSqrt(function.getArguments(), resultUnit);
 		} else if ("hypot".equalsIgnoreCase(name)) {
 			return functionHypot(function.getArguments(), resultUnit);
+		} else if ("sign".equalsIgnoreCase(name)) {
+			return functionSign(function.getArguments(), resultUnit);
 		} else {
 			// Do not know how to evaluate, convert arguments to absolute anyway.
 			function = function.clone();
@@ -412,6 +414,22 @@ public class Evaluator {
 		float result = (float) Math.hypot(f1, f2);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(resultUnit.getUnitType(), result);
+		return value;
+	}
+
+	private TypedValue functionSign(CSSValueList<? extends CSSValue> arguments,
+			Unit resultUnit) throws DOMException {
+		if (arguments.getLength() != 1) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "sign() functions take one argument.");
+		}
+		CSSTypedValue arg = typedArgument(arguments, 0);
+		float fval = floatValue(arg, resultUnit);
+		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "sign() argument must be a number.");
+		}
+		float result = Math.signum(fval);
+		NumberValue value = new NumberValue();
+		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
 		return value;
 	}
 
