@@ -296,6 +296,24 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testCalcZeroNeg() {
+		style.setCssText("foo: calc(0 / (-1/0))");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		float fval = evaluator.evaluateExpression(val).getFloatValue(CSSUnit.CSS_NUMBER);
+		assertEquals(0x80000000, Float.floatToIntBits(fval));
+	}
+
+	@Test
+	public void testCalcZeroNeg2() {
+		style.setCssText("foo: calc(-1*0)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		float fval = evaluator.evaluateExpression(val).getFloatValue(CSSUnit.CSS_NUMBER);
+		assertEquals(0x80000000, Float.floatToIntBits(fval));
+	}
+
+	@Test
 	public void testCalcNaN() {
 		style.setCssText("foo: calc(0 / 0)");
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
@@ -716,7 +734,8 @@ public class EvaluatorTest {
 		style.setCssText("foo: sign(0 / (-1/0))");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertTrue(-0.0f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
+		float fval = evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER);
+		assertEquals(0x80000000, Float.floatToIntBits(fval));
 	}
 
 	@Test
