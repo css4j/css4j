@@ -18,6 +18,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
@@ -150,6 +151,18 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 					}
 					nextLexicalUnit = lu;
 					return expression;
+				case IDENT:
+					String constname = lu.getStringValue();
+					TypedValue typed = createConstant(constname);
+					if (isInvalidOperand(typed, lutype, lastlutype)) {
+						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
+					}
+					OperandExpression operand = new OperandExpression();
+					operand.setOperand(typed);
+					expression = addOperand(expression, operand);
+					lastlutype = lutype;
+					lu = lu.getNextLexicalUnit();
+					continue;
 				case FUNCTION:
 					String funcname = lu.getFunctionName();
 					if (funcname.equals(getStringValue())) {
@@ -179,7 +192,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 					if (isInvalidOperand(primi = item.getCSSValue(), lutype, lastlutype)) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
 					}
-					OperandExpression operand = new OperandExpression();
+					operand = new OperandExpression();
 					operand.setOperand(primi);
 					expression = addOperand(expression, operand);
 					lastlutype = lutype;
@@ -226,6 +239,27 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 		default:
 		}
 		return false;
+	}
+
+	private TypedValue createConstant(String constname) {
+		NumberValue number = new NumberValue();
+		if ("pi".equalsIgnoreCase(constname)) {
+			number.setFloatValue(CSSUnit.CSS_NUMBER, (float) Math.PI);
+		} else if ("e".equalsIgnoreCase(constname)) {
+			number.setFloatValue(CSSUnit.CSS_NUMBER, (float) Math.E);
+		} else if (isCalcValue()) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR,
+					"Unknown constant: " + constname);
+		} else {
+			IdentifierValue ident = new IdentifierValue();
+			ident.setStringValue(Type.IDENT, constname);
+			return ident;
+		}
+		return number;
+	}
+
+	private boolean isCalcValue() {
+		return getStringValue().length() != 0;
 	}
 
 	@Override

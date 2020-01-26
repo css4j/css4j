@@ -354,6 +354,12 @@ public class ValueFactoryTest {
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
 		lunit = parsePropertyValue("linear-gradient(135deg, yellow, blue)");
 		assertFalse(ValueFactory.isAngleSACUnit(lunit));
+		lunit = parsePropertyValue("calc(pi*1rad)");
+		assertTrue(ValueFactory.isAngleSACUnit(lunit));
+		lunit = parsePropertyValue("calc(PI*1rad)");
+		assertTrue(ValueFactory.isAngleSACUnit(lunit));
+		lunit = parsePropertyValue("calc(e)");
+		assertFalse(ValueFactory.isAngleSACUnit(lunit));
 	}
 
 	@Test

@@ -594,6 +594,22 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testSinHalfPi() {
+		style.setCssText("foo: sin(pi*1rad / 2)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(1f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+	}
+
+	@Test
+	public void testSinHalfPiUC() {
+		style.setCssText("foo: sin(PI*1rad / 2)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(1f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+	}
+
+	@Test
 	public void testCos() {
 		style.setCssText("foo: cos(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");

@@ -655,6 +655,13 @@ public class ShorthandSetterTest {
 		assertEquals("5px", emptyStyleDecl.getPropertyValue("border-left-width"));
 		assertEquals("border-width: 2px 8em 4pt 5px; ", emptyStyleDecl.getCssText());
 		assertEquals("border-width:2px 8em 4pt 5px;", emptyStyleDecl.getMinifiedCssText());
+		emptyStyleDecl.setCssText("border-width: calc(e*3px); ");
+		assertEquals("calc(2.7182817*3px)", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("calc(2.7182817*3px)", emptyStyleDecl.getPropertyValue("border-right-width"));
+		assertEquals("calc(2.7182817*3px)", emptyStyleDecl.getPropertyValue("border-bottom-width"));
+		assertEquals("calc(2.7182817*3px)", emptyStyleDecl.getPropertyValue("border-left-width"));
+		assertEquals("border-width: calc(2.7182817*3px); ", emptyStyleDecl.getCssText());
+		assertEquals("border-width:calc(2.7182817*3px);", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("border-width: var(--myborderwidth) 8em 4pt 5px; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("border-right-width"));

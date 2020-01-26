@@ -178,7 +178,6 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 				Type pType = typed.getPrimitiveType();
 				switch (pType) {
 				case STRING:
-				case IDENT:
 				case COLOR:
 				case URI:
 				case ATTR:
@@ -191,11 +190,17 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 				case UNICODE_RANGE:
 				case UNICODE_WILDCARD:
 					break;
+				case IDENT:
+					return isConstant(typed.getStringValue());
 				default:
 					return true;
 				}
 			}
 			return false;
+		}
+
+		private boolean isConstant(String constname) {
+			return "e".equalsIgnoreCase(constname) || "pi".equalsIgnoreCase(constname);
 		}
 
 		private ValueItem subExpression(LexicalUnit lu) {

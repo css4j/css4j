@@ -282,8 +282,32 @@ public class CalcValueTest {
 		CSSExpression expr = calc.getExpression();
 		assertEquals("(75vw*9/16 - 100vh)/-2", expr.toString());
 		assertEquals("calc((75vw*9/16 - 100vh)/-2)", val.getCssText());
-		assertEquals("calc((75vw*9/16 - 100vh)/-2)", val.getMinifiedCssText("left"));
+		assertEquals("calc((75vw*9/16 - 100vh)/-2)", val.getMinifiedCssText("width"));
 		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, expr.getPartType());
+	}
+
+	@Test
+	public void testPiE() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("border-top-width: calc(sin(pi*1rad/3)/e*1px); ");
+		StyleValue val = style.getPropertyCSSValue("border-top-width");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		CSSExpression expr = calc.getExpression();
+		assertEquals("sin(3.1415927*1rad/3)/2.7182817*1px", expr.toString());
+		assertEquals("calc(sin(3.1415927*1rad/3)/2.7182817*1px)", val.getCssText());
+		assertEquals("calc(sin(3.1415927*1rad/3)/2.7182817*1px)", val.getMinifiedCssText(""));
+		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, expr.getPartType());
+		// Uppercase
+		style.setCssText("border-top-width: calc(sin(PI*1rad/3)/E*1px); ");
+		val = style.getPropertyCSSValue("border-top-width");
+		calc = (CalcValue) val;
+		expr = calc.getExpression();
+		assertEquals("sin(3.1415927*1rad/3)/2.7182817*1px", expr.toString());
 	}
 
 	@Test
