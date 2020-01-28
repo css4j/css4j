@@ -594,6 +594,14 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testSinRad() {
+		style.setCssText("foo: sin(.5235988)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(0.5f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7);
+	}
+
+	@Test
 	public void testSinHalfPi() {
 		style.setCssText("foo: sin(pi*1rad / 2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
@@ -618,11 +626,27 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testCosRad() {
+		style.setCssText("foo: cos(.52356)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(0.86604482f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7);
+	}
+
+	@Test
 	public void testTan() {
 		style.setCssText("foo: tan(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(0.105104f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+	}
+
+	@Test
+	public void testTanRad() {
+		style.setCssText("foo: tan(.866025)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(1.17580979f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7);
 	}
 
 	@Test

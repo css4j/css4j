@@ -227,7 +227,9 @@ public class Evaluator {
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
-		fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
+		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
+		}
 		float result = (float) Math.sin(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
 		NumberValue value = new NumberValue();
@@ -242,7 +244,9 @@ public class Evaluator {
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
-		fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
+		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
+		}
 		float result = (float) Math.cos(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
 		NumberValue value = new NumberValue();
@@ -257,7 +261,9 @@ public class Evaluator {
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
-		fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
+		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
+		}
 		float result = (float) Math.tan(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
 		NumberValue value = new NumberValue();
