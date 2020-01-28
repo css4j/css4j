@@ -210,7 +210,9 @@ public class Evaluator {
 		}
 		ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
-		fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSPrimitiveValue.CSS_RAD);
+		if (resultUnit.getUnitType() != CSSPrimitiveValue.CSS_NUMBER) {
+			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSPrimitiveValue.CSS_RAD);
+		}
 		float result = (float) Math.sin(fval);
 		resultUnit.setUnitType(CSSPrimitiveValue.CSS_NUMBER);
 		NumberValue value = new NumberValue();
@@ -225,7 +227,9 @@ public class Evaluator {
 		}
 		ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
-		fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSPrimitiveValue.CSS_RAD);
+		if (resultUnit.getUnitType() != CSSPrimitiveValue.CSS_NUMBER) {
+			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSPrimitiveValue.CSS_RAD);
+		}
 		float result = (float) Math.cos(fval);
 		resultUnit.setUnitType(CSSPrimitiveValue.CSS_NUMBER);
 		NumberValue value = new NumberValue();
@@ -240,7 +244,9 @@ public class Evaluator {
 		}
 		ExtendedCSSPrimitiveValue arg = primitiveArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
-		fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSPrimitiveValue.CSS_RAD);
+		if (resultUnit.getUnitType() != CSSPrimitiveValue.CSS_NUMBER) {
+			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSPrimitiveValue.CSS_RAD);
+		}
 		float result = (float) Math.tan(fval);
 		resultUnit.setUnitType(CSSPrimitiveValue.CSS_NUMBER);
 		NumberValue value = new NumberValue();
