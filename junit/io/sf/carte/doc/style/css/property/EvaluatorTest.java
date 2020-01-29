@@ -783,12 +783,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sign(1.2pt)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		try {
-			evaluator.evaluateFunction(val);
-			fail("Must throw exception.");
-		} catch (DOMException e) {
-			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
-		}
+		assertTrue(1f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
 
 	@Test
@@ -796,12 +791,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sign(1.2pt - 3pt)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		try {
-			evaluator.evaluateFunction(val);
-			fail("Must throw exception.");
-		} catch (DOMException e) {
-			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
-		}
+		assertTrue(-1f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
 
 	@Test
@@ -809,12 +799,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sign(0pt)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		try {
-			evaluator.evaluateFunction(val);
-			fail("Must throw exception.");
-		} catch (DOMException e) {
-			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
-		}
+		assertTrue(0f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
 
 	@Test

@@ -430,9 +430,6 @@ public class Evaluator {
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
-		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "sign() argument must be a number.");
-		}
 		float result = Math.signum(fval);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
