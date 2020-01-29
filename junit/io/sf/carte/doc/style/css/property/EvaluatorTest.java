@@ -192,6 +192,32 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testCalcBadUnit() {
+		style.setCssText("foo: calc(2pt*5px)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateExpression(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testCalcBadUnit2() {
+		style.setCssText("foo: calc(1/5px)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateExpression(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
 	public void testCalcPrecedence1() {
 		style.setCssText("foo: calc(7 + 2*4)");
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
@@ -618,6 +644,32 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testSinBadUnit() {
+		style.setCssText("foo: sin(5deg * 1rad)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testSinBadUnit2() {
+		style.setCssText("foo: sin(1/5deg)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
 	public void testCos() {
 		style.setCssText("foo: cos(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
@@ -634,6 +686,32 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testCosBadUnit() {
+		style.setCssText("foo: cos(5deg * 1rad)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testCosBadUnit2() {
+		style.setCssText("foo: cos(1/5deg)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
 	public void testTan() {
 		style.setCssText("foo: tan(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
@@ -647,6 +725,32 @@ public class EvaluatorTest {
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(1.17580979f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7);
+	}
+
+	@Test
+	public void testTanBadUnit() {
+		style.setCssText("foo: tan(5deg * 1rad)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testTanBadUnit2() {
+		style.setCssText("foo: tan(1/5deg)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		try {
+			evaluator.evaluateFunction(val);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+		}
 	}
 
 	@Test

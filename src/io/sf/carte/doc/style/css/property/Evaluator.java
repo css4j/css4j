@@ -73,7 +73,8 @@ public class Evaluator {
 	public CSSTypedValue evaluateFunction(CSSFunctionValue function) throws DOMException {
 		Unit resultUnit = new Unit();
 		CSSTypedValue result = evaluateFunction(function, resultUnit);
-		if (Math.abs(resultUnit.getExponent()) > 1) {
+		int exp = resultUnit.getExponent();
+		if (exp > 1 || exp < 0) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
 		}
 		return result;
@@ -228,6 +229,10 @@ public class Evaluator {
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
 		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			int exp = resultUnit.getExponent();
+			if (exp > 1 || exp < 0) {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Argument unit is not angle nor plain number.");
+			}
 			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
 		}
 		float result = (float) Math.sin(fval);
@@ -245,6 +250,10 @@ public class Evaluator {
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
 		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			int exp = resultUnit.getExponent();
+			if (exp > 1 || exp < 0) {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Argument unit is not angle nor plain number.");
+			}
 			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
 		}
 		float result = (float) Math.cos(fval);
@@ -262,6 +271,10 @@ public class Evaluator {
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
 		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			int exp = resultUnit.getExponent();
+			if (exp > 1 || exp < 0) {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Argument unit is not angle nor plain number.");
+			}
 			fval = NumberValue.floatValueConversion(fval, resultUnit.getUnitType(), CSSUnit.CSS_RAD);
 		}
 		float result = (float) Math.tan(fval);
@@ -473,7 +486,8 @@ public class Evaluator {
 	public TypedValue evaluateExpression(ExpressionValue calc) throws DOMException {
 		Unit resultUnit = new Unit();
 		TypedValue result = evaluateExpression(calc.getExpression(), resultUnit);
-		if (Math.abs(resultUnit.getExponent()) > 1) {
+		int exp = resultUnit.getExponent();
+		if (exp > 1 || exp < 0) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
 		}
 		if (calc.mustRoundResult() && result.isCalculatedNumber()) {
