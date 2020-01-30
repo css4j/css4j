@@ -188,16 +188,16 @@ public class ComputedCSSStyleTest {
 		elm.getOverrideStyle(null).setCssText("color: rgb(calc(2*12%) 37% 67%)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertNotNull(style);
-		assertEquals("#3d5eab", style.getCSSColor().getCssText());
+		assertEquals("rgb(24% 37% 67%)", style.getCSSColor().getCssText());
 		assertEquals(24f,
 				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
-				0.001f);
+				1e-5);
 		assertEquals(37f,
 				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
-				0.001f);
+				1e-5);
 		assertEquals(67f,
 				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
-				0.001f);
+				1e-5);
 	}
 
 	@Test
