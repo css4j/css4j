@@ -5426,7 +5426,7 @@ public class CSSParser implements Parser {
 			LexicalType lastType = LexicalType.UNKNOWN;
 			boolean hasCommas = false;
 			boolean hasNoCommas = false;
-			// Color component values are: 0) unknown, 1) integer, 2) %
+			// Color component values are: 0) unknown, 1) integer or real, 2) %
 			byte compType = 0;
 			boolean hasVar = false;
 			do {
@@ -5447,12 +5447,32 @@ public class CSSParser implements Parser {
 							if (value < 0 || value > 1) {
 								return false;
 							}
-						} else if (lastType != LexicalType.OPERATOR_SLASH && lu.getIntegerValue() != 0) {
+						} else if (lastType == LexicalType.OPERATOR_SLASH) {
+							valCount = 3;
+						} else {
+							if (lu.getIntegerValue() != 0) {
+								if (compType == 0) {
+									compType = 1;
+								} else if (compType == 2) {
+									return false;
+								}
+							}
+						}
+					} else if (type == LexicalType.REAL) {
+						if (valCount == 3) {
+							float value = lu.getFloatValue();
+							if (value < 0f || value > 1f) {
+								return false;
+							}
+						} else if (lastType != LexicalType.OPERATOR_SLASH) {
 							if (compType == 0) {
 								compType = 1;
 							} else if (compType == 2) {
 								return false;
 							}
+							type = LexicalType.INTEGER;
+						} else {
+							valCount = 3;
 						}
 					} else if (type == LexicalType.PERCENTAGE) {
 						if (valCount == 3) {
@@ -5515,7 +5535,7 @@ public class CSSParser implements Parser {
 		}
 
 		private boolean isComponentType(LexicalType type) {
-			return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE
+			return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE || type == LexicalType.REAL
 					|| type == LexicalType.VAR || type == LexicalType.FUNCTION;
 		}
 
