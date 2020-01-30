@@ -185,11 +185,12 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 
 		String toString(boolean minify) {
-			int r = componentByte(red);
-			int g = componentByte(green);
-			int b = componentByte(blue);
+			float fr = componentByte(red);
+			float fg = componentByte(green);
+			float fb = componentByte(blue);
 			boolean nonOpaque = isNonOpaque();
-			if (nonOpaque || r > 255 || g > 255 || b > 255) {
+			if (nonOpaque || !isInteger(fr) || !isInteger(fg) || !isInteger(fb) || fr > 255f || fg > 255f
+					|| fb > 255f) {
 				if (minify) {
 					if (commaSyntax) {
 						return minifiedOldFunctionalString(nonOpaque);
@@ -204,6 +205,9 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 					}
 				}
 			}
+			int r = Math.round(fr);
+			int g = Math.round(fg);
+			int b = Math.round(fb);
 			// Use hexadecimal notation
 			String hexr = Integer.toHexString(r);
 			String hexg = Integer.toHexString(g);
@@ -234,20 +238,24 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			return buf.toString();
 		}
 
-		private int componentByte(PrimitiveValue component) {
-			int byteComp;
+		private float componentByte(PrimitiveValue component) {
+			float byteComp;
 			Type type = component.getPrimitiveType();
 			if (type == Type.NUMERIC) {
 				TypedValue number = (TypedValue) component;
 				if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-					byteComp = Math.round(number.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 2.55f);
+					byteComp = number.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 2.55f;
 				} else {
-					byteComp = Math.round(number.getFloatValue(CSSUnit.CSS_NUMBER));
+					byteComp = number.getFloatValue(CSSUnit.CSS_NUMBER);
 				}
 			} else {
-				byteComp = 256;
+				byteComp = 256f;
 			}
 			return byteComp;
+		}
+
+		private boolean isInteger(float r) {
+			return Math.abs(r - (float) Math.rint(r)) < 1e-6;
 		}
 
 		private String minifiedFunctionalString(boolean nonOpaque) {
