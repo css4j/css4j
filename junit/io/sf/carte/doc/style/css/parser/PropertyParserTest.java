@@ -2501,7 +2501,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBPcnt2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBPcntMix() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("rgb(0 27% 48%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2516,6 +2516,24 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
 		assertEquals("rgb(0 27% 48%)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBPcntMix2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("rgb(27% 0 48%)");
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27f, param.getFloatValue(), 1e-6);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-6);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(27% 0 48%)", lu.toString());
 	}
 
 	@Test
@@ -3081,9 +3099,144 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad13() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadChar() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(0 a 0/ 0)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadChar2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(0 0 0/@ 0)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadPcnt() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(10% 2% 180%)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadMix() throws CSSException, IOException {
 		try {
 			parsePropertyValue("rgb(0 2% 10)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadMix2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(2% 0 10)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadMix3() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(2% 20 10)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadMix4() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(2% 20.6 10)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadMix5() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(20.6 2% 30%)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadMixCommas() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(0, 2%, 10)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadMixCommas2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(2%, 0, 10)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadNegative() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(-10 56 70)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadNegative2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(10 56 -70)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadNegativeReal() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(-10.3 56.4 70.8)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadNegativeReal2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(10.3 56.4 -70.8)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadNegativePcnt() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(-10% 56% 70%)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadNegativePcnt2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(10% 56% -70%)");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}
@@ -3162,6 +3315,33 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBBadVar9() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(var(--foo)/.8/.4)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadVar10() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(var(--foo)/1/.4)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadVarComma() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(10 20 var(--foo), 0)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
 	public void testParsePropertyValueRGBCommaBadAlpha() throws CSSException, IOException {
 		try {
 			parsePropertyValue("rgba(12,48,127,2)");
@@ -3192,6 +3372,24 @@ public class PropertyParserTest {
 	public void testParsePropertyValueRGBBadAlpha2() throws CSSException, IOException {
 		try {
 			parsePropertyValue("rgb(12 48 127/-1)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadAlphaReal() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(12 48 127/2.1)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadAlphaReal2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(12 48 127/-0.1)");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}

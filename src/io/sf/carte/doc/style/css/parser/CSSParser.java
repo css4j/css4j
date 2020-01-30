@@ -5442,13 +5442,14 @@ public class CSSParser implements Parser {
 					}
 					// Check component type
 					if (type == LexicalType.INTEGER) {
+						int value = lu.getIntegerValue();
+						if (value < 0) {
+							return false;
+						}
 						if (valCount == 3) {
-							int value = lu.getIntegerValue();
-							if (value < 0 || value > 1) {
+							if (value > 1) {
 								return false;
 							}
-						} else if (lastType == LexicalType.OPERATOR_SLASH) {
-							valCount = 3;
 						} else {
 							if (lu.getIntegerValue() != 0) {
 								if (compType == 0) {
@@ -5459,9 +5460,12 @@ public class CSSParser implements Parser {
 							}
 						}
 					} else if (type == LexicalType.REAL) {
+						float value = lu.getFloatValue();
+						if (value < 0f) {
+							return false;
+						}
 						if (valCount == 3) {
-							float value = lu.getFloatValue();
-							if (value < 0f || value > 1f) {
+							if (value > 1f) {
 								return false;
 							}
 						} else if (lastType != LexicalType.OPERATOR_SLASH) {
@@ -5471,16 +5475,13 @@ public class CSSParser implements Parser {
 								return false;
 							}
 							type = LexicalType.INTEGER;
-						} else {
-							valCount = 3;
 						}
 					} else if (type == LexicalType.PERCENTAGE) {
-						if (valCount == 3) {
-							float value = lu.getFloatValue();
-							if (value < 0f || value > 100f) {
-								return false;
-							}
-						} else if (lastType != LexicalType.OPERATOR_SLASH) {
+						float value = lu.getFloatValue();
+						if (value < 0f || value > 100f) {
+							return false;
+						}
+						if (valCount != 3 && lastType != LexicalType.OPERATOR_SLASH) {
 							if (compType == 0) {
 								compType = 2;
 							} else if (compType == 1) {
@@ -5516,15 +5517,14 @@ public class CSSParser implements Parser {
 					}
 					valCount++;
 				} else if (type == LexicalType.OPERATOR_SLASH) {
-					if (valCount == 4 || (valCount < 3 && !hasVar) || !isComponentType(lastType) || hasCommas) {
+					if (hasVar && valCount < 3) {
+						valCount = 3;
+					}
+					if (valCount == 4 || valCount < 3 || !isComponentType(lastType) || hasCommas) {
 						return false;
 					}
-				} else if (type == LexicalType.REAL) {
-					if ((lastType != LexicalType.OPERATOR_SLASH && lastType != LexicalType.OPERATOR_COMMA)
-							|| valCount == 4 || (valCount < 3 && !hasVar)) {
-						return false;
-					}
-					valCount = 4;
+					// Commas no longer accepted
+					hasNoCommas = true;
 				} else {
 					return false;
 				}
