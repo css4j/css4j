@@ -117,6 +117,8 @@ public class Evaluator {
 			return functionSqrt(function.getArguments(), resultUnit);
 		} else if ("hypot".equalsIgnoreCase(name)) {
 			return functionHypot(function.getArguments(), resultUnit);
+		} else if ("abs".equalsIgnoreCase(name)) {
+			return functionAbs(function.getArguments(), resultUnit);
 		} else if ("sign".equalsIgnoreCase(name)) {
 			return functionSign(function.getArguments(), resultUnit);
 		} else {
@@ -431,6 +433,19 @@ public class Evaluator {
 			f2 = NumberValue.floatValueConversion(f2, arg2Type.getUnitType(), resultUnit.getUnitType());
 		}
 		float result = (float) Math.hypot(f1, f2);
+		NumberValue value = new NumberValue();
+		value.setFloatValue(resultUnit.getUnitType(), result);
+		return value;
+	}
+
+	private TypedValue functionAbs(CSSValueList<? extends CSSValue> arguments,
+			Unit resultUnit) throws DOMException {
+		if (arguments.getLength() != 1) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "abs() functions take one argument.");
+		}
+		CSSTypedValue arg = typedArgument(arguments, 0);
+		float fval = floatValue(arg, resultUnit);
+		float result = Math.abs(fval);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(resultUnit.getUnitType(), result);
 		return value;

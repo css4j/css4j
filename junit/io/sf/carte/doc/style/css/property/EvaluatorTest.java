@@ -920,6 +920,65 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testAbsPos() {
+		style.setCssText("foo: abs(1.2)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertTrue(1.2f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
+	}
+
+	@Test
+	public void testAbsNeg() {
+		style.setCssText("foo: abs(1 - 3)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertTrue(2f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
+	}
+
+	@Test
+	public void testAbsZero() {
+		style.setCssText("foo: abs(0)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		float fval = evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER);
+		assertEquals(0, Float.floatToIntBits(fval));
+	}
+
+	@Test
+	public void testAbsZeroNeg() {
+		style.setCssText("foo: abs(0 / (-1/0))");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		float fval = evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER);
+		assertEquals(0, Float.floatToIntBits(fval));
+	}
+
+	@Test
+	public void testAbsUnitPos() {
+		style.setCssText("foo: abs(1.2pt)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertTrue(1.2f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT));
+	}
+
+	@Test
+	public void testAbsUnitNeg() {
+		style.setCssText("foo: abs(1pt - 3pt)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertTrue(2f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT));
+	}
+
+	@Test
+	public void testAbsUnitZero() {
+		style.setCssText("foo: abs(0pt)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		float fval = evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT);
+		assertEquals(0, Float.floatToIntBits(fval));
+	}
+
+	@Test
 	public void testUnitConversion() {
 		Unit unit = new Unit(CSSUnit.CSS_PT);
 		assertEquals(1f, unit.convert(1f, CSSUnit.CSS_PT), 1e-5);
