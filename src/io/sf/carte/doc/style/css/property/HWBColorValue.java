@@ -276,7 +276,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (!(obj instanceof HSLColorValue)) {
+		if (!(obj instanceof HWBColorValue)) {
 			return false;
 		}
 		HWBColorValue other = (HWBColorValue) obj;
