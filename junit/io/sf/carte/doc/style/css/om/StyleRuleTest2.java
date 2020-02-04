@@ -47,6 +47,7 @@ public class StyleRuleTest2 {
 		} catch (IOException e) {
 			e.printStackTrace();
 			sheet = null;
+			return;
 		}
 		myfactory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
 		styleRule = (StyleRule) sheet.createStyleRule();
