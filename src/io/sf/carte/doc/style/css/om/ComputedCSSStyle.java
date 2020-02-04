@@ -814,7 +814,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			 */
 			fallback = inheritValue(ComputedCSSStyle.this, propertyName, fallback, false);
 			// Still inheriting ?
-			if (fallback != null && fallback.getPrimitiveType() == CSSValue.Type.INHERIT) {
+			if (fallback == null || fallback.getPrimitiveType() == CSSValue.Type.INHERIT) {
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Invalid fallback.");
 			}
 			value = absoluteValue(propertyName, fallback, useParentStyle);
