@@ -33,7 +33,6 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	 * Lazily instantiated lists and maps.
 	 */
 	private List<String> malformedURIs = null;
-	private List<String> noDefault = null;
 	private LinkedHashMap<String, String> seShorthands = null;
 	private List<String> unassigned = null;
 	private List<String> wrongCount = null;
@@ -163,7 +162,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	 */
 	@Override
 	public boolean hasErrors() {
-		return malformedURIs != null || noDefault != null || seShorthands != null || wrongCount != null
+		return malformedURIs != null || seShorthands != null || wrongCount != null
 				|| missingReq != null || unknownIdent != null || wrongValue != null || unassignedValue != null
 				|| sacErrors != null || sacFatalErrors != null;
 	}
@@ -175,10 +174,6 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 
 	public List<String> getMalformedURIs() {
 		return malformedURIs;
-	}
-
-	public List<String> getPropertiesWithoutDefault() {
-		return noDefault;
 	}
 
 	public Map<String, String> getShorthandsWithErrors() {
@@ -220,7 +215,6 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void reset() {
 		malformedURIs = null;
-		noDefault = null;
 		seShorthands = null;
 		unassigned = null;
 		wrongCount = null;
@@ -301,14 +295,6 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 		if (malformedURIs != null && !malformedURIs.isEmpty()) {
 			buf.append("Malformed URIs:");
 			Iterator<String> it = malformedURIs.iterator();
-			while (it.hasNext()) {
-				buf.append(' ').append(it.next());
-			}
-			buf.append('\n');
-		}
-		if (noDefault != null && !noDefault.isEmpty()) {
-			buf.append("Properties without default:");
-			Iterator<String> it = noDefault.iterator();
 			while (it.hasNext()) {
 				buf.append(' ').append(it.next());
 			}
