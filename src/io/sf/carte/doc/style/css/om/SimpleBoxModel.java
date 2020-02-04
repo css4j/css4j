@@ -1112,10 +1112,13 @@ abstract class SimpleBoxModel {
 				switch (paddingProperty) {
 				case TOP:
 					fv = ctbox.getPaddingTop();
+					break;
 				case RIGHT:
 					fv = ctbox.getPaddingRight();
+					break;
 				case BOTTOM:
 					fv = ctbox.getPaddingBottom();
+					break;
 				default:
 					fv = ctbox.getPaddingLeft();
 				}
