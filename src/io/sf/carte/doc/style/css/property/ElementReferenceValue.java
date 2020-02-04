@@ -60,7 +60,7 @@ class ElementReferenceValue extends TypedValue {
 		try {
 			lu = parser.parsePropertyValue(new StringReader(cssText));
 		} catch (IOException e) {
-			// Won't happen
+			lu = null;
 		} catch (CSSException e) {
 			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad element reference: " + cssText);
 			ex.initCause(e);

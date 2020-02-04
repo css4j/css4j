@@ -69,7 +69,7 @@ public class IdentifierValue extends AbstractTextValue {
 		try {
 			lu = parser.parsePropertyValue(new StringReader(cssText));
 		} catch (IOException e) {
-			// Won't happen
+			lu = null;
 		} catch (CSSException e) {
 			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad identifier: " + cssText);
 			ex.initCause(e);
