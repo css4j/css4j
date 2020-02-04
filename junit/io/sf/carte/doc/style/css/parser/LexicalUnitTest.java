@@ -33,7 +33,7 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class LexicalUnitTest {
 
-	private static Parser parser;
+	private Parser parser;
 
 	@Before
 	public void setUp() {

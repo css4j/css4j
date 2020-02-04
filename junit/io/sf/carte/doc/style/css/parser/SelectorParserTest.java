@@ -44,7 +44,7 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 public class SelectorParserTest {
 
-	static CSSParser parser;
+	private CSSParser parser;
 
 	@Before
 	public void setUp() {

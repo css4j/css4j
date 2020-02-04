@@ -32,7 +32,7 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class DeclarationParserTest {
 
-	private static Parser parser;
+	private Parser parser;
 	private TestDeclarationHandler handler;
 	private TestErrorHandler errorHandler;
 

@@ -46,7 +46,7 @@ import io.sf.carte.uparser.TokenProducer;
 
 public class SelectorParserNSTest {
 
-	static CSSParser parser;
+	private CSSParser parser;
 
 	@Before
 	public void setUp() {

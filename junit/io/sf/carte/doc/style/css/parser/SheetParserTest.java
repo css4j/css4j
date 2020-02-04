@@ -40,7 +40,7 @@ import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 
 public class SheetParserTest {
 
-	private static CSSParser parser;
+	private CSSParser parser;
 
 	@Before
 	public void setUp() {

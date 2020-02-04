@@ -21,7 +21,7 @@ import org.junit.Test;
 
 public class ValueListTest {
 
-	static ValueFactory factory;
+	private ValueFactory factory;
 
 	@Before
 	public void setUp() {
