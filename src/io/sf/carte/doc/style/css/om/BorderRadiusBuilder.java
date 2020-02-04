@@ -32,52 +32,6 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 		return 4;
 	}
 
-	/**
-	 * Score for finding same values in the box property.
-	 * 
-	 * @return 21 if all subproperty values are equal; 20 if top right equals to bottom left,
-	 *         and top left equals bottom right; 17 if top left equals to top right and bottom
-	 *         left; 16 if top right equals to bottom left (bottom right may be equal to
-	 *         them); 5 if top right equals bottom right and top left; 4 if top left equals
-	 *         bottom right but other values are different (top right could be equal to them),
-	 *         1 if top left and top right are the same but other values differ (bottom right
-	 *         could be equal to bottom left), 0 if 3 or 4 values are different.
-	 */
-	private int sameValueScore(Set<String> declaredSet, StyleValue topLeftValue, StyleValue topRightValue,
-			StyleValue bottomRightValue, StyleValue bottomLeftValue) {
-		int score = 0;
-		if (bottomLeftValue.equals(topRightValue)) {
-			score += 16;
-		} else {
-			if (!declaredSet.contains("border-bottom-left-radius")) {
-				bottomLeftValue = topRightValue;
-				score += 16;
-			} else if (!declaredSet.contains("border-top-right-radius")) {
-				topRightValue = bottomLeftValue;
-				score += 16;
-			}
-		}
-		if (topLeftValue.equals(bottomRightValue)) {
-			score += 4;
-		} else {
-			if (!declaredSet.contains("border-bottom-right-radius")) {
-				bottomRightValue = topLeftValue;
-				score += 4;
-			} else if (!declaredSet.contains("border-top-left-radius")) {
-				topLeftValue = bottomRightValue;
-				score += 4;
-			}
-		}
-		if (topLeftValue.equals(topRightValue)
-				|| (!declaredSet.contains("border-bottom-right-radius")
-						&& !declaredSet.contains("border-top-left-radius"))
-				|| (!declaredSet.contains("border-top-right-radius")
-						&& !declaredSet.contains("border-bottom-left-radius"))) {
-			score += 1;
-		}
-		return score;
-	}
-
 	@Override
 	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
@@ -245,6 +199,52 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 				buf.append('0');
 			}
 		}
+	}
+
+	/**
+	 * Score for finding same values in the box property.
+	 * 
+	 * @return 21 if all subproperty values are equal; 20 if top right equals to bottom left,
+	 *         and top left equals bottom right; 17 if top left equals to top right and bottom
+	 *         left; 16 if top right equals to bottom left (bottom right may be equal to
+	 *         them); 5 if top right equals bottom right and top left; 4 if top left equals
+	 *         bottom right but other values are different (top right could be equal to them),
+	 *         1 if top left and top right are the same but other values differ (bottom right
+	 *         could be equal to bottom left), 0 if 3 or 4 values are different.
+	 */
+	private int sameValueScore(Set<String> declaredSet, StyleValue topLeftValue, StyleValue topRightValue,
+			StyleValue bottomRightValue, StyleValue bottomLeftValue) {
+		int score = 0;
+		if (bottomLeftValue.equals(topRightValue)) {
+			score += 16;
+		} else {
+			if (!declaredSet.contains("border-bottom-left-radius")) {
+				// bottomLeftValue = topRightValue;
+				score += 16;
+			} else if (!declaredSet.contains("border-top-right-radius")) {
+				topRightValue = bottomLeftValue;
+				score += 16;
+			}
+		}
+		if (topLeftValue.equals(bottomRightValue)) {
+			score += 4;
+		} else {
+			if (!declaredSet.contains("border-bottom-right-radius")) {
+				// bottomRightValue = topLeftValue;
+				score += 4;
+			} else if (!declaredSet.contains("border-top-left-radius")) {
+				topLeftValue = bottomRightValue;
+				score += 4;
+			}
+		}
+		if (topLeftValue.equals(topRightValue)
+				|| (!declaredSet.contains("border-bottom-right-radius")
+						&& !declaredSet.contains("border-top-left-radius"))
+				|| (!declaredSet.contains("border-top-right-radius")
+						&& !declaredSet.contains("border-bottom-left-radius"))) {
+			score += 1;
+		}
+		return score;
 	}
 
 	private void appendValue(StringBuilder buf, StyleValue cssVal) {
