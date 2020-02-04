@@ -538,10 +538,17 @@ class BackgroundBuilder extends ShorthandBuilder {
 		 * and background-clip to that value. If two values are present, then
 		 * the first sets background-origin and the second background-clip."
 		 */
-		boolean clipIsInitial = false;
-		String cliptext = clip.getMinifiedCssText("background-clip").toLowerCase(Locale.ROOT);
-		if ("border-box".equals(cliptext) || "initial".equals(cliptext) || "unset".equals(cliptext)) {
+		boolean clipIsInitial;
+		String cliptext = null;
+		if (clip == null) {
 			clipIsInitial = true;
+		} else {
+			cliptext = clip.getMinifiedCssText("background-clip").toLowerCase(Locale.ROOT);
+			if ("border-box".equals(cliptext) || "initial".equals(cliptext) || "unset".equals(cliptext)) {
+				clipIsInitial = true;
+			} else {
+				clipIsInitial = false;
+			}
 		}
 		if (!isRevertValue(origin) && !isUnknownIdentifier("background-origin", origin)) {
 			String text = origin.getCssText().toLowerCase(Locale.ROOT);
