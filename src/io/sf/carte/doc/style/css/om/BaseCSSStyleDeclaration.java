@@ -657,7 +657,6 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		} else {
 			list = ValueList.createCSValueList();
 			list.add(value);
-			value = list;
 			items = 1;
 		}
 		if (layers != items) {
