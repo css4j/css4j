@@ -202,6 +202,9 @@ abstract class SimpleBoxModel {
 		} else {
 			CSSPropertyValueException e = new CSSPropertyValueException(
 					"Expected primitive value for margin-top, found " + cssval.getCssText());
+			if (styledecl == null) {
+				styledecl = getComputedStyle();
+			}
 			styledecl.getStyleDeclarationErrorHandler().wrongValue("margin-top", e);
 		}
 		return 0f;
@@ -224,6 +227,9 @@ abstract class SimpleBoxModel {
 		} else {
 			CSSPropertyValueException e = new CSSPropertyValueException(
 					"Expected primitive value for margin-bottom, found " + cssval.getCssText());
+			if (styledecl == null) {
+				styledecl = getComputedStyle();
+			}
 			styledecl.getStyleDeclarationErrorHandler().wrongValue("margin-bottom", e);
 		}
 		return 0f;
@@ -307,7 +313,7 @@ abstract class SimpleBoxModel {
 				box.marginLeft = 0f;
 			}
 		}
-		Node node = styledecl.getOwnerNode();
+		Node node = getComputedStyle().getOwnerNode();
 		if (node != null && node.getNodeType() == Node.ELEMENT_NODE) {
 			CSSElement elm = (CSSElement) node;
 			if ("img".equals(elm.getTagName()) && elm.hasAttribute("width")) {
