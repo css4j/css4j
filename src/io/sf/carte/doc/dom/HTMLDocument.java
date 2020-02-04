@@ -123,8 +123,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		@Override
 		public void setIdAttributeNode(Attr idAttr, boolean isId) throws DOMException {
-			String nsuri = idAttr.getNamespaceURI();
-			if (idAttr == null || !hasAttributeNS(nsuri, idAttr.getLocalName())) {
+			String nsuri;
+			if (idAttr == null || !hasAttributeNS(nsuri = idAttr.getNamespaceURI(), idAttr.getLocalName())) {
 				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
 			}
 			if (nsuri == null || nsuri == HTMLDocument.HTML_NAMESPACE_URI) {
