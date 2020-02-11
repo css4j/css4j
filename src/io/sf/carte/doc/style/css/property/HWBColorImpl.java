@@ -54,13 +54,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	public void setWhiteness(PrimitiveValue whiteness) {
-		if (whiteness == null) {
-			throw new NullPointerException();
-		}
-		if (whiteness.getUnitType() != CSSUnit.CSS_PERCENTAGE && whiteness.getCssValueType() != CssType.PROXY
-				 && whiteness.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with saturation.");
-		}
+		checkPcntComponent(whiteness);
 		this.whiteness = whiteness;
 	}
 
@@ -70,13 +64,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	public void setBlackness(PrimitiveValue blackness) {
-		if (blackness == null) {
-			throw new NullPointerException();
-		}
-		if (blackness.getUnitType() != CSSUnit.CSS_PERCENTAGE && blackness.getCssValueType() != CssType.PROXY
-				 && blackness.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with lightness.");
-		}
+		checkPcntComponent(blackness);
 		this.blackness = blackness;
 	}
 

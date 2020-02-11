@@ -54,13 +54,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	public void setSaturation(PrimitiveValue saturation) {
-		if (saturation == null) {
-			throw new NullPointerException();
-		}
-		if (saturation.getUnitType() != CSSUnit.CSS_PERCENTAGE && saturation.getCssValueType() != CssType.PROXY
-				 && saturation.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with saturation.");
-		}
+		checkPcntComponent(saturation);
 		this.saturation = saturation;
 	}
 
@@ -70,13 +64,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	public void setLightness(PrimitiveValue lightness) {
-		if (lightness == null) {
-			throw new NullPointerException();
-		}
-		if (lightness.getUnitType() != CSSUnit.CSS_PERCENTAGE && lightness.getCssValueType() != CssType.PROXY
-				 && lightness.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with lightness.");
-		}
+		checkPcntComponent(lightness);
 		this.lightness = lightness;
 	}
 

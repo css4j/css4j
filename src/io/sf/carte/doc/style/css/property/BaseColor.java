@@ -37,11 +37,38 @@ class BaseColor {
 		if (alpha == null) {
 			throw new NullPointerException();
 		}
-		if (alpha.getUnitType() != CSSUnit.CSS_NUMBER && alpha.getUnitType() != CSSUnit.CSS_PERCENTAGE
-				&& alpha.getCssValueType() != CssType.PROXY && alpha.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with saturation.");
+		if (alpha.getUnitType() == CSSUnit.CSS_NUMBER) {
+			float fv = ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_NUMBER);
+			if (fv < 0f || fv > 1f) {
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"Alpha channel cannot be smaller than zero or greater than 1.");
+			}
+		} else if (alpha.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+			float fv = ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			if (fv < 0f || fv > 100f) {
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"Alpha channel percentage cannot be smaller than zero or greater than 100%.");
+			}
+		} else if(alpha.getCssValueType() != CssType.PROXY && alpha.getPrimitiveType() != Type.EXPRESSION) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with alpha.");
 		}
 		this.alpha = alpha;
+	}
+
+	void checkPcntComponent(PrimitiveValue primi) throws DOMException {
+		if (primi == null) {
+			throw new NullPointerException();
+		}
+		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+			float fv = ((CSSTypedValue) primi).getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			if (fv < 0f || fv > 100f) {
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"Color component percentage cannot be smaller than zero or greater than 100%.");
+			}
+		} else if (primi.getCssValueType() != CssType.PROXY
+				 && primi.getPrimitiveType() != Type.EXPRESSION){
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Invalid color component: " + primi.getCssText());
+		}
 	}
 
 	/**

@@ -143,7 +143,26 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			if (red == null) {
 				throw new NullPointerException();
 			}
+			enforceColorComponentType(red);
 			this.red = red;
+		}
+
+		private void enforceColorComponentType(PrimitiveValue primi) {
+			if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
+				float fv = ((CSSTypedValue) primi).getFloatValue(CSSUnit.CSS_NUMBER);
+				if (fv < 0f || fv > 255f) {
+					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+							"Color component cannot be smaller than zero or greater than 255.");
+				}
+			} else if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+				float fv = ((CSSTypedValue) primi).getFloatValue(CSSUnit.CSS_PERCENTAGE);
+				if (fv < 0f || fv > 100f) {
+					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+							"Color component percentage cannot be smaller than zero or greater than 100%.");
+				}
+			} else if (primi.getCssValueType() != CssType.PROXY && primi.getPrimitiveType() != Type.EXPRESSION) {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with color component.");
+			}
 		}
 
 		@Override
@@ -155,6 +174,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			if (green == null) {
 				throw new NullPointerException();
 			}
+			enforceColorComponentType(green);
 			this.green = green;
 		}
 
@@ -167,6 +187,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			if (blue == null) {
 				throw new NullPointerException();
 			}
+			enforceColorComponentType(blue);
 			this.blue = blue;
 		}
 

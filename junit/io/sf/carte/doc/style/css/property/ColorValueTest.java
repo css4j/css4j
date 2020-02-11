@@ -16,8 +16,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
+import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSExpression;
@@ -202,6 +204,10 @@ public class ColorValueTest {
 		assertEquals("#ac9", style.getPropertyValue("color"));
 		assertEquals("#ac9", val.getMinifiedCssText("color"));
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		style.setCssText("color: rgb(179 256 32)");
+		assertEquals(0, style.getLength());
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -424,6 +430,9 @@ public class ColorValueTest {
 		rgb = ((CSSTypedValue) value).toRGBColorValue();
 		assertEquals("rgb(1.75% 57.17% 68.25%)", rgb.toString());
 		assertEquals("hsl(190 95% 35%)", ((ColorValue.CSSRGBColor) rgb).toHSLString());
+		//
+		style.setCssText("color: hsl(179px 65% 19%)");
+		assertEquals(0, style.getLength());
 	}
 
 	@Test
@@ -483,6 +492,31 @@ public class ColorValueTest {
 		assertEquals(81f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
 		assertEquals(80.73333f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
 		assertEquals("rgb(65% 81% 80.73%)", rgb.toString());
+		//
+		style.setCssText("color: hwb(179deg 65% 19%); ");
+		value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals("hwb(179 65% 19%)", value.getCssText());
+		rgb = ((CSSTypedValue) value).toRGBColorValue();
+		assertEquals(65f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
+		assertEquals(81f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
+		assertEquals(80.73333f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
+		assertEquals("rgb(65% 81% 80.73%)", rgb.toString());
+		//
+		style.setCssText("color: hwb(3.124139rad 65% 19%)");
+		value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals("hwb(3.124139rad 65% 19%)", value.getCssText());
+		rgb = ((CSSTypedValue) value).toRGBColorValue();
+		assertEquals(65f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
+		assertEquals(81f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
+		assertEquals(80.73333f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
+		assertEquals("rgb(65% 81% 80.73%)", rgb.toString());
+		//
+		style.setCssText("color: hwb(179px 65% 19%); ");
+		assertEquals(0, style.getLength());
 	}
 
 	@Test
@@ -497,6 +531,25 @@ public class ColorValueTest {
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertEquals(CssType.PROXY, value.getCssValueType());
 		assertEquals(CSSValue.Type.LEXICAL, value.getPrimitiveType());
+	}
+
+	@Test
+	public void testCalc() {
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		style.setCssText("color: rgb(calc(30%) calc(15%) calc(99%)/ 0.7); ");
+		assertEquals("rgb(calc(30%) calc(15%) calc(99%) / 0.7)", style.getPropertyValue("color"));
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.COLOR, value.getPrimitiveType());
+		//
+		style.setCssText("color: hsl(calc(30deg) calc(15%) calc(99%) / 0.7); ");
+		assertEquals("hsl(calc(30deg) calc(15%) calc(99%) / 0.7)", style.getPropertyValue("color"));
+		value = style.getPropertyCSSValue("color");
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.COLOR, value.getPrimitiveType());
 	}
 
 	@Test
@@ -602,7 +655,98 @@ public class ColorValueTest {
 		assertEquals(178f, ((CSSTypedValue) ((ColorValue) cssColor).getComponent(3)).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
 		assertNull(((ColorValue) cssColor).getComponent(4));
-		//
+		// Sanity checks
+		number = new NumberValue();
+		number.setFloatValue(CSSUnit.CSS_NUMBER, -1f);
+		try {
+			color.setAlpha(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setRed(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		number.setFloatValue(CSSUnit.CSS_NUMBER, 2f);
+		try {
+			color.setAlpha(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		number.setFloatValue(CSSUnit.CSS_PERCENTAGE, -1f);
+		try {
+			color.setAlpha(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setRed(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setGreen(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setBlue(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		number.setFloatValue(CSSUnit.CSS_PERCENTAGE, 101f);
+		try {
+			color.setAlpha(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setRed(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setGreen(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setBlue(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		number.setFloatValue(CSSUnit.CSS_NUMBER, 256f);
+		try {
+			color.setRed(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setGreen(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			color.setBlue(number);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		// Transparent identifier
 		style.setCssText("color: transparent; ");
 		cssColor = style.getPropertyCSSValue("color");
 		assertNotNull(cssColor);
