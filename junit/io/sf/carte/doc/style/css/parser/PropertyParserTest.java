@@ -3099,6 +3099,60 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBBadRValue() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(-6 0 2)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadRValue2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(256 0 2)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadGValue() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(0 -6 2)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadGValue2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(0 256 2)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadBValue() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(0 2 -6)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueRGBBadBValue2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("rgb(0 2 256)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
 	public void testParsePropertyValueRGBBadChar() throws CSSException, IOException {
 		try {
 			parsePropertyValue("rgb(0 a 0/ 0)");
@@ -3183,24 +3237,6 @@ public class PropertyParserTest {
 	public void testParsePropertyValueRGBBadMixCommas2() throws CSSException, IOException {
 		try {
 			parsePropertyValue("rgb(2%, 0, 10)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueRGBBadNegative() throws CSSException, IOException {
-		try {
-			parsePropertyValue("rgb(-10 56 70)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueRGBBadNegative2() throws CSSException, IOException {
-		try {
-			parsePropertyValue("rgb(10 56 -70)");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}

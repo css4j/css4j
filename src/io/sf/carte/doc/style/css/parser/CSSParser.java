@@ -5443,7 +5443,7 @@ public class CSSParser implements Parser {
 					// Check component type
 					if (type == LexicalType.INTEGER) {
 						int value = lu.getIntegerValue();
-						if (value < 0) {
+						if (value < 0 || value > 255) {
 							return false;
 						}
 						if (valCount == 3) {
@@ -5461,7 +5461,7 @@ public class CSSParser implements Parser {
 						}
 					} else if (type == LexicalType.REAL) {
 						float value = lu.getFloatValue();
-						if (value < 0f) {
+						if (value < 0f || value > 255f) {
 							return false;
 						}
 						if (valCount == 3) {
