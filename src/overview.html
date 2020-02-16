@@ -11,11 +11,11 @@ targets several different use cases, with functionalities from style sheet error
 <p>This implementation can be used in several ways: with stand-alone style sheets, with its own <a href="http://www.w3.org/DOM/" target="_blank">DOM</a>
 implementation, combined with DOM4J, or by wrapping a pre-existing DOM tree.</p>
 <p>You can play with independent style sheets created with the <code>createStyleSheet("<i>title</i>", "<i>media</i>")</code> method of the
-<a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html"><code>CSSStyleSheetFactory</code></a> interface.
+<a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html"><code>CSSStyleSheetFactory</code></a> interface.
 There are three implementations of that interface:</p>
 <ul>
-<li><a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/dom/CSSDOMImplementation.html"><code>CSSDOMImplementation</code></a>, the native DOM implementation.</li>
-<li><a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/DOMCSSStyleSheetFactory.html"><code>DOMCSSStyleSheetFactory</code></a> for the DOM Wrapper.</li>
+<li><a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/dom/CSSDOMImplementation.html"><code>CSSDOMImplementation</code></a>, the native DOM implementation.</li>
+<li><a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/DOMCSSStyleSheetFactory.html"><code>DOMCSSStyleSheetFactory</code></a> for the DOM Wrapper.</li>
 <li>If you use DOM4J, get it through <code>XHTMLDocumentFactory.getStyleSheetFactory()</code>.</li>
 </ul>
 <p>The document back-end is only important if you plan to use the sheets inside a document.
@@ -115,7 +115,7 @@ String image_uri = ((CSSPrimitiveValue) style.getPropertyCSSValue("background-im
 // image_css will be set to "url('http://www.example.com/css/foo.png')",
 // and image_uri to "http://www.example.com/css/foo.png"
 </pre>
-<p>The <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSComputedProperties.html"><code>CSSComputedProperties</code></a> interface extends from W3C's <a href="https://www.w3.org/TR/cssom-1/#the-cssstyledeclaration-interface" target="_blank"><code>CSSStyleDeclaration</code></a>,
+<p>The <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSComputedProperties.html"><code>CSSComputedProperties</code></a> interface extends from W3C's <a href="https://www.w3.org/TR/cssom-1/#the-cssstyledeclaration-interface" target="_blank"><code>CSSStyleDeclaration</code></a>,
 adding methods like <code>getComputedFontSize()</code> or <code>getComputedLineHeight()</code>.</p>
 <p>If you are computing styles for a specific medium, tell the document about it (see "<a href="#mediahandling">Media Handling</a>"):</p>
 <pre style="padding: 0.8em;background-color: #f8f5e1">
@@ -263,19 +263,19 @@ NSAC package description, as well as the documentation for the individual flags 
 </div>
 <div style="margin: 2em 0 2.7em 0" id="styleformatting">
 <h3>CSS Style Formatting</h3>
-<p>The serialization of the <code>cssText</code> attribute in <a href="https://www.w3.org/TR/cssom-1/#dom-cssrule-csstext" target="_blank">rules</a> and
-<a href="https://www.w3.org/TR/cssom-1/#dom-cssstyledeclaration-csstext" target="_blank">style declarations</a> can be customized with an implementation
-of the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleFormattingContext.html">StyleFormattingContext</a> interface.
-You can set your <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleFormattingFactory.html">StyleFormattingFactory</a>
-(which produces your customized formatting context) to the sheet factory with the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setStyleFormattingFactory-io.sf.carte.doc.style.css.StyleFormattingFactory-">CSSStyleSheetFactory.setStyleFormattingFactory</a>
-method, or subclass your base factory and override the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/BaseCSSStyleSheetFactory.html#createDefaultStyleFormattingFactory--">createDefaultStyleFormattingFactory</a> method.</p>
-<p>Look at the <a class="codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/DefaultStyleFormattingContext.html">DefaultStyleFormattingContext</a> class for an example of a formatting context implementation.</p>
-<p>There is also the possibility to customize the default serialization of string values, with the <a href="api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setFactoryFlag(byte)">CSSStyleSheetFactory.setFactoryFlag(byte)</a>
+<p>The serialization of the <code>cssText</code> attribute in <a href="https://www.w3.org/TR/cssom-1/#dom-cssrule-csstext">rules</a> and
+<a href="https://www.w3.org/TR/cssom-1/#dom-cssstyledeclaration-csstext">style declarations</a> can be customized with an implementation
+of the <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleFormattingContext.html"><code>StyleFormattingContext</code></a> interface.
+You can set your <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleFormattingFactory.html"><code>StyleFormattingFactory</code></a>
+(which produces your customized formatting context) to the sheet factory with the <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setStyleFormattingFactory-io.sf.carte.doc.style.css.StyleFormattingFactory-"><code>CSSStyleSheetFactory.setStyleFormattingFactory</code></a>
+method, or subclass your base factory and override the <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/BaseCSSStyleSheetFactory.html#createDefaultStyleFormattingFactory--"><code>createDefaultStyleFormattingFactory</code></a> method.</p>
+<p>Look at the <a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/om/DefaultStyleFormattingContext.html"><code>DefaultStyleFormattingContext</code></a> class for an example of a formatting context implementation.</p>
+<p>There is also the possibility to customize the default serialization of string values, with the <a href="api/1.0/io/sf/carte/doc/style/css/CSSStyleSheetFactory.html#setFactoryFlag(byte)"><code>CSSStyleSheetFactory.setFactoryFlag(byte)</code></a>
 method. You can set two flags that govern which quotation you prefer, or keep the default behaviour:</p>
 <ul><li><b>Default:</b> Try to keep the original quotation (single or double quotes), unless the alternative is more efficient.</li>
-<li><b><a href="api/1.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_DOUBLE_QUOTE">STRING_DOUBLE_QUOTE</a>:</b>
+<li><b><a href="api/1.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_DOUBLE_QUOTE"><code>STRING_DOUBLE_QUOTE</code></a>:</b>
 Use double quotes unless single quotes are more efficient (when the string contains more double quotes than single).</li>
-<li><b><a href="api/1.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_SINGLE_QUOTE">STRING_SINGLE_QUOTE</a>:</b>
+<li><b><a href="api/1.0/io/sf/carte/doc/style/css/om/AbstractCSSStyleSheetFactory.html#STRING_SINGLE_QUOTE"><code>STRING_SINGLE_QUOTE</code></a>:</b>
 Use single quotes unless double quotes are more efficient (when the string contains more single quotes than double).</li>
 </ul>
 </div>
@@ -299,14 +299,14 @@ This is intended to be addressed in version 2.0, when SAC-based parsing is going
 <p>CSS level 3/4 is only partially supported by the library; the following table summarizes the basic support for setting/retrieving the main CSS3/4 features:</p>
 <table id="spectbl">
 <tr style="background-color:#f3f0e4"><th>CSS3 Spec Name</th><th>Support</th><th>Observations</th></tr>
-<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Background / Border</td><td style="text-align:center">Yes</td><td class="obsrv"></td></tr>
-<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Color</td><td style="text-align:center">Yes</td><td class="obsrv"></td></tr>
-<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Media Queries</td><td style="text-align:center">Partial</td><td class="obsrv">Event handling with addListener/removeListener is not supported.
+<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Background / Border</td><td style="text-align:center">Yes</td><td></td></tr>
+<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Color</td><td style="text-align:center">Yes</td><td></td></tr>
+<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Media Queries</td><td style="text-align:center">Partial</td><td>Event handling with addListener/removeListener is not supported.
 Relies on CSSCanvas implementations to match/unmatch media features.</td></tr>
-<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Selectors</td><td style="text-align:center">Yes</td><td class="obsrv">Only this library's own SAC/NSAC parser supports level 4 selectors.</td></tr>
-<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Transitions</td><td style="text-align:center">Yes</td><td class="obsrv"></td></tr>
-<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Values</td><td style="text-align:center">Yes</td><td class="obsrv">Only this library's own SAC/NSAC parser supports <code>calc()</code> values.</td></tr>
-<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Grid / Template / Alignment</td><td style="text-align:center">Partial</td><td class="obsrv">Legacy gap properties (<code>grid-row-gap</code>,
+<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Selectors</td><td style="text-align:center">Yes</td><td>Only this library's own SAC/NSAC parser supports level 4 selectors.</td></tr>
+<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Transitions</td><td style="text-align:center">Yes</td><td></td></tr>
+<tr style="background-color:#f7f3e4"><td style="padding:0.4em 0.3em 0.5em 0.4em">Values</td><td style="text-align:center">Yes</td><td>Only this library's own SAC/NSAC parser supports <code>calc()</code> values.</td></tr>
+<tr style="background-color:#f6f5e2"><td style="padding:0.4em 0.3em 0.5em 0.4em">Grid / Template / Alignment</td><td style="text-align:center">Partial</td><td>Legacy gap properties (<code>grid-row-gap</code>,
 <code>grid-column-gap</code>, and <code>grid-gap</code>) are not supported, although the longhands can be used if declared explicitly).</td></tr>
 </table>
 <h4 style="margin:1.8em 0 0.8em" id="pseudoclasses">Pseudo-classes</h4>
@@ -321,14 +321,14 @@ and <code>indeterminate</code>.</p>
 <div style="margin: 2em 0 2.7em 0" id="renderinterfaces">
 <h3>Rendering-oriented interfaces</h3>
 <p>To help with the determination of 'used' values and the actual rendering, this library provides a few helper interfaces. The most important are:</p>
-<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/DeviceFactory.html">DeviceFactory</a>. It is not a "factory of devices",
+<ul><li><a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/DeviceFactory.html"><code>DeviceFactory</code></a>. It is not a "factory of devices",
 but instead the object that delivers the relevant abstractions for a requested medium: <code>StyleDatabase</code> and <code>CSSCanvas</code>.</li></ul>
-<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleDatabase.html">StyleDatabase</a>.
+<ul><li><a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/style/css/StyleDatabase.html"><code>StyleDatabase</code></a>.
 Provides medium-specific information like available fonts and colors.</li></ul>
-<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/CSSCanvas.html">CSSCanvas</a>.
+<ul><li><a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/CSSCanvas.html"><code>CSSCanvas</code></a>.
 Has knowledge of medium-specific information that depends (or may depend) on a specific viewport, like supported media features. It is linked
 to a viewport, if there is any. This interface is used to determine the state of active pseudo-classes.</li></ul>
-<ul><li><a class="itemtitle codeitem" href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/Viewport.html">Viewport</a>. It represents a viewport defined
+<ul><li><a href="https://css4j.github.io/api/1.0/io/sf/carte/doc/agent/Viewport.html"><code>Viewport</code></a>. It represents a viewport defined
 as per the CSS specifications.</li></ul>
 <p>The differences between style databases and canvases can be subtle, and for some media features it could be argued that they belong to
 one or the other. The basic idea is that style databases should be relatively easy to implement for a given medium, while canvases are
