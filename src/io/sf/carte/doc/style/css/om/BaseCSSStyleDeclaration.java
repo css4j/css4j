@@ -1810,7 +1810,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			} else {
 				StyleValue value = getCSSValue(property);
 				StyleValue otherValue = other.getCSSValue(property);
-				if (value.equals(otherValue)) {
+				if (valueEquals(value, otherValue)) {
 					int idx = propertyList.indexOf(property);
 					int idxo = other.propertyList.indexOf(property);
 					String prio = priorities.get(idx);
@@ -1834,6 +1834,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 		}
 		return diff;
+	}
+
+	private boolean valueEquals(StyleValue value, StyleValue otherValue) {
+		return value != null ? value.equals(otherValue) : otherValue == null;
 	}
 
 	private class PropertyDiff implements Diff<String> {
