@@ -338,6 +338,8 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 					buf.append(cssVal.getCssText());
 					appended = true;
 				}
+			} else if (type == CssType.PROXY) {
+				return false;
 			}
 			return true;
 		}

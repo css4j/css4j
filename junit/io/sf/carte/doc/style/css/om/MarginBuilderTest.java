@@ -72,6 +72,12 @@ public class MarginBuilderTest {
 	}
 
 	@Test
+	public void testMarginVarNoShorthand() {
+		assertShorthandText("margin-bottom:var(--foo,1px 2px);margin-left:auto;margin-right:auto;margin-top:0;",
+				"margin:0 auto;margin-bottom:var(--foo,1px 2px);");
+	}
+
+	@Test
 	public void testMarginImportant() {
 		assertShorthandText("margin:1px!important;", "margin:1px!important;");
 		assertShorthandText("margin:1px 2px!important;", "margin:1px 2px!important;");
