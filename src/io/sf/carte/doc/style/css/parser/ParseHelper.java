@@ -41,6 +41,7 @@ public class ParseHelper {
 	public static final byte WARN_IDENT_COMPAT = -2;
 	public static final byte WARN_PROGID_HACK = -3;
 	public static final byte WARN_PROPERTY_NAME = -4;
+	public static final byte WARN_VALUE = -5; // Generic warning about a property value
 
 	public static String unescapeStringValue(String value) {
 		return unescapeStringValue(value, true, true);

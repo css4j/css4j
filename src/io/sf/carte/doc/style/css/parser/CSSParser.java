@@ -5393,7 +5393,7 @@ public class CSSParser implements Parser {
 				unexpectedCharError(index, ')');
 				return;
 			}
-			if ((type == LexicalType.RGBCOLOR && !isValidRGBColor()) ||
+			if ((type == LexicalType.RGBCOLOR && !isValidRGBColor(index)) ||
 					(type == LexicalType.HSLCOLOR && !isValidHSLColor())) {
 				String s;
 				try {
@@ -5420,7 +5420,7 @@ public class CSSParser implements Parser {
 					|| type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
 		}
 
-		private boolean isValidRGBColor() {
+		private boolean isValidRGBColor(int index) {
 			LexicalUnitImpl lu = currentlu.parameters;
 			short valCount = 0;
 			LexicalType lastType = LexicalType.UNKNOWN;
@@ -5443,7 +5443,7 @@ public class CSSParser implements Parser {
 					// Check component type
 					if (type == LexicalType.INTEGER) {
 						int value = lu.getIntegerValue();
-						if (value < 0 || value > 255) {
+						if (value < 0) {
 							return false;
 						}
 						if (valCount == 3) {
@@ -5451,7 +5451,7 @@ public class CSSParser implements Parser {
 								return false;
 							}
 						} else {
-							if (lu.getIntegerValue() != 0) {
+							if (value != 0) {
 								if (compType == 0) {
 									compType = 1;
 								} else if (compType == 2) {
@@ -5459,9 +5459,12 @@ public class CSSParser implements Parser {
 								}
 							}
 						}
+						if (value > 255) {
+							handleWarning(index, ParseHelper.WARN_VALUE, "Color component has value over 255.");
+						}
 					} else if (type == LexicalType.REAL) {
 						float value = lu.getFloatValue();
-						if (value < 0f || value > 255f) {
+						if (value < 0f) {
 							return false;
 						}
 						if (valCount == 3) {
@@ -5475,6 +5478,9 @@ public class CSSParser implements Parser {
 								return false;
 							}
 							type = LexicalType.INTEGER;
+						}
+						if (value > 255f) {
+							handleWarning(index, ParseHelper.WARN_VALUE, "Color component has value over 255.");
 						}
 					} else if (type == LexicalType.PERCENTAGE) {
 						float value = lu.getFloatValue();

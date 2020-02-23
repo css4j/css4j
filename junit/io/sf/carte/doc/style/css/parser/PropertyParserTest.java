@@ -3108,15 +3108,6 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadRValue2() throws CSSException, IOException {
-		try {
-			parsePropertyValue("rgb(256 0 2)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
 	public void testParsePropertyValueRGBBadGValue() throws CSSException, IOException {
 		try {
 			parsePropertyValue("rgb(0 -6 2)");
@@ -3126,27 +3117,9 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadGValue2() throws CSSException, IOException {
-		try {
-			parsePropertyValue("rgb(0 256 2)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
 	public void testParsePropertyValueRGBBadBValue() throws CSSException, IOException {
 		try {
 			parsePropertyValue("rgb(0 2 -6)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueRGBBadBValue2() throws CSSException, IOException {
-		try {
-			parsePropertyValue("rgb(0 2 256)");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}

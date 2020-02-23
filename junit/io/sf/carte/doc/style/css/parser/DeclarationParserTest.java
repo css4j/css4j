@@ -73,6 +73,62 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationColorOver255() throws CSSException, IOException {
+		parseStyleDeclaration("color:rgb(300,400,500);");
+		assertEquals("color", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		assertEquals("rgb", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(300, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(400, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(500, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationColorRealOver255() throws CSSException, IOException {
+		parseStyleDeclaration("color:rgb(300.1 400.2 500.3);");
+		assertEquals("color", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		assertEquals("rgb", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(300.1f, param.getFloatValue(), 1e-6);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(400.2f, param.getFloatValue(), 1e-6);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(500.3f, param.getFloatValue(), 1e-6);
+		assertNull(param.getNextLexicalUnit());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationBadColor() throws CSSException, IOException {
 		parseStyleDeclaration("color: #;");
 		assertEquals(0, handler.propertyNames.size());
@@ -1447,6 +1503,23 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("round", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationBackgroundImageGradient() throws CSSException, IOException {
+		parseStyleDeclaration("background-image: linear-gradient(35deg);");
+		assertEquals("background-image", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals("linear-gradient", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals(35, param.getFloatValue(), 1e-6);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("linear-gradient(35deg)", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test

@@ -150,9 +150,9 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		private void enforceColorComponentType(PrimitiveValue primi) {
 			if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
 				float fv = ((CSSTypedValue) primi).getFloatValue(CSSUnit.CSS_NUMBER);
-				if (fv < 0f || fv > 255f) {
+				if (fv < 0f) {
 					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-							"Color component cannot be smaller than zero or greater than 255.");
+							"Color component cannot be smaller than zero.");
 				}
 			} else if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
 				float fv = ((CSSTypedValue) primi).getFloatValue(CSSUnit.CSS_PERCENTAGE);

@@ -206,8 +206,18 @@ public class ColorValueTest {
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		//
 		style.setCssText("color: rgb(179 256 32)");
+		val = (ColorValue) style.getPropertyCSSValue("color");
+		rgb = val.toRGBColorValue();
+		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 0.0001);
+		assertEquals("rgb(179 256 32)", style.getPropertyValue("color"));
+		assertEquals("rgb(179 256 32)", val.getMinifiedCssText("color"));
+		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(style.getStyleDeclarationErrorHandler().hasWarnings());
+		//
+		style.setCssText("color: rgb(179 -256 32)");
 		assertEquals(0, style.getLength());
 		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
 	}
 
 	@Test
@@ -728,24 +738,9 @@ public class ColorValueTest {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
 		}
 		number.setFloatValue(CSSUnit.CSS_NUMBER, 256f);
-		try {
-			color.setRed(number);
-			fail("Must throw exception.");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
-		}
-		try {
-			color.setGreen(number);
-			fail("Must throw exception.");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
-		}
-		try {
-			color.setBlue(number);
-			fail("Must throw exception.");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
-		}
+		color.setRed(number); // allowed
+		color.setGreen(number); // allowed
+		color.setBlue(number); // allowed
 		// Transparent identifier
 		style.setCssText("color: transparent; ");
 		cssColor = style.getPropertyCSSValue("color");
