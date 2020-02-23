@@ -16,6 +16,7 @@ import java.util.Set;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
 import io.sf.carte.doc.style.css.ExtendedCSSPrimitiveValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -319,6 +320,9 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 								&& !s.equalsIgnoreCase("unset")) {
 							return false;
 						}
+					} else if (ptype == CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY) {
+						// Avoid var()
+						return false;
 					}
 					if (isNotInitialValue(cssVal, propertyName)) {
 						if (appended) {
