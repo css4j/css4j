@@ -3,7 +3,7 @@
  * Copyright © 2015 W3C® (MIT, ERCIM, Keio, Beihang).
  * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
  * 
- * Copyright © 2017-2019, Carlos Amengual.
+ * Copyright © 2017-2020, Carlos Amengual.
  * 
  * SPDX-License-Identifier: W3C-20150513
  */
