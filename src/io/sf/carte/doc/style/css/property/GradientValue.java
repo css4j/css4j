@@ -237,6 +237,8 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				finalLU = lu2.getNextLexicalUnit();
 			} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
 				finalLU = lu;
+			} else {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Bad color stop");
 			}
 			return finalLU;
 		}
