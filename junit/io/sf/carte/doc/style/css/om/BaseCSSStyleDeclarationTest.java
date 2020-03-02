@@ -686,6 +686,13 @@ public class BaseCSSStyleDeclarationTest {
 	}
 
 	@Test
+	public void setCssTextForBackgroundImage() {
+		emptyStyleDecl.setCssText("background-image:linear-gradient(35deg,#fa3 50%,transparent 0)");
+		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)", emptyStyleDecl.getPropertyValue("background-image"));
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void setCssTextForBackgroundPosition() {
 		emptyStyleDecl.setCssText("background-position: 10% 20%; background-position: 50% left top");
 		assertEquals("10% 20%", emptyStyleDecl.getPropertyValue("background-position"));

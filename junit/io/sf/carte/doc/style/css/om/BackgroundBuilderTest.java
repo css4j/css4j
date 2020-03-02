@@ -28,11 +28,12 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundIndividual() {
-		emptyStyleDecl.setCssText(
-				"background-image: linear-gradient(transparent, transparent), url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');");
-		assertEquals(
+		assertShorthandText(
+				"background-image:linear-gradient(35deg,#fa3 50%,transparent 0);",
+				"background-image: linear-gradient(35deg,#fa3 50%,transparent 0);");
+		assertShorthandText(
 				"background-image:linear-gradient(transparent,transparent),url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');",
-				emptyStyleDecl.getOptimizedCssText());
+				"background-image: linear-gradient(transparent, transparent), url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');");
 	}
 
 	@Test

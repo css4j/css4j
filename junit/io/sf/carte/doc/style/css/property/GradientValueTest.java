@@ -117,6 +117,15 @@ public class GradientValueTest {
 	}
 
 	@Test
+	public void testGetCssTextLinearBad2() {
+		style.setCssText("background-image:linear-gradient(35deg,get-vertical-color(foo) 50%,transparent 0)");
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNull(cssval);
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testGetCssTextLinearNonStandard() {
 		style.setCssText(
 				"background-image: -moz-linear-gradient(center top, rgb(51, 153, 51) 0%, rgb(51, 119, 51) 100%); ");
