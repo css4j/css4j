@@ -1945,7 +1945,7 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testBackgroundVar() {
-		emptyStyleDecl.setCssText("background: var(--myimage) 40% / 10em gray round fixed border-box;");
+		emptyStyleDecl.setCssText("background: var(--My-Image);");
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-position"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-size"));
@@ -1954,9 +1954,24 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-clip"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-attachment"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-repeat"));
-		assertEquals("background: var(--myimage) 40%/10em gray round fixed border-box; ",
+		assertEquals("background: var(--My-Image); ", emptyStyleDecl.getCssText());
+		assertEquals("background:var(--My-Image);", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBackgroundVar2() {
+		emptyStyleDecl.setCssText("background: var(--Myimage) 40% / 10em gray round fixed border-box;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("background: var(--Myimage) 40%/10em gray round fixed border-box; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:var(--myimage) 40%/10em gray round fixed border-box;",
+		assertEquals("background:var(--Myimage) 40%/10em gray round fixed border-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 

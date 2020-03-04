@@ -1969,32 +1969,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			if ("hwb".equals(func) || "color".equals(func)) {
 				return true;
 			}
-		} else if (LexicalType.VAR == utype) {
-			LexicalUnit lu = findCustomPropertyFallback(lunit);
-			if (lu != null) {
-				return testColor(lu);
-			}
 		}
 		return false;
-	}
-
-	private static LexicalUnit findCustomPropertyFallback(LexicalUnit lunit) {
-		LexicalUnit lu = lunit.getParameters();
-		if (lu != null) {
-			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
-				lu = lu.getNextLexicalUnit();
-				if (lu != null) {
-					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-						lu = lu.getNextLexicalUnit();
-					} else {
-						lu = null;
-					}
-				}
-			} else {
-				lu = null;
-			}
-		}
-		return lu;
 	}
 
 	@Override

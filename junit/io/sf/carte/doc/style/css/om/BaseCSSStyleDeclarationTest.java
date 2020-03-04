@@ -679,6 +679,27 @@ public class BaseCSSStyleDeclarationTest {
 	}
 
 	@Test
+	public void setCssTextFontFamilyUpperCase() {
+		emptyStyleDecl.setCssText("FONT-FAMILY: Times New Roman, Verdana, Chicago");
+		CSSValue value = ((ValueList) emptyStyleDecl.getPropertyCSSValue("font-family")).item(0);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals("Times New Roman", ((CSSTypedValue) value).getStringValue());
+		assertEquals("'Times New Roman', Verdana, Chicago",
+				emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void setCssTextFontFamilyVarUpperCase() {
+		emptyStyleDecl.setCssText("font-family: var(--FOO)");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals("var(--FOO)", value.getCssText());
+		assertEquals("var(--FOO)", emptyStyleDecl.getPropertyValue("font-family"));
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void setCssTextBackgroundFontError() {
 		emptyStyleDecl.setCssText("background-font:bold 14px/32px \"Courier New\", Arial, sans-serif");
 		assertNull(emptyStyleDecl.getPropertyCSSValue("background-font"));
@@ -743,6 +764,13 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals(2, ((ValueList) value).getLength());
 		assertEquals("0 2px", ((ValueList) value).item(0).getCssText());
 		assertEquals("0 2px", ((ValueList) value).item(1).getCssText());
+	}
+
+	@Test
+	public void setCssTextBackgroundVarUpperCase() {
+		emptyStyleDecl.setCssText("background: var(--FOO)");
+		assertEquals("var(--FOO)", emptyStyleDecl.getPropertyValue("background"));
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
