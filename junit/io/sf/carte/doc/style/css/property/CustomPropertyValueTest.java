@@ -51,6 +51,10 @@ public class CustomPropertyValueTest {
 		CustomPropertyValue value2 = (CustomPropertyValue) style.getPropertyCSSValue("foo");
 		assertTrue(value.equals(value2));
 		assertEquals(value.hashCode(), value2.hashCode());
+		style.setCssText("foo: var(--My-identifier); ");
+		value2 = (CustomPropertyValue) style.getPropertyCSSValue("foo");
+		assertFalse(value.equals(value2));
+		assertFalse(value.hashCode() == value2.hashCode());
 		style.setCssText("foo: var(--other-identifier); ");
 		value2 = (CustomPropertyValue) style.getPropertyCSSValue("foo");
 		assertFalse(value.equals(value2));
@@ -69,6 +73,20 @@ public class CustomPropertyValueTest {
 		CustomPropertyValue val = (CustomPropertyValue) cssval;
 		assertEquals("var(--my-identifier)", val.getCssText());
 		assertEquals("--my-identifier", val.getStringValue());
+	}
+
+	@Test
+	public void testGetCssTextUpperCase() {
+		style.setCssText("foo: var(--My-Identifier); ");
+		assertEquals("var(--My-Identifier)", style.getPropertyValue("foo"));
+		assertEquals("foo: var(--My-Identifier); ", style.getCssText());
+		assertEquals("foo:var(--My-Identifier)", style.getMinifiedCssText());
+		StyleValue cssval = style.getPropertyCSSValue("foo");
+		assertNotNull(cssval);
+		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		CustomPropertyValue val = (CustomPropertyValue) cssval;
+		assertEquals("var(--My-Identifier)", val.getCssText());
+		assertEquals("--My-Identifier", val.getName());
 	}
 
 	@Test

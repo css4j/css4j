@@ -518,6 +518,27 @@ public class CompatInlineDeclarationTest {
 	}
 
 	@Test
+	public void setCssTextFontFamilyUpperCase() {
+		emptyStyleDecl.setCssText("FONT-FAMILY: Times New Roman, Verdana, Chicago");
+		CSSValue value = ((ValueList) emptyStyleDecl.getPropertyCSSValue("font-family")).item(0);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
+		assertEquals("Times New Roman", ((CSSPrimitiveValue) value).getStringValue());
+		assertEquals("'Times New Roman', Verdana, Chicago",
+				emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void setCssTextFontFamilyVarUpperCase() {
+		emptyStyleDecl.setCssText("font-family: var(--FOO)");
+		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
+		assertEquals("var(--FOO)", value.getCssText());
+		assertEquals("var(--FOO)", emptyStyleDecl.getPropertyValue("font-family"));
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void setCssTextForBackgroundPosition() {
 		emptyStyleDecl.setCssText("background-position: 10% 20%; background-position: 50% left top");
 		assertEquals("10% 20%", emptyStyleDecl.getPropertyValue("background-position"));

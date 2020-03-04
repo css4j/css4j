@@ -2079,33 +2079,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					|| "hwb".equals(func) || "color".equals(func) || "rgba".equals(func))) {
 				return true;
 			}
-			if ("var".equals(func)) {
-				LexicalUnit lu = findCustomPropertyFallback(lunit);
-				if (lu != null) {
-					return testColor(lu);
-				}
-			}
 		}
 		return false;
-	}
-
-	private static LexicalUnit findCustomPropertyFallback(LexicalUnit lunit) {
-		LexicalUnit lu = lunit.getParameters();
-		if (lu != null) {
-			if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-				lu = lu.getNextLexicalUnit();
-				if (lu != null) {
-					if (lu.getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_COMMA) {
-						lu = lu.getNextLexicalUnit();
-					} else {
-						lu = null;
-					}
-				}
-			} else {
-				lu = null;
-			}
-		}
-		return lu;
 	}
 
 	interface SubpropertySetter {

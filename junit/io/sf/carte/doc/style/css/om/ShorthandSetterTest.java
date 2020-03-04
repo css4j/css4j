@@ -1863,6 +1863,36 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testBackgroundVar() {
+		emptyStyleDecl.setCssText("background: var(--My-Image);");
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBackgroundVar2() {
+		emptyStyleDecl.setCssText("background: var(--My-Image, #f06);");
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBackgroundVar3() {
 		emptyStyleDecl.setCssText("background: var(--myimage) 40% / 10em gray round fixed border-box;");
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-position"));
