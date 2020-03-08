@@ -273,6 +273,7 @@ class LexicalUnitImpl implements LexicalUnit {
 				return identCssText;
 			}
 		case FUNCTION:
+		case CALC:
 		case RECT_FUNCTION:
 		case VAR:
 		case ATTR:

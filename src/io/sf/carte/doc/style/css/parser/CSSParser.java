@@ -5283,6 +5283,8 @@ public class CSSParser implements Parser {
 				lu = newLexicalUnit(LexicalType.RGBCOLOR);
 			} else if ("hsl".equalsIgnoreCase(name) || "hsla".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalType.HSLCOLOR);
+			} else if ("calc".equalsIgnoreCase(name)) {
+				lu = newLexicalUnit(LexicalType.CALC);
 			} else if ("attr".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalType.ATTR);
 			} else if ("var".equalsIgnoreCase(name)) {
@@ -5542,7 +5544,7 @@ public class CSSParser implements Parser {
 
 		private boolean isComponentType(LexicalType type) {
 			return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE || type == LexicalType.REAL
-					|| type == LexicalType.VAR || type == LexicalType.FUNCTION;
+					|| type == LexicalType.VAR || type == LexicalType.CALC || type == LexicalType.FUNCTION;
 		}
 
 		private boolean isValidHSLColor() {
@@ -5599,7 +5601,7 @@ public class CSSParser implements Parser {
 						return false;
 					}
 					pcntCount = 3;
-				} else if (type == LexicalType.FUNCTION && "calc".equalsIgnoreCase(lu.getFunctionName())) {
+				} else if (type == LexicalType.CALC) {
 					if (lastType == LexicalType.UNKNOWN) {
 						type = LexicalType.INTEGER;
 					} else if (lastType == LexicalType.OPERATOR_SLASH) {

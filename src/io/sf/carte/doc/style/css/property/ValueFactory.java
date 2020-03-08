@@ -74,7 +74,7 @@ public class ValueFactory {
 	private static short sizeSACUnit(LexicalUnit unit) {
 		LexicalType type = unit.getLexicalUnitType();
 		short cssUnit;
-		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
+		if (isFunctionType(type)) {
 			cssUnit = functionDimensionArgumentUnit(unit);
 		} else if (type == LexicalType.SUB_EXPRESSION) {
 			cssUnit = subexpressionDimensionUnit(unit);
@@ -114,6 +114,11 @@ public class ValueFactory {
 		}
 	}
 
+	private static boolean isFunctionType(LexicalType type) {
+		return type == LexicalType.FUNCTION || type == LexicalType.CALC || type == LexicalType.VAR
+				|| type == LexicalType.ATTR;
+	}
+
 	/**
 	 * Tests whether the unit type of the given NSAC lexical unit is a resolution unit.
 	 * 
@@ -124,7 +129,7 @@ public class ValueFactory {
 	public static boolean isResolutionSACUnit(LexicalUnit unit) {
 		LexicalType type = unit.getLexicalUnitType();
 		short cssUnit;
-		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
+		if (isFunctionType(type)) {
 			unit = firstDimensionArgument(unit);
 			return unit != null && isResolutionSACUnit(unit);
 		} else {
@@ -153,7 +158,7 @@ public class ValueFactory {
 		final LexicalType utype = unit.getLexicalUnitType();
 		short cssUnit;
 		boolean function;
-		if (utype == LexicalType.FUNCTION || utype == LexicalType.VAR || utype == LexicalType.ATTR) {
+		if (isFunctionType(utype)) {
 			cssUnit = functionDimensionArgumentUnit(unit);
 			function = true;
 		} else {
@@ -200,7 +205,7 @@ public class ValueFactory {
 	public static boolean isSizeOrNumberSACUnit(LexicalUnit unit) {
 		LexicalType type = unit.getLexicalUnitType();
 		short cssUnit;
-		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
+		if (isFunctionType(type)) {
 			cssUnit = functionDimensionArgumentUnit(unit);
 		} else if (type == LexicalType.INTEGER || type == LexicalType.REAL) {
 			return true;
@@ -266,7 +271,7 @@ public class ValueFactory {
 	public static boolean isAngleSACUnit(LexicalUnit unit) {
 		LexicalType type = unit.getLexicalUnitType();
 		short cssunit;
-		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
+		if (isFunctionType(type)) {
 			if (isColorFunction(unit)) {
 				return false;
 			}
@@ -298,7 +303,7 @@ public class ValueFactory {
 	public static boolean isTimeSACUnit(LexicalUnit unit) {
 		LexicalType type = unit.getLexicalUnitType();
 		short cssunit;
-		if (type == LexicalType.FUNCTION || type == LexicalType.VAR || type == LexicalType.ATTR) {
+		if (isFunctionType(type)) {
 			unit = firstDimensionArgument(unit);
 			return unit != null && isTimeSACUnit(unit);
 		} else if (type == LexicalType.INTEGER) {
@@ -951,19 +956,19 @@ public class ValueFactory {
 				primi = new HSLColorValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case CALC:
+				primi = new CalcValue();
+				setter = primi.newLexicalSetter();
+				setter.setLexicalUnit(lunit);
+				if (ratioContext) {
+					// Check for ratio
+					return checkForRatio(setter, subp);
+				}
+				break;
 			case FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 				if ("hwb".equals(func)) {
 					primi = new HWBColorValue();
-				} else if ("calc".equals(func)) {
-					primi = new CalcValue();
-					setter = primi.newLexicalSetter();
-					setter.setLexicalUnit(lunit);
-					if (ratioContext) {
-						// Check for ratio
-						return checkForRatio(setter, subp);
-					}
-					break;
 				} else if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
 						|| func.endsWith("conic-gradient")) {
 					primi = new GradientValue();

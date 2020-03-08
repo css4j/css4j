@@ -163,9 +163,8 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 					lastlutype = lutype;
 					lu = lu.getNextLexicalUnit();
 					continue;
-				case FUNCTION:
-					String funcname = lu.getFunctionName();
-					if (funcname.equals(getStringValue())) {
+				case CALC:
+					if (isCalcValue()) {
 						// Handle as a subexpression
 						lutype = LexicalType.SUB_EXPRESSION;
 						subval = lu.getParameters();

@@ -408,7 +408,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("yellow", lu.getStringValue());
 		lu = handler.lexicalValues.get(2);
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1652,7 +1652,7 @@ public class DeclarationParserTest {
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);

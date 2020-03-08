@@ -215,6 +215,14 @@ public interface LexicalUnit {
 		ATTR,
 
 		/**
+		 * A <code>calc()</code> expression.
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		CALC,
+
+		/**
 		 * function <code>counter</code>.
 		 * 
 		 * @see #getFunctionName

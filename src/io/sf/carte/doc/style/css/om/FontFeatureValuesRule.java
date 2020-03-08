@@ -489,8 +489,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 					number.setIntegerValue(ival);
 					values.add(number);
 					continue;
-				} else if (lutype == LexicalType.VAR
-						|| (lutype == LexicalType.FUNCTION && "calc".equalsIgnoreCase(value.getFunctionName()))) {
+				} else if (lutype == LexicalType.VAR || lutype == LexicalType.CALC) {
 					ValueFactory valueFactory = new ValueFactory();
 					StyleValue cssval = valueFactory.createCSSValue(value);
 					PrimitiveValue pri = (PrimitiveValue) cssval;

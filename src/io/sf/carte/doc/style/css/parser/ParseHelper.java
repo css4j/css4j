@@ -901,6 +901,7 @@ public class ParseHelper {
 		case FUNCTION:
 		case RGBCOLOR:
 		case URI:
+		case CALC:
 		case VAR:
 		case HSLCOLOR:
 		case RECT_FUNCTION:

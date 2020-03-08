@@ -1242,7 +1242,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalc() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(100% - 3em)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1265,7 +1265,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalcNegative() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(-3em)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1281,7 +1281,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalc2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(10em - 2%)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1304,7 +1304,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalc3() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(100vh - 2em)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1328,7 +1328,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalc4() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc((10em + 2%) * 3)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1364,7 +1364,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalc5() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(100%/3 - 2*1em - 2*1px)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1417,7 +1417,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalc6() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(max(10em, 2%) * 3)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1454,7 +1454,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalc7() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(1em + (0.4vw + 0.25vh)/2)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1499,7 +1499,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalcNegDenom() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(1em + (0.4vw + 0.25vh)/-2)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1544,7 +1544,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalcNegDenom2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc((75vw*9/16 - 100vh)/-2)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1597,7 +1597,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalcAttr() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(attr(start integer, 1) - 1)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1618,7 +1618,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueCalcCustom() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(var(--foo, 1%) * 3)");
 		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1795,7 +1795,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		LexicalUnit calcparam = param.getParameters();
 		assertNotNull(calcparam);
@@ -2400,7 +2400,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("rgb(calc(12) 127 calc(48))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.INTEGER, param.getParameters().getLexicalUnitType());
@@ -2410,7 +2410,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(127, param.getIntegerValue());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.INTEGER, param.getParameters().getLexicalUnitType());
@@ -2426,7 +2426,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("rgb(calc(12) 127.8 calc(48.3))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.INTEGER, param.getParameters().getLexicalUnitType());
@@ -2436,7 +2436,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(127.8f, param.getFloatValue(), 1e-7);
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.REAL, param.getParameters().getLexicalUnitType());
@@ -2452,7 +2452,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("rgb(calc(12) 127 calc(48)/calc(80%))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.INTEGER, param.getParameters().getLexicalUnitType());
@@ -2462,7 +2462,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(127, param.getIntegerValue());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.INTEGER, param.getParameters().getLexicalUnitType());
@@ -2471,7 +2471,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.PERCENTAGE, param.getParameters().getLexicalUnitType());
@@ -3716,7 +3716,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("hsl(calc(12) 25% 48%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.INTEGER, param.getParameters().getLexicalUnitType());
@@ -3741,7 +3741,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(12, param.getIntegerValue());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.PERCENTAGE, param.getParameters().getLexicalUnitType());
@@ -3766,7 +3766,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(25f, param.getFloatValue(), 1e-4);
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.PERCENTAGE, param.getParameters().getLexicalUnitType());
@@ -3793,7 +3793,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.REAL, param.getParameters().getLexicalUnitType());
@@ -3820,7 +3820,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
 		assertEquals("calc", param.getFunctionName());
 		assertNotNull(param.getParameters());
 		assertEquals(LexicalType.PERCENTAGE, param.getParameters().getLexicalUnitType());
