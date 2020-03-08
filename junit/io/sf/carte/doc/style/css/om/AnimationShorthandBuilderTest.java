@@ -37,18 +37,21 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilder() {
+		assertShorthandText("animation:2s cubic-bezier(.1,.7,1,.1);",
+				"animation: 2s cubic-bezier(0.1, 0.7, 1.0, 0.1);");
 		assertShorthandText("animation:3500ms 5s none backwards;", "animation: 3500ms 5s none backwards");
 		assertShorthandText("animation:3500ms 5s reverse 'my anim';", "animation: 3500ms 5s reverse 'my anim';");
 		assertShorthandText("animation:none;", "animation: none;");
-		assertShorthandText("animation:0s frames(3) 5s reverse none;",
-				"animation-duration: 0s; animation-timing-function: frames(3); animation-delay: 5s; animation-iteration-count: 1; animation-direction: reverse; animation-fill-mode: none; animation-play-state: running; animation-name: none;");
-		assertShorthandText("animation:3500ms frames(5) 5s reverse 'my anim';",
-				"animation: 3500ms 5s frames(5) reverse 'my anim'");
+		assertShorthandText("animation:0s steps(3,step-start) 5s reverse;",
+				"animation-duration: 0s; animation-timing-function: steps(3, step-start); animation-delay: 5s; animation-iteration-count: 1; animation-direction: reverse; animation-fill-mode: none; animation-play-state: running; animation-name: none;");
+		assertShorthandText("animation:3500ms steps(5,end) 5s reverse 'my anim';",
+				"animation: 3500ms 5s steps(5, end) reverse 'my anim'");
 		assertShorthandText("animation:ease-in ease-out;", "animation: ease-in ease-out;");
 		assertShorthandText("animation:linear ease;", "animation: linear ease;");
 		assertShorthandText("animation:3s none backwards;", "animation: 3s none backwards;");
 		assertShorthandText("animation:3s ease-in 1s 2 reverse both paused slidein;",
 				"animation: 3s ease-in 1s 2 reverse both paused slidein;");
+		assertShorthandText("animation:2s steps(3,end);", "animation: 2s steps(3, end)");
 	}
 
 	@Test
@@ -82,19 +85,19 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilderList() {
-		assertShorthandText("animation:3500ms frames(3) 5s reverse '1st anim',0s 3s '2nd anim',1s '3rd anim';",
-				"animation: 3500ms frames(3) reverse 5s '1st anim', 0s 3s '2nd anim', 1s '3rd anim'");
+		assertShorthandText("animation:3500ms steps(2,jump-both) 5s reverse '1st anim',0s 3s '2nd anim',1s '3rd anim';",
+				"animation: 3500ms steps(2, jump-both) reverse 5s '1st anim', 0s 3s '2nd anim', 1s '3rd anim'");
 		assertShorthandText("animation:3500ms 5s reverse '1st anim',0s steps(2,start) 3s alternate '2nd anim';",
 				"animation: 3500ms 5s reverse '1st anim', 0s 3s steps(2, start) alternate '2nd anim'");
-		assertShorthandText("animation:0s frames(3) 5s reverse foo,1s bar;",
-				"animation-duration: 0s,1s; animation-timing-function: frames(3),ease; animation-delay: 5s,0s; animation-iteration-count: 1,1; animation-direction: reverse,normal; animation-fill-mode: none,none; animation-play-state: running,running; animation-name: foo,bar;");
+		assertShorthandText("animation:0s steps(2,jump-both) 5s reverse foo,1s bar;",
+				"animation-duration: 0s,1s; animation-timing-function: steps(2, jump-both),ease; animation-delay: 5s,0s; animation-iteration-count: 1,1; animation-direction: reverse,normal; animation-fill-mode: none,none; animation-play-state: running,running; animation-name: foo,bar;");
 	}
 
 	@Test
 	public void testBuilderListBad() {
 		assertShorthandText(
-				"animation-delay:5s,inherit;animation-direction:reverse;animation-duration:0s;animation-fill-mode:none;animation-iteration-count:1;animation-name:none;animation-play-state:running;animation-timing-function:frames(3);",
-				"animation-duration: 0s; animation-timing-function: frames(3); animation-delay: 5s,inherit; animation-iteration-count: 1; animation-direction: reverse; animation-fill-mode: none; animation-play-state: running; animation-name: none;");
+				"animation-delay:5s,inherit;animation-direction:reverse;animation-duration:0s;animation-fill-mode:none;animation-iteration-count:1;animation-name:none;animation-play-state:running;animation-timing-function:steps(2,jump-both);",
+				"animation-duration: 0s; animation-timing-function: steps(2, jump-both); animation-delay: 5s,inherit; animation-iteration-count: 1; animation-direction: reverse; animation-fill-mode: none; animation-play-state: running; animation-name: none;");
 	}
 
 	@Test
@@ -106,8 +109,8 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilderImportant() {
-		assertShorthandText("animation:3500ms frames(5) 5s reverse 'my anim'!important;",
-				"animation: 3500ms 5s frames(5) reverse 'my anim' ! important");
+		assertShorthandText("animation:3500ms steps(4,start) 5s reverse 'my anim'!important;",
+				"animation: 3500ms 5s steps(4, start) reverse 'my anim' ! important");
 	}
 
 	@Test
