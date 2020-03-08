@@ -260,7 +260,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				return false;
 			}
 			return setIterationCountValue(subp);
-		} else if (type == LexicalType.FUNCTION) {
+		} else if (type == LexicalType.CUBIC_BEZIER_FUNCTION || type == LexicalType.STEPS_FUNCTION) {
 			if (!subp.contains("animation-timing-function")) {
 				return false;
 			}

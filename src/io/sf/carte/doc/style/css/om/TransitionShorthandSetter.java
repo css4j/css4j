@@ -182,7 +182,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 							nextCurrentValue();
 							continue;
 						}
-					} else if (lut == LexicalType.FUNCTION) {
+					} else if (lut == LexicalType.CUBIC_BEZIER_FUNCTION || lut == LexicalType.STEPS_FUNCTION) {
 						// transition-timing-function
 						StyleValue value = createCSSValue("transition-timing-function", currentValue);
 						if (value != null) {

@@ -113,10 +113,10 @@ public class ShorthandSetterTest {
 		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("my anim", emptyStyleDecl.getPropertyValue("animation-name"));
 		assertEquals("animation:3500ms 5s reverse 'my anim';", emptyStyleDecl.getMinifiedCssText());
-		emptyStyleDecl.setCssText("animation: 3500ms 5s frames(5) reverse 'my anim'");
+		emptyStyleDecl.setCssText("animation: 3500ms 5s cubic-bezier(0.1, -0.6, 0.2, 0) reverse 'my anim'");
 		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
 		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
-		assertEquals("frames(5)", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("cubic-bezier(0.1, -0.6, 0.2, 0)", emptyStyleDecl.getPropertyValue("animation-timing-function"));
 		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("my anim", emptyStyleDecl.getPropertyValue("animation-name"));
 		emptyStyleDecl.setCssText("animation: 0 5s steps(2, start) reverse 'my anim'");

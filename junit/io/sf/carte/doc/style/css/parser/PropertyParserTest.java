@@ -1837,7 +1837,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueFunctionBezier() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5, 1)");
 		assertEquals("cubic-bezier", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1872,7 +1872,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueFunctionBezierMini() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("cubic-bezier(.33, .1, .5, 1)");
 		assertEquals("cubic-bezier", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1917,7 +1917,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueFunctionBezierNegativeArg() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("cubic-bezier(-.33, -.1, -1, -1.02)");
 		assertEquals("cubic-bezier", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);

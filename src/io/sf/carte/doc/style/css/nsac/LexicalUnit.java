@@ -239,6 +239,22 @@ public interface LexicalUnit {
 		COUNTERS_FUNCTION,
 
 		/**
+		 * <code>cubic-bezier()</code> easing function.
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		CUBIC_BEZIER_FUNCTION,
+
+		/**
+		 * <code>steps()</code> easing function.
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		STEPS_FUNCTION,
+
+		/**
 		 * function <code>rect</code>.
 		 * 
 		 * @see #getFunctionName

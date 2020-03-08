@@ -280,6 +280,8 @@ class LexicalUnitImpl implements LexicalUnit {
 		case HSLCOLOR:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
+		case CUBIC_BEZIER_FUNCTION:
+		case STEPS_FUNCTION:
 			buf = new StringBuilder();
 			buf.append(value).append('(');
 			LexicalUnit lu = this.parameters;

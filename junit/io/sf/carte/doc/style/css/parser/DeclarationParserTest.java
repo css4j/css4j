@@ -1678,7 +1678,7 @@ public class DeclarationParserTest {
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals("cubic-bezier", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1716,7 +1716,7 @@ public class DeclarationParserTest {
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals("cubic-bezier", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -1745,6 +1745,30 @@ public class DeclarationParserTest {
 		assertEquals(-0.02f, param.getFloatValue(), 0.001);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("cubic-bezier(-0.33, -0.1, -1, -0.02)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationSteps() throws CSSException, IOException {
+		parseStyleDeclaration("animation-timing-function:steps(2, start)");
+		assertEquals("animation-timing-function", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("steps", lu.getFunctionName());
+		assertEquals(LexicalType.STEPS_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(2, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("start", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("steps(2, start)", lu.toString());
 		assertFalse(errorHandler.hasError());
 	}
 

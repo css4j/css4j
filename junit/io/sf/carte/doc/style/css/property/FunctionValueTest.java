@@ -281,6 +281,40 @@ public class FunctionValueTest {
 	}
 
 	@Test
+	public void testSteps() {
+		style.setCssText("animation-timing-function:steps(6, start)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("animation-timing-function");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
+		assertEquals("steps", val.getStringValue());
+		assertEquals("steps", val.getFunctionName());
+		assertEquals("steps(6, start)", style.getPropertyValue("animation-timing-function"));
+		assertEquals(2, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
+		assertEquals(6f, ((CSSTypedValue) arg).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
+	}
+
+	@Test
+	public void testStepsCalc() {
+		style.setCssText("animation-timing-function:steps(calc(2*3), start)");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("animation-timing-function");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
+		assertEquals("steps", val.getStringValue());
+		assertEquals("steps", val.getFunctionName());
+		assertEquals("steps(calc(2*3), start)", style.getPropertyValue("animation-timing-function"));
+		assertEquals(2, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
+		ExpressionValue calc = (ExpressionValue) arg;
+		assertEquals("calc(2*3)", calc.getCssText());
+		assertEquals("2*3", calc.getExpression().getCssText());
+	}
+
+	@Test
 	public void testSin() {
 		style.setCssText("transform: sin(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");

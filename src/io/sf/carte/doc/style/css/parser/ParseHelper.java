@@ -907,6 +907,8 @@ public class ParseHelper {
 		case RECT_FUNCTION:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
+		case CUBIC_BEZIER_FUNCTION:
+		case STEPS_FUNCTION:
 		case ATTR:
 		case ELEMENT_REFERENCE:
 			return true;

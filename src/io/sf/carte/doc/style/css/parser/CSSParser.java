@@ -5299,6 +5299,10 @@ public class CSSParser implements Parser {
 				lu = newLexicalUnit(LexicalType.COUNTER_FUNCTION);
 			} else if ("counters".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalType.COUNTERS_FUNCTION);
+			} else if ("cubic-bezier".equalsIgnoreCase(name)) {
+				lu = newLexicalUnit(LexicalType.CUBIC_BEZIER_FUNCTION);
+			} else if ("steps".equalsIgnoreCase(name)) {
+				lu = newLexicalUnit(LexicalType.STEPS_FUNCTION);
 			} else {
 				lu = newLexicalUnit(LexicalType.FUNCTION);
 			}

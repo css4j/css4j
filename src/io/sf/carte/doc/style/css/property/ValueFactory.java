@@ -965,6 +965,11 @@ public class ValueFactory {
 					return checkForRatio(setter, subp);
 				}
 				break;
+			case CUBIC_BEZIER_FUNCTION:
+			case STEPS_FUNCTION:
+				primi = new FunctionValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 				if ("hwb".equals(func)) {
