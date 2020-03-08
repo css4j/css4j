@@ -35,8 +35,8 @@ class OrderedShorthandBuilder extends GenericShorthandBuilder {
 		this.freeProperty = freeProperty.toLowerCase(Locale.ROOT);
 		StyleValue freePropertyValue = getCSSValue(freeProperty);
 		if (freePropertyValue != null && freePropertyValue.getCssValueType() == CssType.TYPED
-				&& freePropertyValue
-						.getPrimitiveType() == CSSValue.Type.IDENT) {
+				&& freePropertyValue.getPrimitiveType() == CSSValue.Type.IDENT
+				&& isNotInitialValue(freePropertyValue, freeProperty)) {
 			this.freePropertyStringValue = ((CSSTypedValue) freePropertyValue).getStringValue();
 		} else {
 			this.freePropertyStringValue = null;
