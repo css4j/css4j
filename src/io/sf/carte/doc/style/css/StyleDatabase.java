@@ -173,6 +173,14 @@ public interface StyleDatabase {
 	float getDeviceWidth();
 
 	/**
+	 * Get the value of the given {@code env} variable.
+	 * 
+	 * @param envVarName the {@code env} variable name.
+	 * @return the value, or {@code null} if that name has no value set.
+	 */
+	CSSValue getEnvValue(String envVarName);
+
+	/**
 	 * Does this medium support the given property-value pair?
 	 *
 	 * @param property

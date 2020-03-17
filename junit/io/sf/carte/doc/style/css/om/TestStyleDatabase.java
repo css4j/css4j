@@ -19,6 +19,8 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.property.NumberValue;
 
 /**
  * Style database mock.
@@ -146,6 +148,16 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	@Override
 	public short getNaturalUnit() {
 		return CSSUnit.CSS_PT;
+	}
+
+	@Override
+	public CSSValue getEnvValue(String envVarName) {
+		if ("safe-area-inset-top".equals(envVarName)) {
+			NumberValue number = new NumberValue();
+			number.setFloatValue(CSSUnit.CSS_PX, 20f);
+			return number;
+		}
+		return null;
 	}
 
 }

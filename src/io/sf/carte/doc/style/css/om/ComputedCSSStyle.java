@@ -50,6 +50,7 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.AttrValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
+import io.sf.carte.doc.style.css.property.EnvVariableValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.FunctionValue;
@@ -432,6 +433,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		} else if (pritype == Type.ATTR) {
 			value = computeAttribute(propertyName, (AttrValue) pri, useParentStyle);
+		} else if (pritype == Type.ENV) {
+			value = computeEnv(propertyName, (EnvVariableValue) pri, useParentStyle);
 		} else {
 			value = null;
 		}
@@ -1063,6 +1066,23 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		throw ex;
 	}
 
+	private StyleValue computeEnv(String propertyName, EnvVariableValue env, boolean useParentStyle) {
+		if (getStyleDatabase() != null) {
+			StyleValue envValue = (StyleValue) getStyleDatabase().getEnvValue(env.getName());
+			if (envValue != null) {
+				envValue = absoluteValue(propertyName, envValue, useParentStyle);
+				return envValue;
+			}
+		}
+		StyleValue fallback = env.getFallback();
+		if (fallback == null) {
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Unable to evaluate env() value: " + env.getName());
+		}
+		fallback = absoluteValue(propertyName, fallback, useParentStyle);
+		return fallback;
+	}
+
 	private TypedValue getFontSizeValue() {
 		StyleValue value = super.getCSSValue("font-size");
 		// Check for unset
@@ -1107,6 +1127,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				break;
 			case LEXICAL:
 				proxy = evaluateLexicalValue("font-size", (LexicalValue) value, true);
+				break;
+			// env() variables
+			case ENV:
+				proxy = computeFontSizeEnv((EnvVariableValue) value);
 				break;
 			default:
 				proxy = null;
@@ -1449,6 +1473,23 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		customPropertyStack.remove(propertyName);
 		return custom;
+	}
+
+	private StyleValue computeFontSizeEnv(EnvVariableValue env) {
+		if (getStyleDatabase() != null) {
+			StyleValue envValue = (StyleValue) getStyleDatabase().getEnvValue(env.getName());
+			if (envValue != null) {
+				envValue = absoluteFontSizeValue(envValue, true);
+				return envValue;
+			}
+		}
+		StyleValue fallback = env.getFallback();
+		if (fallback == null) {
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Unable to evaluate env() value: " + env.getName());
+		}
+		fallback = absoluteFontSizeValue(fallback, true);
+		return fallback;
 	}
 
 	/**

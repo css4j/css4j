@@ -1073,6 +1073,27 @@ public class ComputedCSSStyleTest {
 		CSSTypedValue paddingLeft = (CSSTypedValue) style.getPropertyCSSValue("padding-left");
 		assertEquals(CSSValue.Type.EXPRESSION, paddingLeft.getPrimitiveType());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * env() value, fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("padding-left:env(safe-area-inset-left,0.8em)");
+		style = elm.getComputedStyle(null);
+		paddingLeft = (CSSTypedValue) style.getPropertyCSSValue("padding-left");
+		assertEquals(9.6f, paddingLeft.getFloatValue(CSSUnit.CSS_PT), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * env() value in calc(), fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("padding-left:calc(env(safe-area-inset-left,0.8em)*2)");
+		style = elm.getComputedStyle(null);
+		paddingLeft = (CSSTypedValue) style.getPropertyCSSValue("padding-left");
+		assertEquals(CSSValue.Type.NUMERIC, paddingLeft.getPrimitiveType());
+		assertEquals(19.2f, paddingLeft.getFloatValue(CSSUnit.CSS_PT), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
 	}
 
 	@Test
@@ -1568,6 +1589,85 @@ public class ComputedCSSStyleTest {
 		assertEquals(42f, box.getMarginBottom(), 0.01f);
 		assertEquals(0f, box.getMarginLeft(), 0.01f);
 		assertEquals(663.5f, box.getWidth(), 0.01f);
+		/*
+		 * env() value substitution.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("padding-top:env(safe-area-inset-top)");
+		style = elm.getComputedStyle(null);
+		CSSTypedValue paddingTop = (CSSTypedValue) style.getPropertyCSSValue("padding-top");
+		assertEquals(20f, paddingTop.getFloatValue(CSSUnit.CSS_PX), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * env() value substitution, unused fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("padding-top:env(safe-area-inset-top,1vb)");
+		style = elm.getComputedStyle(null);
+		paddingTop = (CSSTypedValue) style.getPropertyCSSValue("padding-top");
+		assertEquals(20f, paddingTop.getFloatValue(CSSUnit.CSS_PX), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * env() value substitution inside calc().
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("padding-top:calc(env(safe-area-inset-top)/2)");
+		style = elm.getComputedStyle(null);
+		paddingTop = (CSSTypedValue) style.getPropertyCSSValue("padding-top");
+		assertEquals(10f, paddingTop.getFloatValue(CSSUnit.CSS_PX), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * env() value, fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("padding-left:env(safe-area-inset-left,0.8em)");
+		style = elm.getComputedStyle(null);
+		CSSTypedValue paddingLeft = (CSSTypedValue) style.getPropertyCSSValue("padding-left");
+		assertEquals(11.2f, paddingLeft.getFloatValue(CSSUnit.CSS_PT), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * env() value in calc(), fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("padding-left:calc(env(safe-area-inset-left,0.8em)*2)");
+		style = elm.getComputedStyle(null);
+		paddingLeft = (CSSTypedValue) style.getPropertyCSSValue("padding-left");
+		assertEquals(CSSValue.Type.NUMERIC, paddingLeft.getPrimitiveType());
+		assertEquals(22.4f, paddingLeft.getFloatValue(CSSUnit.CSS_PT), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * env() value substitution, font-size.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("font-size:env(safe-area-inset-top)");
+		style = elm.getComputedStyle(null);
+		CSSTypedValue fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(20f, fontSize.getFloatValue(CSSUnit.CSS_PX), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * env() value substitution inside calc(), font-size.
+		 */
+		elm.getOverrideStyle(null).setCssText("font-size:calc(env(safe-area-inset-top)*2)");
+		style = elm.getComputedStyle(null);
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(40f, fontSize.getFloatValue(CSSUnit.CSS_PX), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * env() value, fallback, font-size.
+		 */
+		elm.getOverrideStyle(null).setCssText("font-size:env(safe-area-inset-left,0.8em)");
+		style = elm.getComputedStyle(null);
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(11.2f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-6);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
 	}
 
 	@Test

@@ -352,6 +352,11 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 	}
 
 	@Override
+	public CSSValue getEnvValue(String envVarName) {
+		return null;
+	}
+
+	@Override
 	public boolean supports(String featureName, CSSValue value) {
 		return false;
 	}
