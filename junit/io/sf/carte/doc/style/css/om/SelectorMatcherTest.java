@@ -1000,6 +1000,8 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p.exampleclass:has(> img) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
+		assertEquals("p.exampleclass:has(>img)", selectorListToString(selist, rule));
+		//
 		Element parent = createElement("p");
 		parent.setAttribute("id", "p1");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -1009,10 +1011,12 @@ public class SelectorMatcherTest {
 		elm2.setAttribute("id", "childid2");
 		parent.appendChild(elm2);
 		SelectorMatcher matcher = selectorMatcher(parent);
-		assertTrue(matcher.matches(selist) < 0);
+		assertEquals(-1, matcher.matches(selist));
 		parent.setAttribute("class", "exampleclass");
 		assertTrue(matcher.matches(selist) >= 0);
-		assertEquals("p.exampleclass:has(>img)", selectorListToString(selist, rule));
+		//
+		parent.removeChild(elm2);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -1022,6 +1026,7 @@ public class SelectorMatcherTest {
 		if (rule != null) {
 			SelectorList selist = rule.getSelectorList();
 			assertEquals("p.exampleclass:has( + p)", selectorListToString(selist, rule));
+			//
 			Element parent = createElement("div");
 			parent.setAttribute("id", "div1");
 			Element elm = parent.getOwnerDocument().createElement("p");
@@ -1031,9 +1036,13 @@ public class SelectorMatcherTest {
 			elm2.setAttribute("id", "childid2");
 			parent.appendChild(elm2);
 			SelectorMatcher matcher = selectorMatcher(elm);
-			assertTrue(matcher.matches(selist) < 0);
+			assertEquals(-1, matcher.matches(selist));
 			elm.setAttribute("class", "exampleclass");
 			assertTrue(matcher.matches(selist) >= 0);
+			//
+			parent.removeChild(elm);
+			parent.removeChild(elm2);
+			assertEquals(-1, matcher.matches(selist));
 		}
 	}
 
