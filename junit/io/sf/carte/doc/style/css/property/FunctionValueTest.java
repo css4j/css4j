@@ -105,15 +105,15 @@ public class FunctionValueTest {
 
 	@Test
 	public void testGetCssTextNegativeArg() {
-		style.setCssText("transition-timing-function: cubic-bezier(-.42, -.3, -1, -.01); ");
-		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
+		style.setCssText("foo: bar(-.42, -.3, -1, -.01); ");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
-		assertEquals("cubic-bezier(-0.42, -0.3, -1, -0.01)", style.getPropertyValue("transition-timing-function"));
-		assertEquals("transition-timing-function: cubic-bezier(-0.42, -0.3, -1, -0.01); ", style.getCssText());
+		assertEquals("bar(-0.42, -0.3, -1, -0.01)", style.getPropertyValue("foo"));
+		assertEquals("foo: bar(-0.42, -0.3, -1, -0.01); ", style.getCssText());
 		assertEquals(4, val.getArguments().size());
-		assertEquals("cubic-bezier(-0.42, -0.3, -1, -0.01)", val.getCssText());
-		assertEquals("cubic-bezier(-.42,-.3,-1,-.01)", val.getMinifiedCssText("transition-timing-function"));
+		assertEquals("bar(-0.42, -0.3, -1, -0.01)", val.getCssText());
+		assertEquals("bar(-.42,-.3,-1,-.01)", val.getMinifiedCssText("foo"));
 	}
 
 	@Test
