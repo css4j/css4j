@@ -327,7 +327,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 				StyleRule stylerule = (StyleRule) rule;
 				int selIdx = matcher.matches(stylerule.getSelectorList());
 				if (selIdx != -1) {
-					add(stylerule.getSpecifity(selIdx));
+					add(stylerule.getSpecifity(selIdx, matcher));
 				}
 			}
 		}
@@ -388,7 +388,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 					StyleRule stylerule = (StyleRule) rule;
 					int selIdx = matcher.matches(stylerule.getSelectorList());
 					if (selIdx != -1) {
-						add(stylerule.getSpecifity(selIdx));
+						add(stylerule.getSpecifity(selIdx, matcher));
 					}
 				}
 			}

@@ -20,6 +20,8 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleRule;
+import io.sf.carte.doc.style.css.SelectorMatcher;
+import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
@@ -81,8 +83,8 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 	 * 
 	 * @return the specificity.
 	 */
-	RuleSpecifity getSpecifity(int index) {
-		return new RuleSpecifity(getSelectorList().item(index));
+	RuleSpecifity getSpecifity(int index, SelectorMatcher matcher) {
+		return new RuleSpecifity(getSelectorList().item(index), matcher);
 	}
 
 	/**
@@ -99,9 +101,24 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 
 		short names_pseudoelements_count = 0;
 
-		public Specifity(Selector selector) {
+		private final SelectorMatcher selectorMatcher;
+
+		public Specifity(Selector selector, SelectorMatcher matcher) {
 			super();
+			this.selectorMatcher = matcher;
 			specifity(selector);
+		}
+
+		private void setSpecificityFrom(Specifity specifity) {
+			id_count = specifity.id_count;
+			attrib_classes_count = specifity.attrib_classes_count;
+			names_pseudoelements_count = specifity.names_pseudoelements_count;
+		}
+
+		private void clear() {
+			id_count = 0;
+			attrib_classes_count = 0;
+			names_pseudoelements_count = 0;
 		}
 
 		private void specifity(Selector selector) {
@@ -128,7 +145,7 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 			}
 		}
 
-		private static void conditionSpecificity(Condition cond, SimpleSelector selector, Specifity sp) {
+		private void conditionSpecificity(Condition cond, SimpleSelector selector, Specifity sp) {
 			switch (cond.getConditionType()) {
 			case CLASS:
 			case ATTRIBUTE:
@@ -149,9 +166,9 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 				break;
 			case AND:
 				CombinatorCondition comb = (CombinatorCondition) cond;
-				Specifity firstsp = new Specifity(selector);
+				Specifity firstsp = new Specifity(selector, selectorMatcher);
 				conditionSpecificity(comb.getFirstCondition(), selector, firstsp);
-				Specifity secondsp = new Specifity(selector);
+				Specifity secondsp = new Specifity(selector, selectorMatcher);
 				conditionSpecificity(comb.getSecondCondition(), selector, secondsp);
 				if (firstsp.id_count > secondsp.id_count) {
 					sp.id_count += firstsp.id_count;
@@ -177,6 +194,17 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 					}
 				}
 				return;
+			case SELECTOR_ARGUMENT:
+				ArgumentCondition acond = (ArgumentCondition) cond;
+				SelectorList argList = acond.getSelectors();
+				int selIdx = selectorMatcher.matches(argList);
+				if (selIdx == -1) {
+					clear();
+					return;
+				}
+				Specifity argSpecificity = new Specifity(argList.item(selIdx), selectorMatcher);
+				setSpecificityFrom(argSpecificity);
+				break;
 			default:
 			}
 			sp.specifity(selector);
@@ -226,8 +254,8 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 
 	class RuleSpecifity extends Specifity {
 
-		public RuleSpecifity(Selector selector) {
-			super(selector);
+		public RuleSpecifity(Selector selector, SelectorMatcher matcher) {
+			super(selector, matcher);
 		}
 
 		@Override
