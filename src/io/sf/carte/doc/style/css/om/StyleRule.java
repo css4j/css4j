@@ -151,6 +151,9 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 			case ATTRIBUTE:
 			case ONE_OF_ATTRIBUTE:
 			case BEGIN_HYPHEN_ATTRIBUTE:
+			case BEGINS_ATTRIBUTE:
+			case ENDS_ATTRIBUTE:
+			case SUBSTRING_ATTRIBUTE:
 			case PSEUDO_CLASS:
 			case LANG:
 			case ONLY_CHILD:

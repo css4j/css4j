@@ -77,7 +77,13 @@ public class SelectorMatcherTest {
 		assertEquals("*", selectorListToString(selist, rule));
 		Element elm = createElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -88,7 +94,13 @@ public class SelectorMatcherTest {
 		assertEquals("p", selectorListToString(selist, rule));
 		CSSElement elm = createElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 		elm = createElement("div");
 		assertFalse(elm.matches(selist, null));
 	}
@@ -103,10 +115,23 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		SelectorMatcher svgmatcher = selectorMatcher(svg);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		assertTrue(svgmatcher.matches(selist) == -1);
 		assertTrue(matcher.matches(svgselist) == -1);
-		assertTrue(svgmatcher.matches(svgselist) >= 0);
+		selidx = svgmatcher.matches(svgselist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		sp = new StyleRule.Specifity(svgselist.item(selidx), svgmatcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -157,7 +182,13 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "hi");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -170,10 +201,16 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "hi");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
-	@Test // SAC 1.3 cannot support this
+	@Test
 	public void testMatchSelector2AttributeCI() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p[title='hi' i] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
@@ -182,7 +219,13 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "HI");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -195,7 +238,13 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "ho hi");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -208,7 +257,14 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("lang", "en-US");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		elm.setAttribute("lang", "en");
 		assertTrue(matcher.matches(selist) >= 0);
 		elm.setAttribute("lang", "en_US");
@@ -225,7 +281,13 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "hi ho");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -238,7 +300,13 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "ho hi");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -251,7 +319,13 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "ho hi ho");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -273,7 +347,13 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		elm.setAttribute("lang", "en-US");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -285,7 +365,13 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		elm.setAttribute("class", "exampleclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -298,7 +384,13 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		elm.setAttribute("class", "exampleClass");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 		// STRICT
 		setUpWithMode(CSSDocument.ComplianceMode.STRICT);
 		css = parseStyle(".exampleclass {color: blue;}");
@@ -312,7 +404,13 @@ public class SelectorMatcherTest {
 		elm = createElement("p");
 		elm.setAttribute("class", "exampleclass");
 		matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -329,7 +427,13 @@ public class SelectorMatcherTest {
 		elm = createElement("p");
 		elm.setAttribute("class", "fooclass exampleclass barclass");
 		matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 		// STRICT
 		setUpWithMode(CSSDocument.ComplianceMode.STRICT);
 		css = parseStyle(".exampleclass {color: blue;}");
@@ -343,7 +447,13 @@ public class SelectorMatcherTest {
 		elm = createElement("p");
 		elm.setAttribute("class", "fooclass exampleclass barclass");
 		matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -366,7 +476,13 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		elm.setAttribute("class", "exampleclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -382,7 +498,13 @@ public class SelectorMatcherTest {
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -421,7 +543,13 @@ public class SelectorMatcherTest {
 		child2.setAttribute("id", "grandchildid1");
 		elm.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(child2);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -432,7 +560,13 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		elm.setAttribute("class", "firstclass secondclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -443,7 +577,13 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		elm.setAttribute("class", "firstclass secondclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -454,7 +594,13 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		elm.setAttribute("class", " firstclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -465,7 +611,13 @@ public class SelectorMatcherTest {
 		Element elm = createElement("p");
 		elm.setAttribute("class", "firstclass ");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -485,7 +637,14 @@ public class SelectorMatcherTest {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		StylableDocumentWrapper doc = factory.createCSSDocument(elm.getOwnerDocument());
 		SelectorMatcher matcher = new DOMSelectorMatcher((CSSElement) doc.getCSSNode(firstChild));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		matcher = new DOMSelectorMatcher((CSSElement) doc.getCSSNode(elm));
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -500,7 +659,13 @@ public class SelectorMatcherTest {
 		elm.setAttribute("class", "exampleclass");
 		elm.setAttribute("id", "exampleid");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(1, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -535,7 +700,13 @@ public class SelectorMatcherTest {
 		elm.setAttribute("class", "exampleclass");
 		elm.setAttribute("id", "exampleID");
 		matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(1, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -551,7 +722,13 @@ public class SelectorMatcherTest {
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(1, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -590,7 +767,13 @@ public class SelectorMatcherTest {
 		child2.setAttribute("id", "grandchildid1");
 		elm.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(child2);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(1, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -606,7 +789,13 @@ public class SelectorMatcherTest {
 		elm.setAttribute("id", "childid");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(1, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -642,7 +831,13 @@ public class SelectorMatcherTest {
 		elm.setAttribute("id", "childid2");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -763,7 +958,13 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("p:only-child", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -778,7 +979,14 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p:first-child {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		css = parseStyle("p:last-child {color: blue;}");
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
@@ -815,7 +1023,13 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("p:nth-last-child(2)", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -844,7 +1058,14 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("p:nth-last-child(2 of p)", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		parent.removeChild(lastp);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -878,7 +1099,13 @@ public class SelectorMatcherTest {
 		assertEquals("p:only-of-type", selectorListToString(selist, rule));
 		assertTrue(matcher.matches(selist) < 0);
 		parent.removeChild(lastp);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -913,7 +1140,14 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("p:nth-last-of-type(2)", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		parent.removeChild(lastp);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -929,7 +1163,14 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals(":target", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+		//
 		matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -944,7 +1185,14 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals(":root", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+		//
 		matcher = selectorMatcher(div);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -966,7 +1214,14 @@ public class SelectorMatcherTest {
 		assertTrue(matcher.matches(selist) < 0);
 		div.removeChild(p);
 		matcher = selectorMatcher(div);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		div.appendChild(doc.createTextNode("foo"));
 		matcher = selectorMatcher(div);
 		assertTrue(matcher.matches(selist) < 0);
@@ -989,7 +1244,14 @@ public class SelectorMatcherTest {
 		assertTrue(matcher.matches(selist) < 0);
 		div.removeChild(p);
 		matcher = selectorMatcher(div);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		div.appendChild(doc.createTextNode("foo"));
 		matcher = selectorMatcher(div);
 		assertTrue(matcher.matches(selist) < 0);
@@ -1151,7 +1413,13 @@ public class SelectorMatcherTest {
 		Element elm2 = parent.getOwnerDocument().createElement("p");
 		elm2.setAttribute("id", "p2");
 		parent.appendChild(elm2);
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -1174,7 +1442,14 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("input:enabled", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		elm.setAttribute("disabled", "disabled");
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -1199,7 +1474,14 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("input:read-write", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		elm.setAttribute("disabled", "disabled");
 		assertTrue(matcher.matches(selist) < 0);
 		css = parseStyle("div:read-write {color: blue;}");
@@ -1210,7 +1492,13 @@ public class SelectorMatcherTest {
 		SelectorMatcher divmatcher = selectorMatcher(div);
 		assertTrue(divmatcher.matches(selist) < 0);
 		div.setAttribute("contenteditable", "true");
-		assertTrue(divmatcher.matches(selist) >= 0);
+		selidx = divmatcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		sp = new StyleRule.Specifity(selist.item(selidx), divmatcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -1246,7 +1534,14 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("input:default", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		button.removeAttribute("disabled");
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -1264,7 +1559,14 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("input:checked", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		elm.removeAttribute("checked");
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -1282,7 +1584,14 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("input:indeterminate", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
 		elm.setAttribute("indeterminate", "false");
 		assertTrue(matcher.matches(selist) < 0);
 	}
