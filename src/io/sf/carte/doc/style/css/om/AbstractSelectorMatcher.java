@@ -121,7 +121,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		for (int i = 0; i < sz; i++) {
 			Selector sel = selist.item(i);
 			if (matches(sel)) {
-				StyleRule.Specifity sp = new StyleRule.Specifity(sel);
+				StyleRule.Specifity sp = new StyleRule.Specifity(sel, this);
 				if (matchedsp == null || StyleRule.Specifity.selectorCompare(matchedsp, sp) < 0) {
 					matchedsp = sp;
 					matchedIdx = i;
@@ -479,10 +479,18 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			return scopeMatch(new CombinatorSelectorImpl(scope, (SimpleSelector) selector), scope);
 		case CHILD:
 		case DESCENDANT:
-			return scopeMatchChild((CombinatorSelector) selector);
+			CombinatorSelector comb = (CombinatorSelector) selector;
+			if (comb.getSelector().getSelectorType() == Selector.SelectorType.SCOPE_MARKER) {
+				return scopeMatchChild(comb);
+			}
+			return scopeMatchDescendant(comb);
 		case DIRECT_ADJACENT:
 		case SUBSEQUENT_SIBLING:
-			return scopeMatchDirectAdjacent((CombinatorSelector) selector);
+			comb = (CombinatorSelector) selector;
+			if (comb.getSelector().getSelectorType() == Selector.SelectorType.SCOPE_MARKER) {
+				return scopeMatchDirectAdjacent(comb);
+			}
+			return scopeMatchDescendant(comb);
 		default:
 		}
 		return false;
@@ -602,6 +610,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	abstract protected String getNamespaceURI();
 
 	abstract protected boolean scopeMatchChild(CombinatorSelector selector);
+
+	abstract protected boolean scopeMatchDescendant(CombinatorSelector selector);
 
 	abstract protected boolean scopeMatchDirectAdjacent(CombinatorSelector selector);
 

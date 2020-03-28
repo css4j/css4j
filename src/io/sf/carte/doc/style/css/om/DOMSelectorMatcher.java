@@ -425,11 +425,32 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 		SimpleSelector desc = selector.getSecondSelector();
 		NodeList list = element.getChildNodes();
 		int sz = list.getLength();
-		for (int i=0; i<sz; i++) {
+		for (int i = 0; i < sz; i++) {
 			Node node = list.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				SelectorMatcher childSM = new DOMSelectorMatcher((CSSElement) node);
 				if (childSM.matches(desc)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	@Override
+	protected boolean scopeMatchDescendant(CombinatorSelector selector) {
+		SimpleSelector desc = selector.getSecondSelector();
+		NodeList list = element.getChildNodes();
+		return scopeMatchRecursive(list, desc);
+	}
+
+	private boolean scopeMatchRecursive(NodeList list, SimpleSelector desc) {
+		int sz = list.getLength();
+		for (int i = 0; i < sz; i++) {
+			Node node = list.item(i);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				SelectorMatcher childSM = new DOMSelectorMatcher((CSSElement) node);
+				if (childSM.matches(desc) || scopeMatchRecursive(node.getChildNodes(), desc)) {
 					return true;
 				}
 			}

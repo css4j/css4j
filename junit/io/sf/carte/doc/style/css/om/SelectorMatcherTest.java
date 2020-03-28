@@ -1013,7 +1013,13 @@ public class SelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(parent);
 		assertEquals(-1, matcher.matches(selist));
 		parent.setAttribute("class", "exampleclass");
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
 		//
 		parent.removeChild(elm2);
 		assertEquals(-1, matcher.matches(selist));
@@ -1023,27 +1029,85 @@ public class SelectorMatcherTest {
 	public void testMatchSelectorPseudoHas2() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p.exampleclass:has(+ p) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
-		if (rule != null) {
-			SelectorList selist = rule.getSelectorList();
-			assertEquals("p.exampleclass:has( + p)", selectorListToString(selist, rule));
-			//
-			Element parent = createElement("div");
-			parent.setAttribute("id", "div1");
-			Element elm = parent.getOwnerDocument().createElement("p");
-			elm.setAttribute("id", "childid1");
-			parent.appendChild(elm);
-			Element elm2 = parent.getOwnerDocument().createElement("p");
-			elm2.setAttribute("id", "childid2");
-			parent.appendChild(elm2);
-			SelectorMatcher matcher = selectorMatcher(elm);
-			assertEquals(-1, matcher.matches(selist));
-			elm.setAttribute("class", "exampleclass");
-			assertTrue(matcher.matches(selist) >= 0);
-			//
-			parent.removeChild(elm);
-			parent.removeChild(elm2);
-			assertEquals(-1, matcher.matches(selist));
-		}
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p.exampleclass:has( + p)", selectorListToString(selist, rule));
+		//
+		Element parent = createElement("div");
+		parent.setAttribute("id", "div1");
+		Element elm = parent.getOwnerDocument().createElement("p");
+		elm.setAttribute("id", "childid1");
+		parent.appendChild(elm);
+		Element elm2 = parent.getOwnerDocument().createElement("p");
+		elm2.setAttribute("id", "childid2");
+		parent.appendChild(elm2);
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttribute("class", "exampleclass");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
+		//
+		parent.removeChild(elm2);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorPseudoHas3() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("div.exampleclass:has(p>span) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("div.exampleclass:has(p>span)", selectorListToString(selist, rule));
+		//
+		Element parent = createElement("div");
+		Element elm = parent.getOwnerDocument().createElement("p");
+		parent.appendChild(elm);
+		Element span = parent.getOwnerDocument().createElement("span");
+		elm.appendChild(span);
+		SelectorMatcher matcher = selectorMatcher(parent);
+		assertEquals(-1, matcher.matches(selist));
+		parent.setAttribute("class", "exampleclass");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
+		//
+		elm.removeChild(span);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorPseudoHas4() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("div.exampleclass:has(span + p) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("div.exampleclass:has(span + p)", selectorListToString(selist, rule));
+		//
+		Element parent = createElement("div");
+		Element elm = parent.getOwnerDocument().createElement("span");
+		parent.appendChild(elm);
+		Element elm2 = parent.getOwnerDocument().createElement("p");
+		parent.appendChild(elm2);
+		SelectorMatcher matcher = selectorMatcher(parent);
+		assertEquals(-1, matcher.matches(selist));
+		parent.setAttribute("class", "exampleclass");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
+		//
+		parent.removeChild(elm);
+		parent.removeChild(elm2);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
