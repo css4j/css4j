@@ -80,7 +80,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -97,7 +97,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -118,7 +118,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -128,7 +128,7 @@ public class SelectorMatcherTest {
 		selidx = svgmatcher.matches(svgselist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		sp = new StyleRule.Specifity(svgselist.item(selidx), svgmatcher);
+		sp = new Specificity(svgselist.item(selidx), svgmatcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -185,7 +185,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -204,7 +204,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -222,7 +222,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -241,7 +241,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -260,7 +260,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -284,7 +284,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -303,7 +303,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -322,7 +322,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -350,7 +350,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -368,7 +368,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -387,7 +387,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -407,7 +407,7 @@ public class SelectorMatcherTest {
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -430,7 +430,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -450,7 +450,7 @@ public class SelectorMatcherTest {
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -479,7 +479,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -501,7 +501,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -546,7 +546,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -563,7 +563,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -580,7 +580,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -597,7 +597,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -614,7 +614,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -640,7 +640,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -662,7 +662,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(1, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -703,7 +703,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(1, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -725,7 +725,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(1, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -770,7 +770,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(1, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -792,7 +792,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(1, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -834,7 +834,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(2, sp.names_pseudoelements_count);
@@ -961,7 +961,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -982,7 +982,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1026,7 +1026,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1061,7 +1061,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1102,7 +1102,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1143,7 +1143,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1166,7 +1166,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -1188,7 +1188,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
@@ -1217,7 +1217,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1247,7 +1247,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1278,7 +1278,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(2, sp.names_pseudoelements_count);
@@ -1308,7 +1308,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(2, sp.names_pseudoelements_count);
@@ -1335,7 +1335,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(2, sp.names_pseudoelements_count);
@@ -1362,7 +1362,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(2, sp.names_pseudoelements_count);
@@ -1416,7 +1416,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(2, sp.names_pseudoelements_count);
@@ -1445,7 +1445,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1477,7 +1477,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1495,7 +1495,7 @@ public class SelectorMatcherTest {
 		selidx = divmatcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		sp = new StyleRule.Specifity(selist.item(selidx), divmatcher);
+		sp = new Specificity(selist.item(selidx), divmatcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1537,7 +1537,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1562,7 +1562,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
@@ -1587,7 +1587,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		StyleRule.Specifity sp = new StyleRule.Specifity(selist.item(selidx), matcher);
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);

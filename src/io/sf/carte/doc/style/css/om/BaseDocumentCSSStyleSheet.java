@@ -31,7 +31,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.nsac.Condition;
-import io.sf.carte.doc.style.css.om.StyleRule.RuleSpecifity;
+import io.sf.carte.doc.style.css.om.StyleRule.RuleSpecificity;
 
 /**
  * Base implementation for <code>DocumentCSSStyleSheet</code>.
@@ -296,7 +296,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 	}
 
 	class Cascade {
-		private final SortedMap<StyleRule.RuleSpecifity, LinkedList<StyleRule>> matchingStyles = new TreeMap<StyleRule.RuleSpecifity, LinkedList<StyleRule>>(
+		private final SortedMap<StyleRule.RuleSpecificity, LinkedList<StyleRule>> matchingStyles = new TreeMap<StyleRule.RuleSpecificity, LinkedList<StyleRule>>(
 				new StyleRule.SpecificityComparator());
 
 		Cascade() {
@@ -327,7 +327,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 				StyleRule stylerule = (StyleRule) rule;
 				int selIdx = matcher.matches(stylerule.getSelectorList());
 				if (selIdx != -1) {
-					add(stylerule.getSpecifity(selIdx, matcher));
+					add(stylerule.getSpecificity(selIdx, matcher));
 				}
 			}
 		}
@@ -352,7 +352,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 			}
 		}
 
-		void add(StyleRule.RuleSpecifity sp) {
+		void add(StyleRule.RuleSpecificity sp) {
 			if (matchingStyles.containsKey(sp)) {
 				matchingStyles.get(sp).add(sp.getCSSStyleRule());
 			} else {
@@ -388,7 +388,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 					StyleRule stylerule = (StyleRule) rule;
 					int selIdx = matcher.matches(stylerule.getSelectorList());
 					if (selIdx != -1) {
-						add(stylerule.getSpecifity(selIdx, matcher));
+						add(stylerule.getSpecificity(selIdx, matcher));
 					}
 				}
 			}
@@ -411,7 +411,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 
 		class RuleIterator implements Iterator<StyleRule> {
 
-			private final Iterator<RuleSpecifity> keyit;
+			private final Iterator<RuleSpecificity> keyit;
 			private Iterator<StyleRule> currentList;
 
 			RuleIterator() {

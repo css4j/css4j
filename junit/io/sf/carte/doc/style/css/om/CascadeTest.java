@@ -41,19 +41,19 @@ public class CascadeTest {
 		StyleRule rule = new StyleRule();
 		rule.setCssText("p.foo {font-size: 3em}");
 		SelectorMatcher matcher = new DOMSelectorMatcher(sheet.getOwnerNode().getDocumentElement());
-		cascade.add(rule.getSpecifity(0, matcher));
+		cascade.add(rule.getSpecificity(0, matcher));
 		rule = new StyleRule();
 		rule.setCssText("#myid {font-size: 4em}");
-		cascade.add(rule.getSpecifity(0, matcher));
+		cascade.add(rule.getSpecificity(0, matcher));
 		rule = new StyleRule();
 		rule.setCssText("p {font-size: 1.2em}");
-		cascade.add(rule.getSpecifity(0, matcher));
+		cascade.add(rule.getSpecificity(0, matcher));
 		rule = new StyleRule();
 		rule.setCssText("div > p {font-size: 2.5em}");
-		cascade.add(rule.getSpecifity(0, matcher));
+		cascade.add(rule.getSpecificity(0, matcher));
 		rule = new StyleRule();
 		rule.setCssText("p.bar {font-size: 2em}");
-		cascade.add(rule.getSpecifity(0, matcher));
+		cascade.add(rule.getSpecificity(0, matcher));
 	}
 
 	@Test

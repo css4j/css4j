@@ -116,13 +116,13 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	@Override
 	public int matches(SelectorList selist) {
 		int sz = selist.getLength();
-		StyleRule.Specifity matchedsp = null;
+		Specificity matchedsp = null;
 		int matchedIdx = -1;
 		for (int i = 0; i < sz; i++) {
 			Selector sel = selist.item(i);
 			if (matches(sel)) {
-				StyleRule.Specifity sp = new StyleRule.Specifity(sel, this);
-				if (matchedsp == null || StyleRule.Specifity.selectorCompare(matchedsp, sp) < 0) {
+				Specificity sp = new Specificity(sel, this);
+				if (matchedsp == null || Specificity.selectorCompare(matchedsp, sp) < 0) {
 					matchedsp = sp;
 					matchedIdx = i;
 				}
