@@ -816,7 +816,7 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelectorAdjacentSibling() throws Exception {
+	public void testMatchSelectorAdjacent() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p.exampleclass + p {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
@@ -862,6 +862,15 @@ public class SelectorMatcherTest {
 		parent.appendChild(elm);
 		assertTrue(elm.matches(selist, null));
 		assertFalse(pre.matches(selist, null));
+		//
+		SelectorMatcher matcher = selectorMatcher(elm);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
 	}
 
 	@Test
@@ -897,6 +906,16 @@ public class SelectorMatcherTest {
 		a3.setAttribute("id", "a3");
 		li.appendChild(a3);
 		assertTrue(a3.matches(selist, null));
+		//
+		SelectorMatcher matcher = selectorMatcher(a3);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(3, sp.names_pseudoelements_count);
+		//
 		CSSElement span = parent.getOwnerDocument().createElement("span");
 		a3.appendChild(span);
 		assertFalse(span.matches(selist, null));
@@ -932,6 +951,16 @@ public class SelectorMatcherTest {
 		a3.setAttribute("id", "a3");
 		li.appendChild(a3);
 		assertTrue(a3.matches(selist, null));
+		//
+		SelectorMatcher matcher = selectorMatcher(a3);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(3, sp.names_pseudoelements_count);
+		//
 		CSSElement span = parent.getOwnerDocument().createElement("span");
 		a3.appendChild(span);
 		assertFalse(span.matches(selist, null));

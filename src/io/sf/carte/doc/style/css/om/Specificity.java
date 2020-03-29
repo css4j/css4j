@@ -73,6 +73,7 @@ class Specificity {
 		case DESCENDANT:
 		case CHILD:
 		case DIRECT_ADJACENT:
+		case SUBSEQUENT_SIBLING:
 			specificity(((CombinatorSelector) selector).getSecondSelector());
 			specificity(((CombinatorSelector) selector).getSelector());
 			break;
