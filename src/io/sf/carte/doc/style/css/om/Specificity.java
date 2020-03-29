@@ -138,8 +138,7 @@ class Specificity {
 			String name = acond.getName();
 			if ("where".equalsIgnoreCase(name)) {
 				// "where" does not contribute to specificity
-				clear();
-				return;
+				break;
 			}
 			SelectorList argList = acond.getSelectors();
 			int selIdx = selectorMatcher.matches(argList);
