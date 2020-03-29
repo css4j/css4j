@@ -135,6 +135,12 @@ class Specificity {
 			return;
 		case SELECTOR_ARGUMENT:
 			ArgumentCondition acond = (ArgumentCondition) cond;
+			String name = acond.getName();
+			if ("where".equalsIgnoreCase(name)) {
+				// "where" does not contribute to specificity
+				clear();
+				return;
+			}
 			SelectorList argList = acond.getSelectors();
 			int selIdx = selectorMatcher.matches(argList);
 			if (selIdx == -1) {

@@ -1405,24 +1405,56 @@ public class SelectorMatcherTest {
 	public void testMatchSelectorPseudoIs() throws Exception {
 		BaseCSSStyleSheet css = parseStyle(":is(.exampleclass span, div > span) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
-		if (rule != null) {
-			SelectorList selist = rule.getSelectorList();
-			assertEquals(":is(.exampleclass span,div>span)", selectorListToString(selist, rule));
-			Element parent = createElement("p");
-			parent.setAttribute("class", "exampleclass");
-			parent.setAttribute("id", "exampleid");
-			Element elm = parent.getOwnerDocument().createElement("span");
-			elm.setAttribute("id", "childid1");
-			parent.appendChild(elm);
-			elm = parent.getOwnerDocument().createElement("b");
-			elm.setAttribute("id", "childid2");
-			parent.appendChild(elm);
-			Element child2 = parent.getOwnerDocument().createElement("span");
-			child2.setAttribute("id", "grandchildid1");
-			elm.appendChild(child2);
-			SelectorMatcher matcher = selectorMatcher(child2);
-			assertTrue(matcher.matches(selist) >= 0);
-		}
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":is(.exampleclass span,div>span)", selectorListToString(selist, rule));
+		Element parent = createElement("p");
+		parent.setAttribute("class", "exampleclass");
+		parent.setAttribute("id", "exampleid");
+		Element elm = parent.getOwnerDocument().createElement("span");
+		elm.setAttribute("id", "childid1");
+		parent.appendChild(elm);
+		elm = parent.getOwnerDocument().createElement("b");
+		elm.setAttribute("id", "childid2");
+		parent.appendChild(elm);
+		Element child2 = parent.getOwnerDocument().createElement("span");
+		child2.setAttribute("id", "grandchildid1");
+		elm.appendChild(child2);
+		SelectorMatcher matcher = selectorMatcher(child2);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoWhere() throws Exception {
+		BaseCSSStyleSheet css = parseStyle(":where(.exampleclass span, div > span) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":where(.exampleclass span,div>span)", selectorListToString(selist, rule));
+		Element parent = createElement("p");
+		parent.setAttribute("class", "exampleclass");
+		parent.setAttribute("id", "exampleid");
+		Element elm = parent.getOwnerDocument().createElement("span");
+		elm.setAttribute("id", "childid1");
+		parent.appendChild(elm);
+		elm = parent.getOwnerDocument().createElement("b");
+		elm.setAttribute("id", "childid2");
+		parent.appendChild(elm);
+		Element child2 = parent.getOwnerDocument().createElement("span");
+		child2.setAttribute("id", "grandchildid1");
+		elm.appendChild(child2);
+		SelectorMatcher matcher = selectorMatcher(child2);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
 	}
 
 	@Test

@@ -397,7 +397,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 						}
 					}
 					return false;
-				} else if ("is".equals(name)) {
+				} else if ("is".equals(name) || "where".equals(name)) {
 					return matches(selist) >= 0;
 				}
 			}
