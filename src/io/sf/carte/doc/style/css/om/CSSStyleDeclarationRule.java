@@ -337,7 +337,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			return buf.toString();
 		case DIRECT_ADJACENT:
 			CombinatorSelector asel = (CombinatorSelector) sel;
-			return selectorText(asel.getSelector(), omitUniversal, scoped) + " + "
+			return selectorText(asel.getSelector(), omitUniversal, scoped) + '+'
 					+ selectorText(asel.getSecondSelector(), false, scoped);
 		case SUBSEQUENT_SIBLING:
 			asel = (CombinatorSelector) sel;
