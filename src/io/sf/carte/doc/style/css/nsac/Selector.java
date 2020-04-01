@@ -22,13 +22,20 @@ public interface Selector {
 
 		/**
 		 * The universal selector.
+		 * <p>
+		 * <pre class="example">
+		 *   *
+		 * </pre>
+		 * </p>
 		 * 
 		 * @see ElementSelector
 		 */
 		UNIVERSAL,
 
 		/**
-		 * This is a conditional selector. Example:
+		 * This is a conditional selector.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   simple[role="private"]
@@ -36,18 +43,22 @@ public interface Selector {
 		 *   H1#myId
 		 *   P:lang(fr).p1
 		 * </pre>
+		 * </p>
 		 *
 		 * @see ConditionalSelector
 		 */
 		CONDITIONAL,
 
 		/**
-		 * This selector matches only element node. Example:
+		 * This selector matches only element node.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   H1
 		 *   animate
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see ElementSelector
 		 */
@@ -55,22 +66,27 @@ public interface Selector {
 
 		/**
 		 * This selector matches an arbitrary descendant of some ancestor element.
+		 * <p>
 		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   E F
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see CombinatorSelector
 		 */
 		DESCENDANT,
 
 		/**
-		 * This selector matches a childhood relationship between two elements. Example:
+		 * This selector matches a childhood relationship between two elements.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 * E &gt; F
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see CombinatorSelector
 		 */
@@ -79,11 +95,14 @@ public interface Selector {
 		/**
 		 * This selector matches two selectors who shared the same parent in the
 		 * document tree and the element represented by the first sequence immediately
-		 * precedes the element represented by the second one. Example:
+		 * precedes the element represented by the second one.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 * E + F
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see CombinatorSelector
 		 */
@@ -122,7 +141,7 @@ public interface Selector {
 	}
 
 	/**
-	 * An integer indicating the type of <code>Selector</code>
+	 * Gives the type of <code>Selector</code>
 	 * 
 	 * @return the type of selector.
 	 */

@@ -45,17 +45,17 @@ public interface PositionalCondition extends Condition {
 	boolean isOfType();
 
 	/**
-	 * Get the An+B expression factor (i.e. &#39;A&#39;).
+	 * Get the {@code An+B} expression factor (i.e. &#39;A&#39;).
 	 *
 	 * @return the An+B expression factor, zero if not specified.
 	 */
 	int getFactor();
 
 	/**
-	 * Get the An+B expression offset (i.e. &#39;B&#39;).
+	 * Get the {@code An+B} expression offset (i.e. &#39;B&#39;).
 	 *
 	 * @return the An+B expression offset, or the offset determined from the pseudo-class
-	 *         name (e.g. 'first-child', 'first-of-type' and 'last-child' all mean 1).
+	 *         name (e.g. 'first-child', 'first-of-type' and 'last-child' all mean {@code 1}).
 	 */
 	int getOffset();
 
