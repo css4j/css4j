@@ -1074,12 +1074,26 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p:nth-child(1 of p) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertTrue(matcher.matches(selist) >= 0);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
+		//
 		css = parseStyle("p:nth-last-child(1 of p) {color: blue;}");
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("p:nth-last-child(1 of p)", selectorListToString(selist, rule));
-		assertTrue(matcher.matches(selist) >= 0);
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(2, sp.names_pseudoelements_count);
+		//
 		CSSElement lastp = doc.createElement("p");
 		parent.appendChild(lastp);
 		assertTrue(matcher.matches(selist) < 0);
@@ -1087,13 +1101,13 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("p:nth-last-child(2 of p)", selectorListToString(selist, rule));
-		int selidx = matcher.matches(selist);
+		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
-		assertEquals(1, sp.names_pseudoelements_count);
+		assertEquals(2, sp.names_pseudoelements_count);
 		//
 		parent.removeChild(lastp);
 		assertTrue(matcher.matches(selist) < 0);
@@ -1395,6 +1409,36 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(2, sp.names_pseudoelements_count);
+		//
+		parent.removeChild(elm);
+		parent.removeChild(elm2);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorPseudoHas5() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("body>div.exampleclass:has(span + p) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("body>div.exampleclass:has(span + p)", selectorListToString(selist, rule));
+		//
+		Element body = createElement("body");
+		Element parent = doc.createElement("div");
+		body.appendChild(parent);
+		Element elm = doc.createElement("span");
+		parent.appendChild(elm);
+		Element elm2 = doc.createElement("p");
+		parent.appendChild(elm2);
+		SelectorMatcher matcher = selectorMatcher(parent);
+		assertEquals(-1, matcher.matches(selist));
+		parent.setAttribute("class", "exampleclass");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(3, sp.names_pseudoelements_count);
 		//
 		parent.removeChild(elm);
 		parent.removeChild(elm2);

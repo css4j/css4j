@@ -18,6 +18,7 @@ import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
@@ -44,10 +45,10 @@ class Specificity {
 		specificity(selector);
 	}
 
-	private void setSpecificityFrom(Specificity specificity) {
-		id_count = specificity.id_count;
-		attrib_classes_count = specificity.attrib_classes_count;
-		names_pseudoelements_count = specificity.names_pseudoelements_count;
+	private void add(Specificity specificity) {
+		id_count += specificity.id_count;
+		attrib_classes_count += specificity.attrib_classes_count;
+		names_pseudoelements_count += specificity.names_pseudoelements_count;
 	}
 
 	private void clear() {
@@ -83,6 +84,17 @@ class Specificity {
 
 	private void conditionSpecificity(Condition cond, SimpleSelector selector, Specificity sp) {
 		switch (cond.getConditionType()) {
+		case POSITIONAL:
+			PositionalCondition pcond = (PositionalCondition) cond;
+			SelectorList ofList = pcond.getOfList();
+			if (ofList != null) {
+				int selIdx = selectorMatcher.matches(ofList);
+				if (selIdx == -1) {
+					return;
+				}
+				Specificity argSpecificity = new Specificity(ofList.item(selIdx), selectorMatcher);
+				add(argSpecificity);
+			}
 		case CLASS:
 		case ATTRIBUTE:
 		case ONE_OF_ATTRIBUTE:
@@ -94,7 +106,6 @@ class Specificity {
 		case LANG:
 		case ONLY_CHILD:
 		case ONLY_TYPE:
-		case POSITIONAL:
 			sp.attrib_classes_count++;
 			break;
 		case PSEUDO_ELEMENT:
@@ -147,7 +158,7 @@ class Specificity {
 				return;
 			}
 			Specificity argSpecificity = new Specificity(argList.item(selIdx), selectorMatcher);
-			setSpecificityFrom(argSpecificity);
+			add(argSpecificity);
 			break;
 		default:
 		}
