@@ -129,7 +129,7 @@ public class CSSStyleDeclarationRuleTest {
 				"html:root + p:empty,span[foo~='bar'],span[foo='bar'],p:only-child,p:lang(en),p.someclass,a:link,span[class='example'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(8, list.getLength());
-		assertEquals("html:root + p:empty", rule.selectorText(list.item(0), false));
+		assertEquals("html:root+p:empty", rule.selectorText(list.item(0), false));
 		assertEquals("span[foo~='bar']", rule.selectorText(list.item(1), false));
 		assertEquals("span[foo='bar']", rule.selectorText(list.item(2), false));
 		assertEquals("p:only-child", rule.selectorText(list.item(3), false));
@@ -243,7 +243,7 @@ public class CSSStyleDeclarationRuleTest {
 		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText(
 				"*, p *, * p, p > *, * > p, * + p, * .foo, *:only-child, *[foo='bar'] {border-top-width: 1px; }");
-		assertEquals("*,p *,* p,p>*,*>p,* + p,* .foo,:only-child,[foo='bar']", rule.getSelectorText());
+		assertEquals("*,p *,* p,p>*,*>p,*+p,* .foo,:only-child,[foo='bar']", rule.getSelectorText());
 		SelectorList list = rule.getSelectorList();
 		assertEquals("*", rule.selectorText(list.item(0), false));
 		assertEquals("p *", rule.selectorText(list.item(1), false));

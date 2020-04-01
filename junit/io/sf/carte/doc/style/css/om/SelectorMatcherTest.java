@@ -820,7 +820,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p.exampleclass + p {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p.exampleclass + p", selectorListToString(selist, rule));
+		assertEquals("p.exampleclass+p", selectorListToString(selist, rule));
 		Element parent = createElement("div");
 		parent.setAttribute("id", "div1");
 		Element elm = parent.getOwnerDocument().createElement("p");
@@ -1335,7 +1335,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p.exampleclass:has(+ p) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p.exampleclass:has( + p)", selectorListToString(selist, rule));
+		assertEquals("p.exampleclass:has(+p)", selectorListToString(selist, rule));
 		//
 		Element parent = createElement("div");
 		parent.setAttribute("id", "div1");
@@ -1392,7 +1392,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("div.exampleclass:has(span + p) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("div.exampleclass:has(span + p)", selectorListToString(selist, rule));
+		assertEquals("div.exampleclass:has(span+p)", selectorListToString(selist, rule));
 		//
 		Element parent = createElement("div");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -1420,7 +1420,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("body>div.exampleclass:has(span + p) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("body>div.exampleclass:has(span + p)", selectorListToString(selist, rule));
+		assertEquals("body>div.exampleclass:has(span+p)", selectorListToString(selist, rule));
 		//
 		Element body = createElement("body");
 		Element parent = doc.createElement("div");
