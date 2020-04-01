@@ -20,69 +20,87 @@ public interface Condition {
 
 	enum ConditionType {
 		/**
-		 * This condition checks two conditions in a compound selector. Example:
+		 * This condition checks two conditions in a compound selector.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   .part1:lang(fr)
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see CombinatorCondition
 		 */
 		AND,
 
 		/**
-		 * This condition checks an id attribute. Example:
+		 * This condition checks an id attribute.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   #myId
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see AttributeCondition
 		 */
 		ID,
 
 		/**
-		 * This condition checks for a specified class. Example:
+		 * This condition checks for a specified class.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   .example
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see AttributeCondition
 		 */
 		CLASS,
 
 		/**
-		 * This condition checks for a pseudo class. Example:
+		 * This condition checks for a pseudo class.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   :link
 		 *   :visited
 		 *   :hover
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see PseudoCondition
 		 */
 		PSEUDO_CLASS,
 
 		/**
-		 * This condition checks for pseudo elements. Example:
+		 * This condition checks for pseudo elements.
+		 * <p>
+		 * Example:
 		 *
 		 * <pre class="example">
 		 *   ::first-line
 		 *   ::first-letter
 		 * </pre>
+		 * </p>
 		 *
 		 * @see PseudoCondition#getName()
 		 */
 		PSEUDO_ELEMENT,
 
 		/**
-		 * This condition checks a specified position. Example:
+		 * This condition checks a specified position.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   :first-child
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see PositionalCondition
 		 */
@@ -99,11 +117,14 @@ public interface Condition {
 		ONLY_TYPE,
 
 		/**
-		 * This condition checks the language of the node. Example:
+		 * This condition checks the language of the node.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   :lang(fr)
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see LangCondition
 		 */
@@ -111,12 +132,15 @@ public interface Condition {
 
 		/**
 		 * This condition checks for the presence of an attribute (and eventually its
-		 * value). Example:
+		 * value).
+		 * <p>
+		 * Examples:
 		 * 
 		 * <pre class="example">
 		 *   [simple]
 		 *   [restart="never"]
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see AttributeCondition
 		 */
@@ -124,11 +148,14 @@ public interface Condition {
 
 		/**
 		 * This condition checks for a value in a list of space-separated values in an
-		 * attribute. Example:
+		 * attribute.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   [values~="10"]
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see AttributeCondition
 		 */
@@ -136,44 +163,56 @@ public interface Condition {
 
 		/**
 		 * This condition checks if the value is in a hypen-separated list of values in
-		 * a specified attribute. Example:
+		 * a specified attribute.
+		 * <p>
+		 * Example:
 		 * 
 		 * <pre class="example">
 		 *   [languages|="fr"]
 		 * </pre>
+		 * </p>
 		 * 
 		 * @see AttributeCondition
 		 */
 		BEGIN_HYPHEN_ATTRIBUTE,
 
 		/**
-		 * This condition checks the beginning of an attribute value. Example:
+		 * This condition checks the beginning of an attribute value.
+		 * <p>
+		 * Example:
 		 *
 		 * <pre class="example">
 		 *   [restart^="never"]
 		 * </pre>
+		 * </p>
 		 *
 		 * @see AttributeCondition
 		 */
 		BEGINS_ATTRIBUTE,
 
 		/**
-		 * This condition checks the end of an attribute value. Example:
+		 * This condition checks the end of an attribute value.
+		 * <p>
+		 * Example:
 		 *
 		 * <pre class="example">
 		 *   [restart$="never"]
 		 * </pre>
+		 * </p>
 		 *
 		 * @see AttributeCondition
 		 */
 		ENDS_ATTRIBUTE,
 
 		/**
-		 * This condition checks a substring of an attribute value. Example:
+		 * This condition checks a substring of an attribute value.
+		 * <p>
+		 * Example:
 		 *
 		 * <pre class="example">
 		 *   [restart*="never"]
 		 * </pre>
+		 * </p>
 		 *
 		 * @see AttributeCondition
 		 */
@@ -181,11 +220,14 @@ public interface Condition {
 
 		/**
 		 * This condition checks the selector list argument to which a pseudo-class
-		 * applies. Example:
+		 * applies.
+		 * <p>
+		 * Example:
 		 *
 		 * <pre class="example">
 		 *   :not(:visited,:hover)
 		 * </pre>
+		 * </p>
 		 *
 		 * @see ArgumentCondition
 		 */

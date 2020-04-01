@@ -26,10 +26,11 @@ public interface CSSHandler {
 
 	/**
 	 * Receive notification of the beginning of the parse process.
-	 *
+	 * <p>
 	 * The CSS parser will invoke this method only once, before any other methods in
 	 * this interface, and only when one of the {@code parseStyleSheet},
 	 * {@code parseRule} or {@code parseStyleDeclaration} methods were called.
+	 * </p>
 	 * 
 	 * @param parserctl an object that allows convenient access to certain parser
 	 *                  functionalities.
@@ -38,10 +39,11 @@ public interface CSSHandler {
 
 	/**
 	 * Receive notification of the end of the stream being parsed.
-	 *
+	 * <p>
 	 * The CSS parser will invoke this method only once, and it will be the last
 	 * method invoked during the parse. The parser shall not invoke this method
 	 * unless it has reached the end of input.
+	 * </p>
 	 */
 	void endOfStream();
 
@@ -84,10 +86,11 @@ public interface CSSHandler {
 
 	/**
 	 * Receive notification of the beginning of a media rule.
-	 *
-	 * The Parser will invoke this method at the beginning of every media rule
-	 * in the style sheet. There will be a corresponding endMedia() event for every
-	 * startMedia() event.
+	 * <p>
+	 * The Parser will invoke this method at the beginning of every media rule in
+	 * the style sheet. There will be a corresponding {@code endMedia()} event for
+	 * every {@code startMedia()} event.
+	 * </p>
 	 *
 	 * @param media The intended destination media for style information.
 	 */
@@ -102,10 +105,11 @@ public interface CSSHandler {
 
 	/**
 	 * Receive notification of the beginning of a page rule.
-	 *
+	 * <p>
 	 * The Parser will invoke this method at the beginning of every page rule in the
-	 * style sheet. There will be a corresponding endPage() event for every
-	 * startPage() event.
+	 * style sheet. There will be a corresponding {@code endPage()} event for every
+	 * {@code startPage()} event.
+	 * </p>
 	 *
 	 * @param pageSelectorList the page selector list (if any, <code>null</code>
 	 *                         otherwise)
@@ -121,11 +125,12 @@ public interface CSSHandler {
 	void endPage(PageSelectorList pageSelectorList);
 
 	/**
-	 * Receive notification of the beginning of a margin rule.
-	 *
+	 * Receive notification of the beginning of a margin-box rule.
+	 * <p>
 	 * The Parser will invoke this method at the beginning of every margin rule in
-	 * the style sheet. There will be a corresponding endPage() event for every
-	 * startPage() event.
+	 * the style sheet. There will be a corresponding {@code endMargin()} event for
+	 * every {@code startMargin()} event.
+	 * </p>
 	 *
 	 * @param name the name of the rule.
 	 */
@@ -138,10 +143,11 @@ public interface CSSHandler {
 
 	/**
 	 * Receive notification of the beginning of a font face rule.
-	 *
+	 * <p>
 	 * The Parser will invoke this method at the beginning of every font face
-	 * statement in the style sheet. There will be a corresponding endFontFace()
-	 * event for every startFontFace() event.
+	 * statement in the style sheet. There will be a corresponding
+	 * {@code endFontFace()} event for every {@code startFontFace()} event.
+	 * </p>
 	 */
 	void startFontFace();
 
@@ -212,10 +218,11 @@ public interface CSSHandler {
 
 	/**
 	 * Receive notification of the beginning of a supports rule.
-	 *
-	 * The Parser will invoke this method at the beginning of every supports rule
-	 * in the style sheet. There will be a corresponding endSupports() event for every
-	 * startSupports() event.
+	 * <p>
+	 * The Parser will invoke this method at the beginning of every supports rule in
+	 * the style sheet. There will be a corresponding {@code endSupports()} event
+	 * for every {@code startSupports()} event.
+	 * </p>
 	 *
 	 * @param condition the supports condition.
 	 */
@@ -254,6 +261,7 @@ public interface CSSHandler {
 
 	/**
 	 * Receive notification of a property declaration.
+	 * 
 	 * @param name      the name of the property.
 	 * @param value     the value of the property.
 	 * @param important is this property important ?
