@@ -77,7 +77,7 @@ public interface BooleanCondition {
 	/**
 	 * Add a condition to a boolean condition.
 	 * <p>
-	 * On a <code>NOT</code> condition this adds the negated condition, for grouping
+	 * On a <code>NOT</code> condition this sets the negated condition, for grouping
 	 * conditions (<code>AND</code>, <code>OR</code>), adds a condition to the set
 	 * of sub-conditions.
 	 * <p>
@@ -85,12 +85,12 @@ public interface BooleanCondition {
 	 * exception (behaviour is implementation-dependent).
 	 * 
 	 * @param subCondition
-	 *            the sub-condition.
+	 *            the sub-condition (or the negated condition).
 	 */
 	void addCondition(BooleanCondition subCondition);
 
 	/**
-	 * Replace the last condition added.
+	 * Replace the last nested/sub condition added.
 	 * 
 	 * @param newCondition
 	 *            the condition that replaces the last condition.
@@ -100,14 +100,14 @@ public interface BooleanCondition {
 	BooleanCondition replaceLast(BooleanCondition newCondition);
 
 	/**
-	 * Append a serialization of the condition.
+	 * Append a serialization of the condition to the given buffer.
 	 * 
 	 * @param buf the buffer to append to.
 	 */
 	void appendText(StringBuilder buf);
 
 	/**
-	 * Append a minified serialization of the condition.
+	 * Append a minified serialization of the condition to the given buffer.
 	 * 
 	 * @param buf the buffer to append to.
 	 */
