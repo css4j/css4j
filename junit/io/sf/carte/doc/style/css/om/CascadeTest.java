@@ -22,7 +22,9 @@ import org.junit.Test;
 
 import io.sf.carte.doc.dom.CSSDOMImplementation;
 import io.sf.carte.doc.dom.DOMBridge;
+import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
 
 public class CascadeTest {
@@ -33,22 +35,25 @@ public class CascadeTest {
 	public void setUp() {
 		CSSDOMImplementation impl = new CSSDOMImplementation();
 		BaseDocumentCSSStyleSheet sheet = DOMBridge.createDocumentStyleSheet(impl, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		CSSDocument ownerNode = impl.createDocument(null, "html", null);
+		sheet.setOwnerDocument(ownerNode);
 		cascade = sheet.new Cascade();
 		StyleRule rule = new StyleRule();
 		rule.setCssText("p.foo {font-size: 3em}");
-		cascade.add(rule.getSpecifity(0));
+		SelectorMatcher matcher = new DOMSelectorMatcher(sheet.getOwnerNode().getDocumentElement());
+		cascade.add(rule.getSpecificity(0, matcher));
 		rule = new StyleRule();
 		rule.setCssText("#myid {font-size: 4em}");
-		cascade.add(rule.getSpecifity(0));
+		cascade.add(rule.getSpecificity(0, matcher));
 		rule = new StyleRule();
 		rule.setCssText("p {font-size: 1.2em}");
-		cascade.add(rule.getSpecifity(0));
+		cascade.add(rule.getSpecificity(0, matcher));
 		rule = new StyleRule();
 		rule.setCssText("div > p {font-size: 2.5em}");
-		cascade.add(rule.getSpecifity(0));
+		cascade.add(rule.getSpecificity(0, matcher));
 		rule = new StyleRule();
 		rule.setCssText("p.bar {font-size: 2em}");
-		cascade.add(rule.getSpecifity(0));
+		cascade.add(rule.getSpecificity(0, matcher));
 	}
 
 	@Test
