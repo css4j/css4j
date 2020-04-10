@@ -153,6 +153,9 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 			case Condition.SAC_ATTRIBUTE_CONDITION:
 			case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
 			case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
+			case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
+			case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
+			case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
 			case Condition.SAC_PSEUDO_CLASS_CONDITION:
 			case Condition.SAC_LANG_CONDITION:
 			case Condition.SAC_ONLY_CHILD_CONDITION:
