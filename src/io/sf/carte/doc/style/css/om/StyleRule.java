@@ -34,6 +34,7 @@ import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.ExtendedCSSStyleRule;
 import io.sf.carte.doc.style.css.nsac.Condition2;
+import io.sf.carte.doc.style.css.nsac.Selector2;
 
 /**
  * CSS style rule.
@@ -132,6 +133,7 @@ public class StyleRule extends CSSStyleDeclarationRule implements ExtendedCSSSty
 				specifity(((DescendantSelector) selector).getAncestorSelector());
 				break;
 			case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
+			case Selector2.SAC_SUBSEQUENT_SIBLING_SELECTOR:
 				specifity(((SiblingSelector) selector).getSiblingSelector());
 				specifity(((SiblingSelector) selector).getSelector());
 				break;
