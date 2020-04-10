@@ -372,7 +372,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				} else if ("indeterminate".equals(pseudoClassName)) {
 					return isIndeterminate();
 				}
-				if (pseudoClassName.equals("is")) {
+				if (pseudoClassName.equals("is") || pseudoClassName.equals("where")) {
 					// Parse selector list
 					return matches(parseSelector(argument)) >= 0;
 				} else if (pseudoClassName.equals("not")) {
