@@ -49,10 +49,23 @@ public class LexicalUnitTest {
 		assertNull(clone.getPreviousLexicalUnit());
 		assertFalse(clone.isParameter());
 		assertEquals(lu, clone);
+		assertEquals(lu.toString(), clone.toString());
 	}
 
 	@Test
-	public void testCloneFunction() throws CSSException, IOException {
+	public void testClone2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times New Roman");
+		LexicalUnit clone = lu.getNextLexicalUnit().clone();
+		assertNotNull(clone.getNextLexicalUnit());
+		assertNull(clone.getNextLexicalUnit().getNextLexicalUnit());
+		assertNull(clone.getPreviousLexicalUnit());
+		assertFalse(clone.isParameter());
+		assertEquals(lu.getNextLexicalUnit(), clone);
+		assertEquals("New Roman", clone.toString());
+	}
+
+	@Test
+	public void testCloneCalc() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(2 * (3 + 2))");
 		LexicalUnit clone = lu.clone();
 		assertTrue(lu.getParameters().isParameter());
@@ -66,6 +79,52 @@ public class LexicalUnitTest {
 		assertNull(clone.getPreviousLexicalUnit());
 		assertEquals(lu, clone);
 		assertEquals(lu.toString(), clone.toString());
+	}
+
+	@Test
+	public void testCloneFunction() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("foo(arg1, arg2) bar(arg3)");
+		LexicalUnit clone = lu.clone();
+		assertNotNull(clone.getNextLexicalUnit());
+		assertNull(clone.getNextLexicalUnit().getNextLexicalUnit());
+		assertNull(clone.getPreviousLexicalUnit());
+		assertFalse(clone.isParameter());
+		assertEquals(lu, clone);
+		LexicalUnit param = clone.getParameters();
+		assertNotNull(param);
+		assertTrue(param.isParameter());
+		assertEquals(lu.getParameters(), param);
+		assertEquals(lu.toString(), clone.toString());
+	}
+
+	@Test
+	public void testShallowClone() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times Roman");
+		LexicalUnit clone = lu.shallowClone();
+		assertNull(clone.getNextLexicalUnit());
+		assertNull(clone.getPreviousLexicalUnit());
+		assertFalse(clone.isParameter());
+		assertEquals(lu, clone);
+		assertEquals(lu.getCssText(), clone.toString());
+	}
+
+	@Test
+	public void testShallowCloneFunction() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("foo(arg1, arg2) bar(arg3)");
+		LexicalUnit clone = lu.shallowClone();
+		assertNull(clone.getNextLexicalUnit());
+		assertNull(clone.getPreviousLexicalUnit());
+		assertFalse(clone.isParameter());
+		assertEquals(lu, clone);
+		LexicalUnit param = clone.getParameters();
+		assertNotNull(param);
+		assertTrue(param.isParameter());
+		assertEquals(lu.getParameters(), param);
+		assertEquals(lu.getCssText(), clone.toString());
+		LexicalUnit pclone = param.shallowClone();
+		assertNotNull(pclone);
+		assertNull(pclone.getNextLexicalUnit());
+		assertFalse(pclone.isParameter());
 	}
 
 	@Test
