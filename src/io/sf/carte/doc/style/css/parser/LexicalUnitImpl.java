@@ -464,6 +464,21 @@ class LexicalUnitImpl implements LexicalUnit {
 	}
 
 	@Override
+	public LexicalUnitImpl shallowClone() {
+		LexicalUnitImpl clon = new LexicalUnitImpl(unitType);
+		clon.cssUnit = cssUnit;
+		clon.intValue = intValue;
+		clon.floatValue = floatValue;
+		clon.dimensionUnitText = dimensionUnitText;
+		clon.identCssText = identCssText;
+		clon.value = value;
+		if (parameters != null) {
+			clon.parameters = parameters.clone(clon);
+		}
+		return clon;
+	}
+
+	@Override
 	public LexicalUnitImpl clone() {
 		return clone(null);
 	}

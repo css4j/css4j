@@ -519,4 +519,18 @@ public interface LexicalUnit {
 	 */
 	LexicalUnit clone();
 
+	/**
+	 * Creates a shallow copy of this lexical unit, ignoring the next ones, and
+	 * unlinked to any previous lexical unit.
+	 * <p>
+	 * The shallow clone's {@link #getPreviousLexicalUnit()} and
+	 * {@link #getNextLexicalUnit()} both return {@code null} (and
+	 * {@link #isParameter()} {@code false}) regardless of what the the original
+	 * object returned.
+	 * </p>
+	 * 
+	 * @return a shallow copy of this unit.
+	 */
+	LexicalUnit shallowClone();
+
 }
