@@ -64,6 +64,25 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		return gradientType == other.gradientType;
 	}
 
+	private static LexicalUnit findCustomPropertyFallback(LexicalUnit lunit) {
+		LexicalUnit lu = lunit.getParameters();
+		if (lu != null) {
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+				lu = lu.getNextLexicalUnit();
+				if (lu != null) {
+					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
+						lu = lu.getNextLexicalUnit();
+					} else {
+						lu = null;
+					}
+				}
+			} else {
+				lu = null;
+			}
+		}
+		return lu;
+	}
+
 	@Override
 	LexicalSetter newLexicalSetter() {
 		return new MyLexicalSetter();
@@ -197,19 +216,25 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			// <linear-color-stop> = <color> && <color-stop-length>?
 			// <color-stop-length> = <length-percentage>{1,2}
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
-			if (BaseCSSStyleDeclaration.testColor(lu)) {
+			if (canBeColor(lu)) {
 				return true;
 			} else {
-				return lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
-						&& ValueFactory.isSizeSACUnit(lu);
+				return lu2 != null && canBeColor(lu2) && ValueFactory.isSizeSACUnit(lu);
 			}
 		}
 
 		private LexicalUnit processLinearColorStop(LexicalUnit lu, ValueFactory factory) {
 			LexicalUnit finalLU = null;
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
-			if (BaseCSSStyleDeclaration.testColor(lu)) {
-				PrimitiveValue color = factory.createCSSPrimitiveValue(lu, true);
+			if (canBeColor(lu)) {
+				PrimitiveValue color;
+				try {
+					color = factory.createCSSPrimitiveValue(lu, true);
+				} catch (CSSLexicalProcessingException e) {
+					LexicalSetter item = new LexicalValue().newLexicalSetter();
+					item.setLexicalUnit(lu.shallowClone());
+					color = item.getCSSValue();
+				}
 				if (lu2 != null && ValueFactory.isSizeSACUnit(lu2)) {
 					ValueList list = ValueList.createWSValueList();
 					list.add(color);
@@ -224,10 +249,17 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					getArguments().add(color);
 				}
 				finalLU = lu2;
-			} else if (lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
-					&& ValueFactory.isSizeSACUnit(lu)) {
+			} else if (lu2 != null && canBeColor(lu2) && ValueFactory.isSizeSACUnit(lu)) {
 				ValueList list = ValueList.createWSValueList();
-				list.add(factory.createCSSPrimitiveValue(lu2, true));
+				PrimitiveValue color;
+				try {
+					color = factory.createCSSPrimitiveValue(lu2, true);
+				} catch (CSSLexicalProcessingException e) {
+					LexicalSetter item = new LexicalValue().newLexicalSetter();
+					item.setLexicalUnit(lu2.shallowClone());
+					color = item.getCSSValue();
+				}
+				list.add(color);
 				list.add(factory.createCSSPrimitiveValue(lu, true));
 				getArguments().add(list);
 				finalLU = lu2.getNextLexicalUnit();
@@ -237,6 +269,18 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Bad color stop");
 			}
 			return finalLU;
+		}
+
+		/**
+		 * Test whether the value could represent a color.
+		 * 
+		 * @param lunit the lexical unit to test.
+		 * @return true if the value could be a color.
+		 */
+		private boolean canBeColor(LexicalUnit lunit) {
+			LexicalUnit lu;
+			return BaseCSSStyleDeclaration.testColor(lunit) || (LexicalType.VAR == lunit.getLexicalUnitType()
+					&& (lu = findCustomPropertyFallback(lunit)) != null && BaseCSSStyleDeclaration.testColor(lu));
 		}
 
 		private void setRadialGradient(LexicalUnit lu, ValueFactory factory) {
@@ -330,10 +374,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			// <color-stop-angle> = <angle-percentage>{1,2}
 			// <angle-percentage> = [ <angle> | <percentage> ]
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
-			if (BaseCSSStyleDeclaration.testColor(lu)) {
+			if (canBeColor(lu)) {
 				return true;
 			} else {
-				return lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
+				return lu2 != null && canBeColor(lu2)
 						&& (ValueFactory.isAngleSACUnit(lu)
 								|| lu.getLexicalUnitType() == LexicalType.PERCENTAGE);
 			}
@@ -345,8 +389,15 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			// <angular-color-hint> = <angle-percentage>
 			LexicalUnit finalLU = null;
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
-			if (BaseCSSStyleDeclaration.testColor(lu)) {
-				PrimitiveValue color = factory.createCSSPrimitiveValue(lu, true);
+			if (canBeColor(lu)) {
+				PrimitiveValue color;
+				try {
+					color = factory.createCSSPrimitiveValue(lu, true);
+				} catch (CSSLexicalProcessingException e) {
+					LexicalSetter item = new LexicalValue().newLexicalSetter();
+					item.setLexicalUnit(lu.shallowClone());
+					color = item.getCSSValue();
+				}
 				if (lu2 != null && (ValueFactory.isAngleSACUnit(lu2) || lu2.getLexicalUnitType() == LexicalType.PERCENTAGE)) {
 					ValueList list = ValueList.createWSValueList();
 					list.add(color);
@@ -361,10 +412,18 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					getArguments().add(color);
 				}
 				finalLU = lu2;
-			} else if (lu2 != null && BaseCSSStyleDeclaration.testColor(lu2)
+			} else if (lu2 != null && canBeColor(lu2)
 					&& (ValueFactory.isAngleSACUnit(lu) || lu.getLexicalUnitType() == LexicalType.PERCENTAGE)) {
 				ValueList list = ValueList.createWSValueList();
-				list.add(factory.createCSSPrimitiveValue(lu2, true));
+				PrimitiveValue color;
+				try {
+					color = factory.createCSSPrimitiveValue(lu2, true);
+				} catch (CSSLexicalProcessingException e) {
+					LexicalSetter item = new LexicalValue().newLexicalSetter();
+					item.setLexicalUnit(lu2.shallowClone());
+					color = item.getCSSValue();
+				}
+				list.add(color);
 				list.add(factory.createCSSPrimitiveValue(lu, true));
 				getArguments().add(list);
 				finalLU = lu2.getNextLexicalUnit();
