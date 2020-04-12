@@ -83,6 +83,23 @@ public class LexicalValueTest {
 		LexicalValue value = new LexicalValue();
 		value.setCssText("1em 2em");
 		assertEquals("1em 2em", value.getCssText());
+		assertEquals("1em 2em", value.getMinifiedCssText(null));
+		//
+		value.setCssText("1.0em,2.1em");
+		assertEquals("1em, 2.1em", value.getCssText());
+		assertEquals("1em,2.1em", value.getMinifiedCssText(null));
+		//
+		value.setCssText("foo(1em,2em),bar(1 2)");
+		assertEquals("foo(1em, 2em), bar(1 2)", value.getCssText());
+		assertEquals("foo(1em,2em),bar(1 2)", value.getMinifiedCssText(null));
+		//
+		value.setCssText("calc(1 + 2) calc(1 * 2)");
+		assertEquals("calc(1 + 2) calc(1*2)", value.getCssText());
+		assertEquals("calc(1 + 2) calc(1*2)", value.getMinifiedCssText(null));
+		//
+		value.setCssText("url('http://example.com/')");
+		assertEquals("url('http://example.com/')", value.getCssText());
+		assertEquals("url('http://example.com/')", value.getMinifiedCssText(null));
 	}
 
 	@Test

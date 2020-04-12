@@ -150,6 +150,84 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 	}
 
 	@Override
+	public String getMinifiedCssText(String propertyName) {
+		return serializeMinifiedSequence(lexicalUnit);
+	}
+
+	private String serializeMinifiedSequence(LexicalUnit lexicalUnit) {
+		if (lexicalUnit.getNextLexicalUnit() == null) {
+			// Save a buffer creation
+			return serializeMinified(lexicalUnit);
+		}
+		StringBuilder buf = new StringBuilder();
+		LexicalUnit lu = lexicalUnit;
+		boolean needSpaces = false;
+		while (lu != null) {
+			switch(lu.getLexicalUnitType()) {
+			case OPERATOR_EXP:
+			case OPERATOR_GE:
+			case OPERATOR_GT:
+			case OPERATOR_LE:
+			case OPERATOR_LT:
+			case OPERATOR_MULTIPLY:
+			case OPERATOR_SLASH:
+			case OPERATOR_TILDE:
+			case LEFT_BRACKET:
+			case OPERATOR_COMMA:
+				needSpaces = false;
+				break;
+			case RIGHT_BRACKET:
+				needSpaces = true;
+				break;
+			default:
+				if (needSpaces) {
+					buf.append(' ');
+				} else {
+					needSpaces = true;
+				}
+			}
+			buf.append(serializeMinified(lu));
+			lu = lu.getNextLexicalUnit();
+		}
+		return buf.toString();
+	}
+
+	private String serializeMinified(LexicalUnit lexicalUnit) {
+		StringBuilder buf;
+		switch (lexicalUnit.getLexicalUnitType()) {
+		case FUNCTION:
+		case CALC:
+		case RECT_FUNCTION:
+		case VAR:
+		case ATTR:
+		case HSLCOLOR:
+		case COUNTER_FUNCTION:
+		case COUNTERS_FUNCTION:
+		case CUBIC_BEZIER_FUNCTION:
+		case STEPS_FUNCTION:
+			buf = new StringBuilder();
+			buf.append(lexicalUnit.getFunctionName()).append('(');
+			LexicalUnit lu = lexicalUnit.getParameters();
+			if (lu != null) {
+				buf.append(serializeMinifiedSequence(lu));
+			}
+			buf.append(')');
+			return buf.toString();
+		case SUB_EXPRESSION:
+			buf = new StringBuilder();
+			buf.append('(');
+			lu = lexicalUnit.getParameters();
+			if (lu != null) {
+				buf.append(serializeMinifiedSequence(lu));
+			}
+			buf.append(')');
+			return buf.toString();
+		default:
+		}
+		return lexicalUnit.getCssText();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;

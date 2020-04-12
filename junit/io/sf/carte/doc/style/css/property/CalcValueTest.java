@@ -317,7 +317,7 @@ public class CalcValueTest {
 		assertEquals(CssType.PROXY, value.getCssValueType());
 		assertEquals(CSSValue.Type.LEXICAL, value.getPrimitiveType());
 		assertEquals("calc(3*calc(2*var(--foo, 3px)))", value.getCssText());
-		assertEquals("calc(3*calc(2*var(--foo, 3px)))", value.getMinifiedCssText(""));
+		assertEquals("calc(3*calc(2*var(--foo,3px)))", value.getMinifiedCssText(""));
 	}
 
 	@Test
@@ -331,7 +331,7 @@ public class CalcValueTest {
 		assertEquals(CssType.PROXY, val.getCssValueType());
 		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
 		assertEquals("calc(var(--bar, 0.3rem))", val.getCssText());
-		assertEquals("calc(var(--bar, 0.3rem))", val.getMinifiedCssText("margin-left"));
+		assertEquals("calc(var(--bar,0.3rem))", val.getMinifiedCssText("margin-left"));
 	}
 
 	@Test
