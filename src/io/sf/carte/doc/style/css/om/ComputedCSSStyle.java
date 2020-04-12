@@ -1307,7 +1307,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		case CSSUnit.CSS_PERCENTAGE:
 			float pcnt = cssSize.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 			// Use parent element's size.
-			return getRelativeFontSize(cssSize, pcnt * 0.01f, force);
+			return getRelativeFontSize(cssSize, pcnt * 0.01f, true);
 		case CSSUnit.CSS_VW:
 			factor = cssSize.getFloatValue(CSSUnit.CSS_VW);
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
