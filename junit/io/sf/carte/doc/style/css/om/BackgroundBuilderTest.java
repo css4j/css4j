@@ -322,6 +322,12 @@ public class BackgroundBuilderTest {
 	}
 
 	@Test
+	public void testBackgroundImageVar() {
+		assertShorthandText("background:linear-gradient(to bottom,var(--white) 0%,var(--grey) 66%,var(--black) 100%);",
+				"background: linear-gradient(to bottom, var(--white) 0%, var(--grey) 66%, var(--black) 100%)");
+	}
+
+	@Test
 	public void testBackgroundColor() {
 		assertShorthandText("background:gray;", "background: gray;");
 	}

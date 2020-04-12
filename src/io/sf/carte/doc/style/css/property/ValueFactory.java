@@ -980,6 +980,14 @@ public class ValueFactory {
 					setter = primi.newLexicalSetter();
 					try {
 						setter.setLexicalUnit(lunit);
+					} catch (CSSLexicalProcessingException e) {
+						// Contains a var() that should be processed as a lexical value.
+						if (!isNotListLexicalUnit(lunit)) {
+							throw e;
+						}
+						LexicalSetter item = new LexicalValue().newLexicalSetter();
+						item.setLexicalUnit(lunit);
+						return item;
 					} catch (RuntimeException e) {
 						if (func.charAt(0) == '-') {
 							primi = new FunctionValue();

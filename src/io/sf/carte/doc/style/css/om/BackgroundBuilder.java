@@ -21,6 +21,7 @@ import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSVarValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
+import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -422,16 +423,21 @@ class BackgroundBuilder extends ShorthandBuilder {
 		CssType category = value.getCssValueType();
 		if (category == CssType.TYPED) {
 			TypedValue primi = (TypedValue) value;
-			CSSTypedValue.Type type = primi.getPrimitiveType();
+			Type type = primi.getPrimitiveType();
 			if (type == Type.IDENT) {
 				String s = primi.getStringValue();
 				return "none".equalsIgnoreCase(s);
 			} else {
 				return isImagePrimitiveValue(primi);
 			}
-		} else {
-			return category == CssType.KEYWORD;
+		} else if (category == CssType.KEYWORD) {
+			return true;
 		}
+		if (value.getPrimitiveType() == Type.LEXICAL
+				&& ((LexicalValue) value).getFinalType() == Type.GRADIENT) {
+			return true;
+		}
+		return false;
     }
 
 	private boolean appendBackgroundPositionSize(StringBuilder buf, StyleValue posvalue,

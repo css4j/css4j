@@ -278,9 +278,19 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		 * @return true if the value could be a color.
 		 */
 		private boolean canBeColor(LexicalUnit lunit) {
-			LexicalUnit lu;
-			return BaseCSSStyleDeclaration.testColor(lunit) || (LexicalType.VAR == lunit.getLexicalUnitType()
-					&& (lu = findCustomPropertyFallback(lunit)) != null && BaseCSSStyleDeclaration.testColor(lu));
+			if (BaseCSSStyleDeclaration.testColor(lunit)) {
+				return true;
+			} else if (LexicalType.VAR == lunit.getLexicalUnitType()) {
+				LexicalUnit lu = findCustomPropertyFallback(lunit);
+				if (lu != null) {
+					if (BaseCSSStyleDeclaration.testColor(lu)) {
+						return true;
+					}
+				} else {
+					throw new CSSLexicalProcessingException("var() without fallback found.");
+				}
+			}
+			return false;
 		}
 
 		/**
@@ -290,11 +300,22 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		 * @return true if the value could be a size or a percentage.
 		 */
 		private boolean canBeSizeOrPercentage(LexicalUnit lunit) {
-			LexicalUnit lu;
 			return lunit.getLexicalUnitType() == LexicalType.PERCENTAGE
-					|| ValueFactory.isSizeSACUnit(lunit) || (LexicalType.VAR == lunit.getLexicalUnitType()
-					&& (lu = findCustomPropertyFallback(lunit)) != null &&
-					(lu.getLexicalUnitType() == LexicalType.PERCENTAGE || ValueFactory.isSizeSACUnit(lu)));
+					|| ValueFactory.isSizeSACUnit(lunit)
+					|| (LexicalType.VAR == lunit.getLexicalUnitType()
+						&& isSizeOrPercentageVar(lunit));
+		}
+
+		private boolean isSizeOrPercentageVar(LexicalUnit lunit) {
+			LexicalUnit lu = findCustomPropertyFallback(lunit);
+			if (lu != null) {
+				if (lu.getLexicalUnitType() == LexicalType.PERCENTAGE || ValueFactory.isSizeSACUnit(lu)) {
+					return true;
+				}
+			} else {
+				throw new CSSLexicalProcessingException("var() without fallback found.");
+			}
+			return false;
 		}
 
 		private void setRadialGradient(LexicalUnit lu, ValueFactory factory) {
@@ -402,12 +423,22 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		 * @return true if the value could be an angle or a percentage.
 		 */
 		private boolean canBeAngleOrPercentage(LexicalUnit lunit) {
-			LexicalUnit lu;
 			return ValueFactory.isAngleSACUnit(lunit)
 					|| lunit.getLexicalUnitType() == LexicalType.PERCENTAGE
 					|| (LexicalType.VAR == lunit.getLexicalUnitType()
-					&& (lu = findCustomPropertyFallback(lunit)) != null &&
-					(ValueFactory.isAngleSACUnit(lu) || lu.getLexicalUnitType() == LexicalType.PERCENTAGE));
+						&& isAngleOrPercentageVar(lunit));
+		}
+
+		private boolean isAngleOrPercentageVar(LexicalUnit lunit) {
+			LexicalUnit lu = findCustomPropertyFallback(lunit);
+			if (lu != null) {
+				if (ValueFactory.isAngleSACUnit(lu) || lu.getLexicalUnitType() == LexicalType.PERCENTAGE) {
+					return true;
+				}
+			} else {
+				throw new CSSLexicalProcessingException("var() without fallback found.");
+			}
+			return false;
 		}
 
 		private LexicalUnit processAngularColorStop(LexicalUnit lu, ValueFactory factory) {
