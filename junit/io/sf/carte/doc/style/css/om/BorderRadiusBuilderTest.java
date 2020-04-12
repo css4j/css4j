@@ -60,7 +60,7 @@ public class BorderRadiusBuilderTest {
 
 	@Test
 	public void testBorderRadiusVar() {
-		assertShorthandText("border-radius:var(--foo, 1px);", "border-radius:var(--foo,1px);");
+		assertShorthandText("border-radius:var(--foo,1px);", "border-radius:var(--foo,1px);");
 	}
 
 	@Test

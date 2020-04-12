@@ -98,7 +98,7 @@ public class GenericShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("text-decoration:var(--foo, double);", "text-decoration: var(--foo,double);");
+		assertShorthandText("text-decoration:var(--foo,double);", "text-decoration: var(--foo,double);");
 	}
 
 	@Test

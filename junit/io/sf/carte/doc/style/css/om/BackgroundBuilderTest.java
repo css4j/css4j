@@ -202,28 +202,28 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundPendingSubstitution() {
-		assertShorthandText("background:var(--foo, #f6ac43);", "background: var(--foo, #f6ac43);");
+		assertShorthandText("background:var(--foo,#f6ac43);", "background: var(--foo, #f6ac43);");
 	}
 
 	@Test
 	public void testBackgroundPendingSubstitutionImportant() {
-		assertShorthandText("background:var(--foo, #f6ac43)!important;", "background: var(--foo, #f6ac43)!important;");
+		assertShorthandText("background:var(--foo,#f6ac43)!important;", "background: var(--foo, #f6ac43)!important;");
 	}
 
 	@Test
 	public void testBackgroundPendingSubstitutionUpperCase() {
-		assertShorthandText("background:var(--FOO, #f6ac43);background-color:var(--BAR);",
+		assertShorthandText("background:var(--FOO,#f6ac43);background-color:var(--BAR);",
 				"background: var(--FOO, #f6ac43);background-color: var(--BAR)");
 	}
 
 	@Test
 	public void testBackgroundPendingSubstitutionUpperCase2() {
-		assertShorthandText("background:var(--FOO, #f6ac43);", "background: var(--FOO, #f6ac43);");
+		assertShorthandText("background:var(--FOO,#f6ac43);", "background: var(--FOO, #f6ac43);");
 	}
 
 	@Test
 	public void testBackgroundPendingSubstitutionUpperCase2Important() {
-		assertShorthandText("background:var(--FOO, #f6ac43)!important;", "background: var(--FOO, #f6ac43)!important;");
+		assertShorthandText("background:var(--FOO,#f6ac43)!important;", "background: var(--FOO, #f6ac43)!important;");
 	}
 
 	@Test

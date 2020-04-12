@@ -39,7 +39,7 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImageVar() {
-		assertShorthandText("border-image:var(--foo, url('/img/border.png'));",
+		assertShorthandText("border-image:var(--foo,url('/img/border.png'));",
 				"border-image:var(--foo,url('/img/border.png'));");
 	}
 

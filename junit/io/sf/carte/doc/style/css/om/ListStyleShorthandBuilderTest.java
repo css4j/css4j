@@ -57,7 +57,7 @@ public class ListStyleShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("list-style:var(--foo, square);", "list-style: var(--foo,square)");
+		assertShorthandText("list-style:var(--foo,square);", "list-style: var(--foo,square)");
 	}
 
 	@Test

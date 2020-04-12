@@ -56,7 +56,7 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("animation:var(--foo, 3500ms 5s);", "animation: var(--foo,3500ms 5s)");
+		assertShorthandText("animation:var(--foo,3500ms 5s);", "animation: var(--foo,3500ms 5s)");
 	}
 
 	@Test

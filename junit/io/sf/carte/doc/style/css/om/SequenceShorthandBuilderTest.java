@@ -40,7 +40,7 @@ public class SequenceShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("cue:var(--foo, url('foo.au'));", "cue: var(--foo,url('foo.au')); ");
+		assertShorthandText("cue:var(--foo,url('foo.au'));", "cue: var(--foo,url('foo.au')); ");
 	}
 
 	@Test

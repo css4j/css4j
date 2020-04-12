@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.property.LexicalValue;
 
 class PendingSubstitutionSetter extends BaseShorthandSetter {
 
@@ -82,7 +83,7 @@ class PendingSubstitutionSetter extends BaseShorthandSetter {
 
 	@Override
 	public String getMinifiedCssText() {
-		return lexicalValue.toString();
+		return LexicalValue.serializeMinifiedSequence(lexicalValue);
 	}
 
 }

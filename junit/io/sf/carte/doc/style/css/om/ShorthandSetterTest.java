@@ -419,7 +419,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-color"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("border-top: solid var(--mywidth, 2px) var(--mycolor, #da0); ", emptyStyleDecl.getCssText());
-		assertEquals("border-top:solid var(--mywidth, 2px) var(--mycolor, #da0);", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-top:solid var(--mywidth,2px) var(--mycolor,#da0);", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -428,7 +428,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-style"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("border-top: solid var(--mywidth, 2px); ", emptyStyleDecl.getCssText());
-		assertEquals("border-top:solid var(--mywidth, 2px);", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-top:solid var(--mywidth,2px);", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -1670,13 +1670,6 @@ public class ShorthandSetterTest {
 		assertEquals("5px", emptyStyleDecl.getPropertyValue("margin-left"));
 		assertEquals("margin: 10px 4pt 3px 5px; ", emptyStyleDecl.getCssText());
 		assertEquals("margin:10px 4pt 3px 5px;", emptyStyleDecl.getMinifiedCssText());
-		emptyStyleDecl.setCssText("margin: var(--mytopmargin) 4pt 3px 5px; ");
-		assertEquals("", emptyStyleDecl.getPropertyValue("margin-top"));
-		assertEquals("", emptyStyleDecl.getPropertyValue("margin-right"));
-		assertEquals("", emptyStyleDecl.getPropertyValue("margin-bottom"));
-		assertEquals("", emptyStyleDecl.getPropertyValue("margin-left"));
-		assertEquals("margin: var(--mytopmargin) 4pt 3px 5px; ", emptyStyleDecl.getCssText());
-		assertEquals("margin:var(--mytopmargin) 4pt 3px 5px;", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("margin: 10px inherit 3px auto; ");
 		assertEquals("10px", emptyStyleDecl.getPropertyValue("margin-top"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("margin-right"));
@@ -1732,6 +1725,25 @@ public class ShorthandSetterTest {
 				emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testMarginVar() {
+		emptyStyleDecl.setCssText("margin: var(--mytopmargin) 4pt 3px 5px; ");
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("margin: var(--mytopmargin) 4pt 3px 5px; ", emptyStyleDecl.getCssText());
+		assertEquals("margin:var(--mytopmargin) 4pt 3px 5px;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("margin: calc((var(--foo,1px))*-1)");
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-top"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-right"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-bottom"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("margin-left"));
+		assertEquals("margin: calc((var(--foo, 1px))*-1); ", emptyStyleDecl.getCssText());
+		assertEquals("margin:calc((var(--foo,1px))*-1);", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test

@@ -69,7 +69,7 @@ public class GridPlacementShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("grid-row:var(--foo, span 2);", "grid-row: var(--foo,span 2);");
+		assertShorthandText("grid-row:var(--foo,span 2);", "grid-row: var(--foo,span 2);");
 	}
 
 	@Test

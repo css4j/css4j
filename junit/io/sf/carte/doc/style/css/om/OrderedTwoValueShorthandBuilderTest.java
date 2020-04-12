@@ -61,7 +61,7 @@ public class OrderedTwoValueShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("place-content:var(--foo, center start);", "place-content: var(--foo,center start)");
+		assertShorthandText("place-content:var(--foo,center start);", "place-content: var(--foo,center start)");
 	}
 
 	@Test
