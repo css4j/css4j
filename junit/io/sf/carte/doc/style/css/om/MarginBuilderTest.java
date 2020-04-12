@@ -67,8 +67,8 @@ public class MarginBuilderTest {
 
 	@Test
 	public void testMarginVar() {
-		assertShorthandText("margin:var(--foo, 1px 2px);", "margin: var(--foo,1px 2px);");
-		assertShorthandText("margin:var(--foo, 1px 2px)!important;", "margin: var(--foo,1px 2px) ! important;");
+		assertShorthandText("margin:var(--foo,1px 2px);", "margin: var(--foo,1px 2px);");
+		assertShorthandText("margin:var(--foo,1px 2px)!important;", "margin: var(--foo,1px 2px) ! important;");
 	}
 
 	@Test

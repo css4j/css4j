@@ -19,6 +19,7 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.UnknownValue;
 import io.sf.carte.util.SimpleWriter;
@@ -64,7 +65,7 @@ class CompatDeclarationSet {
 		if (containsIdentCompat(value)) {
 			String cssText = value.toString();
 			ShorthandValue shorthand = new ShorthandValue(value, important);
-			shorthand.setShorthandText(cssText, cssText);
+			shorthand.setShorthandText(cssText, LexicalValue.serializeMinifiedSequence(value));
 			if (shadowedShorthands != null && shadowedShorthands.contains(propertyName)) {
 				compatShorthandMap.put(propertyName, shorthand);
 				nonOvShorthandMap.remove(propertyName);

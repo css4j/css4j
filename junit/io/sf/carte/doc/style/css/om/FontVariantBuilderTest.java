@@ -70,7 +70,7 @@ public class FontVariantBuilderTest {
 
 	@Test
 	public void testFontVariantVar() {
-		assertShorthandText("font-variant:var(--foo, small-caps);", "font-variant: var(--foo,small-caps);");
+		assertShorthandText("font-variant:var(--foo,small-caps);", "font-variant: var(--foo,small-caps);");
 	}
 
 	@Test

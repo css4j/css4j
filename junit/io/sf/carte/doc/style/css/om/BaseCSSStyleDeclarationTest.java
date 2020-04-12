@@ -650,6 +650,16 @@ public class BaseCSSStyleDeclarationTest {
 	}
 
 	@Test
+	public void setCssTextMarginTop() {
+		String cssText = "margin-top: calc((var(--foo, 0px) + var(--bar, 1px))*-1)";
+		emptyStyleDecl.setCssText(cssText);
+		assertEquals(1, emptyStyleDecl.getLength());
+		assertEquals("margin-top: calc((var(--foo, 0px) + var(--bar, 1px))*-1);\n", emptyStyleDecl.getCssText());
+		assertEquals("margin-top:calc((var(--foo,0px) + var(--bar,1px))*-1)", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void setCssTextEscapes() {
 		BaseCSSStyleDeclaration sd = new BaseCSSStyleDeclaration();
 		sd.setCssText("content: '\\A'");

@@ -178,7 +178,7 @@ public class GridShorthandBuilderTest {
 
 	@Test
 	public void testGridVar() {
-		assertShorthandText("grid:var(--foo, 100px 1fr/50px 1fr);", "grid: var(--foo,100px 1fr/50px 1fr)");
+		assertShorthandText("grid:var(--foo,100px 1fr/50px 1fr);", "grid: var(--foo,100px 1fr/50px 1fr)");
 	}
 
 	@Test

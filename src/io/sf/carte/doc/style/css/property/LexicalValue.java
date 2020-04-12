@@ -154,7 +154,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		return serializeMinifiedSequence(lexicalUnit);
 	}
 
-	private String serializeMinifiedSequence(LexicalUnit lexicalUnit) {
+	public static String serializeMinifiedSequence(LexicalUnit lexicalUnit) {
 		if (lexicalUnit.getNextLexicalUnit() == null) {
 			// Save a buffer creation
 			return serializeMinified(lexicalUnit);
@@ -192,7 +192,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		return buf.toString();
 	}
 
-	private String serializeMinified(LexicalUnit lexicalUnit) {
+	private static String serializeMinified(LexicalUnit lexicalUnit) {
 		StringBuilder buf;
 		switch (lexicalUnit.getLexicalUnitType()) {
 		case FUNCTION:
