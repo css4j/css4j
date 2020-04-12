@@ -212,7 +212,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case SUB_EXPRESSION:
 			buf = new StringBuilder();
 			buf.append('(');
-			lu = lexicalUnit.getParameters();
+			lu = lexicalUnit.getSubValues();
 			if (lu != null) {
 				buf.append(serializeMinifiedSequence(lu));
 			}
