@@ -195,15 +195,12 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		StringBuilder buf;
 		switch (lexicalUnit.getLexicalUnitType()) {
 		case FUNCTION:
-		case CALC:
 		case RECT_FUNCTION:
 		case VAR:
 		case ATTR:
 		case HSLCOLOR:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
-		case CUBIC_BEZIER_FUNCTION:
-		case STEPS_FUNCTION:
 			buf = new StringBuilder();
 			buf.append(lexicalUnit.getFunctionName()).append('(');
 			LexicalUnit lu = lexicalUnit.getParameters();
