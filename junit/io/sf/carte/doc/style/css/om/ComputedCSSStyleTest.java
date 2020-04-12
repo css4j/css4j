@@ -603,11 +603,11 @@ public class ComputedCSSStyleTest {
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertNotNull(fontSize);
-		assertEquals(CSSPrimitiveValue.CSS_PERCENTAGE, fontSize.getPrimitiveType());
-		assertEquals(66f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PERCENTAGE), 0.01f);
+		assertEquals(CSSPrimitiveValue.CSS_PT, fontSize.getPrimitiveType());
+		assertEquals(9.24f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 		assertEquals(9.24f, style.getComputedFontSize(), 0.01f);
 		assertEquals(
-				"display:block;margin-bottom:9.24pt;margin-right:1%;margin-top:9.24pt;unicode-bidi:embed;font-family:'Does Not Exist',Neither,Helvetica;font-size:66%;padding-left:calc(10% - 42pt - 14pt);",
+				"display:block;margin-bottom:9.24pt;margin-right:1%;margin-top:9.24pt;unicode-bidi:embed;font-family:'Does Not Exist',Neither,Helvetica;font-size:9.24pt;padding-left:calc(10% - 42pt - 14pt);",
 				style.getMinifiedCssText());
 		/*
 		 * font-size: 3-level identifier inheritance. Requires state from previous test!
@@ -617,10 +617,10 @@ public class ComputedCSSStyleTest {
 		style = nonextag.getComputedStyle(null);
 		fontSize = (CSSPrimitiveValue) style.getPropertyCSSValue("font-size");
 		assertNotNull(fontSize);
-		assertEquals(CSSPrimitiveValue.CSS_EMS, fontSize.getPrimitiveType());
-		assertEquals(0.85f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_EMS), 0.01f);
+		assertEquals(CSSPrimitiveValue.CSS_PT, fontSize.getPrimitiveType());
+		assertEquals(7.85f, fontSize.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
 		assertEquals(7.85f, style.getComputedFontSize(), 0.01f);
-		assertEquals("font-size:.85em;", style.getMinifiedCssText());
+		assertEquals("font-size:7.85pt;", style.getMinifiedCssText());
 		/*
 		 * property: initial
 		 */
