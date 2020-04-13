@@ -1671,6 +1671,34 @@ public class ComputedCSSStyleTest {
 	}
 
 	@Test
+	public void getComputedStyleFontSizeInheritInherit() throws CSSMediaException {
+		CSSElement html = xhtmlDoc.getDocumentElement();
+		assertNotNull(html);
+		html.getOverrideStyle(null).setCssText("font-size:inherit");
+		CSSElement elm = (CSSElement) html.getElementsByTagName("body").item(0);
+		elm.getOverrideStyle(null).setCssText("font-size:120%;");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals("120%", style.getPropertyValue("font-size"));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(html));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(html));
+	}
+
+	@Test
+	public void getComputedStyleFontSizeVarInherit() throws CSSMediaException {
+		CSSElement html = xhtmlDoc.getDocumentElement();
+		assertNotNull(html);
+		html.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:inherit");
+		CSSElement elm = (CSSElement) html.getElementsByTagName("body").item(0);
+		elm.getOverrideStyle(null).setCssText("font-size:120%;");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals("120%", style.getPropertyValue("font-size"));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(html));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(html));
+	}
+
+	@Test
 	public void getComputedStyleCalc() {
 		CSSElement elm = xhtmlDoc.getElementById("listpara");
 		assertNotNull(elm);

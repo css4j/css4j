@@ -1161,9 +1161,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			ComputedCSSStyle ancStyle = this;
 			do {
 				StyleValue inheritedValue = inheritValue(ancStyle, "font-size", primi, true);
-				primi = absoluteFontSizeValue(inheritedValue, force);
-				if (primi != null) {
-					break;
+				if (inheritedValue != null) {
+					primi = absoluteFontSizeValue(inheritedValue, force);
+					if (primi != null) {
+						break;
+					}
 				}
 				ancStyle = ancStyle.getParentComputedStyle();
 			} while (ancStyle != null);
