@@ -44,6 +44,13 @@ public class BackgroundBuilderTest {
 	}
 
 	@Test
+	public void testBackgroundLayeredMixVar() {
+		assertShorthandText(
+				"background:linear-gradient(to right,currentColor var(--foo,0),transparent var(--foo,0)) 0 0;",
+				"background: 0 0;background-image: linear-gradient(to right, currentColor var(--foo, 0), transparent var(--foo, 0))");
+	}
+
+	@Test
 	public void testBackgroundLayers() {
 		assertShorthandText(
 				"background:url('a.png') no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png') white;",
