@@ -1194,11 +1194,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					}
 				}
 			}
-		} else if (force) {
+		} else {
 			float sz = getInitialFontSize() * factor;
 			value = asNumericValuePt(sz);
-		} else {
-			value = cssSize;
 		}
 		return value;
 	}
