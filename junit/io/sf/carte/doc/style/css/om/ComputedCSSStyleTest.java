@@ -1981,6 +1981,27 @@ public class ComputedCSSStyleTest {
 		assertEquals("last baseline right", style.getPropertyValue("place-content"));
 	}
 
+	/*
+	 * Shorthand with var()
+	 */
+	@Test
+	public void getComputedStyleBackgroundShorthandVar() throws CSSMediaException {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null).setCssText(
+				"background:var(--my-background);--start1:0;--gray:#aaa;--black:#010102;--stop1:90%;--my-background:linear-gradient(90deg,transparent var(--start1),var(--gray) 33%,var(--black) var(--stop1),transparent 0) no-repeat 0 100%/100% 100%");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("linear-gradient(90deg, transparent 0, #aaa 33%, #010102 90%, transparent 0)", style.getPropertyValue("background-image"));
+		assertEquals("0 100%", style.getPropertyValue("background-position"));
+		assertEquals("100% 100%", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("no-repeat no-repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+	}
+
 	StyleRule defaultStyleRule(String selectorText, String propertyName) {
 		CSSRuleList rules = sheet.getCssRules();
 		for (int i = 0; i < rules.getLength(); i++) {
