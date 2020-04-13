@@ -974,11 +974,11 @@ public class ComputedCSSStyleTest {
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertNotNull(fontSize);
 		assertEquals(Type.NUMERIC, fontSize.getPrimitiveType());
-		assertEquals(CSSUnit.CSS_PT, fontSize.getUnitType());
-		assertEquals(9.24f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(CSSUnit.CSS_PERCENTAGE, fontSize.getUnitType());
+		assertEquals(66f, fontSize.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
 		assertEquals(9.24f, style.getComputedFontSize(), 0.01f);
 		assertEquals(
-				"display:block;margin-bottom:9.24pt;margin-right:1%;margin-top:9.24pt;unicode-bidi:embed;font-family:'Does Not Exist',Neither,Helvetica;font-size:9.24pt;padding-left:calc(10% - 42pt - 14pt);",
+				"display:block;margin-bottom:9.24pt;margin-right:1%;margin-top:9.24pt;unicode-bidi:embed;font-family:'Does Not Exist',Neither,Helvetica;font-size:66%;padding-left:calc(10% - 42pt - 14pt);",
 				style.getMinifiedCssText());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(listpara));
@@ -991,10 +991,10 @@ public class ComputedCSSStyleTest {
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertNotNull(fontSize);
 		assertEquals(Type.NUMERIC, fontSize.getPrimitiveType());
-		assertEquals(CSSUnit.CSS_PT, fontSize.getUnitType());
-		assertEquals(7.85f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(CSSUnit.CSS_EM, fontSize.getUnitType());
+		assertEquals(0.85f, fontSize.getFloatValue(CSSUnit.CSS_EM), 0.01f);
 		assertEquals(7.85f, style.getComputedFontSize(), 0.01f);
-		assertEquals("font-size:7.85pt;", style.getMinifiedCssText());
+		assertEquals("font-size:.85em;", style.getMinifiedCssText());
 		/*
 		 * property: initial
 		 */
@@ -1571,6 +1571,28 @@ public class ComputedCSSStyleTest {
 	}
 
 	@Test
+	public void getComputedStyleFontSizePcntInherit() throws CSSMediaException {
+		CSSElement html = xhtmlDoc.getDocumentElement();
+		assertNotNull(html);
+		html.getOverrideStyle(null).setCssText("font-size: 120%;");
+		CSSElement body = (CSSElement) html.getElementsByTagName("body").item(0);
+		body.getOverrideStyle(null).setCssText("font-size: inherit");
+		CSSElement div = xhtmlDoc.getElementById("div1");
+		div.getOverrideStyle(null).setCssText("font-size: inherit;");
+		CSSElement ul = xhtmlDoc.getElementById("ul1");
+		ul.getOverrideStyle(null).setCssText("font-size: inherit;");
+		CSSElement elm = xhtmlDoc.getElementById("inflink");
+		CSSElement li = (CSSElement) elm.getParentNode();
+		li.getOverrideStyle(null).setCssText("font-size: inherit;");
+		elm.getOverrideStyle(null).setCssText("font-size: inherit;");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals("14.4pt", style.getPropertyValue("font-size"));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(html));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(html));
+	}
+
+	@Test
 	public void getComputedStyleFontSizeInheritInherit() throws CSSMediaException {
 		CSSElement html = xhtmlDoc.getDocumentElement();
 		assertNotNull(html);
@@ -1594,6 +1616,22 @@ public class ComputedCSSStyleTest {
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertNotNull(style);
 		assertEquals("120%", style.getPropertyValue("font-size"));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(html));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(html));
+	}
+
+	@Test
+	public void getComputedStyleFontSizePcntInheritPcnt() throws CSSMediaException {
+		CSSElement html = xhtmlDoc.getDocumentElement();
+		assertNotNull(html);
+		html.getOverrideStyle(null).setCssText("font-size:120%;");
+		CSSElement body = (CSSElement) html.getElementsByTagName("body").item(0);
+		body.getOverrideStyle(null).setCssText("font-size:inherit");
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		elm.getOverrideStyle(null).setCssText("font-size:140%;");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals("20.16pt", style.getPropertyValue("font-size"));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(html));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(html));
 	}
