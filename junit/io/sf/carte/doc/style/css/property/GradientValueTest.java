@@ -200,6 +200,19 @@ public class GradientValueTest {
 	}
 
 	@Test
+	public void testGetCssTextLinearVarLexical2() {
+		style.setCssText(
+				"--my-background:linear-gradient(90deg,transparent var(--start1),var(--gray) 0,var(--black) var(--stop1),transparent 0) no-repeat 0 100%/100% 100%");
+		StyleValue cssval = style.getPropertyCSSValue("--my-background");
+		assertNotNull(cssval);
+		assertEquals(CSSValue.Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals(
+				"linear-gradient(90deg, transparent var(--start1), var(--gray) 0, var(--black) var(--stop1), transparent 0) no-repeat 0 100%/100% 100%",
+				cssval.getCssText());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testGetCssTextLinearVarPcntFirst() {
 		style.setCssText("background-image: linear-gradient(to top right, 0% var(--foo1,red), 33% var(--foo2,white), 66% var(--foo3,blue)); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");

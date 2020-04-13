@@ -1037,7 +1037,23 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			Parser parser) throws DOMException {
 		Exception exception = null;
 		try {
-			StyleValue custom = getCSSValue(customProperty);
+			StyleValue custom = super.getCSSValue(customProperty);
+			if (custom != null) {
+				if (custom.getPrimitiveType() == Type.UNSET) {
+					custom = null;
+				}
+				/*
+				 * We compute inherited value, if appropriate.
+				 * Custom properties are inherited.
+				 */
+				custom = inheritValue(this, customProperty, custom, true);
+				if (custom != null && custom.getPrimitiveType() == Type.LEXICAL) {
+					LexicalUnit lu = ((LexicalValue) custom).getLexicalUnit();
+					lu = replaceLexicalVar(property, lu, parser);
+					return lu;
+				}
+			}
+			custom = getCSSValue(customProperty);
 			if (custom != null) {
 				String cssText = custom.getCssText();
 				return parser.parsePropertyValue(new StringReader(cssText));
