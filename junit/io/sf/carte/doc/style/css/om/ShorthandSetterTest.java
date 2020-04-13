@@ -2263,6 +2263,28 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testBackgroundImageMix() {
+		emptyStyleDecl.setCssText(
+				"background: 0 0;background-image: linear-gradient(to right, currentColor var(--foo, 0), transparent var(--foo, 0))");
+		assertEquals("linear-gradient(to right, currentColor var(--foo, 0), transparent var(--foo, 0))",
+				emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("0 0", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("padding-box", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("scroll", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals(
+				"background: 0 0; background-image: linear-gradient(to right, currentColor var(--foo, 0), transparent var(--foo, 0)); ",
+				emptyStyleDecl.getCssText());
+		assertEquals(
+				"background:0 0;background-image:linear-gradient(to right,currentColor var(--foo,0),transparent var(--foo,0))",
+				emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testBackgroundColorBad() {
 		emptyStyleDecl.setCssText("background: gray, yellow;");
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
