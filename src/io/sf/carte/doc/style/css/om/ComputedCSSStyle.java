@@ -84,6 +84,19 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implements CSSComputedProperties {
 
+	/*
+	 * Default widths and heights per media, in typographic points.
+	 * To use when no style database is available, but a medium i set.
+	 * Only applies to the determination of the initial containing block,
+	 * and not to media queries.
+	 */
+	static final float SCREEN_WIDTH = 1440f;
+	static final float SCREEN_HEIGHT = 810f;
+	static final float HANDHELD_WIDTH = 270f;
+	static final float HANDHELD_HEIGHT = 480f;
+	static final float PRINT_WIDTH = 595f; // A4
+	static final float PRINT_HEIGHT = 842f; // A4
+
 	private final BaseDocumentCSSStyleSheet ownerSheet;
 
 	private CSSElement node = null;
@@ -603,11 +616,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		String medium;
 		if (force && (medium = getOwnerNode().getOwnerDocument().getTargetMedium()) != null) {
 			if ("print".equals(medium)) {
-				return 595f; // A4
+				return PRINT_WIDTH;
 			} else if ("screen".equals(medium)) {
-				return 1440f;
+				return SCREEN_WIDTH;
 			} else if ("handheld".equals(medium)) {
-				return 270f;
+				return HANDHELD_WIDTH;
 			}
 		}
 		throw new StyleDatabaseRequiredException("Unit conversion failed.");
@@ -631,11 +644,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		String medium;
 		if (force && (medium = getOwnerNode().getOwnerDocument().getTargetMedium()) != null) {
 			if ("print".equals(medium)) {
-				return 842f; // A4
+				return PRINT_HEIGHT;
 			} else if ("screen".equals(medium)) {
-				return 810f;
+				return SCREEN_HEIGHT;
 			} else if ("handheld".equals(medium)) {
-				return 480f;
+				return HANDHELD_HEIGHT;
 			}
 		}
 		throw new StyleDatabaseRequiredException("Unit conversion failed.");
