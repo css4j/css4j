@@ -181,10 +181,22 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 		return fval;
 	}
 
+	/**
+	 * Get the number of entries in the color lookup table of the device.
+	 * 
+	 * @return the number of entries in the color lookup table of the device, or
+	 *         {@code 0} if the device does not use a color lookup table.
+	 */
 	protected abstract float getColorIndex();
 
 	protected abstract boolean isGridDevice();
 
+	/**
+	 * Get the number of bits per pixel in a monochrome frame buffer.
+	 * 
+	 * @return the number of bits per pixel in a monochrome frame buffer, or
+	 *         {@code 0} if the device is not a monochrome device.
+	 */
 	protected abstract int getMonoBitsPerPixel();
 
 	protected abstract String getOrientation();
@@ -195,6 +207,11 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 
 	protected abstract String getPointerAccuracy();
 
+	/**
+	 * Get the device resolution.
+	 * 
+	 * @return the device resolution, in {@code dpi}.
+	 */
 	protected abstract float getResolution();
 
 	protected abstract String getScanType();
