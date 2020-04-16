@@ -249,6 +249,26 @@ public class MediaQueryTest {
 	}
 
 	@Test
+	public void testGetMediaRatioError5() {
+		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/foo) and (min-width:300px),screen and (color>5)");
+		assertTrue(mql.hasErrors());
+		assertFalse(mql.isNotAllMedia());
+		assertEquals("screen and (color > 5)", mql.getMedia());
+		assertEquals("screen and (color>5)", mql.getMinifiedMedia());
+		assertEquals(1, mql.getLength());
+	}
+
+	@Test
+	public void testGetMediaRatioError6() {
+		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/3px) and (min-width:300px),screen and (color>5)");
+		assertTrue(mql.hasErrors());
+		assertFalse(mql.isNotAllMedia());
+		assertEquals("screen and (color > 5)", mql.getMedia());
+		assertEquals("screen and (color>5)", mql.getMinifiedMedia());
+		assertEquals(1, mql.getLength());
+	}
+
+	@Test
 	public void testGetMediaRatioErrorNegComponent() {
 		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/-100) and (min-width:300px)");
 		assertTrue(mql.hasErrors());

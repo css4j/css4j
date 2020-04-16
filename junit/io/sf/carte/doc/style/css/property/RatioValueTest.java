@@ -146,6 +146,12 @@ public class RatioValueTest {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
 		}
 		try {
+			value.setCssText("16/foo");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.SYNTAX_ERR, e.code);
+		}
+		try {
 			value.setCssText("16/-1");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
@@ -153,6 +159,12 @@ public class RatioValueTest {
 		}
 		try {
 			value.setCssText("-2/1");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			value.setCssText("2/3em");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
