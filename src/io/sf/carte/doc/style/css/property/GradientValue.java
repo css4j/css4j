@@ -139,6 +139,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			// If the argument is to top, to right, to bottom, or to left, the angle of the gradient
 			// line is 0deg, 90deg, 180deg, or 270deg, respectively.
 			// If angle is omitted, it defaults to 'to bottom'.
+			int colorStopCount = 0;
 			LexicalUnit colorStopLU;
 			if (isLinearColorStop(lu)) {
 				// Omitted
@@ -151,6 +152,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			}
 			do {
 				colorStopLU = processLinearColorStop(colorStopLU, factory);
+				colorStopCount++;
 				if (colorStopLU != null) {
 					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
@@ -158,7 +160,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Expected color stops, found: " + lu.toString());
 					}
 				}
-			} while (colorStopLU != null); // TODO: check for at least 2 color stops
+			} while (colorStopLU != null);
+			if (colorStopCount < 2) {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Expected at least 2 color stops, found only one.");
+			}
 		}
 
 		/*
@@ -321,6 +326,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		private void setRadialGradient(LexicalUnit lu, ValueFactory factory) {
 			// [ [ <ending-shape> || <size> ] [ at <position> ]? , | at <position>, ]? <color-stop> [ , <color-stop> ]+
 			// <ending-shape> = circle | ellipse
+			int colorStopCount = 0;
 			LexicalUnit colorStopLU;
 			if (!isLinearColorStop(lu)) {
 				lu = processNonColorStop(lu, factory);
@@ -334,6 +340,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			}
 			do {
 				colorStopLU = processLinearColorStop(colorStopLU, factory);
+				colorStopCount++;
 				if (colorStopLU != null) {
 					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
@@ -341,7 +348,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Expected color stops, found: " + lu.toString());
 					}
 				}
-			} while (colorStopLU != null); // TODO: check for at least 2 color stops
+			} while (colorStopLU != null);
+			if (colorStopCount < 2) {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Expected at least 2 color stops, found only one.");
+			}
 		}
 
 		private LexicalUnit processNonColorStop(LexicalUnit lu, ValueFactory factory) {
@@ -371,6 +381,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			// <angle-percentage> = [ <angle> | <percentage> ]
 			// <color-stop> = <color-stop-length> | <color-stop-angle>
 			// <color-stop-length> = <length-percentage>{1,2}
+			int colorStopCount = 0;
 			LexicalUnit colorStopLU;
 			if (!isAngularColorStop(lu)) {
 				ValueList list = ValueList.createWSValueList();
@@ -394,6 +405,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			}
 			do {
 				colorStopLU = processAngularColorStop(colorStopLU, factory);
+				colorStopCount++;
 				if (colorStopLU != null) {
 					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
@@ -401,7 +413,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 						throw new DOMException(DOMException.SYNTAX_ERR, "Expected color stops, found: " + lu.toString());
 					}
 				}
-			} while (colorStopLU != null); // TODO: check for at least 2 color stops
+			} while (colorStopLU != null);
+			if (colorStopCount < 2) {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Expected at least 2 color stops, found only one.");
+			}
 		}
 
 		private boolean isAngularColorStop(LexicalUnit lu) {
