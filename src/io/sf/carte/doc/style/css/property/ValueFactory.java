@@ -1082,6 +1082,9 @@ public class ValueFactory {
 					setter.setLexicalUnit(consec.getNextLexicalUnit());
 					ratio.setSubproperty(subp);
 				} catch (DOMException e) {
+					if (e.code == DOMException.INVALID_ACCESS_ERR) {
+						throw e;
+					}
 				}
 			} else {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Invalid ratio.");
