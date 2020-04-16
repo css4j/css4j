@@ -205,7 +205,50 @@ public class MediaQueryTest {
 		assertFalse(mql.hasErrors());
 		assertEquals("(max-aspect-ratio: 160/100) and (min-width: 300px)", mql.getMedia());
 		assertEquals("(max-aspect-ratio:160/100) and (min-width:300px)", mql.getMinifiedMedia());
-		mql.item(0);
+		assertEquals("(max-aspect-ratio: 160/100) and (min-width: 300px)", mql.item(0));
+		assertEquals(1, mql.getLength());
+	}
+
+	@Test
+	public void testGetMediaRatioError() {
+		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/) and (min-width:300px)");
+		assertTrue(mql.hasErrors());
+		assertTrue(mql.isNotAllMedia());
+		assertEquals("not all", mql.getMedia());
+		assertEquals("not all", mql.getMinifiedMedia());
+	}
+
+	@Test
+	public void testGetMediaRatioError2() {
+		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/) and (min-width:300px),screen and (color>5)");
+		assertTrue(mql.hasErrors());
+		assertFalse(mql.isNotAllMedia());
+		assertEquals("screen and (color > 5)", mql.getMedia());
+		assertEquals("screen and (color>5)", mql.getMinifiedMedia());
+		assertEquals(1, mql.getLength());
+	}
+
+	@Test
+	public void testGetMediaRatioError3() {
+		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/ and (min-width:300px),print),screen and (color>5)");
+		assertTrue(mql.hasErrors());
+		assertFalse(mql.isNotAllMedia());
+		assertEquals("screen and (color > 5)", mql.getMedia());
+		assertEquals("screen and (color>5)", mql.getMinifiedMedia());
+		assertEquals(1, mql.getLength());
+	}
+
+	@Test
+	public void testGetMediaRatioError4() {
+		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/) and (min-width:300px,print),screen and (color>5)");
+		assertTrue(mql.hasErrors());
+		assertFalse(mql.isNotAllMedia());
+		assertEquals("screen and (color > 5)", mql.getMedia());
+		assertEquals("screen and (color>5)", mql.getMinifiedMedia());
+		assertEquals(1, mql.getLength());
+	}
+
+	@Test
 	}
 
 	@Test
@@ -392,6 +435,7 @@ public class MediaQueryTest {
 		assertFalse(mql.isNotAllMedia());
 		assertTrue(mql.hasErrors());
 		assertEquals("tv", mql.getMedia());
+		assertEquals(1, mql.getLength());
 	}
 
 	@Test
@@ -402,6 +446,7 @@ public class MediaQueryTest {
 		assertFalse(mql.isNotAllMedia());
 		assertTrue(mql.hasErrors());
 		assertEquals("speech", mql.getMedia());
+		assertEquals(1, mql.getLength());
 	}
 
 	@Test
@@ -411,6 +456,7 @@ public class MediaQueryTest {
 		assertFalse(mql.isNotAllMedia());
 		assertTrue(mql.hasErrors());
 		assertEquals("speech", mql.getMedia());
+		assertEquals(1, mql.getLength());
 	}
 
 	@Test

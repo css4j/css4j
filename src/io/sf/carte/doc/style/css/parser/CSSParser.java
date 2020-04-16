@@ -852,6 +852,15 @@ public class CSSParser implements Parser {
 			throw createException(index, errCode, message);
 		}
 
+		@Override
+		void resetHandler() {
+			// do not reset parendepth nor opDepthIndex or opParenDepth[].
+			prevcp = 32;
+			parseError = false;
+			currentCond = null;
+			buffer.setLength(0);
+		}
+
 	}
 
 	private class SupportsTokenHandler extends ConditionTokenHandler {
@@ -1334,7 +1343,7 @@ public class CSSParser implements Parser {
 							if (value1 == null) {
 								handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 							} else {
-								handlePredicate(featureName, rangeType, value1);
+								handlePredicate(index, featureName, rangeType, value1);
 								if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
 									handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 											"Probable hack in media feature.");
@@ -1346,7 +1355,7 @@ public class CSSParser implements Parser {
 								if (value == null) {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 								} else {
-									handlePredicate(featureName, (byte) 0, value);
+									handlePredicate(index, featureName, (byte) 0, value);
 									if (value.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
 										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 												"Probable hack in media feature.");
@@ -1360,7 +1369,7 @@ public class CSSParser implements Parser {
 								} else if (value2 == null) {
 									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 								} else {
-									handlePredicate(featureName, rangeType, value1, value2);
+									handlePredicate(index, featureName, rangeType, value1, value2);
 									if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT
 											|| value2.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
 										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
@@ -1368,7 +1377,7 @@ public class CSSParser implements Parser {
 									}
 								}
 							} else if (stage == 3 && !spaceFound) {
-								handlePredicate(buffer.toString(), (byte) 0, null);
+								handlePredicate(index, buffer.toString(), (byte) 0, null);
 							} else {
 								handleError(index, ParseHelper.ERR_EXPR_SYNTAX, buffer.toString());
 							}
@@ -1404,11 +1413,12 @@ public class CSSParser implements Parser {
 				if (nlu != null && (nlu.getLexicalUnitType() != LexicalType.OPERATOR_SLASH
 						|| nlu.getNextLexicalUnit() == null)) {
 					handleError(index, ParseHelper.ERR_EXPR_SYNTAX, "Invalid feature value: " + feature);
+					lunit = null;
 				}
 				return lunit;
 			}
 
-			private void handlePredicate(String featureName, byte rangeType, LexicalUnit value) {
+			private void handlePredicate(int index, String featureName, byte rangeType, LexicalUnit value) {
 				String lcFeatureName;
 				if (value == null && currentCond == null && mediaType == null
 						&& isValidMediaType(lcFeatureName = featureName.toLowerCase(Locale.ROOT))) {
@@ -1418,7 +1428,13 @@ public class CSSParser implements Parser {
 					MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory
 							.createPredicate(featureName);
 					predicate.setRangeType(rangeType);
-					predicate.setValue(value);
+					try {
+						predicate.setValue(value);
+					} catch (DOMException e) {
+						handleError(index, ParseHelper.ERR_WRONG_VALUE, e.getMessage() + ": " + value.toString());
+						clearPredicate();
+						return;
+					}
 					if (currentCond == null) {
 						currentCond = predicate;
 					} else {
@@ -1428,11 +1444,17 @@ public class CSSParser implements Parser {
 				clearPredicate();
 			}
 
-			private void handlePredicate(String featureName, byte rangeType, LexicalUnit value1,
+			private void handlePredicate(int index, String featureName, byte rangeType, LexicalUnit value1,
 					LexicalUnit value2) {
 				MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory.createPredicate(featureName);
 				predicate.setRangeType(rangeType);
-				predicate.setValueRange(value1, value2);
+				try {
+					predicate.setValueRange(value1, value2);
+				} catch (DOMException e) {
+					handleError(index, ParseHelper.ERR_WRONG_VALUE, e.getMessage());
+					clearPredicate();
+					return;
+				}
 				if (currentCond == null) {
 					currentCond = predicate;
 				} else {
@@ -1588,9 +1610,9 @@ public class CSSParser implements Parser {
 				currentCond = null;
 				mediaType = null;
 				stage = 0;
-				prevcp = 32;
 				negativeQuery = false;
-				parseError = false;
+				functionToken = false;
+				resetHandler();
 				clearPredicate();
 			}
 
