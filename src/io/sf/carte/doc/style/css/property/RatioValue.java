@@ -17,6 +17,7 @@ import java.util.Objects;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSRatioValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -124,12 +125,16 @@ public class RatioValue extends TypedValue implements CSSRatioValue {
 		CssType cat = value.getCssValueType();
 		Type ptype = value.getPrimitiveType();
 		if (cat != CssType.PROXY && (cat != CssType.TYPED
-				|| ((ptype != Type.NUMERIC || isNegativeNumber(value)) && ptype != Type.EXPRESSION))) {
+				|| ((ptype != Type.NUMERIC || isNotPositiveNumber(value)) && ptype != Type.EXPRESSION))) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected type in ratio: " + ptype);
 		}
 	}
 
-	private static boolean isNegativeNumber(PrimitiveValue value) {
+	private static boolean isNotPositiveNumber(PrimitiveValue value) {
+		if (value.getUnitType() != CSSUnit.CSS_NUMBER) {
+			// If we reached here, it is a NUMERIC value, now must be dimensionless.
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Ratio components cannot have dimensions.");
+		}
 		if (!value.isNegativeNumber()) {
 			return false;
 		}
