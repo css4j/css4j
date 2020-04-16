@@ -123,9 +123,17 @@ public class RatioValue extends TypedValue implements CSSRatioValue {
 		}
 		CssType cat = value.getCssValueType();
 		Type ptype = value.getPrimitiveType();
-		if (cat != CssType.PROXY && (cat != CssType.TYPED || (ptype != Type.NUMERIC && ptype != Type.EXPRESSION))) {
+		if (cat != CssType.PROXY && (cat != CssType.TYPED
+				|| ((ptype != Type.NUMERIC || isNegativeNumber(value)) && ptype != Type.EXPRESSION))) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected type in ratio: " + ptype);
 		}
+	}
+
+	private static boolean isNegativeNumber(PrimitiveValue value) {
+		if (!value.isNegativeNumber()) {
+			return false;
+		}
+		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Ratio components cannot be negative.");
 	}
 
 	@Override

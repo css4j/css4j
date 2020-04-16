@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -105,6 +106,19 @@ public class RatioValueTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
 		}
+		//
+		try {
+			ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("-1"));
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			ratio.setConsequentValue((PrimitiveValue) vf.parseProperty("-1"));
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
 	}
 
 	@Test
@@ -131,6 +145,36 @@ public class RatioValueTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
 		}
+		try {
+			value.setCssText("16/-1");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+		try {
+			value.setCssText("-2/1");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testInfiniteRatio() {
+		ValueFactory vf = new ValueFactory();
+		PrimitiveValue value = vf.parseMediaFeature("1/0");
+		RatioValue ratio = (RatioValue) value;
+		assertNotNull(ratio);
+		assertEquals("1/0", ratio.getCssText());
+	}
+
+	@Test
+	public void testNaNRatio() {
+		ValueFactory vf = new ValueFactory();
+		PrimitiveValue value = vf.parseMediaFeature("0/0");
+		RatioValue ratio = (RatioValue) value;
+		assertNotNull(ratio);
+		assertEquals("0/0", ratio.getCssText());
 	}
 
 	@Test
