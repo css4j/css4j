@@ -800,6 +800,16 @@ abstract class SimpleBoxModel {
 			}
 		}
 		if (sdb == null) {
+			String medium;
+			if (doc != null && (medium = doc.getTargetMedium()) != null) {
+				if ("print".equals(medium)) {
+					return ComputedCSSStyle.PRINT_WIDTH;
+				} else if ("screen".equals(medium)) {
+					return ComputedCSSStyle.SCREEN_WIDTH;
+				} else if ("handheld".equals(medium)) {
+					return ComputedCSSStyle.HANDHELD_WIDTH;
+				}
+			}
 			StyleDatabaseRequiredException pve = new StyleDatabaseRequiredException(
 					"No style database, " + failureReason);
 			pve.setValueText(value);
