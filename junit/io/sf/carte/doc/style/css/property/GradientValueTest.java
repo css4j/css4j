@@ -271,6 +271,22 @@ public class GradientValueTest {
 	}
 
 	@Test
+	public void testGetCssTextLinearBadOneStop() {
+		style.setCssText("background-image: linear-gradient(to top right, red); ");
+		assertNull(style.getPropertyCSSValue("background-image"));
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testGetCssTextLinearBadOneStop2() {
+		style.setCssText("background-image: linear-gradient(red); ");
+		assertNull(style.getPropertyCSSValue("background-image"));
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testGetCssTextLinearNonStandard() {
 		style.setCssText(
 				"background-image: -moz-linear-gradient(center top, rgb(51, 153, 51) 0%, rgb(51, 119, 51) 100%); ");
@@ -559,6 +575,14 @@ public class GradientValueTest {
 	}
 
 	@Test
+	public void testGetCssTextRadialBadOneStop() {
+		style.setCssText("background-image: radial-gradient(5em circle at top left, yellow); ");
+		assertNull(style.getPropertyCSSValue("background-image"));
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testGetCssTextConic() {
 		style.setCssText("background-image: conic-gradient(#f06, gold); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
@@ -781,20 +805,36 @@ public class GradientValueTest {
 	}
 
 	@Test
+	public void testGetCssTextConicBadOneStop() {
+		style.setCssText("background-image: conic-gradient(#f06); ");
+		assertNull(style.getPropertyCSSValue("background-image"));
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testGetCssTextConicBadOneStop2() {
+		style.setCssText("background-image: conic-gradient(at 50% 50%, #f06); ");
+		assertNull(style.getPropertyCSSValue("background-image"));
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testGetCssTextRepeatingConic() {
-		style.setCssText("background-image: repeating-conic-gradient(hsl(0 0% 100%/.2) 0deg 15deg); ");
+		style.setCssText("background-image: repeating-conic-gradient(hsl(0 0% 100%/.2) 0deg 15deg, hsl(0 33% 100%/.7) 15deg 30deg);");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
-		assertEquals("repeating-conic-gradient(hsl(0 0% 100% / 0.2) 0deg 15deg)",
+		assertEquals("repeating-conic-gradient(hsl(0 0% 100% / 0.2) 0deg 15deg, hsl(0 33% 100% / 0.7) 15deg 30deg)",
 				style.getPropertyValue("background-image"));
-		assertEquals("background-image: repeating-conic-gradient(hsl(0 0% 100% / 0.2) 0deg 15deg); ",
+		assertEquals("background-image: repeating-conic-gradient(hsl(0 0% 100% / 0.2) 0deg 15deg, hsl(0 33% 100% / 0.7) 15deg 30deg); ",
 				style.getCssText());
-		assertEquals("background-image:repeating-conic-gradient(hsl(0 0% 100%/.2) 0deg 15deg)",
+		assertEquals("background-image:repeating-conic-gradient(hsl(0 0% 100%/.2) 0deg 15deg,hsl(0 33% 100%/.7) 15deg 30deg)",
 				style.getMinifiedCssText());
 		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
 		assertNotNull(val);
 		assertEquals(CSSGradientValue.GradientType.REPEATING_CONIC_GRADIENT, val.getGradientType());
-		assertEquals(1, val.getArguments().size());
+		assertEquals(2, val.getArguments().size());
 		//
 		style.setCssText("background-image: repeating-conic-gradient(gold, #f06 20deg); ");
 		cssval = style.getPropertyCSSValue("background-image");
@@ -806,6 +846,21 @@ public class GradientValueTest {
 		assertNotNull(val);
 		assertEquals(CSSGradientValue.GradientType.REPEATING_CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
+	}
+
+	@Test
+	public void testGetCssTextRepeatingConicBadOneStop() {
+		style.setCssText("background-image: repeating-conic-gradient(hsl(0 0% 100%/.2) 0deg 15deg);");
+		assertNull(style.getPropertyCSSValue("background-image"));
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testGetCssTextRepeatingConicBadOneStop2() {
+		style.setCssText("background-image: repeating-conic-gradient(gold 20deg); ");
+		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
 	}
 
 	@Test
