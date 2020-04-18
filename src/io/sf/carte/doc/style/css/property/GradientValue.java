@@ -268,8 +268,6 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				list.add(factory.createCSSPrimitiveValue(lu, true));
 				getArguments().add(list);
 				finalLU = lu2.getNextLexicalUnit();
-			} else if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-				finalLU = lu;
 			} else {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Bad color stop");
 			}
@@ -356,14 +354,18 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 
 		private LexicalUnit processNonColorStop(LexicalUnit lu, ValueFactory factory) {
 			ValueList list = ValueList.createWSValueList();
-			while (lu != null) {
+			do {
+				// 'lu' was checked to be non-null before calling.
 				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
+					if (list.isEmpty()) {
+						throw new DOMException(DOMException.SYNTAX_ERR, "Found empty argument: " + lu.toString());
+					}
 					lu = lu.getNextLexicalUnit();
 					break;
 				}
 				list.add(factory.createCSSPrimitiveValue(lu, true));
 				lu = lu.getNextLexicalUnit();
-			}
+			} while (lu != null);
 			if (list.getLength() != 1) {
 				getArguments().add(list);
 			} else {
@@ -385,14 +387,18 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			LexicalUnit colorStopLU;
 			if (!isAngularColorStop(lu)) {
 				ValueList list = ValueList.createWSValueList();
-				while (lu != null) {
+				do {
+					// 'lu' was checked to be non-null before calling.
 					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
+						if (list.isEmpty()) {
+							throw new DOMException(DOMException.SYNTAX_ERR, "Found empty argument: " + lu.toString());
+						}
 						lu = lu.getNextLexicalUnit();
 						break;
 					}
 					list.add(factory.createCSSPrimitiveValue(lu, true));
 					lu = lu.getNextLexicalUnit();
-				}
+				} while (lu != null);
 				if (list.getLength() != 1) {
 					getArguments().add(list);
 				} else {
@@ -503,8 +509,8 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				// Hint
 				getArguments().add(factory.createCSSPrimitiveValue(lu, true));
 				finalLU = lu2;
-			} else if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-				finalLU = lu;
+			} else {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Bad angular color stop");
 			}
 			return finalLU;
 		}
