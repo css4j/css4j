@@ -256,6 +256,22 @@ public class GradientValueTest {
 	}
 
 	@Test
+	public void testGetCssTextLinearWarning() {
+		style.setCssText("background-image: linear-gradient(top right, red, white, blue); ");
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
+		assertEquals("linear-gradient(top right, red, white, blue)", style.getPropertyValue("background-image"));
+		assertEquals("background-image: linear-gradient(top right, red, white, blue); ", style.getCssText());
+		assertEquals("background-image:linear-gradient(top right,red,white,blue)", style.getMinifiedCssText());
+		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
+		assertNotNull(val);
+		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
+		assertEquals(4, val.getArguments().size());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testGetCssTextLinearBad() {
 		style.setCssText("background-image: linear-gradient(45deg to left top, yellow 0%, blue 100%); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
