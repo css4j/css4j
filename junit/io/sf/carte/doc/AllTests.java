@@ -96,6 +96,7 @@ import io.sf.carte.doc.style.css.parser.MediaQueryDatabaseTest;
 import io.sf.carte.doc.style.css.parser.NSACMediaQueryTest;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactoryTest;
 import io.sf.carte.doc.style.css.parser.ParseHelperTest;
+import io.sf.carte.doc.style.css.parser.PropertyParserColorTest;
 import io.sf.carte.doc.style.css.parser.PropertyParserTest;
 import io.sf.carte.doc.style.css.parser.RuleParserTest;
 import io.sf.carte.doc.style.css.parser.SelectorParserNSTest;
@@ -226,6 +227,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		NSACMediaQueryTest.class,
 		NSACSelectorFactoryTest.class,
 		ParseHelperTest.class,
+		PropertyParserColorTest.class,
 		PropertyParserTest.class,
 		RuleParserTest.class,
 		SelectorParserTest.class,
