@@ -218,6 +218,10 @@ class LexicalUnitImpl implements LexicalUnit {
 			// Save a buffer creation
 			return currentToString().toString();
 		}
+		/*
+		 * If you change any of the following, you may need to change it in
+		 * LexicalValue.serializeMinifiedSequence() as well.
+		 */
 		StringBuilder buf = new StringBuilder();
 		LexicalUnitImpl lu = this;
 		boolean needSpaces = false;
@@ -234,6 +238,7 @@ class LexicalUnitImpl implements LexicalUnit {
 			case LEFT_BRACKET:
 				needSpaces = false;
 			case OPERATOR_COMMA:
+			case OPERATOR_SEMICOLON:
 				break;
 			case RIGHT_BRACKET:
 				needSpaces = true;
@@ -351,6 +356,8 @@ class LexicalUnitImpl implements LexicalUnit {
 			return getStringValue();
 		case OPERATOR_COMMA:
 			return ",";
+		case OPERATOR_SEMICOLON:
+			return ";";
 		case OPERATOR_EXP:
 			return "^";
 		case OPERATOR_GE:

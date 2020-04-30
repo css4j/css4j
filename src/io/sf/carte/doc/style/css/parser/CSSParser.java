@@ -5161,8 +5161,13 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		protected void handleSemicolon(int index) {
+		protected void endOfPropertyDeclaration(int index) {
 			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ';'");
+		}
+
+		@Override
+		protected boolean isDeclarationContext() {
+			return true;
 		}
 
 		@Override
@@ -5225,6 +5230,10 @@ public class CSSParser implements Parser {
 
 		int getCurlyBracketDepth() {
 			return curlyBracketDepth;
+		}
+
+		boolean allowSemicolonArgument() {
+			return "switch".equalsIgnoreCase(currentlu.value);
 		}
 
 		@Override
@@ -5984,11 +5993,22 @@ public class CSSParser implements Parser {
 			unexpectedCharError(index, 64);
 		}
 
-		protected void handleSemicolon(int index) {
-			if (curlyBracketDepth == 1 && parendepth == 0 && squareBracketDepth == 0)
-				endOfPropertyDeclaration(index);
-			else
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ';'");
+		private void handleSemicolon(int index) {
+			if (isDeclarationContext() && squareBracketDepth == 0) {
+				if (parendepth == 0) {
+					endOfPropertyDeclaration(index);
+					return;
+				} else if (parendepth == 1 && functionToken && allowSemicolonArgument()) {
+					processBuffer(index);
+					newLexicalUnit(LexicalType.OPERATOR_SEMICOLON);
+					return;
+				}
+			}
+			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ';'");
+		}
+
+		protected boolean isDeclarationContext() {
+			return curlyBracketDepth == 1;
 		}
 
 		protected void badPropertyName(int index, int codepoint) {
