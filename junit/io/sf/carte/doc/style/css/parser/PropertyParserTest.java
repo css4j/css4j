@@ -1810,6 +1810,43 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueFunctionCustomNoWS() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("-foo(transparent,green,#fff)");
+		assertEquals("-foo", lu.getFunctionName());
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("transparent", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("green", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.RGBCOLOR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", param.getFunctionName());
+		param = param.getParameters();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(255, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(255, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(255, param.getIntegerValue());
+		assertEquals("-foo(transparent, green, #fff)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyBadFunction() throws CSSException, IOException {
 		try {
 			parsePropertyValue("foo(,+)");
