@@ -27,6 +27,11 @@ public interface LexicalUnit {
 		OPERATOR_COMMA,
 
 		/**
+		 * ;
+		 */
+		OPERATOR_SEMICOLON,
+
+		/**
 		 * +
 		 */
 		OPERATOR_PLUS,
