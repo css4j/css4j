@@ -2640,6 +2640,20 @@ public class MediaQueryTest {
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*
+		 * Prefers-reduced-motion
+		 */
+		mql = createMediaQueryList("screen and (prefers-reduced-motion: reduce)");
+		assertFalse(mql.hasErrors());
+		assertFalse(mql.matches("screen", canvas));
+		//
+		mql = createMediaQueryList("screen and (prefers-reduced-motion)");
+		assertFalse(mql.hasErrors());
+		assertFalse(mql.matches("screen", canvas));
+		//
+		mql = createMediaQueryList("screen and (prefers-reduced-motion: no-preference)");
+		assertFalse(mql.hasErrors());
+		assertTrue(mql.matches("screen", canvas));
+		/*
 		 * Color-gamut
 		 */
 		mql = createMediaQueryList("screen and (color-gamut: rec2020)");

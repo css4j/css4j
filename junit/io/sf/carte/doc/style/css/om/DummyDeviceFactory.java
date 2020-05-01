@@ -220,6 +220,11 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
+		protected String getPrefersReducedMotion() {
+			return "no-preference";
+		}
+
+		@Override
 		protected float getResolution() {
 			return 96f;
 		}

@@ -74,6 +74,8 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 			return new IdentifierValue(getOverflowInline());
 		} else if ("prefers-color-scheme".equals(feature)) {
 			return new IdentifierValue(getPrefersColorScheme());
+		} else if ("prefers-reduced-motion".equals(feature)) {
+			return new IdentifierValue(getPrefersReducedMotion());
 		} else if ("color".equals(feature)) {
 			NumberValue number = new NumberValue();
 			int color = getStyleDatabase().getColorDepth();
@@ -107,6 +109,13 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 			return matches(value, getOverflowInline());
 		} else if ("prefers-color-scheme".equals(feature)) {
 			String pcs = getPrefersColorScheme();
+			if (value != null) {
+				return value.getPrimitiveType() == Type.IDENT && pcs.equalsIgnoreCase(value.getStringValue());
+			} else {
+				return !"no-preference".equals(pcs);
+			}
+		} else if ("prefers-reduced-motion".equals(feature)) {
+			String pcs = getPrefersReducedMotion();
 			if (value != null) {
 				return value.getPrimitiveType() == Type.IDENT && pcs.equalsIgnoreCase(value.getStringValue());
 			} else {
@@ -217,6 +226,8 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 	protected abstract String getPointerAccuracy();
 
 	protected abstract String getPrefersColorScheme();
+
+	protected abstract String getPrefersReducedMotion();
 
 	/**
 	 * Get the device resolution.
