@@ -215,6 +215,11 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
+		protected String getPrefersColorScheme() {
+			return "no-preference";
+		}
+
+		@Override
 		protected float getResolution() {
 			return 96f;
 		}
