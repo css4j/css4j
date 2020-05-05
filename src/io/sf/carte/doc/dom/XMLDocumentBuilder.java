@@ -61,7 +61,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private boolean ignoreElementContentWhitespace = false;
 
-	private boolean ignoreImpliedAttributes = true;
+	private boolean ignoreNotSpecifiedAttributes = true;
 
 	public XMLDocumentBuilder(DOMImplementation domImpl) {
 		this(domImpl, SAXParserFactory.newInstance());
@@ -100,7 +100,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 		}
 		MyContentHandler handler;
-		if (ignoreImpliedAttributes) {
+		if (ignoreNotSpecifiedAttributes) {
 			handler = new MyContentHandler();
 		} else {
 			handler = new MyContentHandlerImpliedAttr();
@@ -213,21 +213,32 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 *               whitespace.
 	 */
 	public void setIgnoreElementContentWhitespace(boolean ignore) {
-		this.ignoreElementContentWhitespace  = ignore;
+		this.ignoreElementContentWhitespace = ignore;
 	}
 
 	/**
-	 * Configure the builder to ignore (or not) <code>IMPLIED</code> attributes when
-	 * building the document.
+	 * Same as <code>setIgnoreNotSpecifiedAttributes(boolean)</code>.
+	 * 
+	 * @param ignore set it to <code>true</code> to ignore
+	 *               not-<code>specified</code> attributes.
+	 * @deprecated
+	 */
+	public void setIgnoreImpliedAttributes(boolean ignore) {
+		setIgnoreNotSpecifiedAttributes(ignore);
+	}
+
+	/**
+	 * Configure the builder to ignore (or not) the attributes that were not
+	 * <code>specified</code>, when building the document.
 	 * <p>
 	 * Default is <code>true</code>.
 	 * </p>
 	 * 
-	 * @param ignore set it to <code>true</code> to ignore <code>IMPLIED</code>
-	 *               attributes.
+	 * @param ignore set it to <code>false</code> to set attributes that have a
+	 *               default value but were not specified.
 	 */
-	public void setIgnoreImpliedAttributes(boolean ignore) {
-		this.ignoreImpliedAttributes  = ignore;
+	public void setIgnoreNotSpecifiedAttributes(boolean ignore) {
+		this.ignoreNotSpecifiedAttributes = ignore;
 	}
 
 	/**

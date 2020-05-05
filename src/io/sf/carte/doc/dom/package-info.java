@@ -6,22 +6,24 @@
  * <p>
  * The following behavior is believed to be more user-friendly from the point of
  * view of a developer that is handling an HTML document, but is non-conformant:
+ * <p>
  * <ol>
  * <li>On elements and attributes, <code>Node.getLocalName()</code> returns the
  * tag name instead of <code>null</code>, when the node was created with a DOM
  * Level 1 method such as Document.createElement(). In HTML documents, all the
- * elements have implicitly the HTML namespace unless they have a different one.</li>
+ * elements have implicitly the HTML namespace unless they have a different
+ * one.</li>
  * <li>As all the HTML elements have an implicit namespace and the idea is to
  * handle HTML and XHTML in the same way,
  * {@link io.sf.carte.doc.dom.DOMElement#getTagName() DOMElement.getTagName()}
  * does not return an upper-cased name.</li>
  * <li>The methods <code>Element.setIdAttribute</code>,
  * <code>Element.setIdAttributeNS</code> and
- * <code>Element.setIdAttributeNode</code> are now deprecated by W3C, but they do
- * work in this implementation. In HTML documents, only case changes to the 'id'
- * attribute (like 'ID' or 'Id') are allowed, and any change has Document-wide
- * effects (according to the HTML specification, there is only one ID attribute in
- * HTML).</li>
+ * <code>Element.setIdAttributeNode</code> are now deprecated by W3C, but they
+ * do work in this implementation. In HTML documents, only case changes to the
+ * 'id' attribute (like 'ID' or 'Id') are allowed, and any change has
+ * Document-wide effects (according to the HTML specification, there is only one
+ * ID attribute in HTML).</li>
  * <li>Entity references are allowed as a last-resort solution in case that an
  * entity is unknown. No known current parser uses that, though. This limited
  * support for entity references may be dropped in future versions.</li>
@@ -29,8 +31,14 @@
  * changes to it are reflected in the attribute, and vice-versa.</li>
  * <li>Calling <code>normalize()</code> on a <code>STYLE</code> element sets its
  * text content to the contents of the associated style sheet.</li>
+ * <li>The order of the element attributes is as specified, while other
+ * implementations like the one shipped with most JDKs (<code>Xerces-j</code>)
+ * do not enforce any particular order.</li>
+ * <li>By default, not-<code>specified</code> attributes are not set, omitting
+ * the <a href=
+ * "https://www.w3.org/TR/2008/REC-xml-20081126/#sec-attr-defaults">default
+ * value</a> if any.</li>
  * </ol>
- * </p>
  * <h3>Traversing the DOM</h3>
  * <p>
  * There are several alternative procedures to retrieve the child nodes of a
