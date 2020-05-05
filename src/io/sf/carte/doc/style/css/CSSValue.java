@@ -146,6 +146,16 @@ public interface CSSValue extends Cloneable {
 		COUNTERS,
 
 		/**
+		 * <code>cubic-bezier()</code> easing function.
+		 */
+		CUBIC_BEZIER,
+
+		/**
+		 * <code>steps()</code> easing function.
+		 */
+		STEPS,
+
+		/**
 		 * Function. See {@link CSSFunctionValue}.
 		 * <p>
 		 * On functions, {@link CSSTypedValue#getStringValue()} must return the function name.

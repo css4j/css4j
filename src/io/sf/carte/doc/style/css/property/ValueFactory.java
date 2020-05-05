@@ -20,6 +20,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -972,11 +973,6 @@ public class ValueFactory {
 					return checkForRatio(setter, subp);
 				}
 				break;
-			case CUBIC_BEZIER_FUNCTION:
-			case STEPS_FUNCTION:
-				primi = new FunctionValue();
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
 			case FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 				if ("hwb".equals(func)) {
@@ -1041,6 +1037,14 @@ public class ValueFactory {
 				break;
 			case COUNTERS_FUNCTION:
 				primi = new CountersValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case CUBIC_BEZIER_FUNCTION:
+				primi = new FunctionValue(Type.CUBIC_BEZIER);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case STEPS_FUNCTION:
+				primi = new FunctionValue(Type.STEPS);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case ELEMENT_REFERENCE:

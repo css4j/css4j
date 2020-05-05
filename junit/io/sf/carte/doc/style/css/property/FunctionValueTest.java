@@ -83,7 +83,7 @@ public class FunctionValueTest {
 		style.setCssText("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
 		assertNotNull(val);
-		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.CUBIC_BEZIER, val.getPrimitiveType());
 		assertEquals("cubic-bezier(0.42, 0, 1, 1)", style.getPropertyValue("transition-timing-function"));
 		assertEquals("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ", style.getCssText());
 		assertEquals(4, val.getArguments().size());
@@ -285,7 +285,7 @@ public class FunctionValueTest {
 		style.setCssText("animation-timing-function:steps(6, start)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("animation-timing-function");
 		assertNotNull(val);
-		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.STEPS, val.getPrimitiveType());
 		assertEquals("steps", val.getStringValue());
 		assertEquals("steps", val.getFunctionName());
 		assertEquals("steps(6, start)", style.getPropertyValue("animation-timing-function"));
@@ -301,7 +301,7 @@ public class FunctionValueTest {
 		style.setCssText("animation-timing-function:steps(calc(2*3), start)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("animation-timing-function");
 		assertNotNull(val);
-		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.STEPS, val.getPrimitiveType());
 		assertEquals("steps", val.getStringValue());
 		assertEquals("steps", val.getFunctionName());
 		assertEquals("steps(calc(2*3), start)", style.getPropertyValue("animation-timing-function"));
