@@ -158,9 +158,9 @@ public class XMLDocumentBuilderTest {
 	}
 
 	@Test
-	public void testParseInputSourceXMLImpliedAttributes() throws SAXException, IOException {
+	public void testParseInputSourceXMLNotSpecifiedAttributes() throws SAXException, IOException {
 		domImpl.setXmlOnly(true);
-		builder.setIgnoreImpliedAttributes(false);
+		builder.setIgnoreNotSpecifiedAttributes(false);
 		DOMDocument document = parseDocument("entities.xhtml");
 		assertNotNull(document);
 		assertEquals("http://www.example.com/xml/entities.xhtml", document.getDocumentURI());
