@@ -214,14 +214,25 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	}
 
 	/**
-	 * Configure the builder to ignore (or not) <code>IMPLIED</code> attributes when
-	 * building the document.
+	 * Same as <code>setIgnoreNotSpecifiedAttributes(boolean)</code>.
 	 * 
 	 * @param ignore set it to <code>true</code> to ignore <code>IMPLIED</code>
 	 *               attributes.
+	 * @deprecated
 	 */
 	public void setIgnoreImpliedAttributes(boolean ignore) {
-		this.ignoreImpliedAttributes  = ignore;
+		setIgnoreNotSpecifiedAttributes(ignore);
+	}
+
+	/**
+	 * Configure the builder to ignore (or not) the attributes that were not
+	 * <code>specified</code>, when building the document.
+	 * 
+	 * @param ignore set it to <code>false</code> to set attributes that have a
+	 *               default value but were not specified.
+	 */
+	public void setIgnoreNotSpecifiedAttributes(boolean ignore) {
+		this.ignoreImpliedAttributes = ignore;
 	}
 
 	/**
