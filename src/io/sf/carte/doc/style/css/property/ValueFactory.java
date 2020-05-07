@@ -732,7 +732,14 @@ public class ValueFactory {
 			}
 			return listOrFirstItem(list);
 		} else {
-			return createCSSValueItem(lunit, false).getCSSValue();
+			ValueItem item = createCSSValueItem(lunit, false);
+			if (item.hasWarnings() && style != null) {
+				StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
+				if (errHandler != null) {
+					item.handleSyntaxWarnings(errHandler);
+				}
+			}
+			return item.getCSSValue();
 		}
 	}
 
