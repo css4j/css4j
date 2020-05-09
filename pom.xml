@@ -7,20 +7,20 @@
   <parent>
 	<groupId>io.sf.carte</groupId>
 	<artifactId>css4j-dist</artifactId>
-	<version>1.0.4</version>
+	<version>1.0.5</version>
   </parent>
   <groupId>io.sf.carte</groupId>
   <artifactId>css4j</artifactId>
   <packaging>jar</packaging>
   <dependencies>
-    <dependency>
+	<dependency>
 		<groupId>io.sf.jclf</groupId>
 		<artifactId>jclf</artifactId>
 		<version>4.0.4</version>
 		<type>jar</type>
 		<scope>compile</scope>
 		<optional>false</optional>
-    </dependency>
+	</dependency>
 	<dependency>
 		<groupId>commons-codec</groupId>
 		<artifactId>commons-codec</artifactId>
@@ -67,7 +67,7 @@
 				</execution>
 			</executions>
 		</plugin>
-	    <plugin>
+		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
 			<version>3.8.1</version>
