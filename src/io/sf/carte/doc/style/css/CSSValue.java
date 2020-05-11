@@ -4,7 +4,7 @@
  * Copyright © 1999,2000 W3C® (MIT, INRIA, Keio). All Rights Reserved.
  * https://www.w3.org/Consortium/Legal/copyright-software-19980720
  *
- * Copyright © 2005-2019 Carlos Amengual.
+ * Copyright © 2005-2020 Carlos Amengual.
  *
  * SPDX-License-Identifier: W3C-19980720
  *
@@ -35,7 +35,16 @@ public interface CSSValue extends Cloneable {
 		KEYWORD,
 
 		/**
-		 * A proxy primitive value like {@code var()} or {@code attr()}.
+		 * <p>
+		 * A vehicle towards a final value, of a CSS type that cannot be anticipated.
+		 * </p>
+		 * <p>
+		 * Example: {@code var()} or {@code attr()}.
+		 * </p>
+		 * <p>
+		 * <i>(note that </i>{@code attr()}<i> has two components, a main one whose type
+		 * could be anticipated, and a fallback that could be of a different type)</i>.
+		 * </p>
 		 */
 		PROXY,
 
