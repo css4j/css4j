@@ -174,6 +174,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			case OPERATOR_TILDE:
 			case LEFT_BRACKET:
 			case OPERATOR_COMMA:
+			case OPERATOR_SEMICOLON:
 				needSpaces = false;
 				break;
 			case RIGHT_BRACKET:
