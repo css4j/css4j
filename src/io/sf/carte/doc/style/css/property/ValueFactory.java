@@ -495,7 +495,19 @@ public class ValueFactory {
 	}
 
 	private UnknownValue createUnknownValue(String value, LexicalUnit lunit) {
-		switch (lunit.getLexicalUnitType()) {
+		UnknownValue css;
+		if (!isOperatorType(lunit.getLexicalUnitType())) {
+			css = new UnknownValue();
+			css.setCssText(value);
+			((PrimitiveValue) css).newLexicalSetter().setLexicalUnit(lunit);
+		} else {
+			css = null;
+		}
+		return css;
+	}
+
+	private boolean isOperatorType(LexicalType luType) {
+		switch (luType) {
 		case OPERATOR_COMMA:
 		case OPERATOR_EXP:
 		case OPERATOR_GE:
@@ -505,14 +517,12 @@ public class ValueFactory {
 		case OPERATOR_MINUS:
 		case OPERATOR_MULTIPLY:
 		case OPERATOR_PLUS:
+		case OPERATOR_SEMICOLON:
 		case OPERATOR_SLASH:
 		case OPERATOR_TILDE:
-			return null;
+			return true;
 		default:
-			UnknownValue css = new UnknownValue();
-			css.setCssText(value);
-			((PrimitiveValue) css).newLexicalSetter().setLexicalUnit(lunit);
-			return css;
+			return false;
 		}
 	}
 
@@ -1052,7 +1062,8 @@ public class ValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case OPERATOR_COMMA:
-				throw new DOMException(DOMException.SYNTAX_ERR, "A comma is not a valid primitive");
+			case OPERATOR_SEMICOLON:
+				throw new DOMException(DOMException.SYNTAX_ERR, "A comma or semicolon is not a valid primitive");
 			default:
 				// Unknown value
 				primi = new UnknownValue();
