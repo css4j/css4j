@@ -20,7 +20,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Custom property (<code>var</code>) value.
+ * <code>var()</code> value.
  * 
  * @author Carlos Amengual
  *
@@ -45,6 +45,15 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 	@Override
 	public LexicalUnit getFallback() {
 		return fallback;
+	}
+
+	/**
+	 * Sets the fallback for this <code>var()</code> value.
+	 * 
+	 * @param fallback the fallback.
+	 */
+	public void setFallback(LexicalUnit fallback) {
+		this.fallback = fallback;
 	}
 
 	@Override
