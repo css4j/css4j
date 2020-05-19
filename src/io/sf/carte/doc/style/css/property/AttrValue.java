@@ -65,6 +65,15 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 	}
 
 	/**
+	 * Sets the fallback for this <code>attr()</code> value.
+	 * 
+	 * @param fallback the fallback value.
+	 */
+	public void setFallback(StyleValue fallback) {
+		this.fallback = fallback;
+	}
+
+	/**
 	 * Creates a default value for the given <code>attr()</code> value type.
 	 * 
 	 * @param valueType the value type. If <code>null</code>, a <code>string</code>
