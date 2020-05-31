@@ -684,6 +684,49 @@ public class ComputedCSSStyleTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(19.2f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		/*
+		 * attr() wrong value, fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(data-foo length,0.8em)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(9.6f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * attr() value.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(data-foo length,0.8em)");
+		elm.getAttributeNode("data-foo").setValue("11pt");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSPrimitiveValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(11f, marginLeft.getFloatValue(CSSPrimitiveValue.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * attr() unsafe value, fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		CSSElement usernameElm = xhtmlDoc.getElementById("username");
+		usernameElm.getOverrideStyle(null).setCssText("--steal:attr(data-default-user,\"no luck\")");
+		style = usernameElm.getComputedStyle(null);
+		CSSPrimitiveValue customProp = (CSSPrimitiveValue) style.getPropertyCSSValue("--steal");
+		assertEquals("no luck", customProp.getStringValue());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
+		/*
+		 * attr() unsafe 'value' attribute inside form, fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		usernameElm = xhtmlDoc.getElementById("username");
+		usernameElm.getOverrideStyle(null).setCssText("--steal:attr(value,\"no luck\")");
+		style = usernameElm.getComputedStyle(null);
+		customProp = (CSSPrimitiveValue) style.getPropertyCSSValue("--steal");
+		assertEquals("no luck", customProp.getStringValue());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
 	}
 
 	@Test
