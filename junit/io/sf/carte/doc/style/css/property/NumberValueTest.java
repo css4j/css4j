@@ -126,7 +126,7 @@ public class NumberValueTest {
 		assertEquals("10vh", cssval.getCssText());
 		assertEquals("10vh", style.getPropertyValue("height"));
 		assertEquals(CssType.TYPED, cssval.getCssValueType());
-		assertEquals(Type.NUMERIC, ((TypedValue) cssval).getPrimitiveType());
+		assertEquals(Type.NUMERIC, cssval.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_VH, ((TypedValue) cssval).getUnitType());
 		//
 		style.setCssText("height: 5px");
@@ -146,7 +146,7 @@ public class NumberValueTest {
 		cssval = style.getPropertyCSSValue("line-height");
 		assertEquals("5", cssval.getMinifiedCssText(""));
 		assertEquals(CssType.TYPED, cssval.getCssValueType());
-		assertEquals(Type.NUMERIC, ((TypedValue) cssval).getPrimitiveType());
+		assertEquals(Type.NUMERIC, cssval.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, ((TypedValue) cssval).getUnitType());
 		//
 		style.setCssText("line-height: -5");
@@ -162,7 +162,7 @@ public class NumberValueTest {
 		cssval = style.getPropertyCSSValue("height");
 		assertEquals("0%", cssval.getMinifiedCssText(""));
 		assertEquals(CssType.TYPED, cssval.getCssValueType());
-		assertEquals(Type.NUMERIC, ((TypedValue) cssval).getPrimitiveType());
+		assertEquals(Type.NUMERIC, cssval.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, ((TypedValue) cssval).getUnitType());
 		//
 		style.setCssText("height: 10%");
@@ -170,7 +170,7 @@ public class NumberValueTest {
 		cssval = style.getPropertyCSSValue("height");
 		assertEquals("10%", cssval.getMinifiedCssText(""));
 		assertEquals(CssType.TYPED, cssval.getCssValueType());
-		assertEquals(Type.NUMERIC, ((TypedValue) cssval).getPrimitiveType());
+		assertEquals(Type.NUMERIC, cssval.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, ((TypedValue) cssval).getUnitType());
 		//
 		style.setCssText("resolution: 300dpi");
