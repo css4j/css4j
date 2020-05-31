@@ -797,6 +797,46 @@ public class ComputedCSSStyleTest {
 		assertEquals("--foo", errptyIt.next());
 		assertEquals("text-emphasis-style", errptyIt.next());
 		/*
+		 * custom property substitution in list.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("box-shadow:var(--foo) 10px 5px 5px blue;--foo:inset");
+		style = elm.getComputedStyle(null);
+		CSSValue boxShadow = style.getPropertyCSSValue("box-shadow");
+		assertEquals("inset 10px 5px 5px blue", boxShadow.getCssText());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * empty custom property substitution.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("box-shadow:var(--foo,inset) 10px 5px 5px blue;--foo:");
+		style = elm.getComputedStyle(null);
+		boxShadow = style.getPropertyCSSValue("box-shadow");
+		assertEquals("10px 5px 5px blue", boxShadow.getCssText());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * empty custom property substitution, error.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo);--foo:");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * font-size empty custom property substitution, error.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:");
+		style = elm.getComputedStyle(null);
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
 		 * font-size custom property circular dependency, no fallback, inherited value
 		 * used.
 		 */

@@ -17,7 +17,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 
 public class LexicalValueTest {
 
@@ -100,6 +102,32 @@ public class LexicalValueTest {
 		value.setCssText("url('http://example.com/')");
 		assertEquals("url('http://example.com/')", value.getCssText());
 		assertEquals("url('http://example.com/')", value.getMinifiedCssText(null));
+	}
+
+	@Test
+	public void testGetCssTextEmpty() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("--foo:");
+		StyleValue cssval = style.getPropertyCSSValue("--foo");
+		assertEquals("", cssval.getCssText());
+		assertEquals("", style.getPropertyValue("height"));
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals("--foo: ;\n", style.getCssText());
+		assertEquals("--foo:", style.getMinifiedCssText());
+	}
+
+	@Test
+	public void testGetCssTextEmpty2() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("--foo:;");
+		StyleValue cssval = style.getPropertyCSSValue("--foo");
+		assertEquals("", cssval.getCssText());
+		assertEquals("", style.getPropertyValue("height"));
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals("--foo: ;\n", style.getCssText());
+		assertEquals("--foo:", style.getMinifiedCssText());
 	}
 
 	@Test

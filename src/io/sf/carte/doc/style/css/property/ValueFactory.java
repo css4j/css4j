@@ -1025,6 +1025,10 @@ public class ValueFactory {
 				primi = new VarValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case EMPTY:
+				primi = new LexicalValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case ATTR:
 				primi = new AttrValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
