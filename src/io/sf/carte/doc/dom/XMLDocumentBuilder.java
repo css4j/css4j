@@ -223,6 +223,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 *               not-<code>specified</code> attributes.
 	 * @deprecated
 	 */
+	@Deprecated
 	public void setIgnoreImpliedAttributes(boolean ignore) {
 		setIgnoreNotSpecifiedAttributes(ignore);
 	}
