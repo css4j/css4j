@@ -410,8 +410,10 @@ public interface LexicalUnit {
 	 * {@code false} for {@link #isParameter()}.
 	 * </p>
 	 * 
-	 * @param replacementUnit the lexical unit that replaces this one.
-	 * @return the unit that replaces this one (<em>i.e.</em> the argument).
+	 * @param replacementUnit the lexical unit that replaces this one. If
+	 *                        {@code null}, this unit is replaced by the next one.
+	 * @return the unit that replaces this one (<em>i.e.</em> the argument, or the
+	 *         next lexical unit if the argument is {@code null}).
 	 */
 	LexicalUnit replaceBy(LexicalUnit replacementUnit);
 

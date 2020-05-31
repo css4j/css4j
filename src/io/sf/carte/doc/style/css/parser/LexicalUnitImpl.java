@@ -97,6 +97,9 @@ class LexicalUnitImpl implements LexicalUnit {
 
 	@Override
 	public LexicalUnit replaceBy(LexicalUnit replacementUnit) {
+		if (replacementUnit == null) {
+			return remove();
+		}
 		LexicalUnitImpl rlu = (LexicalUnitImpl) replacementUnit;
 		if (previousLexicalUnit != null) {
 			previousLexicalUnit.nextLexicalUnit = rlu;
@@ -127,6 +130,26 @@ class LexicalUnitImpl implements LexicalUnit {
 		}
 		previousLexicalUnit = null;
 		return replacementUnit;
+	}
+
+	private LexicalUnit remove() {
+		if (previousLexicalUnit != null) {
+			previousLexicalUnit.nextLexicalUnit = nextLexicalUnit;
+		}
+		LexicalUnitImpl rlu = nextLexicalUnit;
+		if (nextLexicalUnit != null) {
+			nextLexicalUnit.previousLexicalUnit = previousLexicalUnit;
+			nextLexicalUnit = null;
+		}
+		// Check possible reference by owner
+		if (ownerLexicalUnit != null) {
+			if (previousLexicalUnit == null) {
+				ownerLexicalUnit.parameters = rlu;
+			}
+			ownerLexicalUnit = null;
+		}
+		previousLexicalUnit = null;
+		return rlu;
 	}
 
 	@Override

@@ -241,6 +241,43 @@ public class LexicalUnitTest {
 	}
 
 	@Test
+	public void testReplaceByNull() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("inset 10px 5px 5px blue");
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		LexicalUnit replacement = lu.replaceBy(null);
+		assertNotNull(replacement);
+		assertNull(lu.getPreviousLexicalUnit());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("10px 5px 5px blue", replacement.toString());
+		assertSame(nlu, replacement);
+	}
+
+	@Test
+	public void testReplaceByNull2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Monospace Regular");
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		LexicalUnit replacement = nlu.replaceBy(null);
+		assertNull(replacement);
+		assertNull(nlu.getPreviousLexicalUnit());
+		assertNull(nlu.getNextLexicalUnit());
+		assertEquals("Monospace", lu.toString());
+	}
+
+	@Test
+	public void testReplaceByNullParam() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("foo(1 2 3 4)");
+		LexicalUnit param = lu.getParameters();
+		LexicalUnit nlu = param.getNextLexicalUnit();
+		LexicalUnit replacement = param.replaceBy(null);
+		assertNotNull(replacement);
+		assertNull(param.getPreviousLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("2 3 4", replacement.toString());
+		assertEquals("foo(2 3 4)", lu.toString());
+		assertSame(nlu, replacement);
+	}
+
+	@Test
 	public void testReplaceByCalc() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(2 * (3 + 2))");
 		LexicalUnit lu2 = parsePropertyValue("5");
