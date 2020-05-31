@@ -738,67 +738,73 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private StyleValue computeAttribute(String propertyName, AttrValue attr, boolean useParentStyle) throws DOMException {
 		String attrname = attr.getAttributeName();
-		String attrvalue = getOwnerNode().getAttribute(attrname);
+		CSSElement owner = getOwnerNode();
+		String attrvalue = owner.getAttribute(attrname);
 		String attrtype = attr.getAttributeType();
 		if (attrvalue.length() != 0) {
-			if (attrtype == null || "string".equalsIgnoreCase(attrtype)) {
-				// Do not reparse
-				StringValue value = new StringValue(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
-				value.setStringValue(Type.STRING, attrvalue);
-				return value;
-			}
-			attrvalue = attrvalue.trim();
-			if ("url".equalsIgnoreCase(attrtype)) {
-				try {
-					URL url = getOwnerNode().getOwnerDocument().getURL(attrvalue);
-					URIValue uri = new URIValue(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
-					uri.setStringValue(Type.URI, url.toExternalForm());
-					return uri;
-				} catch (MalformedURLException e) {
+			if (isSafeAttrValue(propertyName, owner, attrname)) {
+				if (attrtype == null || "string".equalsIgnoreCase(attrtype)) {
+					// Do not reparse
+					StringValue value = new StringValue(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+					value.setStringValue(Type.STRING, attrvalue);
+					return value;
+				}
+				attrvalue = attrvalue.trim();
+				if ("url".equalsIgnoreCase(attrtype)) {
+					try {
+						URL url = getOwnerNode().getOwnerDocument().getURL(attrvalue);
+						URIValue uri = new URIValue(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+						uri.setStringValue(Type.URI, url.toExternalForm());
+						return uri;
+					} catch (MalformedURLException e) {
+					}
+				} else {
+					ValueFactory factory = new ValueFactory();
+					StyleValue value;
+					try {
+						value = factory.parseProperty(attrvalue);
+					} catch (DOMException e) {
+						DOMException ex = new DOMException(e.code,
+								"Error parsing attribute '" + attrname + "', value: " + attrvalue);
+						ex.initCause(e);
+						throw ex;
+					}
+					if (value.getCssValueType() == CssType.PROXY) {
+						// Prevent circular dependencies.
+						addAttrNameGuard(attrname);
+						try {
+							value = absoluteValue(propertyName, value, useParentStyle);
+						} catch (Exception e) {
+							clearAttrGuardStack();
+							throw e;
+						}
+						removeAttrNameGuard(attrname);
+					}
+					// Attribute value must now be typed
+					if (value.getCssValueType() == CssType.TYPED) {
+						TypedValue pri;
+						// Prevent circular dependencies.
+						addAttrNameGuard(attrname);
+						try {
+							pri = absoluteTypedValue(propertyName, (TypedValue) value, useParentStyle);
+						} catch (Exception e) {
+							clearAttrGuardStack();
+							throw e;
+						}
+						removeAttrNameGuard(attrname);
+						TypedValue val = attrValueOfType(pri, attrtype);
+						if (val != null) {
+							val = absoluteTypedValue(propertyName, val, useParentStyle);
+							return val;
+						}
+						computedStyleWarning(propertyName, attr,
+								"Attribute value does not match type (" + attrtype + ").");
+					} else {
+						computedStyleWarning(propertyName, attr, "Invalid attribute value");
+					}
 				}
 			} else {
-				ValueFactory factory = new ValueFactory();
-				StyleValue value;
-				try {
-					value = factory.parseProperty(attrvalue);
-				} catch (DOMException e) {
-					DOMException ex = new DOMException(e.code,
-							"Error parsing attribute '" + attrname + "', value: " + attrvalue);
-					ex.initCause(e);
-					throw ex;
-				}
-				if (value.getCssValueType() == CssType.PROXY) {
-					// Prevent circular dependencies.
-					addAttrNameGuard(attrname);
-					try {
-						value = absoluteValue(propertyName, value, useParentStyle);
-					} catch (Exception e) {
-						clearAttrGuardStack();
-						throw e;
-					}
-					removeAttrNameGuard(attrname);
-				}
-				// Attribute value must now be typed
-				if (value.getCssValueType() == CssType.TYPED) {
-					TypedValue pri;
-					// Prevent circular dependencies.
-					addAttrNameGuard(attrname);
-					try {
-						pri = absoluteTypedValue(propertyName, (TypedValue) value, useParentStyle);
-					} catch (Exception e) {
-						clearAttrGuardStack();
-						throw e;
-					}
-					removeAttrNameGuard(attrname);
-					TypedValue val = attrValueOfType(pri, attrtype);
-					if (val != null) {
-						val = absoluteTypedValue(propertyName, val, useParentStyle);
-						return val;
-					}
-					computedStyleWarning(propertyName, attr, "Attribute value does not match type (" + attrtype + ").");
-				} else {
-					computedStyleWarning(propertyName, attr, "Invalid attribute value");
-				}
+				computedStyleWarning(propertyName, attr, "Unsafe attribute value");
 			}
 		}
 		// Fallback
@@ -852,6 +858,32 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			pri = colorValue("", pri);
 		}
 		return pri;
+	}
+
+	/**
+	 * Is the given {@code attr()} safe to use?
+	 * <p>
+	 * If {@code attr()} is used outside of the {@code content} property, then the
+	 * {@code value} attribute in form fields, as well as any attribute containing
+	 * certain strings are considered unsafe.
+	 * </p>
+	 * 
+	 * @param propertyName the name of the property where the {@code attr()} is to
+	 *                     be used.
+	 * @param element      the element where the attribute resides.
+	 * @param attrname     the name of the attribute.
+	 * @return {@code true} if the value is considered safe.
+	 */
+	private boolean isSafeAttrValue(String propertyName, CSSElement element, String attrname) {
+		if (!"content".equals(propertyName)) {
+			if (attrname.contains("nonce") || attrname.contains("pass") || attrname.contains("pwd")
+					|| attrname.contains("user") || attrname.contains("uid") || attrname.contains("session")
+					|| attrname.contains("secret")
+					|| ("input".equalsIgnoreCase(element.getTagName()) && attrname.equalsIgnoreCase("value"))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private void addAttrNameGuard(String attrname) {
