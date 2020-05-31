@@ -343,6 +343,15 @@ public interface LexicalUnit {
 		CONDITION_PREDICATE,
 
 		/**
+		 * A property set to no value.
+		 * <p>
+		 * The latest CSS syntax is accepting properties being set to no value (empty
+		 * value), mainly for custom properties.
+		 * </p>
+		 */
+		EMPTY,
+
+		/**
 		 * Useful as initial value and for external extensions.
 		 */
 		UNKNOWN,

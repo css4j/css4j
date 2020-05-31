@@ -6031,6 +6031,10 @@ public class CSSParser implements Parser {
 				if (!parseError) {
 					if (lunit != null) {
 						handleProperty(index, propertyName, lunit, priorityImportant);
+					} else if (propertyName.startsWith("--")){
+						lunit = new LexicalUnitImpl(LexicalType.EMPTY);
+						lunit.value = "";
+						handleProperty(index, propertyName, lunit, priorityImportant);
 					} else {
 						handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
 								"Found property name (" + propertyName + ") but no value");
