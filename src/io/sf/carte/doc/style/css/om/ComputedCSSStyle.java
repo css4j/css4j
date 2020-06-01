@@ -1077,13 +1077,18 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					newlu = evaluateCustomPropertyValue(property, propertyName, param, parser);
 					customPropertyStack.remove(propertyName);
 				}
+				boolean isLexval = lu == lexval;
 				if (newlu.getLexicalUnitType() != LexicalType.EMPTY) {
 					lu.replaceBy(newlu);
-					if (lu == lexval) {
+					if (isLexval) {
 						lexval = newlu;
 					}
 				} else {
-					lexval = lu.replaceBy(null);
+					lu = lu.replaceBy(null);
+					if (isLexval) {
+						lexval = lu;
+					}
+					continue;
 				}
 			} else {
 				LexicalUnit param = lu.getParameters();

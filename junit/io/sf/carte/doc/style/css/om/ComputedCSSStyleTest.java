@@ -817,6 +817,26 @@ public class ComputedCSSStyleTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		/*
+		 * double empty custom property substitution.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("box-shadow:var(--foo,inset) 10px 5px 5px var(--foo) blue;--foo:");
+		style = elm.getComputedStyle(null);
+		boxShadow = style.getPropertyCSSValue("box-shadow");
+		assertEquals("10px 5px 5px blue", boxShadow.getCssText());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * triple empty custom property substitution.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("box-shadow:var(--foo,inset) 10px 5px 5px var(--foo) blue var(--foo);--foo:");
+		style = elm.getComputedStyle(null);
+		boxShadow = style.getPropertyCSSValue("box-shadow");
+		assertEquals("10px 5px 5px blue", boxShadow.getCssText());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
 		 * empty custom property substitution, error.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
