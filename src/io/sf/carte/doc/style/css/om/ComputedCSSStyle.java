@@ -875,11 +875,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 * @return {@code true} if the value is considered safe.
 	 */
 	private boolean isSafeAttrValue(String propertyName, CSSElement element, String attrname) {
+		String tagname;
 		if (!"content".equals(propertyName)) {
 			if (attrname.contains("nonce") || attrname.contains("pass") || attrname.contains("pwd")
 					|| attrname.contains("user") || attrname.contains("uid") || attrname.contains("session")
 					|| attrname.contains("secret")
-					|| ("input".equalsIgnoreCase(element.getTagName()) && attrname.equalsIgnoreCase("value"))) {
+					|| ("input".equalsIgnoreCase(tagname = element.getTagName()) && attrname.equalsIgnoreCase("value"))
+					|| "meta".equals(tagname) || "link".equals(tagname)) {
 				return false;
 			}
 		}
