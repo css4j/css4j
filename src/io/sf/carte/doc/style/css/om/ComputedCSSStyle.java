@@ -895,7 +895,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 */
 	private boolean isSafeAttrValue(String propertyName, CSSElement element, String attrname) {
 		String tagname;
-		if (!"content".equals(propertyName)) {
+		if (!"content".equals(propertyName) && !"counter-set".equals(propertyName)) {
 			if (attrname.contains("nonce") || attrname.contains("pass") || attrname.contains("pwd")
 					|| attrname.contains("user") || attrname.contains("uid") || attrname.contains("session")
 					|| attrname.contains("secret")
