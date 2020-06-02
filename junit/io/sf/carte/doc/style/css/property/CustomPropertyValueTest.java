@@ -107,6 +107,34 @@ public class CustomPropertyValueTest {
 	}
 
 	@Test
+	public void testGetCssTextFallbackList() {
+		style.setCssText("foo: var(--my-list, 1 2); ");
+		assertEquals("var(--my-list, 1 2)", style.getPropertyValue("foo"));
+		StyleValue cssval = style.getPropertyCSSValue("foo");
+		assertNotNull(cssval);
+		assertEquals(CSSValue.Type.VAR, cssval.getPrimitiveType());
+		VarValue val = (VarValue) cssval;
+		LexicalUnit fallback = val.getFallback();
+		assertEquals(LexicalUnit.LexicalType.INTEGER, fallback.getLexicalUnitType());
+		assertEquals("1", fallback.getCssText());
+		assertEquals("1 2", fallback.toString());
+	}
+
+	@Test
+	public void testGetCssTextFallbackCommas() {
+		style.setCssText("foo: var(--my-list, 1, 2); ");
+		assertEquals("var(--my-list, 1, 2)", style.getPropertyValue("foo"));
+		StyleValue cssval = style.getPropertyCSSValue("foo");
+		assertNotNull(cssval);
+		assertEquals(CSSValue.Type.VAR, cssval.getPrimitiveType());
+		VarValue val = (VarValue) cssval;
+		LexicalUnit fallback = val.getFallback();
+		assertEquals(LexicalUnit.LexicalType.INTEGER, fallback.getLexicalUnitType());
+		assertEquals("1", fallback.getCssText());
+		assertEquals("1, 2", fallback.toString());
+	}
+
+	@Test
 	public void testSetCssText() {
 		VarValue value = new VarValue();
 		value.setCssText("var(--my-identifier)");
