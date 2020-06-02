@@ -1169,13 +1169,65 @@ public class ComputedCSSStyleTest {
 		 * attr() unsafe 'value' attribute inside form, fallback.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		usernameElm = xhtmlDoc.getElementById("username");
 		usernameElm.getOverrideStyle(null).setCssText("--steal:attr(value,\"no luck\")");
 		style = usernameElm.getComputedStyle(null);
 		customProp = (CSSTypedValue) style.getPropertyCSSValue("--steal");
 		assertEquals("no luck", customProp.getStringValue());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
+		/*
+		 * attr() circular reference, default/fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getAttributeNode("data-foo").setValue("attr(data-bar integer)");
+		elm.getAttributeNode("data-bar").setValue("attr(data-foo integer, 1)");
+		elm.getOverrideStyle(null).setCssText("--foo:attr(data-foo integer)");
+		style = elm.getComputedStyle(null);
+		customProp = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		assertEquals("0", customProp.getCssText());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		//
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("--foo:attr(data-bar integer)");
+		style = elm.getComputedStyle(null);
+		customProp = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		assertEquals("1", customProp.getCssText());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * attr() circular reference, wrong data type.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getAttributeNode("data-foo").setValue("attr(data-bar integr)");
+		elm.getAttributeNode("data-bar").setValue("attr(data-foo integr)");
+		elm.getOverrideStyle(null).setCssText("--foo:attr(data-foo integr)");
+		style = elm.getComputedStyle(null);
+		customProp = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		assertNull(customProp);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * attr() circular reference, wrong data type, default.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("--foo:attr(data-foo integer)");
+		style = elm.getComputedStyle(null);
+		customProp = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		assertEquals("0", customProp.getCssText());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * attr() circular reference, wrong data type, fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getAttributeNode("data-foo").setValue("attr(data-bar integr, 1)");
+		elm.getOverrideStyle(null).setCssText("--foo:attr(data-foo integer)");
+		style = elm.getComputedStyle(null);
+		customProp = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		assertEquals("1", customProp.getCssText());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
 		/*
 		 * env() value, fallback.
 		 */

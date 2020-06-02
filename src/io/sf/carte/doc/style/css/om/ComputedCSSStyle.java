@@ -773,6 +773,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						uri.setStringValue(Type.URI, url.toExternalForm());
 						return uri;
 					} catch (MalformedURLException e) {
+						computedStyleError(propertyName, attr.getCssText(),
+								"Error building URL from attribute '" + attrname + "', value: " + attrvalue, e);
+						// Leaving for fallback
 					}
 				} else {
 					ValueFactory factory = new ValueFactory();
@@ -780,10 +783,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					try {
 						value = factory.parseProperty(attrvalue);
 					} catch (DOMException e) {
-						DOMException ex = new DOMException(e.code,
-								"Error parsing attribute '" + attrname + "', value: " + attrvalue);
-						ex.initCause(e);
-						throw ex;
+						computedStyleError(propertyName, attr.getCssText(),
+								"Error parsing attribute '" + attrname + "', value: " + attrvalue, e);
+						return computeAttrFallback(propertyName, attr, useParentStyle);
 					}
 					if (value.getCssValueType() == CssType.PROXY) {
 						// Prevent circular dependencies.
@@ -791,38 +793,52 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						try {
 							value = absoluteValue(propertyName, value, useParentStyle);
 						} catch (Exception e) {
-							clearAttrGuardStack();
-							throw e;
+							computedStyleError(propertyName, attr.getCssText(),
+									"Circularity: " + attr.getCssText() + " references " + value.getCssText(), e);
+							StyleValue fallback = computeAttrFallback(propertyName, attr, useParentStyle);
+							removeAttrNameGuard(attrname);
+							return fallback;
 						}
 						removeAttrNameGuard(attrname);
 					}
 					// Attribute value must now be typed
-					if (value.getCssValueType() == CssType.TYPED) {
-						TypedValue pri;
-						// Prevent circular dependencies.
-						addAttrNameGuard(attrname);
-						try {
-							pri = absoluteTypedValue(propertyName, (TypedValue) value, useParentStyle);
-						} catch (Exception e) {
-							clearAttrGuardStack();
-							throw e;
+					if (value != null) {
+						if (value.getCssValueType() == CssType.TYPED) {
+							TypedValue pri;
+							// Prevent circular dependencies.
+							addAttrNameGuard(attrname);
+							try {
+								pri = absoluteTypedValue(propertyName, (TypedValue) value, useParentStyle);
+							} catch (Exception e) {
+								computedStyleError(propertyName, attr.getCssText(),
+										"Circularity: " + attr.getCssText() + " references " + value.getCssText(), e);
+								StyleValue fallback = computeAttrFallback(propertyName, attr, useParentStyle);
+								removeAttrNameGuard(attrname);
+								return fallback;
+							}
+							removeAttrNameGuard(attrname);
+							TypedValue val = attrValueOfType(pri, attrtype);
+							if (val != null) {
+								val = absoluteTypedValue(propertyName, val, useParentStyle);
+								return val;
+							}
+							computedStyleWarning(propertyName, attr,
+									"Attribute value does not match type (" + attrtype + ").");
+						} else {
+							computedStyleWarning(propertyName, attr, "Invalid attribute value");
 						}
-						removeAttrNameGuard(attrname);
-						TypedValue val = attrValueOfType(pri, attrtype);
-						if (val != null) {
-							val = absoluteTypedValue(propertyName, val, useParentStyle);
-							return val;
-						}
-						computedStyleWarning(propertyName, attr,
-								"Attribute value does not match type (" + attrtype + ").");
-					} else {
-						computedStyleWarning(propertyName, attr, "Invalid attribute value");
 					}
 				}
 			} else {
 				computedStyleWarning(propertyName, attr, "Unsafe attribute value");
 			}
 		}
+		return computeAttrFallback(propertyName, attr, useParentStyle);
+	}
+
+	private StyleValue computeAttrFallback(String propertyName, AttrValue attr, boolean useParentStyle) throws DOMException {
+		String attrname = attr.getAttributeName();
+		String attrtype = attr.getAttributeType();
 		// Fallback
 		StyleValue fallback = attr.getFallback();
 		if (fallback == null) {
@@ -832,10 +848,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			TypedValue defval = AttrValue.defaultFallback(attrtype);
 			if (defval == null) {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+				computedStyleError(propertyName, attr.getCssText(),
 						"Invalid attribute, no default fallback for type " + attrtype + '.');
-			}
-			if ("color".equalsIgnoreCase(attrtype)) {
+			} else if ("color".equalsIgnoreCase(attrtype)) {
 				defval = colorValue("", defval);
 			}
 			return defval;
@@ -850,12 +865,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			fallback = inheritValue(ComputedCSSStyle.this, propertyName, fallback, false);
 			// Still inheriting ?
 			if (fallback == null || fallback.getPrimitiveType() == CSSValue.Type.INHERIT) {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Invalid fallback.");
+				computedStyleError(propertyName, attr.getCssText(), "Invalid fallback.");
+				return null;
 			}
 			value = absoluteValue(propertyName, fallback, useParentStyle);
 		} catch (Exception e) {
 			clearAttrGuardStack();
-			throw e;
+			throw e; // No hopes here
 		}
 		removeAttrNameGuard(attrname);
 		if (value.getCssValueType() != CssType.TYPED) {
@@ -869,6 +885,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				uri.setStringValue(Type.URI, url.toExternalForm());
 				return uri;
 			} catch (MalformedURLException e) {
+				computedStyleError(propertyName, attr.getCssText(),
+						"Error building URL from attr() fallback: " + pri.getCssText(), e);
+				pri = null;
 			}
 		} else if ("color".equalsIgnoreCase(attrtype)) {
 			pri = colorValue("", pri);
