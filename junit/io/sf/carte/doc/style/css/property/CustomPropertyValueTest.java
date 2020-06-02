@@ -105,6 +105,32 @@ public class CustomPropertyValueTest {
 	}
 
 	@Test
+	public void testGetCssTextFallbackList() {
+		style.setCssText("foo: var(--my-list, 1 2); ");
+		assertEquals("var(--my-list, 1 2)", style.getPropertyValue("foo"));
+		StyleValue cssval = style.getPropertyCSSValue("foo");
+		assertNotNull(cssval);
+		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		CustomPropertyValue val = (CustomPropertyValue) cssval;
+		StyleValue fallback = val.getFallback();
+		assertEquals(org.w3c.dom.css.CSSValue.CSS_VALUE_LIST, fallback.getCssValueType());
+		assertEquals("1 2", fallback.getCssText());
+	}
+
+	@Test
+	public void testGetCssTextFallbackCommas() {
+		style.setCssText("foo: var(--my-list, 1, 2); ");
+		assertEquals("var(--my-list, 1, 2)", style.getPropertyValue("foo"));
+		StyleValue cssval = style.getPropertyCSSValue("foo");
+		assertNotNull(cssval);
+		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, ((CSSPrimitiveValue) cssval).getPrimitiveType());
+		CustomPropertyValue val = (CustomPropertyValue) cssval;
+		StyleValue fallback = val.getFallback();
+		assertEquals(org.w3c.dom.css.CSSValue.CSS_VALUE_LIST, fallback.getCssValueType());
+		assertEquals("1, 2", fallback.getCssText());
+	}
+
+	@Test
 	public void testSetCssText() {
 		CustomPropertyValue value = new CustomPropertyValue();
 		value.setCssText("var(--my-identifier)");
