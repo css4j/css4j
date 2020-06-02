@@ -787,7 +787,12 @@ public class NumberValue extends PrimitiveValue {
 	}
 
 	public static NumberValue createCSSNumberValue(short unit, float floatValue) {
-		NumberValue num = new NumberValue();
+		NumberValue num;
+		if (unit != CSSPrimitiveValue.CSS_PERCENTAGE) {
+			num = new NumberValue();
+		} else {
+			num = new PercentageValue();
+		}
 		num.setFloatValue(unit, floatValue);
 		return num;
 	}
