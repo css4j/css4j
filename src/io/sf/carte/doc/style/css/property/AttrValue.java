@@ -232,15 +232,9 @@ public class AttrValue extends AbstractTextValue implements CSSAttrValue {
 			String s = attr.substring(idxp1, len).trim();
 			ValueFactory factory = new ValueFactory(flags);
 			StyleValue value = factory.parseProperty(s);
-			if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
-				StringValue sval = new StringValue(flags);
-				sval.setStringValue(CSSPrimitiveValue.CSS_STRING, s);
-				fallback = sval;
-			} else {
-				fallback = value;
-				if (PrimitiveValue.isOrContainsType(fallback, CSSPrimitiveValue.CSS_ATTR)) {
-					badSyntax(attr);
-				}
+			fallback = value;
+			if (PrimitiveValue.isOrContainsType(fallback, CSSPrimitiveValue.CSS_ATTR)) {
+				badSyntax(attr);
 			}
 		}
 		if (idx == -1) {

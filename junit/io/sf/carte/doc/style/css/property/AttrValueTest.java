@@ -298,6 +298,32 @@ public class AttrValueTest {
 	}
 
 	@Test
+	public void testSetCssTextStringAttributeTypeFallbackList() {
+		AttrValue value = new AttrValue((byte) 0);
+		value.setCssText("attr(data-index integer, 1 2)");
+		assertEquals("data-index", value.getAttributeName());
+		assertEquals("integer", value.getAttributeType());
+		StyleValue fallback = value.getFallback();
+		assertEquals(org.w3c.dom.css.CSSValue.CSS_VALUE_LIST, fallback.getCssValueType());
+		assertEquals("1 2", fallback.getCssText());
+		assertEquals("attr(data-index integer, 1 2)", value.getCssText());
+		assertEquals("attr(data-index integer,1 2)", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testSetCssTextStringAttributeTypeFallbackListComma() {
+		AttrValue value = new AttrValue((byte) 0);
+		value.setCssText("attr(data-index integer, 1, 2)");
+		assertEquals("data-index", value.getAttributeName());
+		assertEquals("integer", value.getAttributeType());
+		StyleValue fallback = value.getFallback();
+		assertEquals(org.w3c.dom.css.CSSValue.CSS_VALUE_LIST, fallback.getCssValueType());
+		assertEquals("1, 2", fallback.getCssText());
+		assertEquals("attr(data-index integer, 1, 2)", value.getCssText());
+		assertEquals("attr(data-index integer,1,2)", value.getMinifiedCssText(""));
+	}
+
+	@Test
 	public void testSetCssTextStringAttributeTypeFallbackURL() {
 		AttrValue value = new AttrValue((byte) 0);
 		value.setCssText("attr(myuri url,'https://www.example.com/foo')");
