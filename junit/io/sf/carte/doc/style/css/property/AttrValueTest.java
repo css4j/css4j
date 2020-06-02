@@ -274,7 +274,7 @@ public class AttrValueTest {
 		assertEquals("data-title", value.getAttributeName());
 		assertEquals("string", value.getAttributeType());
 		StyleValue fallback = value.getFallback();
-		assertEquals(CSSValue.Type.STRING, ((CSSTypedValue) value.getFallback()).getPrimitiveType());
+		assertEquals(CSSValue.Type.STRING, ((CSSTypedValue) fallback).getPrimitiveType());
 		assertEquals("\"My Title\"", fallback.getCssText());
 		assertEquals("attr(data-title string, \"My Title\")", value.getCssText());
 		assertEquals("attr(data-title string,\"My Title\")", value.getMinifiedCssText(""));
@@ -287,7 +287,7 @@ public class AttrValueTest {
 		assertEquals("data-index", value.getAttributeName());
 		assertEquals("integer", value.getAttributeType());
 		StyleValue fallback = value.getFallback();
-		assertEquals(CSSValue.CssType.LIST, value.getFallback().getCssValueType());
+		assertEquals(CSSValue.CssType.LIST, fallback.getCssValueType());
 		assertEquals("1 2", fallback.getCssText());
 		assertEquals("attr(data-index integer, 1 2)", value.getCssText());
 		assertEquals("attr(data-index integer,1 2)", value.getMinifiedCssText(""));
@@ -300,7 +300,7 @@ public class AttrValueTest {
 		assertEquals("data-index", value.getAttributeName());
 		assertEquals("integer", value.getAttributeType());
 		StyleValue fallback = value.getFallback();
-		assertEquals(CSSValue.CssType.LIST, value.getFallback().getCssValueType());
+		assertEquals(CSSValue.CssType.LIST, fallback.getCssValueType());
 		assertEquals("1, 2", fallback.getCssText());
 		assertEquals("attr(data-index integer, 1, 2)", value.getCssText());
 		assertEquals("attr(data-index integer,1,2)", value.getMinifiedCssText(""));
@@ -313,7 +313,7 @@ public class AttrValueTest {
 		assertEquals("myuri", value.getAttributeName());
 		assertEquals("url", value.getAttributeType());
 		StyleValue fallback = value.getFallback();
-		assertEquals(CSSValue.Type.STRING, ((CSSTypedValue) value.getFallback()).getPrimitiveType());
+		assertEquals(CSSValue.Type.STRING, ((CSSTypedValue) fallback).getPrimitiveType());
 		assertEquals("'https://www.example.com/foo'", fallback.getCssText());
 		assertEquals("attr(myuri url, 'https://www.example.com/foo')", value.getCssText());
 		assertEquals("attr(myuri url,'https://www.example.com/foo')", value.getMinifiedCssText(""));
