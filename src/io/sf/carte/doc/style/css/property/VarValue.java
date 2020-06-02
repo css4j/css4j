@@ -60,7 +60,7 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 			sz += 2;
 			ftext = null;
 		} else {
-			ftext = fallback.getCssText();
+			ftext = fallback.toString();
 			sz += 4 + ftext.length();
 		}
 		StringBuilder buf = new StringBuilder(sz);
