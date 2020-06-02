@@ -677,7 +677,12 @@ public class NumberValue extends TypedValue {
 	}
 
 	public static NumberValue createCSSNumberValue(short unit, float floatValue) {
-		NumberValue num = new NumberValue();
+		NumberValue num;
+		if (unit != CSSUnit.CSS_PERCENTAGE) {
+			num = new NumberValue();
+		} else {
+			num = new PercentageValue();
+		}
 		num.setFloatValue(unit, floatValue);
 		return num;
 	}
