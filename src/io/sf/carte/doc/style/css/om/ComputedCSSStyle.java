@@ -659,7 +659,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			throw e;
 		}
 		removeAttrNameGuard(attrname);
-		if (value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
+		if (value == null || value.getCssValueType() != CSSValue.CSS_PRIMITIVE_VALUE) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Invalid fallback.");
 		}
 		PrimitiveValue pri = (PrimitiveValue) value;
