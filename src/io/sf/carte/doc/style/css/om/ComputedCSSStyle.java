@@ -1052,10 +1052,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			throw e;
 		}
 		customPropertyStack.remove(propertyName);
-		if (value.isExpectingInteger() && (value.getCssValueType() == CssType.TYPED
-				|| value.getCssValueType() == CssType.PROXY)) {
+		if (value.isExpectingInteger() && custom != null && custom.isPrimitiveValue()) {
 			((CSSPrimitiveValue) custom).setExpectInteger();
-		} // 'custom' could be <inherit>
+		} // 'custom' could be <inherit> or a list
 		return custom;
 	}
 
