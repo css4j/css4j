@@ -630,11 +630,64 @@ public class ComputedCSSStyleTest {
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,9pt);--foo:var(--foo)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(9f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(9f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
+		/*
+		 * custom property circular dependency, no fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo);--foo:var(--foo)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		/*
+		 * custom property circular dependency in ancestor, no fallback (I).
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		docelm.getOverrideStyle(null).setCssText("--foo:var(--foo)");
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo);");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(docelm));
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(docelm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		/*
+		 * custom property, check for bogus circular dependency with ancestor, no
+		 * fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		docelm.getOverrideStyle(null).setCssText("--foo:var(--bar)");
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo);--bar:var(--foo)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * custom property circular dependency in ancestor, fallback.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		docelm.getOverrideStyle(null).setCssText("--foo:var(--foo,2pt)");
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo);");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(2f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(docelm));
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(docelm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		//
+		docelm.getOverrideStyle(null).setCssText("");
 		/*
 		 * custom property circular dependency, shorthand substitution, fallback used.
 		 */
@@ -692,9 +745,8 @@ public class ComputedCSSStyleTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(2, errors.size());
+		assertEquals(1, errors.size());
 		Iterator<String> it = errors.keySet().iterator();
-		assertEquals("margin-left", it.next());
 		assertEquals("--foo", it.next());
 		/*
 		 * custom property circular dependency, shorthand, no fallback.
@@ -771,12 +823,12 @@ public class ComputedCSSStyleTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(listpara);
 		assertNotNull(errors);
-		assertEquals(2, errors.size());
+		assertEquals(1, errors.size());
 		errptyIt = errors.keySet().iterator();
-		assertEquals("text-indent", errptyIt.next());
 		assertEquals("--foo", errptyIt.next());
 		/*
-		 * custom property circular dependency, shorthand, no fallback, inherited value used.
+		 * custom property circular dependency, shorthand, no fallback, inherited value
+		 * used.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		elm.getOverrideStyle(null).setCssText("text-emphasis:open");
