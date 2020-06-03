@@ -874,7 +874,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			throw e; // No hopes here
 		}
 		removeAttrNameGuard(attrname);
-		if (value.getCssValueType() != CssType.TYPED) {
+		if (value == null || value.getCssValueType() != CssType.TYPED) {
 			return value;
 		}
 		TypedValue pri = (TypedValue) value;
@@ -1018,6 +1018,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		} else if (customPropertyStack.contains(propertyName)) {
 			LexicalUnit fallback = value.getFallback();
 			if (fallback != null) {
+				computedStyleError(property, value.getCssText(), "var() dependency loop in " + propertyName);
 				StyleValue custom = new ValueFactory().createCSSValue(fallback, this);
 				// Check fallback for expecting integer.
 				if (value.isExpectingInteger() && custom.isPrimitiveValue()) {
@@ -1026,7 +1027,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				return absoluteValue(property, custom, useParentStyle);
 			} else {
 				customPropertyStack.clear();
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Dependency loop in " + propertyName);
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "var() dependency loop in " + propertyName);
 			}
 		}
 		customPropertyStack.add(propertyName);
@@ -1039,8 +1040,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					custom = new ValueFactory().createCSSValue(fallback, this);
 					custom = absoluteValue(property, custom, useParentStyle);
 				} else {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-							"Unable to evaluate custom property " + propertyName);
+					// Unable to evaluate custom property
+					customPropertyStack.remove(propertyName);
+					return null;
 				}
 			} else {
 				custom = absoluteValue(property, custom, useParentStyle);
