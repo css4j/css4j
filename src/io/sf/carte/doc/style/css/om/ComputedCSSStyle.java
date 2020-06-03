@@ -439,9 +439,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		// Check for custom properties ('variables')
 		if (pritype == Type.VAR) {
 			value = evaluateCustomProperty(propertyName, (VarValue) pri, useParentStyle);
-			if (value != null) {
-				value = absoluteValue(propertyName, value, useParentStyle);
-			}
 		} else if (pritype == Type.LEXICAL) {
 			value = evaluateLexicalValue(propertyName, (LexicalValue) pri, useParentStyle);
 			if (value != null) {
@@ -455,14 +452,16 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						return value;
 					}
 				}
-				value = absoluteValue(propertyName, value, useParentStyle);
 			}
 		} else if (pritype == Type.ATTR) {
 			value = computeAttribute(propertyName, (AttrValue) pri, useParentStyle);
 		} else if (pritype == Type.ENV) {
 			value = computeEnv(propertyName, (EnvVariableValue) pri, useParentStyle);
 		} else {
-			value = null;
+			return null;
+		}
+		if (value != null) {
+			value = absoluteValue(propertyName, value, useParentStyle);
 		}
 		return value;
 	}
