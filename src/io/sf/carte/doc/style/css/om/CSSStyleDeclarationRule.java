@@ -359,7 +359,12 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		case CLASS:
 			return classText((AttributeCondition) condition, simpleSelector);
 		case ID:
-			return "#" + ParseHelper.escape(((AttributeCondition) condition).getValue(), false, false);
+			String id = ((AttributeCondition) condition).getValue();
+			StringBuilder buf = new StringBuilder(id.length() + 1);
+			if (simpleSelector != null) {
+				appendSimpleSelector(simpleSelector, buf);
+			}
+			return buf.append('#').append(ParseHelper.escape(id, false, false)).toString();
 		case ATTRIBUTE:
 			return attributeText((AttributeCondition) condition, simpleSelector);
 		case BEGINS_ATTRIBUTE:
@@ -375,7 +380,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		case ONE_OF_ATTRIBUTE:
 			return attributeOneOfText((AttributeCondition) condition, simpleSelector);
 		case ONLY_CHILD:
-			StringBuilder buf = new StringBuilder(16);
+			buf = new StringBuilder(16);
 			if (simpleSelector != null) {
 				appendSimpleSelector(simpleSelector, buf);
 			}

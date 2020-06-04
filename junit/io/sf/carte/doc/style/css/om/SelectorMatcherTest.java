@@ -174,6 +174,44 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelector1Attribute() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("[title] {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("[title]", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		elm.setAttribute("title", "hi");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+	}
+
+	@Test
+	public void testMatchSelectorUniversalAttribute() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("*[title] {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("[title]", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		elm.setAttribute("title", "hi");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+	}
+
+	@Test
+	public void testMatchSelectorTypeAttribute() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p[title] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
@@ -189,6 +227,11 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -208,6 +251,11 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -226,6 +274,11 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -245,6 +298,11 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -269,6 +327,11 @@ public class SelectorMatcherTest {
 		assertTrue(matcher.matches(selist) >= 0);
 		elm.setAttribute("lang", "en_US");
 		assertTrue(matcher.matches(selist) < 0);
+		//
+		elm = createElement("div");
+		elm.setAttribute("lang", "en");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -288,6 +351,11 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -307,6 +375,11 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -326,6 +399,11 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -354,6 +432,11 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("lang", "en-US");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
@@ -813,6 +896,30 @@ public class SelectorMatcherTest {
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
+	}
+
+	@Test
+	public void testMatchSelectorTypeId() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p#exampleid {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p#exampleid", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		elm.setAttribute("class", "exampleclass");
+		elm.setAttribute("id", "exampleid");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(1, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("id", "exampleid");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test
