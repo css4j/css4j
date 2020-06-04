@@ -1051,9 +1051,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			throw e;
 		}
 		customPropertyStack.remove(propertyName);
-		if (value.isExpectingInteger() && custom != null && custom.isPrimitiveValue()) {
-			((CSSPrimitiveValue) custom).setExpectInteger();
-		} // 'custom' could be <inherit> or a list
+		if (value.isExpectingInteger() && custom != null) {
+			if (custom.isPrimitiveValue()) {
+				((CSSPrimitiveValue) custom).setExpectInteger();
+			} else if (custom.getCssValueType() == CSSValue.CssType.LIST) {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+						"Expected an integer, found a LIST.");
+			} // 'custom' could be <inherit>
+		}
 		return custom;
 	}
 
