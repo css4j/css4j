@@ -57,11 +57,6 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 	}
 
 	@Override
-	public void setExpectInteger() {
-		super.setExpectInteger();
-	}
-
-	@Override
 	public String getCssText() {
 		String ftext;
 		int sz = name.length();

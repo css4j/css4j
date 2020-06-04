@@ -60,6 +60,14 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 	}
 
 	@Override
+	public void setExpectInteger() {
+		super.setExpectInteger();
+		if (fallback != null && fallback.isPrimitiveValue()) {
+			((PrimitiveValue) fallback).setExpectInteger();
+		}
+	}
+
+	@Override
 	public StyleValue getFallback() {
 		return fallback;
 	}
