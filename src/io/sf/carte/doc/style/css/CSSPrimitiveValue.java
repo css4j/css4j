@@ -28,8 +28,12 @@ public interface CSSPrimitiveValue extends CSSValue {
 	 * immediately.
 	 * </p>
 	 * <p>
-	 * If this value is a {@code calc()} or proxy value that ever produces a
-	 * non-integer number, the value shall be rounded to the nearest integer.
+	 * If this value is a {@code calc()} that ever produces a non-integer number,
+	 * the value shall be rounded to the nearest integer.
+	 * </p>
+	 * <p>
+	 * If the value is a proxy that ever produces other than an integer number
+	 * (without {@code calc()} involvement), an exception should be thrown later.
 	 * </p>
 	 * 
 	 * @throws DOMException TYPE_MISMATCH_ERR if the value is a constant number and
