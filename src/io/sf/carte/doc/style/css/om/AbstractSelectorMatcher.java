@@ -213,11 +213,11 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			String cond_value = attrcond.getValue();
 			return matchesClass(cond_value) && matches(simple);
 		case ID:
-			return matchesId(((AttributeCondition) cond).getValue());
+			return matchesId(((AttributeCondition) cond).getValue()) && matches(simple);
 		case ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			String attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName)) {
+			if (hasAttribute(attrName) && matches(simple)) {
 				cond_value = attrcond.getValue();
 				if (cond_value != null) {
 					String attribValue = getAttributeValue(attrName);
@@ -233,7 +233,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		case ONE_OF_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName)) {
+			if (hasAttribute(attrName) && matches(simple)) {
 				cond_value = attrcond.getValue();
 				String attrValue = getAttributeValue(attrName);
 				StringTokenizer tok = new StringTokenizer(attrValue, " ");
@@ -248,7 +248,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		case BEGIN_HYPHEN_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName)) {
+			if (hasAttribute(attrName) && matches(simple)) {
 				String attrValue = getAttributeValue(attrName);
 				int attrlen = attrValue.length();
 				String condstr = attrcond.getValue();
@@ -264,27 +264,27 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).startsWith(attrcond.getValue());
+				return getAttributeValue(attrName).startsWith(attrcond.getValue()) && matches(simple);
 			}
 			break;
 		case ENDS_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).endsWith(attrcond.getValue());
+				return getAttributeValue(attrName).endsWith(attrcond.getValue()) && matches(simple);
 			}
 			break;
 		case SUBSTRING_ATTRIBUTE:
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).contains(attrcond.getValue());
+				return getAttributeValue(attrName).contains(attrcond.getValue()) && matches(simple);
 			}
 			break;
 		case LANG:
 			attrName = ((LangCondition) cond).getLang();
 			String lang = getLanguage();
-			return lang.startsWith(attrName);
+			return lang.startsWith(attrName) && matches(simple);
 		case PSEUDO_CLASS:
 			// Non-state pseudo-classes are generally more expensive than other
 			// selectors, so we evaluate the simple selector first.
