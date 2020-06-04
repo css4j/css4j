@@ -1906,6 +1906,22 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorTypeId() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("input#submit");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals("submit", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals("input", ((ElementSelector) simple).getLocalName());
+		assertEquals("input#submit", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorIdEscapedChar() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#foo\\/1"));
 		SelectorList selist = parser.parseSelectors(source);
