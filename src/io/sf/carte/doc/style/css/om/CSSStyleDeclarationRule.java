@@ -382,7 +382,12 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		case Condition.SAC_CLASS_CONDITION:
 			return classText((AttributeCondition) condition, simpleSelector);
 		case Condition.SAC_ID_CONDITION:
-			return "#" + ParseHelper.escape(((AttributeCondition) condition).getValue(), false, false);
+			String id = ((AttributeCondition) condition).getValue();
+			StringBuilder buf = new StringBuilder(id.length() + 1);
+			if (simpleSelector != null) {
+				appendSimpleSelector(simpleSelector, buf);
+			}
+			return buf.append('#').append(ParseHelper.escape(id, false, false)).toString();
 		case Condition.SAC_ATTRIBUTE_CONDITION:
 			return attributeText((AttributeCondition) condition, simpleSelector);
 		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
@@ -401,7 +406,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
 			return attributeOneOfText((AttributeCondition) condition, simpleSelector);
 		case Condition.SAC_ONLY_CHILD_CONDITION:
-			StringBuilder buf = new StringBuilder(16);
+			buf = new StringBuilder(16);
 			if (simpleSelector != null) {
 				appendSimpleSelector(simpleSelector, buf);
 			}

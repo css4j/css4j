@@ -240,10 +240,10 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			String cond_value = ((AttributeCondition) cond).getValue();
 			return matchesClass(cond_value) && matches(simple);
 		case Condition.SAC_ID_CONDITION:
-			return matchesId(((AttributeCondition) cond).getValue());
+			return matchesId(((AttributeCondition) cond).getValue()) && matches(simple);
 		case Condition.SAC_ATTRIBUTE_CONDITION:
 			String attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName)) {
+			if (hasAttribute(attrName) && matches(simple)) {
 				cond_value = ((AttributeCondition) cond).getValue();
 				if (((AttributeCondition) cond).getSpecified() || cond_value != null) {
 					String attribValue = getAttributeValue(attrName);
@@ -258,7 +258,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			break;
 		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
 			attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName)) {
+			if (hasAttribute(attrName) && matches(simple)) {
 				String attrValue = getAttributeValue(attrName);
 				StringTokenizer tok = new StringTokenizer(attrValue, " ");
 				while (tok.hasMoreElements()) {
@@ -271,7 +271,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			break;
 		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
 			attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName)) {
+			if (hasAttribute(attrName) && matches(simple)) {
 				String attrValue = getAttributeValue(attrName);
 				int attrlen = attrValue.length();
 				String condstr = ((AttributeCondition) cond).getValue();
@@ -286,25 +286,26 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
 			attrName = ((AttributeCondition) cond).getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).startsWith(((AttributeCondition) cond).getValue());
+				return getAttributeValue(attrName).startsWith(((AttributeCondition) cond).getValue())
+						&& matches(simple);
 			}
 			break;
 		case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
 			attrName = ((AttributeCondition) cond).getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).endsWith(((AttributeCondition) cond).getValue());
+				return getAttributeValue(attrName).endsWith(((AttributeCondition) cond).getValue()) && matches(simple);
 			}
 			break;
 		case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
 			attrName = ((AttributeCondition) cond).getLocalName();
 			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).contains(((AttributeCondition) cond).getValue());
+				return getAttributeValue(attrName).contains(((AttributeCondition) cond).getValue()) && matches(simple);
 			}
 			break;
 		case Condition.SAC_LANG_CONDITION:
 			attrName = ((LangCondition) cond).getLang();
 			String lang = getLanguage();
-			return lang.startsWith(attrName);
+			return lang.startsWith(attrName) && matches(simple);
 		case Condition.SAC_PSEUDO_CLASS_CONDITION:
 			// Non-state pseudo-classes are generally more expensive than other
 			// selectors, so we evaluate the simple selector first.
