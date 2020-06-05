@@ -15,9 +15,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -49,6 +52,7 @@ public class NSACSelectorFactoryTest {
 		assertEquals(elemsel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("div").item(0);
 		assertFalse(elemsel.equals(other));
+		assertFalse(other.equals(elemsel));
 	}
 
 	@Test
@@ -96,6 +100,9 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("#fooid>span").item(0);
 		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("p#exampleid>span").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -109,6 +116,9 @@ public class NSACSelectorFactoryTest {
 		assertTrue(ParseHelper.equalSelectorList(selist1, selist2));
 		other = parser.parseSelectors("#bar").item(0);
 		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("div#foo").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -135,6 +145,7 @@ public class NSACSelectorFactoryTest {
 		assertTrue(ParseHelper.equalSelectorList(selist1, selist2));
 		other = parser.parseSelectors("div:foo").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -155,6 +166,28 @@ public class NSACSelectorFactoryTest {
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("div::foo").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+	}
+
+	@Test
+	public void testEqualsElementNS() throws CSSException, IOException {
+		Selector sel = parseSelectorsNS("svg|p::foo").item(0);
+		Selector other = parseSelectorsNS("svg|p::foo").item(0);
+		assertTrue(sel.equals(other));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parseSelectorsNS("svg|div::foo").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parseSelectorsNS("p::foo").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		sel = parseSelectorsNS("p::foo").item(0);
+		assertTrue(sel.equals(other));
+		assertTrue(other.equals(sel));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("p::foo").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -253,6 +286,7 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("section:nth-of-type(5 of p)").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(":nth-of-type(5 of p)").item(0);
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("div:nth-child(5 of p)").item(0);
@@ -327,6 +361,7 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors(":nth-last-child(5 of p)").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -349,6 +384,7 @@ public class NSACSelectorFactoryTest {
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors(":first-child").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(":last-child").item(0);
 		assertFalse(sel.equals(other));
 	}
@@ -365,6 +401,9 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("[title^=\"hi\"]").item(0);
 		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("p[title~=\"hi\"]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -379,6 +418,9 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("p[lang~=\"hi\"]").item(0);
 		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("div[title~=\"hi\"]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -391,6 +433,7 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("p[title]").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -415,11 +458,15 @@ public class NSACSelectorFactoryTest {
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("[title=hi i]").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors("p[title=hi]").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors("p[lang=hi i]").item(0);
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("p[title=foo i]").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("div[title=hi i]").item(0);
 		assertFalse(sel.equals(other));
 	}
 
@@ -431,6 +478,7 @@ public class NSACSelectorFactoryTest {
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("[type=text]::first-line").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors("input[type=text]::last-line").item(0);
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("input::first-line").item(0);
@@ -445,6 +493,7 @@ public class NSACSelectorFactoryTest {
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("p:not(.foo)").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(":not(.bar)").item(0);
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors(":has(.foo)").item(0);
@@ -452,6 +501,26 @@ public class NSACSelectorFactoryTest {
 		other = parser.parseSelectors(":not(.foo,.bar)").item(0);
 		assertFalse(sel.equals(other));
 		sel = parser.parseSelectors(":not(.foo,.bar)").item(0);
+		assertTrue(sel.equals(other));
+		assertEquals(sel.hashCode(), other.hashCode());
+	}
+
+	@Test
+	public void testEqualsAttributeSelectorNotScope() {
+		Selector sel = parser.parseSelectors(":not(>.foo)").item(0);
+		Selector other = parser.parseSelectors(":not(>.foo)").item(0);
+		assertTrue(sel.equals(other));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("p:not(>.foo)").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors(":not(>.bar)").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors(":has(>.foo)").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors(":not(>.foo,>.bar)").item(0);
+		assertFalse(sel.equals(other));
+		sel = parser.parseSelectors(":not(>.foo,>.bar)").item(0);
 		assertTrue(sel.equals(other));
 		assertEquals(sel.hashCode(), other.hashCode());
 	}
@@ -466,6 +535,7 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("p.myclass:foo+.bar").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -478,6 +548,7 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("p.myclass:foo~.bar").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(".myclass:foo+.bar").item(0);
 		assertFalse(sel.equals(other));
 	}
@@ -492,6 +563,7 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("p:rtl *").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(":rtl * .class").item(0);
 		assertFalse(sel.equals(other));
 	}
@@ -506,6 +578,7 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("p:rtl p").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(":rtl p .class").item(0);
 		assertFalse(sel.equals(other));
 	}
@@ -518,6 +591,7 @@ public class NSACSelectorFactoryTest {
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("p:dir(ltr)").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(":dir(foo)").item(0);
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors(":dir(\"ltr\")").item(0);
@@ -532,6 +606,7 @@ public class NSACSelectorFactoryTest {
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("p:lang(en)").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(":lang(es)").item(0);
 		assertFalse(sel.equals(other));
 	}
@@ -544,10 +619,15 @@ public class NSACSelectorFactoryTest {
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("p:lang(zh, \"*-hant\")").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors(":lang(zh, \"hant\")").item(0);
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors(":lang(zh)").item(0);
 		assertFalse(sel.equals(other));
+	}
+
+	private SelectorList parseSelectorsNS(String selist) throws CSSException, IOException {
+		return SelectorParserNSTest.parseSelectorsNS(selist, "", "https://www.w3.org/1999/xhtml/", parser);
 	}
 
 }
