@@ -733,12 +733,10 @@ public class CSSParser implements Parser {
 				opParenDepth[opDepthIndex]--;
 				if (opParenDepth[opDepthIndex] < 0) {
 					unexpectedCharError(index, codepoint);
+				} else if (readingPredicate) {
+					predicateHandler.closeGroup(index, codepoint);
 				} else if (buffer.length() != 0) {
-					if (readingPredicate) {
-						predicateHandler.closeGroup(index, codepoint);
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
+					unexpectedCharError(index, codepoint);
 				}
 				if (opParenDepth[opDepthIndex] == 0 && currentCond != null) {
 					if (opDepthIndex != 0) {
