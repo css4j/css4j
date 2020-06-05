@@ -159,6 +159,11 @@ public class MediaQueryTest {
 		assertFalse(mql.hasErrors());
 		assertEquals("print,(prefers-reduced-motion: reduce)", mql.getMedia());
 		assertEquals("print,(prefers-reduced-motion:reduce)", mql.getMinifiedMedia());
+		//
+		mql = createMediaQueryList("only screen and (min-width: 48rem),only print");
+		assertFalse(mql.hasErrors());
+		assertEquals("only screen and (min-width: 48rem),only print", mql.getMedia());
+		assertEquals("only screen and (min-width:48rem),only print", mql.getMinifiedMedia());
 	}
 
 	@Test

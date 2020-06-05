@@ -19,6 +19,8 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,6 +40,7 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.MediaQueryFactory;
 
@@ -134,7 +137,11 @@ public class MediaRuleTest {
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
-		assertTrue(rule.getMedia().isAllMedia());
+		//
+		MediaQueryList mql = rule.getMedia();
+		assertFalse(mql.isNotAllMedia());
+		assertTrue(mql.isAllMedia());
+		assertFalse(mql.hasErrors());
 		assertEquals("all", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals(
@@ -163,10 +170,24 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media only screen and (min-width:0\\0){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
-		assertFalse(compatsheet.getErrorHandler().hasSacErrors());
-		assertTrue(compatsheet.getErrorHandler().hasSacWarnings());
-		assertFalse(compatsheet.getErrorHandler().hasOMErrors());
-		assertFalse(compatsheet.getErrorHandler().hasOMWarnings());
+		//
+		MediaQueryList mql = rule.getMedia();
+		assertTrue(mql.isNotAllMedia());
+		assertFalse(mql.isAllMedia());
+		//
+		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) compatsheet.getErrorHandler();
+		assertFalse(errHandler.hasSacErrors());
+		assertTrue(errHandler.hasSacWarnings());
+		assertFalse(errHandler.hasOMErrors());
+		assertFalse(errHandler.hasOMWarnings());
+		//
+		List<CSSParseException> warns = errHandler.getSacWarnings();
+		Iterator<CSSParseException> it = warns.iterator();
+		CSSParseException pex = it.next();
+		assertTrue(pex.getMessage().contains("compat ident"));
+		assertEquals(1, pex.getLineNumber());
+		assertEquals(38, pex.getColumnNumber());
+		//
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
@@ -180,12 +201,53 @@ public class MediaRuleTest {
 		AbstractCSSRule rule = sheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
 		MediaRule mrule = (MediaRule) rule;
+		//
 		MediaQueryList mql = mrule.getMedia();
 		assertTrue(mql.isNotAllMedia());
 		assertFalse(mql.isAllMedia());
+		assertTrue(mql.hasErrors());
+		//
 		assertEquals(1, mrule.getCssRules().getLength());
-		assertTrue(sheet.getErrorHandler().hasSacErrors());
-		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) sheet.getErrorHandler();
+		assertTrue(errHandler.hasSacErrors());
+		assertFalse(errHandler.hasOMErrors());
+		//
+		List<CSSParseException> warns = errHandler.getSacErrors();
+		Iterator<CSSParseException> it = warns.iterator();
+		CSSParseException pex = it.next();
+		assertEquals(1, pex.getLineNumber());
+		assertEquals(31, pex.getColumnNumber());
+		//
+		CSSDocument cssdoc = cssStyle.getOwnerDocument();
+		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
+	}
+
+	@Test
+	public void testParseBadMediaFeature() throws DOMException, ParserConfigurationException {
+		CSSElement cssStyle = styleElement("@media (max-width:-9_px),print {div.foo{margin:1em}}");
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
+		assertEquals(1, sheet.getCssRules().getLength());
+		AbstractCSSRule rule = sheet.getCssRules().item(0);
+		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
+		MediaRule mrule = (MediaRule) rule;
+		//
+		MediaQueryList mql = mrule.getMedia();
+		assertFalse(mql.isNotAllMedia());
+		assertFalse(mql.isAllMedia());
+		assertTrue(mql.hasErrors());
+		//
+		assertEquals(1, mrule.getCssRules().getLength());
+		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) sheet.getErrorHandler();
+		assertTrue(errHandler.hasSacErrors());
+		assertFalse(errHandler.hasOMErrors());
+		//
+		List<CSSParseException> warns = errHandler.getSacErrors();
+		Iterator<CSSParseException> it = warns.iterator();
+		CSSParseException pex = it.next();
+		assertEquals(1, pex.getLineNumber());
+		assertEquals(24, pex.getColumnNumber());
+		//
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
@@ -213,6 +275,7 @@ public class MediaRuleTest {
 		assertEquals("@media{div.foo{margin:1em;}}", rule.getMinifiedCssText());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		//
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
