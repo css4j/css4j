@@ -537,6 +537,26 @@ public class MediaQueryTest {
 	}
 
 	@Test
+	public void testGetCssMediaInvalid7() {
+		MediaQueryList mql;
+		mql = createMediaQueryList("(max-width:-),print");
+		assertFalse(mql.isNotAllMedia());
+		assertTrue(mql.hasErrors());
+		assertEquals("print", mql.getMedia());
+		assertEquals("print", mql.getMinifiedMedia());
+	}
+
+	@Test
+	public void testGetCssMediaInvalid8() {
+		MediaQueryList mql;
+		mql = createMediaQueryList("(max-width:-9_px),print");
+		assertFalse(mql.isNotAllMedia());
+		assertTrue(mql.hasErrors());
+		assertEquals("print", mql.getMedia());
+		assertEquals("print", mql.getMinifiedMedia());
+	}
+
+	@Test
 	public void testGetCssMediaInvalidCompat() throws DOMException, ParserConfigurationException, CSSMediaException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
