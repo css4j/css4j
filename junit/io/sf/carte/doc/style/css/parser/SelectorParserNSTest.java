@@ -1320,11 +1320,16 @@ public class SelectorParserNSTest {
 		assertFalse(sel.equals(sel2));
 	}
 
-	public SelectorList parseSelectors(String selist) throws CSSException, IOException {
+	private SelectorList parseSelectors(String selist) throws CSSException, IOException {
 		return parseSelectorsNS(selist, null, null);
 	}
 
-	public SelectorList parseSelectorsNS(String selist, String prefix, String nsuri) throws CSSException, IOException {
+	private SelectorList parseSelectorsNS(String selist, String prefix, String nsuri) throws CSSException, IOException {
+		return parseSelectorsNS(selist, prefix, nsuri, parser);
+	}
+
+	static SelectorList parseSelectorsNS(String selist, String prefix, String nsuri, CSSParser parser)
+			throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		SelectorTokenHandler handler = parser.new SelectorTokenHandler();
 		if (prefix != null) {
