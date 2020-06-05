@@ -1403,7 +1403,7 @@ public class CSSParser implements Parser {
 				Reader re = new StringReader(feature);
 				LexicalUnit lunit;
 				try {
-					lunit = parsePropertyValue(re);
+					lunit = parsePropertyValue(re, getCurrentLine(), getPrevLineLength() - index);
 				} catch (CSSException | IOException e) {
 					return null;
 				}
@@ -1784,6 +1784,15 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		PropertyTokenHandler handler = new PropertyTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(reader, "/*", "*/");
+		return handler.getLexicalUnit();
+	}
+
+	private LexicalUnit parsePropertyValue(Reader reader, int currentLine, int prevLineLength)
+			throws CSSException, IOException {
+		int[] allowInWords = { 45, 95 }; // -_
+		PropertyTokenHandler handler = new PropertyTokenHandler(currentLine, prevLineLength);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(reader, "/*", "*/");
 		return handler.getLexicalUnit();
@@ -5148,6 +5157,11 @@ public class CSSParser implements Parser {
 			this.propertyName = "";
 		}
 
+		PropertyTokenHandler(int currentLine, int prevLineLength) {
+			super(currentLine, prevLineLength);
+			this.propertyName = "";
+		}
+
 		PropertyTokenHandler(String propertyName) {
 			super(ShorthandDatabase.getInstance());
 			this.propertyName = propertyName;
@@ -5207,6 +5221,14 @@ public class CSSParser implements Parser {
 
 		DeclarationTokenHandler(ShorthandDatabase propertyDatabase) {
 			this(propertyDatabase, 1);
+		}
+
+		DeclarationTokenHandler(int currentLine, int prevLineLength) {
+			super(currentLine, prevLineLength);
+			this.curlyBracketDepth = 1;
+			flagIEValues = CSSParser.this.parserFlags.contains(Flag.IEVALUES);
+			buffer = new StringBuilder(128);
+			this.propertyDatabase = null;
 		}
 
 		DeclarationTokenHandler(ShorthandDatabase propertyDatabase, int initialCurlyBracketDepth) {
@@ -6745,6 +6767,10 @@ public class CSSParser implements Parser {
 			super();
 		}
 
+		ControlTokenHandler(int currentLine, int prevLineLength) {
+			super(currentLine, prevLineLength);
+		}
+
 		@Override
 		public void tokenStart(TokenControl control) {
 			this.parserctl = control;
@@ -6757,8 +6783,8 @@ public class CSSParser implements Parser {
 	}
 
 	abstract class CSSTokenHandler implements TokenHandler, ParserControl {
-		private int line = 1;
-		private int prevlinelength = -1;
+		private int line;
+		private int prevlinelength;
 		int prevcp = 32;
 		int endcp = -1;
 		short parendepth = 0;
@@ -6768,6 +6794,14 @@ public class CSSParser implements Parser {
 
 		CSSTokenHandler() {
 			super();
+			line = 1;
+			prevlinelength = -1;
+		}
+
+		CSSTokenHandler(int currentLine, int prevLineLength) {
+			super();
+			line = currentLine;
+			prevlinelength = prevLineLength;
 		}
 
 		@Override
@@ -6788,6 +6822,14 @@ public class CSSParser implements Parser {
 		@Override
 		public Locator createLocator(int index) {
 			return new LocatorImpl(line, index - prevlinelength);
+		}
+
+		int getCurrentLine() {
+			return line;
+		}
+
+		int getPrevLineLength() {
+			return prevlinelength;
 		}
 
 		@Override
