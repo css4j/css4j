@@ -130,6 +130,30 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorElementEscaped3() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("\\31 23");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals("123", ((ElementSelector) sel).getLocalName());
+		assertNull(((ElementSelector) sel).getNamespaceURI());
+		assertEquals("\\31 23", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorElementEscaped4() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("\\.foo");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, sel.getSelectorType());
+		assertEquals(".foo", ((ElementSelector) sel).getLocalName());
+		assertNull(((ElementSelector) sel).getNamespaceURI());
+		assertEquals("\\.foo", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorElementBad() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("9p"));
 		try {
@@ -525,6 +549,23 @@ public class SelectorParserTest {
 		assertEquals(Selector.SAC_ANY_NODE_SELECTOR, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals("[title]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeEscaped() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("\\.p[\\31 23]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(Condition.SAC_ATTRIBUTE_CONDITION, cond.getConditionType());
+		assertEquals("123", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals(".p", ((ElementSelector) simple).getLocalName());
+		assertEquals("\\.p[\\31 23]", sel.toString());
 	}
 
 	@Test
