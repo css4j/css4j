@@ -318,17 +318,21 @@ class NSACSelectorFactory implements NamespaceMap {
 
 		@Override
 		public String toString() {
+			String lName = getLocalName();
+			if (lName != null) {
+				lName = escapeName(lName);
+			}
 			if (namespaceUri != null) {
 				if (namespaceUri.length() != 0) {
 					String nspre = getNamespacePrefix(namespaceUri);
 					if (nspre != null && nspre.length() != 0) {
-						return nspre + "|" + getLocalName();
+						return nspre + "|" + lName;
 					}
 				} else {
-					return "|" + getLocalName();
+					return "|" + lName;
 				}
 			}
-			return getLocalName();
+			return lName;
 		}
 
 	}
