@@ -329,6 +329,13 @@ public class CSSStyleDeclarationRuleTest {
 	}
 
 	@Test
+	public void testSelectorTextSelectorEscapedType() {
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
+		rule.setCssText("\\.foo {border-top-width: 1px; }");
+		assertEquals("\\.foo", rule.getSelectorText());
+	}
+
+	@Test
 	public void testSelectorTextSelectorLang() {
 		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("p:lang(zh, \"*-hant\") {border-top-width: 1px; }");
