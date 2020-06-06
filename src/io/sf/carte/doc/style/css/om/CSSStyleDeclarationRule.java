@@ -285,6 +285,9 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 			ElementSelector esel = (ElementSelector) sel;
 			String lname = esel.getLocalName();
 			String nsuri = esel.getNamespaceURI();
+			if (lname != null) {
+				lname = ParseHelper.escape(lname, false, false);
+			}
 			if (nsuri != null) {
 				if (nsuri.length() != 0) {
 					String nsprefix = getParentStyleSheet().getNamespacePrefix(esel.getNamespaceURI());
