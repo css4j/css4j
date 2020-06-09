@@ -4118,7 +4118,8 @@ public class CSSParser implements Parser {
 									((LangConditionImpl) cond).lang = s;
 								} else if (condtype == ConditionType.PSEUDO_CLASS) {
 									String s = unescapeBuffer(index);
-									if (!isValidIdentifier(s)) {
+									char c;
+									if ((c = s.charAt(0)) != '"' && c != '\'' && !isValidPseudoName(s)) {
 										handleError(index - s.length() - 1, ParseHelper.ERR_UNEXPECTED_TOKEN,
 												"Unexpected functional argument: " + s);
 										return;
@@ -4230,8 +4231,8 @@ public class CSSParser implements Parser {
 						// Type selectors are identifiers and could be escaped
 						ElementSelectorImpl sel = newElementSelector(index);
 						String raw = buffer.toString();
-						String s = unescapeBuffer(index);
-						if (isValidIdentifier(raw)) {
+						if (isNotForbiddenIdentStart(raw)) {
+							String s = unescapeBuffer(index);
 							sel.localName = s;
 							stage = 1;
 						} else {
@@ -4255,8 +4256,8 @@ public class CSSParser implements Parser {
 					}
 					sel.namespaceUri = uri;
 					String raw = buffer.toString();
-					String s = unescapeBuffer(index);
-					if (isValidIdentifier(raw)) {
+					if (isNotForbiddenIdentStart(raw)) {
+						String s = unescapeBuffer(index);
 						sel.localName = s;
 					} else {
 						handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
@@ -4265,8 +4266,8 @@ public class CSSParser implements Parser {
 					}
 				} else if (stage == STAGE_EXPECT_ID_OR_CLASSNAME) {
 					String raw = buffer.toString();
-					String s = unescapeBuffer(index);
-					if (isValidIdentifier(raw)) {
+					if (isNotForbiddenIdentStart(raw)) {
+						String s = unescapeBuffer(index).trim();
 						setAttributeSelectorValue(index, s);
 						stage = 1;
 					} else {
@@ -4650,7 +4651,7 @@ public class CSSParser implements Parser {
 				condition = factory.createCondition(condtype);
 			}
 			if (condition.getConditionType() == ConditionType.PSEUDO_CLASS) {
-				if (isValidIdentifier(name)) {
+				if (isValidPseudoName(name)) {
 					((PseudoConditionImpl) condition).name = safeUnescapeIdentifier(index, name);
 				} else {
 					handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
@@ -4658,7 +4659,7 @@ public class CSSParser implements Parser {
 					return;
 				}
 			} else if (condition.getConditionType() == ConditionType.PSEUDO_ELEMENT) {
-				if (!isValidIdentifier(name)) {
+				if (!isValidPseudoName(name)) {
 					handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 							"Invalid pseudo-element: " + name);
 					return;
@@ -4681,8 +4682,8 @@ public class CSSParser implements Parser {
 					if (namespacePrefix != null) {
 						((AttributeConditionImpl) condition).namespaceURI = getNamespaceURI(index);
 					}
-					if (isValidIdentifier(name)) {
-						((AttributeConditionImpl) condition).localName = safeUnescapeIdentifier(index, name);
+					if (isNotForbiddenIdentStart(name)) {
+						((AttributeConditionImpl) condition).localName = safeUnescapeIdentifier(index, name).trim();
 					} else {
 						handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 								"Invalid pseudo-class: " + name);
@@ -4690,7 +4691,7 @@ public class CSSParser implements Parser {
 					}
 					break;
 				default:
-					((AttributeConditionImpl) condition).value = lcname;
+					((AttributeConditionImpl) condition).value = lcname.trim();
 				}
 			}
 			//
@@ -5726,7 +5727,11 @@ public class CSSParser implements Parser {
 						codepoint = 65;
 					} else if (codepoint == 58) { // :
 						// Here we should have the property name in buffer
-						setPropertyName(index);
+						if (buffer.length() != 0) {
+							setPropertyName(index);
+						} else {
+							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
+						}
 					} else if (codepoint == 64) {
 						handleAtKeyword(index);
 					} else {
@@ -5856,21 +5861,24 @@ public class CSSParser implements Parser {
 		}
 
 		private void setPropertyName(int index) {
-			if (buffer.length() != 0) {
-				String s = buffer.toString();
-				if (escapedTokenIndex == -1) {
-					propertyName = s;
+			String raw = buffer.toString();
+			if (escapedTokenIndex == -1) {
+				if (isNotForbiddenIdentStart(raw)
+						|| (raw.charAt(0) == '*' && CSSParser.this.parserFlags.contains(Flag.STARHACK))) {
+					propertyName = raw;
 					buffer.setLength(0);
-					// We do not check for the correctness of names here, to allow possible hacks
-				} else {
-					propertyName = unescapeBuffer(index);
-					if (!parseError && !isValidIdentifier(propertyName)) {
-						handleWarning(index, ParseHelper.WARN_PROPERTY_NAME, "Suspicious property name: " + s);
-					}
+					return;
 				}
-			} else {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
+			} else if (isNotForbiddenIdentStart(raw)) {
+				propertyName = unescapeBuffer(index);
+				if (!parseError && !isValidIdentifier(propertyName)) {
+					handleWarning(index - buffer.length(), ParseHelper.WARN_PROPERTY_NAME,
+							"Suspicious property name: " + raw);
+				}
+				return;
 			}
+			handleError(index - buffer.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
+					"Invalid property name: '" + raw + '\'');
 		}
 
 		private boolean handleEqualsSignInsideFunction(int index) {
@@ -6095,13 +6103,7 @@ public class CSSParser implements Parser {
 			if (buflen != 0) {
 				if (this.propertyName == null) {
 					// Set the property name
-					String raw = buffer.toString();
-					String s = unescapeBuffer(index);
-					if (isValidIdentifier(raw)) {
-						propertyName = s;
-					} else {
-						handleError(index - buflen, ParseHelper.ERR_INVALID_IDENTIFIER, "Invalid identifier: " + raw);
-					}
+					setPropertyName(index);
 				} else if (readPriority) {
 					String prio = rawBuffer();
 					if ("important".equalsIgnoreCase(prio)) {
@@ -6445,7 +6447,7 @@ public class CSSParser implements Parser {
 		}
 
 		private boolean newIdentifier(String raw, String ident, String cssText) {
-			if (isValidIdentifier(raw)) {
+			if (isNotForbiddenIdentStart(raw)) {
 				if (propertyDatabase != null) {
 					String lcident = ident.toLowerCase(Locale.ROOT);
 					if (lcident != ident) {
@@ -7011,12 +7013,101 @@ public class CSSParser implements Parser {
 			return ParseHelper.unescapeStringValue(inputString, true, false);
 		}
 
-		boolean isValidIdentifier(String s) {
+		/**
+		 * Verify that the given identifier does not start in a way which is forbidden
+		 * by the specification.
+		 * <p>
+		 * If the processing reached this, the rest of the identifier should be fine.
+		 * </p>
+		 * 
+		 * @param s the identifier to test.
+		 * @return true if it starts as a valid identifier.
+		 */
+		boolean isNotForbiddenIdentStart(String s) {
 			char c = s.charAt(0);
 			if (c != '-') {
 				return !Character.isDigit(c);
 			}
 			return (s.length() > 1 && !Character.isDigit(c = s.charAt(1))) || c == '\\';
+		}
+
+		/**
+		 * Is the given string a valid CSS identifier?
+		 * 
+		 * @param s the identifier to test; cannot contain hex escapes.
+		 * @return true if is a valid identifier.
+		 */
+		boolean isValidIdentifier(String s) {
+			int len = s.length();
+			int idx;
+			char c = s.charAt(0);
+			if (c != '-') {
+				if (!isNameStartChar(c) && c != '\\') {
+					return false;
+				}
+				idx = 1;
+			} else if (len > 1) {
+				c = s.charAt(1);
+				if (!isNameStartChar(c) && c != '-' && c != '\\') {
+					return false;
+				}
+				idx = 2;
+			} else {
+				return false;
+			}
+			while (idx < len) {
+				c = s.charAt(idx);
+				if (!isNameChar(c)) {
+					return false;
+				}
+				idx++;
+			}
+			return true;
+		}
+
+		private boolean isNameChar(char cp) {
+			return (cp >= 0x61 && cp <= 0x7A) // a-z
+					|| (cp >= 0x41 && cp <= 0x5A) // A-Z
+					|| (cp >= 0x30 && cp <= 0x39) // 0-9
+					|| cp == 0x2d // -
+					|| cp == 0x5f // _
+					|| cp > 0x80 // non-ASCII code point
+					|| cp == 0x5c; // '\'
+		}
+
+		private boolean isNameStartChar(char cp) {
+			return (cp >= 0x61 && cp <= 0x7A) // a-z
+					|| (cp >= 0x41 && cp <= 0x5A) // A-Z
+					|| cp == 0x5f // _
+					|| cp > 0x80; // non-ASCII code point
+		}
+
+		boolean isValidPseudoName(String s) {
+			int len = s.length();
+			int idx;
+			char c = s.charAt(0);
+			if (c != '-') {
+				if (!isNameStartChar(c)) {
+					return false;
+				}
+				idx = 1;
+			} else if (len > 1) {
+				c = s.charAt(1);
+				if (!isNameStartChar(c)) {
+					return false;
+				}
+				idx = 2;
+			} else {
+				return false;
+			}
+			while (idx < len) {
+				c = s.charAt(idx);
+				if (!isNameChar(c)) {
+					return false;
+				}
+				idx++;
+			}
+			return true;
 		}
 
 		void resetHandler() {

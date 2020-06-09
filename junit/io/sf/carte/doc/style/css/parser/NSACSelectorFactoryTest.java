@@ -596,6 +596,8 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors(":dir(\"ltr\")").item(0);
 		assertFalse(sel.equals(other));
+		other = parser.parseSelectors(":dir('ltr')").item(0);
+		assertFalse(sel.equals(other));
 	}
 
 	@Test

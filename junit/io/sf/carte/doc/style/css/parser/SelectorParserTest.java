@@ -52,6 +52,42 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorError() throws CSSException, IOException {
+		try {
+			parseSelectors("?foo");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParseSelectorError3() throws CSSException, IOException {
+		try {
+			parseSelectors("&foo");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParseSelectorError4() throws CSSException, IOException {
+		try {
+			parseSelectors("%foo");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParseSelectorError5() throws CSSException, IOException {
+		try {
+			parseSelectors("!foo");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
 	public void testParseSelectorUniversal() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("*");
 		assertNotNull(selist);
@@ -314,6 +350,15 @@ public class SelectorParserTest {
 	public void testParseSelectorElementError6() throws CSSException, IOException {
 		try {
 			parseSelectors("p* .foo");
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParseSelectorElementErrorDoubleEscape() throws CSSException, IOException {
+		try {
+			parseSelectors("\\\\&p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -1385,6 +1430,19 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorClass3() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("._123");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
+		assertEquals("_123", ((AttributeCondition) cond).getValue());
+		assertEquals("._123", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorClassOtherChar() throws CSSException, IOException {
 		SelectorList selist = parseSelectors(".exampleclass⁑");
 		assertNotNull(selist);
@@ -1421,19 +1479,6 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("foo🚧", ((AttributeCondition) cond).getValue());
 		assertEquals(".foo🚧", sel.toString());
-	}
-
-	@Test
-	public void testParseSelectorClassEscapedChar() throws CSSException, IOException {
-		SelectorList selist = parseSelectors(".foo\\/1");
-		assertNotNull(selist);
-		assertEquals(1, selist.getLength());
-		Selector sel = selist.item(0);
-		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
-		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(ConditionType.CLASS, cond.getConditionType());
-		assertEquals("foo/1", ((AttributeCondition) cond).getValue());
-		assertEquals(".foo\\/1", sel.toString());
 	}
 
 	@Test
@@ -1722,6 +1767,84 @@ public class SelectorParserTest {
 
 	@Test
 	public void testParseSelectorClassEscaped() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(".foo\\/1");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
+		assertEquals("foo/1", ((AttributeCondition) cond).getValue());
+		assertEquals(".foo\\/1", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorClassEscaped2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(".foo\\:1");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
+		assertEquals("foo:1", ((AttributeCondition) cond).getValue());
+		assertEquals(".foo\\:1", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorClassEscaped3() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(".\\31 23");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
+		assertEquals("123", ((AttributeCondition) cond).getValue());
+		assertEquals(".\\31 23", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorClassEscaped4() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("._\\31 23");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
+		assertEquals("_123", ((AttributeCondition) cond).getValue());
+		assertEquals("._123", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorClassEscaped5() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(".-\\31 23\\\\a");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
+		assertEquals("-123\\a", ((AttributeCondition) cond).getValue());
+		assertEquals(".-\\31 23\\\\a", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorClassEscaped5WS() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(".-\\31 23\\\\a ");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
+		assertEquals("-123\\a", ((AttributeCondition) cond).getValue());
+		assertEquals(".-\\31 23\\\\a", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorClassEscaped6() throws CSSException, IOException {
 		SelectorList selist = parseSelectors(".foo\\(-\\.3\\)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1734,7 +1857,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped2() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped7() throws CSSException, IOException {
 		SelectorList selist = parseSelectors(".\\31 foo\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1752,7 +1875,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped3() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped8() throws CSSException, IOException {
 		SelectorList selist = parseSelectors(".\\31 jkl\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1798,6 +1921,22 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		assertEquals("#exampleid", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorIdEscaped() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("#\\31 23");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ID, cond.getConditionType());
+		assertEquals("123", ((AttributeCondition) cond).getValue());
+		String s = sel.toString();
+		assertEquals("#\\31 23", s);
+		SelectorList selist2 = parseSelectors(s);
+		assertTrue(sel.equals(selist2.item(0)));
 	}
 
 	@Test
@@ -2977,6 +3116,15 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorPseudoElementEscapedBad() throws CSSException, IOException {
+		try {
+			parseSelectors("p::\\.first-line");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
 	public void testParseSelectorPseudoElementQuirk() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("p::-webkit-foo");
 		assertNotNull(selist);
@@ -3087,6 +3235,38 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorPseudoClassCustomEscaped() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(":-css4j-blank");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
+		assertEquals("-css4j-blank", ((PseudoCondition) cond).getName());
+		assertNull(((PseudoCondition) cond).getArgument());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
+		assertEquals("*", ((ElementSelector) simple).getLocalName());
+		assertEquals(":-css4j-blank", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassErrorCustom() throws CSSException, IOException {
+		try {
+			parseSelectors(":--css4j-blank");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+		try {
+			parseSelectors("::--css4j-blank");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
 	public void testParseSelectorPseudoClassError() throws CSSException, IOException {
 		try {
 			parseSelectors("div:blank&");
@@ -3099,6 +3279,15 @@ public class SelectorParserTest {
 	public void testParseSelectorPseudoClassError2() throws CSSException, IOException {
 		try {
 			parseSelectors("div:9blank");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassError3() throws CSSException, IOException {
+		try {
+			parseSelectors("div:-");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}
@@ -3137,6 +3326,7 @@ public class SelectorParserTest {
 			parseSelectors(":dir(,)");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 

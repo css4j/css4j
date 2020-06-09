@@ -21,8 +21,14 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
+import io.sf.carte.doc.style.css.nsac.AttributeCondition;
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
+import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
 
 public class CSSStyleDeclarationRuleTest {
 
@@ -312,14 +318,34 @@ public class CSSStyleDeclarationRuleTest {
 		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("h1~pre {border-top-width: 1px; }");
 		assertEquals("h1~pre", rule.getSelectorText());
+		//
 		rule.setCssText(":dir(rtl) {border-top-width: 1px; }");
 		assertEquals(":dir(rtl)", rule.getSelectorText());
+		//
 		rule.setCssText("::first-letter {border-top-width: 1px; }");
 		assertEquals("::first-letter", rule.getSelectorText());
+		//
 		rule.setCssText(".foo\\/1 {border-top-width: 1px; }");
 		assertEquals(".foo\\/1", rule.getSelectorText());
-		rule.setCssText("#foo\\/1 {border-top-width: 1px; }");
-		assertEquals("#foo\\/1", rule.getSelectorText());
+		//
+		rule.setCssText("foo#bar\\/1 {border-top-width: 1px; }");
+		assertEquals("foo#bar\\/1", rule.getSelectorText());
+	}
+
+	@Test
+	public void testSelectorTextSelector10() {
+		CSSStyleDeclarationRule rule = sheet.createStyleRule();
+		rule.setCssText("#-\\31 23\\\\a {border-top-width: 1px; }");
+		SelectorList selist = rule.getSelectorList();
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ID, cond.getConditionType());
+		assertEquals("-123\\a", ((AttributeCondition) cond).getValue());
+		assertEquals("#-\\31 23\\\\a", rule.getSelectorText());
+		//
+		rule.setCssText(".-\\31 23\\\\a {border-top-width: 1px; }");
+		assertEquals(".-\\31 23\\\\a", rule.getSelectorText());
 	}
 
 	@Test
