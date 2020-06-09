@@ -113,6 +113,11 @@ public class ParseHelperTest {
 	}
 
 	@Test
+	public void testUnescapeStringValueBackslashEnd() {
+		assertEquals("jkl\\", ParseHelper.unescapeStringValue("jkl\\\\"));
+	}
+
+	@Test
 	public void testEscapeString() {
 		assertEquals(" ", ParseHelper.escape(" "));
 		assertEquals("-", ParseHelper.escape("-"));
@@ -163,9 +168,12 @@ public class ParseHelperTest {
 		assertEquals(" ", ParseHelper.escapeBackslash(" "));
 		assertEquals("\\\\", ParseHelper.escapeBackslash("\\").toString());
 		assertEquals(" \\\\", ParseHelper.escapeBackslash(" \\").toString());
-		assertEquals(" \\A", ParseHelper.escapeBackslash(" \\A"));
-		assertEquals(" \\038", ParseHelper.escapeBackslash(" \\038"));
+		assertEquals(" \\A", ParseHelper.escapeBackslash(" \\A").toString());
+		assertEquals(" \\038", ParseHelper.escapeBackslash(" \\038").toString());
 		assertEquals(" \\038\\\\", ParseHelper.escapeBackslash(" \\038\\").toString());
+		assertEquals("\\\\5FAE\\8F6F\\96C5\\9ED1",
+				ParseHelper.escapeBackslash("\\\\5FAE\\8F6F\\96C5\\9ED1").toString());
+		assertEquals("\\\\x\\8F6F\\96C5\\9ED1", ParseHelper.escapeBackslash("\\x\\8F6F\\96C5\\9ED1").toString());
 	}
 
 	@Test

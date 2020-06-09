@@ -645,8 +645,7 @@ class NSACSelectorFactory implements NamespaceMap {
 				buf.append('#').append(getEscapedValue());
 			break;
 			case LANG:
-				buf.append(":lang(").append(getValue())
-					.append(')');
+				buf.append(":lang(").append(getEscapedValue()).append(')');
 			break;
 			case ONLY_CHILD:
 				buf.append(":only-child");
@@ -677,7 +676,7 @@ class NSACSelectorFactory implements NamespaceMap {
 		}
 
 		private String getEscapedValue() {
-			return value != null ? ParseHelper.escape(value) : "";
+			return value != null ? ParseHelper.escape(value, false, false) : "";
 		}
 
 		private String getControlEscapedValue() {

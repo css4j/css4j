@@ -122,6 +122,18 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorElementEscaped5() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("\\\\foo");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
+		assertEquals("\\foo", ((ElementSelector) sel).getLocalName());
+		assertNull(((ElementSelector) sel).getNamespaceURI());
+		assertEquals("\\\\foo", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorElementBad() throws CSSException, IOException {
 		try {
 			parseSelectors("9p");

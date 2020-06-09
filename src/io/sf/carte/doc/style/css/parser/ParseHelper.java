@@ -763,20 +763,22 @@ public class ParseHelper {
 			char cp = strval.charAt(i);
 			if (cp == 92) {
 				// Backslash
+				if (noesc) {
+					noesc = false;
+					buf = createBuffer(i, strval, lenm1 + 12);
+				}
+				buf.append('\\');
 				if (i < lenm1) {
 					// Backslash is not the last char
 					cp = strval.charAt(i + 1);
 					if (isHexCodePoint(cp)) {
 						// Hex-encoded char
 						continue;
+					} else if (cp == 92) {
+						i++;
 					}
 				}
-				if (noesc) {
-					noesc = false;
-					buf = new StringBuilder(lenm1 + 12);
-					buf.append(strval.subSequence(0, i));
-				}
-				buf.append('\\').append('\\');
+				buf.append('\\');
 			} else if (!noesc) {
 				buf.append(cp);
 			}
@@ -784,6 +786,12 @@ public class ParseHelper {
 		if (noesc) {
 			return strval;
 		}
+		return buf;
+	}
+
+	private static StringBuilder createBuffer(int i, CharSequence seq, int size) {
+		StringBuilder buf = new StringBuilder(size);
+		buf.append(seq.subSequence(0, i));
 		return buf;
 	}
 

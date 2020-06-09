@@ -1025,7 +1025,7 @@ public class CSSParser implements Parser {
 
 			@Override
 			public void escaped(int index, int codepoint) {
-				if (ParseHelper.isHexCodePoint(codepoint)) {
+				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				}
@@ -1633,7 +1633,7 @@ public class CSSParser implements Parser {
 
 			@Override
 			public void escaped(int index, int codepoint) {
-				if (ParseHelper.isHexCodePoint(codepoint)) {
+				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				}
@@ -3140,7 +3140,7 @@ public class CSSParser implements Parser {
 			if (contextHandler != null) {
 				contextHandler.escaped(index, codepoint);
 			} else if (!parseError) {
-				if (ParseHelper.isHexCodePoint(codepoint)) {
+				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				}
@@ -4807,7 +4807,7 @@ public class CSSParser implements Parser {
 		public void escaped(int index, int codepoint) {
 			if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_POST_SYMBOL || stage == STAGE_EXPECT_ID_OR_CLASSNAME
 					|| stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT || stage == 0 || stage == STAGE_COMBINATOR_OR_END) {
-				if (ParseHelper.isHexCodePoint(codepoint)) {
+				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
@@ -6541,7 +6541,7 @@ public class CSSParser implements Parser {
 
 		private boolean isEscapedContentError(int index, int codepoint) {
 			if (isEscapedContext(prevcp) && !hexColor) {
-				if (ParseHelper.isHexCodePoint(codepoint)) {
+				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				}
