@@ -484,7 +484,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		public AbstractCSSStyleSheet getSheet() {
 			if (linkedSheet == null) {
 				String type = getPseudoAttribute("type");
-				if (type.length() != 0 && !"text/css".equals(type)) {
+				if (type.length() != 0 && !"text/css".equalsIgnoreCase(type)) {
 					return null;
 				}
 				MediaQueryList media = parseMediaList(getPseudoAttribute("media").trim(), this);

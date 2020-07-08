@@ -457,7 +457,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		public AbstractCSSStyleSheet getSheet() {
 			if (needsUpdate) {
 				String type = getAttribute("type");
-				if (!"text/css".equals(type)) {
+				if (type.length() != 0 && !"text/css".equalsIgnoreCase(type)) {
 					return null;
 				}
 				MediaQueryList mediaList = HTMLDocument.this.parseMediaList(getAttribute("media").trim(), this);
