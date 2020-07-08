@@ -313,6 +313,16 @@ public class MediaQueryTest {
 	}
 
 	@Test
+	public void testGetMediaRatioErrorNegComponent5() {
+		MediaQueryList mql = createMediaQueryList("(device-aspect-ratio:-16/-9) and (min-width:300px),screen and (color>5)");
+		assertTrue(mql.hasErrors());
+		assertFalse(mql.isNotAllMedia());
+		assertEquals("screen and (color > 5)", mql.getMedia());
+		assertEquals("screen and (color>5)", mql.getMinifiedMedia());
+		assertEquals(1, mql.getLength());
+	}
+
+	@Test
 	public void testGetMediaLevel4() {
 		MediaQueryList mql = createMediaQueryList("all and (2 <= color < 5)");
 		assertNotNull(mql);
@@ -464,6 +474,8 @@ public class MediaQueryTest {
 		mql = createMediaQueryList("or screen");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
 		mql = createMediaQueryList("all and only");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("screen and");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
 		mql = createMediaQueryList("all and (min-color: 4) and only");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
