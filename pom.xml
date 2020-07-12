@@ -28,7 +28,7 @@
 		<scope>compile</scope>
 		<optional>false</optional>
 	</dependency>
- 	<!-- https://mvnrepository.com/artifact/nu.validator.htmlparser/htmlparser -->
+	<!-- https://mvnrepository.com/artifact/nu.validator/htmlparser -->
 	<dependency>
 		<groupId>nu.validator</groupId>
 		<artifactId>htmlparser</artifactId>
