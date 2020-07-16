@@ -14,10 +14,14 @@ package io.sf.carte.doc.style.css.parser;
 import java.util.Locale;
 
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 class LexicalUnitImpl implements LexicalUnit {
+
+	// How many lexical units we accept in #replaceBy() argument
+	private static final int LEXICAL_REPLACE_LIMIT = 0x50000;
 
 	private LexicalType unitType;
 
@@ -96,7 +100,7 @@ class LexicalUnitImpl implements LexicalUnit {
 	}
 
 	@Override
-	public LexicalUnit replaceBy(LexicalUnit replacementUnit) {
+	public LexicalUnit replaceBy(LexicalUnit replacementUnit) throws CSSBudgetException {
 		if (replacementUnit == null) {
 			return remove();
 		}
@@ -106,11 +110,17 @@ class LexicalUnitImpl implements LexicalUnit {
 			rlu.previousLexicalUnit = previousLexicalUnit;
 		}
 		if (nextLexicalUnit != null) {
+			int counter = 0;
 			LexicalUnitImpl lu = rlu;
 			LexicalUnitImpl lastlu;
 			do {
 				lastlu = lu;
 				lu = lu.nextLexicalUnit;
+				// Check for possible DoS attack
+				counter++;
+				if (counter >= LEXICAL_REPLACE_LIMIT) {
+					throw new CSSBudgetException("Exceeded limit of lexical units: " + LEXICAL_REPLACE_LIMIT);
+				}
 			} while (lu != null);
 			nextLexicalUnit.previousLexicalUnit = lastlu;
 			lastlu.nextLexicalUnit = nextLexicalUnit;
