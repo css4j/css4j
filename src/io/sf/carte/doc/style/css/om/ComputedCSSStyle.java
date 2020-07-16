@@ -1174,7 +1174,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		}
 		customPropertyStack.clear();
-		DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, "Unable to evaluate custom property " + customProperty);
+		DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
+				"Unable to evaluate custom property " + customProperty);
 		if (exception != null) {
 			ex.initCause(exception);
 		}
