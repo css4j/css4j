@@ -255,6 +255,11 @@ public class NumberValue extends TypedValue {
 		return calculated ;
 	}
 
+	/**
+	 * Sets whether this number is the result of a calculation.
+	 * 
+	 * @param calculated {@code true} if this number was calculated.
+	 */
 	void setCalculatedNumber(boolean calculated) {
 		this.calculated = calculated;
 	}
