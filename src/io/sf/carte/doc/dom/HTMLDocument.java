@@ -456,8 +456,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		@Override
 		public AbstractCSSStyleSheet getSheet() {
 			if (needsUpdate) {
-				String type = getAttribute("type");
-				if (type.length() != 0 && !"text/css".equalsIgnoreCase(type)) {
+				if (hasAttribute("type") && !"text/css".equalsIgnoreCase(getAttribute("type"))) {
 					return null;
 				}
 				MediaQueryList mediaList = HTMLDocument.this.parseMediaList(getAttribute("media").trim(), this);
@@ -862,8 +861,8 @@ abstract public class HTMLDocument extends DOMDocument {
 				my = new HrefEventAttr(namespaceURI);
 			} else if (localName == "style" && prefix == null) {
 				my = new MyStyleAttr(localName);
-			} else if (localName == "media") {
-				my = new StyleEventAttr("media", namespaceURI);
+			} else if (localName == "media" || localName == "type") {
+				my = new StyleEventAttr(localName, namespaceURI);
 			} else {
 				my = new MyAttr(localName, namespaceURI);
 			}

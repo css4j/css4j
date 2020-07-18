@@ -1636,6 +1636,26 @@ public class HTMLDocumentTest {
 		AbstractCSSStyleSheet sheet = style.getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
+		//
+		style.setAttribute("type", "");
+		sheet = style.getSheet();
+		assertNull(sheet);
+		//
+		style.removeAttributeNode(style.getAttributeNode("type"));
+		sheet = style.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		//
+		style.setAttribute("type", "text/xsl");
+		sheet = style.getSheet();
+		assertNull(sheet);
+		//
+		style.removeAttribute("type");
+		sheet = style.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		style.setTextContent("body {color: blue;}");
+		assertEquals(1, sheet.getCssRules().getLength());
 	}
 
 	@Test

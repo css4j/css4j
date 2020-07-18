@@ -33,6 +33,7 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.DOMStringList;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.css.CSSStyleSheet;
@@ -310,6 +311,55 @@ public class StylableDocumentWrapperTest {
 		type.setNodeValue("foo");
 		assertNull(((LinkStyle<?>) style).getSheet());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testStyleElement2() throws ParserConfigurationException {
+		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docb = dbFac.newDocumentBuilder();
+		Document doc = docb.getDOMImplementation().createDocument(null, "html", null);
+		Element head = doc.createElement("head");
+		Element element = doc.createElement("style");
+		element.setAttribute("id", "style1");
+		element.setIdAttribute("id", true);
+		element.setAttribute("type", "text/css");
+		doc.getDocumentElement().appendChild(head);
+		head.appendChild(element);
+		doc.setDocumentURI("http://www.example.com/");
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(false);
+		CSSDocument cssDoc = cssFac.createCSSDocument(doc);
+		//
+		CSSElement style = cssDoc.getElementById("style1");
+		assertNotNull(style);
+		CSSStyleSheet sheet = ((LinkStyle<?>) style).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		//
+		Attr type = style.getAttributeNode("type");
+		type.setValue("");
+		sheet = ((LinkStyle<?>) style).getSheet();
+		assertNull(sheet);
+		//
+		type.setValue("text/xsl");
+		sheet = ((LinkStyle<?>) style).getSheet();
+		assertNull(sheet);
+		//
+		doc = docb.getDOMImplementation().createDocument(null, "html", null);
+		head = doc.createElement("head");
+		element = doc.createElement("style");
+		element.setAttribute("id", "style1");
+		element.setIdAttribute("id", true);
+		doc.getDocumentElement().appendChild(head);
+		head.appendChild(element);
+		doc.setDocumentURI("http://www.example.com/");
+		cssDoc = cssFac.createCSSDocument(doc);
+		// Lacks a specified 'type' attribute
+		style = cssDoc.getElementById("style1");
+		assertNotNull(style);
+		sheet = ((LinkStyle<?>) style).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
 	}
 
 	@Test
