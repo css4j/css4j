@@ -1139,6 +1139,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		try {
 			replUnit = replaceLexicalVar(property, lunit, new CSSOMParser());
 		} catch (DOMException e) {
+			computedStyleError(property, lunit.toString(), "Problem evaluating lexical value.", e);
 			return null;
 		}
 		try {

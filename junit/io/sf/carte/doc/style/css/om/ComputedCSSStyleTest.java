@@ -1071,8 +1071,9 @@ public class ComputedCSSStyleTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(1, errors.size());
+		assertEquals(2, errors.size());
 		Iterator<String> errptyIt = errors.keySet().iterator();
+		assertEquals("margin-left", errptyIt.next());
 		assertEquals("--foo", errptyIt.next());
 		/*
 		 * custom property inside calc(), shorthand, circular dependency, no fallback.
