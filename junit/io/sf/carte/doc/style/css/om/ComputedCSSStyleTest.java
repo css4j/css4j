@@ -714,8 +714,8 @@ public class ComputedCSSStyleTest {
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		CSSElement body = (CSSElement) elm.getParentNode();
-		body.getOverrideStyle(null).setCssText("--foo:var(--FONT-SIZE);");
-		elm.getOverrideStyle(null).setCssText("margin-right:calc(1.5*var(--foo));--FONT-SIZE:12pt");
+		body.getOverrideStyle(null).setCssText("--FONT-SIZE:12pt");
+		elm.getOverrideStyle(null).setCssText("margin-right:calc(1.5*var(--foo));--foo:var(--FONT-SIZE);");
 		style = elm.getComputedStyle(null);
 		marginRight = (CSSTypedValue) style.getPropertyCSSValue("margin-right");
 		assertEquals(18f, marginRight.getFloatValue(CSSUnit.CSS_PT), 0.01f);
@@ -735,7 +735,7 @@ public class ComputedCSSStyleTest {
 		 * Same as above, with custom property set in parent style
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("margin:calc(1.5*var(--foo));--FONT-SIZE:12pt");
+		elm.getOverrideStyle(null).setCssText("margin:calc(1.5*var(--foo));--foo:var(--FONT-SIZE);");
 		style = elm.getComputedStyle(null);
 		marginRight = (CSSTypedValue) style.getPropertyCSSValue("margin-right");
 		assertEquals(18f, marginRight.getFloatValue(CSSUnit.CSS_PT), 0.01f);
@@ -755,7 +755,7 @@ public class ComputedCSSStyleTest {
 		 * Same as above, with custom property set in parent style
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font-size:calc(1.5*var(--foo));--FONT-SIZE:12pt");
+		elm.getOverrideStyle(null).setCssText("font-size:calc(1.5*var(--foo));--foo:var(--FONT-SIZE);");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(18f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-5);
@@ -764,38 +764,43 @@ public class ComputedCSSStyleTest {
 	}
 
 	@Test
-	public void getComputedStyleCustomPropertiesKeywords() throws CSSMediaException {
+	public void getComputedStyleCustomPropertiesInherit() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		/*
 		 * custom property set to inherit.
 		 */
+		CSSElement body = (CSSElement) elm.getParentNode();
+		body.getOverrideStyle(null).setCssText("font-size:10pt;--FONT-SIZE:2em");
 		elm.getOverrideStyle(null).setCssText("margin-top:var(--foo);--foo:var(--FONT-SIZE);--FONT-SIZE:inherit");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
-		assertEquals(36f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(20f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
 		/*
-		 * Same as above, with custom property set in parent style
+		 * Similar to above, with custom property set in :root style
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		CSSElement body = (CSSElement) elm.getParentNode();
-		body.getOverrideStyle(null).setCssText("--foo:var(--FONT-SIZE);");
-		elm.getOverrideStyle(null).setCssText("margin-top:var(--foo);--FONT-SIZE:inherit");
+		xhtmlDoc.getDocumentElement().getOverrideStyle(null).setCssText("font-size:8pt;--FONT-SIZE:2em");
+		body.getOverrideStyle(null).setCssText("--foo:var(--FONT-SIZE);--FONT-SIZE:inherit");
+		elm.getOverrideStyle(null).setCssText("margin-top:var(--foo);");
 		style = elm.getComputedStyle(null);
 		marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
-		assertEquals(36f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(16f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+	}
+
+	@Test
+	public void getComputedStyleCustomPropertiesKeywords() throws CSSMediaException {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
 		/*
 		 * custom property set to unset.
 		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		elm.getOverrideStyle(null).setCssText("margin-top:var(--foo);--foo:var(--bar);--bar:unset");
-		style = elm.getComputedStyle(null);
-		CSSValue bar = style.getPropertyCSSValue("--bar");
-		assertEquals(Type.UNSET, bar.getPrimitiveType());
-		marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNull(style.getPropertyCSSValue("--bar"));
+		CSSTypedValue marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
 		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
@@ -805,8 +810,7 @@ public class ComputedCSSStyleTest {
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		elm.getOverrideStyle(null).setCssText("margin-top:var(--foo);--foo:var(--bar);--bar:initial");
 		style = elm.getComputedStyle(null);
-		bar = style.getPropertyCSSValue("--bar");
-		assertEquals(Type.INITIAL, bar.getPrimitiveType());
+		assertNull(style.getPropertyCSSValue("--bar"));
 		marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
 		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
@@ -877,7 +881,7 @@ public class ComputedCSSStyleTest {
 		 * font-size custom property fallback: initial.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:var(--bar,initial)");
+		elm.getOverrideStyle(null).setCssText("font-size:var(--foo,initial);--foo:var(--bar)");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-5);
@@ -937,8 +941,7 @@ public class ComputedCSSStyleTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		/*
 		 * custom property circular dependency in ancestor, fallback.
 		 */
@@ -1068,9 +1071,8 @@ public class ComputedCSSStyleTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(2, errors.size());
+		assertEquals(1, errors.size());
 		Iterator<String> errptyIt = errors.keySet().iterator();
-		assertEquals("margin-left", errptyIt.next());
 		assertEquals("--foo", errptyIt.next());
 		/*
 		 * custom property inside calc(), shorthand, circular dependency, no fallback.
@@ -2543,7 +2545,13 @@ public class ComputedCSSStyleTest {
 		elm.getOverrideStyle(null).setCssText(
 				"background:var(--my-background);--start1:0;--gray:#aaa;--black:#010102;--stop1:90%;--my-background:linear-gradient(90deg,transparent var(--start1),var(--gray) 33%,var(--black) var(--stop1),transparent 0) no-repeat 0 100%/100% 100%");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		assertEquals("linear-gradient(90deg, transparent 0, #aaa 33%, #010102 90%, transparent 0)", style.getPropertyValue("background-image"));
+		CSSValue custom = style.getPropertyCSSValue("--my-background");
+		assertNotNull(custom);
+		assertEquals(
+				"linear-gradient(90deg, transparent 0, #aaa 33%, #010102 90%, transparent 0) no-repeat 0 100%/100% 100%",
+				custom.getCssText());
+		assertEquals("linear-gradient(90deg, transparent 0, #aaa 33%, #010102 90%, transparent 0)",
+				style.getPropertyValue("background-image"));
 		assertEquals("0 100%", style.getPropertyValue("background-position"));
 		assertEquals("100% 100%", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
