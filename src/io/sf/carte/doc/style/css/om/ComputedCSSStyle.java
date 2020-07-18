@@ -45,6 +45,7 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.AttrValue;
@@ -439,6 +440,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			value = evaluateCustomProperty(propertyName, (VarValue) pri, useParentStyle);
 		} else if (pritype == Type.LEXICAL) {
 			value = evaluateLexicalValue(propertyName, (LexicalValue) pri, useParentStyle);
+			if (value != null && value.getPrimitiveType() == Type.LEXICAL) {
+				return value;
+			}
 		} else if (pritype == Type.ATTR) {
 			value = computeAttribute(propertyName, (AttrValue) pri, useParentStyle);
 		} else {
@@ -1051,12 +1055,19 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			customPropertyStack = new LinkedList<String>();
 		}
 		LexicalUnit lunit = lexval.getLexicalUnit().clone();
+		LexicalUnit replUnit;
 		try {
-			LexicalUnit replUnit = replaceLexicalVar(property, lunit, new CSSOMParser());
-			return getValueFactory().createCSSValue(replUnit, this);
+			replUnit = replaceLexicalVar(property, lunit, new CSSOMParser());
 		} catch (DOMException e) {
 			computedStyleError(property, lunit.toString(), "Problem evaluating lexical value.", e);
 			return null;
+		}
+		try {
+			return getValueFactory().createCSSValue(replUnit, this);
+		} catch (DOMException e) {
+			LexicalValue repLexval = new LexicalValue();
+			repLexval.setLexicalUnit(replUnit);
+			return repLexval;
 		}
 	}
 
@@ -1083,9 +1094,16 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 								"Unable to evaluate custom property " + propertyName);
 					}
 				} else {
-					customPropertyStack.add(propertyName);
 					newlu = evaluateCustomPropertyValue(property, propertyName, param, parser);
-					customPropertyStack.remove(propertyName);
+					while (newlu.getLexicalUnitType() == LexicalType.VAR) {
+						LexicalUnit newParam = newlu.getParameters();
+						String replacedPropertyName = newParam.getStringValue();
+						newParam = newParam.getNextLexicalUnit(); // Comma?
+						if (newParam != null) {
+							newParam = newParam.getNextLexicalUnit(); // Fallback
+						}
+						newlu = evaluateCustomPropertyValue(property, replacedPropertyName, newParam, parser);
+					}
 				}
 				boolean isLexval = lu == lexval;
 				lu = lu.replaceBy(newlu);
@@ -1108,8 +1126,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	private LexicalUnit evaluateCustomPropertyValue(String property, String customProperty, LexicalUnit param,
 			Parser parser) throws DOMException {
 		Exception exception = null;
+		customPropertyStack.add(customProperty);
 		try {
-			StyleValue custom = super.getCSSValue(customProperty);
+			StyleValue custom = getCSSValue(customProperty);
 			if (custom != null) {
 				if (custom.getPrimitiveType() == Type.UNSET) {
 					custom = null;
@@ -1122,13 +1141,20 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if (custom != null && custom.getPrimitiveType() == Type.LEXICAL) {
 					LexicalUnit lu = ((LexicalValue) custom).getLexicalUnit();
 					lu = replaceLexicalVar(property, lu, parser);
+					customPropertyStack.remove(customProperty);
 					return lu;
 				}
 			}
-			custom = getCSSValue(customProperty);
 			if (custom != null) {
-				String cssText = custom.getCssText();
-				return parser.parsePropertyValue(new StringReader(cssText));
+				LexicalUnit lu;
+				if (custom.getPrimitiveType() == Type.LEXICAL) {
+					lu = ((LexicalValue) custom).getLexicalUnit();
+				} else {
+					String cssText = custom.getCssText();
+					lu = parser.parsePropertyValue(new StringReader(cssText));
+				}
+				customPropertyStack.remove(customProperty);
+				return lu;
 			}
 		} catch (Exception e) {
 			exception = e;
@@ -1138,6 +1164,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			// Replace param, just in case
 			try {
 				param = replaceLexicalVar(property, param, parser);
+				customPropertyStack.remove(customProperty);
 				return param;
 			} catch (DOMException e) {
 				exception = e;
@@ -1196,6 +1223,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				break;
 			case LEXICAL:
 				proxy = evaluateLexicalValue("font-size", (LexicalValue) value, true);
+				if (proxy != null && proxy.getPrimitiveType() == Type.LEXICAL) {
+					computedStyleError("font-size", proxy.getCssText(), "Lexical value is not valid for font-size.");
+					proxy = null;
+				}
 				break;
 			default:
 				proxy = null;
