@@ -1460,10 +1460,17 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			NumberValue number = new NumberValue();
 			number.setFloatValuePt(sz);
 			number.setSubproperty(cssSize.isSubproperty());
+			number.setAbsolutizedUnit();
 			return number;
 		}
 	}
 
+	/*
+	 * This is a bit redundant with absoluteNumberValue() called
+	 * with useParentStyle=true, but allows to keep original values
+	 * in some cases (where the absolute value is not computed from
+	 * a calc() value).
+	 */
 	private TypedValue absoluteFontSizeNumeric(TypedValue cssSize, boolean force) {
 		float sz;
 		switch (cssSize.getUnitType()) {
@@ -1684,6 +1691,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		NumberValue number = new NumberValue();
 		number.setFloatValuePt(sz);
 		number.setSubproperty(cssSize.isSubproperty());
+		number.setAbsolutizedUnit();
 		return number;
 	}
 
@@ -2089,6 +2097,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	private static NumberValue asNumericValuePt(float f) {
 		NumberValue number = new NumberValue();
 		number.setFloatValuePt(f);
+		number.setAbsolutizedUnit();
 		return number;
 	}
 
