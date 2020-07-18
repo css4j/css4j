@@ -45,6 +45,10 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		return lexicalUnit;
 	}
 
+	public void setLexicalUnit(LexicalUnit lexicalUnit) {
+		this.lexicalUnit = lexicalUnit;
+	}
+
 	@Override
 	public Type getFinalType() {
 		// Check for ratio
