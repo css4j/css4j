@@ -147,6 +147,8 @@ public class ShorthandSetterTest {
 	public void testBorderImportant() {
 		emptyStyleDecl.setCssText("border: 1px dashed blue ! important; ");
 		assertEquals("blue", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("border-top-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("border"));
 		assertEquals("border: 1px dashed blue ! important; ", emptyStyleDecl.getCssText());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("border-top-width").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("border-top-style").isSubproperty());
@@ -167,15 +169,6 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
-	public void testBorder() {
-		emptyStyleDecl.setCssText("border-image: url('foo.png'); border-top-color: yellow; border: 1px dashed blue; ");
-		assertEquals("blue", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("none", emptyStyleDecl.getPropertyValue("border-image-source"));
-		assertEquals("border: 1px dashed blue; ", emptyStyleDecl.getCssText());
-		assertEquals("border:1px dashed blue;", emptyStyleDecl.getMinifiedCssText());
-	}
-
-	@Test
 	public void testBorder2() {
 		emptyStyleDecl.setCssText("border: 1px dashed  blue; border-top: 4px dotted  green; border: 2px solid yellow;");
 		assertEquals("2px", emptyStyleDecl.getPropertyValue("border-top-width"));
@@ -183,6 +176,8 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText(
 				"border: 1px dashed blue; border-top: 4px dotted green ! important; border: 2px solid yellow;");
 		assertEquals("4px", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("border-top"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("border"));
 		assertEquals("border-top: 4px dotted green ! important; border: 2px solid yellow; ",
 				emptyStyleDecl.getCssText());
 		assertEquals("border-top:4px dotted green!important;border:2px solid yellow;",
@@ -1632,6 +1627,7 @@ public class ShorthandSetterTest {
 		assertEquals("10px", emptyStyleDecl.getPropertyValue("margin-bottom"));
 		assertEquals("10px", emptyStyleDecl.getPropertyValue("margin-left"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("margin-top"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("margin"));
 		assertEquals("margin: 10px; margin-top: 3px ! important; ", emptyStyleDecl.getCssText());
 		assertEquals("margin:10px;margin-top:3px!important", emptyStyleDecl.getMinifiedCssText());
 		emptyStyleDecl.setCssText("margin-top: 3px ! important; margin: 10px; ");
@@ -2241,6 +2237,7 @@ public class ShorthandSetterTest {
 		assertEquals("gray", emptyStyleDecl.getPropertyValue("background-color"));
 		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("gray", emptyStyleDecl.getPropertyValue("background"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("background"));
 		assertEquals("background: gray; ", emptyStyleDecl.getCssText());
 		assertEquals("background:gray;", emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
@@ -2300,6 +2297,17 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testBorderImage() {
+		emptyStyleDecl.setCssText("border-image: url('foo.png'); border-top-color: yellow; border: 1px dashed blue; ");
+		assertEquals("blue", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("border-image-source"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("border-image-source"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("border-image"));
+		assertEquals("border: 1px dashed blue; ", emptyStyleDecl.getCssText());
+		assertEquals("border:1px dashed blue;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBorderImageNone() {
 		emptyStyleDecl.setCssText("border-image: none;");
 		assertEquals("none", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("stretch", emptyStyleDecl.getPropertyValue("border-image-repeat"));
