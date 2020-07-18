@@ -1087,8 +1087,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					newlu = evaluateCustomPropertyValue(property, propertyName, param, parser);
 					customPropertyStack.remove(propertyName);
 				}
-				lu.replaceBy(newlu);
-				if (lu == lexval) {
+				boolean isLexval = lu == lexval;
+				lu = lu.replaceBy(newlu);
+				if (isLexval) {
 					lexval = newlu;
 				}
 			} else {
