@@ -825,6 +825,21 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 							"Unable to evaluate custom property " + propertyName);
 				}
 			} else {
+				/*
+				 * Tentative protection for Billion Laugh Attacks
+				 */
+				StyleValue item;
+				int stackSize;
+				if (custom.getCssValueType() == CSSValue.CSS_VALUE_LIST
+						&& (stackSize = customPropertyStack.size()) > 7
+						&& (item = ((ValueList) custom).item(0)).getCssValueType() == CSSValue.CSS_VALUE_LIST
+						&& (item = ((ValueList) item).item(0)).getCssValueType() == CSSValue.CSS_VALUE_LIST
+						&& ((ValueList) item).item(0).getCssValueType() == CSSValue.CSS_VALUE_LIST
+						&& ((ValueList) custom).getLength() * stackSize > 32) {
+					// Probable DoS attack
+					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+							"Resource limit hit while replacing custom property " + propertyName);
+				}
 				custom = absoluteValue(property, custom, useParentStyle);
 			}
 		} catch (Exception e) {
