@@ -105,10 +105,30 @@ class LexicalUnitImpl implements LexicalUnit {
 			return remove();
 		}
 		LexicalUnitImpl rlu = (LexicalUnitImpl) replacementUnit;
+		if (rlu.ownerLexicalUnit != null) {
+			throw new CSSException("Replacement unit is a parameter.");
+		}
+		// Set the owner
+		if (ownerLexicalUnit != null) {
+			if (rlu.previousLexicalUnit != null) {
+				throw new CSSException("Replacement unit has a previous unit.");
+			}
+			LexicalUnitImpl lu = rlu;
+			do {
+				lu.ownerLexicalUnit = ownerLexicalUnit;
+				lu = lu.nextLexicalUnit;
+			} while (lu != null);
+			if (previousLexicalUnit == null) {
+				ownerLexicalUnit.parameters = rlu;
+			}
+			ownerLexicalUnit = null;
+		}
+		// previous unit
 		if (previousLexicalUnit != null) {
 			previousLexicalUnit.nextLexicalUnit = rlu;
 			rlu.previousLexicalUnit = previousLexicalUnit;
 		}
+		// next unit(s)
 		if (nextLexicalUnit != null) {
 			int counter = 0;
 			LexicalUnitImpl lu = rlu;
@@ -125,18 +145,6 @@ class LexicalUnitImpl implements LexicalUnit {
 			nextLexicalUnit.previousLexicalUnit = lastlu;
 			lastlu.nextLexicalUnit = nextLexicalUnit;
 			nextLexicalUnit = null;
-		}
-		// Set the owner
-		if (ownerLexicalUnit != null) {
-			LexicalUnitImpl lu = rlu;
-			do {
-				lu.ownerLexicalUnit = ownerLexicalUnit;
-				lu = lu.nextLexicalUnit;
-			} while (lu != null);
-			if (previousLexicalUnit == null) {
-				ownerLexicalUnit.parameters = rlu;
-			}
-			ownerLexicalUnit = null;
 		}
 		previousLexicalUnit = null;
 		return replacementUnit;

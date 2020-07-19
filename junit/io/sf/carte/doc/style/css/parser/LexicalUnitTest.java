@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -275,6 +276,31 @@ public class LexicalUnitTest {
 		assertEquals("2 3 4", replacement.toString());
 		assertEquals("foo(2 3 4)", lu.toString());
 		assertSame(nlu, replacement);
+	}
+
+	@Test
+	public void testReplaceByArgFail() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("foo(1 2 3 4)");
+		LexicalUnit lu2 = parsePropertyValue("0 1");
+		LexicalUnit param = lu.getParameters();
+		LexicalUnit nlu2 = lu2.getNextLexicalUnit();
+		try {
+			param.replaceBy(nlu2);
+			fail("Must throw exception.");
+		} catch (CSSException e) {
+		}
+	}
+
+	@Test
+	public void testReplaceByArgFail2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("1 2 3");
+		LexicalUnit lu2 = parsePropertyValue("foo(0 1)");
+		LexicalUnit param = lu2.getParameters();
+		try {
+			lu.replaceBy(param);
+			fail("Must throw exception.");
+		} catch (CSSException e) {
+		}
 	}
 
 	@Test
