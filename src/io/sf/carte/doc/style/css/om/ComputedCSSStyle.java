@@ -41,6 +41,7 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -1105,7 +1106,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					}
 				}
 				boolean isLexval = lu == lexval;
-				lu = lu.replaceBy(newlu);
+				try {
+					lu = lu.replaceBy(newlu);
+				} catch (CSSBudgetException e) {
+					DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
+							"Resource limit hit while replacing custom property " + propertyName);
+					ex.initCause(e);
+					throw ex;
+				}
 				if (isLexval) {
 					lexval = newlu;
 				}
