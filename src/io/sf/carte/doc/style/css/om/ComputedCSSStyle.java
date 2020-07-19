@@ -1087,8 +1087,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					// Fallback
 					if (param != null) {
 						// Replace param, just in case
-						replaceLexicalVar(property, param, parser);
-						newlu = param;
+						newlu = replaceLexicalVar(property, param.clone(), parser);
 					} else {
 						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 								"Unable to evaluate custom property " + propertyName);
@@ -1139,7 +1138,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				 */
 				custom = inheritValue(this, customProperty, custom, true);
 				if (custom != null && custom.getPrimitiveType() == Type.LEXICAL) {
-					LexicalUnit lu = ((LexicalValue) custom).getLexicalUnit();
+					LexicalUnit lu = ((LexicalValue) custom).getLexicalUnit().clone();
 					lu = replaceLexicalVar(property, lu, parser);
 					customPropertyStack.remove(customProperty);
 					return lu;
@@ -1148,7 +1147,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (custom != null) {
 				LexicalUnit lu;
 				if (custom.getPrimitiveType() == Type.LEXICAL) {
-					lu = ((LexicalValue) custom).getLexicalUnit();
+					lu = ((LexicalValue) custom).getLexicalUnit().clone();
 				} else {
 					String cssText = custom.getCssText();
 					lu = parser.parsePropertyValue(new StringReader(cssText));
@@ -1163,7 +1162,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (param != null) {
 			// Replace param, just in case
 			try {
-				param = replaceLexicalVar(property, param, parser);
+				param = replaceLexicalVar(property, param.clone(), parser);
 				customPropertyStack.remove(customProperty);
 				return param;
 			} catch (DOMException e) {
