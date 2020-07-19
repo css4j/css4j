@@ -43,11 +43,14 @@ public class VarBLATest {
 		// No need to close 'is'.
 	}
 
+	/*
+	 * Billion Laughs Attack
+	 */
 	@Test
 	public void testVarBLA() {
 		CSSElement elm = htmlDoc.getElementById("div1");
 		/*
-		 * custom property substitution.
+		 * DoS in custom property substitution.
 		 */
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
