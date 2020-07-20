@@ -423,8 +423,10 @@ public interface LexicalUnit {
 	 *                        {@code null}, this unit is replaced by the next one.
 	 * @return the unit that replaces this one (<em>i.e.</em> the argument, or the
 	 *         next lexical unit if the argument is {@code null}).
-	 * @throws CSSBudgetException if the replacement unit has too many chained units
-	 *                            (to avoid potential DoS).
+	 * @throws IllegalArgumentException if the replacement unit is a parameter or
+	 *                                  has a previous unit.
+	 * @throws CSSBudgetException       if the replacement unit has too many chained
+	 *                                  units (to avoid potential DoS).
 	 */
 	LexicalUnit replaceBy(LexicalUnit replacementUnit) throws CSSBudgetException;
 

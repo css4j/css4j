@@ -287,7 +287,7 @@ public class LexicalUnitTest {
 		try {
 			param.replaceBy(nlu2);
 			fail("Must throw exception.");
-		} catch (CSSException e) {
+		} catch (IllegalArgumentException e) {
 		}
 	}
 
@@ -299,7 +299,7 @@ public class LexicalUnitTest {
 		try {
 			lu.replaceBy(param);
 			fail("Must throw exception.");
-		} catch (CSSException e) {
+		} catch (IllegalArgumentException e) {
 		}
 	}
 

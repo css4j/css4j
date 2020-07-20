@@ -106,12 +106,12 @@ class LexicalUnitImpl implements LexicalUnit {
 		}
 		LexicalUnitImpl rlu = (LexicalUnitImpl) replacementUnit;
 		if (rlu.ownerLexicalUnit != null) {
-			throw new CSSException("Replacement unit is a parameter.");
+			throw new IllegalArgumentException("Replacement unit is a parameter.");
 		}
 		// Set the owner
 		if (ownerLexicalUnit != null) {
 			if (rlu.previousLexicalUnit != null) {
-				throw new CSSException("Replacement unit has a previous unit.");
+				throw new IllegalArgumentException("Replacement unit has a previous unit.");
 			}
 			LexicalUnitImpl lu = rlu;
 			do {
