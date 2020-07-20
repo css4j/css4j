@@ -212,6 +212,31 @@ public class LexicalUnitTest {
 	}
 
 	@Test
+	public void testInsertNextLexicalUnitFailPrev() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("foo(1 3 4)");
+		LexicalUnit lu2 = parsePropertyValue("1 2");
+		LexicalUnit param = lu.getParameters();
+		LexicalUnit nlu2 = lu2.getNextLexicalUnit();
+		try {
+			param.insertNextLexicalUnit(nlu2);
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+	}
+
+	@Test
+	public void testInsertNextLexicalUnitFailParam() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("1 4 5");
+		LexicalUnit lu2 = parsePropertyValue("foo(2 3)");
+		LexicalUnit param = lu2.getParameters();
+		try {
+			lu.insertNextLexicalUnit(param);
+			fail("Must throw exception.");
+		} catch (IllegalArgumentException e) {
+		}
+	}
+
+	@Test
 	public void testReplaceBy() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("Times Roman");
 		LexicalUnit lu2 = parsePropertyValue("New");

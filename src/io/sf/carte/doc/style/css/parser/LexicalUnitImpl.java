@@ -81,8 +81,11 @@ class LexicalUnitImpl implements LexicalUnit {
 	@Override
 	public void insertNextLexicalUnit(LexicalUnit nextUnit) throws CSSException {
 		LexicalUnitImpl nlu = (LexicalUnitImpl) nextUnit;
+		if (nlu.ownerLexicalUnit != null) {
+			throw new IllegalArgumentException("Argument is a parameter of another unit.");
+		}
 		if (nlu.getPreviousLexicalUnit() != null) {
-			throw new CSSException("Parameter unit has a previous unit.");
+			throw new IllegalArgumentException("Argument unit has a previous unit.");
 		}
 		nlu.previousLexicalUnit = this;
 		nlu.ownerLexicalUnit = ownerLexicalUnit;

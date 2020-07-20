@@ -408,6 +408,8 @@ public interface LexicalUnit {
 	 * </p>
 	 * 
 	 * @param nextUnit the lexical unit to be set as the next one.
+	 * @throws IllegalArgumentException if the argument is a parameter or has a
+	 *                                  previous unit.
 	 */
 	void insertNextLexicalUnit(LexicalUnit nextUnit);
 
