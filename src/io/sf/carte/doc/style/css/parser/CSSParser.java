@@ -4836,7 +4836,7 @@ public class CSSParser implements Parser {
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
-			if (stage == 0) {
+			if (stage == 0 && selist.size() == 0) {
 				super.commented(index, commentType, comment);
 			}
 		}

@@ -2170,6 +2170,56 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseStyleSheetComments4() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		Reader re = new StringReader("p /*, article */, div {display:block}");
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p,div", handler.selectors.getFirst().toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("display", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("block", lu.getStringValue());
+		/*
+		 * The comment cannot be related to a specific (N)SAC event, so we
+		 * ignore it.
+		 */
+		assertEquals(0, handler.comments.size());
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetComments5() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		Reader re = new StringReader("p, div,/* html5 */ article  {display:block}");
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p,div,article", handler.selectors.getFirst().toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("display", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("block", lu.getStringValue());
+		/*
+		 * The comment cannot be related to a specific (N)SAC event, so we
+		 * ignore it.
+		 */
+		assertEquals(0, handler.comments.size());
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
 	public void testParseStyleSheetAsteriskHack() throws CSSException, IOException {
 		TestDeclarationHandler handler = new TestDeclarationHandler();
 		parser.setDocumentHandler(handler);
