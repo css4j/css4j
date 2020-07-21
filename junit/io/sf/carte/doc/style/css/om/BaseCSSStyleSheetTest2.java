@@ -49,7 +49,7 @@ public class BaseCSSStyleSheetTest2 {
 		sheet.parseStyleSheet(re);
 		re.close();
 		//
-		assertEquals(112, sheet.getCssRules().getLength());
+		assertEquals(111, sheet.getCssRules().getLength());
 		//
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(0).getType());
 		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(0);

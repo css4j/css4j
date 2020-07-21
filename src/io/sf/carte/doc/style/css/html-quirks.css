@@ -354,8 +354,8 @@ address, blockquote, center, div, figure, figcaption, footer, form,
 header, hr, legend, listing, p, plaintext, pre, xmp, article,
 aside, h1, h2, h3, h4, h5, h6, hgroup, main, nav, section, table, caption,
 colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt,
-ol, ul, li, bdi, output /* , [dir=ltr i], [dir=rtl i], [dir=auto i] */
-                { unicode-bidi: isolate; }
+ol, ul, li, bdi, output, ruby, rb, rt, /* , [dir=ltr i], [dir=rtl i], [dir=auto i] */
+rbc, rtc        { unicode-bidi: isolate; }
 bdo, bdo[dir]   { unicode-bidi: isolate-override; } 
 
 textarea[dir=auto i], input[type=text][dir=auto i], input[type=search][dir=auto i],
@@ -384,8 +384,6 @@ rt   {
 }
 rbc             { display: ruby-base-container; }
 rtc             { display: ruby-text-container; }
-ruby, rb, rt, 
-rbc, rtc        { unicode-bidi: isolate; }
 :link           { color: #0000EE; }
 :visited        { color: #551A8B; }
 :link, :visited { text-decoration: underline; }
