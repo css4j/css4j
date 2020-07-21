@@ -397,8 +397,8 @@ mark            { background: yellow; color: black; }
 abbr[title],
 acronym[title]  { text-decoration: dotted underline; }
 blink           { text-decoration: blink; }
-/* q::before       { content: open-quote; }
-q::after        { content: close-quote; } */
+q::before       { content: open-quote; }
+q::after        { content: close-quote; }
 
 @media print {
   h1            { page-break-before: always }
