@@ -391,6 +391,7 @@ acronym[title]  { text-decoration: dotted underline; }
 blink           { text-decoration: blink; }
 q::before       { content: open-quote; }
 q::after        { content: close-quote; }
+li::marker      { font-variant-numeric: tabular-nums; }
 
 @media print {
   h1            { page-break-before: always }
