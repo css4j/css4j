@@ -345,17 +345,17 @@ bdo[dir="ltr"]  { direction: ltr; unicode-bidi: bidi-override }
 bdo[dir="rtl"]  { direction: rtl; unicode-bidi: bidi-override }
 *[dir="ltr"]    { direction: ltr; unicode-bidi: embed }
 *[dir="rtl"]    { direction: rtl; unicode-bidi: embed }
-/* [dir]:dir(ltr), bdi:dir(ltr), input[type=tel]:dir(ltr)
+[dir]:dir(ltr), bdi:dir(ltr), input[type=tel]:dir(ltr)
                 { direction: ltr; }
 [dir]:dir(rtl), bdi:dir(rtl)
-                { direction: rtl; } */
+                { direction: rtl; }
 
 address, blockquote, center, div, figure, figcaption, footer, form,
 header, hr, legend, listing, p, plaintext, pre, xmp, article,
 aside, h1, h2, h3, h4, h5, h6, hgroup, main, nav, section, table, caption,
 colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt,
-ol, ul, li, bdi, output, ruby, rb, rt, /* , [dir=ltr i], [dir=rtl i], [dir=auto i] */
-rbc, rtc        { unicode-bidi: isolate; }
+ol, ul, li, bdi, output, ruby, rb, rt, rbc, rtc, [dir=ltr i], [dir=rtl i], [dir=auto i]
+                { unicode-bidi: isolate; }
 bdo, bdo[dir]   { unicode-bidi: isolate-override; } 
 
 textarea[dir=auto i], input[type=text][dir=auto i], input[type=search][dir=auto i],
