@@ -92,6 +92,7 @@
 					<link>https://www.w3.org/Style/CSS/SAC/doc/</link>
 				</links>
 				<quiet>true</quiet>
+				<doclint>none</doclint>
 			</configuration>
 			<executions>
 				<execution>
