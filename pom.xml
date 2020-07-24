@@ -87,6 +87,7 @@
 					<link>https://www.w3.org/2003/01/dom2-javadoc/</link>
 				</links>
 				<quiet>true</quiet>
+				<doclint>none</doclint>
 			</configuration>
 			<executions>
 				<execution>
