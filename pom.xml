@@ -81,22 +81,11 @@
 			<artifactId>maven-javadoc-plugin</artifactId>
 			<version>3.1.0</version>
 			<configuration>
-				<source>8</source>
 				<overview>${project.basedir}/src/overview.html</overview>
 				<links>
 					<link>https://www.w3.org/2003/01/dom2-javadoc/</link>
 				</links>
-				<quiet>true</quiet>
-				<doclint>none</doclint>
 			</configuration>
-			<executions>
-				<execution>
-					<id>attach-javadocs</id>
-					<goals>
-						<goal>jar</goal>
-					</goals>
-				</execution>
-			</executions>
 		</plugin>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
