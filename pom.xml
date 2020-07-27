@@ -13,14 +13,14 @@
   <artifactId>css4j</artifactId>
   <packaging>jar</packaging>
   <dependencies>
-    <dependency>
+	<dependency>
 		<groupId>io.sf.jclf</groupId>
 		<artifactId>jclf</artifactId>
 		<version>4.0.4</version>
 		<type>jar</type>
 		<scope>compile</scope>
 		<optional>false</optional>
-    </dependency>
+	</dependency>
 	<dependency>
 		<groupId>org.slf4j</groupId>
 		<artifactId>slf4j-api</artifactId>
@@ -42,21 +42,7 @@
 	<plugins>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-source-plugin</artifactId>
-			<version>3.2.1</version>
-			<executions>
-				<execution>
-					<id>attach-sources</id>
-					<goals>
-						<goal>jar-no-fork</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-	    <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
-			<version>3.8.1</version>
 			<executions>
 				<execution>
 				  <id>default-testCompile</id>
@@ -69,7 +55,6 @@
 		<plugin>
 			  <groupId>org.apache.maven.plugins</groupId>
 			  <artifactId>maven-surefire-plugin</artifactId>
-			  <version>3.0.0-M4</version>
 			  <configuration>
 				<excludes>
 					<exclude>io/sf/carte/doc/style/css/dos/*.java</exclude>
@@ -91,7 +76,6 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-jar-plugin</artifactId>
-			<version>3.2.0</version>
 			<configuration>
 			<archive>
 				<manifestEntries>
