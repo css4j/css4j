@@ -42,7 +42,7 @@
 		<scope>compile</scope>
 		<optional>false</optional>
 	</dependency>
- 	<!-- https://mvnrepository.com/artifact/nu.validator.htmlparser/htmlparser -->
+	<!-- https://mvnrepository.com/artifact/nu.validator.htmlparser/htmlparser -->
 	<dependency>
 		<groupId>nu.validator.htmlparser</groupId>
 		<artifactId>htmlparser</artifactId>
@@ -56,21 +56,7 @@
 	<plugins>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-source-plugin</artifactId>
-			<version>3.2.0</version>
-			<executions>
-				<execution>
-					<id>attach-sources</id>
-					<goals>
-						<goal>jar-no-fork</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
-			<version>3.8.1</version>
 			<executions>
 				<execution>
 				  <id>default-testCompile</id>
@@ -83,25 +69,16 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-javadoc-plugin</artifactId>
-			<version>3.1.0</version>
 			<configuration>
 				<source>7</source>
 				<overview>${project.basedir}/src/overview.html</overview>
 				<links>
+					<link>https://docs.oracle.com/javase/8/docs/api/</link>
 					<link>https://www.w3.org/2003/01/dom2-javadoc/</link>
 					<link>https://www.w3.org/Style/CSS/SAC/doc/</link>
+					<link>http://www.slf4j.org/apidocs/</link>
 				</links>
-				<quiet>true</quiet>
-				<doclint>none</doclint>
 			</configuration>
-			<executions>
-				<execution>
-					<id>attach-javadocs</id>
-					<goals>
-						<goal>jar</goal>
-					</goals>
-				</execution>
-			</executions>
 		</plugin>
 		<plugin>
 			<groupId>com.networknt</groupId>
@@ -162,27 +139,6 @@
 		</testResource>
 	</testResources>
   </build>
-  <reporting>
-	<plugins>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-javadoc-plugin</artifactId>
-			<version>3.1.0</version>
-			<configuration>
-			  <reportOutputDirectory>${project.build.directory}/doc</reportOutputDirectory>
-			  <destDir>api</destDir>
-			</configuration>
-			<reportSets>
-				<reportSet>
-					<id>default</id>
-					<reports>
-					  <report>javadoc</report>
-					</reports>
-				</reportSet>
-			</reportSets>
-		</plugin>
-	</plugins>
-  </reporting>
   <scm>
 	<connection>scm:git:https://github.com/css4j/css4j.git</connection>
 	<url>https://github.com/css4j/css4j</url>
