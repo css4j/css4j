@@ -73,7 +73,7 @@
 				<source>7</source>
 				<overview>${project.basedir}/src/overview.html</overview>
 				<links>
-					<link>https://docs.oracle.com/javase/8/docs/api/</link>
+					<link>https://docs.oracle.com/javase/7/docs/api/</link>
 					<link>https://www.w3.org/2003/01/dom2-javadoc/</link>
 					<link>https://www.w3.org/Style/CSS/SAC/doc/</link>
 					<link>http://www.slf4j.org/apidocs/</link>
@@ -96,7 +96,6 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-jar-plugin</artifactId>
-			<version>3.2.0</version>
 			<configuration>
 			<archive>
 				<manifestEntries>
