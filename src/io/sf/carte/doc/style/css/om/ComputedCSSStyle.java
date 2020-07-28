@@ -831,7 +831,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				StyleValue item;
 				int stackSize;
 				if (custom.getCssValueType() == CSSValue.CSS_VALUE_LIST
-						&& (stackSize = customPropertyStack.size()) > 7
+						&& (stackSize = customPropertyStack.size()) > 5
 						&& (item = ((ValueList) custom).item(0)).getCssValueType() == CSSValue.CSS_VALUE_LIST
 						&& (item = ((ValueList) item).item(0)).getCssValueType() == CSSValue.CSS_VALUE_LIST
 						&& ((ValueList) item).item(0).getCssValueType() == CSSValue.CSS_VALUE_LIST
