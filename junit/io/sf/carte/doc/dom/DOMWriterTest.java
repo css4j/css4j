@@ -71,6 +71,7 @@ public class DOMWriterTest {
 		BufferSimpleWriter writer = new BufferSimpleWriter(4096);
 		DOMWriter.writeTree(document, writer);
 		String expected = classPathFile("/io/sf/carte/doc/dom/domwriteroutput.html");
+		expected = expected.replace("\r", "");
 		String result = writer.toString();
 		assertEquals(expected, result);
 		DOMDocument pdoc = parseDocument(new StringReader(result));
@@ -90,6 +91,7 @@ public class DOMWriterTest {
 				domWriter.setEntityCodepoints(document.getDoctype(), codePointsToReplace));
 		domWriter.writeNode(document, writer);
 		String expected = classPathFile("/io/sf/carte/doc/dom/domwriteroutput2.html");
+		expected = expected.replace("\r", "");
 		String result = writer.toString();
 		assertEquals(expected, result);
 		DOMDocument pdoc = parseDocument(new StringReader(result));
