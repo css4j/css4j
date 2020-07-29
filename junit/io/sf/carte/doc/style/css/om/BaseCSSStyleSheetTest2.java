@@ -53,16 +53,20 @@ public class BaseCSSStyleSheetTest2 {
 		//
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(0).getType());
 		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(0);
+		String result = stylerule.getCssText();
+		result = result.replace("\r", ""); // Windows compatibility hack
 		assertEquals(
 				"/*\n * HTML/XHTML CSS, derived from the one in the W3C CSS 2.1 specification,\n * combined with the styles from HTML5 specification.\n */html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp {display: block; }",
-				stylerule.getCssText());
+				result);
 		assertEquals(
 				"html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp{display:block}",
 				stylerule.getMinifiedCssText());
 		assertNotNull(stylerule.getPrecedingComments());
+		result = stylerule.getPrecedingComments().get(0);
+		result = result.replace("\r", ""); // Windows compatibility hack
 		assertEquals(
 				"\n * HTML/XHTML CSS, derived from the one in the W3C CSS 2.1 specification,\n * combined with the styles from HTML5 specification.\n ",
-				stylerule.getPrecedingComments().get(0));
+				result);
 		assertNull(stylerule.getTrailingComments());
 		//
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(41).getType());
@@ -138,9 +142,10 @@ public class BaseCSSStyleSheetTest2 {
 		//
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(3).getType());
 		AbstractCSSRule unknown2 = sheet.getCssRules().item(3);
+		String result = unknown2.getCssText();
 		assertEquals(
 				"/* pre-webkit-kfs */@-webkit-keyframes important1 { /* pre-webkit-kf-list */from /* post-webkit-kfsel-from */{ /* pre-webkit-kf-from-decl */margin-top: 50px;/* post-webkit-kf-from-decl */ } /* post-webkit-kf-from */50% /* post-webkit-kfsel-50% */{/* pre-webkit-kf-50%-decl */margin-top: 150px !important; /* post-webkit-kf-50%-decl */} /* post-webkit-kf-50% */to/* post-webkit-kfsel-to */{ margin-top: 100px; }/* post-webkit-kf-to */ /* post-webkit-kf-list */}",
-				unknown2.getCssText());
+				result);
 	}
 
 	@Test
@@ -362,7 +367,7 @@ public class BaseCSSStyleSheetTest2 {
 		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet();
 		sheet.setMedia(new MediaQueryListImpl("screen"));
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
-		CharBuffer target = CharBuffer.allocate(600);
+		CharBuffer target = CharBuffer.allocate(620);
 		target.append("<styletype=\"text/css\"media=\"screen\">");
 		assertTrue(re.read(target) != -1);
 		re.close();
