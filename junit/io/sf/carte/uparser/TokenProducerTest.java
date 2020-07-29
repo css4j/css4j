@@ -15,7 +15,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 
 import org.junit.Test;
@@ -926,6 +930,67 @@ public class TokenProducerTest {
 		assertEquals(53, handler.lastCommentIndex);
 		assertEquals(66, handler.lastControlIndex);
 		assertEquals(3, handler.control10);
+		assertEquals(0, handler.control13);
+	}
+
+	@Test
+	public void testParseReaderCommentNL2() throws IOException {
+		int[] allowInWords = { 45, 46 }; // -.
+		MyTokenHandler handler = new MyTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(new StringReader("/*!rtl:ignore\n*/\n-o-foo:-o-bar;/*!rtl:ignore\n*/\nfoo:bar/*!rtl:ignore\n*/\n"), "/*", "*/");
+		assertEquals(4, handler.words.size());
+		assertEquals("-o-foo", handler.words.get(0));
+		assertEquals("-o-bar", handler.words.get(1));
+		assertEquals("foo", handler.words.get(2));
+		assertEquals("bar", handler.words.get(3));
+		assertEquals(":;:", handler.punctbuffer.toString());
+		assertEquals(3, handler.comments.size());
+		assertEquals("!rtl:ignore\n", handler.comments.get(0));
+		assertEquals("!rtl:ignore\n", handler.comments.get(1));
+		assertEquals("!rtl:ignore\n", handler.comments.get(2));
+		assertEquals(51, handler.lastCharacterIndex);
+		assertEquals(52, handler.lastWordIndex);
+		assertEquals(55, handler.lastCommentIndex);
+		assertEquals(71, handler.lastControlIndex);
+		assertEquals(6, handler.control10);
+	}
+
+	@Test
+	public void testParseReaderFileComment() throws IOException {
+		int[] allowInWords = { 45, 46 }; // -.
+		MyTokenHandler handler = new MyTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		Reader re = loadTestReader("comments.txt");
+		tp.parse(re, "/*", "*/");
+		assertEquals(12, handler.words.size());
+		assertEquals("-webkit-keyframes", handler.words.get(0));
+		assertEquals("important1", handler.words.get(1));
+		assertEquals("from", handler.words.get(2));
+		assertEquals("margin-top", handler.words.get(3));
+		assertEquals("50px", handler.words.get(4));
+		assertEquals("50", handler.words.get(5));
+		assertEquals("margin-top", handler.words.get(6));
+		assertEquals("150px", handler.words.get(7));
+		assertEquals("important", handler.words.get(8));
+		assertEquals("to", handler.words.get(9));
+		assertEquals("margin-top", handler.words.get(10));
+		assertEquals("100px", handler.words.get(11));
+		assertEquals("@{{:;}%{:!;}{:;}}", handler.punctbuffer.toString());
+		assertEquals(13, handler.comments.size());
+		assertEquals(" pre-webkit-kfs ", handler.comments.get(0));
+		assertEquals(" pre-webkit-kf-list ", handler.comments.get(1));
+		assertEquals(" post-webkit-kfsel-from ", handler.comments.get(2));
+		assertEquals(" post-webkit-kf-list ", handler.comments.get(12));
+		assertEquals(425, handler.lastCharacterIndex);
+		assertEquals(420, handler.lastWordIndex);
+		assertEquals(455, handler.lastCommentIndex);
+		assertEquals(484, handler.lastControlIndex);
+		assertEquals(0, handler.errorCounter);
+		assertEquals(8, handler.control10);
+		if (handler.control13 != 0) {
+			assertEquals(8, handler.control13);
+		}
 	}
 
 	@Test
@@ -1486,6 +1551,7 @@ public class TokenProducerTest {
 		assertEquals("bar", handler.words.get(1));
 		assertEquals(":", handler.punctbuffer.toString());
 		assertEquals(1, handler.control10);
+		assertEquals(0, handler.control13);
 	}
 
 	@Test
@@ -1500,6 +1566,7 @@ public class TokenProducerTest {
 		assertEquals("bar", handler.words.get(2));
 		assertEquals(":", handler.punctbuffer.toString());
 		assertEquals(1, handler.control10);
+		assertEquals(0, handler.control13);
 		assertEquals(14, handler.lastWordIndex);
 	}
 
@@ -1513,6 +1580,7 @@ public class TokenProducerTest {
 		assertEquals(1, handler.words.size());
 		assertEquals(":", handler.punctbuffer.toString());
 		assertEquals(1, handler.control10);
+		assertEquals(0, handler.control13);
 		assertEquals(1, handler.errorCounter);
 	}
 
@@ -1560,6 +1628,7 @@ public class TokenProducerTest {
 		assertEquals("((", handler.openbuffer.toString());
 		assertEquals("))", handler.closebuffer.toString());
 		assertEquals("(:)(:)", handler.punctbuffer.toString());
+		assertEquals(0, handler.control10);
 	}
 
 	@Test
@@ -1878,6 +1947,24 @@ public class TokenProducerTest {
 		assertEquals(10, handler.lastCharacterIndex);
 	}
 
+	private static Reader loadTestReader(String filename) {
+		return loadfromClasspath("/io/sf/carte/uparser/" + filename);
+	}
+
+	private static Reader loadfromClasspath(final String filename) {
+		InputStream is = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
+			@Override
+			public InputStream run() {
+				return this.getClass().getResourceAsStream(filename);
+			}
+		});
+		Reader re = null;
+		if (is != null) {
+			re = new InputStreamReader(is, StandardCharsets.UTF_8);
+		}
+		return re;
+	}
+
 	private static class MyTokenHandler implements TokenHandler {
 
 		TokenControl control = null;
@@ -1889,6 +1976,7 @@ public class TokenProducerTest {
 		StringBuilder openbuffer = new StringBuilder();
 		StringBuilder closebuffer = new StringBuilder();
 		int control10 = 0;
+		int control13 = 0;
 		int errorCounter = 0;
 		int lastWordIndex = -1;
 		int lastQuotedIndex = -1;
@@ -1952,6 +2040,8 @@ public class TokenProducerTest {
 		public void control(int index, int codepoint) {
 			if (codepoint == 10) {
 				control10++;
+			} else if (codepoint == 13) {
+				control13++;
 			}
 			lastControlIndex = index;
 		}
@@ -1960,6 +2050,8 @@ public class TokenProducerTest {
 		public void quotedNewlineChar(int index, int codepoint) {
 			if (codepoint == 10) {
 				control10++;
+			} else if (codepoint == 13) {
+				control13++;
 			}
 		}
 
