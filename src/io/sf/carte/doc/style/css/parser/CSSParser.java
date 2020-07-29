@@ -1283,7 +1283,7 @@ public class CSSParser implements Parser {
 			@Override
 			public void openGroup(int index, int codepoint) {
 				if (codepoint == 40) { // '('
-					if (isPrevCpNotWhitespace() && prevcp != 13) {
+					if (!isPrevCpWhitespace()) {
 						// Function token
 						functionToken = true;
 						buffer.append('(');
@@ -2826,7 +2826,7 @@ public class CSSParser implements Parser {
 						stage = 35;
 					}
 				} else if (buffer.length() != 0
-						&& (isPrevCpNotWhitespace() || (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
+						&& (!isPrevCpWhitespace() || (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
 					buffer.append(' ');
 				}
 				setWhitespacePrevCp();
@@ -6817,6 +6817,7 @@ public class CSSParser implements Parser {
 	abstract class CSSTokenHandler implements TokenHandler, ParserControl {
 		private int line;
 		private int prevlinelength;
+		private boolean foundCp13andNotYet10or12 = false;
 		int prevcp = 32;
 		int endcp = -1;
 		short parendepth = 0;
@@ -6877,22 +6878,27 @@ public class CSSParser implements Parser {
 			 */
 			if (codepoint == 10) { // LF \n
 				separator(index, 10);
-				if (prevcp != 13) {
+				if (!foundCp13andNotYet10or12) {
 					line++;
 					prevlinelength = index;
 				} else {
+					foundCp13andNotYet10or12 = false;
 					prevlinelength++;
 				}
 				setHandlerPreviousCp(10);
 			} else if (codepoint == 12) { // FF
 				separator(index, 10);
 				setHandlerPreviousCp(10);
-				line++;
+				if (!foundCp13andNotYet10or12) {
+					line++;
+				} else {
+					foundCp13andNotYet10or12 = false;
+				}
 				prevlinelength = index;
 			} else if (codepoint == 13) { // CR
 				line++;
 				prevlinelength = index;
-				prevcp = 13;
+				foundCp13andNotYet10or12 = true;
 			} else if (codepoint == 9) { // TAB
 				separator(index, 9);
 			} else if (codepoint < 0x80) {
@@ -6913,21 +6919,12 @@ public class CSSParser implements Parser {
 		}
 
 		/**
-		 * Return true if previous codepoint is whitespace (codepoints 32, 10 and 13).
+		 * Return true if previous codepoint is whitespace (codepoints 32 and 10).
 		 * 
 		 * @return true if previous codepoint is whitespace.
 		 */
 		boolean isPrevCpWhitespace() {
-			return prevcp == 32 || prevcp == 10 || prevcp == 13;
-		}
-
-		/**
-		 * Return true if previous codepoint is not whitespace (deliberately excluding 13).
-		 * 
-		 * @return true if previous codepoint is not whitespace.
-		 */
-		boolean isPrevCpNotWhitespace() {
-			return prevcp != 32 && prevcp != 10;
+			return prevcp == 32 || prevcp == 10;
 		}
 
 		void setWhitespacePrevCp() {
