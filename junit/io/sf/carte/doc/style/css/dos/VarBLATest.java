@@ -46,7 +46,7 @@ public class VarBLATest {
 	/*
 	 * Billion Laughs Attack
 	 */
-	@Test
+	@Test(timeout=10000)
 	public void testVarBLA() {
 		CSSElement elm = htmlDoc.getElementById("div1");
 		/*
