@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -546,7 +547,7 @@ public class XMLDocumentBuilderTest {
 		try {
 			builder.parse(new InputSource(new StringReader(text)));
 			fail("Must throw exception");
-		} catch (SAXParseException e) {
+		} catch (SAXException e) {
 		}
 	}
 
@@ -557,7 +558,19 @@ public class XMLDocumentBuilderTest {
 		try {
 			builder.parse(new InputSource(new StringReader(text)));
 			fail("Must throw exception");
-		} catch (SAXParseException e) {
+		} catch (SAXException e) {
+		}
+	}
+
+	@Test
+	public void testParseInputSourceNotFound() throws SAXException, ParserConfigurationException, IOException {
+		TestEntityResolver resolver = new TestEntityResolver();
+		builder.setEntityResolver(resolver);
+		String text = "<!DOCTYPE foo SYSTEM \"https://www.example.com/does/not/exist\"><foo>xxx&yyy;zzz</foo>";
+		try {
+			builder.parse(new InputSource(new StringReader(text)));
+			fail("Must throw exception");
+		} catch (FileNotFoundException e) {
 		}
 	}
 

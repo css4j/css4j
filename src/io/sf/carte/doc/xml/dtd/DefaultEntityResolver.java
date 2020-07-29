@@ -268,7 +268,7 @@ public class DefaultEntityResolver implements EntityResolver2 {
 				if (con instanceof HttpURLConnection) {
 					((HttpURLConnection) con).disconnect();
 				}
-				return null;
+				throw new SAXException("Invalid url: " + enturl.toExternalForm());
 			}
 			isrc = new InputSource();
 			isrc.setSystemId(enturl.toExternalForm());
