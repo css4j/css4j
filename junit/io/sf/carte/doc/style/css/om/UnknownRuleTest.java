@@ -82,6 +82,25 @@ public class UnknownRuleTest {
 	}
 
 	@Test
+	public void testEquals() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"/* pre-rule */@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }\n/* pre-rule 2 */\n@-webkit-keyframes progress-bar-stripes\n{\nfrom\n{\n    background-position:\n40px  0; \n } \nto \n  { \n background-position:\n 0 0;\n } \n}");
+		sheet.parseStyleSheet(re);
+		assertEquals(2, sheet.getCssRules().getLength());
+		AbstractCSSRule rule1 = sheet.getCssRules().item(0);
+		AbstractCSSRule rule2 = sheet.getCssRules().item(1);
+		assertEquals(CSSRule.UNKNOWN_RULE, rule1.getType());
+		assertEquals(CSSRule.UNKNOWN_RULE, rule2.getType());
+		assertNotNull(rule1.getPrecedingComments());
+		assertEquals(1, rule1.getPrecedingComments().size());
+		assertEquals(" pre-rule ", rule1.getPrecedingComments().get(0));
+		assertNotNull(rule2.getPrecedingComments());
+		assertEquals(1, rule2.getPrecedingComments().size());
+		assertEquals(" pre-rule 2 ", rule2.getPrecedingComments().get(0));
+		assertTrue(rule1.equals(rule2));
+	}
+
+	@Test
 	public void testCloneAbstractCSSStyleSheet() {
 		UnknownRule rule = new UnknownRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText(
