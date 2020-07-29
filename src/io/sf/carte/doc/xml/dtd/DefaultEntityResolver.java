@@ -11,15 +11,14 @@
 
 package io.sf.carte.doc.xml.dtd;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.security.AccessControlException;
 import java.security.PrivilegedActionException;
 import java.util.HashMap;
@@ -268,7 +267,7 @@ public class DefaultEntityResolver implements EntityResolver2 {
 				if (con instanceof HttpURLConnection) {
 					((HttpURLConnection) con).disconnect();
 				}
-				return null;
+				throw new SAXException("Invalid url: " + enturl.toExternalForm());
 			}
 			isrc = new InputSource();
 			isrc.setSystemId(enturl.toExternalForm());
@@ -276,12 +275,7 @@ public class DefaultEntityResolver implements EntityResolver2 {
 				isrc.setPublicId(publicId);
 			}
 			isrc.setEncoding(charset);
-			InputStream is;
-			try {
-				is = con.getInputStream();
-			} catch (FileNotFoundException e) {
-				return null;
-			}
+			InputStream is = con.getInputStream();
 			isrc.setCharacterStream(new InputStreamReader(is, charset));
 		} else {
 			isrc = getExternalSubset(name, baseURI);
@@ -430,12 +424,7 @@ public class DefaultEntityResolver implements EntityResolver2 {
 		});
 		Reader re = null;
 		if (is != null) {
-			try {
-				re = new InputStreamReader(is, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				// Should not happen, but...
-				re = new InputStreamReader(is);
-			}
+			re = new InputStreamReader(is, StandardCharsets.UTF_8);
 		}
 		return re;
 	}

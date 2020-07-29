@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,7 +55,7 @@ public class XMLDocumentBuilderTest {
 		builder.setEntityResolver(new DefaultEntityResolver());
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSource() throws SAXException, IOException {
 		HTMLDocument document = (HTMLDocument) parseDocument("entities.xhtml");
 		assertNotNull(document);
@@ -104,7 +105,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceXML() throws SAXException, IOException {
 		domImpl.setXmlOnly(true);
 		DOMDocument document = parseDocument("entities.xhtml");
@@ -157,7 +158,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceXMLNotSpecifiedAttributes() throws SAXException, IOException {
 		domImpl.setXmlOnly(true);
 		builder.setIgnoreNotSpecifiedAttributes(false);
@@ -216,7 +217,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceOnlySystem() throws SAXException, IOException {
 		HTMLDocument document = (HTMLDocument) parseDocument("entities-systemdtd.xhtml");
 		assertNotNull(document);
@@ -267,7 +268,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceXMLOnlySystem() throws SAXException, IOException {
 		domImpl.setXmlOnly(true);
 		DOMDocument document = parseDocument("entities-systemdtd.xhtml");
@@ -317,7 +318,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceNoEntityResolver() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
@@ -375,7 +376,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceNoEntityResolverXML()
 			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
@@ -429,7 +430,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("Paragraph with ", element.getTextContent());
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceNoEntityResolverOnlySystem()
 			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
@@ -487,7 +488,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceNoEntityResolverXMLOnlySystem()
 			throws SAXException, ParserConfigurationException, IOException {
 		domImpl.setXmlOnly(true);
@@ -541,13 +542,33 @@ public class XMLDocumentBuilderTest {
 	}
 
 	@Test
+	public void testParseInputSourceNoEntityResolverFail() throws SAXException, ParserConfigurationException, IOException {
+		builder.setEntityResolver(null);
+		try {
+			parseDocument("entities-fulldtd.xhtml");
+			fail("Must throw exception");
+		} catch (SAXParseException e) {
+		}
+	}
+
+	@Test(timeout=700)
+	public void testParseInputSourceNoEntityResolverSystemDTDFail() throws SAXException, ParserConfigurationException, IOException {
+		builder.setEntityResolver(null);
+		try {
+			parseDocument("entities-systemdtd.xhtml");
+			fail("Must throw exception");
+		} catch (SAXParseException e) {
+		}
+	}
+
+	@Test
 	public void testParseInputSourceXXE() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(new TestEntityResolver());
 		String text = "<!DOCTYPE foo SYSTEM \"http://www.example.com/etc/fakepasswd\"><foo>xxx&yyy;zzz</foo>";
 		try {
 			builder.parse(new InputSource(new StringReader(text)));
 			fail("Must throw exception");
-		} catch (SAXParseException e) {
+		} catch (SAXException e) {
 		}
 	}
 
@@ -558,7 +579,19 @@ public class XMLDocumentBuilderTest {
 		try {
 			builder.parse(new InputSource(new StringReader(text)));
 			fail("Must throw exception");
-		} catch (SAXParseException e) {
+		} catch (SAXException e) {
+		}
+	}
+
+	@Test
+	public void testParseInputSourceDoS() throws SAXException, ParserConfigurationException, IOException {
+		TestEntityResolver resolver = new TestEntityResolver();
+		builder.setEntityResolver(resolver);
+		String text = "<!DOCTYPE foo SYSTEM \"https://www.example.com/does/not/exist\"><foo>xxx&yyy;zzz</foo>";
+		try {
+			builder.parse(new InputSource(new StringReader(text)));
+			fail("Must throw exception");
+		} catch (FileNotFoundException e) {
 		}
 	}
 
@@ -599,6 +632,22 @@ public class XMLDocumentBuilderTest {
 	}
 
 	@Test
+	public void testParseInputSourceNoResolverNoDTD() throws SAXException, IOException {
+		builder.setEntityResolver(null);
+		HTMLDocument document = (HTMLDocument) parseDocument("entities-nodtd.xhtml");
+		assertNotNull(document);
+		assertEquals("http://www.example.com/xml/entities-nodtd.xhtml", document.getDocumentURI());
+		assertEquals("http://www.example.com/", document.getBaseURI());
+		assertNull(document.getDoctype());
+		DOMElement element = document.getElementById("entity");
+		assertNotNull(element);
+		assertEquals("<>", element.getTextContent());
+		element = document.getElementById("entiamp");
+		assertNotNull(element);
+		assertEquals("&", element.getTextContent());
+	}
+
+	@Test
 	public void testParseInputSourceBadVoidChild() throws SAXException, IOException {
 		try {
 			parseDocument(new StringReader("<!DOCTYPE html><html><body><br id='brid'>foo</br></body></html>"),
@@ -608,7 +657,7 @@ public class XMLDocumentBuilderTest {
 		}
 	}
 
-	@Test
+	@Test(timeout=700)
 	public void testParseInputSourceImpliedHtmlElement() throws SAXException, IOException {
 		HTMLDocument document = (HTMLDocument) parseDocument(
 				new StringReader("<!DOCTYPE html><body><div id='divid'><br/></div></body>"), "impliedhtml.xhtml");
