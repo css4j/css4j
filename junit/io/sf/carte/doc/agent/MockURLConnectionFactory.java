@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.agent;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -127,7 +128,7 @@ public class MockURLConnectionFactory {
 				// Check for resource availability
 				String url = getURL().toExternalForm();
 				if (!mockURLMap.containsKey(url)) {
-					throw new IOException("Unknown url: " + url);
+					throw new FileNotFoundException("Unknown url: " + url);
 				}
 				// Check referrer assertion, if set
 				String referrer = referrerMap.get(url);
