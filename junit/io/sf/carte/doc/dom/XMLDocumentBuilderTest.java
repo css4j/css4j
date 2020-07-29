@@ -541,7 +541,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("Paragraph with ", element.getTextContent());
 	}
 
-	@Test
+	@Test(timeout=300)
 	public void testParseInputSourceNoEntityResolverFail() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
@@ -551,7 +551,7 @@ public class XMLDocumentBuilderTest {
 		}
 	}
 
-	@Test(timeout=700)
+	@Test(timeout=300)
 	public void testParseInputSourceNoEntityResolverSystemDTDFail() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
@@ -584,7 +584,7 @@ public class XMLDocumentBuilderTest {
 	}
 
 	@Test
-	public void testParseInputSourceDoS() throws SAXException, ParserConfigurationException, IOException {
+	public void testParseInputSourceFileNotFound() throws SAXException, ParserConfigurationException, IOException {
 		TestEntityResolver resolver = new TestEntityResolver();
 		builder.setEntityResolver(resolver);
 		String text = "<!DOCTYPE foo SYSTEM \"https://www.example.com/does/not/exist\"><foo>xxx&yyy;zzz</foo>";
