@@ -982,14 +982,20 @@ public class TokenProducerTest {
 		assertEquals(" pre-webkit-kf-list ", handler.comments.get(1));
 		assertEquals(" post-webkit-kfsel-from ", handler.comments.get(2));
 		assertEquals(" post-webkit-kf-list ", handler.comments.get(12));
-		assertEquals(425, handler.lastCharacterIndex);
-		assertEquals(420, handler.lastWordIndex);
-		assertEquals(455, handler.lastCommentIndex);
-		assertEquals(484, handler.lastControlIndex);
 		assertEquals(0, handler.errorCounter);
 		assertEquals(8, handler.control10);
-		if (handler.control13 != 0) {
+		if (handler.control13 == 0) {
+			assertEquals(420, handler.lastCharacterIndex);
+			assertEquals(415, handler.lastWordIndex);
+			assertEquals(449, handler.lastCommentIndex);
+			assertEquals(476, handler.lastControlIndex);
+		} else {
+			// Windows
 			assertEquals(8, handler.control13);
+			assertEquals(425, handler.lastCharacterIndex);
+			assertEquals(420, handler.lastWordIndex);
+			assertEquals(455, handler.lastCommentIndex);
+			assertEquals(484, handler.lastControlIndex);
 		}
 	}
 
