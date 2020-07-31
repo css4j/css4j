@@ -465,11 +465,15 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		}
 		String value = acond.getValue();
 		if (value != null) {
-			buf.append('[').append(acond.getLocalName()).append('=');
+			buf.append('[');
+			serializeAttributeQName(acond, buf);
+			buf.append('=');
 			quoteAttributeValue(acond.getValue(), buf);
-			buf.append(']');
+			attributeSelectorEnd(acond, buf);
 		} else {
-			buf.append('[').append(acond.getLocalName()).append(']');
+			buf.append('[');
+			serializeAttributeQName(acond, buf);
+			buf.append(']');
 		}
 		return buf.toString();
 	}
@@ -479,9 +483,11 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("^=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("^=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
 	}
 
@@ -490,9 +496,11 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("|=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("|=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
 	}
 
@@ -501,9 +509,11 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("$=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("$=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
 	}
 
@@ -512,9 +522,11 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("*=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("*=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
 	}
 
@@ -523,15 +535,45 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("~=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("~=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
+	}
+
+	private void serializeAttributeQName(AttributeCondition acond, StringBuilder buf) {
+		String nsuri = acond.getNamespaceURI();
+		if (nsuri != null) {
+			if (nsuri.length() != 0) {
+				String nsprefix = getParentStyleSheet().getNamespacePrefix(nsuri);
+				if (nsprefix == null) {
+					throw new IllegalStateException("Unknown ns prefix for URI " + nsuri);
+				}
+				if (nsprefix.length() != 0) {
+					buf.append(nsprefix).append('|');
+				}
+			} else {
+				buf.append('|');
+			}
+		}
+		String escLName = ParseHelper.escape(acond.getLocalName(), false, false);
+		buf.append(escLName);
 	}
 
 	private void quoteAttributeValue(String value, StringBuilder buf) {
 		char quote = quoteChar(true);
 		buf.append(ParseHelper.quote(value, quote));
+	}
+
+	private void attributeSelectorEnd(AttributeCondition acond, StringBuilder buf) {
+		if (acond.hasFlag(AttributeCondition.Flag.CASE_I)) {
+			buf.append(" i");
+		} else if (acond.hasFlag(AttributeCondition.Flag.CASE_S)) {
+			buf.append(" s");
+		}
+		buf.append(']');
 	}
 
 	private String langText(LangCondition condition, SimpleSelector simpleSelector) {

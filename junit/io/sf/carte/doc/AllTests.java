@@ -81,6 +81,7 @@ import io.sf.carte.doc.style.css.om.SimpleBoxModelTest;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapperTest;
 import io.sf.carte.doc.style.css.om.StyleRuleTest;
 import io.sf.carte.doc.style.css.om.StyleRuleTest2;
+import io.sf.carte.doc.style.css.om.StyleRuleTestNS;
 import io.sf.carte.doc.style.css.om.SupportsRuleTest;
 import io.sf.carte.doc.style.css.om.TransitionShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.UnknownRuleTest;
@@ -192,6 +193,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		RuleListTest.class,
 		StyleRuleTest.class,
 		StyleRuleTest2.class,
+		StyleRuleTestNS.class,
 		DOMCSSStyleSheetFactoryTest.class,
 		DOMCSSStyleSheetTest.class,
 		SupportsRuleTest.class,

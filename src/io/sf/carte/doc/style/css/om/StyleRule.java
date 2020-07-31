@@ -11,9 +11,6 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.Comparator;
 
 import org.w3c.dom.DOMException;
@@ -23,6 +20,7 @@ import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -38,21 +36,6 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 		super(parentSheet, CSSRule.STYLE_RULE, origin);
 	}
 
-	@Override
-	public void setSelectorText(String selectorText) throws DOMException {
-		Reader re = new StringReader(selectorText);
-		Parser parser = createSACParser();
-		SelectorList selist;
-		try {
-			selist = parser.parseSelectors(re);
-		} catch (CSSException | IOException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
-		}
-		super.setSelectorList(selist);
-	}
-
 	/**
 	 * Constructor used for stand-alone style rules.
 	 * <p>
@@ -61,6 +44,29 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 	 */
 	public StyleRule() {
 		super();
+	}
+
+	@Override
+	public void setSelectorText(String selectorText) throws DOMException {
+		Parser parser = createSACParser();
+		SelectorList selist;
+		try {
+			selist = parser.parseSelectors(selectorText, new SheetNamespaceMap());
+		} catch (CSSException e) {
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		}
+		super.setSelectorList(selist);
+	}
+
+	private class SheetNamespaceMap implements NamespaceMap {
+
+		@Override
+		public String getNamespaceURI(String nsPrefix) {
+			return ((BaseCSSStyleSheet) getParentStyleSheet()).getNamespaceURI(nsPrefix);
+		}
+
 	}
 
 	@Override
