@@ -186,6 +186,18 @@ public interface Parser {
 	SelectorList parseSelectors(Reader reader) throws CSSParseException, IOException;
 
 	/**
+	 * Parse a comma separated list of selectors.
+	 * 
+	 * @param reader the character stream containing the selector list.
+	 * @param nsmap  the namespace map to apply to the selector list, if it contains
+	 *               namespace prefixes.
+	 * 
+	 * @return the selector list.
+	 * @throws CSSParseException if an error was found and no error handler was set.
+	 */
+	SelectorList parseSelectors(String selectorText, NamespaceMap nsmap) throws CSSException;
+
+	/**
 	 * Parse a CSS style declaration (without '{' and '}').
 	 *
 	 * @param reader the character stream containing the CSS style declaration.

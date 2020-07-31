@@ -419,7 +419,7 @@ public class SelectorParserNSTest {
 
 	@Test
 	public void testParseSelectorCombinatorAttributeValueCI3() throws CSSException, IOException {
-		SelectorList selist = parseSelectors("svg|input[svg|foo=bar i][type=text i][dir=auto i]");
+		SelectorList selist = parseSelectors("svg|input[svg|foo=bar i][type=text I][dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);

@@ -1720,6 +1720,15 @@ public class CSSParser implements Parser {
 		return handler.getSelectorList();
 	}
 
+	@Override
+	public SelectorList parseSelectors(String selectorText, NamespaceMap nsmap) throws CSSException {
+		int[] allowInWords = { 45, 95 }; // -_
+		SelectorTokenHandler handler = new SelectorTokenHandler(nsmap);
+		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		tp.parse(selectorText);
+		return handler.getSelectorList();
+	}
+
 	public SelectorList parseSelectors(InputSource source) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		Reader re = getReaderFromSource(source);
