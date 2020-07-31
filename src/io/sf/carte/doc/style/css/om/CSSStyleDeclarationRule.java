@@ -394,7 +394,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
 			return attributeBeginsText((AttributeCondition2) condition, simpleSelector);
 		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-			return attributeBeginHyphenText((AttributeCondition2) condition, simpleSelector);
+			return attributeBeginHyphenText((AttributeCondition) condition, simpleSelector);
 		case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
 			return attributeEndsText((AttributeCondition2) condition, simpleSelector);
 		case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
@@ -517,7 +517,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		return buf.toString();
 	}
 
-	private String attributeBeginHyphenText(AttributeCondition2 acond, SimpleSelector simpleSelector) {
+	private String attributeBeginHyphenText(AttributeCondition acond, SimpleSelector simpleSelector) {
 		StringBuilder buf = new StringBuilder(48);
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
