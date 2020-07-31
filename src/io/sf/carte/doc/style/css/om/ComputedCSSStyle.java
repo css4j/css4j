@@ -1152,6 +1152,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, Parser parser) throws DOMException {
+		return replaceLexicalVar(property, lexval, parser, 0);
+	}
+
+	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, Parser parser, int counter) throws DOMException {
 		LexicalUnit lu = lexval;
 		do {
 			if (lu.getLexicalUnitType() == LexicalType.VAR) {
@@ -1166,7 +1170,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					// Fallback
 					if (param != null) {
 						// Replace param, just in case
-						newlu = replaceLexicalVar(property, param.clone(), parser);
+						newlu = replaceLexicalVar(property, param.clone(), parser, counter);
 					} else {
 						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 								"Unable to evaluate custom property " + propertyName);
@@ -1186,18 +1190,23 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				boolean isLexval = lu == lexval;
 				if (newlu.getLexicalUnitType() != LexicalType.EMPTY) {
 					try {
-						lu = lu.replaceBy(newlu);
+						counter += lu.countReplaceBy(newlu);
 					} catch (CSSBudgetException e) {
 						DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
 								"Resource limit hit while replacing custom property " + propertyName);
 						ex.initCause(e);
 						throw ex;
 					}
+					lu = newlu;
 					if (isLexval) {
 						lexval = newlu;
 					}
+					if (counter >= 0x50000) {
+						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+								"Resource limit hit while replacing custom property " + propertyName);
+					}
 				} else {
-					lu = lu.replaceBy(null);
+					lu = lu.remove();
 					if (isLexval) {
 						lexval = lu;
 					}
@@ -1206,9 +1215,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			} else {
 				LexicalUnit param = lu.getParameters();
 				if (param != null) {
-					replaceLexicalVar(property, param, parser);
+					replaceLexicalVar(property, param, parser, counter);
 				} else if (lu.getSubValues() != null) {
-					replaceLexicalVar(property, lu.getSubValues(), parser);
+					replaceLexicalVar(property, lu.getSubValues(), parser, counter);
 				}
 			}
 			lu = lu.getNextLexicalUnit();
