@@ -234,13 +234,23 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			attrcond = (AttributeCondition) cond;
 			attrName = attrcond.getLocalName();
 			if (hasAttribute(attrName) && matches(simple)) {
+				boolean ignoreCase = attrcond.hasFlag(AttributeCondition.Flag.CASE_I);
 				cond_value = attrcond.getValue();
 				String attrValue = getAttributeValue(attrName);
 				StringTokenizer tok = new StringTokenizer(attrValue, " ");
-				while (tok.hasMoreElements()) {
-					String token = tok.nextToken();
-					if (token.equals(cond_value)) {
-						return true;
+				if (ignoreCase) {
+					while (tok.hasMoreElements()) {
+						String token = tok.nextToken();
+						if (token.equalsIgnoreCase(cond_value)) {
+							return true;
+						}
+					}
+				} else {
+					while (tok.hasMoreElements()) {
+						String token = tok.nextToken();
+						if (token.equals(cond_value)) {
+							return true;
+						}
 					}
 				}
 			}
