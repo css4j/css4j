@@ -177,6 +177,7 @@ public interface Parser {
 	 * 
 	 * @param reader the character stream containing the selector list.
 	 * 
+	 * @return the selector list.
 	 * @throws CSSParseException   if an error was found and no error handler was
 	 *                             set.
 	 * @throws java.io.IOException if a I/O error was found while retrieving the
@@ -202,6 +203,8 @@ public interface Parser {
 	 * 
 	 * @param reader the character stream containing the CSS property value.
 	 * 
+	 * @return the lexical unit containing the value, possibly chained to subsequent
+	 *         lexical units.
 	 * @throws CSSParseException   if an error was found and no error handler was
 	 *                             set.
 	 * @throws java.io.IOException if a I/O error was found while retrieving the
@@ -214,6 +217,7 @@ public interface Parser {
 	 * 
 	 * @param reader the character stream containing the CSS priority.
 	 * 
+	 * @return {@code true} if the priority is important.
 	 * @throws CSSParseException   if an error was found and no error handler was
 	 *                             set.
 	 * @throws java.io.IOException if a I/O error was found while retrieving the
@@ -267,6 +271,8 @@ public interface Parser {
 	 * @param media the string representation of the list of media queries.
 	 * @param owner the node that owns the responsibility to handle the errors in
 	 *              the query list.
+	 * 
+	 * @return the media query list.
 	 * @throws CSSException
 	 */
 	MediaQueryList parseMediaQueryList(String media, Node owner) throws CSSException;
