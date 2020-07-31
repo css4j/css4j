@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
@@ -131,10 +132,26 @@ public class DefaultEntityResolverTest {
 			re.close();
 			//
 			resolver.addHostToWhiteList("css4j.github.io");
-			assertNull(resolver.resolveEntity(null, "https://css4j.github.io/"));
-			assertNull(resolver.resolveEntity(null, "https://css4j.github.io/faq.html"));
-			assertNull(resolver.resolveEntity(null, "https://css4j.github.io/foo/badurl"));
-			assertNull(resolver.resolveEntity(null, "https://css4j.github.io/foo/badurl.dtd"));
+			try {
+				resolver.resolveEntity(null, "https://css4j.github.io/");
+				fail("Must throw exception");
+			} catch (SAXException e) {
+			}
+			try {
+				resolver.resolveEntity(null, "https://css4j.github.io/faq.html");
+				fail("Must throw exception");
+			} catch (SAXException e) {
+			}
+			try {
+				resolver.resolveEntity(null, "https://css4j.github.io/foo/badurl");
+				fail("Must throw exception");
+			} catch (SAXException e) {
+			}
+			try {
+				resolver.resolveEntity(null, "https://css4j.github.io/foo/badurl.dtd");
+				fail("Must throw exception");
+			} catch (FileNotFoundException e) {
+			}
 		}
 	}
 
