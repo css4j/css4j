@@ -38,6 +38,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
+import io.sf.carte.doc.style.css.nsac.AttributeCondition2;
 import io.sf.carte.doc.style.css.nsac.Condition2;
 import io.sf.carte.doc.style.css.nsac.PositionalCondition2;
 import io.sf.carte.doc.style.css.nsac.Selector2;
@@ -391,13 +392,13 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		case Condition.SAC_ATTRIBUTE_CONDITION:
 			return attributeText((AttributeCondition) condition, simpleSelector);
 		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
-			return attributeBeginsText((AttributeCondition) condition, simpleSelector);
+			return attributeBeginsText((AttributeCondition2) condition, simpleSelector);
 		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-			return attributeBeginHyphenText((AttributeCondition) condition, simpleSelector);
+			return attributeBeginHyphenText((AttributeCondition2) condition, simpleSelector);
 		case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
-			return attributeEndsText((AttributeCondition) condition, simpleSelector);
+			return attributeEndsText((AttributeCondition2) condition, simpleSelector);
 		case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
-			return attributeSubstringText((AttributeCondition) condition, simpleSelector);
+			return attributeSubstringText((AttributeCondition2) condition, simpleSelector);
 		case Condition.SAC_LANG_CONDITION:
 			return langText((LangCondition) condition, simpleSelector);
 		case Condition.SAC_NEGATIVE_CONDITION: // Nobody implements this
@@ -490,56 +491,68 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		}
 		String value = acond.getValue();
 		if (value != null) {
-			buf.append('[').append(acond.getLocalName()).append('=');
+			buf.append('[');
+			serializeAttributeQName(acond, buf);
+			buf.append('=');
 			quoteAttributeValue(acond.getValue(), buf);
-			buf.append(']');
+			attributeSelectorEnd(acond, buf);
 		} else {
-			buf.append('[').append(acond.getLocalName()).append(']');
+			buf.append('[');
+			serializeAttributeQName(acond, buf);
+			buf.append(']');
 		}
 		return buf.toString();
 	}
 
-	private String attributeBeginsText(AttributeCondition acond, SimpleSelector simpleSelector) {
+	private String attributeBeginsText(AttributeCondition2 acond, SimpleSelector simpleSelector) {
 		StringBuilder buf = new StringBuilder(48);
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("^=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("^=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
 	}
 
-	private String attributeBeginHyphenText(AttributeCondition acond, SimpleSelector simpleSelector) {
+	private String attributeBeginHyphenText(AttributeCondition2 acond, SimpleSelector simpleSelector) {
 		StringBuilder buf = new StringBuilder(48);
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("|=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("|=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
 	}
 
-	private String attributeEndsText(AttributeCondition acond, SimpleSelector simpleSelector) {
+	private String attributeEndsText(AttributeCondition2 acond, SimpleSelector simpleSelector) {
 		StringBuilder buf = new StringBuilder(48);
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("$=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("$=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
 	}
 
-	private String attributeSubstringText(AttributeCondition acond, SimpleSelector simpleSelector) {
+	private String attributeSubstringText(AttributeCondition2 acond, SimpleSelector simpleSelector) {
 		StringBuilder buf = new StringBuilder(48);
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("*=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("*=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
 	}
 
@@ -548,15 +561,48 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		if (simpleSelector != null) {
 			appendSimpleSelector(simpleSelector, buf);
 		}
-		buf.append('[').append(acond.getLocalName()).append("~=");
+		buf.append('[');
+		serializeAttributeQName(acond, buf);
+		buf.append("~=");
 		quoteAttributeValue(acond.getValue(), buf);
-		buf.append(']');
+		attributeSelectorEnd(acond, buf);
 		return buf.toString();
+	}
+
+	private void serializeAttributeQName(AttributeCondition acond, StringBuilder buf) {
+		String nsuri = acond.getNamespaceURI();
+		if (nsuri != null) {
+			if (nsuri.length() != 0) {
+				String nsprefix = getParentStyleSheet().getNamespacePrefix(nsuri);
+				if (nsprefix == null) {
+					throw new IllegalStateException("Unknown ns prefix for URI " + nsuri);
+				}
+				if (nsprefix.length() != 0) {
+					buf.append(nsprefix).append('|');
+				}
+			} else {
+				buf.append('|');
+			}
+		}
+		String escLName = ParseHelper.escape(acond.getLocalName(), false, false);
+		buf.append(escLName);
 	}
 
 	private void quoteAttributeValue(String value, StringBuilder buf) {
 		char quote = quoteChar(true);
 		buf.append(ParseHelper.quote(value, quote));
+	}
+
+	private void attributeSelectorEnd(AttributeCondition acond, StringBuilder buf) {
+		if (acond instanceof AttributeCondition2) {
+			AttributeCondition2 acond2 = (AttributeCondition2) acond;
+			if (acond2.hasFlag(AttributeCondition2.Flag.CASE_I)) {
+				buf.append(" i");
+			} else if (acond2.hasFlag(AttributeCondition2.Flag.CASE_S)) {
+				buf.append(" s");
+			}
+		}
+		buf.append(']');
 	}
 
 	private String langText(LangCondition condition, SimpleSelector simpleSelector) {

@@ -79,13 +79,13 @@ public class NamespaceRuleTest {
 		CSSRuleList rules = sheet.getCssRules();
 		assertEquals(1, rules.getLength());
 		assertTrue(sheet == nsrule.getParentStyleSheet());
-		assertEquals(1, sheet.insertRule("svg|div {color: blue;}", 1));
+		assertEquals(1, sheet.insertRule("svg|div[svg|version=\"1.0\" i] {color: blue;}", 1));
 		assertEquals(2, sheet.insertRule("p {border-top: 1px dashed yellow; }", 2));
 		assertEquals(3, rules.getLength());
-		assertEquals("svg|div {\n    color: blue;\n}\n", rules.item(1).getCssText());
+		assertEquals("svg|div[svg|version='1.0' i] {\n    color: blue;\n}\n", rules.item(1).getCssText());
 		nsrule.setPrefix("foo");
 		assertEquals("@namespace foo url('http://www.w3.org/2000/svg');", nsrule.getCssText());
-		assertEquals("foo|div {\n    color: blue;\n}\n", rules.item(1).getCssText());
+		assertEquals("foo|div[foo|version='1.0' i] {\n    color: blue;\n}\n", rules.item(1).getCssText());
 	}
 
 	@Test
