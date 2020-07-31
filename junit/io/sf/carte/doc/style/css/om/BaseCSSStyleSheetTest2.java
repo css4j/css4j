@@ -297,7 +297,7 @@ public class BaseCSSStyleSheetTest2 {
 		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet(SACParserFactory.DEFAULT_PARSER);
 		sheet.setMedia(MediaList.createMediaList("screen"));
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
-		CharBuffer target = CharBuffer.allocate(600);
+		CharBuffer target = CharBuffer.allocate(620);
 		target.append("<styletype=\"text/css\"media=\"screen\">");
 		assertTrue(re.read(target) != -1);
 		re.close();
