@@ -20,8 +20,8 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 class LexicalUnitImpl implements LexicalUnit {
 
-	// How many lexical units we accept in #replaceBy() argument
-	private static final int LEXICAL_REPLACE_LIMIT = 0x50000;
+	// How many lexical units we accept in #replaceBy()/#countReplaceBy() argument
+	private static final int LEXICAL_REPLACE_LIMIT = 0x40000;
 
 	private LexicalType unitType;
 
@@ -153,7 +153,60 @@ class LexicalUnitImpl implements LexicalUnit {
 		return replacementUnit;
 	}
 
-	private LexicalUnit remove() {
+	@Override
+	public int countReplaceBy(LexicalUnit replacementUnit) throws CSSBudgetException {
+		if (replacementUnit == null) {
+			remove();
+			return 0;
+		}
+		int counter = 0;
+		LexicalUnitImpl rlu = (LexicalUnitImpl) replacementUnit;
+		if (rlu.ownerLexicalUnit != null) {
+			throw new IllegalArgumentException("Replacement unit is a parameter.");
+		}
+		// Set the owner
+		if (ownerLexicalUnit != null) {
+			if (rlu.previousLexicalUnit != null) {
+				throw new IllegalArgumentException("Replacement unit has a previous unit.");
+			}
+			LexicalUnitImpl lu = rlu;
+			do {
+				lu.ownerLexicalUnit = ownerLexicalUnit;
+				lu = lu.nextLexicalUnit;
+			} while (lu != null);
+			if (previousLexicalUnit == null) {
+				ownerLexicalUnit.parameters = rlu;
+			}
+			ownerLexicalUnit = null;
+		}
+		// previous unit
+		if (previousLexicalUnit != null) {
+			previousLexicalUnit.nextLexicalUnit = rlu;
+			rlu.previousLexicalUnit = previousLexicalUnit;
+		}
+		// next unit(s)
+		if (nextLexicalUnit != null) {
+			LexicalUnitImpl lu = rlu;
+			LexicalUnitImpl lastlu;
+			do {
+				lastlu = lu;
+				lu = lu.nextLexicalUnit;
+				// Check for possible DoS attack
+				counter++;
+				if (counter >= LEXICAL_REPLACE_LIMIT) {
+					throw new CSSBudgetException("Exceeded limit of lexical units: " + LEXICAL_REPLACE_LIMIT);
+				}
+			} while (lu != null);
+			nextLexicalUnit.previousLexicalUnit = lastlu;
+			lastlu.nextLexicalUnit = nextLexicalUnit;
+			nextLexicalUnit = null;
+		}
+		previousLexicalUnit = null;
+		return counter;
+	}
+
+	@Override
+	public LexicalUnit remove() {
 		if (previousLexicalUnit != null) {
 			previousLexicalUnit.nextLexicalUnit = nextLexicalUnit;
 		}

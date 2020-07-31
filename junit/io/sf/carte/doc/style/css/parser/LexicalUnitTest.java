@@ -279,10 +279,22 @@ public class LexicalUnitTest {
 	}
 
 	@Test
-	public void testReplaceByNull2() throws CSSException, IOException {
+	public void testRemove() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("inset 10px 5px 5px blue");
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		LexicalUnit replacement = lu.remove();
+		assertNotNull(replacement);
+		assertNull(lu.getPreviousLexicalUnit());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("10px 5px 5px blue", replacement.toString());
+		assertSame(nlu, replacement);
+	}
+
+	@Test
+	public void testRemove2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("Monospace Regular");
 		LexicalUnit nlu = lu.getNextLexicalUnit();
-		LexicalUnit replacement = nlu.replaceBy(null);
+		LexicalUnit replacement = nlu.remove();
 		assertNull(replacement);
 		assertNull(nlu.getPreviousLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
@@ -295,6 +307,20 @@ public class LexicalUnitTest {
 		LexicalUnit param = lu.getParameters();
 		LexicalUnit nlu = param.getNextLexicalUnit();
 		LexicalUnit replacement = param.replaceBy(null);
+		assertNotNull(replacement);
+		assertNull(param.getPreviousLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("2 3 4", replacement.toString());
+		assertEquals("foo(2 3 4)", lu.toString());
+		assertSame(nlu, replacement);
+	}
+
+	@Test
+	public void testRemoveParam() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("foo(1 2 3 4)");
+		LexicalUnit param = lu.getParameters();
+		LexicalUnit nlu = param.getNextLexicalUnit();
+		LexicalUnit replacement = param.remove();
 		assertNotNull(replacement);
 		assertNull(param.getPreviousLexicalUnit());
 		assertNull(param.getNextLexicalUnit());
@@ -347,6 +373,26 @@ public class LexicalUnitTest {
 		assertSame(lu2, replacement);
 		assertEquals("5", lu2.toString());
 		assertEquals("calc(2*5)", lu.toString());
+	}
+
+	@Test
+	public void testCountReplaceBy() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Times New Roman");
+		LexicalUnit lu2 = parsePropertyValue("Very Old");
+		int count = lu.getNextLexicalUnit().countReplaceBy(lu2);
+		assertEquals(2, count);
+		assertEquals("Very Old Roman", lu2.toString());
+		assertEquals("Times Very Old Roman", lu.toString());
+	}
+
+	@Test
+	public void testCountReplaceByCalc() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(2 * (3 + 2))");
+		LexicalUnit lu2 = parsePropertyValue("5");
+		int count = lu.getParameters().countReplaceBy(lu2);
+		assertEquals(1, count);
+		assertEquals("5*(3 + 2)", lu2.toString());
+		assertEquals("calc(5*(3 + 2))", lu.toString());
 	}
 
 	@Test

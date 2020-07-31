@@ -414,11 +414,45 @@ public interface LexicalUnit {
 	void insertNextLexicalUnit(LexicalUnit nextUnit);
 
 	/**
+	 * Remove this unit from the chain of lexical units and replace it by the next
+	 * one, if any.
+	 * 
+	 * @return the next lexical unit, or {@code null} if there is no next lexical
+	 *         unit.
+	 */
+	LexicalUnit remove();
+
+	/**
+	 * Replace this unit in the chain of lexical units (by the unit or sequence of
+	 * units in the argument) and return the count of replacement units.
+	 * <p>
+	 * The replaced unit always returns {@code null} for
+	 * {@link #getNextLexicalUnit()} and {@link #getPreviousLexicalUnit()},
+	 * {@code false} for {@link #isParameter()}.
+	 * </p>
+	 * 
+	 * @param replacementUnit the lexical unit that replaces this one. If
+	 *                        {@code null}, this unit is replaced by the next one.
+	 * @return the number of units that replace this one (<em>i.e.</em> the
+	 *         argument, or {@code 0} if the argument is {@code null}).
+	 * @throws IllegalArgumentException if the replacement unit is a parameter or
+	 *                                  has a previous unit.
+	 * @throws CSSBudgetException       if the replacement unit has too many chained
+	 *                                  units (to avoid potential DoS).
+	 */
+	int countReplaceBy(LexicalUnit replacementUnit) throws CSSBudgetException;
+
+	/**
 	 * Replace this unit in the chain of lexical units.
 	 * <p>
 	 * The replaced unit always returns {@code null} for
 	 * {@link #getNextLexicalUnit()} and {@link #getPreviousLexicalUnit()},
 	 * {@code false} for {@link #isParameter()}.
+	 * </p>
+	 * <p>
+	 * This method is very similar to {@link #countReplaceBy(LexicalUnit)} which
+	 * gives important information when you need to replace this unit by an
+	 * arbitrary (and potentially large) chunk of values.
 	 * </p>
 	 * 
 	 * @param replacementUnit the lexical unit that replaces this one. If
@@ -429,6 +463,7 @@ public interface LexicalUnit {
 	 *                                  has a previous unit.
 	 * @throws CSSBudgetException       if the replacement unit has too many chained
 	 *                                  units (to avoid potential DoS).
+	 * @see #countReplaceBy(LexicalUnit)
 	 */
 	LexicalUnit replaceBy(LexicalUnit replacementUnit) throws CSSBudgetException;
 
