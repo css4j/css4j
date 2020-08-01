@@ -215,86 +215,19 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		case ID:
 			return matchesId(((AttributeCondition) cond).getValue()) && matches(simple);
 		case ATTRIBUTE:
-			attrcond = (AttributeCondition) cond;
-			String attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName) && matches(simple)) {
-				cond_value = attrcond.getValue();
-				if (cond_value != null) {
-					String attribValue = getAttributeValue(attrName);
-					if (attrcond.hasFlag(AttributeCondition.Flag.CASE_I)) {
-						return attribValue.equalsIgnoreCase(cond_value);
-					}
-					return attribValue.equals(cond_value);
-				} else {
-					return true;
-				}
-			}
-			break;
+			return matchesAttribute((AttributeCondition) cond, simple);
 		case ONE_OF_ATTRIBUTE:
-			attrcond = (AttributeCondition) cond;
-			attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName) && matches(simple)) {
-				boolean ignoreCase = attrcond.hasFlag(AttributeCondition.Flag.CASE_I);
-				cond_value = attrcond.getValue();
-				String attrValue = getAttributeValue(attrName);
-				StringTokenizer tok = new StringTokenizer(attrValue, " ");
-				if (ignoreCase) {
-					while (tok.hasMoreElements()) {
-						String token = tok.nextToken();
-						if (token.equalsIgnoreCase(cond_value)) {
-							return true;
-						}
-					}
-				} else {
-					while (tok.hasMoreElements()) {
-						String token = tok.nextToken();
-						if (token.equals(cond_value)) {
-							return true;
-						}
-					}
-				}
-			}
-			break;
+			return matchesOneOfAttribute((AttributeCondition) cond, simple);
 		case BEGIN_HYPHEN_ATTRIBUTE:
-			attrcond = (AttributeCondition) cond;
-			attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName) && matches(simple)) {
-				String attrValue = getAttributeValue(attrName);
-				int attrlen = attrValue.length();
-				String condstr = attrcond.getValue();
-				int condlen = condstr.length();
-				if (condlen == attrlen) {
-					return attrValue.equals(condstr);
-				} else if (condlen < attrlen) {
-					return attrValue.startsWith(condstr) && attrValue.charAt(condlen) == '-';
-				}
-			}
-			break;
+			return matchesBeginHyphenAttribute((AttributeCondition) cond, simple);
 		case BEGINS_ATTRIBUTE:
-			attrcond = (AttributeCondition) cond;
-			attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).startsWith(attrcond.getValue()) && matches(simple);
-			}
-			break;
+			return matchesBeginsAttribute((AttributeCondition) cond, simple);
 		case ENDS_ATTRIBUTE:
-			attrcond = (AttributeCondition) cond;
-			attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).endsWith(attrcond.getValue()) && matches(simple);
-			}
-			break;
+			return matchesEndsAttribute((AttributeCondition) cond, simple);
 		case SUBSTRING_ATTRIBUTE:
-			attrcond = (AttributeCondition) cond;
-			attrName = attrcond.getLocalName();
-			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).contains(attrcond.getValue()) && matches(simple);
-			}
-			break;
+			return matchesSubstringAttribute((AttributeCondition) cond, simple);
 		case LANG:
-			attrName = ((LangCondition) cond).getLang();
-			String lang = getLanguage();
-			return lang.startsWith(attrName) && matches(simple);
+			return matchesLang((LangCondition) cond, simple);
 		case PSEUDO_CLASS:
 			// Non-state pseudo-classes are generally more expensive than other
 			// selectors, so we evaluate the simple selector first.
@@ -339,21 +272,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			}
 			break;
 		case PSEUDO_ELEMENT:
-			if (matches(simple)) {
-				Condition pe = getPseudoElement();
-				if (pe != null) {
-					PseudoCondition pseudo = (PseudoCondition) cond;
-					if (pe.getConditionType() == ConditionType.PSEUDO_ELEMENT) {
-						return pseudo.getName().equals(((PseudoCondition) pe).getName());
-					}
-					if (pe.getConditionType() == ConditionType.AND) {
-						CombinatorCondition comb = (CombinatorCondition) pe;
-						return pseudo.getName().equals(((PseudoCondition) comb.getFirstCondition()).getName())
-								|| pseudo.getName().equals(((PseudoCondition) comb.getSecondCondition()).getName());
-					}
-				}
-			}
-			break;
+			return matches(simple) && matchesPseudoelement((PseudoCondition) cond);
 		case AND:
 			CombinatorCondition comb = (CombinatorCondition) cond;
 			return matchCondition(comb.getFirstCondition(), simple)
@@ -363,55 +282,9 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		case ONLY_TYPE:
 			return matches(simple) && isOnlyOfType();
 		case POSITIONAL:
-			if (matches(simple)) {
-				PositionalCondition pcond = (PositionalCondition) cond;
-				int pos = pcond.getOffset();
-				int factor = pcond.getFactor();
-				if (pcond.isOfType()) {
-					// Of type
-					if (pcond.isForwardCondition()) {
-						return isNthOfType(factor, pos);
-					} else {
-						return isNthLastOfType(factor, pos);
-					}
-				} else {
-					int idx;
-					if (pcond.isForwardCondition()) {
-						idx = indexOf(pcond.getOfList());
-					} else {
-						idx = reverseIndexOf(pcond.getOfList());
-					}
-					if (idx == -1) {
-						return false;
-					}
-					idx -= pos;
-					return factor == 0 ? idx == 0 : Math.floorMod(idx, factor) == 0;
-				}
-			}
-			break;
+			return matches(simple) && matchesPositional((PositionalCondition) cond);
 		case SELECTOR_ARGUMENT:
-			if (matches(simple)) {
-				String name = ((ArgumentCondition) cond).getName();
-				SelectorList selist = ((ArgumentCondition) cond).getSelectors();
-				if ("not".equals(name)) {
-					for (int i = 0; i < selist.getLength(); i++) {
-						if (matches(selist.item(i))) {
-							return false;
-						}
-					}
-					return true;
-				} else if ("has".equals(name)) {
-					for (int i = 0; i < selist.getLength(); i++) {
-						if (scopeMatch(selist.item(i), simple)) {
-							return true;
-						}
-					}
-					return false;
-				} else if ("is".equals(name) || "where".equals(name)) {
-					return matches(selist) >= 0;
-				}
-			}
-			break;
+			return matches(simple) && matchesArgument((ArgumentCondition) cond, simple);
 		// No more conditions: text-content selectors etc. were deprecated
 		}
 		return false;
@@ -480,6 +353,187 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			}
 			return false;
 		}
+	}
+
+	private boolean matchesAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName) && matches(simple)) {
+			String cond_value = attrcond.getValue();
+			if (cond_value != null) {
+				String attribValue = getAttributeValue(attrName);
+				if (attrcond.hasFlag(AttributeCondition.Flag.CASE_I)) {
+					return attribValue.equalsIgnoreCase(cond_value);
+				}
+				return attribValue.equals(cond_value);
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesOneOfAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName) && matches(simple)) {
+			boolean ignoreCase = attrcond.hasFlag(AttributeCondition.Flag.CASE_I);
+			String cond_value = attrcond.getValue();
+			String attrValue = getAttributeValue(attrName);
+			StringTokenizer tok = new StringTokenizer(attrValue, " ");
+			if (ignoreCase) {
+				while (tok.hasMoreElements()) {
+					String token = tok.nextToken();
+					if (token.equalsIgnoreCase(cond_value)) {
+						return true;
+					}
+				}
+			} else {
+				while (tok.hasMoreElements()) {
+					String token = tok.nextToken();
+					if (token.equals(cond_value)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesBeginHyphenAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName) && matches(simple)) {
+			String attrValue = getAttributeValue(attrName);
+			int attrlen = attrValue.length();
+			String condValue = attrcond.getValue();
+			int condLen = condValue.length();
+			boolean ignoreCase = attrcond.hasFlag(AttributeCondition.Flag.CASE_I);
+			if (condLen == attrlen) {
+				return ignoreCase ? attrValue.equalsIgnoreCase(condValue) : attrValue.equals(condValue);
+			} else if (condLen < attrlen) {
+				return attrValue.regionMatches(ignoreCase, 0, condValue, 0, condLen)
+						&& attrValue.charAt(condLen) == '-';
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesBeginsAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName)) {
+			String value = getAttributeValue(attrName);
+			if (matches(simple)) {
+				boolean ignoreCase = attrcond.hasFlag(AttributeCondition.Flag.CASE_I);
+				String condValue = attrcond.getValue();
+				return value.regionMatches(ignoreCase, 0, condValue, 0, condValue.length());
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesEndsAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName)) {
+			String value = getAttributeValue(attrName);
+			if (matches(simple)) {
+				boolean ignoreCase = attrcond.hasFlag(AttributeCondition.Flag.CASE_I);
+				String condValue = attrcond.getValue();
+				int len = value.length();
+				int condLen = condValue.length();
+				return value.regionMatches(ignoreCase, len - condLen, condValue, 0, condLen);
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesSubstringAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName) && matches(simple)) {
+			String value = getAttributeValue(attrName);
+			boolean ignoreCase = attrcond.hasFlag(AttributeCondition.Flag.CASE_I);
+			String condValue = attrcond.getValue();
+			if (!ignoreCase) { // That should be a bit faster
+				return value.contains(condValue);
+			}
+			int len = value.length();
+			int condLen = condValue.length();
+			int startLimit = len - condLen;
+			if (startLimit >= 0) {
+				for (int i = 0; i <= startLimit; i++) {
+					if (value.regionMatches(ignoreCase, i, condValue, 0, condLen)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesLang(LangCondition cond, SimpleSelector simple) {
+		String attrName = cond.getLang();
+		String lang = getLanguage();
+		return lang.startsWith(attrName) && matches(simple);
+	}
+
+	private boolean matchesPositional(PositionalCondition pcond) {
+		int pos = pcond.getOffset();
+		int factor = pcond.getFactor();
+		if (pcond.isOfType()) {
+			// Of type
+			if (pcond.isForwardCondition()) {
+				return isNthOfType(factor, pos);
+			} else {
+				return isNthLastOfType(factor, pos);
+			}
+		} else {
+			int idx;
+			if (pcond.isForwardCondition()) {
+				idx = indexOf(pcond.getOfList());
+			} else {
+				idx = reverseIndexOf(pcond.getOfList());
+			}
+			if (idx == -1) {
+				return false;
+			}
+			idx -= pos;
+			return factor == 0 ? idx == 0 : Math.floorMod(idx, factor) == 0;
+		}
+	}
+
+	private boolean matchesPseudoelement(PseudoCondition pseudo) {
+		Condition pe = getPseudoElement();
+		if (pe != null) {
+			if (pe.getConditionType() == ConditionType.PSEUDO_ELEMENT) {
+				return pseudo.getName().equals(((PseudoCondition) pe).getName());
+			}
+			if (pe.getConditionType() == ConditionType.AND) {
+				CombinatorCondition comb = (CombinatorCondition) pe;
+				return pseudo.getName().equals(((PseudoCondition) comb.getFirstCondition()).getName())
+						|| pseudo.getName().equals(((PseudoCondition) comb.getSecondCondition()).getName());
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesArgument(ArgumentCondition cond, SimpleSelector simple) {
+		String name = ((ArgumentCondition) cond).getName();
+		SelectorList selist = ((ArgumentCondition) cond).getSelectors();
+		if ("not".equals(name)) {
+			for (int i = 0; i < selist.getLength(); i++) {
+				if (matches(selist.item(i))) {
+					return false;
+				}
+			}
+			return true;
+		} else if ("has".equals(name)) {
+			for (int i = 0; i < selist.getLength(); i++) {
+				if (scopeMatch(selist.item(i), simple)) {
+					return true;
+				}
+			}
+			return false;
+		} else if ("is".equals(name) || "where".equals(name)) {
+			return matches(selist) >= 0;
+		}
+		return false;
 	}
 
 	private boolean scopeMatch(Selector selector, SimpleSelector scope) {
