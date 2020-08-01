@@ -4021,7 +4021,7 @@ public class CSSParser implements Parser {
 				cond = ((CombinatorCondition) cond).getSecondCondition();
 			}
 			// Unlikely to happen, but checking is nicer than class cast error
-			if (cond.getConditionType() != ConditionType.ATTRIBUTE) {
+			if (!(cond instanceof AttributeCondition)) {
 				throw new IllegalStateException(
 						"Processing attribute modifier of non-attribute conditional selector");
 			}

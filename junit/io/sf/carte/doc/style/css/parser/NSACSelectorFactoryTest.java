@@ -391,40 +391,6 @@ public class NSACSelectorFactoryTest {
 
 	@Test
 	public void testEqualsAttributeSelector() {
-		Selector sel = parser.parseSelectors("[ title ~=\"hi\" ]").item(0);
-		Selector other = parser.parseSelectors("[title~=\"hi\"]").item(0);
-		assertTrue(sel.equals(other));
-		assertEquals(sel.hashCode(), other.hashCode());
-		other = parser.parseSelectors("[ lang ~=\"hi\" ]").item(0);
-		assertFalse(sel.equals(other));
-		other = parser.parseSelectors("[ title ~=\"foo\" ]").item(0);
-		assertFalse(sel.equals(other));
-		other = parser.parseSelectors("[title^=\"hi\"]").item(0);
-		assertFalse(sel.equals(other));
-		other = parser.parseSelectors("p[title~=\"hi\"]").item(0);
-		assertFalse(sel.equals(other));
-		assertFalse(other.equals(sel));
-	}
-
-	@Test
-	public void testEqualsAttributeSelector2() {
-		Selector sel = parser.parseSelectors("p[ title ~=\"hi\" ]").item(0);
-		Selector other = parser.parseSelectors("p[title~=\"hi\"]").item(0);
-		assertTrue(sel.equals(other));
-		assertEquals(sel.hashCode(), other.hashCode());
-		other = parser.parseSelectors("[ title ~=\"hi\" ]").item(0);
-		assertFalse(sel.equals(other));
-		other = parser.parseSelectors("p[title~=\"foo\"]").item(0);
-		assertFalse(sel.equals(other));
-		other = parser.parseSelectors("p[lang~=\"hi\"]").item(0);
-		assertFalse(sel.equals(other));
-		other = parser.parseSelectors("div[title~=\"hi\"]").item(0);
-		assertFalse(sel.equals(other));
-		assertFalse(other.equals(sel));
-	}
-
-	@Test
-	public void testEqualsAttributeSelector3() {
 		Selector sel = parser.parseSelectors("[ title ]").item(0);
 		Selector other = parser.parseSelectors("[title]").item(0);
 		assertTrue(sel.equals(other));
@@ -441,13 +407,17 @@ public class NSACSelectorFactoryTest {
 		Selector sel = parser.parseSelectors("[title=hi i]").item(0);
 		Selector other = parser.parseSelectors("[title=hi i]").item(0);
 		assertTrue(sel.equals(other));
+		assertTrue(other.equals(sel));
 		assertEquals(sel.hashCode(), other.hashCode());
 		other = parser.parseSelectors("[title=hi]").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors("[lang=hi i]").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 		other = parser.parseSelectors("[title=foo i]").item(0);
 		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
@@ -468,6 +438,160 @@ public class NSACSelectorFactoryTest {
 		assertFalse(sel.equals(other));
 		other = parser.parseSelectors("div[title=hi i]").item(0);
 		assertFalse(sel.equals(other));
+	}
+
+	@Test
+	public void testEqualsOneOfAttributeSelector() {
+		Selector sel = parser.parseSelectors("[ title ~=\"hi\" ]").item(0);
+		Selector other = parser.parseSelectors("[title~=\"hi\"]").item(0);
+		assertTrue(sel.equals(other));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("[title=hi]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[ lang ~=\"hi\" ]").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("[ title ~=\"foo\" ]").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("[title^=\"hi\"]").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("p[title~=\"hi\"]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+	}
+
+	@Test
+	public void testEqualsOneOfAttributeSelector2() {
+		Selector sel = parser.parseSelectors("p[ title ~=\"hi\" ]").item(0);
+		Selector other = parser.parseSelectors("p[title~=\"hi\"]").item(0);
+		assertTrue(sel.equals(other));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("[ title ~=\"hi\" ]").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("p[title~=\"foo\"]").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("p[lang~=\"hi\"]").item(0);
+		assertFalse(sel.equals(other));
+		other = parser.parseSelectors("div[title~=\"hi\"]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+	}
+
+	@Test
+	public void testEqualsOneOfAttributeSelectorCI() {
+		Selector sel = parser.parseSelectors("p[title~=hi i]").item(0);
+		Selector other = parser.parseSelectors("p[title~=hi i]").item(0);
+		assertTrue(sel.equals(other));
+		assertTrue(other.equals(sel));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("p[title=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title~=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("p[title~=hi]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("p[lang~=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("p[title~=foo i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+	}
+
+	@Test
+	public void testEqualsBeginHyphenAttributeSelectorCI() {
+		Selector sel = parser.parseSelectors("[title|=hi i]").item(0);
+		Selector other = parser.parseSelectors("[title|=hi i]").item(0);
+		assertTrue(sel.equals(other));
+		assertTrue(other.equals(sel));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("p[title|=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title|=hi]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[lang|=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title|=foo i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+	}
+
+	@Test
+	public void testEqualsBeginsAttributeSelectorCI() {
+		Selector sel = parser.parseSelectors("[title^=hi i]").item(0);
+		Selector other = parser.parseSelectors("[title^=hi i]").item(0);
+		assertTrue(sel.equals(other));
+		assertTrue(other.equals(sel));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("p[title^=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title^=hi]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[lang^=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title^=foo i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+	}
+
+	@Test
+	public void testEqualsEndsAttributeSelectorCI() {
+		Selector sel = parser.parseSelectors("[title$=hi i]").item(0);
+		Selector other = parser.parseSelectors("[title$=hi i]").item(0);
+		assertTrue(sel.equals(other));
+		assertTrue(other.equals(sel));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("p[title$=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title$=hi]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[lang$=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title$=foo i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+	}
+
+	@Test
+	public void testEqualsSubstringAttributeSelectorCI() {
+		Selector sel = parser.parseSelectors("[title*=hi i]").item(0);
+		Selector other = parser.parseSelectors("[title*=hi i]").item(0);
+		assertTrue(sel.equals(other));
+		assertTrue(other.equals(sel));
+		assertEquals(sel.hashCode(), other.hashCode());
+		other = parser.parseSelectors("p[title*=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title*=hi]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[lang*=hi i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
+		other = parser.parseSelectors("[title*=foo i]").item(0);
+		assertFalse(sel.equals(other));
+		assertFalse(other.equals(sel));
 	}
 
 	@Test
