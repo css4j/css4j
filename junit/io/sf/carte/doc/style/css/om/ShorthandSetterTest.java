@@ -93,6 +93,11 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("animation: ease-in ease-out");
 		assertEquals("ease-in", emptyStyleDecl.getPropertyValue("animation-timing-function"));
 		assertEquals("ease-out", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("1", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("running", emptyStyleDecl.getPropertyValue("animation-play-state"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
 		assertEquals("animation: ease-in ease-out; ", emptyStyleDecl.getCssText());
@@ -1722,6 +1727,7 @@ public class ShorthandSetterTest {
 				emptyStyleDecl.getCssText());
 		assertEquals("padding-top:2em;padding-right:3em;padding-bottom:inherit;padding-left:3em",
 				emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("padding: initial; ");
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("padding-top"));
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("padding-right"));
@@ -1729,6 +1735,14 @@ public class ShorthandSetterTest {
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("padding-left"));
 		assertEquals("padding: initial; ", emptyStyleDecl.getCssText());
 		assertEquals("padding:initial;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("padding: inherit; ");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("padding-top"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("padding-right"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("padding-bottom"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("padding-left"));
+		assertEquals("padding: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("padding:inherit;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -2784,30 +2798,44 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-basis").isSubproperty());
 		assertEquals("flex: none; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:none;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("flex: initial");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("flex-grow"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("flex-shrink"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("flex-basis"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-grow").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-basis").isSubproperty());
+		assertEquals("flex: initial; ", emptyStyleDecl.getCssText());
+		assertEquals("flex:initial;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: auto; ");
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: auto; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:auto;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 0; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 2; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2 auto; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2817,30 +2845,35 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-basis").isSubproperty());
 		assertEquals("flex: 2 2 auto; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2 auto;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 1 0; ");
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 1 0; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:1 0;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 1 0px; ");
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 1 0px; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:1 0px;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 1em; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("1em", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 1em; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 1em;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2 5%; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("5%", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 2 5%; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2 5%;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0 0 50%; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-grow").isSubproperty());
@@ -2850,54 +2883,63 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("flex-basis").isSubproperty());
 		assertEquals("flex: 0 0 50%; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0 0 50%;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2 0px; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 2 0px; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2 0px;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 2 2 0; ");
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("2", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 2 2 0; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:2 2 0;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0px; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 0px; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0px;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 5%; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("5%", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 5%; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:5%;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: content; ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("content", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: content; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:content;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0 0 calc(100.0% - 60.0px / 3); ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("calc(100% - 60px/3)", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 0 0 calc(100% - 60px/3); ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0 0 calc(100% - 60px/3);", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 0 0 calc((100.0% - 60.0px) / 3); ");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("0", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("calc((100% - 60px)/3)", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: 0 0 calc((100% - 60px)/3); ", emptyStyleDecl.getCssText());
 		assertEquals("flex:0 0 calc((100% - 60px)/3);", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: inherit; ");
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: inherit; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:inherit;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: 1.2em unset; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2905,6 +2947,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: unset unset; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2912,12 +2955,14 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: unset; ");
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("flex-shrink"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("flex-basis"));
 		assertEquals("flex: unset; ", emptyStyleDecl.getCssText());
 		assertEquals("flex:unset;", emptyStyleDecl.getMinifiedCssText());
+		//
 		emptyStyleDecl.setCssText("flex: none none; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2925,6 +2970,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: 2 3 4; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2932,6 +2978,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: 2 3 4 2em; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2939,6 +2986,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: 1.2em 2 auto; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
@@ -2946,6 +2994,7 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("flex: 1.2em 2 2px; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-shrink"));
