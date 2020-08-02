@@ -35,18 +35,23 @@ public class FontBuilderTest {
 
 	@Test
 	public void testFont() {
-		assertShorthandText("font:smaller;", "font: smaller");
-		assertShorthandText("font:smaller;", "font: smaller; font-kerning: auto;");
-		assertShorthandText("font:smaller;font-kerning:none;", "font: smaller; font-kerning: none;");
-		assertShorthandText("font:smaller;font-kerning:none;font-size-adjust:.6;",
-				"font: smaller; font-kerning: none; font-size-adjust: 0.6;");
-		assertShorthandText("font:400 80%/120%;", "font: 400 80%/120%");
+		assertShorthandText("font:normal;font-size:smaller;", "font:normal;font-size:smaller");
+		assertShorthandText("font:normal;", "font: normal; font-kerning: auto;");
+		assertShorthandText("font:normal;font-kerning:none;", "font: normal; font-kerning: none;");
+		assertShorthandText("font:normal;font-kerning:none;font-size-adjust:.6;",
+				"font: normal; font-kerning: none; font-size-adjust: 0.6;");
+		assertShorthandText("font:bold;font-size:80%;line-height:120%;",
+				"font:bold;font-size:80%;line-height:120%;");
+		assertShorthandText("font:bold;font-stretch:condensed;font-size:80%;line-height:120%;",
+				"font:bold;font-size:80%;line-height:120%;font-stretch:condensed");
+		assertShorthandText("font:bold;font-family:Arial;", "font:bold;font-family:Arial;");
+		assertShorthandText("font:400 80%/120% Verdana;", "font: 400 80%/120% Verdana");
 		assertShorthandText("font:400 80%/120% Arial;", "font: 400 80%/120% Arial");
 		assertShorthandText("font:400 80%/120% \"Times New Roman\",Arial;",
 				"font: 400 80%/120% \"Times New Roman\",Arial");
 		assertShorthandText("font:italic small-caps 400 80%/120% \"Times New Roman\",Arial;",
 				"font:italic small-caps 400 80%/120% \"Times New Roman\",Arial");
-		assertShorthandText("font:serif;", "font: serif");
+		assertShorthandText("font:24pt serif;", "font:24pt serif");
 		assertShorthandText("font:16pt \"Times New Roman\",Arial;", "font: 16pt \"Times New Roman\", Arial");
 		assertShorthandText("font:condensed 80% sans-serif;", "font: condensed 80% sans-serif");
 		assertShorthandText("font:3em/1.25 \"Helvetica Neue\",Helvetica,sans-serif;",
@@ -59,18 +64,23 @@ public class FontBuilderTest {
 	}
 
 	@Test
+	public void testFontInitialAndLineHeight() {
+		assertShorthandText("font:normal;line-height:1;", "font: initial; line-height: 1;");
+	}
+
+	@Test
 	public void testFontPlusImportant() {
-		assertShorthandText("font:bolder serif;font-size:120%!important;",
-				"font: bolder serif; font-size: 120% ! important;");
+		assertShorthandText("font:bolder 120% serif;font-size:120%!important;",
+				"font: bolder 16pt serif; font-size: 120% ! important;");
 	}
 
 	@Test
 	public void testFontImportant() {
-		assertShorthandText("font:smaller!important;", "font: smaller ! important");
-		assertShorthandText("font:smaller!important;font-kerning:none!important;",
-				"font: smaller ! important; font-kerning: none ! important;");
-		assertShorthandText("font:400 80%/120%!important;", "font: 400 80%/120%!important");
-		assertShorthandText("font:serif!important;", "font: serif!important");
+		assertShorthandText("font:normal!important;", "font: normal ! important");
+		assertShorthandText("font:normal!important;font-kerning:none!important;",
+				"font: normal ! important; font-kerning: none ! important;");
+		assertShorthandText("font:400 80%/120% Serif!important;", "font: 400 80%/120% Serif!important");
+		assertShorthandText("font:23pt serif!important;", "font: 23pt serif!important");
 	}
 
 	@Test

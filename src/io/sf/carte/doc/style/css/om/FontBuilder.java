@@ -160,25 +160,73 @@ class FontBuilder extends ShorthandBuilder {
 		if (declaredSet.contains("font-weight")) {
 			appended = appendValueIfNotInitial(buf, "font-weight", vFontWeight, appended);
 		}
-		if (declaredSet.contains("font-stretch")) {
-			appended = appendValueIfNotInitial(buf, "font-stretch", vFontStretch, appended);
-		}
-		if (declaredSet.contains("font-size") || declaredSet.contains("line-height")) {
+		if (declaredSet.contains("font-size") || declaredSet.contains("line-height")
+				|| declaredSet.contains("font-family") || declaredSet.contains("font-stretch")) {
 			boolean not_initial_lh = isNotInitialValue(vLineHeight, "line-height");
-			if ((declaredSet.contains("font-size") && isNotInitialValue(vFontSize, "font-size")) || not_initial_lh) {
+			boolean not_initial_fsz = isNotInitialValue(vFontSize, "font-size");
+			boolean not_initial_fst = isNotInitialValue(vFontStretch, "font-stretch");
+			boolean not_initial_ff = isNotInitialValue(vFontFamily, "font-family");
+			if (not_initial_fsz || not_initial_lh || not_initial_fst) {
+				// We need to serialize font size, perhaps also line height.
+				String fontSizeText;
+				if (not_initial_fsz) {
+					fontSizeText = vFontSize.getMinifiedCssText("font-size");
+				} else {
+					fontSizeText = "medium";
+				}
+				// We need a font family here
+				if (!not_initial_ff) {
+					// We need to terminate here
+					if (!appended) {
+						buf.append("normal");
+					}
+					appendPriority(buf, important);
+					if (not_initial_fst && declaredSet.contains("font-stretch")) {
+						buf.append("font-stretch:");
+						buf.append(vFontStretch.getMinifiedCssText("font-stretch"));
+						appendPriority(buf, important);
+					}
+					if (not_initial_fsz && declaredSet.contains("font-size")) {
+						buf.append("font-size:");
+						buf.append(fontSizeText);
+						appendPriority(buf, important);
+					}
+					if (not_initial_lh && declaredSet.contains("line-height")) {
+						buf.append("line-height:");
+						buf.append(vLineHeight.getMinifiedCssText("line-height"));
+						appendPriority(buf, important);
+					}
+					return true;
+				}
+				if (declaredSet.contains("font-stretch")) {
+					appended = appendValueIfNotInitial(buf, "font-stretch", vFontStretch, appended);
+				}
 				if (appended) {
 					buf.append(' ');
 				} else {
 					appended = true;
 				}
-				buf.append(vFontSize.getMinifiedCssText("font-size"));
+				buf.append(fontSizeText);
 				if (not_initial_lh) {
 					buf.append('/').append(vLineHeight.getMinifiedCssText("line-height"));
 				}
+				buf.append(' ');
+				buf.append(vFontFamily.getMinifiedCssText("font-family"));
+			} else if (not_initial_ff) {
+				if (!appended) {
+					buf.append("normal");
+				}
+				appendPriority(buf, important);
+				if (not_initial_fst && declaredSet.contains("font-stretch")) {
+					buf.append("font-stretch:");
+					buf.append(vFontStretch.getMinifiedCssText("font-stretch"));
+					appendPriority(buf, important);
+				}
+				buf.append("font-family:");
+				buf.append(vFontFamily.getMinifiedCssText("font-family"));
+				appendPriority(buf, important);
+				return true;
 			}
-		}
-		if (declaredSet.contains("font-family")) {
-			appended = appendValueIfNotInitial(buf, "font-family", vFontFamily, appended);
 		}
 		if (!appended) {
 			buf.append("normal");
