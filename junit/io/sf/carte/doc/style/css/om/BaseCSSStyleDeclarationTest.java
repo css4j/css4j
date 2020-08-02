@@ -184,7 +184,7 @@ public class BaseCSSStyleDeclarationTest {
 
 	@Test
 	public void setCssTextEscaped7() {
-		emptyStyleDecl.setCssText("font: \"\u5b8b\u4f53\",Arial");
+		emptyStyleDecl.setCssText("font: 18pt \"\u5b8b\u4f53\",Arial");
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
 		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
@@ -195,7 +195,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("\u5b8b\u4f53", primi.getStringValue());
 		emptyStyleDecl.setCssText(emptyStyleDecl.getCssText());
 		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font-family"));
-		assertEquals("\"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font"));
+		assertEquals("18pt \"\u5b8b\u4f53\", Arial", emptyStyleDecl.getPropertyValue("font"));
 	}
 
 	@Test
@@ -892,28 +892,28 @@ public class BaseCSSStyleDeclarationTest {
 
 	@Test
 	public void testEquals() {
-		emptyStyleDecl.setCssText("font: smaller !important; border: solid blue; line-height: normal !important");
+		emptyStyleDecl.setCssText("font: bold !important; border: solid blue; line-height: normal !important");
 		BaseCSSStyleDeclaration otherDecl = new BaseCSSStyleDeclaration();
-		otherDecl.setCssText("font: smaller !important; line-height: normal !important");
+		otherDecl.setCssText("font: bold !important; line-height: normal !important");
 		assertFalse(emptyStyleDecl.equals(otherDecl));
 		assertFalse(emptyStyleDecl.hashCode() == otherDecl.hashCode());
 		otherDecl.setCssText(
-				"border-top-color: blue; border-right-color: blue; border-bottom-color: blue; border-left-color: blue; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-width: medium; border-right-width: medium; border-bottom-width: medium; border-left-width: medium; border-image: none; font: smaller !important; line-height: normal !important");
+				"border-top-color: blue; border-right-color: blue; border-bottom-color: blue; border-left-color: blue; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-width: medium; border-right-width: medium; border-bottom-width: medium; border-left-width: medium; border-image: none; font: bold !important; line-height: normal !important");
 		assertTrue(emptyStyleDecl.equals(otherDecl));
 		assertTrue(emptyStyleDecl.hashCode() == otherDecl.hashCode());
-		otherDecl.setCssText("font: smaller !important; border: solid blue; line-height: normal");
+		otherDecl.setCssText("font: bold !important; border: solid blue; line-height: normal");
 		assertTrue(emptyStyleDecl.equals(otherDecl));
 		assertTrue(emptyStyleDecl.hashCode() == otherDecl.hashCode());
-		otherDecl.setCssText("font: smaller; border: solid blue; line-height: normal !important");
+		otherDecl.setCssText("font: bold; border: solid blue; line-height: normal !important");
 		assertFalse(emptyStyleDecl.equals(otherDecl));
 		assertFalse(emptyStyleDecl.hashCode() == otherDecl.hashCode());
 	}
 
 	@Test
 	public void testDiff() {
-		emptyStyleDecl.setCssText("font: smaller !important; border: solid blue; line-height: normal !important");
+		emptyStyleDecl.setCssText("font: smaller Arial!important; border: solid blue; line-height: normal !important");
 		BaseCSSStyleDeclaration otherDecl = new BaseCSSStyleDeclaration();
-		otherDecl.setCssText("font: smaller !important; line-height: normal !important");
+		otherDecl.setCssText("font: smaller Arial!important; line-height: normal !important");
 		Diff<String> diff = emptyStyleDecl.diff(otherDecl);
 		assertTrue(diff.hasDifferences());
 		assertNull(diff.getRightSide());
@@ -923,13 +923,13 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("border-top-style", sa[0]);
 		assertEquals("border-top-color", sa[4]);
 		otherDecl.setCssText(
-				"border-top-color: blue; border-right-color: blue; border-bottom-color: blue; border-left-color: blue; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-width: medium; border-right-width: medium; border-bottom-width: medium; border-left-width: medium; border-image: none; font: smaller !important; line-height: normal !important");
+				"border-top-color: blue; border-right-color: blue; border-bottom-color: blue; border-left-color: blue; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-width: medium; border-right-width: medium; border-bottom-width: medium; border-left-width: medium; border-image: none; font: smaller Arial!important; line-height: normal !important");
 		diff = emptyStyleDecl.diff(otherDecl);
 		assertFalse(diff.hasDifferences());
-		otherDecl.setCssText("font: smaller !important; border: solid blue; line-height: normal");
+		otherDecl.setCssText("font: smaller Arial!important; border: solid blue; line-height: normal");
 		diff = emptyStyleDecl.diff(otherDecl);
 		assertFalse(diff.hasDifferences());
-		otherDecl.setCssText("font: smaller; border: solid blue; line-height: normal !important");
+		otherDecl.setCssText("font: smaller Arial; border: solid blue; line-height: normal !important");
 		diff = emptyStyleDecl.diff(otherDecl);
 		assertTrue(diff.hasDifferences());
 		assertNull(diff.getLeftSide());
@@ -937,7 +937,10 @@ public class BaseCSSStyleDeclarationTest {
 		sa = diff.getDifferent();
 		assertEquals(13, sa.length);
 		assertEquals("font-size", sa[0]);
-		assertEquals("font-family", sa[4]);
+		assertEquals("font-family", sa[1]);
+		assertEquals("font-style", sa[2]);
+		assertEquals("font-weight", sa[3]);
+		assertEquals("font-stretch", sa[4]);
 		assertEquals("font-variant-caps", sa[5]);
 		assertEquals("font-size-adjust", sa[6]);
 	}
@@ -953,21 +956,21 @@ public class BaseCSSStyleDeclarationTest {
 
 	@Test
 	public void testPrioritySplit() {
-		emptyStyleDecl.setCssText("font: smaller !important; border: solid blue; line-height: normal !important");
+		emptyStyleDecl.setCssText("font: smaller Sans!important; border: solid blue; line-height: normal !important");
 		BaseCSSStyleDeclaration importantDecl = new BaseCSSStyleDeclaration();
 		BaseCSSStyleDeclaration normalDecl = new BaseCSSStyleDeclaration();
 		emptyStyleDecl.prioritySplit(importantDecl, normalDecl);
 		assertEquals(14, importantDecl.getLength());
-		assertEquals("font: smaller ! important;\nline-height: normal ! important;\n", importantDecl.getCssText());
+		assertEquals("font: smaller Sans ! important;\nline-height: normal ! important;\n", importantDecl.getCssText());
 		assertEquals(17, normalDecl.getLength());
 		assertEquals("border: solid blue;\n", normalDecl.getCssText());
 	}
 
 	@Test
 	public void testClone() {
-		emptyStyleDecl.setCssText("font: smaller !important; border: solid blue; line-height: normal !important");
+		emptyStyleDecl.setCssText("font: bold!important; border: solid blue; line-height: normal !important");
 		BaseCSSStyleDeclaration clone = emptyStyleDecl.clone();
-		assertEquals("font: smaller ! important;\nborder: solid blue;\nline-height: normal ! important;\n",
+		assertEquals("font: bold ! important;\nborder: solid blue;\nline-height: normal ! important;\n",
 				clone.getCssText());
 		assertEquals(31, clone.getLength());
 	}

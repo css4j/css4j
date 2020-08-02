@@ -369,6 +369,14 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 
 	@Override
 	public boolean assignSubproperties() {
+		boolean result = draftSubproperties();
+		if (result) {
+			flush();
+		}
+		return result;
+	}
+
+	boolean draftSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
 			return true;
@@ -407,7 +415,6 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 		}
 		// Reset subproperties not set by this shorthand
 		resetSubproperties();
-		flush();
 		return true;
 	}
 

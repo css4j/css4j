@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.w3c.css.sac.LexicalUnit;
@@ -49,6 +50,51 @@ class FontShorthandSetter extends ShorthandSetter {
 	public void init(LexicalUnit shorthandValue, boolean important) {
 		shorthandValue = filterNormalIdentifier(shorthandValue);
 		super.init(shorthandValue, important);
+	}
+
+	@Override
+	public boolean assignSubproperties() {
+		if (currentValue == null) {
+			// font: normal
+			List<String> subp = super.subpropertyList();
+			Iterator<String> it = subp.iterator();
+			while (it.hasNext()) {
+				addUnassignedProperty(it.next());
+			}
+			resetSubproperties();
+			flush();
+			getValueItemBuffer().append("normal");
+			getValueItemBufferMini().append("normal");
+			return true;
+		}
+		if (draftSubproperties()) {
+			if (getUnassignedProperties().contains("font-family")) {
+				// No font family
+				if (!getUnassignedProperties().contains("font-size")) {
+					reportMissingPropertySyntaxError("font-family");
+					return false;
+				}
+				if (!getUnassignedProperties().contains("font-stretch")) {
+					reportMissingPropertySyntaxError("font-family");
+					return false;
+				}
+			} else if (getUnassignedProperties().contains("font-size")) {
+				reportMissingPropertySyntaxError("font-size");
+				return false;
+			}
+			flush();
+			return true;
+		}
+		return false;
+	}
+
+	private void reportMissingPropertySyntaxError(String missedProperty) {
+		StringBuilder sb = new StringBuilder(getValueItemBuffer().length() + missedProperty.length() + 40);
+		sb.append("This syntax requires ");
+		sb.append(missedProperty);
+		sb.append(" to be present: ");
+		sb.append(getValueItemBuffer());
+		reportDeclarationError("font", sb.toString());
 	}
 
 	@Override
