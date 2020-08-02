@@ -289,13 +289,13 @@ public class ComputedCSSStyleTest {
 				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
 		//
-		elm.getOverrideStyle(null).setCssText("font: 120%");
+		elm.getOverrideStyle(null).setCssText("font: 120% Arial");
 		style = elm.getComputedStyle(null);
 		assertEquals(
-				"display: block; unicode-bidi: embed; margin-top: 28.8pt; margin-bottom: 43.2pt; background-position: 20% 0%; padding-left: calc(10% - 43.2pt - 14.4pt); font-size: 14.4pt; font-style: normal; font-weight: normal; font-stretch: normal; font-family: initial; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
+				"display: block; unicode-bidi: embed; margin-top: 28.8pt; margin-bottom: 43.2pt; background-position: 20% 0%; padding-left: calc(10% - 43.2pt - 14.4pt); font-size: 14.4pt; font-family: Arial; font-style: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
 				style.getCssText());
 		assertEquals(
-				"display:block;unicode-bidi:embed;margin-bottom:43.2pt;margin-top:28.8pt;background-position:20% 0%;padding-left:calc(10% - 43.2pt - 14.4pt);font:14.4pt;",
+				"display:block;unicode-bidi:embed;margin-bottom:43.2pt;margin-top:28.8pt;background-position:20% 0%;padding-left:calc(10% - 43.2pt - 14.4pt);font:14.4pt Arial;",
 				style.getMinifiedCssText());
 		//
 		CSSElement docelm = xhtmlDoc.getDocumentElement();
@@ -317,7 +317,7 @@ public class ComputedCSSStyleTest {
 		/*
 		 * Relative % font, box model.
 		 */
-		elm.getOverrideStyle(null).setCssText("font: 120%");
+		elm.getOverrideStyle(null).setCssText("font: 120% Arial");
 		style = elm.getComputedStyle(null);
 		assertEquals(14.4f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSUnit.CSS_PT);
@@ -671,7 +671,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);--foo:8.5pt;margin:8.5pt;",
 				style.getMinifiedCssText());
-		listpara.getOverrideStyle(null).setCssText("font:var(--foo, 11pt 'Sans Serif')");
+		listpara.getOverrideStyle(null).setCssText("font:var(--foo, 11pt) 'Sans Serif'");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(8.5f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
@@ -1254,7 +1254,7 @@ public class ComputedCSSStyleTest {
 		 * font shorthand custom property circular dependency, fallback used.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font:var(--foo,9pt);--foo:var(--foo)");
+		elm.getOverrideStyle(null).setCssText("font:var(--foo,9pt) Arial;--foo:var(--foo)");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(9f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
@@ -1549,7 +1549,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(0f, box.getMarginLeft(), 0.01f);
 		assertEquals(663.5f, box.getWidth(), 0.01f);
 		//
-		elm.getOverrideStyle(null).setCssText("font: 120%");
+		elm.getOverrideStyle(null).setCssText("font: 120% Arial");
 		style = elm.getComputedStyle(null);
 		assertEquals(16.8f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSUnit.CSS_PT);
@@ -1836,7 +1836,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(10.8f, box.getMarginLeft(), 0.01f);
 		assertEquals(663.9f, box.getWidth(), 0.01f);
 		//
-		elm.getOverrideStyle(null).setCssText("font: var(--foo,1.1rem);margin:var(--bar,0.6rem 0.8rem)");
+		elm.getOverrideStyle(null).setCssText("font: var(--foo,1.1rem) Verdana;margin:var(--bar,0.6rem 0.8rem)");
 		style = elm.getComputedStyle(null);
 		assertEquals(13.2f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSUnit.CSS_PT);
@@ -1866,7 +1866,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(661.5f, box.getWidth(), 0.01f);
 		//
 		elm.getOverrideStyle(null)
-				.setCssText("font: max(110%,var(--foo,1.1rem Helvetica));margin:calc(1em - var(--bar,0.2rem))");
+				.setCssText("font: max(110%,var(--foo,1.1rem)) Helvetica;margin:calc(1em - var(--bar,0.2rem))");
 		style = elm.getComputedStyle(null);
 		assertEquals(15.4f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSUnit.CSS_PT);
@@ -2186,13 +2186,13 @@ public class ComputedCSSStyleTest {
 		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
 		BoxValues box = style.getBoxValues(CSSUnit.CSS_PT);
 		assertEquals(19.5f, box.getPaddingLeft(), 0.01f);
-		elm.getOverrideStyle(null).setCssText("font: 120%");
+		elm.getOverrideStyle(null).setCssText("font: 120% Arial");
 		style = elm.getComputedStyle(null);
 		assertEquals(
-				"display: block; margin-top: 14.4pt; margin-bottom: 14.4pt; unicode-bidi: embed; margin-right: 1%; font-family: initial; padding-left: calc(10% - 36pt - 12pt); font-size: 14.4pt; font-style: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
+				"display: block; margin-top: 14.4pt; margin-bottom: 14.4pt; unicode-bidi: embed; margin-right: 1%; font-family: Arial; padding-left: calc(10% - 36pt - 12pt); font-size: 14.4pt; font-style: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-variant-caps: normal; font-size-adjust: none; font-kerning: auto; font-variant-ligatures: normal; font-variant-position: normal; font-variant-numeric: normal; font-variant-alternates: normal; font-variant-east-asian: normal; ",
 				style.getCssText());
 		assertEquals(
-				"display:block;margin-bottom:14.4pt;margin-right:1%;margin-top:14.4pt;unicode-bidi:embed;font:14.4pt;padding-left:calc(10% - 36pt - 12pt);",
+				"display:block;margin-bottom:14.4pt;margin-right:1%;margin-top:14.4pt;unicode-bidi:embed;font:14.4pt Arial;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
 		assertEquals("calc(10% - 36pt - 12pt)", style.getPropertyValue("padding-left"));
 		//
