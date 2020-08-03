@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -22,19 +23,18 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.nsac.CSSException;
-import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class ContribSheetTest {
 
-	private static Parser cssParser;
+	private CSSOMParser cssParser;
 
-	@BeforeClass
-	public static void setUpBeforeClass() {
+	@Before
+	public void setUp() {
 		cssParser = new CSSOMParser();
 	}
 
@@ -164,6 +164,23 @@ public class ContribSheetTest {
 			AbstractCSSRule rule = rules.item(i);
 			AbstractCSSRule reparsedrule = reparsedrules.item(i);
 			assertTrue(rule.equals(reparsedrule));
+		}
+	}
+
+	@Test
+	public void testParseMetroUICSSResourceLimit() throws CSSException, IOException {
+		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
+		factory.setLenientSystemValues(false);
+		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
+		cssParser.setStreamSizeLimit(0x50000);
+		Reader re = DOMCSSStyleSheetFactoryTest.loadMetroReader();
+		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_IGNORE));
+		try {
+			cssParser.parseStyleSheet(re);
+			fail("Must throw exception.");
+		} catch (SecurityException e) {
+		} finally {
+			re.close();
 		}
 	}
 

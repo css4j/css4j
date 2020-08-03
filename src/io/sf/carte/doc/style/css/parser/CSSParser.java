@@ -73,7 +73,12 @@ import io.sf.carte.uparser.TokenProducer;
 /**
  * CSS parser implementing the NSAC API.
  * <p>
- * Additionally to NSAC, it includes a few other methods.
+ * Additionally to NSAC, it includes several other methods.
+ * </p>
+ * <p>
+ * By default, the methods that take a {@link Reader} as argument can process
+ * streams up to 0x6000000 (100MB) in size, and throw a
+ * {@link SecurityException} if they hit that limit.
  * </p>
  */
 public class CSSParser implements Parser {
@@ -82,6 +87,8 @@ public class CSSParser implements Parser {
 	private CSSErrorHandler errorHandler;
 
 	private final EnumSet<Flag> parserFlags;
+
+	private int streamSizeLimit = 0x6000000;
 
 	/**
 	 * Instantiate a parser instance with no flags.
@@ -135,6 +142,19 @@ public class CSSParser implements Parser {
 		parserFlags.remove(flag);
 	}
 
+	/**
+	 * Set a new limit for the stream size that can be processed.
+	 * <p>
+	 * Calling this method does not affect the parsing that was already ongoing.
+	 * </p>
+	 * 
+	 * @param streamSizeLimit the new limit to be enforced by new processing by this
+	 *                        parser.
+	 */
+	public void setStreamSizeLimit(int streamSizeLimit) {
+		this.streamSizeLimit = streamSizeLimit;
+	}
+
 	@Override
 	public void parseStyleSheet(Reader reader) throws CSSParseException, IOException {
 		final int[] allowInWords = { 45, 95 }; // -_
@@ -147,7 +167,7 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		SheetTokenHandler handler = new SheetTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
 		tp.parseMultiComment(reader, opening, closing);
@@ -168,7 +188,7 @@ public class CSSParser implements Parser {
 		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
 		SheetTokenHandler handler = new SheetTokenHandler(null);
 		int[] allowInWords = { 45, 95 }; // -_
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
 		try {
@@ -210,7 +230,7 @@ public class CSSParser implements Parser {
 		final String[] opening = {"/*", "<!--"};
 		final String[] closing = {"*/", "-->"};
 		SheetTokenHandler handler = new SheetTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
 		tp.parseMultiComment(re, opening, closing);
@@ -226,7 +246,7 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
@@ -237,7 +257,7 @@ public class CSSParser implements Parser {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		Reader reader = getReaderFromSource(source);
 		if (reader == null) {
 			throw new IllegalArgumentException("Null character stream");
@@ -292,7 +312,7 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
@@ -363,7 +383,7 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
@@ -378,7 +398,7 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(nsmap);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
@@ -389,7 +409,7 @@ public class CSSParser implements Parser {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		Reader re = getReaderFromSource(source);
 		if (re == null) {
 			throw new IllegalArgumentException("Null character stream");
@@ -1715,7 +1735,7 @@ public class CSSParser implements Parser {
 	public SelectorList parseSelectors(Reader reader) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		SelectorTokenHandler handler = new SelectorTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
 		return handler.getSelectorList();
 	}
@@ -1736,7 +1756,7 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		SelectorTokenHandler handler = new SelectorTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(re, "/*", "*/");
 		return handler.getSelectorList();
 	}
@@ -1793,7 +1813,7 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		PropertyTokenHandler handler = new PropertyTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
@@ -1802,7 +1822,7 @@ public class CSSParser implements Parser {
 			throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		PropertyTokenHandler handler = new PropertyTokenHandler(currentLine, prevLineLength);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
@@ -1810,7 +1830,7 @@ public class CSSParser implements Parser {
 	public LexicalUnit parsePropertyValue(String propertyName, Reader reader) throws CSSException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		PropertyTokenHandler handler = new PropertyTokenHandler(propertyName);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
@@ -1822,7 +1842,7 @@ public class CSSParser implements Parser {
 			throw new IllegalArgumentException("Null character stream");
 		}
 		PropertyTokenHandler handler = new PropertyTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(re, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
