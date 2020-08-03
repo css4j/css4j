@@ -35,6 +35,8 @@ public class EntityFinder {
 
 	private final EntityResolver2 resolver;
 
+	private static final int DTD_SIZE_LIMIT = 0x100000;
+
 	public EntityFinder(EntityResolver2 resolver) {
 		super();
 		this.resolver = resolver;
@@ -53,7 +55,7 @@ public class EntityFinder {
 	public int findEntities(Map<Integer, String> codePoint2Entity, Reader dtdReader) throws IOException {
 		DTDTokenHandler handler = new DTDTokenHandler(codePoint2Entity);
 		int[] allowInWords = { '<', '!' };
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, DTD_SIZE_LIMIT);
 		try {
 			tp.parse(dtdReader, "<!--", "-->");
 		} catch (StopParsingException e) {
