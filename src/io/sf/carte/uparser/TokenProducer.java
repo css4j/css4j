@@ -202,8 +202,21 @@ public class TokenProducer {
 	 *            the token handler.
 	 */
 	public TokenProducer(TokenHandler handler) {
+		this(handler, CHARACTER_PROCESSING_LIMIT_DEFAULT);
+	}
+
+	/**
+	 * Instantiate a <code>TokenProducer</code> object with the given handler and
+	 * processing limit.
+	 * 
+	 * @param handler
+	 *            the token handler.
+	 * @param characterCountLimit
+	 *            the character count limit.
+	 */
+	public TokenProducer(TokenHandler handler, int characterCountLimit) {
 		super();
-		this.characterIndexLimit = CHARACTER_PROCESSING_LIMIT_DEFAULT;
+		this.characterIndexLimit = characterCountLimit;
 		this.handler = handler;
 		this.charCheck = new DisallowCharacterCheck();
 	}
