@@ -13,6 +13,7 @@ package io.sf.carte.uparser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +88,54 @@ public class TokenProducerTest {
 		assertEquals("list-item", handler.words.get(4));
 		assertEquals("(:)(:)-", handler.punctbuffer.toString());
 		assertEquals(46, handler.lastCharacterIndex);
+	}
+
+	@Test
+	public void testParseReaderSizeLimit() throws IOException {
+		int[] allowInWords = { 33, 60 }; // <!
+		MyTokenHandler handler = new MyTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords, 20);
+		try {
+			tp.parse(new StringReader("(display: table-cell) and (display: list-item)"), "<!--", "-->");
+			fail("Must throw exception.");
+		} catch (SecurityException e) {
+		}
+	}
+
+	@Test
+	public void testParseReaderSizeLimitSingleWord() throws IOException {
+		int[] allowInWords = { 33, 60 }; // <!
+		MyTokenHandler handler = new MyTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords, 20);
+		try {
+			tp.parse(new StringReader("aaaaaaaaaaaaaaaaaaaaaaaaaaa"), "<!--", "-->");
+			fail("Must throw exception.");
+		} catch (SecurityException e) {
+		}
+	}
+
+	@Test
+	public void testParseReaderSizeLimitComment() throws IOException {
+		int[] allowInWords = { 33, 60 }; // <!
+		MyTokenHandler handler = new MyTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords, 20);
+		try {
+			tp.parse(new StringReader("<!ELEMENT> <!-- comment -->"), "<!--", "-->");
+			fail("Must throw exception.");
+		} catch (SecurityException e) {
+		}
+	}
+
+	@Test
+	public void testParseReaderSizeLimitQuoted() throws IOException {
+		int[] allowInWords = { 33, 60 }; // <!
+		MyTokenHandler handler = new MyTokenHandler();
+		TokenProducer tp = new TokenProducer(handler, allowInWords, 20);
+		try {
+			tp.parse(new StringReader("content: 'foo                  bar'"), "<!--", "-->");
+			fail("Must throw exception.");
+		} catch (SecurityException e) {
+		}
 	}
 
 	@Test
