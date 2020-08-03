@@ -38,6 +38,8 @@ public class ContentModel {
 
 	private final Set<String> emptyElements;
 
+	private static final int DTD_SIZE_LIMIT = 0x100000;
+
 	private ContentModel(Set<String> emptyElements) {
 		super();
 		this.emptyElements = emptyElements;
@@ -95,7 +97,7 @@ public class ContentModel {
 		Set<String> emptyelmSet = new HashSet<String>(32);
 		DTDTokenHandler handler = new DTDTokenHandler(emptyelmSet);
 		int[] allowInWords = { '<', '!' };
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		TokenProducer tp = new TokenProducer(handler, allowInWords, DTD_SIZE_LIMIT);
 		tp.parse(reader, "<!--", "-->");
 		return emptyelmSet;
 	}
