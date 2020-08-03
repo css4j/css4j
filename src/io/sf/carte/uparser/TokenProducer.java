@@ -173,14 +173,19 @@ public class TokenProducer {
 	 */
 	public static final int CHAR_TILDE = 126;
 
+	private static final int CHARACTER_PROCESSING_LIMIT_DEFAULT = 0x40000000;
+
 	private final TokenHandler handler;
 	private final CharacterCheck charCheck;
 	private boolean handleAllSeparators = true;
 	private boolean acceptNewlineEndingQuote = false;
 	private boolean acceptEofEndingQuoted = false;
 
+	private final int characterIndexLimit;
+
 	public TokenProducer(TokenHandler handler) {
 		super();
+		this.characterIndexLimit = CHARACTER_PROCESSING_LIMIT_DEFAULT;
 		this.handler = handler;
 		this.charCheck = new DisallowCharacterCheck();
 	}
@@ -195,15 +200,47 @@ public class TokenProducer {
 	 *            the character checker object.
 	 */
 	public TokenProducer(TokenHandler handler, CharacterCheck charCheck) {
+		this(handler, charCheck, CHARACTER_PROCESSING_LIMIT_DEFAULT);
+	}
+
+	/**
+	 * Instantiate a <code>TokenProducer</code> object with the given handler and
+	 * <code>CharacterCheck</code>.
+	 * 
+	 * @param handler
+	 *            the token handler.
+	 * @param charCheck
+	 *            the character checker object.
+	 * @param characterCountLimit
+	 *            the character count limit.
+	 */
+	public TokenProducer(TokenHandler handler, CharacterCheck charCheck, int characterCountLimit) {
 		super();
 		this.handler = handler;
 		this.charCheck = charCheck;
+		this.characterIndexLimit = characterCountLimit;
 	}
 
 	public TokenProducer(TokenHandler handler, int[] allowInWords) {
+		this(handler, allowInWords, CHARACTER_PROCESSING_LIMIT_DEFAULT);
+	}
+
+	/**
+	 * Construct a <code>TokenProducer</code> object with the given handler and
+	 * an array of codepoints allowed in words.
+	 * 
+	 * @param handler
+	 *            the token handler.
+	 * @param allowInWords
+	 *            the array of codepoints allowed in words.
+	 * @param characterCountLimit
+	 *            the character count limit.
+	 */
+	public TokenProducer(TokenHandler handler, int[] allowInWords, int characterCountLimit) {
 		super();
 		this.handler = handler;
 		charCheck = new WhitelistCharacterCheck(allowInWords);
+		this.characterIndexLimit = characterCountLimit;
 	}
 
 	/**
@@ -388,6 +425,8 @@ public class TokenProducer {
 		 * @throws IOException
 		 */
 		int processCodePoint(int cp, boolean nocomment) throws IOException {
+			// Check resource usage
+			checkResourceUsage();
 			// Verify if matches comment delimiters
 			if (!nocomment) {
 				int result = commentManager.verifyComment(cp);
@@ -504,6 +543,9 @@ public class TokenProducer {
 				updatePrev(cp);
 			}
 			return 1;
+		}
+
+		protected void checkResourceUsage() {
 		}
 
 		private void updatePrev(int cp) {
@@ -1260,6 +1302,13 @@ public class TokenProducer {
 		}
 
 		@Override
+		protected void checkResourceUsage() {
+			if (rootIndex > characterIndexLimit) {
+				throw new SecurityException("Exceeded maximum allowed stream size: " + characterIndexLimit);
+			}
+		}
+
+		@Override
 		public CharSequence currentSequence() {
 			return buffer;
 		}
@@ -1288,6 +1337,9 @@ public class TokenProducer {
 			int idx = rootIndex, prevcp = -1;
 			int ncp;
 			while ((ncp = nextCodepoint()) != -1) {
+				// Check resource usage
+				checkResourceUsage();
+				//
 				if (ncp == qcp) {
 					// Quote character found
 					if (prevcp != 92) {
@@ -1504,6 +1556,9 @@ public class TokenProducer {
 				int endIndex = 0;
 				int ncp;
 				while ((ncp = nextCodepoint()) != -1) {
+					// Check resource usage
+					checkResourceUsage();
+					// CR/LF/FF check
 					if (ncp == 10 || ncp == 12 || ncp == 13) {
 						if (ncp != 10 || !lastCp13) {
 							handler.control(rootIndex - 1, ncp);
@@ -1663,6 +1718,9 @@ public class TokenProducer {
 				int endIndex = 0;
 				int ncp;
 				while ((ncp = nextCodepoint()) != -1) {
+					// Check resource usage
+					checkResourceUsage();
+					// CR/LF/FF check
 					if (ncp == 10 || ncp == 12 || ncp == 13) {
 						if (ncp != 10 || !lastCp13) {
 							handler.control(rootIndex - 1, ncp);
