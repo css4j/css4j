@@ -514,8 +514,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	}
 
 	private boolean matchesArgument(ArgumentCondition cond, SimpleSelector simple) {
-		String name = ((ArgumentCondition) cond).getName();
-		SelectorList selist = ((ArgumentCondition) cond).getSelectors();
+		String name = cond.getName();
+		SelectorList selist = cond.getSelectors();
 		if ("not".equals(name)) {
 			for (int i = 0; i < selist.getLength(); i++) {
 				if (matches(selist.item(i))) {
