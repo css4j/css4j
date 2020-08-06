@@ -76,9 +76,10 @@ import io.sf.carte.uparser.TokenProducer;
  * Additionally to NSAC, it includes several other methods.
  * </p>
  * <p>
- * By default, the methods that take a {@link Reader} as argument can process
- * streams up to 0x6000000 (100MB) in size, and throw a
- * {@link SecurityException} if they hit that limit.
+ * By default, the methods that take a {@link Reader} or an {@link InputSource}
+ * as argument can process streams up to {@code 0x6000000} (100MB) in size, and
+ * throw a {@link SecurityException} if they hit that limit. See also
+ * {@link #setStreamSizeLimit(int)}.
  * </p>
  */
 public class CSSParser implements Parser {
@@ -150,8 +151,12 @@ public class CSSParser implements Parser {
 	 * 
 	 * @param streamSizeLimit the new limit to be enforced by new processing by this
 	 *                        parser.
+	 * @throws IllegalArgumentException if a limit below 64K was used.
 	 */
 	public void setStreamSizeLimit(int streamSizeLimit) {
+		if (streamSizeLimit < 65536) {
+			throw new IllegalArgumentException("Limit too low.");
+		}
 		this.streamSizeLimit = streamSizeLimit;
 	}
 
