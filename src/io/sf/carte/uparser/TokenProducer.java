@@ -420,6 +420,13 @@ public class TokenProducer {
 		boolean isPreviousCpWCharacter();
 
 		/**
+		 * Get the {@link TokenControl} for this parsing.
+		 * 
+		 * @return the {@code TokenControl}.
+		 */
+		TokenControl getTokenControl();
+
+		/**
 		 * Empty the current sequence.
 		 */
 		void resetCurrentSequence();
@@ -647,6 +654,11 @@ public class TokenProducer {
 
 		public void parse() throws IOException {
 			this.commentManager.parse();
+		}
+
+		@Override
+		public TokenControl getTokenControl() {
+			return this.commentManager;
 		}
 
 		abstract class CommentManager implements TokenControl {
