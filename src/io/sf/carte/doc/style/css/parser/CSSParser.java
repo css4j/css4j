@@ -149,8 +149,12 @@ public class CSSParser implements Parser2 {
 	 * 
 	 * @param streamSizeLimit the new limit to be enforced by new processing by this
 	 *                        parser.
+	 * @throws IllegalArgumentException if a limit below 64K was used.
 	 */
 	public void setStreamSizeLimit(int streamSizeLimit) {
+		if (streamSizeLimit < 65536) {
+			throw new IllegalArgumentException("Limit too low.");
+		}
 		this.streamSizeLimit = streamSizeLimit;
 	}
 
