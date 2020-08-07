@@ -268,7 +268,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			} else if (value.getCssValueType() == CssType.TYPED) {
 				CSSTypedValue primi = (CSSTypedValue) value;
 				return primi.getPrimitiveType() != CSSValue.Type.FUNCTION ||
-						"repeat".equalsIgnoreCase(primi.getStringValue());
+						!"repeat".equalsIgnoreCase(primi.getStringValue());
 			}
 			return true;
 		}

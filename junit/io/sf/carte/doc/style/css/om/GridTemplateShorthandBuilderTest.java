@@ -33,6 +33,8 @@ public class GridTemplateShorthandBuilderTest {
 				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:inherit;");
 		assertShorthandText("grid-template-areas:none;grid-template-columns:revert;grid-template-rows:none;",
 				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:revert;");
+		assertShorthandText("grid-column-gap:1.4rem;grid-template:repeat(7,auto)/repeat(2,1fr);grid-template-areas:\"section2 cheatSheet\" \"section3 section3\" \"section4 section4\" \"section5 section5\" \"section6 section6\" \"section7 section7\";",
+				"grid-column-gap: 1.4rem;grid-template-areas: \"section2 cheatSheet\" \"section3 section3\" \"section4 section4\" \"section5 section5\" \"section6 section6\" \"section7 section7\";grid-template-columns: repeat(2,1fr);grid-template-rows: repeat(7,auto);");
 	}
 
 	@Test
