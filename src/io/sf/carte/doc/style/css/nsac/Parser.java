@@ -125,15 +125,18 @@ public interface Parser {
 	 *
 	 * @param source the input source of the CSS sheet.
 	 * 
-	 * @throws CSSParseException     if an error was found and no error handler was
-	 *                               set.
-	 * @throws java.io.IOException   if a I/O error was found while retrieving the
-	 *                               sheet.
-	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
+	 * @throws CSSParseException        if an error was found and no error handler
+	 *                                  was set.
+	 * @throws IOException              if a I/O error was found while retrieving
+	 *                                  the sheet.
+	 * @throws IllegalStateException    if the {@code CSSHandler} is not set.
+	 * @throws IllegalArgumentException if no stream could be obtained from the
+	 *                                  {@code source}.
 	 * @see #setDocumentHandler
 	 * @see #setErrorHandler
 	 */
-	void parseStyleSheet(InputSource source) throws CSSException, IOException, IllegalStateException;
+	void parseStyleSheet(InputSource source)
+			throws CSSParseException, IOException, IllegalStateException, IllegalArgumentException;
 
 	/**
 	 * Parse a CSS style sheet.
@@ -142,7 +145,7 @@ public interface Parser {
 	 * 
 	 * @throws CSSParseException     if an error was found and no error handler was
 	 *                               set.
-	 * @throws java.io.IOException   if a I/O error was found while retrieving the
+	 * @throws IOException           if a I/O error was found while retrieving the
 	 *                               sheet.
 	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
 	 * @see #setDocumentHandler
@@ -164,8 +167,8 @@ public interface Parser {
 	 * @param uri The URI locating the sheet.
 	 * @throws CSSParseException     if an error was found and no error handler was
 	 *                               set.
-	 * @throws java.io.IOException   if a I/O error was found while retrieving the
-	 *                               sheet.
+	 * @throws IOException           if {@code uri} is an invalid URL or a I/O error
+	 *                               was found while retrieving the sheet.
 	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
 	 * @see #setDocumentHandler
 	 * @see #setErrorHandler
@@ -178,24 +181,22 @@ public interface Parser {
 	 * @param reader the character stream containing the selector list.
 	 * 
 	 * @return the selector list.
-	 * @throws CSSParseException   if an error was found and no error handler was
-	 *                             set.
-	 * @throws java.io.IOException if a I/O error was found while retrieving the
-	 *                             list.
+	 * @throws CSSParseException if an error was found and no error handler was set.
+	 * @throws IOException       if a I/O error was found while retrieving the list.
 	 */
 	SelectorList parseSelectors(Reader reader) throws CSSParseException, IOException;
 
 	/**
 	 * Parse a comma separated list of selectors.
 	 * 
-	 * @param reader the character stream containing the selector list.
-	 * @param nsmap  the namespace map to apply to the selector list, if it contains
-	 *               namespace prefixes.
+	 * @param selectorText the {@code String} containing the selector list.
+	 * @param nsmap        the namespace map to apply to the selector list, if it
+	 *                     contains namespace prefixes.
 	 * 
 	 * @return the selector list.
 	 * @throws CSSParseException if an error was found and no error handler was set.
 	 */
-	SelectorList parseSelectors(String selectorText, NamespaceMap nsmap) throws CSSException;
+	SelectorList parseSelectors(String selectorText, NamespaceMap nsmap) throws CSSParseException;
 
 	/**
 	 * Parse a CSS style declaration (without '{' and '}').
@@ -204,7 +205,7 @@ public interface Parser {
 	 * 
 	 * @throws CSSParseException     if an error was found and no error handler was
 	 *                               set.
-	 * @throws java.io.IOException   if a I/O error was found while retrieving the
+	 * @throws IOException           if a I/O error was found while retrieving the
 	 *                               declaration.
 	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
 	 */
@@ -217,12 +218,13 @@ public interface Parser {
 	 * 
 	 * @return the lexical unit containing the value, possibly chained to subsequent
 	 *         lexical units.
-	 * @throws CSSParseException   if an error was found and no error handler was
-	 *                             set.
-	 * @throws java.io.IOException if a I/O error was found while retrieving the
-	 *                             value.
+	 * @throws CSSParseException    if an error was found and no error handler was
+	 *                              set.
+	 * @throws IOException          if a I/O error was found while retrieving the
+	 *                              value.
+	 * @throws NullPointerException if {@code reader} is {@code null}.
 	 */
-	LexicalUnit parsePropertyValue(Reader reader) throws CSSParseException, IOException;
+	LexicalUnit parsePropertyValue(Reader reader) throws CSSParseException, IOException, IllegalArgumentException;
 
 	/**
 	 * Parse a CSS priority value (e.g. "!important").
@@ -230,12 +232,11 @@ public interface Parser {
 	 * @param reader the character stream containing the CSS priority.
 	 * 
 	 * @return {@code true} if the priority is important.
-	 * @throws CSSParseException   if an error was found and no error handler was
-	 *                             set.
-	 * @throws java.io.IOException if a I/O error was found while retrieving the
-	 *                             priority.
+	 * @throws IOException          if a I/O error was found while retrieving the
+	 *                              priority.
+	 * @throws NullPointerException if {@code reader} is {@code null}.
 	 */
-	boolean parsePriority(Reader reader) throws CSSParseException, IOException;
+	boolean parsePriority(Reader reader) throws IOException, NullPointerException;
 
 	/**
 	 * Parse a namespaceless CSS rule.
@@ -244,7 +245,7 @@ public interface Parser {
 	 *
 	 * @throws CSSParseException     if an error was found and no error handler was
 	 *                               set.
-	 * @throws java.io.IOException   if a I/O error was found while retrieving the
+	 * @throws IOException           if a I/O error was found while retrieving the
 	 *                               rule.
 	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
 	 */
@@ -258,7 +259,7 @@ public interface Parser {
 	 *
 	 * @throws CSSParseException     if an error was found and no error handler was
 	 *                               set.
-	 * @throws java.io.IOException   if a I/O error was found while retrieving the
+	 * @throws IOException           if a I/O error was found while retrieving the
 	 *                               rule.
 	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
 	 */
@@ -285,9 +286,10 @@ public interface Parser {
 	 *              the query list.
 	 * 
 	 * @return the media query list.
-	 * @throws CSSException
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
+	 *                            reached.
 	 */
-	MediaQueryList parseMediaQueryList(String media, Node owner) throws CSSException;
+	MediaQueryList parseMediaQueryList(String media, Node owner) throws CSSBudgetException;
 
 	/**
 	 * Parse a media query string into the given handler.
@@ -295,10 +297,10 @@ public interface Parser {
 	 * @param media        the media query text.
 	 * @param queryFactory the query factory.
 	 * @param mqhandler    the media query list handler.
-	 * @throws CSSException <code>CSSException.NOT_SUPPORTED_ERR</code> if a
-	 *                      hard-coded limit in nested expressions was reached.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
+	 *                            reached.
 	 */
 	void parseMediaQueryList(String media, MediaQueryFactory queryFactory, MediaQueryHandler mqhandler)
-			throws CSSException;
+			throws CSSBudgetException;
 
 }

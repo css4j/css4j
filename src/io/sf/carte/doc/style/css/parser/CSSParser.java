@@ -161,15 +161,12 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public void parseStyleSheet(Reader reader) throws CSSParseException, IOException {
+	public void parseStyleSheet(Reader reader) throws CSSParseException, IOException, IllegalStateException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		final String[] opening = {"/*", "<!--"};
 		final String[] closing = {"*/", "-->"};
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
-		}
-		if (reader == null) {
-			throw new IllegalArgumentException("Null character stream");
 		}
 		SheetTokenHandler handler = new SheetTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -179,7 +176,7 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public void parseStyleSheet(String uri) throws CSSParseException, IOException {
+	public void parseStyleSheet(String uri) throws CSSParseException, IOException, IllegalStateException {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
@@ -210,7 +207,11 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public void parseStyleSheet(InputSource source) throws CSSException, IOException {
+	public void parseStyleSheet(InputSource source)
+			throws CSSParseException, IOException, IllegalStateException, IllegalArgumentException {
+		if (source == null) {
+			throw new NullPointerException("Null source.");
+		}
 		Reader re = source.getCharacterStream();
 		if (re == null) {
 			InputStream is = source.getByteStream();
@@ -242,13 +243,10 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public void parseStyleDeclaration(Reader reader) throws CSSParseException, IOException {
+	public void parseStyleDeclaration(Reader reader) throws CSSParseException, IOException, IllegalStateException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
-		}
-		if (reader == null) {
-			throw new IllegalArgumentException("Null character stream");
 		}
 		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -256,7 +254,8 @@ public class CSSParser implements Parser {
 		tp.parse(reader, "/*", "*/");
 	}
 
-	public void parseStyleDeclaration(InputSource source) throws CSSException, IOException {
+	public void parseStyleDeclaration(InputSource source)
+			throws CSSException, IOException, IllegalStateException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
@@ -264,14 +263,14 @@ public class CSSParser implements Parser {
 		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		Reader reader = getReaderFromSource(source);
-		if (reader == null) {
-			throw new IllegalArgumentException("Null character stream");
-		}
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
 
 	private Reader getReaderFromSource(InputSource source) throws IOException {
+		if (source == null) {
+			throw new NullPointerException("Null source.");
+		}
 		Reader re = source.getCharacterStream();
 		if (re == null) {
 			InputStream is = source.getByteStream();
@@ -312,9 +311,6 @@ public class CSSParser implements Parser {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
-		}
-		if (reader == null) {
-			throw new IllegalArgumentException("Null character stream");
 		}
 		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -379,13 +375,10 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public void parseRule(Reader reader) throws CSSParseException, IOException {
+	public void parseRule(Reader reader) throws CSSParseException, IOException, IllegalStateException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
-		}
-		if (reader == null) {
-			throw new IllegalArgumentException("Null character stream");
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -394,13 +387,11 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public void parseRule(Reader reader, NamespaceMap nsmap) throws CSSParseException, IOException {
+	public void parseRule(Reader reader, NamespaceMap nsmap)
+			throws CSSParseException, IOException, IllegalStateException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
-		}
-		if (reader == null) {
-			throw new IllegalArgumentException("Null character stream");
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(nsmap);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -408,7 +399,7 @@ public class CSSParser implements Parser {
 		tp.parse(reader, "/*", "*/");
 	}
 
-	public void parseRule(InputSource source) throws CSSException, IOException {
+	public void parseRule(InputSource source) throws CSSParseException, IOException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
@@ -416,9 +407,6 @@ public class CSSParser implements Parser {
 		RuleTokenHandler handler = new RuleTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		Reader re = getReaderFromSource(source);
-		if (re == null) {
-			throw new IllegalArgumentException("Null character stream");
-		}
 		this.handler.parseStart(handler);
 		tp.parse(re, "/*", "*/");
 	}
@@ -439,7 +427,7 @@ public class CSSParser implements Parser {
 		tp.parse(blockList, "/*", "*/");
 	}
 
-	public void parseFontFeatureValuesBody(String blockList) {
+	public void parseFontFeatureValuesBody(String blockList) throws CSSParseException {
 		int[] allowInWords = { 45, 95 }; // -_
 		FontFeatureValuesTH handler = new FontFeatureValuesTH();
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
@@ -459,13 +447,12 @@ public class CSSParser implements Parser {
 	 *            being processed by the rule.
 	 * @return the <code>{@literal @}supports</code> condition, or <code>null</code> if a rule
 	 *         was specified to handle the errors, and an error was produced.
-	 * @throws CSSException
-	 *             if there is a syntax problem and there is no error handler, or
-	 *             <code>CSSException.NOT_SUPPORTED_ERR</code> if a hard-coded limit in
-	 *             nested expressions was reached.
+	 * @throws CSSParseException
+	 *             if there is a syntax problem and there is no error handler.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
 	 */
 	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule)
-			throws CSSException {
+			throws CSSParseException, CSSBudgetException {
 		int[] allowInWords = { 45, 46 }; // -.
 		SupportsTokenHandler handler = new SupportsTokenHandler(rule);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
@@ -490,12 +477,11 @@ public class CSSParser implements Parser {
 	 *            the query factory.
 	 * @param mqhandler
 	 *            the media query list handler.
-	 * @throws CSSException <code>CSSException.NOT_SUPPORTED_ERR</code> if a
-	 *                      hard-coded limit in nested expressions was reached.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
 	 */
 	@Override
 	public void parseMediaQueryList(String media, MediaQueryFactory queryFactory, MediaQueryHandler mqhandler)
-			throws CSSException {
+			throws CSSBudgetException {
 		int[] allowInWords = { 45, 46 }; // -.
 		ConditionTokenHandler handler = new MediaQueryTokenHandler(queryFactory, mqhandler);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
@@ -503,6 +489,10 @@ public class CSSParser implements Parser {
 		try {
 			tp.parse(media, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
+			CSSParseException ex = handler.createException(0, ParseHelper.ERR_UNSUPPORTED,
+					"Nested queries exceed limit.");
+			ex.initCause(e);
+			mqhandler.invalidQuery(ex);
 			throw new CSSBudgetException("Nested queries exceed limit", e);
 		}
 		mqhandler.endQueryList();
@@ -516,11 +506,10 @@ public class CSSParser implements Parser {
 	 * @param owner
 	 *            the node that owns the responsibility to handle the errors in
 	 *            the query list.
-	 * @throws CSSException <code>CSSException.NOT_SUPPORTED_ERR</code> if a
-	 *                      hard-coded limit in nested expressions was reached.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
 	 */
 	@Override
-	public MediaQueryList parseMediaQueryList(String media, Node owner) throws CSSException {
+	public MediaQueryList parseMediaQueryList(String media, Node owner) throws CSSBudgetException {
 		int[] allowInWords = { 45, 46 }; // -.
 		MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
 		MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(owner);
@@ -530,6 +519,10 @@ public class CSSParser implements Parser {
 		try {
 			tp.parse(media, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
+			CSSParseException ex = handler.createException(0, ParseHelper.ERR_UNSUPPORTED,
+					"Nested queries exceed limit.");
+			ex.initCause(e);
+			mqhandler.invalidQuery(ex);
 			throw new CSSBudgetException("Nested queries exceed limit", e);
 		}
 		mqhandler.endQueryList();
@@ -540,7 +533,7 @@ public class CSSParser implements Parser {
 		return new NSACMediaQueryFactory();
 	}
 
-	private MediaQueryList parseMediaQueryList(String media) throws CSSException {
+	private MediaQueryList parseMediaQueryList(String media) {
 		int[] allowInWords = { 45, 46 }; // -.
 		MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
 		MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
@@ -1737,7 +1730,7 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public SelectorList parseSelectors(Reader reader) throws CSSException, IOException {
+	public SelectorList parseSelectors(Reader reader) throws CSSParseException, CSSBudgetException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		SelectorTokenHandler handler = new SelectorTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -1746,7 +1739,8 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public SelectorList parseSelectors(String selectorText, NamespaceMap nsmap) throws CSSException {
+	public SelectorList parseSelectors(String selectorText, NamespaceMap nsmap)
+			throws CSSParseException {
 		int[] allowInWords = { 45, 95 }; // -_
 		SelectorTokenHandler handler = new SelectorTokenHandler(nsmap);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
@@ -1754,12 +1748,9 @@ public class CSSParser implements Parser {
 		return handler.getSelectorList();
 	}
 
-	public SelectorList parseSelectors(InputSource source) throws CSSException, IOException {
+	public SelectorList parseSelectors(InputSource source) throws CSSParseException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		Reader re = getReaderFromSource(source);
-		if (re == null) {
-			throw new IllegalArgumentException("Null character stream");
-		}
 		SelectorTokenHandler handler = new SelectorTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(re, "/*", "*/");
@@ -1774,7 +1765,7 @@ public class CSSParser implements Parser {
 		return handler.getSelectorList();
 	}
 
-	private SelectorList parseSelectors(String seltext, NSACSelectorFactory factory) throws CSSException {
+	private SelectorList parseSelectors(String seltext, NSACSelectorFactory factory) throws CSSParseException {
 		int[] allowInWords = { 45, 95 }; // -_
 		SelectorTokenHandler handler = new SelectorTokenHandler(factory);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
@@ -1782,7 +1773,7 @@ public class CSSParser implements Parser {
 		return handler.getSelectorList();
 	}
 
-	private SelectorList parseSelectorArgument(String seltext, NSACSelectorFactory factory) throws CSSException {
+	private SelectorList parseSelectorArgument(String seltext, NSACSelectorFactory factory) throws CSSParseException {
 		int[] allowInWords = { 45, 95 }; // -_
 		SelectorTokenHandler handler = new SelectorArgumentTokenHandler(factory);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
@@ -1812,11 +1803,9 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public LexicalUnit parsePropertyValue(Reader reader) throws CSSException, IOException {
+	public LexicalUnit parsePropertyValue(Reader reader)
+			throws CSSParseException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
-		if (reader == null) {
-			throw new IllegalArgumentException("Null character stream");
-		}
 		PropertyTokenHandler handler = new PropertyTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
@@ -1824,7 +1813,7 @@ public class CSSParser implements Parser {
 	}
 
 	private LexicalUnit parsePropertyValue(Reader reader, int currentLine, int prevLineLength)
-			throws CSSException, IOException {
+			throws CSSParseException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		PropertyTokenHandler handler = new PropertyTokenHandler(currentLine, prevLineLength);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -1832,7 +1821,7 @@ public class CSSParser implements Parser {
 		return handler.getLexicalUnit();
 	}
 
-	public LexicalUnit parsePropertyValue(String propertyName, Reader reader) throws CSSException, IOException {
+	public LexicalUnit parsePropertyValue(String propertyName, Reader reader) throws CSSParseException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		PropertyTokenHandler handler = new PropertyTokenHandler(propertyName);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -1840,12 +1829,9 @@ public class CSSParser implements Parser {
 		return handler.getLexicalUnit();
 	}
 
-	public LexicalUnit parsePropertyValue(InputSource source) throws CSSException, IOException {
+	public LexicalUnit parsePropertyValue(InputSource source) throws CSSParseException, IOException {
 		int[] allowInWords = { 45, 95 }; // -_
 		Reader re = getReaderFromSource(source);
-		if (re == null) {
-			throw new IllegalArgumentException("Null character stream");
-		}
 		PropertyTokenHandler handler = new PropertyTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(re, "/*", "*/");
@@ -1853,9 +1839,9 @@ public class CSSParser implements Parser {
 	}
 
 	@Override
-	public boolean parsePriority(Reader reader) throws CSSException, IOException {
+	public boolean parsePriority(Reader reader) throws IOException {
 		if (reader == null) {
-			throw new IllegalArgumentException("Null character stream");
+			throw new NullPointerException("Null character stream");
 		}
 		int cp = reader.read();
 		if (cp != -1) {
