@@ -328,6 +328,9 @@ public class TokenProducer {
 	}
 
 	public void parse(String string) {
+		if (string == null) {
+			throw new NullPointerException("Null argument");
+		}
 		StringParser sp = new StringParser(string);
 		try {
 			sp.parse();
@@ -336,6 +339,9 @@ public class TokenProducer {
 	}
 
 	public void parse(String string, String commentOpen, String commentClose) {
+		if (string == null) {
+			throw new NullPointerException("Null argument");
+		}
 		StringParser sp = new StringParser(string, commentOpen, commentClose);
 		try {
 			sp.parse();
@@ -344,11 +350,17 @@ public class TokenProducer {
 	}
 
 	public void parse(Reader reader) throws IOException {
+		if (reader == null) {
+			throw new NullPointerException("Null character stream");
+		}
 		ReaderParser sp = new ReaderParser(reader);
 		sp.parse();
 	}
 
 	public void parse(Reader reader, int bufferCapacity) throws IOException {
+		if (reader == null) {
+			throw new NullPointerException("Null character stream");
+		}
 		ReaderParser sp = new ReaderParser(reader, bufferCapacity);
 		sp.parse();
 	}
@@ -368,6 +380,9 @@ public class TokenProducer {
 	 *             if an I/O problem was found parsing the reader.
 	 */
 	public void parse(Reader reader, String commentOpen, String commentClose) throws IOException {
+		if (reader == null) {
+			throw new NullPointerException("Null character stream");
+		}
 		ReaderParser sp = new ReaderParser(reader, commentOpen, commentClose);
 		sp.parse();
 	}
@@ -388,6 +403,9 @@ public class TokenProducer {
 	 *             if an I/O problem was found parsing the reader.
 	 */
 	public void parseMultiComment(Reader reader, String[] opening, String[] closing) throws IOException {
+		if (reader == null) {
+			throw new NullPointerException("Null character stream");
+		}
 		ReaderMultiCommentParser sp = new ReaderMultiCommentParser(reader, opening, closing);
 		sp.parse();
 	}
