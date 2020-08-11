@@ -103,7 +103,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		if (ignoreImpliedAttributes) {
 			handler = new MyContentHandler();
 		} else {
-			handler = new MyContentHandlerImpliedAttr();
+			handler = new MyContentHandlerNotspecifiedAttr();
 		}
 		xmlReader.setContentHandler(handler);
 		xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
@@ -571,7 +571,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	}
 
-	private class MyContentHandlerImpliedAttr extends MyContentHandler {
+	private class MyContentHandlerNotspecifiedAttr extends MyContentHandler {
 
 		@Override
 		void setAttributes(Element element, Attributes atts) throws SAXException {
