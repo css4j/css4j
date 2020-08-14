@@ -73,6 +73,7 @@
 					<link>https://www.w3.org/2003/01/dom2-javadoc/</link>
 					<link>http://www.slf4j.org/apidocs/</link>
 				</links>
+				<excludePackageNames>io.sf.carte.uparser</excludePackageNames>
 			</configuration>
 		</plugin>
 		<plugin>
