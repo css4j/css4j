@@ -78,6 +78,7 @@
 					<link>https://www.w3.org/Style/CSS/SAC/doc/</link>
 					<link>http://www.slf4j.org/apidocs/</link>
 				</links>
+				<excludePackageNames>io.sf.carte.uparser</excludePackageNames>
 			</configuration>
 		</plugin>
 		<plugin>
