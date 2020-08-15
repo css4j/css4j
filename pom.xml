@@ -44,9 +44,9 @@
 	</dependency>
 	<!-- https://mvnrepository.com/artifact/nu.validator.htmlparser/htmlparser -->
 	<dependency>
-		<groupId>nu.validator.htmlparser</groupId>
+		<groupId>nu.validator</groupId>
 		<artifactId>htmlparser</artifactId>
-		<version>1.4</version>
+		<version>1.4.16</version>
 		<scope>test</scope>
 		<optional>false</optional>
 	</dependency>
