@@ -1,14 +1,14 @@
 /**
  * NSAC: a non-standard revision to
  * <a href="https://www.w3.org/Style/CSS/SAC/">W3C's SAC api</a>.
- * <h2>NSAC 2.0</h2>
+ * <h2>NSAC 2</h2>
  * <p>
  * NSAC 1.0 was intended to be an easy upgrade path for SAC users, and it
  * preserved most of SAC. That 1.0 API was not convenient for modern CSS,
- * however, so NSAC 2.0 was written as a better replacement.
+ * however, so NSAC 2 was written as a better replacement.
  * </p>
  * <p>
- * The SAC jar file is no longer necessary, as NSAC 2.0 contains all the
+ * The SAC jar file is no longer necessary, as NSAC 2 contains all the
  * required classes and interfaces.
  * </p>
  * <h3>Selector Serialization</h3>
