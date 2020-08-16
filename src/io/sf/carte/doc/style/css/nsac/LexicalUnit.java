@@ -247,8 +247,7 @@ public interface LexicalUnit {
 		FUNCTION,
 
 		/**
-		 * sub expressions <code>(a)</code> <code>(a + b)</code>
-		 * <code>(normal/none)</code>
+		 * Sub-expressions <code>(a)</code> <code>(a + b)</code>
 		 * 
 		 * @see #getSubValues
 		 */
