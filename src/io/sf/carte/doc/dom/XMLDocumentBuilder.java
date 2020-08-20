@@ -12,6 +12,7 @@
 package io.sf.carte.doc.dom;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -62,6 +63,20 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	private boolean ignoreElementContentWhitespace = false;
 
 	private boolean ignoreNotSpecifiedAttributes = true;
+
+	private static final HashSet<String> headChildList;
+
+	static {
+		headChildList = new HashSet<>(8);
+		headChildList.add("base");
+		headChildList.add("link");
+		headChildList.add("meta");
+		headChildList.add("noscript");
+		headChildList.add("script");
+		headChildList.add("style");
+		headChildList.add("template");
+		headChildList.add("title");
+	}
 
 	public XMLDocumentBuilder(DOMImplementation domImpl) {
 		this(domImpl, SAXParserFactory.newInstance());
@@ -285,6 +300,10 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 		private boolean endDTD = true;
 
+		private boolean headPending = true, bodyPending = true;
+
+		private boolean headImplicit = false, bodyImplicit = false;
+
 		private final boolean ignoreECW;
 
 		final boolean isNativeDOM;
@@ -327,8 +346,9 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			Element element;
 			if (document == null) {
 				// This is the first element in the document. Are we in XHTML?
-				if (!"html".equals(localName) && (HTMLDocument.HTML_NAMESPACE_URI.equals(uri)
-						|| (documentType != null && "html".equalsIgnoreCase(documentType.getName())))) {
+				final boolean isXHTML = (HTMLDocument.HTML_NAMESPACE_URI.equals(uri)
+						|| (documentType != null && "html".equalsIgnoreCase(documentType.getName())));
+				if (!"html".equals(localName) && isXHTML) {
 					// Document is HTML but first element is not <html>:
 					String deQname = "html";
 					if (!qName.equalsIgnoreCase(localName)) {
@@ -340,22 +360,77 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 						}
 					}
 					document = createDocument(uri, deQname, documentType);
-					element = document.createElementNS(uri, qName);
-					setAttributes(element, atts);
-					currentNode = document.getDocumentElement().appendChild(element);
+					currentNode = document.getDocumentElement();
+					newElement(uri, localName, qName, atts);
 				} else {
 					document = createDocument(uri, qName, documentType);
 					element = document.getDocumentElement();
 					currentNode = element;
 					setAttributes(element, atts);
+					if (!isXHTML) {
+						headPending = false;
+						bodyPending = false;
+					}
 				}
 				insertPreDocElementNodes();
 			} else {
-				element = document.createElementNS(uri, qName);
-				setAttributes(element, atts);
-				appendChild(element);
-				currentNode = element;
+				newElement(uri, localName, qName, atts);
 			}
+		}
+
+		private void newElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+			Element element = document.createElementNS(uri, qName);
+			setAttributes(element, atts);
+			// Check for implicit HEAD element
+			if (headPending && currentNode.getParentNode() == document) {
+				if ("head".equals(qName)) {
+					appendChild(element);
+					headPending = false;
+					currentNode = element;
+					return;
+				} else if (isHeadChild(qName)) {
+					Element head = document.createElementNS(uri, "head");
+					currentNode.appendChild(head);
+					head.appendChild(element);
+					headImplicit = true;
+					headPending = false;
+					currentNode = element;
+					return;
+				}
+			}
+			// Check for implicit BODY element
+			if (bodyPending && (currentNode.getParentNode() == document
+					|| (headImplicit && currentNode.getParentNode().getParentNode() == document))) {
+				if ("body".equals(qName)) {
+					if (headImplicit) {
+						currentNode = currentNode.getParentNode();
+						headImplicit = false;
+					} else {
+						headPending = false;
+					}
+					bodyPending = false;
+				} else if (!isHeadChild(qName)) {
+					if (headImplicit) {
+						currentNode = currentNode.getParentNode();
+						headImplicit = false;
+					} else {
+						headPending = false;
+					}
+					Element body = document.createElementNS(uri, "body");
+					currentNode.appendChild(body);
+					body.appendChild(element);
+					currentNode = element;
+					bodyPending = false;
+					bodyImplicit = true;
+					return;
+				}
+			}
+			appendChild(element);
+			currentNode = element;
+		}
+
+		private boolean isHeadChild(String qName) {
+			return headChildList.contains(qName);
 		}
 
 		void setAttributes(Element element, Attributes atts) throws SAXException {
@@ -415,6 +490,9 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		@Override
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			currentNode = currentNode.getParentNode();
+			if ((bodyImplicit || headImplicit) && "html".equals(currentNode.getNodeName())) {
+				currentNode = currentNode.getParentNode();
+			}
 		}
 
 		@Override
