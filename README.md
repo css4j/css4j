@@ -20,4 +20,4 @@ Or download a zip and extract:
 ```
 After running the script you'll have a tree with all the modules, ready to build with Maven (you can just run `mvn` but remember to set `JAVA_HOME` to JDK12 or higher first, if that is not your default).
 
-Note that one of the dependencies ([JCLF](https://sourceforge.net/projects/jclf/)) [is at MVNRepository](https://mvnrepository.com/artifact/io.sf.jclf/jclf) but not in Maven Central. Depending on your setup, you may need to install it manually first.
+Note that one of the dependencies ([JCLF](https://sourceforge.net/projects/jclf/)) is not in Maven Central. Depending on your setup, you may need to install it manually first.
