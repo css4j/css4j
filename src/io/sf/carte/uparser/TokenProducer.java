@@ -1853,6 +1853,13 @@ public class TokenProducer {
 
 		@Override
 		public boolean isAllowedCharacter(int codePoint, SequenceParser parser) {
+			/*
+			 * In general, it would be more efficient to test for:
+			 * 
+			 *   Arrays.binarySearch(allowInWords, codePoint) >= 0
+			 * 
+			 * but the typical use cases for this class involve an array of length two.
+			 */
 			for (int i = 0; i < allowInWords.length; i++) {
 				if (codePoint == allowInWords[i]) {
 					return true;
