@@ -25,7 +25,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
-import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
@@ -151,11 +150,11 @@ abstract class ShorthandBuilder {
 		appendNonImportantProperties(buf);
 	}
 
-	private void appendImportantProperties(StringBuilder buf) {
+	void appendImportantProperties(StringBuilder buf) {
 		int iniLen = buf.length();
 		for (String property : impPtySet) {
 			StyleValue value = getCSSValue(property);
-			if (value.getPrimitiveType() != CSSValue.Type.INTERNAL) {
+			if (value.getPrimitiveType() != Type.INTERNAL) {
 				buf.append(property).append(':');
 				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, value, property);
 				buf.append("!important;");
@@ -172,7 +171,7 @@ abstract class ShorthandBuilder {
 		HashSet<String> nonPendingSet = new HashSet<String>(impPtySet.size() - 1);
 		for (String property : impPtySet) {
 			StyleValue value = getCSSValue(property);
-			if (value.getPrimitiveType() == CSSValue.Type.INTERNAL) {
+			if (value.getPrimitiveType() == Type.INTERNAL) {
 				String shname = ((PendingValue) value).getShorthandName();
 				if (pendingSet.add(shname) && (shname.equals(getShorthandName())
 						|| isResponsibleShorthand(shname))) {
@@ -194,11 +193,11 @@ abstract class ShorthandBuilder {
 		return true;
 	}
 
-	private void appendNonImportantProperties(StringBuilder buf) {
+	void appendNonImportantProperties(StringBuilder buf) {
 		int iniLen = buf.length();
 		for (String property : ptySet) {
 			StyleValue value = getCSSValue(property);
-			if (value.getPrimitiveType() != CSSValue.Type.INTERNAL) {
+			if (value.getPrimitiveType() != Type.INTERNAL) {
 				buf.append(property).append(':');
 				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, value, property);
 				buf.append(';');
@@ -215,7 +214,7 @@ abstract class ShorthandBuilder {
 		HashSet<String> nonPendingSet = new HashSet<String>(ptySet.size() - 1);
 		for (String property : ptySet) {
 			StyleValue value = getCSSValue(property);
-			if (value.getPrimitiveType() == CSSValue.Type.INTERNAL) {
+			if (value.getPrimitiveType() == Type.INTERNAL) {
 				String shname = ((PendingValue) value).getShorthandName();
 				if (pendingSet.add(shname) && (shname.equals(getShorthandName())
 						|| isResponsibleShorthand(shname))) {
@@ -303,8 +302,8 @@ abstract class ShorthandBuilder {
 				appendImportantProperties(buf);
 			}
 		} else {
-			// Declarations to be handled as important shorthand
-			// plus non-important shorthand.
+			// Declarations to be handled as important shorthand (if there are enough values)
+			// or longhands plus non-important shorthand.
 			if (ptySet.size() != 0) {
 				int len = buf.length();
 				if (!appendShorthandSet(buf, ptySet, false)) {
@@ -318,9 +317,45 @@ abstract class ShorthandBuilder {
 		return true;
 	}
 
+	void appendNonImportantSet(StringBuilder buf) {
+		int minsz = getMinimumSetSize();
+		int sz = ptySet.size();
+		if (sz != 0) {
+			if (sz >= minsz) {
+				int len = buf.length();
+				if (appendShorthandSet(buf, ptySet, false)) {
+					return;
+				} else {
+					buf.setLength(len);
+				}
+			}
+			// Append individual non-important properties
+			appendNonImportantProperties(buf);
+		}
+	}
+
+	void appendImportantSet(StringBuilder buf) {
+		int sz = getMinimumSetSize();
+		int impsz = impPtySet.size();
+		if (impsz < sz) {
+			if (impsz != 0) {
+				appendImportantProperties(buf);
+			}
+		} else {
+			// Declarations to be handled as important shorthand (if there are enough values)
+			// or the individual longhands.
+			if (ptySet.size() != 0) {
+				appendImportantProperties(buf);
+			} else {
+				appendShorthandSet(buf, impPtySet, true);
+			}
+		}
+	}
+
 	/**
 	 * Inefficient check for 'inherit' values.
 	 * 
+	 * @param declaredSet the declared set.
 	 * @return 0 if no inherit was found, 1 if all values are inherit, 2 if both inherit and
 	 *         non-inherit values were found.
 	 */
@@ -331,8 +366,8 @@ abstract class ShorthandBuilder {
 	/**
 	 * Inefficient check for 'inherit' values.
 	 * 
-	 * @param declaredSet the declared set.
 	 * @param shorthand the shorthand name.
+	 * @param declaredSet the declared set.
 	 * @return 0 if no inherit was found within the declaredSet, 1 if all values are inherit, 2 if both inherit and
 	 *         non-inherit values were found.
 	 */
@@ -396,7 +431,7 @@ abstract class ShorthandBuilder {
 	 * @return 0 if no {@code type} was found, 1 if all values are {@code type}, 2
 	 *         if both {@code type} and non-{@code type} values were found.
 	 */
-	byte checkDeclaredValuesForKeyword(CSSValue.Type type, Set<String> declaredSet) {
+	byte checkDeclaredValuesForKeyword(Type type, Set<String> declaredSet) {
 		byte count = 0;
 		for (String propertyName : declaredSet) {
 			StyleValue val = getCSSValue(propertyName);
@@ -413,14 +448,34 @@ abstract class ShorthandBuilder {
 	}
 
 	/**
-	 * Inefficient check for keyword values.
+	 * Inefficient check for keyword values for the specified property set.
 	 * 
 	 * @param type the type to look for.
+	 * @param important the priority set (important or not).
 	 * @return 0 if no value of {@code type} was found, 1 if all values are
 	 *         {@code type}, 2 if both {@code type} and non-{@code type} values were
 	 *         found.
 	 */
-	byte checkValuesForType(CSSValue.Type type, Set<String> declaredSet) {
+	byte checkValuesForType(Type type, boolean important) {
+		Set<String> declaredSet;
+		if (important) {
+			declaredSet = impPtySet;
+		} else {
+			declaredSet = ptySet;
+		}
+		return checkValuesForType(type, getShorthandName(), declaredSet);
+	}
+
+	/**
+	 * Inefficient check for keyword values.
+	 * 
+	 * @param type the type to look for.
+	 * @param declaredSet the declared set.
+	 * @return 0 if no value of {@code type} was found, 1 if all values are
+	 *         {@code type}, 2 if both {@code type} and non-{@code type} values were
+	 *         found.
+	 */
+	byte checkValuesForType(Type type, Set<String> declaredSet) {
 		return checkValuesForType(type, getShorthandName(), declaredSet);
 	}
 
@@ -429,10 +484,11 @@ abstract class ShorthandBuilder {
 	 * 
 	 * @param type      the type to look for.
 	 * @param shorthand the shorthand name.
+	 * @param declaredSet the declared set.
 	 * @return 0 if no {@code type} was found, 1 if all values are {@code type}, 2
 	 *         if both {@code type} and non-{@code type} values were found.
 	 */
-	byte checkValuesForType(CSSValue.Type type, String shorthand, Set<String> declaredSet) {
+	byte checkValuesForType(Type type, String shorthand, Set<String> declaredSet) {
 		byte count = 0, expect = 0;
 		String[] properties = getLonghandProperties(shorthand);
 		for (String propertyName : properties) {
@@ -452,12 +508,12 @@ abstract class ShorthandBuilder {
 		return 2;
 	}
 
-	static boolean isCssValueOfType(CSSValue.Type keyword, StyleValue cssValue) {
+	static boolean isCssValueOfType(Type keyword, StyleValue cssValue) {
 		return cssValue != null && cssValue.getPrimitiveType() == keyword;
 	}
 
 	String getValueTextIfNotInitial(String propertyName, StyleValue cssVal) {
-		if (cssVal != null && !cssVal.isSystemDefault() && cssVal.getPrimitiveType() != CSSValue.Type.INITIAL
+		if (cssVal != null && !cssVal.isSystemDefault() && cssVal.getPrimitiveType() != Type.INITIAL
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal)) {
 			return cssVal.getMinifiedCssText(propertyName);
 		}
@@ -466,7 +522,7 @@ abstract class ShorthandBuilder {
 
 	boolean isInitialValue(String propertyName) {
 		StyleValue cssVal = getCSSValue(propertyName);
-		return cssVal.isSystemDefault() || cssVal.getPrimitiveType() == CSSValue.Type.INITIAL
+		return cssVal.isSystemDefault() || cssVal.getPrimitiveType() == Type.INITIAL
 				|| valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
@@ -476,7 +532,7 @@ abstract class ShorthandBuilder {
 	}
 
 	boolean isEffectiveInitialKeyword(StyleValue cssVal) {
-		CSSValue.Type keyword = cssVal.getPrimitiveType();
+		Type keyword = cssVal.getPrimitiveType();
 		return keyword == Type.INITIAL || (!isInheritedProperty() && keyword == Type.UNSET);
 	}
 

@@ -345,6 +345,17 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testBorderUnset() {
+		emptyStyleDecl.setCssText("border: unset");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("border-top-style"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("border-right-style"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("border: unset; ", emptyStyleDecl.getCssText());
+		assertEquals("border:unset;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
 	public void testBorderTopInherit() {
 		emptyStyleDecl.setCssText("border-top: inherit inherit blue");
 		assertEquals(0, emptyStyleDecl.getLength());
@@ -1906,11 +1917,27 @@ public class ShorthandSetterTest {
 				"background:url('a.png') top left no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png') white;",
 				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(
-				((DefaultStyleDeclarationErrorHandler) emptyStyleDecl.getStyleDeclarationErrorHandler()).hasErrors());
+				emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testBackgroundInherit() {
+		emptyStyleDecl.setCssText("background: inherit;");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("background: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("background:inherit;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testBackgroundInheritLayer() {
 		emptyStyleDecl.setCssText(
 				"background: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url(c.png) inherit;");
 		assertEquals("url('a.png'), url('b.png'), inherit", emptyStyleDecl.getPropertyValue("background-image"));
@@ -1926,8 +1953,23 @@ public class ShorthandSetterTest {
 				emptyStyleDecl.getCssText());
 		assertEquals("background:url('a.png') top left no-repeat,url('b.png') center/100% 100% no-repeat,inherit;",
 				emptyStyleDecl.getMinifiedCssText());
-		assertFalse(
-				((DefaultStyleDeclarationErrorHandler) emptyStyleDecl.getStyleDeclarationErrorHandler()).hasErrors());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testBackgroundUnset() {
+		emptyStyleDecl.setCssText("background: unset;");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("background: unset; ", emptyStyleDecl.getCssText());
+		assertEquals("background:unset;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -2793,11 +2835,24 @@ public class ShorthandSetterTest {
 		assertEquals("cue: url('foo.au'); ", emptyStyleDecl.getCssText());
 		assertEquals("cue:url('foo.au');", emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
 		emptyStyleDecl.setCssText("cue:url('foo.au') url(bar.au); ");
 		assertEquals("url('foo.au')", emptyStyleDecl.getPropertyValue("cue-before"));
 		assertEquals("url('bar.au')", emptyStyleDecl.getPropertyValue("cue-after"));
 		assertEquals("cue: url('foo.au') url('bar.au'); ", emptyStyleDecl.getCssText());
 		assertEquals("cue:url('foo.au') url('bar.au');", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testCueInherit() {
+		emptyStyleDecl.setCssText("cue:inherit; ");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("cue-before"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("cue-after"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("cue-before").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("cue-after").isSubproperty());
+		assertEquals("cue: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("cue:inherit;", emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -4796,11 +4851,14 @@ public class ShorthandSetterTest {
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-stretch"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("font-size").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("font-family").isSubproperty());
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-feature-settings"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("font-optical-sizing"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variation-settings"));
 		assertEquals("font: bold; font-style: italic; ", emptyStyleDecl.getCssText());
 		assertEquals("font:bold;font-style:italic", emptyStyleDecl.getMinifiedCssText());
 		//
 		emptyStyleDecl.setCssText("font: italic; border: solid blue");
-		assertEquals(31, emptyStyleDecl.getLength());
+		assertEquals(34, emptyStyleDecl.getLength());
 		assertEquals("italic", emptyStyleDecl.getPropertyCSSValue("font-style").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-stretch"));
 		assertEquals("medium", emptyStyleDecl.getPropertyCSSValue("border-top-width").getCssText());
@@ -4813,7 +4871,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFontBold() {
 		emptyStyleDecl.setCssText("font: bold");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("bold", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("bold", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
@@ -5015,7 +5073,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFont2() {
 		emptyStyleDecl.setCssText("font:16pt/1.25 \"Helvetica Neue\",Arial,sans-serif;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("\"Helvetica Neue\", Arial, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5038,7 +5096,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFont3() {
 		emptyStyleDecl.setCssText("font: normal 14.0px / 1.4 Helvetica Neue , Helvetica , sans-serif;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("'Helvetica Neue', Helvetica, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5058,7 +5116,7 @@ public class ShorthandSetterTest {
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		//
 		emptyStyleDecl.setCssText("font:normal 1.2rem/1.4 \"Helvetica Neue\",Helvetica,sans-serif;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("\"Helvetica Neue\", Helvetica, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5081,7 +5139,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFont4() {
 		emptyStyleDecl.setCssText("font: normal 14.0px / 1 FontAwesome;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("FontAwesome", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5104,7 +5162,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFont5() {
 		emptyStyleDecl.setCssText("font: normal normal normal 14pt / 1 FontAwesome;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("FontAwesome", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5127,7 +5185,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFont6() {
 		emptyStyleDecl.setCssText("font: bold 14px/32px 'Roboto', Arial, sans-serif;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("'Roboto', Arial, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("bold", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("bold", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5150,7 +5208,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFont7() {
 		emptyStyleDecl.setCssText("font: 14pt Font Normal;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Font Normal", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5173,7 +5231,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFont8() {
 		emptyStyleDecl.setCssText("font: 14pt Font Normal; font-size: inherit;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Font Normal", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5197,7 +5255,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFontNormal() {
 		emptyStyleDecl.setCssText("font-size-adjust: 0.5; font-variant-east-asian: ruby;font: normal");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5220,7 +5278,7 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFontLineHeight() {
 		emptyStyleDecl.setCssText("font: normal;line-height:1;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
@@ -5244,7 +5302,7 @@ public class ShorthandSetterTest {
 	public void testFontOverride() {
 		emptyStyleDecl.setCssText(
 				"font:14pt Font Normal;font-size:12pt;font-size-adjust:0.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal;");
-		assertEquals(14, emptyStyleDecl.getLength());
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Arial", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("bolder", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("italic", emptyStyleDecl.getPropertyValue("font-style"));
@@ -5271,8 +5329,8 @@ public class ShorthandSetterTest {
 	@Test
 	public void testFontOverrideFull() {
 		emptyStyleDecl.setCssText(
-				"font:14pt Font Normal;font-size:12pt;font-size-adjust:0.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal;font-variant-caps:unicase;font-variant-ligatures:common-ligatures;font-variant-position:super;font-variant-numeric:slashed-zero;font-variant-alternates:historical-forms;font-variant-east-asian:jis90");
-		assertEquals(14, emptyStyleDecl.getLength());
+				"font:14pt Font Normal;font-size:12pt;font-size-adjust:0.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal;font-optical-sizing: none;font-feature-settings:\"zero\";font-variation-settings:\"WDTH\" 120;font-variant-caps:unicase;font-variant-ligatures:common-ligatures;font-variant-position:super;font-variant-numeric:slashed-zero;font-variant-alternates:historical-forms;font-variant-east-asian:jis90");
+		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Arial", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("bolder", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("italic", emptyStyleDecl.getPropertyValue("font-style"));
@@ -5289,10 +5347,10 @@ public class ShorthandSetterTest {
 		assertEquals("jis90", emptyStyleDecl.getPropertyValue("font-variant-east-asian"));
 		assertFalse(emptyStyleDecl.getPropertyCSSValue("font-size").isSubproperty());
 		assertEquals(
-				"font-size: 12pt; font-size-adjust: 0.5; font-family: Arial; font-weight: bolder; font-style: italic; line-height: 1.5em; font-stretch: ultra-condensed; font-kerning: normal; font-variant-caps: unicase; font-variant-ligatures: common-ligatures; font-variant-position: super; font-variant-numeric: slashed-zero; font-variant-alternates: historical-forms; font-variant-east-asian: jis90; ",
+				"font-size: 12pt; font-size-adjust: 0.5; font-family: Arial; font-weight: bolder; font-style: italic; line-height: 1.5em; font-stretch: ultra-condensed; font-kerning: normal; font-optical-sizing: none; font-feature-settings: \"zero\"; font-variation-settings: \"WDTH\" 120; font-variant-caps: unicase; font-variant-ligatures: common-ligatures; font-variant-position: super; font-variant-numeric: slashed-zero; font-variant-alternates: historical-forms; font-variant-east-asian: jis90; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"font-size:12pt;font-size-adjust:.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal;font-variant-caps:unicase;font-variant-ligatures:common-ligatures;font-variant-position:super;font-variant-numeric:slashed-zero;font-variant-alternates:historical-forms;font-variant-east-asian:jis90",
+				"font-size:12pt;font-size-adjust:.5;font-family:Arial;font-weight:bolder;font-style:italic;line-height:1.5em;font-stretch:ultra-condensed;font-kerning:normal;font-optical-sizing:none;font-feature-settings:\"zero\";font-variation-settings:\"WDTH\" 120;font-variant-caps:unicase;font-variant-ligatures:common-ligatures;font-variant-position:super;font-variant-numeric:slashed-zero;font-variant-alternates:historical-forms;font-variant-east-asian:jis90",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -5304,14 +5362,15 @@ public class ShorthandSetterTest {
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("", emptyStyleDecl.getPropertyPriority("font-size"));
-		assertEquals("none", emptyStyleDecl.getPropertyValue("font-size-adjust"));
-		assertEquals("auto", emptyStyleDecl.getPropertyValue("font-kerning"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-position"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-caps"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-size-adjust"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-kerning"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-variant-position"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-variant-caps"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("line-height"));
 		assertEquals("font: inherit; ", emptyStyleDecl.getCssText());
 		assertEquals("font:inherit;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -5322,16 +5381,17 @@ public class ShorthandSetterTest {
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("font-size"));
-		assertEquals("none", emptyStyleDecl.getPropertyValue("font-size-adjust"));
-		assertEquals("auto", emptyStyleDecl.getPropertyValue("font-kerning"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-position"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-caps"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-size-adjust"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-kerning"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-variant-position"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-variant-caps"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("line-height"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("font-variant-ligatures"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("font-variant-caps"));
 		assertEquals("font: inherit ! important; ", emptyStyleDecl.getCssText());
 		assertEquals("font:inherit!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -5342,11 +5402,11 @@ public class ShorthandSetterTest {
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("", emptyStyleDecl.getPropertyPriority("font-size"));
-		assertEquals("none", emptyStyleDecl.getPropertyValue("font-size-adjust"));
-		assertEquals("auto", emptyStyleDecl.getPropertyValue("font-kerning"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-position"));
-		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-caps"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("font-size-adjust"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("font-kerning"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("font-variant-position"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("font-variant-caps"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("line-height"));
 		assertEquals("font: unset; ", emptyStyleDecl.getCssText());
 		assertEquals("font:unset;", emptyStyleDecl.getMinifiedCssText());

@@ -732,7 +732,7 @@ public class CompatInlineDeclarationTest {
 		BaseCSSStyleDeclaration clone = emptyStyleDecl.clone();
 		assertEquals("font: bold ! important; border: solid blue; line-height: normal ! important; ",
 				clone.getCssText());
-		assertEquals(31, clone.getLength());
+		assertEquals(34, clone.getLength());
 	}
 
 }

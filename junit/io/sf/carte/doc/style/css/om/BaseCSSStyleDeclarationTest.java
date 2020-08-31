@@ -790,8 +790,10 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("font-size"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("font"));
 		assertEquals("bold", emptyStyleDecl.getPropertyValue("font"));
+		//
 		emptyStyleDecl.setCssText("font: bold; border: solid blue; font-size: x-large;");
 		assertEquals("bold", emptyStyleDecl.getPropertyValue("font-weight"));
+		assertEquals("x-large", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("", emptyStyleDecl.getPropertyPriority("font-weight"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("font"));
 	}
@@ -970,7 +972,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertNull(diff.getLeftSide());
 		assertNull(diff.getRightSide());
 		sa = diff.getDifferent();
-		assertEquals(13, sa.length);
+		assertEquals(16, sa.length);
 		assertEquals("font-size", sa[0]);
 		assertEquals("font-family", sa[1]);
 		assertEquals("font-style", sa[2]);
@@ -978,6 +980,15 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("font-stretch", sa[4]);
 		assertEquals("font-variant-caps", sa[5]);
 		assertEquals("font-size-adjust", sa[6]);
+		assertEquals("font-kerning", sa[7]);
+		assertEquals("font-optical-sizing", sa[8]);
+		assertEquals("font-feature-settings", sa[9]);
+		assertEquals("font-variation-settings", sa[10]);
+		assertEquals("font-variant-ligatures", sa[11]);
+		assertEquals("font-variant-position", sa[12]);
+		assertEquals("font-variant-numeric", sa[13]);
+		assertEquals("font-variant-alternates", sa[14]);
+		assertEquals("font-variant-east-asian", sa[15]);
 	}
 
 	@Test
@@ -995,7 +1006,7 @@ public class BaseCSSStyleDeclarationTest {
 		BaseCSSStyleDeclaration importantDecl = new BaseCSSStyleDeclaration();
 		BaseCSSStyleDeclaration normalDecl = new BaseCSSStyleDeclaration();
 		emptyStyleDecl.prioritySplit(importantDecl, normalDecl);
-		assertEquals(14, importantDecl.getLength());
+		assertEquals(17, importantDecl.getLength());
 		assertEquals("font: smaller Sans ! important;\nline-height: normal ! important;\n", importantDecl.getCssText());
 		assertEquals(17, normalDecl.getLength());
 		assertEquals("border: solid blue;\n", normalDecl.getCssText());
@@ -1007,7 +1018,7 @@ public class BaseCSSStyleDeclarationTest {
 		BaseCSSStyleDeclaration clone = emptyStyleDecl.clone();
 		assertEquals("font: bold ! important;\nborder: solid blue;\nline-height: normal ! important;\n",
 				clone.getCssText());
-		assertEquals(31, clone.getLength());
+		assertEquals(34, clone.getLength());
 	}
 
 }

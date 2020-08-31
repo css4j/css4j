@@ -69,6 +69,27 @@ public class FontBuilderTest {
 	}
 
 	@Test
+	public void testFontInitialAndFontStretch() {
+		assertShorthandText("font:normal;font-stretch:82%;", "font: initial; font-stretch:82%;");
+	}
+
+	@Test
+	public void testFontInitialAndFontKerning() {
+		assertShorthandText("font:normal;font-kerning:normal;", "font: initial; font-kerning:normal;");
+	}
+
+	@Test
+	public void testFontInitialAndOthers() {
+		assertShorthandText("font:normal;line-height:1;font-optical-sizing:none;font-feature-settings:\"zero\";font-variation-settings:\"WDTH\" 120;",
+				"font: initial;line-height: 1;font-optical-sizing: none;font-feature-settings:\"zero\";font-variation-settings:\"WDTH\" 120;");
+	}
+
+	@Test
+	public void testFontVariantCss3() {
+		assertShorthandText("font:normal;font-variant:titling-caps;", "font:normal;font-variant-caps:titling-caps");
+	}
+
+	@Test
 	public void testFontPlusImportant() {
 		assertShorthandText("font:bolder 120% serif;font-size:120%!important;",
 				"font: bolder 16pt serif; font-size: 120% ! important;");
@@ -84,6 +105,11 @@ public class FontBuilderTest {
 	}
 
 	@Test
+	public void testFontImportantMix() {
+		assertShorthandText("font:normal;font-stretch:82%!important;", "font: normal;font-stretch:82%!important;");
+	}
+
+	@Test
 	public void testFontVar() {
 		assertShorthandText("font:var(--foo,12pt Arial);", "font: var(--foo,12pt Arial)");
 	}
@@ -96,6 +122,11 @@ public class FontBuilderTest {
 	@Test
 	public void testFontInheritImportant() {
 		assertShorthandText("font:inherit!important;", "font: inherit!important;");
+	}
+
+	@Test
+	public void testFontInheritAndFontKErning() {
+		assertShorthandText("font:inherit;font-kerning:normal;", "font: inherit; font-kerning:normal;");
 	}
 
 	@Test

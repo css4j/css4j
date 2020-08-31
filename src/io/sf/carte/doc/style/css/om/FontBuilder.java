@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 /**
@@ -28,7 +29,7 @@ class FontBuilder extends ShorthandBuilder {
 
 	@Override
 	protected int getMinimumSetSize() {
-		return 14;
+		return 17;
 	}
 
 	@Override
@@ -53,46 +54,119 @@ class FontBuilder extends ShorthandBuilder {
 		return true;
 	}
 
-	void appendFontKerningValue(StringBuilder buf) {
-		buf.append("font-kerning:").append(getCSSValue("font-kerning").getMinifiedCssText("font-kerning"));
-		appendPriority(buf, isPropertyImportant("font-kerning"));
-	}
-
-	private void appendFontSizeAdjustValue(StringBuilder buf) {
-		buf.append("font-size-adjust:").append(getCSSValue("font-size-adjust").getMinifiedCssText("font-size-adjust"));
-		appendPriority(buf, isPropertyImportant("font-size-adjust"));
+	private void appendFontLonghand(StringBuilder buf, String property) {
+		buf.append(property).append(':').append(getCSSValue(property).getMinifiedCssText(property));
+		appendPriority(buf, isPropertyImportant(property));
 	}
 
 	@Override
 	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
-		if (!appendFontShorthandSet(buf, declaredSet, important)) {
+		int result = appendFontShorthandSet(buf, declaredSet, important);
+		if (result == -1) {
 			// Create font-variant builder
 			FontVariantBuilder builder = createFontVariantBuilder();
-			builder.appendMinifiedCssText(buf);
+			builder.preprocessSet();
+			if (builder.checkValuesForType(CSSValue.Type.INTERNAL, important) != 0) {
+				return false;
+			}
+			if (important) {
+				builder.appendImportantSet(buf);
+			} else {
+				builder.appendNonImportantSet(buf);
+			}
 			return false;
 		}
 		// Other subproperties
-		if (!isFontVariantSetToInitialOrCss21()) {
+		if (result == 0) {
+			if (!isFontVariantSetToInitialOrCss21()) {
+				// Create font-variant builder
+				FontVariantBuilder builder = createFontVariantBuilder();
+				builder.preprocessSet();
+				if (builder.checkValuesForType(CSSValue.Type.INTERNAL, important) != 0) {
+					return false;
+				}
+				if (important) {
+					builder.appendImportantSet(buf);
+				} else {
+					builder.appendNonImportantSet(buf);
+				}
+			}
+			StyleValue vFontStretch = getCSSValue("font-stretch");
+			if (isPropertyAssigned("font-stretch", important) && isNotInitialValue(vFontStretch, "font-stretch")
+					&& !isFontStretchCss3(vFontStretch)) {
+				buf.append("font-stretch:").append(vFontStretch.getMinifiedCssText("font-stretch"));
+				appendPriority(buf, isPropertyImportant("font-stretch"));
+			}
+			if (isPropertyAssigned("font-kerning", important) && !isInitialValue("font-kerning")) {
+				appendFontLonghand(buf, "font-kerning");
+			}
+			if (isPropertyAssigned("font-optical-sizing", important) && !isInitialValue("font-optical-sizing")) {
+				appendFontLonghand(buf, "font-optical-sizing");
+			}
+			if (isPropertyAssigned("font-feature-settings", important) && !isInitialValue("font-feature-settings")) {
+				appendFontLonghand(buf, "font-feature-settings");
+			}
+			if (isPropertyAssigned("font-variation-settings", important) && !isInitialValue("font-variation-settings")) {
+				appendFontLonghand(buf, "font-variation-settings");
+			}
+			if (isPropertyAssigned("font-size-adjust", important) && !isInitialValue("font-size-adjust")) {
+				appendFontLonghand(buf, "font-size-adjust");
+			}
+		} else {
+			Type keyword;
+			switch (result) {
+			case 1:
+				keyword = Type.INHERIT;
+				break;
+			case 2:
+				keyword = Type.UNSET;
+				break;
+			default:
+				keyword = Type.REVERT;
+			}
+			appendLonghandIfNotKeyword(buf, "font-kerning", keyword, important);
+			appendLonghandIfNotKeyword(buf, "font-optical-sizing", keyword, important);
+			appendLonghandIfNotKeyword(buf, "font-feature-settings", keyword, important);
+			appendLonghandIfNotKeyword(buf, "font-variation-settings", keyword, important);
+			appendLonghandIfNotKeyword(buf, "font-size-adjust", keyword, important);
 			// Create font-variant builder
 			FontVariantBuilder builder = createFontVariantBuilder();
-			builder.appendMinifiedCssText(buf);
-		}
-		if (isPropertyAssigned("font-kerning", important) && !isInitialValue("font-kerning")) {
-			appendFontKerningValue(buf);
-		}
-		if (isPropertyAssigned("font-size-adjust", important) && !isInitialValue("font-size-adjust")) {
-			appendFontSizeAdjustValue(buf);
+			builder.preprocessSet();
+			if (builder.checkValuesForType(Type.INTERNAL, important) != 0) {
+				return false;
+			}
+			byte fvTypes = builder.checkValuesForType(keyword, important);
+			if (fvTypes == 2) {
+				return false;
+			}
+			if (fvTypes == 0) {
+				if (important) {
+					builder.appendImportantSet(buf);
+				} else {
+					builder.appendNonImportantSet(buf);
+				}
+			}
 		}
 		return true;
 	}
 
-	boolean appendFontShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	/**
+	 * Try to append the given set to the buffer.
+	 * 
+	 * @param buf         the buffer to append to.
+	 * @param declaredSet the components of the set.
+	 * @param important   {@code true} if the set if {@code important}.
+	 * @return 0 if a regular set was appended, 1 if it was {@code inherit}, 2 if
+	 *         {@code unset}, 3 if {@code revert}, -1 if a shorthand set could not
+	 *         be appended.
+	 */
+	private int appendFontShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		if (!isFontKerningAdjustVariantSet(important)) {
-			return false;
+			return -1;
 		}
 		// Append property name
 		buf.append(getShorthandName()).append(':');
-		StyleValue vFontVariant = getCSSValue("font-variant-caps");
+		StyleValue vFontVariantCaps = getCSSValue("font-variant-caps");
 		StyleValue vFontStyle = getCSSValue("font-style");
 		StyleValue vFontWeight = getCSSValue("font-weight");
 		StyleValue vFontStretch = getCSSValue("font-stretch");
@@ -101,61 +175,54 @@ class FontBuilder extends ShorthandBuilder {
 		StyleValue vLineHeight = getCSSValue("line-height");
 		if (declaredSet.size() >= 7) {
 			// Check for inherit
-			byte inheritcheck = checkValuesForInherit(vFontStyle, vFontWeight, vFontStretch, vFontSize, vFontFamily,
-					vLineHeight);
+			byte inheritcheck = checkValuesForInherit(vFontVariantCaps, vFontStyle, vFontWeight, vFontStretch,
+					vFontSize, vFontFamily, vLineHeight);
 			if (inheritcheck == 1) {
 				// All values are inherit
 				buf.append("inherit");
 				appendPriority(buf, important);
-				return true;
+				return 1;
 			} else if (inheritcheck == 2) {
-				return false;
+				return -1;
 			}
 			// Check for css-wide keywords
-			if (checkValuesForInitial(vFontStyle, vFontVariant, vFontWeight, vFontStretch,
+			if (checkValuesForInitial(vFontStyle, vFontVariantCaps, vFontWeight, vFontStretch,
 					vFontSize, vFontFamily, vLineHeight)) {
 				// All values are initial
 				buf.append("normal");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			}
 			// Unset check
-			byte kwcheck = checkValuesForKeyword(CSSValue.Type.UNSET, vFontStyle, vFontWeight,
+			byte kwcheck = checkValuesForKeyword(CSSValue.Type.UNSET, vFontVariantCaps, vFontStyle, vFontWeight,
 					vFontStretch, vFontSize, vFontFamily, vLineHeight);
 			if (kwcheck == 1) {
 				// All values are unset
 				buf.append("unset");
 				appendPriority(buf, important);
-				return true;
+				return 2;
 			} else if (kwcheck == 2) {
-				return false;
+				return -1;
 			}
 			// Revert check
-			kwcheck = checkValuesForKeyword(CSSValue.Type.REVERT, vFontStyle, vFontWeight,
+			kwcheck = checkValuesForKeyword(CSSValue.Type.REVERT, vFontVariantCaps, vFontStyle, vFontWeight,
 					vFontStretch, vFontSize, vFontFamily, vLineHeight);
 			if (kwcheck == 1) {
 				// All values are revert
 				buf.append("revert");
 				appendPriority(buf, important);
-				return true;
+				return 3;
 			} else if (kwcheck == 2) {
-				return false;
+				return -1;
 			}
-		}
-		// Other constraints
-		if (!isFontVariantCss21(vFontVariant)) {
-			return false;
-		}
-		if (!isFontStretchCss3(vFontStretch)) {
-			return false;
 		}
 		// Now append the values as appropriate
 		boolean appended = false;
 		if (declaredSet.contains("font-style")) {
 			appended = appendValueIfNotInitial(buf, "font-style", vFontStyle, appended);
 		}
-		if (declaredSet.contains("font-variant-caps")) {
-			appended = appendValueIfNotInitial(buf, "font-variant-caps", vFontVariant, appended);
+		if (declaredSet.contains("font-variant-caps") && isFontVariantCss21(vFontVariantCaps)) {
+			appended = appendValueIfNotInitial(buf, "font-variant-caps", vFontVariantCaps, appended);
 		}
 		if (declaredSet.contains("font-weight")) {
 			appended = appendValueIfNotInitial(buf, "font-weight", vFontWeight, appended);
@@ -164,7 +231,7 @@ class FontBuilder extends ShorthandBuilder {
 				|| declaredSet.contains("font-family") || declaredSet.contains("font-stretch")) {
 			boolean not_initial_lh = isNotInitialValue(vLineHeight, "line-height");
 			boolean not_initial_fsz = isNotInitialValue(vFontSize, "font-size");
-			boolean not_initial_fst = isNotInitialValue(vFontStretch, "font-stretch");
+			boolean not_initial_fst = isNotInitialValue(vFontStretch, "font-stretch") && isFontStretchCss3(vFontStretch);
 			boolean not_initial_ff = isNotInitialValue(vFontFamily, "font-family");
 			if (not_initial_fsz || not_initial_lh || not_initial_fst) {
 				// We need to serialize font size, perhaps also line height.
@@ -196,9 +263,9 @@ class FontBuilder extends ShorthandBuilder {
 						buf.append(vLineHeight.getMinifiedCssText("line-height"));
 						appendPriority(buf, important);
 					}
-					return true;
+					return 0;
 				}
-				if (declaredSet.contains("font-stretch")) {
+				if (not_initial_fst && declaredSet.contains("font-stretch")) {
 					appended = appendValueIfNotInitial(buf, "font-stretch", vFontStretch, appended);
 				}
 				if (appended) {
@@ -225,7 +292,7 @@ class FontBuilder extends ShorthandBuilder {
 				buf.append("font-family:");
 				buf.append(vFontFamily.getMinifiedCssText("font-family"));
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			}
 		}
 		if (!appended) {
@@ -233,7 +300,7 @@ class FontBuilder extends ShorthandBuilder {
 		}
 		// Priority
 		appendPriority(buf, important);
-		return true;
+		return 0;
 	}
 
 	private boolean appendValueIfNotInitial(StringBuilder buf, String propertyName, StyleValue cssVal,
@@ -249,10 +316,21 @@ class FontBuilder extends ShorthandBuilder {
 		return appended;
 	}
 
-	private byte checkValuesForInherit(StyleValue vFontStyle, StyleValue vFontWeight,
-			StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily,
-			StyleValue vLineHeight) {
+	private void appendLonghandIfNotKeyword(StringBuilder buf, String property, Type keyword, boolean important) {
+		StyleValue vLonghand = getCSSValue(property);
+		if (vLonghand.getPrimitiveType() != keyword) {
+			buf.append(property).append(':');
+			buf.append(vLonghand.getMinifiedCssText(property));
+			appendPriority(buf, important);
+		}
+	}
+
+	private byte checkValuesForInherit(StyleValue vFontVariantCaps, StyleValue vFontStyle, StyleValue vFontWeight,
+			StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily, StyleValue vLineHeight) {
 		byte count = 0;
+		if (isInherit(vFontVariantCaps)) {
+			count++;
+		}
 		if (isInherit(vFontStyle)) {
 			count++;
 		}
@@ -274,16 +352,20 @@ class FontBuilder extends ShorthandBuilder {
 		switch (count) {
 		case 0:
 			return 0;
-		case 6:
+		case 7:
 			return 1;
 		default:
 			return 2;
 		}
 	}
 
-	private byte checkValuesForKeyword(CSSValue.Type keyword, StyleValue vFontStyle, StyleValue vFontWeight,
-			StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily, StyleValue vLineHeight) {
+	private byte checkValuesForKeyword(CSSValue.Type keyword, StyleValue vFontVariantCaps, StyleValue vFontStyle,
+			StyleValue vFontWeight, StyleValue vFontStretch, StyleValue vFontSize, StyleValue vFontFamily,
+			StyleValue vLineHeight) {
 		byte ucount = 0;
+		if (isCssValueOfType(keyword, vFontVariantCaps)) {
+			ucount++;
+		}
 		if (isCssValueOfType(keyword, vFontStyle)) {
 			ucount++;
 		}
@@ -305,7 +387,7 @@ class FontBuilder extends ShorthandBuilder {
 		switch (ucount) {
 		case 0:
 			return 0;
-		case 6:
+		case 7:
 			return 1;
 		default:
 			return 2;
