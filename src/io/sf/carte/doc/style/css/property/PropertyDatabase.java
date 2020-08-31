@@ -201,7 +201,7 @@ public final class PropertyDatabase {
 			{"flex-shrink", "1"},
 			{"flex-basis", "auto"},
 			{"font-feature-settings", "normal"},
-			{"font-language-override", "normal"},
+			{"font-language-override", "normal"}, // at risk of removal
 			{"font-min-size", "0"},
 			{"font-kerning", "auto"},
 			{"font-optical-sizing", "auto"},
