@@ -567,7 +567,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	private int getLonghandPropertyCount(String propertyName) {
 		int count;
 		if ("font".equals(propertyName)) {
-			count = 14;
+			count = 17;
 		} else {
 			String[] longhands = ShorthandDatabase.getInstance().getLonghandProperties(propertyName);
 			if (longhands != null) {

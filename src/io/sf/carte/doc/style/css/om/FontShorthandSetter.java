@@ -42,6 +42,9 @@ class FontShorthandSetter extends ShorthandSetter {
 		List<String> subp = super.subpropertyList();
 		subp.remove("line-height");
 		subp.remove("font-kerning");
+		subp.remove("font-optical-sizing");
+		subp.remove("font-feature-settings");
+		subp.remove("font-variation-settings");
 		subp.remove("font-size-adjust");
 		subp.add(0, "font-variant-css21");
 		return subp;
@@ -255,6 +258,9 @@ class FontShorthandSetter extends ShorthandSetter {
 		}
 		setPropertyToDefault("font-size-adjust");
 		setPropertyToDefault("font-kerning");
+		setPropertyToDefault("font-optical-sizing");
+		setPropertyToDefault("font-feature-settings");
+		setPropertyToDefault("font-variation-settings");
 		setPropertyToDefault("font-variant-ligatures");
 		setPropertyToDefault("font-variant-position");
 		setPropertyToDefault("font-variant-numeric");
@@ -264,9 +270,20 @@ class FontShorthandSetter extends ShorthandSetter {
 
 	@Override
 	protected void setSubpropertiesToKeyword(KeywordValue keyword) {
+		getUnassignedProperties().remove("font-variant-css21");
 		super.setSubpropertiesToKeyword(keyword);
 		lineHeightSet = true;
-		resetSubproperties();
+		setProperty("line-height", keyword, isPriorityImportant());
+		setProperty("font-kerning", keyword, isPriorityImportant());
+		setProperty("font-optical-sizing", keyword, isPriorityImportant());
+		setProperty("font-feature-settings", keyword, isPriorityImportant());
+		setProperty("font-variation-settings", keyword, isPriorityImportant());
+		setProperty("font-variant-ligatures", keyword, isPriorityImportant());
+		setProperty("font-variant-position", keyword, isPriorityImportant());
+		setProperty("font-variant-caps", keyword, isPriorityImportant());
+		setProperty("font-variant-numeric", keyword, isPriorityImportant());
+		setProperty("font-variant-alternates", keyword, isPriorityImportant());
+		setProperty("font-variant-east-asian", keyword, isPriorityImportant());
 		flush();
 	}
 
