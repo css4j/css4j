@@ -69,8 +69,19 @@ public class FontBuilderTest {
 	}
 
 	@Test
-	public void testFontInitialAndFontStretch() {
+	public void testFontInitialAndFontStretchCss3() {
 		assertShorthandText("font:normal;font-stretch:82%;", "font: initial; font-stretch:82%;");
+	}
+
+	@Test
+	public void testFontAndFontStretchCss3Important() {
+		assertShorthandText("font:normal;font-stretch:82%!important;", "font:normal;font-stretch:82%!important");
+	}
+
+	@Test
+	public void testFontImportantAndFontStretchCss3Important() {
+		assertShorthandText("font:normal!important;font-stretch:82%!important;",
+				"font:normal!important;font-stretch:82%!important");
 	}
 
 	@Test
@@ -87,6 +98,12 @@ public class FontBuilderTest {
 	@Test
 	public void testFontVariantCss3() {
 		assertShorthandText("font:normal;font-variant:titling-caps;", "font:normal;font-variant-caps:titling-caps");
+	}
+
+	@Test
+	public void testFontVariantCss3Important() {
+		assertShorthandText("font:normal;font-variant-caps:unicase!important;",
+				"font:normal;font-variant-caps:unicase!important");
 	}
 
 	@Test
@@ -110,6 +127,18 @@ public class FontBuilderTest {
 	}
 
 	@Test
+	public void testFontVariantImportantMix() {
+		assertShorthandText("font:normal;font-variant-numeric:ordinal!important;",
+				"font: normal; font-variant-numeric: ordinal!important;");
+	}
+
+	@Test
+	public void testFontVariantImportantMix2() {
+		assertShorthandText("font:normal;font-variant:ordinal;font-size:16pt!important;",
+				"font: normal; font-size: 16pt!important; font-variant-numeric: ordinal;");
+	}
+
+	@Test
 	public void testFontVar() {
 		assertShorthandText("font:var(--foo,12pt Arial);", "font: var(--foo,12pt Arial)");
 	}
@@ -125,8 +154,14 @@ public class FontBuilderTest {
 	}
 
 	@Test
-	public void testFontInheritAndFontKErning() {
+	public void testFontInheritAndFontKerning() {
 		assertShorthandText("font:inherit;font-kerning:normal;", "font: inherit; font-kerning:normal;");
+	}
+
+	@Test
+	public void testFontInheritAndFontKerningImportant() {
+		assertShorthandText("font:inherit;font-kerning:normal!important;",
+				"font: inherit; font-kerning:normal!important;");
 	}
 
 	@Test
