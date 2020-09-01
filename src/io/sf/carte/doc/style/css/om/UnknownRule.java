@@ -28,7 +28,8 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
+public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
+
 	private String cssText = "";
 
 	UnknownRule(AbstractCSSStyleSheet parentSheet, byte origin) {
