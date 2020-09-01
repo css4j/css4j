@@ -117,15 +117,19 @@ abstract class ShorthandBuilder {
 		return defval;
 	}
 
+	boolean isPropertyAssigned(String propertyName) {
+		return parentStyle.isPropertySet(propertyName);
+	}
+
 	boolean isPropertyAssigned(String propertyName, boolean important) {
 		return parentStyle.isPropertySet(propertyName, important);
 	}
 
-	boolean isPropertyAssigned(String property) {
+	boolean isPropertyInAnySet(String property) {
 		return ptySet.contains(property) || impPtySet.contains(property);
 	}
 
-	boolean isPropertyImportant(String property) {
+	boolean isPropertyInImportantSet(String property) {
 		return impPtySet.contains(property);
 	}
 
@@ -135,6 +139,10 @@ abstract class ShorthandBuilder {
 		} else {
 			ptySet.add(propertyName);
 		}
+	}
+
+	boolean removeAssignedProperty(String property) {
+		return ptySet.remove(property) || impPtySet.remove(property);
 	}
 
 	public void appendMinifiedCssText(StringBuilder buf) {
@@ -317,41 +325,6 @@ abstract class ShorthandBuilder {
 		return true;
 	}
 
-	void appendNonImportantSet(StringBuilder buf) {
-		int minsz = getMinimumSetSize();
-		int sz = ptySet.size();
-		if (sz != 0) {
-			if (sz >= minsz) {
-				int len = buf.length();
-				if (appendShorthandSet(buf, ptySet, false)) {
-					return;
-				} else {
-					buf.setLength(len);
-				}
-			}
-			// Append individual non-important properties
-			appendNonImportantProperties(buf);
-		}
-	}
-
-	void appendImportantSet(StringBuilder buf) {
-		int sz = getMinimumSetSize();
-		int impsz = impPtySet.size();
-		if (impsz < sz) {
-			if (impsz != 0) {
-				appendImportantProperties(buf);
-			}
-		} else {
-			// Declarations to be handled as important shorthand (if there are enough values)
-			// or the individual longhands.
-			if (ptySet.size() != 0) {
-				appendImportantProperties(buf);
-			} else {
-				appendShorthandSet(buf, impPtySet, true);
-			}
-		}
-	}
-
 	/**
 	 * Inefficient check for 'inherit' values.
 	 * 
@@ -508,6 +481,11 @@ abstract class ShorthandBuilder {
 		return 2;
 	}
 
+	boolean isValueOfType(Type keyword, String propertyName) {
+		StyleValue cssValue = getCSSValue(propertyName);
+		return cssValue != null && cssValue.getPrimitiveType() == keyword;
+	}
+
 	static boolean isCssValueOfType(Type keyword, StyleValue cssValue) {
 		return cssValue != null && cssValue.getPrimitiveType() == keyword;
 	}
@@ -522,7 +500,7 @@ abstract class ShorthandBuilder {
 
 	boolean isInitialValue(String propertyName) {
 		StyleValue cssVal = getCSSValue(propertyName);
-		return cssVal.isSystemDefault() || cssVal.getPrimitiveType() == Type.INITIAL
+		return cssVal.isSystemDefault() || isEffectiveInitialKeyword(cssVal)
 				|| valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 

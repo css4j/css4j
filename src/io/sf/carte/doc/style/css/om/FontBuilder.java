@@ -23,6 +23,8 @@ import io.sf.carte.doc.style.css.property.StyleValue;
  */
 class FontBuilder extends ShorthandBuilder {
 
+	private boolean fontVariantDone = false;
+
 	FontBuilder(BaseCSSStyleDeclaration parentStyle) {
 		super("font", parentStyle);
 	}
@@ -56,46 +58,40 @@ class FontBuilder extends ShorthandBuilder {
 
 	private void appendFontLonghand(StringBuilder buf, String property) {
 		buf.append(property).append(':').append(getCSSValue(property).getMinifiedCssText(property));
-		appendPriority(buf, isPropertyImportant(property));
+		appendPriority(buf, isPropertyInImportantSet(property));
 	}
 
 	@Override
 	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		int result = appendFontShorthandSet(buf, declaredSet, important);
-		if (result == -1) {
+		if (result == -1 && !fontVariantDone) {
 			// Create font-variant builder
 			FontVariantBuilder builder = createFontVariantBuilder();
-			builder.preprocessSet();
 			if (builder.checkValuesForType(CSSValue.Type.INTERNAL, important) != 0) {
 				return false;
 			}
-			if (important) {
-				builder.appendImportantSet(buf);
-			} else {
-				builder.appendNonImportantSet(buf);
-			}
+			builder.appendMinifiedCssText(buf);
+			setFontVariantDone();
 			return false;
 		}
 		// Other subproperties
 		if (result == 0) {
-			if (!isFontVariantSetToInitialOrCss21()) {
+			if (!fontVariantDone) {
 				// Create font-variant builder
 				FontVariantBuilder builder = createFontVariantBuilder();
-				builder.preprocessSet();
 				if (builder.checkValuesForType(CSSValue.Type.INTERNAL, important) != 0) {
 					return false;
 				}
-				if (important) {
-					builder.appendImportantSet(buf);
-				} else {
-					builder.appendNonImportantSet(buf);
+				if (!isFontVariantSetToInitialOrCss21(declaredSet)) {
+					builder.appendMinifiedCssText(buf);
+					setFontVariantDone();
 				}
 			}
 			StyleValue vFontStretch = getCSSValue("font-stretch");
 			if (isPropertyAssigned("font-stretch", important) && isNotInitialValue(vFontStretch, "font-stretch")
 					&& !isFontStretchCss3(vFontStretch)) {
 				buf.append("font-stretch:").append(vFontStretch.getMinifiedCssText("font-stretch"));
-				appendPriority(buf, isPropertyImportant("font-stretch"));
+				appendPriority(buf, isPropertyInImportantSet("font-stretch"));
 			}
 			if (isPropertyAssigned("font-kerning", important) && !isInitialValue("font-kerning")) {
 				appendFontLonghand(buf, "font-kerning");
@@ -139,11 +135,10 @@ class FontBuilder extends ShorthandBuilder {
 			if (fvTypes == 2) {
 				return false;
 			}
-			if (fvTypes == 0) {
-				if (important) {
-					builder.appendImportantSet(buf);
-				} else {
-					builder.appendNonImportantSet(buf);
+			if (fvTypes == 0 && !fontVariantDone) {
+				if (!isFontVariantSetToInitialOrCss21(declaredSet)) {
+					builder.appendMinifiedCssText(buf);
+					setFontVariantDone();
 				}
 			}
 		}
@@ -161,9 +156,6 @@ class FontBuilder extends ShorthandBuilder {
 	 *         be appended.
 	 */
 	private int appendFontShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
-		if (!isFontKerningAdjustVariantSet(important)) {
-			return -1;
-		}
 		// Append property name
 		buf.append(getShorthandName()).append(':');
 		StyleValue vFontVariantCaps = getCSSValue("font-variant-caps");
@@ -318,7 +310,7 @@ class FontBuilder extends ShorthandBuilder {
 
 	private void appendLonghandIfNotKeyword(StringBuilder buf, String property, Type keyword, boolean important) {
 		StyleValue vLonghand = getCSSValue(property);
-		if (vLonghand.getPrimitiveType() != keyword) {
+		if (vLonghand.getPrimitiveType() != keyword && isPropertyAssigned(property, important)) {
 			buf.append(property).append(':');
 			buf.append(vLonghand.getMinifiedCssText(property));
 			appendPriority(buf, important);
@@ -431,23 +423,19 @@ class FontBuilder extends ShorthandBuilder {
 				|| text.equals("initial");
 	}
 
-	private boolean isFontKerningAdjustVariantSet(boolean important) {
-		return isPropertyAssigned("font-kerning", important) && isPropertyAssigned("font-size-adjust", important)
-				&& isPropertyAssigned("font-variant-ligatures", important)
-				&& isPropertyAssigned("font-variant-position", important)
-				&& isPropertyAssigned("font-variant-caps", important)
-				&& isPropertyAssigned("font-variant-numeric", important)
-				&& isPropertyAssigned("font-variant-alternates", important)
-				&& isPropertyAssigned("font-variant-east-asian", important);
-	}
-
-	private boolean isFontVariantSetToInitialOrCss21() {
+	private boolean isFontVariantSetToInitialOrCss21(Set<String> declaredSet) {
+		if (!declaredSet.contains("font-variant-caps")) {
+			return true;
+		}
 		StyleValue cssVal = getCSSValue("font-variant-caps");
 		String fvcaps = cssVal.getCssText();
-		if (isEffectiveInitialKeyword(cssVal) || fvcaps.equalsIgnoreCase("normal") || fvcaps.equalsIgnoreCase("small-caps")) {
-			return isInitialValue("font-variant-ligatures") && isInitialValue("font-variant-position")
-					&& isInitialValue("font-variant-numeric") && isInitialValue("font-variant-alternates")
-					&& isInitialValue("font-variant-east-asian");
+		if (isEffectiveInitialKeyword(cssVal) || fvcaps.equalsIgnoreCase("normal")
+				|| fvcaps.equalsIgnoreCase("small-caps")) {
+			return (!declaredSet.contains("font-variant-ligatures") || isInitialValue("font-variant-ligatures"))
+					&& (!declaredSet.contains("font-variant-position") || isInitialValue("font-variant-position"))
+					&& (!declaredSet.contains("font-variant-numeric") || isInitialValue("font-variant-numeric"))
+					&& (!declaredSet.contains("font-variant-alternates") || isInitialValue("font-variant-alternates"))
+					&& (!declaredSet.contains("font-variant-east-asian") || isInitialValue("font-variant-east-asian"));
 		}
 		return false;
 	}
@@ -462,6 +450,16 @@ class FontBuilder extends ShorthandBuilder {
 		addPropertyIfAssigned(builder, "font-variant-alternates");
 		addPropertyIfAssigned(builder, "font-variant-east-asian");
 		return builder;
+	}
+
+	private void setFontVariantDone() {
+		fontVariantDone = true;
+		removeAssignedProperty("font-variant-ligatures");
+		removeAssignedProperty("font-variant-caps");
+		removeAssignedProperty("font-variant-position");
+		removeAssignedProperty("font-variant-numeric");
+		removeAssignedProperty("font-variant-alternates");
+		removeAssignedProperty("font-variant-east-asian");
 	}
 
 	private void addPropertyIfAssigned(ShorthandBuilder builder, String property) {
