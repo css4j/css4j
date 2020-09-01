@@ -959,6 +959,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals(17, sa.length);
 		assertEquals("border-top-style", sa[0]);
 		assertEquals("border-top-color", sa[4]);
+		assertEquals("border-image-source", sa[12]);
 		otherDecl.setCssText(
 				"border-top-color: blue; border-right-color: blue; border-bottom-color: blue; border-left-color: blue; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-width: medium; border-right-width: medium; border-bottom-width: medium; border-left-width: medium; border-image: none; font: smaller Arial!important; line-height: normal !important");
 		diff = emptyStyleDecl.diff(otherDecl);

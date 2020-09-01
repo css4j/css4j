@@ -20,7 +20,6 @@ import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
-import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
@@ -269,7 +268,7 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	protected void setSubpropertiesToKeyword(KeywordValue keyword) {
+	protected void setSubpropertiesToKeyword(StyleValue keyword) {
 		getUnassignedProperties().remove("font-variant-css21");
 		super.setSubpropertiesToKeyword(keyword);
 		lineHeightSet = true;
