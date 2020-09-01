@@ -108,6 +108,17 @@ public class StyleRuleTest2 {
 	public void item() {
 		assertEquals("display", frameRule.getStyle().item(0));
 		assertEquals("border-top-width", frameRule.getStyle().item(1));
+		assertEquals("border-right-width", frameRule.getStyle().item(2));
+		assertEquals("border-bottom-width", frameRule.getStyle().item(3));
+		assertEquals("border-left-width", frameRule.getStyle().item(4));
+		assertEquals("border-top-style", frameRule.getStyle().item(5));
+		assertEquals("border-left-color", frameRule.getStyle().item(12));
+		assertEquals("border-image-source", frameRule.getStyle().item(13));
+		assertEquals("border-image-slice", frameRule.getStyle().item(14));
+		assertEquals("border-image-width", frameRule.getStyle().item(15));
+		assertEquals("border-image-outset", frameRule.getStyle().item(16));
+		assertEquals("border-image-repeat", frameRule.getStyle().item(17));
+		assertEquals(18, frameRule.getStyle().getLength());
 		assertEquals("", emptyStyleDecl.item(7));
 	}
 

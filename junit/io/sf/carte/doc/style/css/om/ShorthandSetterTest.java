@@ -327,6 +327,7 @@ public class ShorthandSetterTest {
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("border-right-style"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border: inherit; ", emptyStyleDecl.getCssText());
 		assertEquals("border:inherit;", emptyStyleDecl.getMinifiedCssText());
 		//
@@ -351,8 +352,21 @@ public class ShorthandSetterTest {
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("border-right-style"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("border-top-width"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border: unset; ", emptyStyleDecl.getCssText());
 		assertEquals("border:unset;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBorderRevert() {
+		emptyStyleDecl.setCssText("border: revert");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("border-top-style"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("border-right-style"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("border-top-width"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("border-image-source"));
+		assertEquals("border: revert; ", emptyStyleDecl.getCssText());
+		assertEquals("border:revert;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test

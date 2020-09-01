@@ -27,11 +27,6 @@ class BorderShorthandSetter extends ShorthandSetter {
 	@Override
 	public boolean assignSubproperties() {
 		if (super.assignSubproperties()) {
-			setDeclarationPropertyToDefault("border-image-source");
-			setDeclarationPropertyToDefault("border-image-slice");
-			setDeclarationPropertyToDefault("border-image-width");
-			setDeclarationPropertyToDefault("border-image-outset");
-			setDeclarationPropertyToDefault("border-image-repeat");
 			styleDeclaration.getShorthandSet().remove("border-image");
 			return true;
 		}
@@ -76,5 +71,25 @@ class BorderShorthandSetter extends ShorthandSetter {
 		}
 	}
 
+	@Override
+	protected void resetSubproperties() {
+		super.resetSubproperties();
+		setPropertyToDefault("border-image-source");
+		setPropertyToDefault("border-image-slice");
+		setPropertyToDefault("border-image-width");
+		setPropertyToDefault("border-image-outset");
+		setPropertyToDefault("border-image-repeat");
+	}
+
+	@Override
+	protected void setSubpropertiesToKeyword(StyleValue keyword) {
+		super.setSubpropertiesToKeyword(keyword);
+		setProperty("border-image-source", keyword, isPriorityImportant());
+		setProperty("border-image-slice", keyword, isPriorityImportant());
+		setProperty("border-image-width", keyword, isPriorityImportant());
+		setProperty("border-image-outset", keyword, isPriorityImportant());
+		setProperty("border-image-repeat", keyword, isPriorityImportant());
+		flush();
+	}
 
 }

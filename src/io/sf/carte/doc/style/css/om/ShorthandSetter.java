@@ -236,7 +236,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 		}
 	}
 
-	protected void setSubpropertiesToKeyword(KeywordValue keyword) {
+	protected void setSubpropertiesToKeyword(StyleValue keyword) {
 		String[] subparray = getShorthandSubproperties();
 		for (String subp : subparray) {
 			if (!getShorthandDatabase().isShorthand(subp)) {
