@@ -72,6 +72,18 @@ public class BorderBuilderTest {
 	}
 
 	@Test
+	public void testBorderBorderImageImportant() {
+		assertShorthandText("border:solid rgb(0 0 0/0);border-image:url('foo.png')!important;",
+				"border: solid rgb(0 0 0 / 0); border-image:url('foo.png')!important;");
+	}
+
+	@Test
+	public void testBorderBorderImageImportantLonghand() {
+		assertShorthandText("border:solid rgb(0 0 0/0);border-image:none;border-image-source:url('foo.png')!important;",
+				"border: solid rgb(0 0 0 / 0); border-image:none; border-image-source:url('foo.png')!important;");
+	}
+
+	@Test
 	public void testBorderVar() {
 		assertShorthandText("border:1px solid var(--foo,#abcde4);", "border:1px solid var(--foo, #abcde4);");
 	}
@@ -270,8 +282,6 @@ public class BorderBuilderTest {
 				"border: solid; border-color: inherit; border-width: unset;");
 		assertShorthandText("border:solid;border-width:revert;border-color:inherit;",
 				"border: solid; border-color: inherit; border-width: revert;");
-		assertShorthandText("border:solid;border-color:inherit;border-width:medium!important;",
-				"border: solid; border-color: inherit; border-width: unset !important;");
 	}
 
 	@Test
@@ -280,12 +290,28 @@ public class BorderBuilderTest {
 				"border: solid; border-color: blue navy; border-width: unset;");
 		assertShorthandText("border:solid;border-width:revert;border-color:blue navy;",
 				"border: solid; border-color: blue navy; border-width: revert;");
+	}
+
+	@Test
+	public void testBorderMixedWithInheritAndImportant() {
+		assertShorthandText("border:solid;border-color:inherit;border-width:medium!important;",
+				"border: solid; border-color: inherit; border-width: unset !important;");
+	}
+
+	@Test
+	public void testBorderMixedWithImportant() {
 		assertShorthandText("border:solid;border-color:blue navy;border-width:medium!important;",
 				"border: solid; border-color: blue navy; border-width: unset!important;");
 	}
 
 	@Test
-	public void testBorderMixedWithImportant() {
+	public void testBorderMixedWithImportant2() {
+		assertShorthandText("border:solid;border-color:blue navy;border-image:url('foo.png')!important;border-width:medium!important;",
+				"border: solid; border-color: blue navy; border-width: unset!important;border-image:url('foo.png')!important;");
+	}
+
+	@Test
+	public void testBorderMixedWithInheritImportant() {
 		assertShorthandText("border:solid;border-color:blue navy;border-width:inherit!important;",
 				"border: solid; border-color: blue navy; border-width: inherit ! important;");
 	}
@@ -307,7 +333,7 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderInheritPlusBorderColor() {
-		assertShorthandText("border:inherit;border-color:yellow;",
+		assertShorthandText("border:inherit;border-color:yellow;border-image:none;",
 				"border-width: inherit; border-style: inherit; border-color:yellow; border-image: initial");
 	}
 
@@ -324,9 +350,51 @@ public class BorderBuilderTest {
 	}
 
 	@Test
-	public void testBorderInheritMix2() {
+	public void testBorderInheritMix() {
 		assertShorthandText("border-right:inherit;border-left:1px solid #c8c8f0;",
 				"border-left: 1px solid #c8c8f0; border-right: inherit;");
+	}
+
+	@Test
+	public void testBorderInheritPlusBorderImage() {
+		assertShorthandText("border:inherit;border-image:url('foo.png');",
+				"border: inherit; border-image:url('foo.png');");
+	}
+
+	@Test
+	public void testBorderInheritPlusBorderImageImportant() {
+		assertShorthandText("border:inherit;border-image:url('foo.png')!important;",
+				"border: inherit; border-image:url('foo.png')!important;");
+	}
+
+	@Test
+	public void testBorderInheritImportantPlusBorderImageImportant() {
+		assertShorthandText("border:inherit!important;border-image:url('foo.png')!important;",
+				"border: inherit!important; border-image:url('foo.png')!important;");
+	}
+
+	@Test
+	public void testBorderInheritPlusBorderImageImportantPlusBorderTopColor() {
+		assertShorthandText("border:inherit;border-image:url('foo.png')!important;border-top-color:inherit!important;",
+				"border: inherit; border-top-color:inherit!important; border-image:url('foo.png')!important;");
+	}
+
+	@Test
+	public void testBorderInheritPlusBorderImagePlusBorderTopColor() {
+		assertShorthandText("border:inherit;border-image:url('foo.png');border-top-color:inherit!important;",
+				"border: inherit; border-top-color:inherit!important; border-image:url('foo.png');");
+	}
+
+	@Test
+	public void testBorderInheritPlusBorderImageSourceInheritImportant() {
+		assertShorthandText("border:inherit;border-image:none;border-image-source:inherit!important;",
+				"border: inherit; border-image-source:inherit!important; border-image:url('foo.png');");
+	}
+
+	@Test
+	public void testBorderInheritPlusBorderTopColorImportant() {
+		assertShorthandText("border:inherit;border-image:url('foo.png');border-top-color:blue!important;",
+				"border: inherit; border-top-color:blue!important; border-image:url('foo.png');");
 	}
 
 	@Test
@@ -337,6 +405,28 @@ public class BorderBuilderTest {
 	@Test
 	public void testBorderUnsetImportant() {
 		assertShorthandText("border:none!important;", "border: unset !important");
+	}
+
+	@Test
+	public void testBorderUnsetImportantBorderImage() {
+		assertShorthandText("border:none!important;border-image:url('foo.png')!important;",
+				"border: unset !important; border-image:url('foo.png')!important");
+	}
+
+	@Test
+	public void testBorderUnsetMix() {
+		assertShorthandText("border-right:none;border-left:1px solid #c8c8f0;",
+				"border-left: 1px solid #c8c8f0; border-right: unset;");
+	}
+
+	@Test
+	public void testBorderRevert() {
+		assertShorthandText("border:revert;", "border: revert");
+	}
+
+	@Test
+	public void testBorderRevertImportant() {
+		assertShorthandText("border:revert!important;", "border: revert!important");
 	}
 
 	@Test
@@ -788,6 +878,10 @@ public class BorderBuilderTest {
 	public void testBorderStyleCombined2() {
 		assertShorthandText("border:1px;border-style:inset solid outset;",
 				"border: 1px; border-style: inset solid outset; ");
+	}
+
+	@Test
+	public void testBorderStyleCombined2Important() {
 		assertShorthandText("border:1px;border-style:inset solid outset!important;",
 				"border: 1px; border-style: inset solid outset ! important; ");
 	}
@@ -795,6 +889,10 @@ public class BorderBuilderTest {
 	@Test
 	public void testBorderColorCombined2() {
 		assertShorthandText("border:1px;border-color:yellow blue red;", "border: 1px; border-color: yellow blue red; ");
+	}
+
+	@Test
+	public void testBorderColorCombined2Important() {
 		assertShorthandText("border:1px;border-color:yellow blue red!important;",
 				"border: 1px; border-color: yellow blue red ! important; ");
 	}
@@ -803,6 +901,10 @@ public class BorderBuilderTest {
 	public void testBorderWidthCombined3() {
 		assertShorthandText("border:inset;border-width:1px 2px 3px 4px;",
 				"border: inset; border-width: 1px 2px 3px 4px; ");
+	}
+
+	@Test
+	public void testBorderWidthCombined3Important() {
 		assertShorthandText("border:inset;border-width:1px 2px 3px 4px!important;",
 				"border: inset; border-width: 1px 2px 3px 4px ! important; ");
 	}
@@ -811,6 +913,10 @@ public class BorderBuilderTest {
 	public void testBorderStyleCombined3() {
 		assertShorthandText("border:1px;border-style:inset solid outset none;",
 				"border: 1px; border-style: inset solid outset none; ");
+	}
+
+	@Test
+	public void testBorderStyleCombined3Important() {
 		assertShorthandText("border:1px;border-style:inset solid outset none!important;",
 				"border: 1px; border-style: inset solid outset none ! important; ");
 	}
@@ -819,6 +925,10 @@ public class BorderBuilderTest {
 	public void testBorderColorCombined3() {
 		assertShorthandText("border:1px;border-color:yellow blue red navy;",
 				"border: 1px; border-color: yellow blue red navy; ");
+	}
+
+	@Test
+	public void testBorderColorCombined3Important() {
 		assertShorthandText("border:1px;border-color:yellow blue red navy!important;",
 				"border: 1px; border-color: yellow blue red navy ! important; ");
 	}

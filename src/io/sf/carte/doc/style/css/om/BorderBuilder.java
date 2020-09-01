@@ -15,13 +15,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 class BorderBuilder extends BaseBoxShorthandBuilder {
 
 	private boolean fullBorderImage = false; // All the border-image properties are available
 	private boolean hasBorderImage = false; // At least one border-image property is available
+	private boolean borderImageDone = false;
 
 	private final Set<String> unusedSet = new HashSet<String>();
 
@@ -40,6 +41,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		if (isAnyBorderImagePropertySet()) {
 			BorderImageBuilder builder = createBorderImageBuilder();
 			builder.appendMinifiedCssText(buf);
+			borderImageDone = true;
 		}
 	}
 
@@ -100,7 +102,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 *         {@code type} but at least one isn't.
 	 */
 	@Override
-	byte checkValuesForType(CSSValue.Type type, Set<String> declaredSet) {
+	byte checkValuesForType(Type type, Set<String> declaredSet) {
 		byte wcheck = checkValuesForType(type, "border-width", declaredSet);
 		byte scheck = checkValuesForType(type, "border-style", declaredSet);
 		byte ccheck = checkValuesForType(type, "border-color", declaredSet);
@@ -123,30 +125,14 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			return false;
 		}
 		// pending value check
-		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
+		if (checkValuesForType(Type.INTERNAL, declaredSet) != 0) {
 			return false;
 		}
 		if (declaredSet.size() == 12 || (!important && getTotalSetSize() == 12)) {
 			// All border properties are available
-			// 'inherit' check
-			byte icheck = checkValuesForInherit(declaredSet);
-			if (icheck == 1) {
-				// All values are inherit
-				buf.append("border:inherit");
-				appendPriority(buf, important);
-				return true;
-			} else if (icheck == 2) {
-				return false;
-			}
-			// 'revert' check
-			byte ucheck = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
-			if (ucheck == 1) {
-				// All values are revert
-				buf.append("border:revert");
-				appendPriority(buf, important);
-				return true;
-			} else if (ucheck == 2) {
-				return false;
+			byte kwCheck = keywordCheck(buf, declaredSet, important);
+			if (kwCheck != 0) {
+				return kwCheck == 1;
 			}
 			// width/style/color scores
 			boolean mixedCase = false;
@@ -173,15 +159,23 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			appendBorderWidthText(buf, declaredSet, false, score, score.getSameWidthScore(), null, important);
 			appendBorderStyleText(buf, declaredSet, false, score, score.getSameStyleScore(), null, important);
 			appendBorderColorText(buf, declaredSet, false, score, score.getSameColorScore(), null, important);
-			if (hasBorderImage) {
+			if (hasBorderImage && !borderImageDone) {
 				BorderImageBuilder builder = createBorderImageBuilder();
+				if (builder.checkValuesForType(Type.INTERNAL, important) != 0) {
+					return false;
+				}
 				builder.appendMinifiedCssText(buf);
+				borderImageDone = true;
 			}
 			return true;
 		}
-		if (hasBorderImage) {
+		if (hasBorderImage && !borderImageDone) {
 			BorderImageBuilder builder = createBorderImageBuilder();
+			if (builder.checkValuesForType(Type.INTERNAL, important) != 0) {
+				return false;
+			}
 			builder.appendMinifiedCssText(buf);
+			borderImageDone = true;
 		}
 		// We could not build the full 'border' shorthand, but perhaps border-color
 		// or some other could be formed.
@@ -196,6 +190,46 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		PropertyValueScore score = new PropertyValueScore(declaredSet);
 		score.score(counter);
 		return appendPartialShorthands(buf, declaredSet, score, counter, important);
+	}
+
+	private byte keywordCheck(StringBuilder buf, Set<String> declaredSet, boolean important) {
+		// 'inherit' check
+		byte icheck = checkValuesForInherit(declaredSet);
+		if (icheck == 1) {
+			// All values are inherit
+			buf.append("border:inherit");
+			appendPriority(buf, important);
+			if (hasBorderImage && !borderImageDone && !isBorderImageSetToKeyword(Type.INHERIT)) {
+				BorderImageBuilder builder = createBorderImageBuilder();
+				if (builder.checkValuesForType(Type.INTERNAL, important) != 0) {
+					return -1;
+				}
+				builder.appendMinifiedCssText(buf);
+				borderImageDone = true;
+			}
+			return 1;
+		} else if (icheck == 2) {
+			return 2;
+		}
+		// 'revert' check
+		byte ucheck = checkValuesForType(Type.REVERT, declaredSet);
+		if (ucheck == 1) {
+			// All values are revert
+			buf.append("border:revert");
+			appendPriority(buf, important);
+			if (hasBorderImage && !borderImageDone && !isBorderImageSetToKeyword(Type.REVERT)) {
+				BorderImageBuilder builder = createBorderImageBuilder();
+				if (builder.checkValuesForType(Type.INTERNAL, important) != 0) {
+					return -1;
+				}
+				builder.appendMinifiedCssText(buf);
+				borderImageDone = true;
+			}
+			return 1;
+		} else if (ucheck == 2) {
+			return 2;
+		}
+		return 0;
 	}
 
 	private boolean isInShadowedSet(Set<String> declaredSet, PropertyCount counter) {
@@ -324,10 +358,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			Set<String> equivColorSet = score.getEquivColorSet(score.getSameColorScore());
 			appendFullBorderText(buf, declaredSet, score, live_state, equivWidthSet, equivStyleSet, equivColorSet,
 					important);
-			if (!isBorderImageSetToInitial()) {
+			if (mustSerializeBorderImage(live_state)) {
 				BorderImageBuilder builder = createBorderImageBuilder();
 				builder.appendMinifiedCssText(buf);
 			}
+			borderImageDone = true;
 			return true;
 		}
 		if (score.getSameStyleScore() == score.getSameWidthScore()
@@ -343,10 +378,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			}
 		}
 		appendFullBorderPlusMore(buf, declaredSet, score, live_state, important);
-		if (!isBorderImageSetToInitial()) {
+		if (mustSerializeBorderImage(live_state)) {
 			BorderImageBuilder builder = createBorderImageBuilder();
 			builder.appendMinifiedCssText(buf);
 		}
+		borderImageDone = true;
 		return true;
 	}
 
@@ -378,10 +414,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		if (score.getColorState().getBestState() != live_state || score.getSameColorScore() != 21) {
 			appendBorderColorText(buf, declaredSet, false, score, score.getSameColorScore(), null, important);
 		}
-		if (!isBorderImageSetToInitial()) {
+		if (mustSerializeBorderImage(live_state)) {
 			BorderImageBuilder builder = createBorderImageBuilder();
 			builder.appendMinifiedCssText(buf);
 		}
+		borderImageDone = true;
 	}
 
 	private boolean appendFullBorderPlusSide(StringBuilder buf, Set<String> declaredSet, PropertyValueScore score,
@@ -395,10 +432,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			appendFullBorderText(buf, declaredSet, score, live_state, equivWidthSet, equivStyleSet, equivColorSet,
 					important);
 			appendBorderBottomText(buf, declaredSet, score, live_state, important);
-			if (!isBorderImageSetToInitial()) {
+			if (mustSerializeBorderImage(live_state)) {
 				BorderImageBuilder builder = createBorderImageBuilder();
 				builder.appendMinifiedCssText(buf);
 			}
+			borderImageDone = true;
 			return true;
 		} else if (samescore == 5) {
 			// top = bottom = left
@@ -408,10 +446,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			appendFullBorderText(buf, declaredSet, score, live_state, equivWidthSet, equivStyleSet, equivColorSet,
 					important);
 			appendBorderRightText(buf, declaredSet, score, live_state, important);
-			if (!isBorderImageSetToInitial()) {
+			if (mustSerializeBorderImage(live_state)) {
 				BorderImageBuilder builder = createBorderImageBuilder();
 				builder.appendMinifiedCssText(buf);
 			}
+			borderImageDone = true;
 			return true;
 		} else if (samescore == 16) {
 			if (equivalentProperties("border-right-width", "border-bottom-width", score.getWidthState().getBestState())
@@ -442,10 +481,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				appendBorderTopText(buf, declaredSet, score, live_state, important);
 				appendBorderBottomText(buf, declaredSet, score, live_state, important);
 			}
-			if (!isBorderImageSetToInitial()) {
+			if (mustSerializeBorderImage(live_state)) {
 				BorderImageBuilder builder = createBorderImageBuilder();
 				builder.appendMinifiedCssText(buf);
 			}
+			borderImageDone = true;
 			return true;
 		} else if (samescore == 4) {
 			if (equivalentProperties("border-right-width", "border-bottom-width", score.getWidthState().getBestState())
@@ -476,10 +516,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				appendBorderRightText(buf, declaredSet, score, live_state, important);
 				appendBorderLeftText(buf, declaredSet, score, live_state, important);
 			}
-			if (!isBorderImageSetToInitial()) {
+			if (mustSerializeBorderImage(live_state)) {
 				BorderImageBuilder builder = createBorderImageBuilder();
 				builder.appendMinifiedCssText(buf);
 			}
+			borderImageDone = true;
 			return true;
 		} else if (samescore == 1) {
 			// top = left
@@ -490,10 +531,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 					important);
 			appendBorderRightText(buf, declaredSet, score, live_state, important);
 			appendBorderBottomText(buf, declaredSet, score, live_state, important);
-			if (!isBorderImageSetToInitial()) {
+			if (mustSerializeBorderImage(live_state)) {
 				BorderImageBuilder builder = createBorderImageBuilder();
 				builder.appendMinifiedCssText(buf);
 			}
+			borderImageDone = true;
 			return true;
 		} else if (equivalentProperties("border-right-width", "border-top-width", score.getWidthState().getBestState())
 				&& equivalentProperties("border-right-style", "border-top-style", score.getStyleState().getBestState())
@@ -513,10 +555,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 					important);
 			appendBorderBottomText(buf, declaredSet, score, live_state, important);
 			appendBorderLeftText(buf, declaredSet, score, live_state, important);
-			if (!isBorderImageSetToInitial()) {
+			if (mustSerializeBorderImage(live_state)) {
 				BorderImageBuilder builder = createBorderImageBuilder();
 				builder.appendMinifiedCssText(buf);
 			}
+			borderImageDone = true;
 			return true;
 		} else if (equivalentProperties("border-left-width", "border-bottom-width",
 				score.getWidthState().getBestState())
@@ -538,10 +581,11 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 					important);
 			appendBorderTopText(buf, declaredSet, score, live_state, important);
 			appendBorderRightText(buf, declaredSet, score, live_state, important);
-			if (!isBorderImageSetToInitial()) {
+			if (mustSerializeBorderImage(live_state)) {
 				BorderImageBuilder builder = createBorderImageBuilder();
 				builder.appendMinifiedCssText(buf);
 			}
+			borderImageDone = true;
 			return true;
 		}
 		return false;
@@ -614,19 +658,37 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	 * @return <code>true</code> if at least one border-image property is set.
 	 */
 	private void setBorderImageState(boolean important) {
-		boolean bisource = isPropertyAssigned("border-image-source", important);
-		boolean bislice = isPropertyAssigned("border-image-slice", important);
-		boolean biwidth = isPropertyAssigned("border-image-width", important);
-		boolean bioutset = isPropertyAssigned("border-image-outset", important);
-		boolean birepeat = isPropertyAssigned("border-image-repeat", important);
+		boolean bisource = isPropertyAssigned("border-image-source");
+		boolean bislice = isPropertyAssigned("border-image-slice");
+		boolean biwidth = isPropertyAssigned("border-image-width");
+		boolean bioutset = isPropertyAssigned("border-image-outset");
+		boolean birepeat = isPropertyAssigned("border-image-repeat");
 		this.fullBorderImage = bisource && bislice && biwidth && bioutset && birepeat;
 		this.hasBorderImage = bisource || bislice || biwidth || bioutset || birepeat;
+	}
+
+	private boolean mustSerializeBorderImage(byte live_state) {
+		switch (live_state) {
+		case 0:
+			return !isBorderImageSetToInitial();
+		case 1:
+			return !isBorderImageSetToKeyword(Type.INHERIT);
+		case 5:
+			return !isBorderImageSetToKeyword(Type.REVERT);
+		}
+		return true;
 	}
 
 	private boolean isBorderImageSetToInitial() {
 		return isInitialValue("border-image-source") && isInitialValue("border-image-slice")
 				&& isInitialValue("border-image-width") && isInitialValue("border-image-outset")
 				&& isInitialValue("border-image-repeat");
+	}
+
+	private boolean isBorderImageSetToKeyword(Type keyword) {
+		return isValueOfType(keyword, "border-image-source") && isValueOfType(keyword, "border-image-slice")
+				&& isValueOfType(keyword, "border-image-width") && isValueOfType(keyword, "border-image-outset")
+				&& isValueOfType(keyword, "border-image-repeat");
 	}
 
 	/**
