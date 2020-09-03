@@ -147,9 +147,9 @@ public class HTMLDocumentTest {
 	@Test
 	public void appendChild2() throws DOMException {
 		DOMDocument document = new TestDOMImplementation(false).createDocument(null, null, null);
-		document.appendChild(document.getImplementation().createDocumentType(null, null, null));
+		document.appendChild(document.getImplementation().createDocumentType("foo", null, null));
 		try {
-			document.appendChild(document.getImplementation().createDocumentType(null, null, null));
+			document.appendChild(document.getImplementation().createDocumentType("bar", null, null));
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);

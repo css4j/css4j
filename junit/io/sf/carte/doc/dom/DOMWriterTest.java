@@ -66,6 +66,53 @@ public class DOMWriterTest {
 	}
 
 	@Test
+	public void testInjection() throws IOException, SAXException {
+		TestDOMImplementation domImpl = new TestDOMImplementation();
+		DocumentType doctype = domImpl.createDocumentType("html", null,
+				"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><injection/><foo bar=\"");
+		DOMDocument document = domImpl.createDocument(null, "html", doctype);
+		DOMElement html = document.getDocumentElement();
+		html.setAttribute("lang", "en\"><injection/><head");
+		DOMElement body = document.createElement("body");
+		DOMElement div = document.createElement("div");
+		div.appendChild(document.createTextNode("<injection/>"));
+		body.appendChild(div);
+		html.appendChild(body);
+		DOMWriter domWriter = new DOMWriter();
+		domWriter.setIndentingUnit(1);
+		assertEquals(
+				"<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;&lt;injection/&gt;&lt;foo bar=&quot;\">\n<html lang=\"en&quot;&gt;&lt;injection/&gt;&lt;head\">\n <body>\n  <div>&lt;injection/&gt;</div>\n </body>\n</html>\n",
+				domWriter.serializeToString(document));
+	}
+
+	@Test
+	public void testSerializeSVG() throws IOException, SAXException {
+		TestDOMImplementation domImpl = new TestDOMImplementation();
+		DocumentType doctype = domImpl.createDocumentType("svg", "-//W3C//DTD SVG 1.1//EN",
+				"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd");
+		DOMDocument document = domImpl.createDocument(null, null, doctype);
+		DOMElement docElm = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+		docElm.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", "http://www.w3.org/2000/svg");
+		document.appendChild(docElm);
+		docElm.setAttribute("version", "1.1");
+		docElm.setAttribute("width", "320");
+		docElm.setAttribute("height", "320");
+		DOMElement rect = document.createElement("rect");
+		rect.setAttribute("width", "120");
+		rect.setAttribute("height", "80");
+		rect.setAttribute("x", "12");
+		rect.setAttribute("y", "64");
+		rect.setAttribute("fill", "yellow");
+		rect.setAttribute("stroke", "grey");
+		docElm.appendChild(rect);
+		DOMWriter domWriter = new DOMWriter();
+		domWriter.setIndentingUnit(1);
+		assertEquals(
+				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"320\" height=\"320\"><rect width=\"120\" height=\"80\" x=\"12\" y=\"64\" fill=\"yellow\" stroke=\"grey\"></rect></svg>\n",
+				domWriter.serializeToString(document));
+	}
+
+	@Test
 	public void testSerializeDocument() throws IOException {
 		DOMDocument document = TestDOMImplementation.sampleXHTMLDocument();
 		BufferSimpleWriter writer = new BufferSimpleWriter(4096);
