@@ -56,7 +56,7 @@ public class XMLDocumentBuilderTest {
 		builder.setEntityResolver(new DefaultEntityResolver());
 	}
 
-	@Test(timeout=1000)
+	@Test
 	public void testParseInputSource() throws SAXException, IOException {
 		HTMLDocument document = (HTMLDocument) parseDocument("entities.xhtml");
 		assertNotNull(document);
@@ -104,6 +104,16 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(element);
 		assertTrue(element.hasAttribute("donotexist"));
 		assertEquals("nothing", element.getAttribute("donotexist"));
+		// SVG
+		DOMElement svg = document.getElementById("svg1");
+		assertNotNull(svg);
+		assertEquals("http://www.w3.org/2000/svg", svg.getNamespaceURI());
+		assertEquals("s", svg.getPrefix());
+		assertEquals("1.1", svg.getAttributeNS("http://www.w3.org/2000/svg", "version"));
+		DOMElement rect = svg.getFirstElementChild();
+		assertNotNull(rect);
+		assertEquals("http://www.w3.org/2000/svg", rect.getNamespaceURI());
+		assertEquals("s", rect.getPrefix());
 	}
 
 	@Test(timeout=1000)
@@ -152,7 +162,7 @@ public class XMLDocumentBuilderTest {
 		element = document.getElementById("smip");
 		assertNotNull(element);
 		assertEquals("Paragraph with \u221e", element.getTextContent());
-		assertNull(document.getElementById("doesnotexist"));
+		assertNotNull(document.getElementById("doesnotexist"));
 		element = document.getElementById("para1");
 		assertNotNull(element);
 		assertTrue(element.hasAttribute("donotexist"));
@@ -269,7 +279,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test(timeout=1000)
+	@Test
 	public void testParseInputSourceXMLOnlySystem() throws SAXException, IOException {
 		domImpl.setXmlOnly(true);
 		DOMDocument document = parseDocument("entities-systemdtd.xhtml");
@@ -312,7 +322,7 @@ public class XMLDocumentBuilderTest {
 		element = document.getElementById("smip");
 		assertNotNull(element);
 		assertEquals("Paragraph with \u221e", element.getTextContent());
-		assertNull(document.getElementById("doesnotexist"));
+		assertNotNull(document.getElementById("doesnotexist"));
 		element = document.getElementById("para1");
 		assertNotNull(element);
 		assertTrue(element.hasAttribute("donotexist"));
@@ -421,9 +431,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" A comment just after the document element ", node.getNodeValue());
 		// Entities etc.
-		assertNull(document.getElementById("entity"));
 		DOMElement body = docelm.getChildren().item(1);
-		DOMElement element = body.getChildren().item(1).getFirstElementChild();
+		DOMElement element = document.getElementById("entity");
 		assertNotNull(element);
 		assertEquals("<>", element.getTextContent());
 		assertEquals("ent\"ity", element.getClassName());
@@ -532,9 +541,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" A comment just after the document element ", node.getNodeValue());
 		// Entities etc.
-		assertNull(document.getElementById("entity"));
 		DOMElement body = docelm.getChildren().item(1);
-		DOMElement element = body.getChildren().item(1).getFirstElementChild();
+		DOMElement element = document.getElementById("entity");
 		assertNotNull(element);
 		assertEquals("<>", element.getTextContent());
 		assertEquals("ent\"ity", element.getClassName());
@@ -619,12 +627,10 @@ public class XMLDocumentBuilderTest {
 		assertEquals("http://www.example.com/xml/entities-nodtd.xhtml", document.getDocumentURI());
 		assertEquals("http://www.example.com/xml/entities-nodtd.xhtml", document.getBaseURI());
 		assertNull(document.getDoctype());
-		assertNull(document.getElementById("entity"));
 		DOMElement docelm = document.getDocumentElement();
 		// Entities etc.
-		assertNull(document.getElementById("entity"));
 		DOMElement body = docelm.getChildren().item(1);
-		DOMElement element = body.getFirstElementChild();
+		DOMElement element = document.getElementById("entity");
 		assertNotNull(element);
 		assertEquals("<>", element.getTextContent());
 		element = body.getLastElementChild();
@@ -812,6 +818,40 @@ public class XMLDocumentBuilderTest {
 		DOMNode comment = docElement.getNextSibling();
 		assertNotNull(comment);
 		assertEquals(" Final comment ", comment.getNodeValue());
+	}
+
+	@Test
+	public void testParseInputSourceSVG() throws SAXException, IOException {
+		DOMDocument document = parseDocument(new StringReader(
+				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"320\" height=\"320\"><rect width=\"120\" height=\"80\" x=\"12\" y=\"64\" fill=\"yellow\" stroke=\"grey\"></rect></svg>"),
+				"svg.xhtml");
+		assertNotNull(document);
+		DOMElement docElement = document.getDocumentElement();
+		assertNotNull(docElement);
+		assertEquals("svg", docElement.getNodeName());
+		assertEquals("svg", docElement.getLocalName());
+		assertEquals("http://www.w3.org/2000/svg", docElement.getNamespaceURI());
+		assertNull(docElement.getPrefix());
+		assertTrue(docElement.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		//
+		DOMElement element = docElement.getFirstElementChild();
+		assertNotNull(element);
+		assertFalse(element.hasChildNodes());
+		assertEquals("rect", element.getNodeName());
+		assertEquals("rect", element.getLocalName());
+		assertEquals("http://www.w3.org/2000/svg", element.getNamespaceURI());
+		assertNull(element.getPrefix());
+		assertFalse(element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		// By convention, unprefixed attributes belong to the same namespace as the owner element
+		Attr nsattr = element.getAttributeNodeNS("http://www.w3.org/2000/svg", "x");
+		assertNotNull(nsattr);
+		assertNull(nsattr.getNamespaceURI());
+		assertNull(nsattr.getPrefix());
+		//
+		Attr attr = element.getAttributeNode("x");
+		assertSame(nsattr, attr);
+		//
+		assertNull(element.getAttributeNodeNS("http://www.w3.org/1999/xhtml", "x"));
 	}
 
 	private DOMDocument parseDocument(String filename) throws SAXException, IOException {

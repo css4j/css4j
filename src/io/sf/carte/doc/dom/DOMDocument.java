@@ -1377,6 +1377,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		@Override
 		public String getId() {
 			String idAttrName = idAttrNameMap.get(null); // get the 'id' attribute name
+			if (idAttrName == null) {
+				idAttrName = idAttrNameMap.get(getNamespaceURI());
+			}
 			if (idAttrName != null) {
 				Attr attr = nodeMap.getNamedItem(idAttrName);
 				if (attr != null) {
@@ -1388,7 +1391,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 		@Override
 		boolean isIdAttributeNS(String namespaceURI, String localName) {
-			return localName.equals(idAttrNameMap.get(namespaceURI));
+			String name = idAttrNameMap.get(namespaceURI);
+			if (name == null) {
+				name = idAttrNameMap.get(getNamespaceURI());
+			}
+			return name != null && localName.equals(name);
 		}
 
 		@Override
@@ -1412,7 +1419,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			if (idAttr == null || !nodeMap.getNodeList().contains(idAttr)) {
 				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
 			}
-			setIdAttrNS(idAttr.getNamespaceURI(), idAttr.getLocalName(), isId);
+			String nsuri = idAttr.getNamespaceURI();
+			if (nsuri == null) {
+				nsuri = getNamespaceURI();
+			}
+			setIdAttrNS(nsuri, idAttr.getLocalName(), isId);
 		}
 
 		private void setIdAttrNS(String namespaceURI, String localName, boolean isId) {
@@ -1852,16 +1863,15 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	/**
 	 * Returns the Element that has an ID attribute with the given value.
 	 * <p>
-	 * If no such element exists, this returns <code>null</code>. If more than one element has
-	 * an ID attribute with that value, what is returned is undefined.
+	 * If no such element exists, this returns <code>null</code>. If more than one
+	 * element has an ID attribute with that value, what is returned is undefined.
 	 * <p>
-	 * By default, this implementations uses <code>'id'</code> as the ID attribute, but this
-	 * can be changed to a different case (e.g. 'ID') with the
-	 * {@link Element#setIdAttribute(String, boolean)}. Changes to the ID attribute on a
-	 * single element are <code>Document</code>-wide.
+	 * In HTML documents, by default, this implementation uses <code>'id'</code> as
+	 * the ID attribute, but this can be changed to a different case (e.g. 'ID')
+	 * with the {@link Element#setIdAttribute(String, boolean)}. Changes to the ID
+	 * attribute on a single element are <code>Document</code>-wide in HTML.
 	 * 
-	 * @param elementId
-	 *            The unique id value for an element.
+	 * @param elementId The unique id value for an element.
 	 * @return The matching element or <code>null</code> if there is none.
 	 */
 	@Override

@@ -448,7 +448,8 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 				Attr attr = document.createAttributeNS(atts2.getURI(i), attrQName);
 				attr.setValue(atts2.getValue(i));
 				element.getAttributes().setNamedItem(attr);
-				if ("ID".equals(atts2.getType(i))) {
+				if ("ID".equals(atts2.getType(i))
+						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
 					element.setIdAttributeNode(attr, true);
 				}
 			}
