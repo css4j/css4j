@@ -118,6 +118,12 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	 */
 	@Override
 	public DocumentType createDocumentType(String qualifiedName, String publicId, String systemId) throws DOMException {
+		if (qualifiedName == null) {
+			throw new NullPointerException("Null DTD qName.");
+		}
+		if (!DOMDocument.isValidName(qualifiedName)) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid qName: " + qualifiedName);
+		}
 		return new DocumentTypeImpl(qualifiedName, publicId, systemId);
 	}
 

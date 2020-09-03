@@ -243,7 +243,7 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 		}
 	}
 
-	private static String escapeAttributeEntities(String text) {
+	static String escapeAttributeEntities(String text) {
 		StringBuilder buf = null;
 		int len = text.length();
 		for (int i = 0; i < len; i++) {

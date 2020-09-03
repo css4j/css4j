@@ -586,18 +586,20 @@ public class DOMWriter {
 		String systemId = docType.getSystemId();
 		boolean hasSystemId = systemId != null;
 		wri.write("<!DOCTYPE ");
-		wri.write(docType.getName());
+		String name = docType.getName();
+		name = DOMAttr.escapeAttributeEntities(name);
+		wri.write(name);
 		String publicId = docType.getPublicId();
 		if (publicId != null) {
 			wri.write(" PUBLIC \"");
-			wri.write(publicId);
+			wri.write(DOMAttr.escapeAttributeEntities(publicId));
 			wri.write('"');
 		} else if (hasSystemId) {
 			wri.write(" SYSTEM");
 		}
 		if (hasSystemId) {
 			wri.write(" \"");
-			wri.write(systemId);
+			wri.write(DOMAttr.escapeAttributeEntities(systemId));
 			wri.write('"');
 		}
 		wri.write('>');

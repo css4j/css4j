@@ -290,7 +290,7 @@ public class DOMNodeTest {
 		DOMElement html = xhtmlDoc.getDocumentElement();
 		DOMElement elm = xhtmlDoc.createElement("body");
 		ProcessingInstruction pi = xhtmlDoc.createProcessingInstruction("xml-foo", "bar");
-		DocumentType docType = xhtmlDoc.getImplementation().createDocumentType(null, null, null);
+		DocumentType docType = xhtmlDoc.getImplementation().createDocumentType("html", null, null);
 		assertFalse(html.hasChildNodes());
 		Node appended = html.prependChild(elm);
 		assertTrue(html.hasChildNodes());
@@ -423,7 +423,7 @@ public class DOMNodeTest {
 		DOMElement html = xhtmlDoc.getDocumentElement();
 		DOMElement elm = xhtmlDoc.createElement("body");
 		ProcessingInstruction pi = xhtmlDoc.createProcessingInstruction("xml-foo", "bar");
-		DocumentType docType = xhtmlDoc.getImplementation().createDocumentType(null, null, null);
+		DocumentType docType = xhtmlDoc.getImplementation().createDocumentType("html", null, null);
 		assertFalse(html.hasChildNodes());
 		Node appended = html.appendChild(elm);
 		assertTrue(html.hasChildNodes());
@@ -828,7 +828,7 @@ public class DOMNodeTest {
 	@Test
 	public void insertBeforeDF() throws DOMException {
 		DOMElement html = xhtmlDoc.getDocumentElement();
-		DocumentType docType = xhtmlDoc.getImplementation().createDocumentType(null, null, null);
+		DocumentType docType = xhtmlDoc.getImplementation().createDocumentType("html", null, null);
 		xhtmlDoc.insertBefore(docType, html);
 		DOMElement body = xhtmlDoc.createElement("body");
 		html.appendChild(body);
@@ -1154,7 +1154,7 @@ public class DOMNodeTest {
 	@Test
 	public void replaceChildDF() throws DOMException {
 		DOMElement html = xhtmlDoc.getDocumentElement();
-		DocumentType docType = xhtmlDoc.getImplementation().createDocumentType(null, null, null);
+		DocumentType docType = xhtmlDoc.getImplementation().createDocumentType("html", null, null);
 		xhtmlDoc.insertBefore(docType, html);
 		DOMElement body = xhtmlDoc.createElement("body");
 		html.appendChild(body);
