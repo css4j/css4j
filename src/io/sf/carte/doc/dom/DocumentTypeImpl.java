@@ -121,12 +121,14 @@ class DocumentTypeImpl extends AbstractDOMNode implements DocumentType {
 		StringBuilder buf = new StringBuilder(128);
 		buf.append("<!DOCTYPE ").append(qualifiedName);
 		if (publicId != null) {
-			buf.append(" PUBLIC \"").append(publicId).append('"');
+			buf.append(" PUBLIC \"");
+			buf.append(DOMAttr.escapeAttributeEntities(publicId)).append('"');
 		} else if (hasSystemId) {
 			buf.append(" SYSTEM");
 		}
 		if (hasSystemId) {
-			buf.append(" \"").append(systemId).append('"');
+			buf.append(" \"");
+			buf.append(DOMAttr.escapeAttributeEntities(systemId)).append('"');
 		}
 		buf.append('>');
 		return buf.toString();
