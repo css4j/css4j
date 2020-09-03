@@ -71,9 +71,9 @@ import io.sf.carte.doc.agent.AgentUtil;
  */
 public class DefaultEntityResolver implements EntityResolver2 {
 
-	private final HashMap<String, String> systemIdToFilename = new HashMap<String, String>(63);
+	private final HashMap<String, String> systemIdToFilename = new HashMap<String, String>(64);
 
-	private final HashMap<String, String> systemIdToPublicId = new HashMap<String, String>(12);
+	private final HashMap<String, String> systemIdToPublicId = new HashMap<String, String>(13);
 
 	private ClassLoader loader = null;
 
@@ -164,6 +164,7 @@ public class DefaultEntityResolver implements EntityResolver2 {
 		systemIdToFilename.put("http://www.w3.org/MarkUp/DTD/xhtml-charent-1.mod", "w3c/xhtml-charent-1.mod");
 		systemIdToFilename.put("http://www.w3.org/MarkUp/DTD/xhtml-basic11-model-1.mod", "w3c/xhtml-basic11-model-1.mod");
 		systemIdToFilename.put("http://www.w3.org/MarkUp/DTD/xhtml-inputmode-1.mod", "w3c/xhtml-inputmode-1.mod");
+		systemIdToFilename.put("http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", "w3c/svg11.dtd");
 		//
 		systemIdToPublicId.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd", "-//W3C//DTD XHTML 1.0 Strict//EN");
 		systemIdToPublicId.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd",
@@ -182,6 +183,7 @@ public class DefaultEntityResolver implements EntityResolver2 {
 		systemIdToPublicId.put("http://www.w3.org/Math/DTD/mathml1/mathml.dtd", "math");
 		systemIdToPublicId.put("http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd",
 				"-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN");
+		systemIdToPublicId.put("http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd", "-//W3C//DTD SVG 1.1//EN");
 		if (enableWhitelist) {
 			whitelist = new HashSet<String>(1);
 		}
