@@ -86,7 +86,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 			throws DOMException {
 		DOMDocument document;
 		if (namespaceURI == null || namespaceURI.equals(HTMLDocument.HTML_NAMESPACE_URI)
-				|| (doctype != null && "html".equalsIgnoreCase(doctype.getName()))) {
+				|| (namespaceURI.length() == 0 && doctype != null && "html".equalsIgnoreCase(doctype.getName()))) {
 			document = new MyHTMLDocument(doctype);
 		} else {
 			document = new MyXMLDocument(doctype);
