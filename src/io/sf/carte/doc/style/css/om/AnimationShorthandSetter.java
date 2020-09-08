@@ -111,7 +111,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				}
 				// If a css-wide keyword is found, set the entire layer to it
 				LexicalType lutype = currentValue.getLexicalUnitType();
-				if (lutype == LexicalType.INHERIT || lutype == LexicalType.UNSET
+				if (lutype == LexicalType.INHERIT || lutype == LexicalType.INITIAL || lutype == LexicalType.UNSET
 						|| lutype == LexicalType.REVERT) {
 					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 					// Full layer is 'keyword'
