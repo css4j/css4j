@@ -148,6 +148,93 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testAnimationKeyword() {
+		emptyStyleDecl.setCssText("animation: initial");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertEquals("animation: initial; ", emptyStyleDecl.getCssText());
+		assertEquals("animation:initial;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("animation: initial ! important");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertEquals("animation: initial ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("animation:initial!important;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("animation: inherit");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertEquals("animation: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("animation:inherit;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("animation: inherit ! important");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertEquals("animation: inherit ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("animation:inherit!important;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("animation: unset");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertEquals("animation: unset; ", emptyStyleDecl.getCssText());
+		assertEquals("animation:unset;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("animation: unset ! important");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertEquals("animation: unset ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("animation:unset!important;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
 	public void testBorderImportant() {
 		emptyStyleDecl.setCssText("border: 1px dashed blue ! important; ");
 		assertEquals("blue", emptyStyleDecl.getPropertyValue("border-top-color"));
@@ -1775,6 +1862,37 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testBackgroundInherit() {
+		emptyStyleDecl.setCssText("background: inherit;");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("background:inherit;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("background: inherit!important;");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: inherit ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("background:inherit!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testBackgroundInheritLayer() {
 		emptyStyleDecl.setCssText(
 				"background: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url(c.png) inherit;");
 		assertEquals("url('a.png'), url('b.png'), inherit", emptyStyleDecl.getPropertyValue("background-image"));
@@ -1791,6 +1909,68 @@ public class ShorthandSetterTest {
 		assertEquals("background:url('a.png') top left no-repeat,url('b.png') center/100% 100% no-repeat,inherit;",
 				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(((DefaultStyleDeclarationErrorHandler) emptyStyleDecl.getStyleDeclarationErrorHandler()).hasErrors());
+	}
+
+	@Test
+	public void testBackgroundUnset() {
+		emptyStyleDecl.setCssText("background: unset;");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: unset; ", emptyStyleDecl.getCssText());
+		assertEquals("background:unset;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("background: unset!important;");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: unset ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("background:unset!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testBackgroundInitial() {
+		emptyStyleDecl.setCssText("background: initial;");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: initial; ", emptyStyleDecl.getCssText());
+		assertEquals("background:initial;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("background: initial!important;");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: initial ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("background:initial!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
