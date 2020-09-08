@@ -2215,8 +2215,85 @@ public class ShorthandSetterTest {
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-size"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-attachment"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("background-image"));
 		assertEquals("background: unset; ", emptyStyleDecl.getCssText());
 		assertEquals("background:unset;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("background: unset!important;");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: unset ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("background:unset!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testBackgroundRevert() {
+		emptyStyleDecl.setCssText("background: revert;");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: revert; ", emptyStyleDecl.getCssText());
+		assertEquals("background:revert;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("background: revert!important;");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: revert ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("background:revert!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testBackgroundInitial() {
+		emptyStyleDecl.setCssText("background: initial;");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: initial; ", emptyStyleDecl.getCssText());
+		assertEquals("background:initial;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("background: initial!important;");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: initial ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("background:initial!important;", emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
