@@ -67,6 +67,21 @@ public class BaseCSSStyleDeclarationTest {
 	}
 
 	@Test
+	public void testSetCssTextEmpty3() {
+		emptyStyleDecl.setCssText("flex: unset unset;display: block");
+		assertEquals("display: block;\n", emptyStyleDecl.getCssText());
+		assertEquals("block", emptyStyleDecl.getPropertyValue("display"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("flex-grow"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("flex"));
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		emptyStyleDecl.setCssText("");
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertEquals(0, emptyStyleDecl.getLength());
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getPropertyValue("display"));
+	}
+
+	@Test
 	public void getCssTextForRem() {
 		emptyStyleDecl.setCssText("line-height: 1.2rem; ");
 		assertEquals("1.2rem", emptyStyleDecl.getPropertyValue("line-height"));
