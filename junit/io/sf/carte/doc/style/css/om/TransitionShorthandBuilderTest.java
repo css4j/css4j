@@ -36,8 +36,9 @@ public class TransitionShorthandBuilderTest {
 
 	@Test
 	public void testBuilder() {
-		assertShorthandText("transition:none 3500ms 5s;", "transition: 3500ms 5s none");
+		assertShorthandText("transition:0s;", "transition: initial;");
 		assertShorthandText("transition:none;", "transition: none;");
+		assertShorthandText("transition:none 3500ms 5s;", "transition: 3500ms 5s none");
 		assertShorthandText("transition:none 0s steps(4,end) 5s;",
 				"transition-duration: 0s; transition-timing-function: steps(4,end); transition-delay: 5s; transition-property: none;");
 		assertShorthandText("transition:margin-top 3500ms cubic-bezier(.05,.69,.95,.6) 5s;",
@@ -97,6 +98,8 @@ public class TransitionShorthandBuilderTest {
 
 	@Test
 	public void testBuilderImportant() {
+		assertShorthandText("transition:0s!important;", "transition: initial!important;");
+		assertShorthandText("transition:none!important;", "transition: none!important;");
 		assertShorthandText("transition:margin-top 3500ms ease-out 5s!important;",
 				"transition: 3500ms 5s ease-out margin-top ! important");
 	}
