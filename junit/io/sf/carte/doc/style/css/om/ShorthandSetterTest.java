@@ -3336,50 +3336,38 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
-	public void testTransitionMultipleInherit() {
+	public void testTransitionMultipleInheritInvalid() {
 		emptyStyleDecl.setCssText(
 				"transition-delay: 30s; transition: background-color 1s linear 2s, inherit, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1);");
-		assertEquals("background-color, inherit, width, height",
-				emptyStyleDecl.getPropertyValue("transition-property"));
-		assertEquals("linear, inherit, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
-				emptyStyleDecl.getPropertyValue("transition-timing-function"));
-		assertEquals("1s, inherit, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("2s, inherit, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
-		assertEquals(
-				"transition: background-color 1s linear 2s, inherit, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1); ",
-				emptyStyleDecl.getCssText());
-		assertEquals(
-				"transition:background-color 1s linear 2s,inherit,width 3s ease-in,height 5s cubic-bezier(.33,.1,.5,1);",
-				emptyStyleDecl.getMinifiedCssText());
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("30s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("transition-delay: 30s; ", emptyStyleDecl.getCssText());
+		assertEquals("transition-delay:30s", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
-	public void testTransitionMultipleInherit2() {
+	public void testTransitionMultipleInheritInvalid2() {
 		emptyStyleDecl.setCssText(
-				"transition-delay: 30s; transition: unset, background-color 1s linear 2s, inherit, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1);");
-		assertEquals("unset, background-color, inherit, width, height",
-				emptyStyleDecl.getPropertyValue("transition-property"));
-		assertEquals("unset, linear, inherit, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
-				emptyStyleDecl.getPropertyValue("transition-timing-function"));
-		assertEquals("unset, 1s, inherit, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("unset, 2s, inherit, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
-		assertEquals(
-				"transition: unset, background-color 1s linear 2s, inherit, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1); ",
-				emptyStyleDecl.getCssText());
-		assertEquals(
-				"transition:unset,background-color 1s linear 2s,inherit,width 3s ease-in,height 5s cubic-bezier(.33,.1,.5,1);",
-				emptyStyleDecl.getMinifiedCssText());
+				"transition-delay: 30s; transition: inherit, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1);");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("30s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("transition-delay: 30s; ", emptyStyleDecl.getCssText());
+		assertEquals("transition-delay:30s", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
 	public void testTransitionMultipleUnset() {
 		emptyStyleDecl.setCssText(
 				"transition-delay: 30s; transition: background-color 1s linear 2s, unset, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1);");
-		assertEquals("background-color, unset, width, height", emptyStyleDecl.getPropertyValue("transition-property"));
-		assertEquals("linear, unset, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
+		assertEquals("background-color, all, width, height", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("ease, ease, ease-in, cubic-bezier(0.33, 0.1, 0.5, 1)",
 				emptyStyleDecl.getPropertyValue("transition-timing-function"));
-		assertEquals("1s, unset, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
-		assertEquals("2s, unset, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("0s, 0s, 3s, 5s", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("0s, 0s, 0s, 0s", emptyStyleDecl.getPropertyValue("transition-delay"));
 		assertEquals(
 				"transition: background-color 1s linear 2s, unset, width 3s ease-in, height 5s cubic-bezier(0.33, 0.1, 0.5, 1); ",
 				emptyStyleDecl.getCssText());
@@ -3432,6 +3420,168 @@ public class ShorthandSetterTest {
 		assertEquals("cubic-bezier(0.15, 0, 0.5, 1.0)", emptyStyleDecl.getPropertyValue("transition-timing-function"));
 		assertEquals("transition: opacity cubic-bezier(0.15, 0, 0.5, 1.0) 0.15s; ", emptyStyleDecl.getCssText());
 		assertEquals("transition:opacity cubic-bezier(.15,0,.5,1) .15s;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testTransitionKeyword() {
+		emptyStyleDecl.setCssText("transition: initial;");
+		assertEquals("ease", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("all", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("transition: initial; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:initial;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("transition: initial!important;");
+		assertEquals("ease", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("all", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-delay").isSubproperty());
+		assertEquals("transition: initial ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:initial!important;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("transition: inherit;");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("transition: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:inherit;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("transition: inherit!important;");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-delay").isSubproperty());
+		assertEquals("transition: inherit ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:inherit!important;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("transition: unset;");
+		assertEquals("ease", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("all", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("transition: unset; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:unset;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("transition: unset!important;");
+		assertEquals("ease", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("all", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-delay").isSubproperty());
+		assertEquals("transition: unset ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:unset!important;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("transition: revert;");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("transition: revert; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:revert;", emptyStyleDecl.getMinifiedCssText());
+		//
+		emptyStyleDecl.setCssText("transition: revert!important;");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("transition-delay").isSubproperty());
+		assertEquals("transition: revert ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("transition:revert!important;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testTransitionKeywordBad() {
+		emptyStyleDecl.setCssText("transition: opacity initial;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("transition:initial opacity;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("transition: opacity inherit;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("transition: inherit opacity;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("transition: opacity,inherit;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("transition: opacity, inherit;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("transition: opacity revert;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("transition: revert opacity;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-timing-function"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-property"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-duration"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("transition-delay"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("transition-property"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test

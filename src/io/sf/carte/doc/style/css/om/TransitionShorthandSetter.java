@@ -136,23 +136,28 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				}
 				// If a css-wide keyword is found, set the entire layer to it
 				LexicalType lutype = currentValue.getLexicalUnitType();
-				if (lutype == LexicalType.INHERIT || lutype == LexicalType.UNSET
-						|| lutype == LexicalType.REVERT) {
-					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
-					// Full layer is 'keyword'
-					while (currentValue != null) {
-						boolean commaFound = currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA;
-						currentValue = currentValue.getNextLexicalUnit();
-						if (commaFound) {
-							break;
-						}
+				if (lutype == LexicalType.INHERIT || lutype == LexicalType.REVERT) {
+					if (i != 0 || !tpropUnset || !tdurUnset || !ttfUnset || !tdelayUnset
+							|| currentValue.getNextLexicalUnit() != null) {
+						reportDeclarationError("transition", "Found 'inherit' or 'revert' mixed with other values.");
+						return false;
 					}
-					i++;
-					// First, clear any values set at this layer
-					clearLayer(i);
+					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 					addSingleValueLayer(keyword);
 					appendValueItemString(keyword);
-					continue toploop;
+					break toploop;
+				}
+				// If initial/unset keyword is found, set the entire layer to it
+				if (lutype == LexicalType.INITIAL || lutype == LexicalType.UNSET) {
+					LexicalUnit nlu;
+					if (!tpropUnset || !tdurUnset || !ttfUnset || !tdelayUnset
+							|| ((nlu = currentValue.getNextLexicalUnit()) != null
+									&& nlu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA)) {
+						reportDeclarationError("transition", "Found a keyword mixed with other values.");
+						return false;
+					}
+					nextCurrentValue();
+					continue;
 				}
 				if ((tdurUnset || tdelayUnset) && ValueFactory.isTimeSACUnit(currentValue)) {
 					if (tdurUnset) {
@@ -202,16 +207,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 						nextCurrentValue();
 						continue;
 					} else {
-						// Reset all properties: declaration is invalid
-						lstProperty.clear();
-						lstDuration.clear();
-						lstTiming.clear();
-						lstDelay.clear();
-						cssText = "";
-						StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
-						if (errHandler != null) {
-							errHandler.shorthandError("transition", "Found 'none' in a multiple declaration");
-						}
+						reportDeclarationError("transition", "Found 'none' in a multiple declaration.");
 						return false;
 					}
 				}
@@ -276,26 +272,22 @@ class TransitionShorthandSetter extends ShorthandSetter {
 		return true;
 	}
 
-	private void clearLayer(int i) {
-		if (lstProperty.getLength() == i) {
-			lstProperty.remove(i - 1);
-		}
-		if (lstDuration.getLength() == i) {
-			lstDuration.remove(i - 1);
-		}
-		if (lstTiming.getLength() == i) {
-			lstTiming.remove(i - 1);
-		}
-		if (lstDelay.getLength() == i) {
-			lstDelay.remove(i - 1);
-		}
-	}
-
 	private void addSingleValueLayer(StyleValue keyword) {
 		lstProperty.add(keyword);
 		lstDuration.add(keyword);
 		lstTiming.add(keyword);
 		lstDelay.add(keyword);
+	}
+
+	@Override
+	void reportDeclarationError(String propertyName, String message) {
+		// Reset all properties: declaration is invalid
+		lstProperty.clear();
+		lstDuration.clear();
+		lstTiming.clear();
+		lstDelay.clear();
+		cssText = "";
+		super.reportDeclarationError(propertyName, message);
 	}
 
 }
