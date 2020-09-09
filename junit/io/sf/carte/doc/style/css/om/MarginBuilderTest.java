@@ -40,6 +40,7 @@ public class MarginBuilderTest {
 	@Test
 	public void testMarginZero() {
 		assertShorthandText("margin:0;", "margin: 0;");
+		assertShorthandText("margin:0!important;", "margin: 0!important;");
 		assertShorthandText("margin:1px 0;", "margin:1px 0;");
 		assertShorthandText("margin:0 1px;", "margin: 0 1px;");
 		assertShorthandText("margin:1px 0 3px;", "margin:1px 0 3px;");
@@ -226,7 +227,7 @@ public class MarginBuilderTest {
 	@Test
 	public void testMarginInitial() {
 		assertShorthandText("margin:0;", "margin: initial;");
-		assertShorthandText("margin:0!important;", "margin: 0 ! important;");
+		assertShorthandText("margin:0!important;", "margin: initial ! important;");
 	}
 
 	@Test

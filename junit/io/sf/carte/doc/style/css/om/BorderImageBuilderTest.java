@@ -34,7 +34,8 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImageNone() {
-		assertShorthandText("border-image-source:none;", "border-image-source:none;");
+		assertShorthandText("border-image:none;", "border-image:none;");
+		assertShorthandText("border-image:none;", "border-image:initial;");
 	}
 
 	@Test
@@ -45,8 +46,8 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImageNoneImportant() {
-		emptyStyleDecl.setCssText("border-image: none ! important");
-		assertEquals("border-image:none!important;", emptyStyleDecl.getOptimizedCssText());
+		assertShorthandText("border-image:none!important;", "border-image:none!important;");
+		assertShorthandText("border-image:none!important;", "border-image:initial!important;");
 	}
 
 	@Test

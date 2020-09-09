@@ -33,6 +33,7 @@ public class ListStyleShorthandBuilderTest {
 
 	@Test
 	public void testBuilder() {
+		assertShorthandText("list-style:disc;", "list-style: initial");
 		assertShorthandText("list-style:square;", "list-style: square");
 		assertShorthandText("list-style:disc;", "list-style: disc;");
 		assertShorthandText("list-style:none;", "list-style: none;");
@@ -68,6 +69,7 @@ public class ListStyleShorthandBuilderTest {
 
 	@Test
 	public void testBuilderImportant() {
+		assertShorthandText("list-style:disc!important;", "list-style: initial ! important");
 		assertShorthandText("list-style:disc!important;", "list-style: disc ! important");
 	}
 
@@ -89,6 +91,16 @@ public class ListStyleShorthandBuilderTest {
 	@Test
 	public void testBuilderUnsetImportant() {
 		assertShorthandText("list-style:unset!important;", "list-style: unset!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("list-style:revert;", "list-style: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("list-style:revert!important;", "list-style: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

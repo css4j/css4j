@@ -67,11 +67,13 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundNone() {
 		assertShorthandText("background:none;", "background: none;");
+		assertShorthandText("background:none;", "background: initial;");
 	}
 
 	@Test
 	public void testBackgroundNoneImportant() {
 		assertShorthandText("background:none!important;", "background: none ! important;");
+		assertShorthandText("background:none!important;", "background: initial ! important;");
 	}
 
 	@Test

@@ -37,6 +37,7 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilder() {
+		assertShorthandText("animation:none;", "animation: initial");
 		assertShorthandText("animation:2s cubic-bezier(.1,.7,1,.1);",
 				"animation: 2s cubic-bezier(0.1, 0.7, 1.0, 0.1);");
 		assertShorthandText("animation:3500ms 5s none backwards;", "animation: 3500ms 5s none backwards");
@@ -109,6 +110,7 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilderImportant() {
+		assertShorthandText("animation:none!important;", "animation: initial!important");
 		assertShorthandText("animation:3500ms steps(4,start) 5s reverse 'my anim'!important;",
 				"animation: 3500ms 5s steps(4, start) reverse 'my anim' ! important");
 	}

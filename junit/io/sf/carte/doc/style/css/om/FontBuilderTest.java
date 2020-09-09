@@ -69,6 +69,11 @@ public class FontBuilderTest {
 	}
 
 	@Test
+	public void testFontInitialAndLineHeightImportant() {
+		assertShorthandText("font:normal;line-height:1!important;", "font: initial; line-height: 1!important;");
+	}
+
+	@Test
 	public void testFontInitialAndFontStretchCss3() {
 		assertShorthandText("font:normal;font-stretch:82%;", "font: initial; font-stretch:82%;");
 	}
