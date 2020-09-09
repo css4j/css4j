@@ -138,6 +138,7 @@ public final class PropertyDatabase {
 			{"animation-play-state", "running"},
 			{"animation-delay", "0s"},
 			{"animation-fill-mode", "none"},
+			{"appearance", "auto"},
 			{"azimuth", "center"},
 			{"background-attachment", "scroll"},
 			{"background-blend-mode", "normal"},
