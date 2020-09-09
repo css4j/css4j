@@ -430,6 +430,16 @@ public class BorderBuilderTest {
 	}
 
 	@Test
+	public void testBorderInitial() {
+		assertShorthandText("border:none;", "border: initial");
+	}
+
+	@Test
+	public void testBorderInitialImportant() {
+		assertShorthandText("border:none!important;", "border: initial !important");
+	}
+
+	@Test
 	public void testBorderTop() {
 		assertShorthandText("border-top:1px;", "border-top-style: inset; border-top: 1px; ");
 		assertShorthandText("border-top:1px dashed;", "border-top: 1px dashed;");

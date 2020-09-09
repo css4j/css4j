@@ -34,6 +34,7 @@ public class BorderRadiusBuilderTest {
 	@Test
 	public void testBorderRadiusZero() {
 		assertShorthandText("border-radius:0;", "border-radius: 0;");
+		assertShorthandText("border-radius:0!important;", "border-radius: 0!important;");
 		assertShorthandText("border-radius:1px 0;", "border-radius:1px 0;");
 		assertShorthandText("border-radius:0 1px;", "border-radius: 0 1px;");
 		assertShorthandText("border-radius:1px 0 3px;", "border-radius:1px 0 3px;");
@@ -266,7 +267,7 @@ public class BorderRadiusBuilderTest {
 	@Test
 	public void testBorderRadiusInitial() {
 		assertShorthandText("border-radius:0;", "border-radius: initial;");
-		assertShorthandText("border-radius:0!important;", "border-radius: 0 ! important;");
+		assertShorthandText("border-radius:0!important;", "border-radius: initial ! important;");
 	}
 
 	@Test

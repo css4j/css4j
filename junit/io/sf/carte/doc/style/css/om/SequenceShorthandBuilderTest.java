@@ -33,6 +33,7 @@ public class SequenceShorthandBuilderTest {
 
 	@Test
 	public void testBuilder() {
+		assertShorthandText("cue:none;", "cue: initial;");
 		assertShorthandText("cue:url('foo.au');", "cue: url('foo.au'); ");
 		assertShorthandText("cue:url('foo.au') url('bar.au');",
 				"cue: url('foo.au') url('bar.au'); ");
@@ -60,6 +61,7 @@ public class SequenceShorthandBuilderTest {
 
 	@Test
 	public void testBuilderImportant() {
+		assertShorthandText("cue:none!important;", "cue: initial!important;");
 		assertShorthandText("cue:url('foo.au')!important;", "cue: url('foo.au') !important; ");
 	}
 

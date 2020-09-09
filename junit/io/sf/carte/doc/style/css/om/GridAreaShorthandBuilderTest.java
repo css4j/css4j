@@ -53,6 +53,7 @@ public class GridAreaShorthandBuilderTest {
 
 	@Test
 	public void testGridArea() {
+		assertShorthandText("grid-area:auto;", "grid-area: initial");
 		assertShorthandText("grid-area:auto;", "grid-area: auto");
 		assertShorthandText("grid-area:foo;", "grid-area: foo");
 		assertShorthandText("grid-area:2 foo/bar;", "grid-area: 2 foo / bar;");
@@ -67,6 +68,7 @@ public class GridAreaShorthandBuilderTest {
 
 	@Test
 	public void testGridAreaImportant() {
+		assertShorthandText("grid-area:auto!important;", "grid-area: initial!important");
 		assertShorthandText("grid-area:auto!important;", "grid-area: auto !important");
 		assertShorthandText("grid-area:foo!important;", "grid-area: foo !important");
 		assertShorthandText("grid-area:2 foo/bar!important;", "grid-area: 2 foo / bar!important;");
@@ -107,6 +109,16 @@ public class GridAreaShorthandBuilderTest {
 	@Test
 	public void testBuilderUnsetImportant() {
 		assertShorthandText("grid-area:unset!important;", "grid-area: unset!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("grid-area:revert;", "grid-area: revert;");
+	}
+
+	@Test
+	public void testBuilderRevertImportant() {
+		assertShorthandText("grid-area:revert!important;", "grid-area: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

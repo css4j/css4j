@@ -78,6 +78,7 @@ public class GenericShorthandBuilderTest {
 
 	@Test
 	public void testBuilder() {
+		assertShorthandText("text-decoration:none;", "text-decoration: initial");
 		assertShorthandText("text-decoration:double;", "text-decoration: double");
 		assertShorthandText("text-decoration:blink dashed #ffb;", "text-decoration: blink dashed #ffb");
 		assertShorthandText("text-decoration:blink dashed;", "text-decoration: blink dashed");
@@ -103,6 +104,7 @@ public class GenericShorthandBuilderTest {
 
 	@Test
 	public void testBuilderImportant() {
+		assertShorthandText("text-decoration:none!important;", "text-decoration: initial!important");
 		assertShorthandText("text-decoration:double!important;", "text-decoration: double ! important");
 	}
 

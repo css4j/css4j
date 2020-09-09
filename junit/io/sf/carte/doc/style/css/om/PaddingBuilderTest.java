@@ -47,6 +47,7 @@ public class PaddingBuilderTest {
 
 	@Test
 	public void testPadding() {
+		assertShorthandText("padding:0;", "padding:0;");
 		assertShorthandText("padding:1px;", "padding:1px;");
 		assertShorthandText("padding:1px 2px;", "padding:1px 2px;");
 		assertShorthandText("padding:1px 2px 3px;", "padding:1px 2px 3px;");
@@ -66,6 +67,7 @@ public class PaddingBuilderTest {
 
 	@Test
 	public void testPaddingImportant() {
+		assertShorthandText("padding:0!important;", "padding:0!important;");
 		assertShorthandText("padding:1px!important;", "padding:1px!important;");
 		assertShorthandText("padding:1px 2px!important;", "padding:1px 2px!important;");
 		assertShorthandText("padding:1px 2px 3px!important;", "padding:1px 2px 3px!important;");
