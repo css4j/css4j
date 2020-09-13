@@ -9,7 +9,7 @@
 
  */
 
-package io.sf.carte.doc.agent;
+package io.sf.carte.util.agent;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

@@ -29,7 +29,6 @@ import java.util.Map.Entry;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
-import io.sf.carte.doc.agent.AgentUtil;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
 import io.sf.carte.doc.style.css.CSSRule;
@@ -56,6 +55,7 @@ import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.util.BufferSimpleWriter;
+import io.sf.carte.util.agent.AgentUtil;
 
 /**
  * CSS Style Sheet Object Model implementation base class.

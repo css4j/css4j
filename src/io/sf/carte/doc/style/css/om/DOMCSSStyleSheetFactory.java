@@ -32,13 +32,13 @@ import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.DocumentException;
 import io.sf.carte.doc.agent.AbstractUserAgent;
-import io.sf.carte.doc.agent.AgentUtil;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
+import io.sf.carte.util.agent.AgentUtil;
 
 /**
  * CSS style sheet factory for DOM.

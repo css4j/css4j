@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import io.sf.carte.doc.agent.AbstractUserAgentTest;
-import io.sf.carte.doc.agent.AgentUtilTest;
 import io.sf.carte.doc.dom.CSSDOMImplementationTest;
 import io.sf.carte.doc.dom.CollectionsTest;
 import io.sf.carte.doc.dom.DOMDocumentTest;
@@ -141,6 +140,7 @@ import io.sf.carte.doc.xml.dtd.StackedEntityResolverTest2;
 import io.sf.carte.uparser.TokenProducerTest;
 import io.sf.carte.util.BufferSimpleWriterTest;
 import io.sf.carte.util.SingleElementIteratorTest;
+import io.sf.carte.util.agent.AgentUtilTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

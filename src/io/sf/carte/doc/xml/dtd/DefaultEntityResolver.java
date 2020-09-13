@@ -32,7 +32,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.EntityResolver2;
 
-import io.sf.carte.doc.agent.AgentUtil;
+import io.sf.carte.util.agent.AgentUtil;
 
 /**
  * Implements EntityResolver2.
