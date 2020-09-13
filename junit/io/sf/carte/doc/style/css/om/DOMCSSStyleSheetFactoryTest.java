@@ -102,11 +102,11 @@ public class DOMCSSStyleSheetFactoryTest {
 	}
 
 	public static Reader loadSampleCSSReader() {
-		return loadCSSfromClasspath("/io/sf/carte/doc/style/css/sample.css");
+		return loadCSSfromClasspath("/io/sf/carte/doc/style/css/om/sample.css");
 	}
 
 	public static Reader loadSampleUserCSSReader() {
-		return loadCSSfromClasspath("/io/sf/carte/doc/style/css/user.css");
+		return loadCSSfromClasspath("/io/sf/carte/doc/style/css/om/user.css");
 	}
 
 	public static Reader loadFontAwesomeReader() {

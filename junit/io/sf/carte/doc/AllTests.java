@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import io.sf.carte.doc.agent.AbstractUserAgentTest;
-import io.sf.carte.doc.agent.AgentUtilTest;
 import io.sf.carte.doc.dom.CSSDOMImplementationTest;
 import io.sf.carte.doc.dom.CollectionsTest;
 import io.sf.carte.doc.dom.DOMDocumentTest;
@@ -132,13 +131,6 @@ import io.sf.carte.doc.style.css.property.UnicodeRangeValueTest;
 import io.sf.carte.doc.style.css.property.UnknownValueTest;
 import io.sf.carte.doc.style.css.property.ValueFactoryTest;
 import io.sf.carte.doc.style.css.property.ValueListTest;
-import io.sf.carte.doc.xml.dtd.ContentModelTest;
-import io.sf.carte.doc.xml.dtd.DefaultEntityResolverTest;
-import io.sf.carte.doc.xml.dtd.DocumentTypeDeclarationTest;
-import io.sf.carte.doc.xml.dtd.EntityFinderTest;
-import io.sf.carte.doc.xml.dtd.StackedEntityResolverTest;
-import io.sf.carte.doc.xml.dtd.StackedEntityResolverTest2;
-import io.sf.carte.uparser.TokenProducerTest;
 import io.sf.carte.util.BufferSimpleWriterTest;
 import io.sf.carte.util.SingleElementIteratorTest;
 
@@ -147,7 +139,6 @@ import io.sf.carte.util.SingleElementIteratorTest;
 	DOMTokenListImplTest.class,
 	DOMTokenSetImplTest.class,
 	AbstractUserAgentTest.class,
-	AgentUtilTest.class,
 	CSSDOMImplementationTest.class,
 	DOMDocumentTest.class,
 	DOMElementTest.class,
@@ -264,13 +255,6 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		URIValueTest.class,
 		ValueListTest.class,
 		ValueFactoryTest.class,
-		ContentModelTest.class,
-		DefaultEntityResolverTest.class,
-		DocumentTypeDeclarationTest.class,
-		EntityFinderTest.class,
-		StackedEntityResolverTest.class,
-		StackedEntityResolverTest2.class,
-		TokenProducerTest.class,
 		BufferSimpleWriterTest.class,
 		SingleElementIteratorTest.class
 		})

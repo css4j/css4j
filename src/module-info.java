@@ -15,11 +15,12 @@ module io.sf.carte.css4j {
 	exports io.sf.carte.doc;
 	exports io.sf.carte.doc.dom;
 	exports io.sf.carte.doc.style.css.om;
-	exports io.sf.carte.doc.xml.dtd;
 	exports io.sf.carte.doc.agent;
 	exports io.sf.carte.doc.style.css.nsac;
-	exports io.sf.carte.util;
 
+	requires io.sf.carte.tokenproducer;
+	requires transitive io.sf.carte.util;
+	requires static io.sf.carte.xml.dtd;
 	requires transitive java.xml;
 	requires transitive jdk.xml.dom;
 	requires io.sf.jclf;

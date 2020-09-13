@@ -23,12 +23,12 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Selector;
-import io.sf.carte.doc.style.css.nsac.SelectorList;
-import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class CSSStyleDeclarationRuleTest {
 

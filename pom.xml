@@ -14,6 +14,32 @@
   <packaging>jar</packaging>
   <dependencies>
 	<dependency>
+		<groupId>io.sf.carte</groupId>
+		<artifactId>tokenproducer</artifactId>
+		<version>1.0.0</version>
+		<type>jar</type>
+		<scope>compile</scope>
+		<optional>false</optional>
+	</dependency>
+	<dependency>
+		<groupId>io.sf.carte</groupId>
+		<artifactId>xml-dtd</artifactId>
+		<version>${project.parent.version}</version>
+		<type>jar</type>
+		<scope>compile</scope>
+		<optional>false</optional>
+	</dependency>
+<!--
+	<dependency>
+		<groupId>io.sf.carte</groupId>
+		<artifactId>css-apis</artifactId>
+		<version>1.0.0</version>
+		<type>jar</type>
+		<scope>compile</scope>
+		<optional>false</optional>
+	</dependency>
+-->
+	<dependency>
 		<groupId>io.sf.jclf</groupId>
 		<artifactId>jclf</artifactId>
 		<version>4.0.4</version>
@@ -71,7 +97,6 @@
 					<link>https://www.w3.org/2003/01/dom2-javadoc/</link>
 					<link>http://www.slf4j.org/apidocs/</link>
 				</links>
-				<excludePackageNames>io.sf.carte.uparser</excludePackageNames>
 			</configuration>
 		</plugin>
 		<plugin>

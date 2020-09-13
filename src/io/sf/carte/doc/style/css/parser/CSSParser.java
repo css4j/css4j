@@ -31,7 +31,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
-import io.sf.carte.doc.agent.AgentUtil;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -69,6 +68,7 @@ import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.uparser.TokenControl;
 import io.sf.carte.uparser.TokenHandler;
 import io.sf.carte.uparser.TokenProducer;
+import io.sf.carte.util.agent.AgentUtil;
 
 /**
  * CSS parser implementing the NSAC API.
