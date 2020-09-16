@@ -170,6 +170,34 @@ public class FontBuilderTest {
 	}
 
 	@Test
+	public void testFontInheritAndFontSize() {
+		assertShorthandText(
+				"font-family:inherit;font-feature-settings:inherit;font-kerning:inherit;font-optical-sizing:inherit;font-size:80%;font-size-adjust:inherit;font-stretch:inherit;font-style:inherit;font-variant-alternates:inherit;font-variant-caps:inherit;font-variant-east-asian:inherit;font-variant-ligatures:inherit;font-variant-numeric:inherit;font-variant-position:inherit;font-variation-settings:inherit;font-weight:inherit;line-height:inherit;",
+				"font: inherit; font-size:80%;");
+	}
+
+	@Test
+	public void testFontInheritAndFontSizeImportant() {
+		assertShorthandText(
+				"font-size:80%!important;font-family:inherit;font-feature-settings:inherit;font-kerning:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-stretch:inherit;font-style:inherit;font-variant-alternates:inherit;font-variant-caps:inherit;font-variant-east-asian:inherit;font-variant-ligatures:inherit;font-variant-numeric:inherit;font-variant-position:inherit;font-variation-settings:inherit;font-weight:inherit;line-height:inherit;",
+				"font: inherit; font-size:80%!important;");
+	}
+
+	@Test
+	public void testFontAndFontSizeInherit() {
+		assertShorthandText(
+				"font-family:initial;font-feature-settings:normal;font-kerning:auto;font-optical-sizing:auto;font-size:inherit;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant-alternates:normal;font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:normal;font-variation-settings:normal;font-weight:bold;line-height:normal;",
+				"font: bold; font-size:inherit;");
+	}
+
+	@Test
+	public void testFontAndFontSizeInheritImportant() {
+		assertShorthandText(
+				"font-size:inherit!important;font-family:initial;font-feature-settings:normal;font-kerning:auto;font-optical-sizing:auto;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant-alternates:normal;font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:normal;font-variation-settings:normal;font-weight:bold;line-height:normal;",
+				"font: bold; font-size:inherit!important;");
+	}
+
+	@Test
 	public void testFontUnset() {
 		assertShorthandText("font:unset;", "font: unset;");
 	}

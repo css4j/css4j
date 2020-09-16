@@ -64,14 +64,7 @@ class FontBuilder extends ShorthandBuilder {
 	@Override
 	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		int result = appendFontShorthandSet(buf, declaredSet, important);
-		if (result == -1 && !fontVariantDone) {
-			// Create font-variant builder
-			FontVariantBuilder builder = createFontVariantBuilder();
-			if (builder.checkValuesForType(CSSValue.Type.INTERNAL, important) != 0) {
-				return false;
-			}
-			builder.appendMinifiedCssText(buf);
-			setFontVariantDone();
+		if (result == -1) {
 			return false;
 		}
 		// Other subproperties
