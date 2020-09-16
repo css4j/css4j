@@ -19,6 +19,7 @@ module io.sf.carte.css4j {
 	exports io.sf.carte.doc.agent;
 	exports io.sf.carte.doc.style.css.nsac;
 	exports io.sf.carte.util;
+	exports io.sf.carte.util.agent;
 
 	requires transitive java.xml;
 	requires transitive jdk.xml.dom;
