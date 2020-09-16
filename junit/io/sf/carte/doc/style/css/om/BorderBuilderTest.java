@@ -350,6 +350,20 @@ public class BorderBuilderTest {
 	}
 
 	@Test
+	public void testBorderInheritPlusBorderTopColor() {
+		assertShorthandText(
+				"border-bottom-color:inherit;border-bottom-style:inherit;border-bottom-width:inherit;border-left-color:inherit;border-left-style:inherit;border-left-width:inherit;border-right-color:inherit;border-right-style:inherit;border-right-width:inherit;border-top-color:yellow;border-top-style:inherit;border-top-width:inherit;border-image:inherit;",
+				"border: inherit; border-top-color:yellow");
+	}
+
+	@Test
+	public void testBorderPlusBorderTopColorInherit() {
+		assertShorthandText(
+				"border-bottom-color:currentcolor;border-bottom-style:none;border-bottom-width:3px;border-left-color:currentcolor;border-left-style:none;border-left-width:3px;border-right-color:currentcolor;border-right-style:none;border-right-width:3px;border-top-color:inherit;border-top-style:none;border-top-width:3px;border-image:none;",
+				"border: 3px; border-top-color:inherit;");
+	}
+
+	@Test
 	public void testBorderInheritMix() {
 		assertShorthandText("border-right:inherit;border-left:1px solid #c8c8f0;",
 				"border-left: 1px solid #c8c8f0; border-right: inherit;");
