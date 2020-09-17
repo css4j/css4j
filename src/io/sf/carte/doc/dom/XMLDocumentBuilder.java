@@ -232,18 +232,6 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	}
 
 	/**
-	 * Same as <code>setIgnoreNotSpecifiedAttributes(boolean)</code>.
-	 * 
-	 * @param ignore set it to <code>true</code> to ignore
-	 *               not-<code>specified</code> attributes.
-	 * @deprecated
-	 */
-	@Deprecated
-	public void setIgnoreImpliedAttributes(boolean ignore) {
-		setIgnoreNotSpecifiedAttributes(ignore);
-	}
-
-	/**
 	 * Configure the builder to ignore (or not) the attributes that were not
 	 * <code>specified</code>, when building the document.
 	 * <p>
