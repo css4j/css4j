@@ -3,7 +3,6 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <!-- The Basics -->
   <parent>
 	<groupId>io.sf.carte</groupId>
 	<artifactId>css4j-dist</artifactId>
@@ -29,16 +28,6 @@
 		<scope>compile</scope>
 		<optional>false</optional>
 	</dependency>
-<!--
-	<dependency>
-		<groupId>io.sf.carte</groupId>
-		<artifactId>css-apis</artifactId>
-		<version>1.0.0</version>
-		<type>jar</type>
-		<scope>compile</scope>
-		<optional>false</optional>
-	</dependency>
--->
 	<dependency>
 		<groupId>io.sf.jclf</groupId>
 		<artifactId>jclf</artifactId>
@@ -54,7 +43,6 @@
 		<scope>compile</scope>
 		<optional>true</optional>
 	</dependency>
-	<!-- https://mvnrepository.com/artifact/nu.validator/htmlparser -->
 	<dependency>
 		<groupId>nu.validator</groupId>
 		<artifactId>htmlparser</artifactId>
@@ -63,7 +51,6 @@
 		<optional>false</optional>
 	</dependency>
   </dependencies>
-  <!-- Build Settings -->
   <build>
 	<plugins>
 		<plugin>
@@ -155,4 +142,7 @@
 		<url>https://maven.pkg.github.com/css4j/css4j</url>
 	</repository>
   </distributionManagement>
+  <issueManagement>
+	<url>https://github.com/css4j/css4j/issues</url>
+  </issueManagement>
 </project>
