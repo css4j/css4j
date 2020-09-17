@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css;
 
 import java.io.IOException;
 
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -96,14 +95,6 @@ public interface CSSRule extends org.w3c.dom.css.CSSRule {
 
 	short REGION_STYLE_RULE = 16;
 	short CUSTOM_MEDIA_RULE = 17;
-
-	/**
-	 * Obtain a clone of this rule whose parent sheet is <code>parentSheet</code>.
-	 *
-	 * @param parentSheet the parent sheet for the new rule.
-	 * @return a clone of this rule with the given parent sheet.
-	 */
-	CSSRule clone(AbstractCSSStyleSheet parentSheet);
 
 	/**
 	 * A minified parsable textual representation of the rule. This reflects the current state

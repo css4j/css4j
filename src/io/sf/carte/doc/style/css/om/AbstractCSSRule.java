@@ -114,7 +114,6 @@ abstract public class AbstractCSSRule implements CSSRule {
 	 * @param parentSheet the parent sheet for the new rule.
 	 * @return a clone of this rule with the given parent sheet.
 	 */
-	@Override
 	abstract public AbstractCSSRule clone(AbstractCSSStyleSheet parentSheet);
 
 	/**
