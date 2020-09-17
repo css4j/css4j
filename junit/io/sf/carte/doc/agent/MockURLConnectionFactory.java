@@ -27,7 +27,7 @@ public class MockURLConnectionFactory {
 
 	public static final String SAMPLE_URL = "http://www.example.com/xhtml/htmlsample.html";
 
-	private static final Map<String, String> mockURLMap = new HashMap<String, String>();
+	private final Map<String, String> mockURLMap = new HashMap<String, String>(12);
 
 	private final Map<String, Map<String, List<String>>> headerMap = new HashMap<String, Map<String, List<String>>>();
 
@@ -37,7 +37,8 @@ public class MockURLConnectionFactory {
 	 * After adding a file here and in classpath, remember to refresh the IDE if you
 	 * are using one.
 	 */
-	static {
+	public MockURLConnectionFactory() {
+		super();
 		mockURLMap.put(SAMPLE_URL, "htmlsample.html");
 		mockURLMap.put("http://www.example.com/css/common.css", "common.css");
 		mockURLMap.put("http://www.example.com/css/alter1.css", "alter1.css");
@@ -66,6 +67,12 @@ public class MockURLConnectionFactory {
 			hdrs.add(value);
 		} else {
 			hdrs.set(idx, value);
+		}
+	}
+
+	public void registerURL(String url, String path) {
+		synchronized (mockURLMap) {
+			mockURLMap.put(url, path);
 		}
 	}
 
