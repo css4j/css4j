@@ -29,6 +29,14 @@
 		<optional>true</optional>
 	</dependency>
 	<dependency>
+		<groupId>io.sf.carte</groupId>
+		<artifactId>carte-util</artifactId>
+		<version>${project.parent.version}</version>
+		<type>jar</type>
+		<scope>compile</scope>
+		<optional>false</optional>
+	</dependency>
+	<dependency>
 		<groupId>io.sf.jclf</groupId>
 		<artifactId>jclf</artifactId>
 		<version>4.0.4</version>
