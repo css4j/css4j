@@ -139,6 +139,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 	DOMTokenListImplTest.class,
 	DOMTokenSetImplTest.class,
 	AbstractUserAgentTest.class,
+	// EntityResolverTest.class fails under Eclipse IDE
 	CSSDOMImplementationTest.class,
 	DOMDocumentTest.class,
 	DOMElementTest.class,

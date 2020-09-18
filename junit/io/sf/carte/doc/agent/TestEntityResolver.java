@@ -31,4 +31,9 @@ public class TestEntityResolver extends DefaultEntityResolver {
 		return urlFactory.createConnection(url);
 	}
 
+	@Override
+	protected boolean registerSystemIdFilename(String systemId, String filename) {
+		return super.registerSystemIdFilename(systemId, filename);
+	}
+
 }
