@@ -136,8 +136,10 @@ import io.sf.carte.util.SingleElementIteratorTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	ArrayStringListTest.class,
 	DOMTokenListImplTest.class,
 	DOMTokenSetImplTest.class,
+	LinkedStringListTest.class,
 	AbstractUserAgentTest.class,
 	// EntityResolverTest.class fails under Eclipse IDE
 	CSSDOMImplementationTest.class,
