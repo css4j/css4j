@@ -19,14 +19,14 @@ import java.util.Map;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.agent.AbstractDeviceFactory;
-import io.sf.carte.doc.agent.CSSCanvas;
-import io.sf.carte.doc.agent.Viewport;
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.Viewport;
 
 /**
  * Dummy device factory, useful for testing.

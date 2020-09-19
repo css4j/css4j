@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;

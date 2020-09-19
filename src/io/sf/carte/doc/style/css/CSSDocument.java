@@ -21,8 +21,6 @@ import org.w3c.dom.DOMStringList;
 import org.w3c.dom.Document;
 import org.w3c.dom.stylesheets.DocumentStyle;
 
-import io.sf.carte.doc.agent.CSSCanvas;
-
 /**
  * A CSS-enabled Document.
  *

@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.om.SimpleBoxModel.MyTableBoxValues;

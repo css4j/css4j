@@ -15,7 +15,7 @@ import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.StyleDatabase;

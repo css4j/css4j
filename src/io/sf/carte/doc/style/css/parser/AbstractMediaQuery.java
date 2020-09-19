@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.MediaQuery;
 
 abstract public class AbstractMediaQuery implements MediaQuery {

@@ -45,8 +45,8 @@ import org.w3c.dom.Text;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.css.CSSStyleSheet;
 
-import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.agent.DeviceFactory;
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;

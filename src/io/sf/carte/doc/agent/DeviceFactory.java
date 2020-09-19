@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.agent;
 
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.StyleDatabase;
 

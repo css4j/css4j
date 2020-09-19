@@ -20,7 +20,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
-import io.sf.carte.doc.agent.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.MediaQuery;

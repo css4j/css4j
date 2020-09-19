@@ -11,13 +11,13 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.agent.CSSCanvas;
-import io.sf.carte.doc.agent.Viewport;
+import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.Viewport;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 

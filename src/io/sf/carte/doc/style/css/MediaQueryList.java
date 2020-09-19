@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.w3c.dom.stylesheets.MediaList;
 
-import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 /**
