@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.Iterator;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
+
 /**
  * Helper class for {@code BooleanCondition}.
  * 

@@ -20,6 +20,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
@@ -28,7 +29,6 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
@@ -492,7 +492,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
 		return !invalidQueryList;
 	}
 
-	class MyMediaQueryHandler implements io.sf.carte.doc.style.css.parser.MediaQueryHandler {
+	class MyMediaQueryHandler implements io.sf.carte.doc.style.css.MediaQueryHandler {
 		private MediaQueryImpl currentQuery;
 		private boolean invalidQuery = false;
 		private boolean compatQuery = false;

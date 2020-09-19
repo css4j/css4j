@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 public class SupportsConditionTest {

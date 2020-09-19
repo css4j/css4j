@@ -28,12 +28,12 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSMediaRule;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class SupportsRuleTest {

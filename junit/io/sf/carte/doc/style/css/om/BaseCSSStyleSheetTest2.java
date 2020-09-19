@@ -29,6 +29,7 @@ import java.util.EnumSet;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -37,7 +38,6 @@ import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Selector;
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
 
 public class BaseCSSStyleSheetTest2 {
 

@@ -15,13 +15,13 @@ import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.parser.AbstractMediaQuery;
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
-import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.property.CalcValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;

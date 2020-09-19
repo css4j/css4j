@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.LinkedStringList;
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
@@ -30,7 +31,6 @@ import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
 class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {

@@ -13,6 +13,10 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.MediaQueryFactory;
+import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
 
 /**

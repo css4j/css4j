@@ -13,11 +13,11 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.MediaQueryFactory;
+import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
-import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
-import io.sf.carte.doc.style.css.parser.MediaQueryFactory;
-import io.sf.carte.doc.style.css.parser.MediaQueryHandler;
 
 /**
  * Contains methods related to media query conditions.

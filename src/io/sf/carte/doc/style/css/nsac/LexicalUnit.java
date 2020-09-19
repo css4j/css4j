@@ -13,7 +13,7 @@
  */
 package io.sf.carte.doc.style.css.nsac;
 
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
+import io.sf.carte.doc.style.css.BooleanCondition;
 
 /**
  * Based on SAC's {@code LexicalUnit} interface by Philippe Le Hegaret.

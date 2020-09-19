@@ -16,11 +16,11 @@ import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSSupportsRule;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSException;
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 import io.sf.carte.util.BufferSimpleWriter;

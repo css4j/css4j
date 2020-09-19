@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.style.css.MediaFeaturePredicate;
+
 /**
  * Media query helper.
  */

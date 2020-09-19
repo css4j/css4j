@@ -9,9 +9,8 @@
 
  */
 
-package io.sf.carte.doc.style.css.parser;
+package io.sf.carte.doc.style.css;
 
-import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 /**

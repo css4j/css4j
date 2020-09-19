@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;

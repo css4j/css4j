@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;

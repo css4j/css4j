@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
-import io.sf.carte.doc.style.css.parser.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 
 /**
  * Media Feature.

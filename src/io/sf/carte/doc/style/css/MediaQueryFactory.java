@@ -9,11 +9,9 @@
 
  */
 
-package io.sf.carte.doc.style.css.parser;
+package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.Node;
-
-import io.sf.carte.doc.style.css.MediaQueryList;
 
 /**
  * Contains factory methods related to media queries.

@@ -18,9 +18,9 @@ import java.io.Reader;
 
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.MediaQueryFactory;
+import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.parser.MediaQueryFactory;
-import io.sf.carte.doc.style.css.parser.MediaQueryHandler;
 
 /**
  * A low-level CSS parser.

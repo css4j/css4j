@@ -13,13 +13,14 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSValue;
 
 /**
  * A condition that declares a property name and a value.
  *
  */
-public interface DeclarationCondition {
+public interface DeclarationCondition extends BooleanCondition {
 
 	/**
 	 * The property name.

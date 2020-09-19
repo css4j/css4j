@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css;
 
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
-
 /**
  * Obtain information on an individual media query.
  */

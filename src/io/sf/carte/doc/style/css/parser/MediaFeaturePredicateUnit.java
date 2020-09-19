@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.Objects;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**

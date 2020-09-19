@@ -15,7 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
+import io.sf.carte.doc.style.css.BooleanCondition;
 
 /**
  * Base implementation for boolean conditions.

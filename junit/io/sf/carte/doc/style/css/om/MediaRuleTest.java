@@ -39,10 +39,10 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.LinkStyle;
+import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.MediaQueryFactory;
 
 public class MediaRuleTest {
 

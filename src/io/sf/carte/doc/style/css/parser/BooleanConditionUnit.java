@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
+
 /**
  * LexicalUnit-based boolean conditions.
  * <p>

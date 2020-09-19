@@ -9,7 +9,7 @@
 
  */
 
-package io.sf.carte.doc.style.css.parser;
+package io.sf.carte.doc.style.css;
 
 import java.util.List;
 

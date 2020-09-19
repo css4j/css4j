@@ -20,6 +20,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
@@ -366,7 +367,7 @@ class NSACMediaQueryList implements MediaQueryList {
 
 	}
 
-	class MyMediaQueryHandler implements io.sf.carte.doc.style.css.parser.MediaQueryHandler {
+	class MyMediaQueryHandler implements io.sf.carte.doc.style.css.MediaQueryHandler {
 		private NSACMediaQuery currentQuery;
 		private boolean invalidQuery = false;
 		private boolean compatQuery = false;

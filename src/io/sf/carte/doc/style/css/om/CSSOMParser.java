@@ -11,8 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.parser.MediaQueryFactory;
 
 /**
  * CSS parser implementing the NSAC API and using an object-model internal factory.

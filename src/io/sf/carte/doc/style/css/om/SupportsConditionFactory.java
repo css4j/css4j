@@ -11,8 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
-import io.sf.carte.doc.style.css.parser.BooleanConditionFactory;
+import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.BooleanConditionFactory;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 
 /**

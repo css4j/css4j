@@ -13,8 +13,8 @@
  */
 package io.sf.carte.doc.style.css.nsac;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.parser.BooleanCondition;
 
 /**
  * A CSS event handler for low-level parsing.
