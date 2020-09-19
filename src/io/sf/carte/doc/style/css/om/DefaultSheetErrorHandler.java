@@ -39,7 +39,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	private LinkedList<MediaQueryList> badMediaLists = null;
 	private LinkedList<String> badAtRules = null;
 	private LinkedList<String> badInlineStyles = null;
-	private List<AbstractCSSRule> ruleList = null;
+	private List<CSSRule> ruleList = null;
 
 	private List<CSSParseException> sacWarnings = null;
 
@@ -86,7 +86,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	public void handleSacError(CSSParseException exception) {
 		if (sacErrors == null) {
 			sacErrors = new LinkedList<CSSParseException>();
-			ruleList = new LinkedList<AbstractCSSRule>();
+			ruleList = new LinkedList<CSSRule>();
 		}
 		sacErrors.add(exception);
 		ruleList.add(null);
@@ -163,9 +163,9 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler {
 	}
 
 	@Override
-	public void mapError(CSSParseException exception, AbstractCSSRule rule) {
+	public void mapError(CSSParseException exception, CSSRule rule) {
 		if (ruleList == null) {
-			ruleList = new LinkedList<AbstractCSSRule>();
+			ruleList = new LinkedList<CSSRule>();
 			sacErrors = new LinkedList<CSSParseException>();
 		}
 		sacErrors.add(exception);

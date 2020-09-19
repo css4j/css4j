@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css;
 
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
-import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 
 /**
  * High-level handling of SAC errors and warnings.
@@ -27,7 +26,7 @@ public interface SACErrorHandler {
 	 * @param rule
 	 *            the rule having the error.
 	 */
-	void mapError(CSSParseException exception, AbstractCSSRule rule);
+	void mapError(CSSParseException exception, CSSRule rule);
 
 	/**
 	 * Handle a SAC warning.
