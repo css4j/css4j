@@ -151,7 +151,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		if (condition != null || !getCssRules().isEmpty()) {
-			context.startRule(wri, this.precedingComments);
+			context.startRule(wri, getPrecedingComments());
 			wri.write("@supports ");
 			wri.write(getConditionText());
 			context.updateContext(this);
@@ -160,7 +160,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			context.endCurrentContext(this);
 			context.endRuleList(wri);
 			context.writeRightCurlyBracket(wri);
-			context.endRule(wri, this.trailingComments);
+			context.endRule(wri, getTrailingComments());
 		}
 	}
 

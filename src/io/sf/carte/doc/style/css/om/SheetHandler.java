@@ -11,11 +11,11 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
@@ -94,10 +94,10 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		if (comments != null) {
 			if (lastRule != null && !precededByLF && !allCommentsPrecede) {
 				BaseCSSRule rule = (BaseCSSRule) lastRule;
-				if (rule.trailingComments == null) {
-					rule.trailingComments = new LinkedList<String>();
+				if (rule.getTrailingComments() == null) {
+					rule.setTrailingComments(new LinkedStringList());
 				}
-				rule.trailingComments.add(text);
+				rule.getTrailingComments().add(text);
 			} else {
 				comments.add(text);
 			}
@@ -574,7 +574,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	private void setCommentsToRule(AbstractCSSRule rule) {
 		if (comments != null && !comments.isEmpty()) {
-			ArrayList<String> ruleComments = new ArrayList<String>(comments.size());
+			LinkedStringList ruleComments = new LinkedStringList();
 			ruleComments.addAll(comments);
 			rule.setPrecedingComments(ruleComments);
 		}

@@ -59,7 +59,7 @@ public class FontFaceRule extends BaseCSSDeclarationRule implements CSSFontFaceR
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		if (getStyle().getLength() != 0) {
-			context.startRule(wri, this.precedingComments);
+			context.startRule(wri, getPrecedingComments());
 			wri.write("@font-face");
 			context.updateContext(this);
 			context.writeLeftCurlyBracket(wri);
@@ -68,7 +68,7 @@ public class FontFaceRule extends BaseCSSDeclarationRule implements CSSFontFaceR
 			context.endCurrentContext(this);
 			context.endStyleDeclaration(wri);
 			context.writeRightCurlyBracket(wri);
-			context.endRule(wri, this.trailingComments);
+			context.endRule(wri, getTrailingComments());
 		}
 	}
 

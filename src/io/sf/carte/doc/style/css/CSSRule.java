@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css;
 
 import java.io.IOException;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -120,6 +121,28 @@ public interface CSSRule extends org.w3c.dom.css.CSSRule {
 	 */
 	@Override
 	CSSStyleSheet<? extends CSSRule> getParentStyleSheet();
+
+	/**
+	 * Get a list of the comments that preceded this rule, if any.
+	 * 
+	 * @return the list of comments, or <code>null</code> if there were no preceding
+	 *         comments or the parsing was specified to ignore comments.
+	 * @see CSSStyleSheet#parseStyleSheet(java.io.Reader, short)
+	 */
+	StringList getPrecedingComments();
+
+	/**
+	 * Get a list of the comments that immediately follow this rule, if any.
+	 * <p>
+	 * If the parsing mode was {@code COMMENTS_PRECEDING}, or was
+	 * {@code COMMENTS_AUTO} and the next comment happens after a newline character,
+	 * it shall be assigned to the next rule as a preceding comment.
+	 * 
+	 * @return the list of comments, or <code>null</code> if there were no trailing
+	 *         comments or the parsing was specified to ignore comments.
+	 * @see CSSStyleSheet#parseStyleSheet(java.io.Reader, short)
+	 */
+	StringList getTrailingComments();
 
 	/**
 	 * Write a serialization of this rule to the given simple writer, according to the given

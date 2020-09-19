@@ -74,9 +74,9 @@ public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		if (cssText.length() != 0) {
-			context.startRule(wri, this.precedingComments);
+			context.startRule(wri, getPrecedingComments());
 			wri.write(cssText);
-			context.endRule(wri, this.trailingComments);
+			context.endRule(wri, getTrailingComments());
 		}
 	}
 

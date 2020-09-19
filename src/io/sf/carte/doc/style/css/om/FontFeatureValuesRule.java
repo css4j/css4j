@@ -258,7 +258,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		if (fontFamily == null) {
 			return;
 		}
-		context.startRule(wri, this.precedingComments);
+		context.startRule(wri, getPrecedingComments());
 		wri.write("@font-feature-values ");
 		writeFontFamily(wri, fontFamily[0]);
 		for (int i = 1; i < fontFamily.length; i++) {
@@ -289,7 +289,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 		context.endCurrentContext(this);
 		context.writeRightCurlyBracket(wri);
-		context.endRule(wri, this.trailingComments);
+		context.endRule(wri, getTrailingComments());
 	}
 
 	private static void writeFontFamily(SimpleWriter wri, String ff) throws IOException {

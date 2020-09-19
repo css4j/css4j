@@ -13,11 +13,11 @@ package io.sf.carte.doc.style.css.om;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.LinkedStringList;
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
@@ -43,8 +43,8 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 
 	private final byte ruleOrigin;
 
-	List<String> precedingComments = null;
-	List<String> trailingComments = null;
+	private StringList precedingComments = null;
+	private StringList trailingComments = null;
 
 	protected BaseCSSRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {
 		super();
@@ -121,25 +121,37 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 	}
 
 	@Override
-	public void enablePrecedingComments(int initialSize) {
+	public void enablePrecedingComments() {
 		if (precedingComments == null) {
-			precedingComments = new ArrayList<String>(initialSize);
+			precedingComments = new LinkedStringList();
 		}
 	}
 
 	@Override
-	public List<String> getPrecedingComments() {
+	public StringList getPrecedingComments() {
 		return precedingComments;
 	}
 
 	@Override
-	void setPrecedingComments(List<String> precedingComments) {
+	void setPrecedingComments(StringList precedingComments) {
 		this.precedingComments = precedingComments;
 	}
 
 	@Override
-	public List<String> getTrailingComments() {
+	public void enableTrailingComments() {
+		if (trailingComments == null) {
+			trailingComments = new LinkedStringList();
+		}
+	}
+
+	@Override
+	public StringList getTrailingComments() {
 		return trailingComments;
+	}
+
+	@Override
+	void setTrailingComments(StringList trailingComments) {
+		this.trailingComments = trailingComments;
 	}
 
 	@Override

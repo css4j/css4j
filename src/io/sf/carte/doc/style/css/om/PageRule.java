@@ -87,7 +87,7 @@ public class PageRule extends BaseCSSDeclarationRule implements CSSPageRule {
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		String seltext = getSelectorText();
 		if (seltext.length() != 0 || getStyle().getLength() != 0 || marginRules != null) {
-			context.startRule(wri, this.precedingComments);
+			context.startRule(wri, getPrecedingComments());
 			wri.write("@page");
 			if (seltext.length() != 0) {
 				wri.write(' ');
@@ -110,7 +110,7 @@ public class PageRule extends BaseCSSDeclarationRule implements CSSPageRule {
 				context.endRuleList(wri);
 			}
 			context.writeRightCurlyBracket(wri);
-			context.endRule(wri, this.trailingComments);
+			context.endRule(wri, getTrailingComments());
 		}
 	}
 

@@ -14,13 +14,13 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSKeyframesRule;
 import io.sf.carte.doc.style.css.CSSRule;
@@ -213,7 +213,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		if (name != null || !getCssRules().isEmpty()) {
-			context.startRule(wri, this.precedingComments);
+			context.startRule(wri, getPrecedingComments());
 			wri.write("@keyframes ");
 			if (name != null) {
 				String sname = getName();
@@ -231,7 +231,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			context.endCurrentContext(this);
 			context.endRuleList(wri);
 			context.writeRightCurlyBracket(wri);
-			context.endRule(wri, this.trailingComments);
+			context.endRule(wri, getTrailingComments());
 		}
 	}
 
@@ -338,10 +338,10 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		@Override
 		public void comment(String text, boolean precededByLF) {
 			if (lastRule != null && !precededByLF) {
-				if (lastRule.trailingComments == null) {
-					lastRule.trailingComments = new LinkedList<String>();
+				if (lastRule.getTrailingComments() == null) {
+					lastRule.setTrailingComments(new LinkedStringList());
 				}
-				lastRule.trailingComments.add(text);
+				lastRule.getTrailingComments().add(text);
 			} else {
 				if (currentRule == null) {
 					if (comments == null) {
@@ -354,7 +354,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 		private void setCommentsToRule(AbstractCSSRule rule) {
 			if (comments != null && !comments.isEmpty()) {
-				ArrayList<String> ruleComments = new ArrayList<String>(comments.size());
+				LinkedStringList ruleComments = new LinkedStringList();
 				ruleComments.addAll(comments);
 				rule.setPrecedingComments(ruleComments);
 			}

@@ -77,7 +77,7 @@ public class MediaRule extends GroupingRule implements CSSMediaRule {
 
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
-		context.startRule(wri, this.precedingComments);
+		context.startRule(wri, getPrecedingComments());
 		wri.write("@media");
 		if (!mediaList.isAllMedia()) {
 			wri.write(' ');
@@ -89,7 +89,7 @@ public class MediaRule extends GroupingRule implements CSSMediaRule {
 		context.endCurrentContext(this);
 		context.endRuleList(wri);
 		context.writeRightCurlyBracket(wri);
-		context.endRule(wri, this.trailingComments);
+		context.endRule(wri, getTrailingComments());
 	}
 
 	@Override

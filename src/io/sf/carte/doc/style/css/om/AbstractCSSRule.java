@@ -12,10 +12,10 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.util.SimpleWriter;
@@ -75,38 +75,22 @@ abstract public class AbstractCSSRule implements CSSRule {
 	abstract public byte getOrigin();
 
 	/**
-	 * If this rule does not contain a preceding comment list, create one with the
-	 * given initial capacity.
+	 * If this rule does not contain a preceding comment list, create one.
 	 * <p>
-	 * If this rule already has a comment list, does nothing.
-	 * 
-	 * @param initialSize the initial capacity.
+	 * If this rule already has a preceding comment list, does nothing.
 	 */
-	abstract public void enablePrecedingComments(int initialSize);
+	abstract public void enablePrecedingComments();
+
+	abstract void setPrecedingComments(StringList precedingComments);
 
 	/**
-	 * Get a list of the comments that preceded this rule, if any.
-	 * 
-	 * @return the list of comments, or <code>null</code> if there were no preceding
-	 *         comments or the parsing was specified to ignore comments.
-	 * @see AbstractCSSStyleSheet#parseStyleSheet(java.io.Reader, short)
-	 */
-	abstract public List<String> getPrecedingComments();
-
-	abstract void setPrecedingComments(List<String> precedingComments);
-
-	/**
-	 * Get a list of the comments that immediately follow this rule, if any.
+	 * If this rule does not contain a trailing comment list, create one.
 	 * <p>
-	 * If the parsing mode was {@code COMMENTS_PRECEDING}, or was
-	 * {@code COMMENTS_AUTO} and the next comment happens after a newline character,
-	 * it shall be assigned to the next rule as a preceding comment.
-	 * 
-	 * @return the list of comments, or <code>null</code> if there were no trailing
-	 *         comments or the parsing was specified to ignore comments.
-	 * @see AbstractCSSStyleSheet#parseStyleSheet(java.io.Reader, short)
+	 * If this rule already has a trailing comment list, does nothing.
 	 */
-	abstract public List<String> getTrailingComments();
+	abstract public void enableTrailingComments();
+
+	abstract void setTrailingComments(StringList trailingComments);
 
 	/**
 	 * Obtain a clone of this rule whose parent sheet is <code>parentSheet</code>.

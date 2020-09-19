@@ -14,11 +14,11 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.CSSGroupingRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -43,9 +43,9 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 
 	protected GroupingRule(AbstractCSSStyleSheet parentSheet, GroupingRule copyfrom) {
 		super(parentSheet, copyfrom.getType(), copyfrom.getOrigin());
-		if (copyfrom.precedingComments != null) {
-			this.precedingComments = new ArrayList<String>(copyfrom.precedingComments.size());
-			this.precedingComments.addAll(copyfrom.precedingComments);
+		if (copyfrom.getPrecedingComments() != null) {
+			setPrecedingComments(new LinkedStringList());
+			getPrecedingComments().addAll(copyfrom.getPrecedingComments());
 		}
 		cssRules = new CSSRuleArrayList(copyfrom.getCssRules().getLength());
 		Iterator<AbstractCSSRule> it = copyfrom.getCssRules().iterator();
@@ -173,8 +173,8 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 			}
 			GroupingRule groupingRule = (GroupingRule) firstRule;
 			setGroupingRule(groupingRule);
-			this.precedingComments = groupingRule.precedingComments;
-			this.trailingComments = groupingRule.trailingComments;
+			setPrecedingComments(groupingRule.getPrecedingComments());
+			setTrailingComments(groupingRule.getTrailingComments());
 			cssRules.clear();
 			cssRules.addAll(groupingRule.getCssRules());
 			for (AbstractCSSRule rule : cssRules) {
