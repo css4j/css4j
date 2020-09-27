@@ -98,14 +98,6 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-jar-plugin</artifactId>
-			<configuration>
-			<archive>
-				<manifestEntries>
-					<Automatic-Module-Name>io.sf.carte.css4j</Automatic-Module-Name>
-				</manifestEntries>
-				<addMavenDescriptor>false</addMavenDescriptor>
-			</archive>
-			</configuration>
 			<executions>
 				<execution>
 					<goals>
