@@ -88,7 +88,7 @@
 			<configuration>
 				<overview>${project.basedir}/src/overview.html</overview>
 				<links>
-					<link>https://docs.oracle.com/javase/8/docs/api/</link>
+					<link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
 					<link>https://css4j.github.io/api/carte-util/3/</link>
 					<link>https://www.w3.org/2003/01/dom2-javadoc/</link>
 					<link>http://www.slf4j.org/apidocs/</link>
