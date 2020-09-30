@@ -23,3 +23,5 @@ Or download a zip and extract:
 After running the script you'll have a tree with all the modules, ready to build with Maven. You can just run `mvn` (which defaults to `clean package`) but remember to set `JAVA_HOME` to JDK 15 or higher first, if that is not your default.
 
 Note that one of the dependencies ([JCLF](https://sourceforge.net/projects/jclf/)) is not in Maven Central. Depending on your setup, you may need to install it manually first.
+
+For more information: https://css4j.github.io/
