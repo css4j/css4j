@@ -5,7 +5,9 @@ This project provides implementations of APIs similar to W3C/WHATWG's:
 - [Document Object Model (DOM)](https://dom.spec.whatwg.org/).
 - [CSS Object Model (CSSOM)](https://www.w3.org/TR/cssom-1/).
 
-If you want to build css4j from the code that is currently at the Git repositories, you need a current JDK (the build is tested with version 15) and a copy of the `css4j-dist` repository first, then run the `tree.sh` script. For example:
+Downloads of a ZIP archive containing all the artifacts are available from the [`css4j-dist` release area](https://github.com/css4j/css4j-dist/releases) and also from a [mirror site](https://sourceforge.net/projects/carte/files/css4j/).
+
+To build css4j from the code that is currently at the Git repositories, you need a current JDK (the build is tested with version 15) and a copy of the `css4j-dist` repository first, then run the `tree.sh` script. For example:
 ```
     git clone https://github.com/css4j/css4j-dist.git css4j-snapshot
     cd css4j-snapshot
