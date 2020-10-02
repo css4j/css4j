@@ -854,6 +854,170 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseStyleSheetMediaRuleNL() throws CSSException, IOException {
+		Reader re = new StringReader("@media\n{div.foo{margin:1em}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.mediaRuleLists.size());
+		assertEquals("all", handler.mediaRuleLists.get(0).toString());
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("1em", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetMediaRuleNL2() throws CSSException, IOException {
+		Reader re = new StringReader("@media\nscreen{div.foo{margin:1em}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.mediaRuleLists.size());
+		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("1em", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetMediaRuleEscaped() throws CSSException, IOException {
+		Reader re = new StringReader("@\\6d edia screen {div.foo{margin:1em}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.mediaRuleLists.size());
+		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("1em", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetMediaRuleEscapedNL() throws CSSException, IOException {
+		Reader re = new StringReader("@medi\\61\n screen {div.foo{margin:1em}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.mediaRuleLists.size());
+		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("1em", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetMediaRuleEscaped2() throws CSSException, IOException {
+		Reader re = new StringReader("@medi\\61  screen {div.foo{margin:1em}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.mediaRuleLists.size());
+		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("1em", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetMediaRuleEscaped3() throws CSSException, IOException {
+		Reader re = new StringReader("@\\6d edi\\61  screen {div.foo{margin:1em}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.mediaRuleLists.size());
+		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("1em", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetMediaRuleError() throws CSSException, IOException {
+		Reader re = new StringReader("@+media screen {div.foo{margin:1em}}p{color:blue}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(0, handler.mediaRuleLists.size());
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("color", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("blue", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertTrue(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetMediaRuleError2() throws CSSException, IOException {
+		Reader re = new StringReader("@.media screen {div.foo{margin:1em}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(0, handler.mediaRuleLists.size());
+		assertEquals(0, handler.selectors.size());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertEquals(0, handler.priorities.size());
+		assertTrue(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
 	public void testParseStyleSheetMediaRuleErrorRecovery() throws CSSException, IOException {
 		Reader re = new StringReader(
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
@@ -1565,6 +1729,40 @@ public class SheetParserTest {
 		MediaQueryList list = handler.importMedias.get(0);
 		assertEquals(1, list.getLength());
 		assertEquals("screen and (orientation: landscape)", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseImportRuleMediaQueryLevel4() throws CSSException, IOException {
+		Reader re = new StringReader("@import url('foo.css') screen and (800px<width<=1200px);");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("screen and (800px < width <= 1200px)", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseImportRuleMediaQueryLevel4b() throws CSSException, IOException {
+		Reader re = new StringReader("@import url('foo.css') screen and (resolution>=72dpi);");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("screen and (resolution >= 72dpi)", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 

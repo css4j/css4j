@@ -32,6 +32,7 @@ import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.BooleanConditionFactory;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -39,7 +40,6 @@ import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
@@ -1895,6 +1895,26 @@ public class CSSParser implements Parser {
 		return false;
 	}
 
+	private static boolean bufferEndsWithEscapedChar(StringBuilder buffer) {
+		int len = buffer.length();
+		if (len != 0) {
+			int bufCp = buffer.codePointAt(len - 1);
+			if (ParseHelper.isHexCodePoint(bufCp)) {
+				for (int i = 2; i <= 6; i++) {
+					bufCp = buffer.codePointAt(len - i);
+					if (ParseHelper.isHexCodePoint(bufCp)) {
+						continue;
+					} else if (bufCp == 92) { // \
+						return true;
+					} else {
+						break;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	private static boolean isNotSeparator(int cp) {
 		return cp != 32 && cp != 9 && cp != 10 && cp != 12 && cp != 13;
 	}
@@ -2673,7 +2693,7 @@ public class CSSParser implements Parser {
 
 		// @formatter:off
 		//
-		// Stage: 0 initial, 1 unknown rule
+		// Stage: 0 initial
 		// Non-nested: 32 charset (at beginning, ignored),
 		//             34 namespace (expecting first token)
 		//             35 namespace (expecting second token)
@@ -2683,14 +2703,28 @@ public class CSSParser implements Parser {
 		//             39 import (expecting first token as url)
 		//             40 import (expecting second token or final)
 		// Stage 2: media, font-face, supports
-		// Other rules (stage 5): document
+		// Other rules (stage 5): document, ...
 		// Separate handlers for page, font-feature-values, counter-style,
 		//                       keyframes, viewport
 		// Stage 7: nested rule inside a stage-2 rule, unless:
-		// Stage 10: nested font-face rule inside a media/supports rule
+		// Stage 10: nested font-face rule inside a grouping rule
 		//
 		// @formatter:on
 		private byte stage = 0;
+
+		private static final byte STAGE_INITIAL = 0;
+		private static final byte STAGE_CHARSET_RULE = 32;
+		private static final byte STAGE_NS_RULE_EXPECT_FIRST_TOKEN = 34;
+		private static final byte STAGE_NS_RULE_EXPECT_SECOND_TOKEN = 35;
+		private static final byte STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL = 36;
+		private static final byte STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL = 37;
+		private static final byte STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN = 38;
+		private static final byte STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL = 39;
+		private static final byte STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL = 40;
+		private static final byte STAGE_GROUPING_OR_FONTFACE_RULE = 2;
+		private static final byte STAGE_UNKNOWN_RULE = 5;
+		private static final byte STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10 = 7;
+		private static final byte STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING = 10;
 
 		// Next field is to check for @charset rules in bad place
 		private boolean rulesFound = false;
@@ -2714,125 +2748,9 @@ public class CSSParser implements Parser {
 			if (contextHandler != null) {
 				contextHandler.word(index, word);
 			} else {
-				if (prevcp == 64) { // Got an at-rule
-					if (stage == 0) {
-						String ruleName = word.toString().toLowerCase(Locale.ROOT);
-						if ("charset".equals(ruleName)) {
-							if (!rulesFound) {
-								stage = 32;
-								buffer.setLength(0);
-							} else {
-								handleError(index - 1, ParseHelper.ERR_RULE_SYNTAX, "@charset must be the first rule");
-							}
-						} else if ("import".equals(ruleName)) {
-							stage = 38;
-							buffer.setLength(0);
-						} else if ("namespace".equals(ruleName)) {
-							stage = 34;
-							buffer.setLength(0);
-						} else if ("media".equals(ruleName)) {
-							ruleType = MEDIA_RULE;
-							stage = 2;
-							buffer.setLength(0);
-							setMediaQueryHandler();
-						} else if ("supports".equals(ruleName)) {
-							ruleType = SUPPORTS_RULE;
-							stage = 2;
-							buffer.setLength(0);
-							contextHandler = new MySupportsTokenHandler();
-						} else if ("font-face".equals(ruleName)) {
-							ruleType = FONT_FACE_RULE;
-							stage = 2;
-							buffer.setLength(0);
-						} else if ("page".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new MyPageTH();
-						} else if ("viewport".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new ViewportTokenHandler();
-						} else if ("counter-style".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new CounterStyleTokenHandler();
-						} else if ("keyframes".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new MyKeyFrameBlockListTH();
-						} else if ("font-feature-values".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new MyFontFeatureValuesTH();
-						} else {
-							buffer.append(word);
-							stage = 5;
-						}
-					} else if (stage == 2) {
-						// Check for possible unexpected buffer content
-						if (buffer.length() != 1) {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-									"Unexpected: " + buffer.toString());
-							buffer.setLength(0);
-							return;
-						}
-						// All seems fine, obtain a lowercase rule name
-						String ruleName = word.toString().toLowerCase(Locale.ROOT);
-						if ("page".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new MyPageTH();
-						} else if ("font-face".equals(ruleName)) {
-							if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
-								// Nested font-face rule inside @media or @supports
-								ruleType = FONT_FACE_RULE;
-								stage = 10;
-								buffer.setLength(0);
-							} else {
-								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-										"Unexpected rule: @font-face.");
-							}
-						} else if ("media".equals(ruleName)) {
-							// Nested media rule inside grouping rule?
-							if (ruleType == SUPPORTS_RULE) {
-								ruleType = MEDIA_RULE;
-							} else if (ruleType != MEDIA_RULE) {
-								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-										"Unexpected: @" + ruleName);
-								return;
-							}
-							buffer.setLength(0);
-							setMediaQueryHandler();
-						} else if ("supports".equals(ruleName)) {
-							// Nested supports rule inside grouping rule?
-							if (ruleType == MEDIA_RULE) {
-								ruleType = SUPPORTS_RULE;
-							} else if (ruleType != SUPPORTS_RULE) {
-								handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-										"Unexpected: @" + ruleName);
-								return;
-							}
-							buffer.setLength(0);
-							contextHandler = new MySupportsTokenHandler();
-						} else if ("viewport".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new ViewportTokenHandler();
-						} else if ("counter-style".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new CounterStyleTokenHandler();
-						} else if ("keyframes".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new MyKeyFrameBlockListTH();
-						} else if ("font-feature-values".equals(ruleName)) {
-							buffer.setLength(0);
-							contextHandler = new MyFontFeatureValuesTH();
-						} else {
-							// Nested rule
-							stage = 7;
-							buffer.append(word);
-						}
-					} else {
-						buffer.append(word);
-					}
-				} else {
-					buffer.append(word);
-				}
-				prevcp = 65;
+				buffer.append(word);
 			}
+			prevcp = 65;
 		}
 
 		@Override
@@ -2840,15 +2758,15 @@ public class CSSParser implements Parser {
 			if (contextHandler != null) {
 				contextHandler.separator(index, codepoint);
 			} else {
-				if (stage == 34) {
+				if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
 					if (ruleFirstPart == null) {
 						if (buffer.length() != 0) {
 							ruleFirstPart = buffer.toString();
 							buffer.setLength(0);
-							stage = 35;
+							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN;
 						}
 					} else {
-						stage = 35;
+						stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN;
 					}
 				} else if (buffer.length() != 0
 						&& (!isPrevCpWhitespace() || (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
@@ -2878,14 +2796,15 @@ public class CSSParser implements Parser {
 		public void quoted(int index, CharSequence quoted, int quoteCp) {
 			if (contextHandler != null) {
 				contextHandler.quoted(index, quoted, quoteCp);
-			} else if (stage == 5 || stage == 7) {
+			} else if (stage == STAGE_UNKNOWN_RULE
+					|| stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
 				char c = (char) quoteCp;
 				buffer.append(c).append(quoted).append(c);
 			} else {
 				if (ruleFirstPart == null) {
 					ruleFirstPart = quoted.toString();
-					if (stage == 38) {
-						stage = 40;
+					if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
+						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
 					}
 				} else if (ruleSecondPart == null) {
 					ruleSecondPart = quoted.toString();
@@ -2908,42 +2827,42 @@ public class CSSParser implements Parser {
 			} else {
 				if (codepoint == 123) { // '{'
 					curlyBracketDepth++;
-					if (stage == 2) {
+					if (stage == STAGE_GROUPING_OR_FONTFACE_RULE) {
 						if (curlyBracketDepth == 1) {
 							if (ruleType == FONT_FACE_RULE) {
 								startFontFaceRule(index);
 							}
 							buffer.setLength(0);
 						}
-					} else if (stage == 10 && curlyBracketDepth >= 2) {
+					} else if (stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING && curlyBracketDepth >= 2) {
 						startFontFaceRule(index);
 					} else {
 						buffer.append('{');
 					}
 				} else if (codepoint == TokenProducer.CHAR_LEFT_PAREN) {
 					parendepth++;
-					if (stage == 35) {
+					if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN) {
 						if (bufferEquals("url")) { // "uri("
-							stage = 36;
+							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-									"Unexpected '(' after " + buffer.toString());
+									"Unexpected '(' after " + buffer);
 						}
-					} else if (stage == 38) {
+					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
 						if (bufferEquals("url")) { // "uri("
-							stage = 39;
+							stage = STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-									"Unexpected '(' after " + buffer.toString());
+									"Unexpected '(' after " + buffer);
 						}
-					} else if (stage == 34) {
+					} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
 						if (bufferEquals("url")) { // "uri("
 							// Default namespace
 							ruleFirstPart = "";
-							stage = 36;
+							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-									"Unexpected '(' after " + buffer.toString());
+									"Unexpected '(' after " + buffer);
 						}
 					} else {
 						buffer.append('(');
@@ -2958,7 +2877,7 @@ public class CSSParser implements Parser {
 		private void startFontFaceRule(int index) {
 			if (buffer.length() != 0) {
 				handleError(index - buffer.length(), ParseHelper.ERR_UNEXPECTED_TOKEN,
-						"Unexpected token in @font-face rule: " + buffer.toString());
+						"Unexpected token in @font-face rule: " + buffer);
 			} else {
 				handler.startFontFace();
 				declarationHandler.curlyBracketDepth = 1;
@@ -2979,28 +2898,28 @@ public class CSSParser implements Parser {
 						// Body of rule ends
 						handler.ignorableAtRule(buffer.toString());
 						buffer.setLength(0);
-						stage = 0;
+						stage = STAGE_INITIAL;
 						endRuleBody();
 					} else if (curlyBracketDepth == 1) {
-						if (stage == 7) {
+						if (stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
 							handler.ignorableAtRule(buffer.toString());
 							buffer.setLength(0);
-							stage = 2;
+							stage = STAGE_GROUPING_OR_FONTFACE_RULE;
 							switchContextToStage2();
 						}
 					}
 				} else if (codepoint == 41) {
 					parendepth--;
-					if (stage == 36) { // Ignore final ')' for URI
+					if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL) { // Ignore final ')' for URI
 						processBuffer(index);
 						if (ruleSecondPart != null) {
-							stage = 37;
+							stage = STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL;
 						} else {
 							handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty URI in namespace rule");
 						}
-					} else if (stage == 39) {
+					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
 						processBuffer(index);
-						stage = 40;
+						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
 					} else {
 						buffer.append(')');
 					}
@@ -3040,7 +2959,7 @@ public class CSSParser implements Parser {
 					if (curlyBracketDepth == 0) {
 						// End of rule
 						if (parendepth == 0) {
-							if (stage != 0) {
+							if (stage != STAGE_INITIAL) {
 								endOfAtRule(index);
 							} else {
 								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty @-rule.");
@@ -3054,8 +2973,10 @@ public class CSSParser implements Parser {
 					} else {
 						buffer.append(';');
 					}
-				} else {
+				} else if (isAllowedChar(codepoint)) {
 					bufferAppend(codepoint);
+				} else {
+					unexpectedCharError(index, codepoint);
 				}
 				prevcp = codepoint;
 			}
@@ -3067,7 +2988,8 @@ public class CSSParser implements Parser {
 				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
 						"Malformed @-rule, unexpected <" + buffer.toString() + ">");
 			}
-			if (stage == 40 || stage == 38) {
+			if (stage == STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL
+					|| stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
 				if (ruleSecondPart != null) {
 					currentCondition = newMediaList(ruleSecondPart);
 				} else {
@@ -3081,15 +3003,15 @@ public class CSSParser implements Parser {
 				} else if (!parseError) {
 					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Malformed @-rule");
 				}
-			} else if (stage == 35 || stage == 37) {
+			} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN || stage == STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL) {
 				if (ruleSecondPart != null) {
 					namespaceDeclaration(ruleFirstPart, ruleSecondPart);
 				} else {
 					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "No URI in namespace rule");
 				}
-			} else if (stage == 34) {
+			} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
 				namespaceDeclaration("", ruleFirstPart);
-			} else if (stage == 36) { // Bad namespace rule
+			} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL) { // Bad namespace rule
 				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Bad URI in namespace rule");
 			}
 			resetRuleState();
@@ -3117,19 +3039,34 @@ public class CSSParser implements Parser {
 			if (currentCondition != null) {
 				currentCondition = currentCondition.getParent();
 				if (currentCondition == null) {
-					stage = 0;
+					stage = STAGE_INITIAL;
 				} else if (currentCondition.isMediaCondition()) {
 					ruleType = MEDIA_RULE;
 				} else {
 					ruleType = SUPPORTS_RULE;
 				}
 			} else {
-				stage = 0;
+				stage = STAGE_INITIAL;
 			}
 			ruleFirstPart = null;
 			ruleSecondPart = null;
 			prevcp = 32;
 			buffer.setLength(0);
+		}
+
+		private boolean isAllowedChar(int codePoint) {
+			switch (stage) {
+			case STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL:
+			case STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL:
+			case STAGE_UNKNOWN_RULE:
+			case STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10:
+				return true;
+			case STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL:
+				return codePoint == TokenProducer.CHAR_COLON || codePoint == TokenProducer.CHAR_COMMA
+						|| codePoint == TokenProducer.CHAR_EQUALS || codePoint == TokenProducer.CHAR_GREATER_THAN
+						|| codePoint == TokenProducer.CHAR_LESS_THAN || codePoint == TokenProducer.CHAR_SLASH;
+			}
+			return false;
 		}
 
 		private void processBuffer(int index) {
@@ -3181,7 +3118,7 @@ public class CSSParser implements Parser {
 			} else {
 				if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
-					if (stage == 10) {
+					if (stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING) {
 						closeGroupingRules();
 					}
 				} else if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
@@ -3229,7 +3166,7 @@ public class CSSParser implements Parser {
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
-			if (stage == 5 || stage == 7) {
+			if (stage == STAGE_UNKNOWN_RULE || stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
 				// Unknown rule
 				if (commentType == 0) {
 					buffer.append("/*").append(comment).append("*/");
@@ -3242,13 +3179,255 @@ public class CSSParser implements Parser {
 		}
 
 		@Override
-		protected void handleError(int index, byte errCode, String message) {
+		protected void handleError(CSSParseException ex) throws CSSParseException {
 			if (contextHandler != null) {
-				contextHandler.handleError(index, errCode, message);
+				contextHandler.handleError(ex);
 			} else {
-				super.handleError(index, errCode, message);
+				super.handleError(ex);
 				buffer.setLength(0);
 				this.stage = 127;
+			}
+		}
+
+		private class AtRuleLauncherTH extends ControlTokenHandler {
+
+			/*
+			 * We use buffer, escapedTokenIndex and prevcp from SheetTokenHandler.
+			 */
+
+			private AtRuleLauncherTH() {
+				super();
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				SheetTokenHandler.this.buffer.append(word);
+				SheetTokenHandler.this.prevcp = 65;
+			}
+
+			@Override
+			public void separator(int index, int codePoint) {
+				if (SheetTokenHandler.this.isPrevCpWhitespace()) {
+					// Got two consecutive whitespaces. Check stage.
+					if (SheetTokenHandler.this.escapedTokenIndex != -1
+							&& bufferEndsWithEscapedChar(SheetTokenHandler.this.buffer)) {
+						SheetTokenHandler.this.buffer.append(' ');
+					} else {
+						startNewRule(index);
+					}
+				} else {
+					SheetTokenHandler.this.setWhitespacePrevCp();
+					if (SheetTokenHandler.this.escapedTokenIndex == -1
+							|| !bufferEndsWithEscapedChar(SheetTokenHandler.this.buffer)) {
+						startNewRule(index);
+					} else {
+						SheetTokenHandler.this.buffer.append(' ');
+					}
+				}
+			}
+
+			@Override
+			public void quoted(int index, CharSequence quoted, int quote) {
+				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + quote + quoted + quote);
+			}
+
+			@Override
+			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+				quoted(index, quoted, quoteCp);
+			}
+
+			@Override
+			public void openGroup(int index, int codePoint) {
+				if (codePoint != TokenProducer.CHAR_LEFT_SQ_BRACKET) {
+					startNewRule(index);
+					if (contextHandler != null) {
+						contextHandler.openGroup(index, codePoint);
+					} else {
+						SheetTokenHandler.this.openGroup(index, codePoint);
+					}
+				} else {
+					unexpectedCharError(index, codePoint);
+				}
+			}
+
+			@Override
+			public void closeGroup(int index, int codePoint) {
+				handleError(index, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+			}
+
+			@Override
+			public void character(int index, int codePoint) {
+				startNewRule(index);
+				if (contextHandler != null) {
+					contextHandler.character(index, codePoint);
+				} else {
+					SheetTokenHandler.this.character(index, codePoint);
+				}
+			}
+
+			@Override
+			public void escaped(int index, int codePoint) {
+				if (ParseHelper.isHexCodePoint(codePoint) || codePoint == 92) {
+					SheetTokenHandler.this.setEscapedTokenStart(index);
+					SheetTokenHandler.this.buffer.append('\\');
+				}
+				SheetTokenHandler.this.buffer.append(Character.toChars(codePoint));
+				SheetTokenHandler.this.prevcp = 65;
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+				// Now contextHandler is null
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			protected void handleError(CSSParseException ex) throws CSSParseException {
+				contextHandler = null;
+				SheetTokenHandler.this.handleError(ex);
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
+		private void startNewRule(int index) {
+			String atRule = unescapeBuffer(index);
+			if (atRule.length() > 2) {
+				if (stage == 0) {
+					startRule(index, atRule);
+				} else { // stage == 2
+					startNestedRule(index, atRule);
+				}
+			} else {
+				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Malformed @-rule.");
+			}
+		}
+
+		private void startRule(int index, String word) {
+			contextHandler = null;
+			// Obtain a lowercase rule name
+			String ruleName = word.substring(1).toLowerCase(Locale.ROOT);
+			if ("charset".equals(ruleName)) {
+				if (!rulesFound) {
+					stage = STAGE_CHARSET_RULE;
+					buffer.setLength(0);
+				} else {
+					handleError(index - 8, ParseHelper.ERR_RULE_SYNTAX, "@charset must be the first rule");
+				}
+			} else if ("import".equals(ruleName)) {
+				stage = STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN;
+				buffer.setLength(0);
+			} else if ("namespace".equals(ruleName)) {
+				stage = STAGE_NS_RULE_EXPECT_FIRST_TOKEN;
+				buffer.setLength(0);
+			} else if ("media".equals(ruleName)) {
+				ruleType = MEDIA_RULE;
+				stage = 2;
+				buffer.setLength(0);
+				setMediaQueryHandler();
+			} else if ("supports".equals(ruleName)) {
+				ruleType = SUPPORTS_RULE;
+				stage = 2;
+				buffer.setLength(0);
+				contextHandler = new MySupportsTokenHandler();
+			} else if ("font-face".equals(ruleName)) {
+				ruleType = FONT_FACE_RULE;
+				stage = 2;
+				buffer.setLength(0);
+			} else if ("page".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new MyPageTH();
+			} else if ("viewport".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new ViewportTokenHandler();
+			} else if ("counter-style".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new CounterStyleTokenHandler();
+			} else if ("keyframes".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new MyKeyFrameBlockListTH();
+			} else if ("font-feature-values".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new MyFontFeatureValuesTH();
+			} else {
+				buffer.append(word);
+				if (isPrevCpWhitespace()) {
+					buffer.append(' ');
+				}
+				stage = STAGE_UNKNOWN_RULE;
+			}
+		}
+
+		private void startNestedRule(int index, String word) {
+			contextHandler = null;
+			// Obtain a lowercase rule name
+			String ruleName = word.substring(1).toLowerCase(Locale.ROOT);
+			if ("page".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new MyPageTH();
+			} else if ("font-face".equals(ruleName)) {
+				if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
+					// Nested font-face rule inside @media or @supports
+					ruleType = FONT_FACE_RULE;
+					stage = STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING;
+					buffer.setLength(0);
+				} else {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected rule: @font-face.");
+				}
+			} else if ("media".equals(ruleName)) {
+				// Nested media rule inside grouping rule?
+				if (ruleType == SUPPORTS_RULE) {
+					ruleType = MEDIA_RULE;
+				} else if (ruleType != MEDIA_RULE) {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected: @" + ruleName);
+					return;
+				}
+				buffer.setLength(0);
+				setMediaQueryHandler();
+			} else if ("supports".equals(ruleName)) {
+				// Nested supports rule inside grouping rule?
+				if (ruleType == MEDIA_RULE) {
+					ruleType = SUPPORTS_RULE;
+				} else if (ruleType != SUPPORTS_RULE) {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected: @" + ruleName);
+					return;
+				}
+				buffer.setLength(0);
+				contextHandler = new MySupportsTokenHandler();
+			} else if ("viewport".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new ViewportTokenHandler();
+			} else if ("counter-style".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new CounterStyleTokenHandler();
+			} else if ("keyframes".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new MyKeyFrameBlockListTH();
+			} else if ("font-feature-values".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new MyFontFeatureValuesTH();
+			} else if ("charset".equals(ruleName)) {
+				handleError(index - 8, ParseHelper.ERR_RULE_SYNTAX, "@charset must be the first rule");
+			} else {
+				// Nested rule
+				buffer.append(word);
+				if (isPrevCpWhitespace()) {
+					buffer.append(' ');
+				}
+				stage = STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10;
 			}
 		}
 
@@ -3591,7 +3770,7 @@ public class CSSParser implements Parser {
 
 			@Override
 			protected void handleRightCurlyBracket(int index) {
-				if (SheetTokenHandler.this.stage == 2) {
+				if (SheetTokenHandler.this.stage == STAGE_GROUPING_OR_FONTFACE_RULE) {
 					final byte ruleType = SheetTokenHandler.this.ruleType;
 					if (ruleType == MEDIA_RULE) {
 						handler.endMedia(currentCondition.getMediaList());
@@ -3666,7 +3845,7 @@ public class CSSParser implements Parser {
 					}
 					return;
 				}
-				contextHandler = null;
+				contextHandler = new AtRuleLauncherTH();
 				SheetTokenHandler.this.prevcp = 64;
 				SheetTokenHandler.this.buffer.append('@');
 			}
@@ -3720,19 +3899,19 @@ public class CSSParser implements Parser {
 				setSelectorHandler(125);
 				if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
-					if (SheetTokenHandler.this.stage == 10) {
+					if (SheetTokenHandler.this.stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING) {
 						if (currentCondition.isMediaCondition()) {
 							ruleType = MEDIA_RULE;
 						} else {
 							ruleType = SUPPORTS_RULE;
 						}
 						buffer.setLength(0);
-						SheetTokenHandler.this.stage = 2;
+						SheetTokenHandler.this.stage = STAGE_GROUPING_OR_FONTFACE_RULE;
 						contextHandler = selectorHandler;
 						selectorHandler.prevcp = 32;
 					} else {
 						ruleType = 0;
-						SheetTokenHandler.this.stage = 0;
+						SheetTokenHandler.this.stage = STAGE_INITIAL;
 					}
 				} else {
 					// Mark the end of rule (not of selector)
@@ -3747,9 +3926,9 @@ public class CSSParser implements Parser {
 			protected void handleAtKeyword(int index) {
 				if (propertyName == null && buffer.length() == 0 && getCurlyBracketDepth() == 1
 						&& SheetTokenHandler.this.selectorHandler.getSelectorList().getLength() == 0) {
-					contextHandler = null;
-					SheetTokenHandler.this.buffer.append('@');
+					contextHandler = new AtRuleLauncherTH();
 					SheetTokenHandler.this.prevcp = 64;
+					SheetTokenHandler.this.buffer.append('@');
 				} else {
 					unexpectedCharError(index, 64);
 				}
@@ -4984,26 +5163,6 @@ public class CSSParser implements Parser {
 			}
 		}
 
-	}
-
-	private static boolean bufferEndsWithEscapedChar(StringBuilder buffer) {
-		int len = buffer.length();
-		if (len != 0) {
-			int bufCp = buffer.codePointAt(len - 1);
-			if (ParseHelper.isHexCodePoint(bufCp)) {
-				for (int i = 2; i <= 6; i++) {
-					bufCp = buffer.codePointAt(len - i);
-					if (ParseHelper.isHexCodePoint(bufCp)) {
-						continue;
-					} else if (bufCp == 92) { // \
-						return true;
-					} else {
-						break;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	class DeclarationRuleTokenHandler extends DeclarationTokenHandler {
@@ -7146,12 +7305,7 @@ public class CSSParser implements Parser {
 				} else {
 					ex = createException(index, errCode, message);
 				}
-				if (errorHandler != null) {
-					errorHandler.error(ex);
-				} else {
-					throw ex;
-				}
-				parseError = true;
+				handleError(ex);
 			}
 		}
 
@@ -7159,13 +7313,17 @@ public class CSSParser implements Parser {
 			if (!parseError) {
 				CSSParseException ex = createException(index, errCode, message);
 				ex.initCause(cause);
-				if (errorHandler != null) {
-					errorHandler.error(ex);
-				} else {
-					throw ex;
-				}
-				parseError = true;
+				handleError(ex);
 			}
+		}
+
+		protected void handleError(CSSParseException ex) throws CSSParseException {
+			if (errorHandler != null) {
+				errorHandler.error(ex);
+			} else {
+				throw ex;
+			}
+			parseError = true;
 		}
 
 		void unexpectedCharError(int index, int codepoint) {
