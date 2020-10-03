@@ -375,6 +375,7 @@ class LexicalUnitImpl implements LexicalUnit {
 				return identCssText;
 			}
 		case FUNCTION:
+			return functionalSerialization(value);
 		case CALC:
 		case RECT_FUNCTION:
 		case VAR:
@@ -384,18 +385,11 @@ class LexicalUnitImpl implements LexicalUnit {
 		case COUNTERS_FUNCTION:
 		case CUBIC_BEZIER_FUNCTION:
 		case STEPS_FUNCTION:
-			buf = new StringBuilder();
-			buf.append(value).append('(');
-			LexicalUnit lu = this.parameters;
-			if (lu != null) {
-				buf.append(lu.toString());
-			}
-			buf.append(')');
-			return buf.toString();
+			return functionalSerialization(value.toLowerCase(Locale.ROOT));
 		case SUB_EXPRESSION:
 			buf = new StringBuilder();
 			buf.append('(');
-			lu = this.parameters;
+			LexicalUnit lu = this.parameters;
 			if (lu != null) {
 				buf.append(lu.toString());
 			}
@@ -487,6 +481,17 @@ class LexicalUnitImpl implements LexicalUnit {
 		default:
 		}
 		return "";
+	}
+
+	private CharSequence functionalSerialization(String fname) {
+		StringBuilder buf = new StringBuilder();
+		buf.append(fname).append('(');
+		LexicalUnit lu = this.parameters;
+		if (lu != null) {
+			buf.append(lu.toString());
+		}
+		buf.append(')');
+		return buf.toString();
 	}
 
 	@Override

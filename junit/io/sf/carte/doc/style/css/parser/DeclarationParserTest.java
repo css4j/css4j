@@ -1889,8 +1889,34 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("width: calc(100% - 3em)");
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 0.01);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(3f, param.getFloatValue(), 0.01);
+		assertEquals("em", param.getDimensionUnitText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100% - 3em)", lu.toString());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcEscaped() throws CSSException, IOException {
+		parseStyleDeclaration("width: ca\\4c c(100% - 3em)");
+		assertEquals("width", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("caLc", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -2007,6 +2033,79 @@ public class DeclarationParserTest {
 		assertEquals("start", param.getStringValue());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("steps(2, start)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationStepsEscaped() throws CSSException, IOException {
+		parseStyleDeclaration("animation-timing-function:st\\45ps(2, start)");
+		assertEquals("animation-timing-function", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("stEps", lu.getFunctionName());
+		assertEquals(LexicalType.STEPS_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(2, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("start", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("steps(2, start)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationVar() throws CSSException, IOException {
+		parseStyleDeclaration("color:var(--my-color,#3fa)");
+		assertEquals("color", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--my-color", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.RGBCOLOR, param.getLexicalUnitType());
+		assertEquals("#3fa", param.toString());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("var(--my-color, #3fa)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationVarEscaped() throws CSSException, IOException {
+		parseStyleDeclaration("color:v\\41r(--my-color,#3fa)");
+		assertEquals("color", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("vAr", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--my-color", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.RGBCOLOR, param.getLexicalUnitType());
+		assertEquals("#3fa", param.toString());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("var(--my-color, #3fa)", lu.toString());
+		assertEquals("var(--my-color, #3fa)", lu.getCssText());
 		assertFalse(errorHandler.hasError());
 	}
 

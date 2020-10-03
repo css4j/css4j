@@ -419,6 +419,22 @@ public class LexicalUnitTest {
 		lu = parsePropertyValue("calc(2)");
 		lu2 = parsePropertyValue("calc(2 * (3 + 2))");
 		assertNotEquals(lu, lu2);
+		//
+		lu2 = parsePropertyValue("c\\41 lc(2)");
+		assertNotEquals(lu, lu2);
+		assertNotEquals(lu.hashCode(), lu2.hashCode());
+	}
+
+	@Test
+	public void testEquals2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("#444");
+		LexicalUnit lu2 = parsePropertyValue("#444");
+		assertEquals(lu, lu2);
+		assertEquals(lu.hashCode(), lu2.hashCode());
+		//
+		lu2 = parsePropertyValue("rgb(68,68,68)");
+		assertNotEquals(lu, lu2);
+		assertNotEquals(lu.hashCode(), lu2.hashCode());
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {
