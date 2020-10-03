@@ -206,8 +206,8 @@ public interface LexicalUnit {
 		/**
 		 * Custom property value: <code>var(...)</code>.
 		 * <p>
-		 * See {@link #getStringValue} for the custom property name, and
-		 * {@link #getParameters()} for the fallback.
+		 * See {@link #getParameters()} for the custom property name and eventually the
+		 * fallback.
 		 * </p>
 		 */
 		VAR,
