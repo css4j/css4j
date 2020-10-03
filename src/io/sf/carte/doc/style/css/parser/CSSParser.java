@@ -5439,15 +5439,7 @@ public class CSSParser implements Parser {
 		@Override
 		public void word(int index, CharSequence word) {
 			if (!parseError) {
-				if (readPriority) {
-					if (ParseHelper.equalsIgnoreCase(word, "important")) {
-						priorityImportant = true;
-					} else {
-						checkIEPrioHack(index, word.toString());
-					}
-				} else { // rest of cases are collected to buffer
-					addWord(index, word);
-				}
+				addWord(index, word);
 			}
 			prevcp = 65; // A
 		}
@@ -5918,6 +5910,7 @@ public class CSSParser implements Parser {
 						return;
 					}
 				} else if (readPriority) {
+					processBuffer(index);
 					String compatText;
 					if (codepoint == 33 && priorityImportant && parserFlags.contains(Flag.IEPRIOCHAR)
 							&& (compatText = setFullIdentCompat()) != null) { // !
@@ -6284,7 +6277,7 @@ public class CSSParser implements Parser {
 					// Set the property name
 					setPropertyName(index);
 				} else if (readPriority) {
-					String prio = rawBuffer();
+					String prio = unescapeBuffer(index);
 					if ("important".equalsIgnoreCase(prio)) {
 						priorityImportant = true;
 					} else {
@@ -6717,7 +6710,8 @@ public class CSSParser implements Parser {
 		private boolean isEscapedContext(int prevcp) {
 			return prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_COLON
 					|| prevcp == TokenProducer.CHAR_COMMA || prevcp == TokenProducer.CHAR_SEMICOLON
-					|| prevcp == TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+					|| prevcp == TokenProducer.CHAR_LEFT_CURLY_BRACKET
+					|| (readPriority && prevcp == TokenProducer.CHAR_EXCLAMATION);
 		}
 
 		private boolean isEscapedContentError(int index, int codepoint) {
@@ -6728,7 +6722,7 @@ public class CSSParser implements Parser {
 				}
 				prevcp = 65;
 				bufferAppend(codepoint);
-			} else if (flagIEValues && isIEHackSuffix(codepoint)
+			} else if (flagIEValues && isIEHackSuffix(codepoint) // \9 \0
 					&& (lunit != null || buffer.length() != 0)) {
 				buffer.append('\\');
 				bufferAppend(codepoint);

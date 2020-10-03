@@ -553,6 +553,74 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationImportant() throws CSSException, IOException {
+		parseStyleDeclaration("symbols: \\1F44D!important;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("symbols", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("\uD83D\uDC4D", lu.getStringValue());
+		assertEquals("\\1F44D", lu.toString());
+		assertEquals(1, handler.priorities.size());
+		assertEquals("important", handler.priorities.getFirst());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationImportantEscaped() throws CSSException, IOException {
+		parseStyleDeclaration("symbols: \\1F44D!i\\6dportant;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("symbols", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("\uD83D\uDC4D", lu.getStringValue());
+		assertEquals("\\1F44D", lu.toString());
+		assertEquals(1, handler.priorities.size());
+		assertEquals("important", handler.priorities.getFirst());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationImportantEscaped2() throws CSSException, IOException {
+		parseStyleDeclaration("symbols: \\1F44D!\\49\\6dportan\\74;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("symbols", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("\uD83D\uDC4D", lu.getStringValue());
+		assertEquals("\\1F44D", lu.toString());
+		assertEquals(1, handler.priorities.size());
+		assertEquals("important", handler.priorities.getFirst());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationImportantEscaped3() throws CSSException, IOException {
+		parseStyleDeclaration("color:#ddd!\\49 \\6d portan\\74;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("color", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		assertEquals("#ddd", lu.toString());
+		assertEquals(1, handler.priorities.size());
+		assertEquals("important", handler.priorities.getFirst());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationImportantEscaped4() throws CSSException, IOException {
+		parseStyleDeclaration("color:#ddd! \\49 \\6d portan\\74;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("color", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		assertEquals("#ddd", lu.toString());
+		assertEquals(1, handler.priorities.size());
+		assertEquals("important", handler.priorities.getFirst());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseStyleDeclarationBadImportant() throws CSSException, IOException {
 		parseStyleDeclaration("width: calc(100% - 3em !important;");
 		assertEquals(0, handler.propertyNames.size());
@@ -579,6 +647,30 @@ public class DeclarationParserTest {
 	@Test
 	public void testParseStyleDeclarationBadImportant4() throws CSSException, IOException {
 		parseStyleDeclaration("color: #!important;");
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertTrue(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationBadImportant5() throws CSSException, IOException {
+		parseStyleDeclaration("margin: 1em!imp;");
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertTrue(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationBadImportant6() throws CSSException, IOException {
+		parseStyleDeclaration("margin: 1em!important!;");
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertTrue(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationBadImportantDoubleEscape() throws CSSException, IOException {
+		parseStyleDeclaration("margin: 1em!\\\\69mportant;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
@@ -1293,6 +1385,23 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationIEPrioSemicolon() throws CSSException, IOException {
+		parser.setFlag(Parser.Flag.IEPRIO);
+		parseStyleDeclaration("width:60cap!ie;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("width", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
+		assertEquals("60cap!ie", lu.getStringValue());
+		assertEquals("60cap!ie", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+		assertNull(handler.priorities.getFirst());
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationIEPrio2() throws CSSException, IOException {
 		parser.setFlag(Parser.Flag.IEPRIO);
 		parseStyleDeclaration("width:calc(80% - 3cap) ! ie");
@@ -1346,6 +1455,23 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationIECharPrio() throws CSSException, IOException {
 		parser.setFlag(Parser.Flag.IEPRIOCHAR);
 		parseStyleDeclaration("width:60cap!important!");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("width", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.COMPAT_PRIO, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
+		assertEquals("60cap", lu.getStringValue());
+		assertEquals("60cap", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("important", handler.priorities.getFirst());
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationIECharPrioSemicolon() throws CSSException, IOException {
+		parser.setFlag(Parser.Flag.IEPRIOCHAR);
+		parseStyleDeclaration("width:60cap!important!;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
