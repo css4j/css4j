@@ -21,6 +21,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -3062,11 +3063,17 @@ public class CSSParser implements Parser {
 			case STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10:
 				return true;
 			case STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL:
-				return codePoint == TokenProducer.CHAR_COLON || codePoint == TokenProducer.CHAR_COMMA
-						|| codePoint == TokenProducer.CHAR_EQUALS || codePoint == TokenProducer.CHAR_GREATER_THAN
-						|| codePoint == TokenProducer.CHAR_LESS_THAN || codePoint == TokenProducer.CHAR_SLASH;
+				return codePoint == TokenProducer.CHAR_COLON || isImportMediaRuleAllowedChar(codePoint);
 			}
 			return false;
+		}
+
+		private boolean isImportMediaRuleAllowedChar(int codePoint) {
+			final int[] allowedChars = { TokenProducer.CHAR_PERCENT_SIGN, TokenProducer.CHAR_ASTERISK,
+					TokenProducer.CHAR_PLUS, TokenProducer.CHAR_COMMA, TokenProducer.CHAR_HYPHEN_MINUS,
+					TokenProducer.CHAR_FULL_STOP, TokenProducer.CHAR_SLASH, TokenProducer.CHAR_LESS_THAN,
+					TokenProducer.CHAR_EQUALS, TokenProducer.CHAR_GREATER_THAN };
+			return Arrays.binarySearch(allowedChars, codePoint) >= 0;
 		}
 
 		private void processBuffer(int index) {

@@ -1767,6 +1767,24 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseImportRuleMediaQueryLevel4calc() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@import url('foo.css') screen and (800px<width<=calc(2400px/2 + 2*100px - 50px));");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("screen and (800px < width <= calc(2400px/2 + 2*100px - 50px))", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseImportRuleMediaQueryBad() throws CSSException, IOException {
 		Reader re = new StringReader("@import url('foo.css') screen and ((orientation:landscape);");
 		TestCSSHandler handler = new TestCSSHandler();
