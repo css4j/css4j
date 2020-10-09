@@ -60,7 +60,10 @@ import io.sf.carte.doc.agent.AgentUtil;
  * {@link #addHostToWhiteList(String)}.
  * </p>
  * <p>
- * Although this resolver should protect you from most information leaks, DoS
+ * Although this resolver should protect you from most information leaks (see
+ * <a href="https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF
+ * attacks</a>) and also from <code>jar:</code>
+ * <a href="https://en.wikipedia.org/wiki/Zip_bomb">decompression bombs</a>, DoS
  * attacks based on entity expansion/recursion like the
  * <a href="https://en.wikipedia.org/wiki/Billion_laughs_attack">'billion laughs
  * attack'</a> may still be possible and should be prevented at the XML parser.
