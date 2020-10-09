@@ -47,8 +47,17 @@ public class DefaultEntityResolverTest {
 		Reader re = isrc.getCharacterStream();
 		assertNotNull(re);
 		re.close();
+		//
 		isrc = resolver.getExternalSubset("foo", null);
 		assertNull(isrc);
+		// SVG
+		isrc = resolver.getExternalSubset("svg", null);
+		assertNotNull(isrc);
+		assertNull(isrc.getPublicId());
+		assertNull(isrc.getSystemId());
+		re = isrc.getCharacterStream();
+		assertNotNull(re);
+		re.close();
 	}
 
 	@Test
