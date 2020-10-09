@@ -751,7 +751,7 @@ abstract public class HTMLDocument extends DOMDocument {
 				myelem = new TableCellElement(localName);
 			} else if ("th" == localName) {
 				myelem = new TableCellElement(localName);
-			} else if ("script" == localName) {
+			} else if ("script" == localName || "pre" == localName) {
 				myelem = new RawTextElement(localName, namespaceURI);
 			} else {
 				myelem = new MyHTMLElement(localName, namespaceURI);
