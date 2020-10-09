@@ -136,20 +136,73 @@ public class DOMNodeTest {
 	public void normalize() {
 		assertEquals(1, xhtmlDoc.getChildNodes().getLength());
 		DOMElement elm = xhtmlDoc.createElement("body");
-		xhtmlDoc.getChildNodes().item(0).appendChild(elm);
-		Comment comment = xhtmlDoc.createComment("Hi");
+		DOMElement html = xhtmlDoc.getDocumentElement();
+		html.appendChild(xhtmlDoc.createTextNode("\n     "));
+		html.appendChild(xhtmlDoc.createTextNode("\t     "));
+		html.appendChild(xhtmlDoc.createTextNode("\n     "));
+		html.appendChild(elm);
 		Text foo = xhtmlDoc.createTextNode("foo");
 		Text bar = xhtmlDoc.createTextNode("bar");
-		elm.appendChild(comment);
 		elm.appendChild(xhtmlDoc.createTextNode(" \t  "));
 		elm.appendChild(foo);
 		elm.appendChild(xhtmlDoc.createTextNode("     "));
 		elm.appendChild(bar);
 		elm.appendChild(xhtmlDoc.createTextNode("\n   "));
+		elm.appendChild(xhtmlDoc.createTextNode("   "));
 		assertEquals(6, elm.getChildNodes().getLength());
 		elm.normalize();
-		assertEquals(2, elm.getChildNodes().getLength());
-		assertEquals("foo bar", elm.getChildNodes().item(1).getNodeValue());
+		assertEquals(1, elm.getChildNodes().getLength());
+		assertEquals("foo bar", elm.getChildNodes().item(0).getNodeValue());
+		//
+		html.appendChild(xhtmlDoc.createTextNode("\n     "));
+		html.appendChild(xhtmlDoc.createTextNode("\t     "));
+		html.appendChild(xhtmlDoc.createTextNode("\n     "));
+		xhtmlDoc.normalizeDocument();
+		assertEquals(1, html.getChildNodes().getLength());
+		assertEquals(1, elm.getChildNodes().getLength());
+	}
+
+	@Test
+	public void normalize2() {
+		assertEquals(1, xhtmlDoc.getChildNodes().getLength());
+		DOMElement elm = xhtmlDoc.createElement("body");
+		DOMElement html = xhtmlDoc.getDocumentElement();
+		html.appendChild(xhtmlDoc.createComment(" Comment "));
+		html.appendChild(xhtmlDoc.createTextNode("\n     "));
+		html.appendChild(xhtmlDoc.createTextNode("\t     "));
+		html.appendChild(xhtmlDoc.createTextNode("\n     "));
+		html.appendChild(elm);
+		Comment comment = xhtmlDoc.createComment("Hi");
+		Text foo = xhtmlDoc.createTextNode("foo");
+		Text bar = xhtmlDoc.createTextNode("bar \u212b");
+		elm.appendChild(comment);
+		elm.appendChild(xhtmlDoc.createTextNode(" \t  "));
+		elm.appendChild(foo);
+		elm.appendChild(xhtmlDoc.createTextNode("     "));
+		elm.appendChild(xhtmlDoc.createTextNode("     "));
+		elm.appendChild(bar);
+		elm.appendChild(xhtmlDoc.createTextNode("\n   "));
+		Comment comment2 = xhtmlDoc.createComment("Hi");
+		elm.appendChild(comment2);
+		assertEquals(8, elm.getChildNodes().getLength());
+		elm.normalize();
+		assertEquals(3, elm.getChildNodes().getLength());
+		assertEquals(" foo bar \u00c5 ", elm.getChildNodes().item(1).getNodeValue());
+		//
+		//
+		html.appendChild(xhtmlDoc.createTextNode("\n     "));
+		html.appendChild(xhtmlDoc.createTextNode("\t     "));
+		html.appendChild(xhtmlDoc.createTextNode("\n     "));
+		html.appendChild(xhtmlDoc.createComment(" Middle comment "));
+		html.appendChild(xhtmlDoc.createTextNode(""));
+		html.appendChild(xhtmlDoc.createComment(" End comment "));
+		assertEquals(11, html.getChildNodes().getLength());
+		xhtmlDoc.normalizeDocument();
+		assertEquals(6, html.getChildNodes().getLength());
+		assertEquals(3, elm.getChildNodes().getLength());
+		assertEquals(" ", html.getChildNodes().item(3).getNodeValue());
+		assertEquals(Node.COMMENT_NODE, html.getChildNodes().item(4).getNodeType());
+		assertEquals(Node.COMMENT_NODE, html.getChildNodes().item(5).getNodeType());
 	}
 
 	@Test

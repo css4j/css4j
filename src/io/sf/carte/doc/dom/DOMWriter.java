@@ -37,6 +37,7 @@ import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 import io.sf.carte.doc.xml.dtd.EntityFinder;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -255,7 +256,7 @@ public class DOMWriter {
 			Text text = (Text) node;
 			if (!text.isElementContentWhitespace()) {
 				writeText(text, wri, indented);
-			} else {
+			} else if (!indented) {
 				writeElementContentWhitespace(text, wri);
 			}
 			break;
@@ -525,15 +526,41 @@ public class DOMWriter {
 
 	/**
 	 * Serialize element content whitespace.
-	 * <p>
-	 * By default, this method does nothing (the whole idea of pretty-printing is to
-	 * ignore those non-structural text nodes and do your own formatting).
 	 * 
 	 * @param text the text node.
 	 * @param wri  the writer.
 	 * @throws IOException if an I/O problem occurred while writing.
 	 */
 	protected void writeElementContentWhitespace(Text text, SimpleWriter wri) throws IOException {
+		Node psiblingNd = text.getPreviousSibling();
+		Node nsiblingNd;
+		String data = text.getData();
+		if (data == null || data.length() == 0 || psiblingNd == null || (nsiblingNd = text.getNextSibling()) == null
+				|| isBlockElementNode(psiblingNd) || isBlockElementNode(nsiblingNd)) {
+			return;
+		}
+		if (data.indexOf('\n') != -1) {
+			wri.newLine();
+			writeFullIndent(wri);
+		} else {
+			wri.write(' ');
+		}
+	}
+
+	private boolean isBlockElementNode(Node node) {
+		if (node.getNodeType() == Node.ELEMENT_NODE) {
+			DOMElement element = (DOMElement) node;
+			ComputedCSSStyle style = element.getComputedStyle(null);
+			String display = style.getPropertyValue("display");
+			if (display.length() == 0) {
+				display = getDisplayProperty(element);
+			}
+			if ("block".equalsIgnoreCase(display) || "table".equalsIgnoreCase(display)
+					|| "table-row".equalsIgnoreCase(display)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -548,7 +575,11 @@ public class DOMWriter {
 		wri.write("<![CDATA[");
 		wri.write(data.getData());
 		wri.write("]]>");
-		endIndentedNode(data, wri);
+		AbstractDOMNode parentNode = ((AbstractDOMNode) data).parentNode();
+		if (parentNode == null || parentNode.getNodeType() != Node.ELEMENT_NODE
+				|| !((DOMElement) parentNode).isRawText()) {
+			endIndentedNode(data, wri);
+		}
 	}
 
 	/**
