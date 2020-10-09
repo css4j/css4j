@@ -40,7 +40,8 @@ public interface CSSComputedProperties extends CSS2Properties, NodeStyleDeclarat
 	 *
 	 * @param propertyName
 	 *            The name of the CSS property. See the CSS property index.
-	 * @return the value of the property.
+	 * @return the value of the property, or the empty string if the property is not known
+	 *         or is a shorthand that could not be serialized.
 	 */
 	@Override
 	String getPropertyValue(String propertyName);
