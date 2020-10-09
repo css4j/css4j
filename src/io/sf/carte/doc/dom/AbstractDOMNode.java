@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.dom;
 
+import java.text.Normalizer;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -387,6 +388,11 @@ abstract class AbstractDOMNode implements DOMNode {
 	void postRemoveChild(AbstractDOMNode removed) {
 	}
 
+	/**
+	 * Remove this node from the given node list, setting the parent node to {@code null}.
+	 * 
+	 * @param nodeList the child node list containing this node.
+	 */
 	void removeFromParent(RawNodeList nodeList) {
 		setParentNode(null);
 		nodeList.remove(this);
@@ -437,16 +443,63 @@ abstract class AbstractDOMNode implements DOMNode {
 			Node next = node.getNextSibling();
 			short type = node.getNodeType();
 			if (type == Node.TEXT_NODE) {
-				String data = node.getNodeValue();
-				if (data == null || data.length() == 0 || ((Text) node).isElementContentWhitespace()) {
+				Text text = (Text) node;
+				String data = text.getData();
+				// Remove empty nodes (null value is supposed to not reach this)
+				if (data.length() == 0) {
+					((AbstractDOMNode) text).removeFromParent(getNodeList());
+					node = next;
+					continue;
+				}
+				boolean isECW = text.isElementContentWhitespace();
+				if (isECW) {
+					if (lastnode == null) {
+						// This is ECW and is the first node: remove
+						((AbstractDOMNode) node).removeFromParent(getNodeList());
+						node = next;
+						continue;
+					} else if (next == null) {
+						// We got the last node.
+						// Remove trailing ECW Text: first, remove current iteration node
+						((AbstractDOMNode) node).removeFromParent(getNodeList());
+						// Now, remove previous ECW siblings
+						while (lastnode != null && lastnode.getNodeType() == Node.TEXT_NODE
+								&& ((Text) lastnode).isElementContentWhitespace()) {
+							((AbstractDOMNode) lastnode).removeFromParent(getNodeList());
+							lastnode = lastnode.getPreviousSibling();
+						}
+						break;
+					}
+					// Normalize ECW as a single whitespace
+					text.setData(" ");
+					data = " ";
+				} else {
+					// Unicode normalization
+					String normalized = Normalizer.normalize(data, Normalizer.Form.NFC);
+					// Normalization may return the same String
+					if (data != normalized) {
+						text.setData(normalized);
+						data = normalized;
+					}
+				}
+				if (lasttype == Node.TEXT_NODE) {
+					// coalesce nodes
+					Text prevText = (Text) lastnode;
+					if (!prevText.isElementContentWhitespace()) {
+						if (!isECW || (next != null && (next.getNodeType() != Node.TEXT_NODE
+								|| !((Text) next).isElementContentWhitespace()))) {
+							prevText.setData(prevText.getData() + data);
+						}
+					} else if (!isECW) {
+						prevText.setData(" " + data);
+					} // If both this Text and previous one are ECW, do nothing and let it be removed
 					((AbstractDOMNode) node).removeFromParent(getNodeList());
 					node = next;
 					continue;
-				} else if (type == lasttype) {
-					// coalesce nodes
-					((Text) lastnode).setData(((Text) lastnode).getData() + " " + ((Text) node).getData());
-					((AbstractDOMNode) node).removeFromParent(getNodeList());
 				}
+			} else if (type == Node.ELEMENT_NODE) {
+				// Normalize subtree
+				node.normalize();
 			}
 			lasttype = type;
 			lastnode = node;

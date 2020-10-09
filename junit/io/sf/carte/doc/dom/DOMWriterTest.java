@@ -52,7 +52,15 @@ public class DOMWriterTest {
 		html.appendChild(head);
 		DOMElement body = document.createElement("body");
 		DOMElement div = document.createElement("div");
-		div.appendChild(document.createTextNode("This document is not \u221e"));
+		div.appendChild(document.createTextNode("This document "));
+		DOMElement italic = document.createElement("i");
+		italic.appendChild(document.createTextNode("is"));
+		div.appendChild(italic);
+		div.appendChild(document.createTextNode(" "));
+		DOMElement bold = document.createElement("b");
+		bold.appendChild(document.createTextNode("not"));
+		div.appendChild(bold);
+		div.appendChild(document.createTextNode(" \u221e"));
 		body.appendChild(document.createComment(" Comment before DIV "));
 		body.appendChild(div);
 		html.appendChild(body);
@@ -60,9 +68,11 @@ public class DOMWriterTest {
 		int[] entities = { 0x221e };
 		domWriter.setEntityCodepoints(doctype, entities);
 		domWriter.setIndentingUnit(1);
-		assertEquals(
-				"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html lang=\"en\">\n <head><title>Title</title></head>\n <body>\n  <!-- Comment before DIV -->\n  <div>This document is not &infin;</div>\n </body>\n</html>\n",
-				domWriter.serializeToString(document));
+		String expected = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html lang=\"en\">\n <head><title>Title</title></head>\n <body>\n  <!-- Comment before DIV -->\n  <div>This document <i>is</i> <b>not</b> &infin;</div>\n </body>\n</html>\n";
+		assertEquals(expected, domWriter.serializeToString(document));
+		// Normalize and re-test.
+		document.normalizeDocument();
+		assertEquals(expected, domWriter.serializeToString(document));
 	}
 
 	@Test
@@ -107,9 +117,11 @@ public class DOMWriterTest {
 		docElm.appendChild(rect);
 		DOMWriter domWriter = new DOMWriter();
 		domWriter.setIndentingUnit(1);
-		assertEquals(
-				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"320\" height=\"320\"><rect width=\"120\" height=\"80\" x=\"12\" y=\"64\" fill=\"yellow\" stroke=\"grey\"></rect></svg>\n",
-				domWriter.serializeToString(document));
+		String expected = "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"320\" height=\"320\"><rect width=\"120\" height=\"80\" x=\"12\" y=\"64\" fill=\"yellow\" stroke=\"grey\"></rect></svg>\n";
+		assertEquals(expected, domWriter.serializeToString(document));
+		// Normalize and re-test.
+		document.normalizeDocument();
+		assertEquals(expected, domWriter.serializeToString(document));
 	}
 
 	@Test
@@ -125,6 +137,10 @@ public class DOMWriterTest {
 		pdoc.normalize();
 		document.normalize();
 		assertEqualNodes(document, pdoc);
+		// Normalize and re-test.
+		document.normalizeDocument();
+		DOMWriter domWriter = new DOMWriter();
+		assertEquals(expected, domWriter.serializeToString(document));
 	}
 
 	@Test
@@ -144,6 +160,9 @@ public class DOMWriterTest {
 		pdoc.normalize();
 		document.normalize();
 		assertEqualNodes(document, pdoc);
+		// Normalize and re-test.
+		document.normalizeDocument();
+		assertEquals(expected, domWriter.serializeToString(document));
 	}
 
 	void assertEqualNodes(Node first, Node arg) {

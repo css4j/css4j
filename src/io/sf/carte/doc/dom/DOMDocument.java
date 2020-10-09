@@ -834,6 +834,13 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					}
 				}
 			}
+			AbstractDOMNode parentNd = parentNode();
+			if (parentNd != null && parentNd.getNodeType() == Node.ELEMENT_NODE) {
+				DOMElement parentEl = (DOMElement) parentNd;
+				if (parentEl.isRawText()) {
+					return false;
+				}
+			}
 			return true;
 		}
 
