@@ -85,13 +85,26 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	public DOMDocument createBestDocument(String namespaceURI, String qualifiedName, DocumentType doctype)
 			throws DOMException {
 		DOMDocument document;
-		if (namespaceURI == null || namespaceURI.equals(HTMLDocument.HTML_NAMESPACE_URI)
-				|| (namespaceURI.length() == 0 && doctype != null && "html".equalsIgnoreCase(doctype.getName()))) {
+		if (isHTMLDocument(namespaceURI, qualifiedName, doctype)) {
 			document = new MyHTMLDocument(doctype);
 		} else {
 			document = new MyXMLDocument(doctype);
 		}
 		return document;
+	}
+
+	private static boolean isHTMLDocument(String namespaceURI, String qualifiedName, DocumentType doctype) {
+		if (doctype != null) {
+			return "html".equalsIgnoreCase(doctype.getName());
+		}
+		if (qualifiedName != null) {
+			return "html".equalsIgnoreCase(qualifiedName);
+		}
+		/*
+		 * Trick: if namespaceURI is null, create an HTML document, if it is the empty string, an
+		 * XML one
+		 */
+		return namespaceURI == null || HTMLDocument.HTML_NAMESPACE_URI.equals(namespaceURI);
 	}
 
 	public static HTMLDocument sampleHTMLDocument() throws IOException {
