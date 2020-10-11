@@ -2653,8 +2653,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * @param attribute the attribute.
 	 */
 	public void onMetaAdded(String name, String attribute) {
-		if ("Default-Style".equals(name)) {
+		if ("default-style".equalsIgnoreCase(name)) {
 			metaDefaultStyleSet = attribute;
+			onSheetModify();
 		} else if ("referrer".equals(name)) {
 			metaReferrerPolicy = attribute;
 		}
@@ -2671,7 +2672,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * @param attribute the attribute.
 	 */
 	public void onMetaRemoved(String name, String attribute) {
-		if ("Default-Style".equals(name)) {
+		if ("default-style".equalsIgnoreCase(name)) {
 			metaDefaultStyleSet = "";
 		} else if ("referrer".equals(name)) {
 			metaReferrerPolicy = "";
