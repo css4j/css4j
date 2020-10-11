@@ -28,7 +28,7 @@ import io.sf.carte.util.SimpleWriter;
  * Contains a set of non-conformant values (that provide compatibility with non-compliant
  * browsers).
  */
-class CompatDeclarationSet implements java.io.Serializable {
+class CompatDeclarationSet implements Cloneable, java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 

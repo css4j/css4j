@@ -19,7 +19,7 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Abstract base class for CSS expressions.
  */
-abstract class StyleExpression implements CSSExpression, java.io.Serializable {
+abstract class StyleExpression implements CSSExpression, Cloneable, java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 
