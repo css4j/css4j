@@ -254,7 +254,7 @@ public class DOMWriter {
 			break;
 		case Node.TEXT_NODE:
 			Text text = (Text) node;
-			if (!text.isElementContentWhitespace()) {
+			if (!text.isElementContentWhitespace() || isParentWhitespacePre(text)) {
 				writeText(text, wri, indented);
 			} else if (!indented) {
 				writeElementContentWhitespace(text, wri);
@@ -375,6 +375,23 @@ public class DOMWriter {
 		for (DOMNode node : list) {
 			writeNode(node, wri, indented);
 		}
+	}
+
+	/**
+	 * Determine if the parent of the given text node computes {@code white-space}
+	 * to {@code pre}.
+	 * 
+	 * @param text the text node.
+	 * @return {@code true} if the parent of the text node has a computed value of
+	 *         {@code pre} for {@code white-space}.
+	 */
+	private boolean isParentWhitespacePre(Text text) {
+		Node node = text.getParentNode();
+		if (node.getNodeType() == Node.ELEMENT_NODE) {
+			String value = ((DOMElement) node).getComputedStyle(null).getPropertyValue("white-space");
+			return "pre".equalsIgnoreCase(value);
+		}
+		return false;
 	}
 
 	/**
@@ -535,7 +552,7 @@ public class DOMWriter {
 		Node psiblingNd = text.getPreviousSibling();
 		Node nsiblingNd;
 		String data = text.getData();
-		if (data == null || data.length() == 0 || psiblingNd == null || (nsiblingNd = text.getNextSibling()) == null
+		if (data.length() == 0 || psiblingNd == null || (nsiblingNd = text.getNextSibling()) == null
 				|| isBlockElementNode(psiblingNd) || isBlockElementNode(nsiblingNd)) {
 			return;
 		}

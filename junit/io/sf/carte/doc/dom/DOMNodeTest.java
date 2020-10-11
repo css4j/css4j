@@ -23,7 +23,9 @@ import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
+import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMStringList;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.EntityReference;
@@ -187,8 +189,17 @@ public class DOMNodeTest {
 		assertEquals(8, elm.getChildNodes().getLength());
 		elm.normalize();
 		assertEquals(3, elm.getChildNodes().getLength());
-		assertEquals(" foo bar \u00c5 ", elm.getChildNodes().item(1).getNodeValue());
+		assertEquals(" foo bar \u212b ", elm.getChildNodes().item(1).getNodeValue());
 		//
+		DOMConfiguration config = xhtmlDoc.getDomConfig();
+		assertTrue(config.canSetParameter("normalize-characters", false));
+		assertTrue(config.canSetParameter("normalize-characters", true));
+		assertFalse((boolean) config.getParameter("normalize-characters"));
+		config.setParameter("normalize-characters", true);
+		assertTrue((boolean) config.getParameter("normalize-characters"));
+		elm.normalize();
+		assertEquals(3, elm.getChildNodes().getLength());
+		assertEquals(" foo bar \u00c5 ", elm.getChildNodes().item(1).getNodeValue());
 		//
 		html.appendChild(xhtmlDoc.createTextNode("\n     "));
 		html.appendChild(xhtmlDoc.createTextNode("\t     "));
@@ -203,6 +214,48 @@ public class DOMNodeTest {
 		assertEquals(" ", html.getChildNodes().item(3).getNodeValue());
 		assertEquals(Node.COMMENT_NODE, html.getChildNodes().item(4).getNodeType());
 		assertEquals(Node.COMMENT_NODE, html.getChildNodes().item(5).getNodeType());
+		// Use computed styles (same result, just slower)
+		assertTrue(config.canSetParameter("use-computed-styles", false));
+		assertTrue(config.canSetParameter("use-computed-styles", true));
+		assertFalse((boolean) config.getParameter("use-computed-styles"));
+		config.setParameter("use-computed-styles", true);
+		assertTrue((boolean) config.getParameter("use-computed-styles"));
+		xhtmlDoc.normalizeDocument();
+		assertEquals(6, html.getChildNodes().getLength());
+		assertEquals(3, elm.getChildNodes().getLength());
+		// Remove comment nodes
+		assertTrue(config.canSetParameter("comments", false));
+		assertTrue(config.canSetParameter("comments", true));
+		assertTrue((boolean) config.getParameter("comments"));
+		config.setParameter("comments", false);
+		xhtmlDoc.normalizeDocument();
+		assertEquals(3, html.getChildNodes().getLength());
+		assertEquals(1, elm.getChildNodes().getLength());
+		// Other canSetParameter cases.
+		assertTrue(config.canSetParameter("css-whitespace-processing", false));
+		assertTrue(config.canSetParameter("css-whitespace-processing", true));
+		assertTrue((boolean) config.getParameter("css-whitespace-processing"));
+		//
+		assertTrue(config.canSetParameter("canonical-form", false));
+		assertTrue(config.canSetParameter("check-character-normalization", false));
+		assertTrue(config.canSetParameter("datatype-normalization", false));
+		assertTrue(config.canSetParameter("validate", false));
+		assertTrue(config.canSetParameter("validate-if-schema", false));
+		assertTrue(config.canSetParameter("element-content-whitespace", true));
+		assertTrue(config.canSetParameter("cdata-sections", true));
+		assertTrue(config.canSetParameter("namespaces", true));
+		assertFalse(config.canSetParameter("namespaces", false));
+		assertTrue(config.canSetParameter("namespace-declarations", true));
+		assertFalse(config.canSetParameter("namespace-declarations", false));
+		assertTrue(config.canSetParameter("well-formed", true));
+		assertTrue(config.canSetParameter("well-formed", false));
+		assertFalse(config.canSetParameter("split-cdata-sections", true));
+		assertFalse(config.canSetParameter("split-cdata-sections", false));
+		//
+		DOMStringList names = config.getParameterNames();
+		assertEquals(4, names.getLength());
+		assertTrue(names.contains("css-whitespace-processing"));
+		assertTrue(names.contains("normalize-characters"));
 	}
 
 	@Test

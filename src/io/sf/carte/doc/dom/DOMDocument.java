@@ -79,6 +79,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	private boolean strictErrorChecking = true;
 
+	CSSDOMConfiguration domConfig = new CSSDOMConfiguration();
+
 	private String documentURI = null;
 
 	final Set<LinkStyleDefiner> linkedStyle = new LinkedHashSet<LinkStyleDefiner>(4);
@@ -2203,14 +2205,31 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	/**
-	 * <code>DOMConfiguration</code> is deprecated and not supported.
+	 * {@inheritDoc}
+	 * <p>
+	 * Only the {@code normalize-characters} and {@code comments} parameters are
+	 * configurable and can be toggled. Other parameters can only be set to defaults
+	 * (or cannot be set at all, like {@code split-cdata-sections} because the
+	 * implementation does not allow split CDATA), and {@code well-formed} is just
+	 * ignored (malformed characters are not allowed in this implementation).
+	 * </p>
+	 * <p>
+	 * Also supports the proprietary:
+	 * </p>
+	 * <dl>
+	 * <dt>{@code css-whitespace-processing}</dt>
+	 * <dd>Defaults to {@code true} and enables CSS-like whitespace processing, much
+	 * safer than just removing element content whitespace.</dd>
+	 * <dt>{@code use-computed-styles}</dt>
+	 * <dd>If {@code true} -defaults to {@code false}-, uses computed styles to
+	 * determine the value of the {@code white-space} CSS property when handling
+	 * {@code css-whitespace-processing}.</dd>
+	 * </dl>
 	 * 
-	 * @return <code>null</code>.
 	 */
-	@Deprecated
 	@Override
 	public DOMConfiguration getDomConfig() {
-		return null;
+		return domConfig;
 	}
 
 	/**

@@ -438,6 +438,14 @@ abstract class AbstractDOMNode implements DOMNode {
 	public void normalize() {
 		Node node = getFirstChild();
 		short lasttype = Node.ELEMENT_NODE;
+		CSSDOMConfiguration config = getOwnerDocument().domConfig;
+		byte isWhitespacePre = 0; // 0 = not determined, 1 = yes, 2 = no
+		if (!config.useComputedStyles) {
+			isWhitespacePre = 2;
+		}
+		if (!config.cssWhitespaceProcessing) {
+			isWhitespacePre = 1;
+		}
 		Node lastnode = null;
 		while (node != null) {
 			Node next = node.getNextSibling();
@@ -451,7 +459,15 @@ abstract class AbstractDOMNode implements DOMNode {
 					node = next;
 					continue;
 				}
-				boolean isECW = text.isElementContentWhitespace();
+				boolean isECW = config.cssWhitespaceProcessing && text.isElementContentWhitespace();
+				if (isECW && isWhitespacePre == 0) {
+					if (isWhitespacePre()) {
+						isWhitespacePre = 1;
+						isECW = false;
+					} else {
+						isWhitespacePre = 2;
+					}
+				}
 				if (isECW) {
 					if (lastnode == null) {
 						// This is ECW and is the first node: remove
@@ -473,7 +489,7 @@ abstract class AbstractDOMNode implements DOMNode {
 					// Normalize ECW as a single whitespace
 					text.setData(" ");
 					data = " ";
-				} else {
+				} else if (config.normalizeCharacters) {
 					// Unicode normalization
 					String normalized = Normalizer.normalize(data, Normalizer.Form.NFC);
 					// Normalization may return the same String
@@ -485,7 +501,8 @@ abstract class AbstractDOMNode implements DOMNode {
 				if (lasttype == Node.TEXT_NODE) {
 					// coalesce nodes
 					Text prevText = (Text) lastnode;
-					if (!prevText.isElementContentWhitespace()) {
+					if (!prevText.isElementContentWhitespace() || isWhitespacePre == 1
+							|| (isWhitespacePre == 0 && (isWhitespacePre = whitespacePre()) == 1)) {
 						if (!isECW || (next != null && (next.getNodeType() != Node.TEXT_NODE
 								|| !((Text) next).isElementContentWhitespace()))) {
 							prevText.setData(prevText.getData() + data);
@@ -500,10 +517,25 @@ abstract class AbstractDOMNode implements DOMNode {
 			} else if (type == Node.ELEMENT_NODE) {
 				// Normalize subtree
 				node.normalize();
+			} else if (type == Node.COMMENT_NODE && !config.keepComments) {
+				((AbstractDOMNode) node).removeFromParent(getNodeList());
 			}
 			lasttype = type;
 			lastnode = node;
 			node = next;
+		}
+	}
+
+	private byte whitespacePre() {
+		return isWhitespacePre() ? (byte) 1 : 2;
+	}
+
+	private boolean isWhitespacePre() {
+		if (getNodeType() == Node.ELEMENT_NODE) {
+			String value = ((DOMElement) this).getComputedStyle(null).getPropertyValue("white-space");
+			return "pre".equalsIgnoreCase(value);
+		} else {
+			return false;
 		}
 	}
 

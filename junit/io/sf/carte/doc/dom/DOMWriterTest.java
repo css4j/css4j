@@ -32,6 +32,8 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import io.sf.carte.doc.style.css.StyleFormattingFactory;
+import io.sf.carte.doc.style.css.om.DefaultStyleFormattingFactory;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 import io.sf.carte.util.BufferSimpleWriter;
 
@@ -130,18 +132,24 @@ public class DOMWriterTest {
 		BufferSimpleWriter writer = new BufferSimpleWriter(4096);
 		DOMWriter.writeTree(document, writer);
 		String expected = classPathFile("/io/sf/carte/doc/dom/domwriteroutput.html");
+		String canonical = classPathFile("/io/sf/carte/doc/dom/domwritercanonical.html");
 		expected = expected.replace("\r", "");
+		canonical = canonical.replace("\r", "");
 		String result = writer.toString();
 		assertEquals(expected, result);
+		//
 		DOMDocument pdoc = parseDocument(new StringReader(result));
 		pdoc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
-		pdoc.normalize();
-		document.normalize();
-		assertEqualNodes(document, pdoc);
+		StyleFormattingFactory factory = new DefaultStyleFormattingFactory();
+		pdoc.getImplementation().setStyleFormattingFactory(factory);
+		document.getImplementation().setStyleFormattingFactory(factory);
 		// Normalize and re-test.
+		pdoc.getStyleSheet();
+		pdoc.normalizeDocument();
 		document.normalizeDocument();
+		assertEqualNodes(document, pdoc);
 		DOMWriter domWriter = new DOMWriter();
-		assertEquals(expected, domWriter.serializeToString(document));
+		assertEquals(canonical, domWriter.serializeToString(document));
 	}
 
 	@Test
@@ -154,17 +162,23 @@ public class DOMWriterTest {
 				domWriter.setEntityCodepoints(document.getDoctype(), codePointsToReplace));
 		domWriter.writeNode(document, writer);
 		String expected = classPathFile("/io/sf/carte/doc/dom/domwriteroutput2.html");
+		String canonical = classPathFile("/io/sf/carte/doc/dom/domwritercanonical2.html");
 		expected = expected.replace("\r", "");
+		canonical = canonical.replace("\r", "");
 		String result = writer.toString();
 		assertEquals(expected, result);
+		//
 		DOMDocument pdoc = parseDocument(new StringReader(result));
 		pdoc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
-		pdoc.normalize();
-		document.normalize();
-		assertEqualNodes(document, pdoc);
+		StyleFormattingFactory factory = new DefaultStyleFormattingFactory();
+		pdoc.getImplementation().setStyleFormattingFactory(factory);
+		document.getImplementation().setStyleFormattingFactory(factory);
 		// Normalize and re-test.
+		pdoc.getStyleSheet();
+		pdoc.normalizeDocument();
 		document.normalizeDocument();
-		assertEquals(expected, domWriter.serializeToString(document));
+		assertEqualNodes(document, pdoc);
+		assertEquals(canonical, domWriter.serializeToString(document));
 	}
 
 	void assertEqualNodes(Node first, Node arg) {

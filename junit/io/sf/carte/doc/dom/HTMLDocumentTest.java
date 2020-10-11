@@ -72,7 +72,6 @@ public class HTMLDocumentTest {
 	@Before
 	public void setUp() throws IOException {
 		xhtmlDoc = TestDOMImplementation.sampleHTMLDocument();
-		xhtmlDoc.normalizeDocument();
 	}
 
 	@Test
@@ -798,6 +797,17 @@ public class HTMLDocumentTest {
 		String text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1106, text.trim().length());
+		//
+		xhtmlDoc.normalizeDocument();
+		text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1106, text.trim().length());
+		//
+		xhtmlDoc.getDomConfig().setParameter("use-computed-styles", true);
+		xhtmlDoc.normalizeDocument();
+		text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1052, text.trim().length());
 	}
 
 	@Test
@@ -1817,6 +1827,20 @@ public class HTMLDocumentTest {
 
 	@Test
 	public void testMetaElementDefaultSheetSet() {
+		DOMElement meta = xhtmlDoc.createElement("meta");
+		meta.setAttribute("http-equiv", "Default-Style");
+		meta.setAttribute("content", "Alter 1");
+		DOMElement head = xhtmlDoc.getElementsByTagName("head").item(0);
+		head.appendChild(meta);
+		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
+		//
+		xhtmlDoc.normalizeDocument();
+		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
+	}
+
+	@Test
+	public void testMetaElementDefaultSheetSetNormalized() {
+		xhtmlDoc.normalizeDocument();
 		DOMElement meta = xhtmlDoc.createElement("meta");
 		meta.setAttribute("http-equiv", "Default-Style");
 		meta.setAttribute("content", "Alter 1");

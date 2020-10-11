@@ -42,7 +42,6 @@ public class IEDocumentTest {
 	@Before
 	public void setUp() throws IOException {
 		xhtmlDoc = TestDOMImplementation.sampleIEDocument();
-		xhtmlDoc.normalizeDocument();
 	}
 
 	@Test
@@ -52,6 +51,17 @@ public class IEDocumentTest {
 		String text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1142, text.trim().length());
+		//
+		xhtmlDoc.normalizeDocument();
+		text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1142, text.trim().length());
+		//
+		xhtmlDoc.getDomConfig().setParameter("use-computed-styles", true);
+		xhtmlDoc.normalizeDocument();
+		text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1092, text.trim().length());
 	}
 
 	@Test
@@ -226,6 +236,30 @@ public class IEDocumentTest {
 		// Check for non-existing property
 		assertNull(styledecl.getPropertyCSSValue("does-not-exist"));
 		assertEquals("", styledecl.getPropertyValue("does-not-exist"));
+	}
+
+	@Test
+	public void testMetaElementDefaultSheetSet() {
+		DOMElement meta = xhtmlDoc.createElement("meta");
+		meta.setAttribute("http-equiv", "Default-Style");
+		meta.setAttribute("content", "Alter 1");
+		DOMElement head = xhtmlDoc.getElementsByTagName("head").item(0);
+		head.appendChild(meta);
+		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
+		//
+		xhtmlDoc.normalizeDocument();
+		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
+	}
+
+	@Test
+	public void testMetaElementDefaultSheetSetNormalized() {
+		xhtmlDoc.normalizeDocument();
+		DOMElement meta = xhtmlDoc.createElement("meta");
+		meta.setAttribute("http-equiv", "Default-Style");
+		meta.setAttribute("content", "Alter 1");
+		DOMElement head = xhtmlDoc.getElementsByTagName("head").item(0);
+		head.appendChild(meta);
+		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
 	}
 
 }
