@@ -92,7 +92,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	/*
 	 * Default style set according to 'Default-Style' meta.
 	 */
-	private final String metaDefaultStyleSet = "";
+	private String metaDefaultStyleSet = "";
 
 	/*
 	 * Default referrer policy according to 'Referrer-Policy' header/meta.
@@ -108,6 +108,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	protected StylableDocumentWrapper(Document document) {
 		super(document);
 		this.document = document;
+		updateStyleLists();
 	}
 
 	abstract protected DOMCSSStyleSheetFactory getStyleSheetFactory();
@@ -1412,7 +1413,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		sheets.setNeedsUpdate(false);
 		if (lastStyleSheetSet != null) {
 			setSelectedStyleSheetSet(lastStyleSheetSet);
-		} else if (metaDefaultStyleSet.length() > 0) {
+		} else if ((metaDefaultStyleSet = getMetaDefaultStyleSet()).length() > 0) {
 			setSelectedStyleSheetSet(metaDefaultStyleSet);
 			lastStyleSheetSet = null;
 		} else {
@@ -1532,6 +1533,40 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			}
 		}
 		return null;
+	}
+
+	private String getMetaDefaultStyleSet() {
+		NodeList headlist = document.getElementsByTagName("head");
+		if (headlist.getLength() != 0) {
+			Element head = (Element) headlist.item(0);
+			NodeList metalist = head.getElementsByTagName("meta");
+			for (int i = 0; i < metalist.getLength(); i++) {
+				Element meta = (Element) metalist.item(i);
+				NamedNodeMap nnm = meta.getAttributes();
+				String content = null;
+				String httpEquiv = null;
+				for (int j = 0; j < nnm.getLength(); j++) {
+					Node attr = nnm.item(j);
+					if ("http-equiv".equalsIgnoreCase(attr.getNodeName())) {
+						if (httpEquiv != null) {
+							// Error
+							break;
+						}
+						httpEquiv = attr.getNodeValue();
+					} else if ("content".equalsIgnoreCase(attr.getNodeName())) {
+						if (content != null) {
+							// Error
+							break;
+						}
+						content = attr.getNodeValue();
+					}
+				}
+				if (httpEquiv != null && content != null && "default-style".equalsIgnoreCase(httpEquiv)) {
+					return content;
+				}
+			}
+		}
+		return "";
 	}
 
 	/**
