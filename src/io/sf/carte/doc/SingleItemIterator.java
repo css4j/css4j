@@ -14,7 +14,9 @@ package io.sf.carte.doc;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-class SingleItemIterator implements Iterator<String> {
+class SingleItemIterator implements Iterator<String>, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String next;
 

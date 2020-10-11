@@ -24,7 +24,9 @@ import org.w3c.dom.DOMException;
  * <p>
  * It is internally a linked list, but behaves like an ordered set.
  */
-public class DOMTokenListImpl implements DOMTokenList {
+public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final LinkedList<String> tokenset;
 

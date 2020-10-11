@@ -27,7 +27,9 @@ import org.w3c.dom.DOMException;
  * single String or to a sorted set, depending on the number of items in this
  * list/set.
  */
-public class DOMTokenSetImpl implements DOMTokenList {
+public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private boolean multiple = false;
 
