@@ -13,8 +13,11 @@ package io.sf.carte.doc.dom;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
@@ -42,6 +45,18 @@ abstract public class HTMLDocument extends DOMDocument {
 	private URL baseURL = null;
 
 	private String idAttrName = "id";
+
+	// Build raw set
+	private static final Set<String> rawTextElementsExceptStyle = new HashSet<>(6);
+
+	static {
+		/*
+		 * We consider as "raw text" both the 'real' raw text (script, style) and elements that
+		 * preserve whitespace. We do not include <style> here as it has its own dedicated element.
+		 */
+		String[] rawText = {"listing", "plaintext", "pre", "script", "textarea", "xmp"};
+		Collections.addAll(rawTextElementsExceptStyle, rawText);
+	}
 
 	public HTMLDocument(DocumentType documentType) {
 		super(documentType);
@@ -725,6 +740,7 @@ abstract public class HTMLDocument extends DOMDocument {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);
 		}
 		localName = localName.intern();
+		//
 		DOMElement myelem;
 		if (namespaceURI == HTMLDocument.HTML_NAMESPACE_URI) {
 			if ("link" == localName) {
@@ -751,7 +767,7 @@ abstract public class HTMLDocument extends DOMDocument {
 				myelem = new TableCellElement(localName);
 			} else if ("th" == localName) {
 				myelem = new TableCellElement(localName);
-			} else if ("script" == localName || "pre" == localName) {
+			} else if (rawTextElementsExceptStyle.contains(localName)) {
 				myelem = new RawTextElement(localName, namespaceURI);
 			} else {
 				myelem = new MyHTMLElement(localName, namespaceURI);
