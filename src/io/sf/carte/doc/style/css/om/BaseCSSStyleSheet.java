@@ -65,6 +65,8 @@ import io.sf.carte.util.agent.AgentUtil;
  */
 abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
+	private static final long serialVersionUID = 1L;
+
 	private AbstractCSSStyleSheet parent = null;
 
 	private String href = null;

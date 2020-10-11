@@ -19,6 +19,8 @@ import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 
 class SafeSystemDefaultValue extends SystemDefaultValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private CSSTypedValue defvalue;
 
 	SafeSystemDefaultValue(CSSTypedValue defvalue) {

@@ -34,6 +34,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract public class InlineStyle extends BaseCSSStyleDeclaration implements NodeStyleDeclaration {
 
+	private static final long serialVersionUID = 1L;
+
 	private Node node = null;
 
 	protected InlineStyle() {

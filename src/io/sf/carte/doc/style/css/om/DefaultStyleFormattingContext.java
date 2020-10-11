@@ -22,7 +22,9 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.util.SimpleWriter;
 
-public class DefaultStyleFormattingContext implements StyleFormattingContext {
+public class DefaultStyleFormattingContext implements StyleFormattingContext, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final String indentingUnit = "    ";
 

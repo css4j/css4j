@@ -17,6 +17,8 @@ package io.sf.carte.doc.style.css.property;
  */
 abstract public class ProxyValue extends PrimitiveValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private boolean expectInteger = false;
 
 	protected ProxyValue(Type unitType) {

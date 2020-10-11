@@ -30,6 +30,8 @@ import io.sf.carte.doc.style.css.property.ValueList;
  */
 class WrappedCSSStyleDeclaration extends BaseCSSStyleDeclaration {
 
+	private static final long serialVersionUID = 1L;
+
 	private final String hrefcontext;
 	private final String oldHrefContext;
 

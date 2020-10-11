@@ -30,6 +30,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private String namespaceURI = null;
 
 	private String prefix = null;

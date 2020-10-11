@@ -29,6 +29,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract public class ColorValue extends TypedValue implements CSSColorValue {
 
+	private static final long serialVersionUID = 1L;
+
 	static final NumberValue opaqueAlpha;
 
 	static {
@@ -129,6 +131,8 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	abstract public ColorValue clone();
 
 	class CSSRGBColor extends BaseColor implements RGBAColor {
+
+		private static final long serialVersionUID = 1L;
 
 		private PrimitiveValue red = null;
 		private PrimitiveValue green = null;
@@ -621,6 +625,8 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	}
 
 	class MyHSLColorImpl extends HSLColorImpl {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public String toString() {

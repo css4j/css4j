@@ -29,7 +29,9 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
  * See Cascading Style Sheets, level 2 revision 1 CSS 2.1 Specification,
  * paragraph 6.4.3.
  */
-class Specificity {
+class Specificity implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	short id_count = 0;
 

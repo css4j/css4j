@@ -28,6 +28,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class ViewportRule extends BaseCSSDeclarationRule {
 
+	private static final long serialVersionUID = 1L;
+
 	public ViewportRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.VIEWPORT_RULE, origin);
 	}

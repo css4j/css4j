@@ -23,6 +23,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class InlineStyleFormattingContext extends DefaultStyleFormattingContext {
 
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public void endCurrentContext(CSSRule rule) {
 	}

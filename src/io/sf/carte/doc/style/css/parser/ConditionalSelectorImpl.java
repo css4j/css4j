@@ -18,6 +18,9 @@ import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSelector {
+
+	private static final long serialVersionUID = 1L;
+
 	SimpleSelector selector;
 	Condition condition;
 

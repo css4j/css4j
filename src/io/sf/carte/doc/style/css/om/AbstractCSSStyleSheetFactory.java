@@ -28,7 +28,9 @@ import io.sf.carte.doc.style.css.property.ValueFactory;
  * 
  * @author Carlos Amengual
  */
-abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFactory {
+abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFactory, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final byte STRING_SINGLE_QUOTE = 1;
 	public static final byte STRING_DOUBLE_QUOTE = 2;

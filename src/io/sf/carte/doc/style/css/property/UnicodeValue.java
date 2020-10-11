@@ -25,6 +25,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class UnicodeValue extends TypedValue implements CSSUnicodeRangeValue.CSSUnicodeValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private int codePoint = 0;
 
 	public UnicodeValue() {

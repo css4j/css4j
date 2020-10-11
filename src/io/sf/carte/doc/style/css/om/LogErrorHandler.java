@@ -26,6 +26,8 @@ import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
  */
 abstract public class LogErrorHandler extends AbstractErrorHandler {
 
+	private static final long serialVersionUID = 1L;
+
 	static Logger log = LoggerFactory.getLogger(LogErrorHandler.class.getName());
 
 	private boolean cserrors = false, errors = false, warnings = false;

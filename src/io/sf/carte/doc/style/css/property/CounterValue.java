@@ -26,6 +26,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 class CounterValue extends AbstractCounterValue {
 
+	private static final long serialVersionUID = 1L;
+
 	public CounterValue() {
 		super(Type.COUNTER);
 	}

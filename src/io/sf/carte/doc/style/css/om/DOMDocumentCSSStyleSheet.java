@@ -23,6 +23,8 @@ import io.sf.carte.doc.style.css.nsac.Condition;
  */
 abstract public class DOMDocumentCSSStyleSheet extends BaseDocumentCSSStyleSheet {
 
+	private static final long serialVersionUID = 1L;
+
 	private CSSDocument ownerNode = null;
 
 	protected DOMDocumentCSSStyleSheet(byte origin) {

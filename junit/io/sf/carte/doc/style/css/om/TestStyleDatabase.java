@@ -30,6 +30,8 @@ import io.sf.carte.doc.style.css.property.NumberValue;
  */
 public class TestStyleDatabase extends AbstractStyleDatabase {
 
+	private static final long serialVersionUID = 1L;
+
 	private final HashSet<String> fontfaceNames;
 
 	public TestStyleDatabase() {

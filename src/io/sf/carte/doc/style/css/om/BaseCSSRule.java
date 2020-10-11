@@ -29,6 +29,8 @@ import io.sf.carte.doc.style.css.nsac.Parser;
  */
 abstract class BaseCSSRule extends AbstractCSSRule {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The parent style sheet.
 	 */

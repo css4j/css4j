@@ -22,6 +22,8 @@ import io.sf.carte.doc.style.css.StyleDatabase;
  */
 abstract public class AnonymousStyleDeclaration extends BaseCSSStyleDeclaration {
 
+	private static final long serialVersionUID = 1L;
+
 	private final Node ownerNode;
 
 	protected AnonymousStyleDeclaration(Node ownerNode) {

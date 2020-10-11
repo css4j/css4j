@@ -13,7 +13,9 @@ package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.nsac.Selector;
 
-abstract class AbstractSelector implements Selector {
+abstract class AbstractSelector implements Selector, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public int hashCode() {

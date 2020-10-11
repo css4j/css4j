@@ -34,6 +34,8 @@ import io.sf.carte.doc.style.css.nsac.ParserControl;
  */
 abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRule {
 
+	private static final long serialVersionUID = 1L;
+
 	CSSRuleArrayList cssRules;
 
 	protected GroupingRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {

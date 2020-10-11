@@ -86,6 +86,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implements CSSComputedProperties {
 
+	private static final long serialVersionUID = 1L;
+
 	/*
 	 * Default widths and heights per media, in typographic points.
 	 * To use when no style database is available, but a medium i set.

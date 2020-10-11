@@ -25,6 +25,8 @@ import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
  */
 public class GradientValue extends FunctionValue implements CSSGradientValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private GradientType gradientType = CSSGradientValue.GradientType.OTHER_GRADIENT;
 
 	GradientValue() {

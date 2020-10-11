@@ -34,6 +34,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private AbstractCSSStyleSheet importedSheet = null;
 
 	private String styleSheetURI;

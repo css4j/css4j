@@ -43,6 +43,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private String name = null;
 
 	private final CSSRuleArrayList cssRules;

@@ -14,7 +14,9 @@ package io.sf.carte.doc.style.css.parser;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 
-class PseudoConditionImpl implements PseudoCondition {
+class PseudoConditionImpl implements PseudoCondition, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final ConditionType condType;
 

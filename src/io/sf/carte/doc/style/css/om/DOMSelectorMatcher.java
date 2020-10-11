@@ -33,6 +33,8 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
  */
 public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 
+	private static final long serialVersionUID = 1L;
+
 	CSSElement element;
 
 	public DOMSelectorMatcher(CSSElement elm) {

@@ -26,7 +26,9 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
-public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErrorHandler {
+public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErrorHandler, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/*
 	 * Lazily instantiated lists and maps.

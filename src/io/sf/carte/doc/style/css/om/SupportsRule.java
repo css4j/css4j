@@ -34,6 +34,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private BooleanCondition condition = null;
 
 	protected SupportsRule(AbstractCSSStyleSheet parentSheet, byte origin) {

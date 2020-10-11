@@ -33,6 +33,8 @@ import io.sf.carte.doc.style.css.property.ValueFactory;
  */
 class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 
+	private static final long serialVersionUID = 1L;
+
 	private CSSTypedValue value1;
 	private CSSTypedValue value2;
 	private byte rangeType;

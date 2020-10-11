@@ -19,7 +19,9 @@ import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.MediaQuery;
 
-abstract public class AbstractMediaQuery implements MediaQuery {
+abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final HashSet<String> rangeFeatureSet;
 

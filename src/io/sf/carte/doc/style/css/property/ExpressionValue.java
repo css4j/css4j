@@ -31,6 +31,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private StyleExpression expression = null;
 
 	private boolean roundResult = false;

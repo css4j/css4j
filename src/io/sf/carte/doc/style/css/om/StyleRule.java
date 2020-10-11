@@ -32,6 +32,8 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
  */
 public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 
+	private static final long serialVersionUID = 1L;
+
 	public StyleRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.STYLE_RULE, origin);
 	}
@@ -90,6 +92,8 @@ public class StyleRule extends CSSStyleDeclarationRule implements CSSStyleRule {
 	}
 
 	class RuleSpecificity extends Specificity {
+
+		private static final long serialVersionUID = 1L;
 
 		public RuleSpecificity(Selector selector, SelectorMatcher matcher) {
 			super(selector, matcher);

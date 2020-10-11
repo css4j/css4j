@@ -21,6 +21,8 @@ import io.sf.carte.doc.style.css.CSSCounterValue;
  */
 abstract class AbstractCounterValue extends TypedValue implements CSSCounterValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String identifier;
 	private PrimitiveValue listStyle = null;
 

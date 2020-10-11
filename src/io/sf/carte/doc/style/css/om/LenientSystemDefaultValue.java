@@ -15,6 +15,8 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 
 class LenientSystemDefaultValue extends SafeSystemDefaultValue {
 
+	private static final long serialVersionUID = 1L;
+
 	LenientSystemDefaultValue(CSSTypedValue defvalue) {
 		super(defvalue);
 	}

@@ -14,7 +14,9 @@ package io.sf.carte.doc.style.css.om;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 
-public class DefaultStyleFormattingFactory implements StyleFormattingFactory {
+public class DefaultStyleFormattingFactory implements StyleFormattingFactory, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public StyleFormattingContext createStyleFormattingContext() {

@@ -19,6 +19,8 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
  */
 class MediaTypePredicate extends MediaPredicate {
 
+	private static final long serialVersionUID = 1;
+
 	MediaTypePredicate(String medium) {
 		super(medium);
 	}

@@ -25,6 +25,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract public class KeywordValue extends StyleValue implements ValueItem {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Must access instance through static method.
 	 *
@@ -78,6 +80,9 @@ abstract public class KeywordValue extends StyleValue implements ValueItem {
 	}
 
 	private class SubpropertyKeywordValue extends KeywordValue {
+
+		private static final long serialVersionUID = 1L;
+
 		SubpropertyKeywordValue() {
 			super();
 		}

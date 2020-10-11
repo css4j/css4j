@@ -23,6 +23,9 @@ import io.sf.carte.util.SimpleWriter;
  * 
  */
 public class SystemDefaultValue extends TypedValue {
+
+	private static final long serialVersionUID = 1L;
+
 	private static final SystemDefaultValue strictmode = new SystemDefaultValue();
 
 	/**

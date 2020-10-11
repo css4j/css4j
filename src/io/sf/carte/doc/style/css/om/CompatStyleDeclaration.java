@@ -30,6 +30,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 
+	private static final long serialVersionUID = 1L;
+
 	private final CompatDeclarationSet compatSet;
 
 	protected CompatStyleDeclaration(BaseCSSDeclarationRule parentRule) {

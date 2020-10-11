@@ -30,6 +30,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCounterStyleRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private String name = null;
 
 	public CounterStyleRule(AbstractCSSStyleSheet parentSheet, byte origin) {

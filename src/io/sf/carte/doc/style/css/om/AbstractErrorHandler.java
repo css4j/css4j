@@ -27,7 +27,9 @@ import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
-abstract class AbstractErrorHandler implements ErrorHandler {
+abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private HashMap<CSSElement, StyleDeclarationErrorHandler> inlineErrorHandlerMap = null;
 

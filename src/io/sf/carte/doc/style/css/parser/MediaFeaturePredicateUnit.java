@@ -25,6 +25,8 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
  */
 class MediaFeaturePredicateUnit extends BooleanConditionUnit.Predicate implements MediaFeaturePredicate {
 
+	private static final long serialVersionUID = 1L;
+
 	private LexicalUnit value1;
 	private LexicalUnit value2 = null;
 	private byte rangeType;

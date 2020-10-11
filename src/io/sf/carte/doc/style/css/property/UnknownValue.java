@@ -26,6 +26,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class UnknownValue extends AbstractTextValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private boolean priorityCompat = false;
 
 	public UnknownValue() {

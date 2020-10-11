@@ -29,6 +29,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private LexicalUnit lexicalUnit;
 
 	public LexicalValue() {

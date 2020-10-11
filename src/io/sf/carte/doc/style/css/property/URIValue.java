@@ -31,6 +31,8 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
  */
 public class URIValue extends StringValue {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * A URI value with a flag specifying the quote behaviour.
 	 * <p>

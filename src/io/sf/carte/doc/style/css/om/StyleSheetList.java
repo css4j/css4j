@@ -25,7 +25,9 @@ import io.sf.carte.doc.style.css.CSSStyleSheetList;
 /**
  * Abstract base implementation class for style sheet lists.
  */
-abstract public class StyleSheetList implements CSSStyleSheetList<AbstractCSSRule> {
+abstract public class StyleSheetList implements CSSStyleSheetList<AbstractCSSRule>, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final List<AbstractCSSStyleSheet> list;
 

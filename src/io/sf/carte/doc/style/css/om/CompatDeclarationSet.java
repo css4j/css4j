@@ -28,7 +28,9 @@ import io.sf.carte.util.SimpleWriter;
  * Contains a set of non-conformant values (that provide compatibility with non-compliant
  * browsers).
  */
-class CompatDeclarationSet {
+class CompatDeclarationSet implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final HashMap<String, StyleValue> overrideMap = new HashMap<String, StyleValue>();
 	private final HashMap<String, Boolean> overridePrio = new HashMap<String, Boolean>();

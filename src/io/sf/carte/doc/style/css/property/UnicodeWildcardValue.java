@@ -24,6 +24,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class UnicodeWildcardValue extends TypedValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String wildcard = null;
 
 	public UnicodeWildcardValue() {

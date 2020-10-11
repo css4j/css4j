@@ -15,7 +15,9 @@ import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LangCondition;
 import io.sf.jclf.text.TokenParser;
 
-class LangConditionImpl implements LangCondition {
+class LangConditionImpl implements LangCondition, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	String lang = null;
 

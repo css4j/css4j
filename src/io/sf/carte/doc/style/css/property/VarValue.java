@@ -27,6 +27,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class VarValue extends ProxyValue implements CSSVarValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String name = null;
 
 	private LexicalUnit fallback = null;

@@ -28,6 +28,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String separator = "";
 
 	public CountersValue() {

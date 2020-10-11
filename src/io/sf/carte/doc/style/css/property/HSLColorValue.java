@@ -28,6 +28,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.css.HSLColorValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private final HSLColorImpl hslColor;
 
 	public HSLColorValue() {

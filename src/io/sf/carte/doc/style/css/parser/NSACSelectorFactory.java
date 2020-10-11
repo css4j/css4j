@@ -29,7 +29,9 @@ import io.sf.carte.util.SingleElementIterator;
 /**
  * Based on SAC api.
  */
-class NSACSelectorFactory implements NamespaceMap {
+class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final SelectorList universalSelectorList;
 	private static final ElementSelector universalSelector;
@@ -125,6 +127,8 @@ class NSACSelectorFactory implements NamespaceMap {
 	 */
 	static class AnyNodeSelector extends AbstractSelector implements ElementSelector {
 
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public SelectorType getSelectorType() {
 			return SelectorType.UNIVERSAL;
@@ -160,6 +164,8 @@ class NSACSelectorFactory implements NamespaceMap {
 	 */
 	class UniversalSelector extends ElementSelectorImpl {
 
+		private static final long serialVersionUID = 1L;
+
 		UniversalSelector(String namespaceUri) {
 			super();
 			this.namespaceUri = namespaceUri;
@@ -188,7 +194,10 @@ class NSACSelectorFactory implements NamespaceMap {
 	/**
 	 * A selector list that only contains one selector.
 	 */
-	private static class SingleSelectorList implements SelectorList {
+	private static class SingleSelectorList implements SelectorList, java.io.Serializable {
+
+		private static final long serialVersionUID = 1L;
+
 		private final Selector selector;
 
 		SingleSelectorList(Selector selector) {
@@ -248,6 +257,9 @@ class NSACSelectorFactory implements NamespaceMap {
 	}
 
 	class ElementSelectorImpl extends AbstractSelector implements ElementSelector {
+
+		private static final long serialVersionUID = 1L;
+
 		String namespaceUri = null;
 		String localName = null;
 
@@ -338,6 +350,8 @@ class NSACSelectorFactory implements NamespaceMap {
 	}
 
 	static class CombinatorSelectorImpl extends AbstractSelector implements CombinatorSelector {
+
+		private static final long serialVersionUID = 1L;
 
 		private SelectorType type;
 
@@ -488,7 +502,9 @@ class NSACSelectorFactory implements NamespaceMap {
 		return null;
 	}
 
-	class AttributeConditionImpl implements AttributeCondition {
+	class AttributeConditionImpl implements AttributeCondition, java.io.Serializable {
+
+		private static final long serialVersionUID = 1L;
 
 		ConditionType type;
 		String namespaceURI = null;

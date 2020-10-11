@@ -68,6 +68,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration implements CSS2Properties, Cloneable {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The rule that contains this declaration block, if any.
 	 */

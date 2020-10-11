@@ -47,6 +47,8 @@ import io.sf.carte.doc.style.css.om.InlineStyle;
  */
 public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DOMImplementation {
 
+	private static final long serialVersionUID = 1L;
+
 	private boolean strictErrorChecking = true;
 	private BaseDocumentCSSStyleSheet defStyleSheet = null;
 	private BaseDocumentCSSStyleSheet defQStyleSheet = null;
@@ -263,6 +265,8 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	class MyCSSStyleSheet extends DOMCSSStyleSheet {
 
+		private static final long serialVersionUID = 1L;
+
 		MyCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
@@ -291,6 +295,8 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	}
 
 	private class MyDocumentCSSStyleSheet extends DOMDocumentCSSStyleSheet {
+
+		private static final long serialVersionUID = 1L;
 
 		MyDocumentCSSStyleSheet(String medium, byte origin) {
 			super(medium, origin);
@@ -326,6 +332,8 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	class MyInlineStyle extends InlineStyle {
 
+		private static final long serialVersionUID = 1L;
+
 		MyInlineStyle(Node node) {
 			super();
 			setOwnerNode(node);
@@ -349,6 +357,8 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	class MyCompatInlineStyle extends CompatInlineStyle {
 
+		private static final long serialVersionUID = 1L;
+
 		MyCompatInlineStyle(Node node) {
 			super();
 			setOwnerNode(node);
@@ -371,6 +381,9 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	}
 
 	class MyDOMComputedStyle extends DOMComputedStyle {
+
+		private static final long serialVersionUID = 1L;
+
 		MyDOMComputedStyle(BaseDocumentCSSStyleSheet parentSheet) {
 			super(parentSheet);
 		}
@@ -398,6 +411,9 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	}
 
 	class MyAnonymousStyleDeclaration extends AnonymousStyleDeclaration {
+
+		private static final long serialVersionUID = 1L;
+
 		MyAnonymousStyleDeclaration(Node ownerNode) {
 			super(ownerNode);
 		}

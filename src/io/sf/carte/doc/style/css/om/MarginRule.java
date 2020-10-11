@@ -29,6 +29,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class MarginRule extends BaseCSSDeclarationRule implements CSSMarginRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private String ruleName = null;
 
 	protected MarginRule(AbstractCSSStyleSheet parentSheet, byte origin, String ruleName) {

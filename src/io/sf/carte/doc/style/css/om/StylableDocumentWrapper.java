@@ -1801,6 +1801,8 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	class MyDefaultErrorHandler extends DefaultErrorHandler {
 
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {
 			return StylableDocumentWrapper.this.getStyleSheetFactory();
@@ -1969,6 +1971,8 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	}
 
 	class MyOMStyleSheetList extends StyleSheetList {
+
+		private static final long serialVersionUID = 1L;
 
 		protected MyOMStyleSheetList(int initialCapacity) {
 			super(initialCapacity);

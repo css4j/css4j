@@ -20,6 +20,9 @@ import io.sf.carte.util.SimpleWriter;
  * 
  */
 public class RevertValue extends KeywordValue {
+
+	private static final long serialVersionUID = 1L;
+
 	private static RevertValue singleton = new RevertValue();
 
 	/**

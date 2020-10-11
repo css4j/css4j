@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css.parser;
 
 class PageTypeSelector extends AbstractPageSelector {
 
+	private static final long serialVersionUID = 1L;
+
 	PageTypeSelector(String name) {
 		super(name);
 	}

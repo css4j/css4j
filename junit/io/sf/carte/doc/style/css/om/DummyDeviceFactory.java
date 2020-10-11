@@ -60,6 +60,8 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 	 */
 	public static class DummyStyleDatabase extends AbstractStyleDatabase {
 
+		private static final long serialVersionUID = 1L;
+
 		private final HashSet<String> fontfaceNames = new HashSet<String>();
 
 		@Override

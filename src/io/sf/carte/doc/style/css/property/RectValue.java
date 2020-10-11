@@ -26,6 +26,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class RectValue extends TypedValue implements CSSRectValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private PrimitiveValue top = null;
 	private PrimitiveValue right = null;
 	private PrimitiveValue bottom = null;

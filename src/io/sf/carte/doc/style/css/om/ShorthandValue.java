@@ -30,6 +30,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSSShorthandValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String cssText = null;
 
 	private final LexicalUnit lexicalUnit;

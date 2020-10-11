@@ -37,7 +37,9 @@ import io.sf.carte.doc.style.css.nsac.Parser;
  * 
  * @author Carlos Amengual
  */
-abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentControl {
+abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentControl, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final String HEADER_COOKIE = "Cookie";
 

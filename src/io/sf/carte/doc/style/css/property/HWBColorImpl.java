@@ -24,6 +24,8 @@ import io.sf.carte.doc.style.css.HWBColor;
 
 class HWBColorImpl extends BaseColor implements HWBColor {
 
+	private static final long serialVersionUID = 1L;
+
 	private PrimitiveValue hue = null;
 	private PrimitiveValue whiteness = null;
 	private PrimitiveValue blackness = null;

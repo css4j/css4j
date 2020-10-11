@@ -18,7 +18,9 @@ import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
-class LexicalUnitImpl implements LexicalUnit {
+class LexicalUnitImpl implements LexicalUnit, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	// How many lexical units we accept in #replaceBy()/#countReplaceBy() argument
 	private static final int LEXICAL_REPLACE_LIMIT = 0x40000;

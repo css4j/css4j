@@ -26,7 +26,9 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  * 
  */
-abstract public class AbstractCSSRule implements CSSRule {
+abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	abstract public short getType();

@@ -7,6 +7,8 @@ import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 
 class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements DeclarationCondition {
 
+	private static final long serialVersionUID = 1L;
+
 	private CSSValue value = null;
 	private String cssText = null;
 

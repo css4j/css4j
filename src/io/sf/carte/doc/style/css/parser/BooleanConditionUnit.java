@@ -28,6 +28,8 @@ import io.sf.carte.doc.style.css.BooleanCondition;
  */
 abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCondition {
 
+	private static final long serialVersionUID = 1L;
+
 	private BooleanCondition parent = null;
 
 	BooleanConditionUnit(LexicalType unitType) {
@@ -126,6 +128,9 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 	}
 
 	static abstract class GroupCondition extends BooleanConditionUnit {
+
+		private static final long serialVersionUID = 1L;
+
 		LinkedList<BooleanCondition> nestedConditions;
 
 		GroupCondition(LexicalType unitType) {
@@ -183,6 +188,8 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 
 	static class AndCondition extends GroupCondition {
 
+		private static final long serialVersionUID = 1L;
+
 		AndCondition() {
 			super(LexicalType.CONDITION_AND);
 			nestedConditions = new LinkedList<BooleanCondition>();
@@ -212,6 +219,8 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 
 	static class OrCondition extends GroupCondition {
 
+		private static final long serialVersionUID = 1L;
+
 		OrCondition() {
 			super(LexicalType.CONDITION_OR);
 		}
@@ -239,6 +248,9 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 	}
 
 	static class NotCondition extends BooleanConditionUnit {
+
+		private static final long serialVersionUID = 1L;
+
 		BooleanCondition nestedCondition;
 
 		NotCondition() {
@@ -308,6 +320,8 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 	}
 
 	static class Predicate extends BooleanConditionUnit {
+
+		private static final long serialVersionUID = 1L;
 
 		private final String name;
 

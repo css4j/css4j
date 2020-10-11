@@ -20,6 +20,9 @@ import io.sf.carte.util.SimpleWriter;
  * 
  */
 public class InheritValue extends KeywordValue {
+
+	private static final long serialVersionUID = 1L;
+
 	private static InheritValue singleton = new InheritValue();
 
 	/**

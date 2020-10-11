@@ -36,6 +36,8 @@ import io.sf.carte.doc.style.css.property.StyleValue;
  */
 abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSDeclarationRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private AbstractCSSStyleDeclaration declaration = null;
 
 	/*
@@ -192,6 +194,9 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 	}
 
 	private class StyleWrapper extends WrappedCSSStyleDeclaration {
+
+		private static final long serialVersionUID = 1L;
+
 		private StyleWrapper(BaseCSSStyleDeclaration copiedObject, String oldHrefContext) {
 			super(copiedObject, oldHrefContext);
 		}
@@ -204,6 +209,9 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 	}
 
 	private class CompatStyleWrapper extends CompatStyleDeclaration {
+
+		private static final long serialVersionUID = 1L;
+
 		private final String hrefcontext;
 		private final String oldHrefContext;
 

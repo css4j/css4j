@@ -15,7 +15,9 @@ import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-class SelectorArgumentConditionImpl implements ArgumentCondition {
+class SelectorArgumentConditionImpl implements ArgumentCondition, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	String name = null;
 	SelectorList arguments = null;

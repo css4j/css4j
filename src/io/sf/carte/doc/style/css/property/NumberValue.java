@@ -29,6 +29,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class NumberValue extends TypedValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private short unitType;
 
 	protected float realvalue = 0;
@@ -625,6 +627,8 @@ public class NumberValue extends TypedValue {
 	}
 
 	private static class ImmutableCSSNumberValue extends NumberValue {
+
+		private static final long serialVersionUID = 1L;
 
 		ImmutableCSSNumberValue(NumberValue value) {
 			super(value);

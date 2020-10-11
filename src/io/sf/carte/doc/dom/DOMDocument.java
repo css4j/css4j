@@ -2844,6 +2844,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyOMStyleSheetList extends StyleSheetList {
 
+		private static final long serialVersionUID = 1L;
+
 		protected MyOMStyleSheetList(int initialCapacity) {
 			super(initialCapacity);
 		}
@@ -2893,6 +2895,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class MyDefaultErrorHandler extends DefaultErrorHandler {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {

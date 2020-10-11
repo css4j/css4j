@@ -26,6 +26,8 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
  */
 abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private final Type primitiveType;
 
 	private boolean subproperty = false;

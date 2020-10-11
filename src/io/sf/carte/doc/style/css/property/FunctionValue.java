@@ -32,6 +32,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class FunctionValue extends TypedValue implements CSSFunctionValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String functionName = null;
 
 	private final LinkedCSSValueList arguments = new LinkedCSSValueList();

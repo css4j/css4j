@@ -30,6 +30,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private String cssText = "";
 
 	UnknownRule(AbstractCSSStyleSheet parentSheet, byte origin) {

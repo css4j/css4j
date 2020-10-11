@@ -27,7 +27,9 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
-public class DefaultSheetErrorHandler implements SheetErrorHandler {
+public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final CSSStyleSheet<?> sheet;
 

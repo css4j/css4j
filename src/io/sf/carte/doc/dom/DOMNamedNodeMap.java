@@ -22,7 +22,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMap {
+abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMap, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final short nodeType;
 	private final HashMap<String, T> attributeMap;

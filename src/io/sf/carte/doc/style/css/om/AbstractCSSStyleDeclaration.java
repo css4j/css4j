@@ -26,7 +26,10 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-abstract public class AbstractCSSStyleDeclaration implements LexicalPropertyListener, CSSStyleDeclaration {
+abstract public class AbstractCSSStyleDeclaration
+		implements LexicalPropertyListener, CSSStyleDeclaration, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	abstract void addProperty(String propertyName, StyleValue cssValue, String priority);
 

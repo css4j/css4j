@@ -29,6 +29,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class URIValueWrapper extends URIValue implements WrappedValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private final String parentSheetHref;
 
 	public URIValueWrapper(URIValue wrapped, String oldHrefContext, String parentSheetHref) {

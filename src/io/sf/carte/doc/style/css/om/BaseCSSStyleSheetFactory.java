@@ -44,6 +44,8 @@ import io.sf.carte.doc.style.css.property.ValueFactory;
  */
 abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFactory {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Default user agent style sheet.
 	 */

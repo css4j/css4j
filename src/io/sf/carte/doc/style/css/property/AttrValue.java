@@ -30,6 +30,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class AttrValue extends ProxyValue implements CSSAttrValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String attrname = null;
 	private String typeval = null;
 	private StyleValue fallback = null;

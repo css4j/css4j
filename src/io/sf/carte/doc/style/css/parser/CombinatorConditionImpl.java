@@ -14,7 +14,9 @@ package io.sf.carte.doc.style.css.parser;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
 
-class CombinatorConditionImpl implements CombinatorCondition {
+class CombinatorConditionImpl implements CombinatorCondition, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	Condition first = null;
 	Condition second = null;

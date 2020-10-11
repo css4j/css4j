@@ -26,6 +26,8 @@ import io.sf.carte.doc.style.css.MediaQueryList;
  */
 abstract public class DOMCSSStyleSheet extends BaseCSSStyleSheet implements Cloneable {
 
+	private static final long serialVersionUID = 1L;
+
 	private Node ownerNode = null;
 
 	public DOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule,

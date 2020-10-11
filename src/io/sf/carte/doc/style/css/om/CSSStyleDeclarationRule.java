@@ -53,6 +53,8 @@ import io.sf.jclf.text.TokenParser;
  */
 abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private SelectorList selectorList = null;
 
 	private String selectorText = "";

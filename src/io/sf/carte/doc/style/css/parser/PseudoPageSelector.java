@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css.parser;
 
 class PseudoPageSelector extends AbstractPageSelector {
 
+	private static final long serialVersionUID = 1L;
+
 	PseudoPageSelector(String name) {
 		super(name);
 	}

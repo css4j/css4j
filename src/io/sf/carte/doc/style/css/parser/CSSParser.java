@@ -4944,6 +4944,8 @@ public class CSSParser implements Parser {
 
 		class MyAnBExpression extends AnBExpression {
 
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected SelectorList parseSelector(String selText) {
 				CSSParser parser = CSSParser.this.clone();
@@ -7359,6 +7361,7 @@ public class CSSParser implements Parser {
 		}
 
 		class MySelectorListImpl extends SelectorListImpl {
+
 			private static final long serialVersionUID = 1L;
 
 			public boolean add(Selector sel, int index) {

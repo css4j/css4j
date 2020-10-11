@@ -21,6 +21,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract class AbstractTextValue extends TypedValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String cssText = null;
 
 	AbstractTextValue(Type primitiveType) {

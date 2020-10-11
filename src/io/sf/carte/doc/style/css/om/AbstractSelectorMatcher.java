@@ -39,7 +39,9 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
  * @author Carlos Amengual
  * 
  */
-abstract public class AbstractSelectorMatcher implements SelectorMatcher {
+abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String localName = null;
 

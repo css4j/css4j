@@ -55,6 +55,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeatureValuesRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private String[] fontFamily = null;
 	private CSSFontFeatureValuesMapImpl annotation = new CSSFontFeatureValuesMapImpl();
 	private CSSFontFeatureValuesMapImpl ornaments = new CSSFontFeatureValuesMapImpl();
@@ -641,7 +643,9 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		return rule;
 	}
 
-	private static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap {
+	private static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap, java.io.Serializable {
+
+		private static final long serialVersionUID = 1L;
 
 		private final LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
 		private List<String> precedingComments = null;

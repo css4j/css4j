@@ -30,6 +30,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class RatioValue extends TypedValue implements CSSRatioValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private PrimitiveValue antecedentValue;
 	private PrimitiveValue consequentValue;
 

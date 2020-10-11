@@ -20,6 +20,8 @@ import io.sf.carte.doc.style.css.parser.BooleanConditionHelper;
  */
 class NotCondition extends BooleanConditionImpl {
 
+	private static final long serialVersionUID = 1L;
+
 	BooleanCondition nestedCondition;
 
 	NotCondition() {

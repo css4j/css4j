@@ -16,7 +16,9 @@ import io.sf.carte.doc.style.css.nsac.Locator;
 /**
  * {@link Locator} implementation.
  */
-class LocatorImpl implements Locator {
+class LocatorImpl implements Locator, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final int line;
 	private final int column;

@@ -29,6 +29,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class MediaRule extends GroupingRule implements CSSMediaRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private MediaQueryList mediaList = null;
 
 	protected MediaRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, byte origin) {

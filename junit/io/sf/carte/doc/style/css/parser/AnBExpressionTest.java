@@ -188,6 +188,8 @@ public class AnBExpressionTest {
 
 	static class MyAnBExpression extends AnBExpression {
 
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		protected SelectorList parseSelector(String selText) {
 			if (selText.length() == 0) {

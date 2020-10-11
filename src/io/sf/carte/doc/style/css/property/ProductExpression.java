@@ -26,6 +26,9 @@ import io.sf.carte.util.SimpleWriter;
  * @see CSSExpression
  */
 class ProductExpression extends StyleExpression implements AlgebraicExpression {
+
+	private static final long serialVersionUID = 1L;
+
 	private final LinkedList<CSSExpression> operands = new LinkedList<>();
 
 	ProductExpression() {

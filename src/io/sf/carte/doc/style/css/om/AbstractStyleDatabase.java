@@ -45,7 +45,9 @@ import io.sf.carte.doc.style.css.property.ValueList;
  *
  * @author Carlos Amengual
  */
-abstract public class AbstractStyleDatabase implements StyleDatabase {
+abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public enum FontFormat {
 		TRUETYPE, OPENTYPE, EMBEDDED_OPENTYPE, SVG, WOFF, WOFF2

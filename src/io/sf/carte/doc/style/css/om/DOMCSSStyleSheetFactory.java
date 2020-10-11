@@ -53,6 +53,8 @@ import io.sf.carte.util.agent.AgentUtil;
  */
 public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
+	private static final long serialVersionUID = 1L;
+
 	private DocumentCSSStyleSheet defStyleSheet = null;
 	private DocumentCSSStyleSheet defQStyleSheet = null;
 
@@ -219,6 +221,8 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	class MyInlineStyle extends InlineStyle {
 
+		private static final long serialVersionUID = 1L;
+
 		MyInlineStyle() {
 			super();
 		}
@@ -241,6 +245,8 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	class MyCompatInlineStyle extends CompatInlineStyle {
 
+		private static final long serialVersionUID = 1L;
+
 		MyCompatInlineStyle() {
 			super();
 		}
@@ -262,6 +268,9 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 	}
 
 	class MyDOMComputedStyle extends DOMComputedStyle {
+
+		private static final long serialVersionUID = 1L;
+
 		MyDOMComputedStyle(BaseDocumentCSSStyleSheet parentSheet) {
 			super(parentSheet);
 		}
@@ -283,6 +292,9 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 	}
 
 	class MyAnonStyleDeclaration extends AnonymousStyleDeclaration {
+
+		private static final long serialVersionUID = 1L;
+
 		MyAnonStyleDeclaration(Node ownerNode) {
 			super(ownerNode);
 		}
@@ -304,6 +316,8 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 	}
 
 	private class MyDOMDocumentCSSStyleSheet extends DOMDocumentCSSStyleSheet {
+
+		private static final long serialVersionUID = 1L;
 
 		MyDOMDocumentCSSStyleSheet(String medium, byte origin) {
 			super(medium, origin);
@@ -328,6 +342,8 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	class MyDOMCSSStyleSheet extends DOMCSSStyleSheet {
 
+		private static final long serialVersionUID = 1L;
+
 		MyDOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
@@ -346,6 +362,8 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 	}
 
 	public class WrapperUserAgent extends AbstractUserAgent {
+
+		private static final long serialVersionUID = 1L;
 
 		DocumentBuilder docbuilder = null;
 

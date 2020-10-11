@@ -22,6 +22,8 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
  */
 public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.css.RGBColorValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private final CSSRGBColor color;
 
 	RGBColorValue() {

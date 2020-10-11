@@ -17,7 +17,9 @@ import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-class PositionalConditionImpl implements PositionalCondition {
+class PositionalConditionImpl implements PositionalCondition, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	int offset = 1; // By default, set to :first-child or :first-of-type
 	int slope = 0;

@@ -32,6 +32,8 @@ import io.sf.carte.doc.style.css.property.TypedValue;
 
 class MediaQueryImpl extends AbstractMediaQuery {
 
+	private static final long serialVersionUID = 1L;
+
 	MediaQueryImpl() {
 		super();
 	}

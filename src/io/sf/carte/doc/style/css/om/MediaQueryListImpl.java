@@ -31,7 +31,9 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 
-class MediaQueryListImpl implements MediaQueryList, MediaListAccess {
+class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final MediaQueryList allMediaSingleton = new MediaQueryListImpl().unmodifiable();
 

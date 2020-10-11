@@ -29,6 +29,9 @@ import io.sf.carte.util.SimpleWriter;
  * @see CSSExpression
  */
 class SumExpression extends StyleExpression implements AlgebraicExpression {
+
+	private static final long serialVersionUID = 1L;
+
 	private final LinkedList<StyleExpression> operands = new LinkedList<>();
 
 	SumExpression() {

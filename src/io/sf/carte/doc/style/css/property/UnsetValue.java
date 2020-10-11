@@ -20,6 +20,9 @@ import io.sf.carte.util.SimpleWriter;
  * 
  */
 public class UnsetValue extends KeywordValue {
+
+	private static final long serialVersionUID = 1L;
+
 	private static UnsetValue singleton = new UnsetValue();
 
 	/**

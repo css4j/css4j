@@ -22,6 +22,8 @@ import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 
 class StandAloneErrorHandler extends AbstractErrorHandler {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final WeakHashMap<AbstractCSSStyleSheet, StandAloneErrorHandler> handlerMap = new WeakHashMap<AbstractCSSStyleSheet, StandAloneErrorHandler>(4);
 
 	static StandAloneErrorHandler getInstance(AbstractCSSStyleSheet sheet) {

@@ -22,6 +22,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 class PendingValue extends PrimitiveValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private final String shorthandName;
 	private final LexicalUnit lexicalValue;
 

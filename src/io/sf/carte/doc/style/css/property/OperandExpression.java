@@ -25,6 +25,9 @@ import io.sf.carte.util.SimpleWriter;
  * @see CSSExpression
  */
 class OperandExpression extends StyleExpression implements CSSOperandExpression {
+
+	private static final long serialVersionUID = 1L;
+
 	CSSPrimitiveValue operand = null;
 
 	OperandExpression() {

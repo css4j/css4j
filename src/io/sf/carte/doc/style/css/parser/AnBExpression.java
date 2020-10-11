@@ -18,7 +18,9 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 /**
  * AnB expression. @see <a href="https://www.w3.org/TR/css-syntax-3/#anb">The An+B microsyntax</a>.
  */
-abstract public class AnBExpression {
+abstract public class AnBExpression implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private SelectorList selectorList = null;
 	private int offset = 0;

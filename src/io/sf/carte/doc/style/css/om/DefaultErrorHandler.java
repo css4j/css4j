@@ -20,6 +20,8 @@ import io.sf.carte.doc.style.css.CSSElement;
 
 abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 
+	private static final long serialVersionUID = 1L;
+
 	private LinkedHashMap<Node, String> linkedStyleErrors = null;
 	private LinkedHashMap<Exception, String> inlineStyleErrors = null;
 	private LinkedHashMap<Exception, CSSStyleSheet> linkedSheetErrors = null;

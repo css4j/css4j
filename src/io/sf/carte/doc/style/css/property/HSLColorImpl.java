@@ -24,6 +24,8 @@ import io.sf.carte.doc.style.css.HSLColor;
 
 class HSLColorImpl extends BaseColor implements HSLColor {
 
+	private static final long serialVersionUID = 1L;
+
 	private PrimitiveValue hue = null;
 	private PrimitiveValue saturation = null;
 	private PrimitiveValue lightness = null;

@@ -31,6 +31,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract public class ValueList extends StyleValue implements CSSValueList<StyleValue> {
 
+	private static final long serialVersionUID = 1L;
+
 	protected final List<StyleValue> valueList;
 
 	private ValueList() {
@@ -246,6 +248,9 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 	}
 
 	private static class CSValueList extends ValueList {
+
+		private static final long serialVersionUID = 1L;
+
 		private CSValueList() {
 			super();
 		}
@@ -310,6 +315,9 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 		}
 
 		public static class CSValueListWrapper extends CSValueList implements WrappedValue {
+
+			private static final long serialVersionUID = 1L;
+
 			private final String oldHrefContext, parentSheetHref;
 
 			CSValueListWrapper(ValueList copy, String oldHrefContext, String parentSheetHref) {
@@ -346,6 +354,9 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 	}
 
 	private static class WSValueList extends ValueList {
+
+		private static final long serialVersionUID = 1L;
+
 		private WSValueList() {
 			super();
 		}
@@ -409,6 +420,9 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 		}
 
 		public static class WSValueListWrapper extends WSValueList implements WrappedValue {
+
+			private static final long serialVersionUID = 1L;
+
 			private final String parentSheetHref;
 			final String oldHrefContext;
 
@@ -446,6 +460,9 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 	}
 
 	private static class BracketValueList extends ValueList {
+
+		private static final long serialVersionUID = 1L;
+
 		private BracketValueList() {
 			super();
 		}
@@ -519,6 +536,8 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 		}
 
 		public static class BracketValueListWrapper extends WSValueList.WSValueListWrapper {
+
+			private static final long serialVersionUID = 1L;
 
 			BracketValueListWrapper(ValueList copy, String oldHrefContext, String parentSheetHref) {
 				super(copy, oldHrefContext, parentSheetHref);

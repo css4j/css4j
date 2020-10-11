@@ -35,6 +35,8 @@ import nu.validator.htmlparser.dom.HtmlDocumentBuilder;
 
 public class TestDOMImplementation extends CSSDOMImplementation {
 
+	private static final long serialVersionUID = 1L;
+
 	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
 	private boolean xmlOnly = false;
 

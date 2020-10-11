@@ -26,6 +26,8 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
  */
 abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue {
 
+	private static final long serialVersionUID = 1L;
+
 	protected TypedValue(Type unitType) {
 		super(unitType);
 	}

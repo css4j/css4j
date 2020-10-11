@@ -28,6 +28,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.css.HWBColorValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private final HWBColorImpl hwbColor;
 
 	public HWBColorValue() {

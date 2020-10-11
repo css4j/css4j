@@ -28,6 +28,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class StringValue extends AbstractTextValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String stringValue = null;
 
 	private final byte flags;

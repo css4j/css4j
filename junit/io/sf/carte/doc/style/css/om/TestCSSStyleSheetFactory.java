@@ -31,6 +31,8 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 
+	private static final long serialVersionUID = 1L;
+
 	private final WrapperUserAgent agent;
 	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
 
@@ -81,6 +83,8 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 
 	class MockStyleSheet extends MyDOMCSSStyleSheet {
 
+		private static final long serialVersionUID = 1L;
+
 		MockStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
@@ -117,6 +121,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 	}
 
 	private class MyStylableDocumentWrapper extends StylableDocumentWrapper {
+
 		public MyStylableDocumentWrapper(Document document) {
 			super(document);
 		}
@@ -144,6 +149,9 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 	}
 
 	class MockUserAgent extends WrapperUserAgent {
+
+		private static final long serialVersionUID = 1L;
+
 		MockUserAgent() {
 			super();
 		}

@@ -27,7 +27,9 @@ import io.sf.carte.doc.style.css.MediaQueryList;
  * @author Carlos Amengual
  *
  */
-abstract public class AbstractStyleSheet implements StyleSheet, Cloneable {
+abstract public class AbstractStyleSheet implements StyleSheet, Cloneable, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String advisoryTitle;
 

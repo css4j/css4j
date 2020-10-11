@@ -38,6 +38,8 @@ import io.sf.carte.doc.style.css.om.StyleRule.RuleSpecificity;
  */
 abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implements DocumentCSSStyleSheet, Cloneable {
 
+	private static final long serialVersionUID = 1L;
+
 	private String targetMedium = null;
 
 	protected BaseDocumentCSSStyleSheet(String medium, byte origin) {

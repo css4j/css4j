@@ -26,6 +26,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class CalcValue extends ExpressionValue {
 
+	private static final long serialVersionUID = 1L;
+
 	public CalcValue() {
 		super();
 	}

@@ -15,7 +15,9 @@ import java.util.Objects;
 
 import io.sf.carte.doc.style.css.nsac.PageSelector;
 
-abstract class AbstractPageSelector implements PageSelector {
+abstract class AbstractPageSelector implements PageSelector, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final String name;
 

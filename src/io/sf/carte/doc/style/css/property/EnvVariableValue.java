@@ -25,6 +25,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue {
 
+	private static final long serialVersionUID = 1L;
+
 	private String name = null;
 	private StyleValue fallback = null;
 

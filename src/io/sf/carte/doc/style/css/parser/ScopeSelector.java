@@ -16,6 +16,8 @@ package io.sf.carte.doc.style.css.parser;
  */
 class ScopeSelector extends AbstractSelector {
 
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public SelectorType getSelectorType() {
 		return SelectorType.SCOPE_MARKER;

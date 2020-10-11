@@ -19,7 +19,9 @@ import io.sf.carte.doc.style.css.CSSValue;
  * Base implementation for CSS values.
  * 
  */
-abstract public class StyleValue implements CSSValue, Cloneable {
+abstract public class StyleValue implements CSSValue, Cloneable, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private transient boolean readOnly = false;
 

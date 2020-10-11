@@ -339,6 +339,8 @@ class NSACMediaQueryList implements MediaQueryList {
 
 	private class NSACMediaQuery extends AbstractMediaQuery {
 
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		protected boolean matchesPredicate(BooleanCondition condition, CSSCanvas canvas) {
 			return true;

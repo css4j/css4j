@@ -98,6 +98,8 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 
 	class MyNamedNodeMap extends DOMNamedNodeMap<DOMAttr> implements AttributeNamedNodeMap {
 
+		private static final long serialVersionUID = 1L;
+
 		MyNamedNodeMap() {
 			super(Node.ATTRIBUTE_NODE);
 		}
@@ -897,7 +899,9 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	/*
 	 * When referenced from an Element node, typeNamespace and typeName are null.
 	 */
-	static class ElementTypeInfo extends DOMTypeInfo {
+	static class ElementTypeInfo extends DOMTypeInfo implements java.io.Serializable {
+
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public String getTypeNamespace() {

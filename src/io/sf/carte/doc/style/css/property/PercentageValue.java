@@ -23,6 +23,8 @@ import io.sf.carte.doc.style.css.CSSUnit;
  */
 public class PercentageValue extends NumberValue {
 
+	private static final long serialVersionUID = 1L;
+
 	PercentageValue() {
 		super();
 	}

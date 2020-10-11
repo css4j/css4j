@@ -33,6 +33,8 @@ import io.sf.carte.doc.style.css.MediaQueryList;
  */
 abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implements CSSStyleSheet<AbstractCSSRule> {
 
+	private static final long serialVersionUID = 1L;
+
 	/*
 	 * The title is in the constructor because it being intern is part of the
 	 * AbstractCSSStyleSheet contract.

@@ -21,7 +21,9 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 
-class BaseColor {
+abstract class BaseColor implements Cloneable, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	PrimitiveValue alpha = ColorValue.opaqueAlpha;
 

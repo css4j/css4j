@@ -19,6 +19,8 @@ import io.sf.carte.doc.style.css.parser.BooleanConditionHelper;
  */
 class AndCondition extends BooleanConditionImpl.GroupCondition {
 
+	private static final long serialVersionUID = 1L;
+
 	AndCondition() {
 		super();
 	}

@@ -36,6 +36,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class PageRule extends BaseCSSDeclarationRule implements CSSPageRule {
 
+	private static final long serialVersionUID = 1L;
+
 	private PageSelectorList selectorList = null;
 
 	private MarginRuleList marginRules = null;

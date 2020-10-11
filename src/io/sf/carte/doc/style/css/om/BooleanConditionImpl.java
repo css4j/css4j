@@ -25,7 +25,9 @@ import io.sf.carte.doc.style.css.BooleanCondition;
  * @author Carlos Amengual
  * 
  */
-abstract class BooleanConditionImpl implements BooleanCondition {
+abstract class BooleanConditionImpl implements BooleanCondition, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private BooleanCondition parent = null;
 
@@ -116,6 +118,9 @@ abstract class BooleanConditionImpl implements BooleanCondition {
 	}
 
 	static abstract class GroupCondition extends BooleanConditionImpl {
+
+		private static final long serialVersionUID = 1L;
+
 		final LinkedList<BooleanCondition> nestedConditions;
 
 		GroupCondition() {
@@ -172,6 +177,8 @@ abstract class BooleanConditionImpl implements BooleanCondition {
 	}
 
 	static abstract class Predicate extends BooleanConditionImpl {
+
+		private static final long serialVersionUID = 1L;
 
 		private final String name;
 
