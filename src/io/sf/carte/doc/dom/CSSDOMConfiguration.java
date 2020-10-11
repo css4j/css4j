@@ -20,7 +20,9 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.ArrayStringList;
 import io.sf.carte.doc.StringList;
 
-class CSSDOMConfiguration implements DOMConfiguration {
+class CSSDOMConfiguration implements DOMConfiguration, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final Map<String,Object> configParameters;
 

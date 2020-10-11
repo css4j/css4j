@@ -22,6 +22,8 @@ import org.w3c.dom.Node;
  */
 class DocumentTypeImpl extends AbstractDOMNode implements DocumentType {
 
+	private static final long serialVersionUID = 1L;
+
 	private final String qualifiedName;
 	private final String publicId;
 	private final String systemId;

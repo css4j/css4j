@@ -44,6 +44,8 @@ import io.sf.carte.doc.style.css.parser.CSSParser;
  */
 abstract public class DOMElement extends NamespacedNode implements CSSElement, ParentNode {
 
+	private static final long serialVersionUID = 1L;
+
 	final String localName;
 
 	/**
@@ -315,6 +317,9 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	}
 
 	class ClassList extends DOMTokenSetImpl {
+
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void setValue(String value) throws DOMException {
 			if (value == null || value.length() == 0) {
@@ -372,6 +377,9 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	}
 
 	class QuirksClassList extends ClassList {
+
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void setValue(String value) throws DOMException {
 			if (value != null && value.length() == 0) {

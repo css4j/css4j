@@ -40,6 +40,8 @@ import io.sf.carte.doc.style.css.property.AttributeToStyle;
  */
 abstract public class HTMLDocument extends DOMDocument {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final String HTML_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 
 	private URL baseURL = null;
@@ -96,6 +98,8 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	class MyHTMLElement extends HTMLElement {
+
+		private static final long serialVersionUID = 1L;
 
 		MyHTMLElement(String localName) {
 			this(localName, HTMLDocument.HTML_NAMESPACE_URI);
@@ -209,6 +213,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class HtmlRootElement extends MyHTMLElement {
 
+		private static final long serialVersionUID = 1L;
+
 		HtmlRootElement() {
 			super("html");
 		}
@@ -265,6 +271,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class MetacontentElement extends MyHTMLElement {
 
+		private static final long serialVersionUID = 1L;
+
 		MetacontentElement(String tagName) {
 			super(tagName);
 		}
@@ -286,6 +294,8 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	class BaseElement extends MetacontentElement {
+
+		private static final long serialVersionUID = 1L;
 
 		BaseElement() {
 			super("base");
@@ -317,6 +327,9 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	abstract class StyleDefinerElement extends MyHTMLElement implements LinkStyleDefiner {
+
+		private static final long serialVersionUID = 1L;
+
 		AbstractCSSStyleSheet definedSheet = null;
 		boolean needsUpdate = true;
 
@@ -338,6 +351,9 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	class LinkElement extends StyleDefinerElement {
+
+		private static final long serialVersionUID = 1L;
+
 		LinkElement() {
 			super("link");
 		}
@@ -434,6 +450,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class RawTextElement extends MyHTMLElement {
 
+		private static final long serialVersionUID = 1L;
+
 		RawTextElement(String localName, String namespaceURI) {
 			super(localName, namespaceURI);
 		}
@@ -451,6 +469,8 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	class StyleElement extends StyleDefinerElement {
+
+		private static final long serialVersionUID = 1L;
 
 		StyleElement() {
 			super("style");
@@ -531,6 +551,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class MetaElement extends MyHTMLElement {
 
+		private static final long serialVersionUID = 1L;
+
 		MetaElement() {
 			super("meta");
 		}
@@ -574,6 +596,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class ImgElement extends MyHTMLElement {
 
+		private static final long serialVersionUID = 1L;
+
 		ImgElement() {
 			super("img");
 		}
@@ -607,6 +631,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class FontElement extends MyHTMLElement {
 
+		private static final long serialVersionUID = 1L;
+
 		FontElement() {
 			super("font");
 		}
@@ -626,6 +652,8 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	class TableElement extends MyHTMLElement {
+
+		private static final long serialVersionUID = 1L;
 
 		TableElement() {
 			super("table");
@@ -653,6 +681,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class TableRowElement extends MyHTMLElement {
 
+		private static final long serialVersionUID = 1L;
+
 		TableRowElement() {
 			super("tr");
 		}
@@ -674,6 +704,8 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	class TableCellElement extends MyHTMLElement {
+
+		private static final long serialVersionUID = 1L;
 
 		TableCellElement(String localName) {
 			super(localName);
@@ -781,6 +813,8 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	class HrefEventAttr extends MyAttr {
+
+		private static final long serialVersionUID = 1L;
 
 		HrefEventAttr(String namespaceURI) {
 			super("href", namespaceURI);

@@ -19,6 +19,8 @@ import org.w3c.dom.Node;
  */
 abstract public class HTMLElement extends DOMElement implements org.w3c.dom.html.HTMLElement {
 
+	private static final long serialVersionUID = 1L;
+
 	HTMLElement(String tagName) {
 		super(tagName, HTMLDocument.HTML_NAMESPACE_URI);
 	}

@@ -38,6 +38,8 @@ import io.sf.carte.doc.style.css.parser.CSSParser;
  */
 abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNode {
 
+	private static final long serialVersionUID = 1L;
+
 	NDTNode(short nodeType) {
 		super(nodeType);
 	}

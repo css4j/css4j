@@ -16,6 +16,8 @@ import java.util.Iterator;
 
 abstract class DOMParentNode extends NDTNode implements ParentNode {
 
+	private static final long serialVersionUID = 1L;
+
 	private final ChildCollections child;
 
 	public DOMParentNode(short nodeType) {

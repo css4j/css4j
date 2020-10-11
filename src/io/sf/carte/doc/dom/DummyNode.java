@@ -13,6 +13,8 @@ package io.sf.carte.doc.dom;
 
 class DummyNode extends AbstractDOMNode {
 
+	private static final long serialVersionUID = 1L;
+
 	public DummyNode() {
 		super(org.w3c.dom.Node.NOTATION_NODE);
 	}

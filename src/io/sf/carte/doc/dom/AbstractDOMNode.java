@@ -31,7 +31,9 @@ import io.sf.carte.doc.style.css.CSSDocument;
 /**
  * Abstract base class for DOM nodes.
  */
-abstract class AbstractDOMNode implements DOMNode {
+abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final short nodeType;
 

@@ -16,6 +16,8 @@ import org.w3c.dom.Node;
 
 abstract class NamespacedNode extends NDTNode {
 
+	private static final long serialVersionUID = 1L;
+
 	private final String namespaceUri;
 
 	private String prefix = null;

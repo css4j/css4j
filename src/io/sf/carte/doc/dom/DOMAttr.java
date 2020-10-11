@@ -25,6 +25,8 @@ import io.sf.carte.util.SimpleWriter;
  */
 abstract class DOMAttr extends NamespacedNode implements Attr {
 
+	private static final long serialVersionUID = 1L;
+
 	private TypeInfo schemaTypeInfo = null;
 
 	private final String localName;

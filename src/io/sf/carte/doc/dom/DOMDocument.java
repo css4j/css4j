@@ -74,6 +74,8 @@ import io.sf.carte.doc.xml.dtd.ContentModel;
  */
 abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
+	private static final long serialVersionUID = 1L;
+
 	static final String XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
 	static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
 
@@ -264,6 +266,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 */
 	abstract class MyNode extends NDTNode {
 
+		private static final long serialVersionUID = 1L;
+
 		MyNode(short nodeType) {
 			super(nodeType);
 		}
@@ -292,6 +296,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class DOMDocumentFragment extends DOMParentNode implements DocumentFragment {
+
+		private static final long serialVersionUID = 1L;
 
 		DOMDocumentFragment() {
 			super(Node.DOCUMENT_FRAGMENT_NODE);
@@ -354,6 +360,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyEntityReference extends MyNode implements EntityReference {
 
+		private static final long serialVersionUID = 1L;
+
 		private final String name;
 
 		MyEntityReference(String name) {
@@ -385,6 +393,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class MyProcessingInstruction extends MyNode implements ProcessingInstruction {
+
+		private static final long serialVersionUID = 1L;
+
 		String data;
 		private final String target;
 
@@ -452,6 +463,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class MyStyleProcessingInstruction extends MyProcessingInstruction implements LinkStyleProcessingInstruction {
+
+		private static final long serialVersionUID = 1L;
+
 		private AbstractCSSStyleSheet linkedSheet = null;
 		private final LinkedHashMap<String, String> pseudoAttrs = new LinkedHashMap<String, String>();
 
@@ -621,6 +635,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	abstract class MyCharacterData extends MyNode implements CharacterData {
 
+		private static final long serialVersionUID = 1L;
+
 		String data = null;
 
 		MyCharacterData(short nodeType) {
@@ -729,6 +745,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyComment extends MyCharacterData implements Comment {
 
+		private static final long serialVersionUID = 1L;
+
 		MyComment() {
 			super(Node.COMMENT_NODE);
 		}
@@ -761,6 +779,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class MyText extends MyCharacterData implements Text {
+
+		private static final long serialVersionUID = 1L;
 
 		boolean elementContentWhitespace = false;
 
@@ -1131,6 +1151,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyCDATASection extends MyText implements CDATASection {
 
+		private static final long serialVersionUID = 1L;
+
 		MyCDATASection() {
 			super(Node.CDATA_SECTION_NODE);
 		}
@@ -1163,6 +1185,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class MyAttr extends DOMAttr {
+
+		private static final long serialVersionUID = 1L;
 
 		MyAttr(String localName, String namespaceURI) {
 			super(localName, namespaceURI);
@@ -1198,6 +1222,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class XmlnsAttr extends MyAttr {
 
+		private static final long serialVersionUID = 1L;
+
 		XmlnsAttr() {
 			super("xmlns", "http://www.w3.org/2000/xmlns/");
 		}
@@ -1213,6 +1239,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class MyStyleAttr extends MyAttr implements StyleAttr {
+
+		private static final long serialVersionUID = 1L;
 
 		private AbstractCSSStyleDeclaration inlineStyle = null;
 
@@ -1276,6 +1304,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 */
 	class StyleEventAttr extends MyAttr {
 
+		private static final long serialVersionUID = 1L;
+
 		StyleEventAttr(String name, String namespaceURI) {
 			super(name, namespaceURI);
 		}
@@ -1301,6 +1331,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class ClassAttr extends MyAttr {
+
+		private static final long serialVersionUID = 1L;
 
 		ClassAttr(String namespaceURI) {
 			super("class", namespaceURI);
@@ -1376,6 +1408,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	class MyXMLElement extends DOMElement {
+
+		private static final long serialVersionUID = 1L;
 
 		private final HashMap<String, String> idAttrNameMap = new HashMap<String, String>();
 

@@ -186,6 +186,9 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	}
 
 	private class MyHTMLDocument extends HTMLDocument {
+
+		private static final long serialVersionUID = 1L;
+
 		public MyHTMLDocument(DocumentType documentType) {
 			super(documentType);
 		}
@@ -215,6 +218,8 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	}
 
 	private class MyXMLDocument extends DOMDocument {
+
+		private static final long serialVersionUID = 1L;
 
 		public MyXMLDocument(DocumentType documentType) {
 			super(documentType);
