@@ -88,7 +88,7 @@ import io.sf.carte.util.agent.AgentUtil;
  * {@link #setStreamSizeLimit(int)}.
  * </p>
  */
-public class CSSParser implements Parser {
+public class CSSParser implements Parser, Cloneable {
 
 	private CSSHandler handler;
 	private CSSErrorHandler errorHandler;

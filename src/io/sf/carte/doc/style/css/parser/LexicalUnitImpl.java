@@ -18,7 +18,7 @@ import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
-class LexicalUnitImpl implements LexicalUnit, java.io.Serializable {
+class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 
