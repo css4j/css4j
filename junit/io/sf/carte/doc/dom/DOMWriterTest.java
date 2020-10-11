@@ -134,11 +134,10 @@ public class DOMWriterTest {
 		assertEquals(expected, result);
 		DOMDocument pdoc = parseDocument(new StringReader(result));
 		pdoc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
-		pdoc.normalize();
-		document.normalize();
-		assertEqualNodes(document, pdoc);
 		// Normalize and re-test.
+		pdoc.normalizeDocument();
 		document.normalizeDocument();
+		assertEqualNodes(document, pdoc);
 		DOMWriter domWriter = new DOMWriter();
 		assertEquals(expected, domWriter.serializeToString(document));
 	}
@@ -157,11 +156,10 @@ public class DOMWriterTest {
 		assertEquals(expected, result);
 		DOMDocument pdoc = parseDocument(new StringReader(result));
 		pdoc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
-		pdoc.normalize();
-		document.normalize();
-		assertEqualNodes(document, pdoc);
 		// Normalize and re-test.
+		pdoc.normalizeDocument();
 		document.normalizeDocument();
+		assertEqualNodes(document, pdoc);
 		assertEquals(expected, domWriter.serializeToString(document));
 	}
 
