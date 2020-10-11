@@ -269,11 +269,6 @@ class FontBuilder extends ShorthandBuilder {
 					buf.append("normal");
 				}
 				appendPriority(buf, important);
-				if (not_initial_fst && declaredSet.contains("font-stretch")) {
-					buf.append("font-stretch:");
-					buf.append(vFontStretch.getMinifiedCssText("font-stretch"));
-					appendPriority(buf, important);
-				}
 				buf.append("font-family:");
 				buf.append(vFontFamily.getMinifiedCssText("font-family"));
 				appendPriority(buf, important);
