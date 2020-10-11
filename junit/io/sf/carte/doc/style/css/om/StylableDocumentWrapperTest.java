@@ -410,6 +410,27 @@ public class StylableDocumentWrapperTest {
 	}
 
 	@Test
+	public void testMetaElementDefaultStyle() throws ParserConfigurationException, SAXException, IOException {
+		InputStream is = DOMCSSStyleSheetFactoryTest.sampleHTMLStream();
+		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docb = dbFac.newDocumentBuilder();
+		docb.setEntityResolver(new DefaultEntityResolver());
+		InputSource source = new InputSource(is);
+		Document doc = docb.parse(source);
+		is.close();
+		doc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
+		Node head = doc.getElementsByTagName("head").item(0);
+		Element meta = doc.createElement("meta");
+		meta.setAttribute("http-equiv", "Default-Style");
+		meta.setAttribute("content", "Alter 2");
+		head.appendChild(meta);
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(false);
+		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(doc);
+		assertEquals("Alter 2", wrapped.getSelectedStyleSheetSet());
+	}
+
+	@Test
 	public void testMetaElementReferrerPolicy() {
 		assertEquals("same-origin", xhtmlDoc.getReferrerPolicy());
 	}
