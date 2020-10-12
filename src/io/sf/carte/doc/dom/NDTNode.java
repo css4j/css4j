@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -232,6 +233,10 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 		 */
 		private Map<String, WeakReference<DOMElementLinkedList>> classListMap = null;
 
+		// Initialization/update locks
+		private final ReentrantLock tagListLock = new ReentrantLock();
+		private final ReentrantLock classListLock = new ReentrantLock();
+
 		/**
 		 * For use by getChildren().
 		 */
@@ -278,9 +283,17 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 
 		DOMElementLinkedList findList(String qname) {
 			if (tagListMap == null) {
-				tagListMap = new HashMap<String, WeakReference<DOMElementLinkedList>>(3);
+				tagListLock.lock();
+				try {
+					if (tagListMap == null) {
+						tagListMap = new HashMap<String, WeakReference<DOMElementLinkedList>>(3);
+					}
+				} finally {
+					tagListLock.unlock();
+				}
 			} else {
-				synchronized (tagListMap) {
+				tagListLock.lock();
+				try {
 					WeakReference<DOMElementLinkedList> ref = tagListMap.get(qname);
 					if (ref != null) {
 						DOMElementLinkedList list = ref.get();
@@ -290,6 +303,8 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 							return list;
 						}
 					}
+				} finally {
+					tagListLock.unlock();
 				}
 			}
 			return null;
@@ -465,9 +480,17 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 
 		private DOMElementLinkedList findClassList(String names) {
 			if (classListMap == null) {
-				classListMap = new HashMap<String, WeakReference<DOMElementLinkedList>>(3);
+				classListLock.lock();
+				try {
+					if (classListMap == null) {
+						classListMap = new HashMap<String, WeakReference<DOMElementLinkedList>>(3);
+					}
+				} finally {
+					classListLock.unlock();
+				}
 			} else {
-				synchronized (classListMap) {
+				classListLock.lock();
+				try {
 					WeakReference<DOMElementLinkedList> ref = classListMap.get(names);
 					if (ref != null) {
 						DOMElementLinkedList list = ref.get();
@@ -477,6 +500,8 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 							return list;
 						}
 					}
+				} finally {
+					classListLock.unlock();
 				}
 			}
 			return null;
