@@ -573,7 +573,7 @@ public class DOMWriter {
 				display = getDisplayProperty(element);
 			}
 			if ("block".equalsIgnoreCase(display) || "table".equalsIgnoreCase(display)
-					|| "table-row".equalsIgnoreCase(display)) {
+					|| "table-row".equalsIgnoreCase(display) || "inline-block".equalsIgnoreCase(display)) {
 				return true;
 			}
 		}
@@ -708,7 +708,7 @@ public class DOMWriter {
 			for (DOMElement el : elist) {
 				String display = getDisplayProperty(el);
 				if ("block".equalsIgnoreCase(display) || "table".equalsIgnoreCase(display)
-						|| "table-row".equalsIgnoreCase(display)) {
+						|| "table-row".equalsIgnoreCase(display) || "inline-block".equalsIgnoreCase(display)) {
 					indentChild = true;
 					break;
 				}
