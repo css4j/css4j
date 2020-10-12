@@ -427,11 +427,33 @@ public class XHTMLDocumentTest {
 
 	@Test
 	public void getTextContent() {
-		CSSElement elm = xmlDoc.getElementsByTagName("style").item(0);
+		DOMElement elm = xmlDoc.getElementsByTagName("style").item(0);
 		assertNotNull(elm);
 		String text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1106, text.trim().length());
+		//
+		xmlDoc.normalizeDocument();
+		text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1106, text.trim().length());
+		//
+		xmlDoc.getDomConfig().setParameter("use-computed-styles", true);
+		xmlDoc.getStyleSheets();
+		xmlDoc.normalizeDocument();
+		text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1052, text.trim().length());
+	}
+
+	@Test
+	public void getTextContent2() {
+		DOMElement elm = xmlDoc.getElementById("para1");
+		assertNotNull(elm);
+		elm.appendChild(xmlDoc.createComment(" comment "));
+		String text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals("Paragraph <>", text);
 	}
 
 	@Test

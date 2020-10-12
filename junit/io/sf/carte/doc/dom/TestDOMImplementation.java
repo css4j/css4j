@@ -131,6 +131,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleHTMLReader();
 		InputSource is = new InputSource(re);
 		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(new TestDOMImplementation(true, null));
+		builder.setIgnoringComments(false);
 		HTMLDocument xhtmlDoc;
 		try {
 			xhtmlDoc = (HTMLDocument) builder.parse(is);

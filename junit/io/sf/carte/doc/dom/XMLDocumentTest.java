@@ -589,6 +589,21 @@ public class XMLDocumentTest {
 		String text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1106, text.trim().length());
+		//
+		xmlDoc.normalizeDocument();
+		text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1106, text.trim().length());
+	}
+
+	@Test
+	public void getTextContent2() {
+		DOMElement elm = xmlDoc.getElementById("para1");
+		assertNotNull(elm);
+		elm.appendChild(xmlDoc.createComment(" comment "));
+		String text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals("Paragraph <>", text);
 	}
 
 	@Test
