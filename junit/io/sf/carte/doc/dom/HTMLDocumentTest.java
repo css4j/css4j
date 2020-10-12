@@ -801,6 +801,27 @@ public class HTMLDocumentTest {
 	}
 
 	@Test
+	public void getTextContent2() {
+		DOMElement elm = xhtmlDoc.getElementById("para1");
+		assertNotNull(elm);
+		elm.appendChild(xhtmlDoc.createComment(" comment "));
+		String text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals("Paragraph <>", text);
+		//
+		Attr classNode = elm.getAttributeNode("class");
+		assertNotNull(classNode);
+		assertEquals("boldmargin", classNode.getTextContent());
+		//
+		DOMElement div = xhtmlDoc.getElementById("div1");
+		assertNotNull(div);
+		Iterator<DOMNode> it = div.typeIterator(Node.COMMENT_NODE);
+		assertTrue(it.hasNext());
+		Comment comment = (Comment) it.next();
+		assertEquals(" An html-friendly svg element ", comment.getTextContent());
+	}
+
+	@Test
 	public void TextIsElementContentWhitespace() {
 		Text text = xhtmlDoc.createTextNode("foo ");
 		assertNotNull(text);
