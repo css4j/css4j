@@ -17,8 +17,8 @@ import java.util.Map;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.ArrayStringList;
 import io.sf.carte.doc.StringList;
+import io.sf.carte.doc.WrapperStringList;
 
 class CSSDOMConfiguration implements DOMConfiguration, java.io.Serializable {
 
@@ -65,7 +65,7 @@ class CSSDOMConfiguration implements DOMConfiguration, java.io.Serializable {
 
 	@Override
 	public StringList getParameterNames() {
-		return new ArrayStringList(configParameters.keySet());
+		return new WrapperStringList(configParameters.keySet());
 	}
 
 	@Override
