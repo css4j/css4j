@@ -438,7 +438,6 @@ public class XHTMLDocumentTest {
 		assertNotNull(text);
 		assertEquals(1106, text.trim().length());
 		//
-		xmlDoc.getDomConfig().setParameter("use-computed-styles", true);
 		xmlDoc.getStyleSheets();
 		xmlDoc.normalizeDocument();
 		text = elm.getTextContent();
