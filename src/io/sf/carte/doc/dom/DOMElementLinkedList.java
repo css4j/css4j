@@ -58,20 +58,21 @@ class DOMElementLinkedList extends LinkedList<DOMElement> implements ElementList
 		}
 	}
 
-	synchronized void fillByTagList(String localName, AbstractDOMNode contextNode, String namespaceURI,
-			boolean matchAll) {
-		Node node = contextNode.getFirstChild();
-		while (node != null) {
-			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				DOMElement element = (DOMElement) node;
-				if (matchAll || element.getLocalName() == localName) {
-					if (isSameNamespace(element, namespaceURI)) {
-						add(element);
+	void fillByTagList(String localName, AbstractDOMNode contextNode, String namespaceURI, boolean matchAll) {
+		synchronized (contextNode) {
+			Node node = contextNode.getFirstChild();
+			while (node != null) {
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					DOMElement element = (DOMElement) node;
+					if (matchAll || element.getLocalName() == localName) {
+						if (isSameNamespace(element, namespaceURI)) {
+							add(element);
+						}
 					}
+					fillByTagList(localName, element, namespaceURI, matchAll);
 				}
-				fillByTagList(localName, element, namespaceURI, matchAll);
+				node = node.getNextSibling();
 			}
-			node = node.getNextSibling();
 		}
 	}
 
@@ -83,17 +84,19 @@ class DOMElementLinkedList extends LinkedList<DOMElement> implements ElementList
 		return ns1.equals(ns2) || (ns2 == null && element.isDefaultNamespace(ns1));
 	}
 
-	synchronized void fillByClassList(SortedSet<String> sorted, AbstractDOMNode contextNode) {
-		Node node = contextNode.getFirstChild();
-		while (node != null) {
-			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				DOMElement element = (DOMElement) node;
-				if (element.hasAttribute("class") && element.getClassList().containsAll(sorted)) {
-					add(element);
+	void fillByClassList(SortedSet<String> sorted, AbstractDOMNode contextNode) {
+		synchronized (contextNode) {
+			Node node = contextNode.getFirstChild();
+			while (node != null) {
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					DOMElement element = (DOMElement) node;
+					if (element.hasAttribute("class") && element.getClassList().containsAll(sorted)) {
+						add(element);
+					}
+					fillByClassList(sorted, element);
 				}
-				fillByClassList(sorted, element);
+				node = node.getNextSibling();
 			}
-			node = node.getNextSibling();
 		}
 	}
 
