@@ -209,11 +209,14 @@ public class HTMLDocumentTest {
 		assertTrue(elm.isVoid());
 		elm = xhtmlDoc.createElement("LINK");
 		assertTrue(elm instanceof LinkStyle);
+		assertEquals("link", elm.getLocalName());
+		assertEquals("link", elm.getTagName());
 		elm = xhtmlDoc.createElement("style");
 		assertTrue(elm instanceof LinkStyle);
 		assertFalse(elm.isVoid());
 		elm = xhtmlDoc.createElement("STYLE");
 		assertTrue(elm instanceof LinkStyle);
+		assertEquals("style", elm.getLocalName());
 		//
 		HTMLElement html = (HTMLElement) xhtmlDoc.createElement("html");
 		assertFalse(html.isVoid());
@@ -261,10 +264,14 @@ public class HTMLDocumentTest {
 		assertTrue(elm instanceof LinkStyle);
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "LINK");
 		assertTrue(elm instanceof LinkStyle);
+		assertEquals("link", elm.getLocalName());
+		assertEquals("link", elm.getTagName());
+		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, elm.getNamespaceURI());
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "style");
 		assertTrue(elm instanceof LinkStyle);
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "STYLE");
 		assertTrue(elm instanceof LinkStyle);
+		assertEquals("style", elm.getLocalName());
 		try {
 			xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, null);
 			fail("Must throw exception");

@@ -895,7 +895,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				matcher = selectorMatcherRef.get();
 			}
 			if (matcher == null) {
-				matcher = new DOMSelectorMatcher(this);
+				matcher = new WrapperSelectorMatcher(this, element);
 				selectorMatcherRef = new WeakReference<SelectorMatcher>(matcher);
 			}
 			return matcher;

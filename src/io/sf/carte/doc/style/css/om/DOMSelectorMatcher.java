@@ -35,7 +35,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 
 	private static final long serialVersionUID = 1L;
 
-	CSSElement element;
+	private final CSSElement element;
 
 	public DOMSelectorMatcher(CSSElement elm) {
 		super();
@@ -69,6 +69,10 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 			sibling = sibling.getPreviousSibling();
 		}
 		return null;
+	}
+
+	protected AbstractSelectorMatcher createSelectorMatcher(CSSElement element) {
+		return new DOMSelectorMatcher(element);
 	}
 
 	@Override
@@ -109,7 +113,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 		if (selectors == null) {
 			return true;
 		}
-		DOMSelectorMatcher matcher = new DOMSelectorMatcher(element);
+		SelectorMatcher matcher = createSelectorMatcher(element);
 		int sz = selectors.getLength();
 		for (int i=0; i<sz; i++) {
 			if (matcher.matches(selectors.item(i))) {
@@ -430,7 +434,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 		for (int i = 0; i < sz; i++) {
 			Node node = list.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				SelectorMatcher childSM = new DOMSelectorMatcher((CSSElement) node);
+				SelectorMatcher childSM = createSelectorMatcher((CSSElement) node);
 				if (childSM.matches(desc)) {
 					return true;
 				}
@@ -451,7 +455,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 		for (int i = 0; i < sz; i++) {
 			Node node = list.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				SelectorMatcher childSM = new DOMSelectorMatcher((CSSElement) node);
+				SelectorMatcher childSM = createSelectorMatcher((CSSElement) node);
 				if (childSM.matches(desc) || scopeMatchRecursive(node.getChildNodes(), desc)) {
 					return true;
 				}
@@ -466,7 +470,7 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 		Node sibling = element.getNextSibling();
 		while (sibling != null) {
 			if (sibling.getNodeType() == Node.ELEMENT_NODE) {
-				siblingSM = new DOMSelectorMatcher((CSSElement) sibling);
+				siblingSM = createSelectorMatcher((CSSElement) sibling);
 				break;
 			}
 			sibling = sibling.getNextSibling();

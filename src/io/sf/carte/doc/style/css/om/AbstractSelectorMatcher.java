@@ -74,6 +74,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	protected String getClassAttribute(CSSDocument.ComplianceMode mode) {
 		String classAttr = getAttributeValue("class");
 		if (mode != CSSDocument.ComplianceMode.STRICT) {
+			// Native DOM does not need the next conditional but DOM wrapper does
 			if (classAttr.length() == 0) {
 				classAttr = getAttributeValue("CLASS");
 				if (classAttr.length() == 0) {
