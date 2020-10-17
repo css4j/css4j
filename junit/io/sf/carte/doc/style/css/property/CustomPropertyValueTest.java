@@ -135,6 +135,26 @@ public class CustomPropertyValueTest {
 	}
 
 	@Test
+	public void testGetCssTextFallbackVar() {
+		/*
+		 * "If there are any var() references in the fallback, substitute them as well."
+		 */
+		style.setCssText("foo: var(--my-color,var(--my-fb-color,#f0c)); ");
+		assertEquals("var(--my-color, var(--my-fb-color, #f0c))", style.getPropertyValue("foo"));
+		assertEquals("foo: var(--my-color, var(--my-fb-color, #f0c)); ", style.getCssText());
+		assertEquals("foo:var(--my-color,var(--my-fb-color,#f0c))", style.getMinifiedCssText());
+		StyleValue cssval = style.getPropertyCSSValue("foo");
+		assertNotNull(cssval);
+		assertEquals(CSSValue.Type.VAR, cssval.getPrimitiveType());
+		VarValue val = (VarValue) cssval;
+		assertEquals("--my-color", val.getName());
+		assertEquals("var(--my-color, var(--my-fb-color, #f0c))", val.getCssText());
+		LexicalUnit fallback = val.getFallback();
+		assertEquals(LexicalUnit.LexicalType.VAR, fallback.getLexicalUnitType());
+		assertEquals("var(--my-fb-color, #f0c)", fallback.getCssText());
+	}
+
+	@Test
 	public void testSetCssText() {
 		VarValue value = new VarValue();
 		value.setCssText("var(--my-identifier)");
@@ -186,6 +206,21 @@ public class CustomPropertyValueTest {
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testSetCssTextErrorPropertyName() {
+		/*
+		 * "The var() function can not be used as property names, selectors,
+		 * or anything else besides property values."
+		 */
+		VarValue value = new VarValue();
+		try {
+			value.setCssText("var(var(--color-icon-name),#879093)");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 		}
 	}
 
