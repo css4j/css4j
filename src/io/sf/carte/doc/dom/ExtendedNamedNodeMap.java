@@ -37,4 +37,10 @@ public interface ExtendedNamedNodeMap<T extends Node> extends NamedNodeMap, Iter
 	@Override
 	T getNamedItemNS(String namespaceURI, String localName) throws DOMException;
 
+	@Override
+	T removeNamedItem(String name) throws DOMException;
+
+	@Override
+	T removeNamedItemNS(String namespaceURI, String localName) throws DOMException;
+
 }
