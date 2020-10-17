@@ -640,18 +640,18 @@ public class ComputedCSSStyleTest {
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		CSSElement body = (CSSElement) elm.getParentNode();
-		body.getOverrideStyle(null).setCssText("--foo:8pt");
+		body.getOverrideStyle(null).setCssText("--foo:9pt");
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,1vb)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(8f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(9f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertEquals(
-				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 8pt; ",
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 9pt; ",
 				style.getCssText());
 		assertEquals(
-				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:8pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:9pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
 		/*
 		 * custom property shorthand substitution.
@@ -684,16 +684,46 @@ public class ComputedCSSStyleTest {
 		elm.getOverrideStyle(null).setCssText("margin:var(--foo,1vb);");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(8f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(9f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
 		marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
-		assertEquals(8f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(9f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertEquals(
-				"display: block; unicode-bidi: embed; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-top: 8pt; margin-right: 8pt; margin-bottom: 8pt; margin-left: 8pt; ",
+				"display: block; unicode-bidi: embed; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-top: 9pt; margin-right: 9pt; margin-bottom: 9pt; margin-left: 9pt; ",
 				style.getCssText());
 		assertEquals(
-				"display:block;unicode-bidi:embed;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);margin:8pt;",
+				"display:block;unicode-bidi:embed;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);margin:9pt;",
+				style.getMinifiedCssText());
+		/*
+		 * custom property substitution, var() in fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--no-way,var(--foo,15pt));");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(9f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 9pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:9pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
+				style.getMinifiedCssText());
+		/*
+		 * custom property substitution, var() in fallback, fallback-of-fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--no-way,var(--nope,15pt));");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertEquals(
+				"display: block; unicode-bidi: embed; margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); margin-left: 15pt; ",
+				style.getCssText());
+		assertEquals(
+				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:15pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);",
 				style.getMinifiedCssText());
 	}
 
