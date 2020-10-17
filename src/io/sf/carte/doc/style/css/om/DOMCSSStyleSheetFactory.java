@@ -421,9 +421,11 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 			NodeList list = xdoc.getElementsByTagName("meta");
 			int listL = list.getLength();
 			for (int i = listL - 1; i >= 0; i--) {
-				if ("Default-Style".equalsIgnoreCase(((Element) list.item(i)).getAttribute("http-equiv"))) {
-					String metaDefStyle = ((Element) list.item(i)).getAttribute("content");
-					if (metaDefStyle.length() == 0) {
+				Element item = (Element) list.item(i);
+				String httpEquiv = WrapperSelectorMatcher.getAttributeValue(item, "http-equiv");
+				if ("default-style".equalsIgnoreCase(httpEquiv)) {
+					String metaDefStyle = WrapperSelectorMatcher.getAttributeValue(item, "content");
+					if (metaDefStyle.length() != 0) {
 						// Per HTML4 spec § 14.3.2:
 						// "If two or more META declarations or HTTP headers specify
 						//  the preferred style sheet, the last one takes precedence."
