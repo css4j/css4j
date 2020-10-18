@@ -78,6 +78,7 @@ import io.sf.carte.doc.style.css.om.SequenceShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.ShorthandSetterTest;
 import io.sf.carte.doc.style.css.om.SimpleBoxModelTest;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapperTest;
+import io.sf.carte.doc.style.css.om.StylableDocumentWrapperTest2;
 import io.sf.carte.doc.style.css.om.StyleRuleTest;
 import io.sf.carte.doc.style.css.om.StyleRuleTest2;
 import io.sf.carte.doc.style.css.om.StyleRuleTestNS;
@@ -214,6 +215,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		ShorthandSetterTest.class,
 		SimpleBoxModelTest.class,
 		StylableDocumentWrapperTest.class,
+		StylableDocumentWrapperTest2.class,
 		WrapperSelectorMatcherTest.class,
 		XMLDocumentWrapperTest.class,
 		AnBExpressionTest.class,

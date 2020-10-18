@@ -35,6 +35,8 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 
 	private static final long serialVersionUID = 1L;
 
+	static final int CONNECT_TIMEOUT = 60000;
+
 	/*
 	 * The title is in the constructor because it being intern is part of the
 	 * AbstractCSSStyleSheet contract.
@@ -250,6 +252,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 			ucon = url.openConnection();
 		}
 		ucon.setAllowUserInteraction(false);
+		ucon.setConnectTimeout(CONNECT_TIMEOUT);
 		return ucon;
 	}
 

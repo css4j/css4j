@@ -1210,8 +1210,12 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			}
 			try {
 				URL url = getURL(href);
-				sheet.setHref(url.toExternalForm());
-				sheet.loadStyleSheet(url, referrerPolicy);
+				if (isAuthorizedOrigin(url)) {
+					sheet.setHref(url.toExternalForm());
+					sheet.loadStyleSheet(url, referrerPolicy);
+				} else {
+					getErrorHandler().policyError(ownerNode, "Unauthorized URL: " + url.toExternalForm());
+				}
 			} catch (Exception e) {
 				getErrorHandler().linkedSheetError(e, sheet);
 			}
@@ -1351,6 +1355,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	@Override
 	public void setDocumentURI(String documentURI) {
 		document.setDocumentURI(documentURI);
+		onStyleModify();
 	}
 
 	@Override
@@ -1879,18 +1884,56 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			}
 		}
 		if (buri != null) {
-			String docuri;
-			if (buri.indexOf("://") == -1 && (docuri = document.getDocumentURI()) != null) {
+			String docUri = document.getDocumentURI();
+			if (docUri != null) {
 				// Relative url
+				URL docUrl;
 				try {
-					URL url = new URL(docuri);
-					url = new URL(url, buri);
-					buri = url.toExternalForm();
+					docUrl = new URL(docUri);
+				} catch (MalformedURLException e) {
+					docUrl = null;
+				}
+				URL bUrl;
+				try {
+					if (docUrl != null) {
+						bUrl = new URL(docUrl, buri);
+					} else {
+						bUrl = new URL(buri);
+					}
+				} catch (MalformedURLException e) {
+					return docUrl != null ? docUrl.toExternalForm() : null;
+				}
+				buri = bUrl.toExternalForm();
+				String docscheme = docUrl.getProtocol();
+				String bscheme = bUrl.getProtocol();
+				if (!docscheme.equals(bscheme)) {
+					if (!bscheme.equals("https") && !bscheme.equals("http") && !docscheme.equals("file")
+							&& !docscheme.equals("jar")) {
+						// Remote document wants to set a non-http base URI
+						getErrorHandler().policyError(elm, "Remote document wants to set a non-http base URL: " + buri);
+						buri = docUrl != null ? docUrl.toExternalForm() : null;
+					}
+				}
+				return buri;
+			} else {
+				try {
+					URL bUrl = new URL(buri);
+					String bscheme = bUrl.getProtocol();
+					if (bscheme.equals("https") || bscheme.equals("http")) {
+						return buri;
+					} else {
+						getErrorHandler().policyError(elm,
+								"Untrusted document wants to set a non-http base URL: " + buri);
+					}
 				} catch (MalformedURLException e) {
 				}
 			}
 		}
-		return buri != null ? buri : document.getBaseURI();
+		buri = document.getBaseURI();
+		if (buri == null) {
+			buri = document.getDocumentURI();
+		}
+		return buri;
 	}
 
 	/**
@@ -1939,6 +1982,34 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			linkedPort = linkedURL.getDefaultPort();
 		}
 		return (docHost.equalsIgnoreCase(linkedHost) || linkedHost.endsWith(docHost)) && docPort == linkedPort;
+	}
+
+	/**
+	 * Determine whether the retrieval of the given URL is authorized.
+	 * <p>
+	 * If the URL's protocol is not {@code http} nor {@code https} and document's
+	 * base URL's scheme is neither {@code file} nor {@code jar}, it is denied.
+	 * </p>
+	 * 
+	 * @param url the URL to check.
+	 * @return {@code true} if allowed.
+	 */
+	@Override
+	public boolean isAuthorizedOrigin(URL url) {
+		String scheme = url.getProtocol();
+		URL base = getBaseURL();
+		if (base != null) {
+			String baseScheme = base.getProtocol();
+			// To try to speed things up, only the parameter's scheme is compared
+			// case-insensitively
+			if (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http") && !baseScheme.equals("file")
+					&& !baseScheme.equals("jar")) {
+				return false;
+			}
+		} else if (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http")) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
