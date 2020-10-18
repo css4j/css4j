@@ -29,6 +29,8 @@ import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
 abstract class AbstractErrorHandler implements ErrorHandler {
 
+	private HashMap<Node,String> policyErrorMap = null;
+
 	private HashMap<CSSElement, StyleDeclarationErrorHandler> inlineErrorHandlerMap = null;
 
 	private HashMap<CSSElement, HashMap<String, CSSPropertyValueException>> computedStyleErrors = null;
@@ -37,7 +39,7 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 
 	private HashMap<Node, CSSMediaException> mediaQueryErrors = null;
 
-	private HashMap<String,IOException> ruleIOErrors = null;
+	private HashMap<String,IOException> ioErrors = null;
 
 	private HashMap<CSSElement, HashMap<String, CSSPropertyValueException>> computedStyleWarnings = null;
 
@@ -99,6 +101,14 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 	}
 
 	@Override
+	public void policyError(Node node, String message) {
+		if (policyErrorMap == null) {
+			policyErrorMap = new HashMap<>();
+		}
+		policyErrorMap.put(node, message);
+	}
+
+	@Override
 	public void computedStyleError(CSSElement element, String propertyName, CSSPropertyValueException exception) {
 		HashMap<String, CSSPropertyValueException> map;
 		if (computedStyleErrors == null) {
@@ -123,22 +133,33 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 		mediaQueryErrors.put(ownerNode, exception);
 	}
 
+	@Deprecated
 	@Override
 	public void ruleIOError(String uri, IOException exception) {
-		if (ruleIOErrors == null) {
-			ruleIOErrors = new HashMap<String,IOException>();
+		ioError(uri, exception);
+	}
+
+	@Override
+	public void ioError(String uri, IOException exception) {
+		if (ioErrors == null) {
+			ioErrors = new HashMap<String,IOException>();
 		}
-		ruleIOErrors.put(uri, exception);
+		ioErrors.put(uri, exception);
 	}
 
 	@Override
 	public boolean hasErrors() {
-		return hasInlineErrors() || hasComputedStyleErrors() || hasMediaErrors();
+		return hasInlineErrors() || hasComputedStyleErrors() || hasMediaErrors() || hasPolicyErrors();
+	}
+
+	@Override
+	public boolean hasPolicyErrors() {
+		return policyErrorMap != null;
 	}
 
 	@Override
 	public boolean hasIOErrors() {
-		return ruleIOErrors != null;
+		return ioErrors != null;
 	}
 
 	@Override
@@ -217,6 +238,10 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 		mediaQueryWarnings.put(ownerNode, exception);
 	}
 
+	public String getPolicyError(Node node) {
+		return policyErrorMap != null ? policyErrorMap.get(node) : null;
+	}
+
 	public HashMap<String, CSSPropertyValueException> getComputedStyleErrors(CSSElement element) {
 		return computedStyleErrors != null ? computedStyleErrors.get(element) : null;
 	}
@@ -229,12 +254,21 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 		return computedStyleWarnings != null ? computedStyleWarnings.get(element) : null;
 	}
 
+	public HashMap<Node, String> getPolicyErrors() {
+		return policyErrorMap;
+	}
+
 	public HashMap<Node, CSSMediaException> getMediaErrors() {
 		return mediaQueryErrors;
 	}
 
+	@Deprecated
 	public HashMap<String, IOException> getRuleIOErrors() {
-		return ruleIOErrors;
+		return getIOErrors();
+	}
+
+	public HashMap<String, IOException> getIOErrors() {
+		return ioErrors;
 	}
 
 	@Override
@@ -284,7 +318,8 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 		resetComputedStyleErrors();
 		mediaQueryErrors = null;
 		mediaQueryWarnings = null;
-		ruleIOErrors = null;
+		policyErrorMap = null;
+		ioErrors = null;
 	}
 
 	abstract protected AbstractCSSStyleSheetFactory getStyleSheetFactory();

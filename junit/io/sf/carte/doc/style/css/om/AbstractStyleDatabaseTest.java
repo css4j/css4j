@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -96,6 +97,21 @@ public class AbstractStyleDatabaseTest {
 		CSSElement body = cssdoc.getElementById("bodyId");
 		body.getComputedStyle(null);
 		assertTrue(factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("opensans regular"));
+	}
+
+	@Test
+	public void testFontFaceRuleEvil() throws IOException {
+		cssdoc.setDocumentURI("http://www.example.com/example.html");
+		styleText.setNodeValue(
+				"@font-face{font-family:'Hack Sans';src:url('jar:http://www.example.com/evil.jar!/fakefont.ttf') format('truetype')}");
+		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
+		assertEquals(2, ffrule.getStyle().getLength());
+		//
+		CSSElement body = cssdoc.getElementById("bodyId");
+		body.getComputedStyle(null);
+		assertFalse(factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("hack sans"));
+		assertTrue(cssdoc.getErrorHandler().hasErrors());
+		assertTrue(cssdoc.getErrorHandler().hasPolicyErrors());
 	}
 
 }

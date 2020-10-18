@@ -254,13 +254,20 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 			try {
 				url = doc.getURL(uri);
 			} catch (MalformedURLException e) {
-				doc.getErrorHandler().ruleIOError(uri, e);
+				doc.getErrorHandler().ioError(uri, e);
 				return false;
 			}
+			// Check URL safety
+			if (!doc.isAuthorizedOrigin(url)) {
+				doc.getErrorHandler().policyError(node, "Unauthorized URL: " + url.toExternalForm());
+				return false;
+			}
+			//
 			InputStream is = null;
 			try {
 				FontFormat fontFormat = null;
 				URLConnection conn = doc.openConnection(url);
+				conn.setConnectTimeout(AbstractCSSStyleSheet.CONNECT_TIMEOUT);
 				conn.connect();
 				String conType = conn.getContentType();
 				if (conType != null) {
@@ -278,7 +285,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase {
 				loadFontFace(familyName, fontFormat, is, rule);
 				return true;
 			} catch (IOException e) {
-				doc.getErrorHandler().ruleIOError(url.toExternalForm(), e);
+				doc.getErrorHandler().ioError(url.toExternalForm(), e);
 			} finally {
 				try {
 					if (is != null) {

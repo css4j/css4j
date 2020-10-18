@@ -1763,6 +1763,34 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
+	@Test (timeout=8000)
+	public void testLinkElementEvil() {
+		LinkElement link = (LinkElement) xhtmlDoc.createElement("link");
+		link.setAttribute("rel", "stylesheet");
+		link.setAttribute("href", "file:/dev/zero");
+		AbstractCSSStyleSheet sheet = link.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getOwnerNode() == link);
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test (timeout=8000)
+	public void testLinkElementEvilJar() {
+		LinkElement link = (LinkElement) xhtmlDoc.createElement("link");
+		link.setAttribute("rel", "stylesheet");
+		link.setAttribute("href", "jar:http://www.example.com/evil.jar!/file");
+		AbstractCSSStyleSheet sheet = link.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getOwnerNode() == link);
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
 	@Test
 	public void testBaseElement() {
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getDocumentURI());
@@ -1790,6 +1818,23 @@ public class HTMLDocumentTest {
 		attr.setValue("http://www.example.com/yet/another/base/");
 		parent.appendChild(base);
 		assertEquals("http://www.example.com/yet/another/base/", xhtmlDoc.getBaseURI());
+	}
+
+	@Test(timeout=8000)
+	public void testBaseElementEvil() {
+		DOMElement base = xhtmlDoc.getElementsByTagName("base").item(0);
+		base.setAttribute("href", "jar:http://www.example.com/evil.jar!/file");
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", base.getBaseURI());
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+		//
+		xhtmlDoc.getErrorHandler().reset();
+		base.setAttribute("href", "file:/dev/zero");
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", base.getBaseURI());
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
 	}
 
 	@Test

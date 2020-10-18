@@ -8,6 +8,7 @@
 <?xml-stylesheet href="#style1" type="text/css"?>
 <html xml:base="http://www.example.com/">
 <head>
+<meta name="referrer" content="same-origin"/>
 <title>Example XML file</title>
 <style id="style1">
 body {
