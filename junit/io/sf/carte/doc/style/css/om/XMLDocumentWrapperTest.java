@@ -54,6 +54,7 @@ import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
  * Similar to StylableDocumentWrapperTest, but processing the XML sample instead of XHTML.
  */
 public class XMLDocumentWrapperTest {
+
 	private static DocumentBuilder docb;
 	private StylableDocumentWrapper xmlDoc;
 
@@ -435,4 +436,10 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
 	}
+
+	@Test
+	public void testMetaElementReferrerPolicy() {
+		assertEquals("same-origin", xmlDoc.getReferrerPolicy());
+	}
+
 }

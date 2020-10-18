@@ -38,6 +38,7 @@ import org.w3c.dom.Text;
 import org.w3c.dom.stylesheets.LinkStyle;
 
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 
 public class DOMDocumentTest {
 
@@ -794,6 +795,46 @@ public class DOMDocumentTest {
 		assertTrue(pi instanceof LinkStyle);
 	}
 
+	@Test (timeout=8000)
+	public void testStyleProcessingInstructionEvil() {
+		DOMDocument document = domImpl.createDocument("", null, null);
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"http://www.example.com/css/common.css\"");
+		assertEquals("<?xml-stylesheet type=\"text/css\" href=\"http://www.example.com/css/common.css\"?>",
+				pi.toString());
+		document.appendChild(pi);
+		assertTrue(pi instanceof LinkStyle);
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) pi).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertEquals(3, sheet.getCssRules().getLength());
+		assertTrue(sheet.getOwnerNode() == pi);
+		assertEquals("type=\"text/css\" href=\"http://www.example.com/css/common.css\"", pi.getData());
+		assertFalse(document.getErrorHandler().hasErrors());
+		assertFalse(document.getErrorHandler().hasPolicyErrors());
+		//
+		pi.setData("type=\"text/css\" href=\"file:/dev/zero\"");
+		sheet = (AbstractCSSStyleSheet) ((LinkStyle) pi).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getOwnerNode() == pi);
+		assertEquals("type=\"text/css\" href=\"file:/dev/zero\"", pi.getData());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasPolicyErrors());
+		//
+		document.getErrorHandler().reset();
+		pi.setData("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"");
+		sheet = (AbstractCSSStyleSheet) ((LinkStyle) pi).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getOwnerNode() == pi);
+		assertEquals("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"", pi.getData());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasPolicyErrors());
+	}
+
 	@Test
 	public void testStyleXSLProcessingInstruction() {
 		ProcessingInstruction pi = domImpl.createDocument(null, null, null)
@@ -1157,6 +1198,34 @@ public class DOMDocumentTest {
 		assertEquals(text, DOMDocument.escapeCloseTag("script", text));
 		text = "hello</script bye";
 		assertEquals(text, DOMDocument.escapeCloseTag("script", text));
+	}
+
+	@Test
+	public void testBaseAttribute() {
+		DOMDocument document = domImpl.createDocument("", "foo", null);
+		DOMElement element = document.getDocumentElement();
+		element.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base", "http://www.example.com/");
+		assertEquals("http://www.example.com/", element.getAttribute("xml:base"));
+		assertEquals("http://www.example.com/", document.getBaseURI());
+		Attr attr = element.getAttributeNode("xml:base");
+		assertNotNull(attr);
+		attr.setValue("jar:http://www.example.com/evil.jar!/file");
+		assertNull(document.getBaseURI());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasPolicyErrors());
+		//
+		document.getErrorHandler().reset();
+		document.setDocumentURI("http://www.example.com/foo.html");
+		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
+		assertEquals("jar:http://www.example.com/evil.jar!/file", attr.getValue());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasPolicyErrors());
+		//
+		document.getErrorHandler().reset();
+		attr.setValue("file:/dev/zero");
+		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasPolicyErrors());
 	}
 
 	@Test

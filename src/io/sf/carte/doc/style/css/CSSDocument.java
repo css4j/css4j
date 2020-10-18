@@ -222,6 +222,17 @@ public interface CSSDocument extends Document, DocumentCSS, DocumentStyle, CSSNo
 	boolean isSafeOrigin(URL linkedURL);
 
 	/**
+	 * Determine whether the retrieval of the given URL is authorized.
+	 * <p>
+	 * This check is less restrictive than {@link #isSafeOrigin(URL)}.
+	 * </p>
+	 * 
+	 * @param url the URL to check.
+	 * @return {@code true} if allowed.
+	 */
+	boolean isAuthorizedOrigin(URL url);
+
+	/**
 	 * Gets the Base URL of this Document.
 	 *
 	 * @return the base URL, or null if no base URL could be determined.

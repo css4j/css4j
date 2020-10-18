@@ -22,9 +22,7 @@ import java.util.Set;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.UserDataHandler;
 import org.w3c.dom.css.CSSStyleDeclaration;
 
@@ -811,23 +809,9 @@ abstract public class HTMLDocument extends DOMDocument {
 			} else if (tagname == "base") {
 				HTMLDocument doc = (HTMLDocument) getOwnerDocument();
 				String value = getValue();
-				if (value.length() != 0) {
-					URL base;
-					try {
-						base = new URL(value);
-					} catch (MalformedURLException e) {
-						if (doc != null) {
-							doc.baseURL = null;
-						}
-						return;
-					}
-					if (doc != null) {
-						doc.baseURL = base;
-					}
-				} else {
-					if (doc != null) {
-						doc.baseURL = null;
-					}
+				if (!setBaseURL(owner, value) && doc != null) {
+					// Set the baseURL field to null so it is re-computed
+					doc.baseURL = null;
 				}
 			}
 		}
@@ -898,37 +882,88 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	/**
+	 * Set the {@code BASE} URL obtained from the {@code href} attribute of the
+	 * given &lt;base&gt; element.
+	 * 
+	 * @param baseElement the &lt;base&gt; element.
+	 * @param base        the value of the {@code href} attribute.
+	 * @return {@code true} if the {@code BASE} URL was set.
+	 */
+	private boolean setBaseURL(DOMElement baseElement, String base) {
+		if (base.length() != 0) {
+			String docUri = getDocumentURI();
+			if (docUri != null) {
+				URL docUrl;
+				try {
+					docUrl = new URL(docUri);
+				} catch (MalformedURLException e) {
+					docUrl = null;
+				}
+				URL urlBase;
+				try {
+					if (docUrl != null) {
+						urlBase = new URL(docUrl, base);
+					} else {
+						urlBase = new URL(base);
+					}
+				} catch (MalformedURLException e) {
+					return false;
+				}
+				String docscheme = docUrl.getProtocol();
+				String bscheme = urlBase.getProtocol();
+				if (!docscheme.equals(bscheme)) {
+					if (!bscheme.equals("https") && !bscheme.equals("http") && !docscheme.equals("file")
+							&& !docscheme.equals("jar")) {
+						// Remote document wants to set a non-http base URI
+						getErrorHandler().policyError(baseElement,
+								"Remote document wants to set a non-http base URL: " + urlBase.toExternalForm());
+						return false;
+					}
+				}
+				baseURL = urlBase;
+				return true;
+			} else {
+				try {
+					URL urlBase = new URL(base);
+					String scheme = urlBase.getProtocol();
+					if (scheme.equals("https") || scheme.equals("http")) {
+						baseURL = urlBase;
+						return true;
+					}
+					// Remote document wants to set a non-http base URL
+				} catch (MalformedURLException e) {
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Gets the base URL of this Document.
 	 * <p>
 	 * If the Document's <code>head</code> element has a <code>base</code> child
 	 * element, the base URI is computed using the value of the href attribute of
 	 * the <code>base</code> element.
 	 * 
-	 * @return the base URL, or null if no base URL could be found.
+	 * @return the base URL, or {@code null} if no base URL could be found.
 	 */
 	@Override
 	public URL getBaseURL() {
 		if (baseURL == null) {
-			String buri = getDocumentURI();
-			NodeList nl = getElementsByTagName("base");
-			if (nl.getLength() != 0) { // This code is probably never called
-				Element elm = (Element) nl.item(0);
-				String s = elm.getAttribute("href");
-				if (s.length() > 0) {
-					if (buri != null && s.startsWith("//")) {
-						try {
-							URL url = new URL(buri);
-							url = new URL(url, s);
-							buri = url.toExternalForm();
-						} catch (MalformedURLException e) {
-						}
-					} else {
-						buri = s;
+			String docUri = getDocumentURI();
+			ElementList headnl = getElementsByTagName("head");
+			if (headnl.getLength() != 0) {
+				ElementList nl = headnl.item(0).getElementsByTagName("base");
+				if (nl.getLength() != 0) {
+					DOMElement elm = nl.item(0);
+					String s = elm.getAttribute("href");
+					if (setBaseURL(elm, s)) {
+						return baseURL;
 					}
 				}
 			}
 			try {
-				baseURL = new URL(buri);
+				baseURL = new URL(docUri);
 			} catch (MalformedURLException e) {
 			}
 		}

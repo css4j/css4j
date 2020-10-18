@@ -79,7 +79,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 			} catch (DOMException e) {
 				parent.getErrorHandler().badAtRule(e, getCssText());
 			} catch (IOException e) {
-				parent.getDocumentErrorHandler().ruleIOError(styleSheetURI, e);
+				parent.getDocumentErrorHandler().ioError(styleSheetURI, e);
 			}
 		}
 		return importedSheet;

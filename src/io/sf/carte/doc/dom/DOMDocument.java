@@ -575,8 +575,13 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		String referrerPolicy = getReferrerpolicyAttribute(ownerNode);
 		try {
 			URL url = getURL(href);
-			sheet.setHref(url.toExternalForm());
-			sheet.loadStyleSheet(url, referrerPolicy);
+			// Check URL safety
+			if (isAuthorizedOrigin(url)) {
+				sheet.setHref(url.toExternalForm());
+				sheet.loadStyleSheet(url, referrerPolicy);
+			} else {
+				getErrorHandler().policyError(ownerNode, "Unauthorized URL: " + url.toExternalForm());
+			}
 		} catch (Exception e) {
 			getErrorHandler().linkedSheetError(e, sheet);
 		}
@@ -2704,8 +2709,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	/**
 	 * Gets the absolute base URI of this node.
 	 * 
-	 * @return the absolute base URI of this node, or null if an absolute URI could not be
-	 *         obtained.
+	 * @return the absolute base URI of this node, or null if an absolute URI could
+	 *         not be obtained.
 	 */
 	@Override
 	public String getBaseURI() {
@@ -2714,15 +2719,48 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		if (elm != null) {
 			String attr = elm.getAttribute("xml:base");
 			if (attr.length() != 0) {
-				if (buri != null && attr.startsWith("//")) {
+				if (buri != null) {
+					// Relative url
+					URL docUrl;
 					try {
-						URL url = new URL(buri);
-						url = new URL(url, attr);
-						buri = url.toExternalForm();
+						docUrl = new URL(buri);
 					} catch (MalformedURLException e) {
+						docUrl = null;
+					}
+					URL bUrl;
+					try {
+						if (docUrl != null) {
+							bUrl = new URL(docUrl, attr);
+						} else {
+							bUrl = new URL(attr);
+						}
+					} catch (MalformedURLException e) {
+						return docUrl != null ? docUrl.toExternalForm() : null;
+					}
+					buri = bUrl.toExternalForm();
+					String docscheme = docUrl.getProtocol();
+					String bscheme = bUrl.getProtocol();
+					if (!docscheme.equals(bscheme)) {
+						if (!bscheme.equals("https") && !bscheme.equals("http") && !docscheme.equals("file")
+								&& !docscheme.equals("jar")) {
+							// Remote document wants to set a non-http base URI
+							getErrorHandler().policyError(elm,
+									"Remote document wants to set a non-http base URL: " + buri);
+							buri = docUrl != null ? docUrl.toExternalForm() : null;
+						}
 					}
 				} else {
-					buri = attr;
+					try {
+						URL bUrl = new URL(attr);
+						String bscheme = bUrl.getProtocol();
+						if (bscheme.equals("https") || bscheme.equals("http")) {
+							buri = attr;
+						} else {
+							getErrorHandler().policyError(elm,
+									"Untrusted document wants to set a non-http base URL: " + buri);
+						}
+					} catch (MalformedURLException e) {
+					}
 				}
 			}
 		}
@@ -2774,6 +2812,38 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			linkedPort = linkedURL.getDefaultPort();
 		}
 		return (docHost.equalsIgnoreCase(linkedHost) || linkedHost.endsWith(docHost)) && docPort == linkedPort;
+	}
+
+	/**
+	 * Determine whether the retrieval of the given URL is authorized.
+	 * <p>
+	 * If the URL's protocol is not {@code http} nor {@code https} and document's
+	 * base URL's scheme is neither {@code file} nor {@code jar}, it is denied.
+	 * </p>
+	 * <p>
+	 * Developers may want to override this implementation to enforce different
+	 * restrictions.
+	 * </p>
+	 * 
+	 * @param url the URL to check.
+	 * @return {@code true} if allowed.
+	 */
+	@Override
+	public boolean isAuthorizedOrigin(URL url) {
+		String scheme = url.getProtocol();
+		URL base = getBaseURL();
+		if (base != null) {
+			String baseScheme = base.getProtocol();
+			// To try to speed things up, only the parameter's scheme is compared
+			// case-insensitively
+			if (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http") && !baseScheme.equals("file")
+					&& !baseScheme.equals("jar")) {
+				return false;
+			}
+		} else if (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http")) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

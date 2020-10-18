@@ -27,6 +27,13 @@ import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 public interface ErrorHandler {
 
 	/**
+	 * Check whether this handler has processed any policy errors.
+	 * 
+	 * @return <code>true</code> if this handler processed any policy errors.
+	 */
+	boolean hasPolicyErrors();
+
+	/**
 	 * Check whether this handler has processed computed style errors.
 	 * <p>
 	 * Presentational hint errors are included in this category, as they are found
@@ -105,6 +112,15 @@ public interface ErrorHandler {
 	boolean hasWarnings();
 
 	/**
+	 * Report a policy error, including possible security issues.
+	 * 
+	 * @param node    the node that caused the policy violation, or where it was
+	 *                detected.
+	 * @param message a message describing the error.
+	 */
+	void policyError(Node node, String message);
+
+	/**
 	 * Report an error related to linked style, where it was not possible to create
 	 * the style sheet linked from <code>node</code> due to an issue with the given
 	 * node or other node in the document (as opposed to an issue with the linked
@@ -154,8 +170,21 @@ public interface ErrorHandler {
 	 * @param uri
 	 *            the uri for the resource.
 	 * @param exception the exception describing the problem.
+	 * @deprecated
+	 * @see #ioError(String, IOException)
 	 */
+	@Deprecated
 	void ruleIOError(String uri, IOException exception);
+
+	/**
+	 * A I/O error was found when retrieving a resource while processing an
+	 * attribute (usually {@code href}) or a rule, generally an {@literal @}import
+	 * or {@literal @}font-face rule.
+	 * 
+	 * @param uri       the uri for the resource.
+	 * @param exception the exception describing the problem.
+	 */
+	void ioError(String uri, IOException exception);
 
 	/**
 	 * Get the error handler for the given element's inline style.
