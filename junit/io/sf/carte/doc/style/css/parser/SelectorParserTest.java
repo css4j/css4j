@@ -110,6 +110,30 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorElementHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("\u208c");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
+		assertEquals("\u208c", ((ElementSelector) sel).getLocalName());
+		assertNull(((ElementSelector) sel).getNamespaceURI());
+		assertEquals("\u208c", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorElementSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("\ud83c\udf52");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
+		assertEquals("\ud83c\udf52", ((ElementSelector) sel).getLocalName());
+		assertNull(((ElementSelector) sel).getNamespaceURI());
+		assertEquals("\ud83c\udf52", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorElementEscaped() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("\\61 ");
 		assertNotNull(selist);
@@ -471,6 +495,91 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttribute4() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_a-b]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("_a-b", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_a-b]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\u208c]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\u208c]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeHighChar2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\u208c]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\u208c", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\u208c]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\ud83c\udf52]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\ud83c\udf52]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeSurrogate2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\ud83c\udf52]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\ud83c\udf52]", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorAttributeUniversal() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("*[title]");
 		assertNotNull(selist);
@@ -589,6 +698,15 @@ public class SelectorParserTest {
 	public void testParseSelectorAttributeError9() throws CSSException, IOException {
 		try {
 			parseSelectors("p[#title]");
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParseSelectorAttributeHighCharError() throws CSSException, IOException {
+		try {
+			parseSelectors("p[\u26a1]"); // ⚡ high voltage sign
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
@@ -796,6 +914,78 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\" i]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\u208c=\"hi\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\u208c=\"hi\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueHighChar2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\u208c=\"hi\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\u208c", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\u208c=\"hi\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\ud83c\udf52=\"hi\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\ud83c\udf52=\"hi\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueSurrogate2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\ud83c\udf52=\"hi\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\ud83c\udf52=\"hi\"]", sel.toString());
 	}
 
 	@Test
@@ -1146,6 +1336,74 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttributeValueOneOfHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\u208c~=\"hi\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ONE_OF_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\u208c~=\"hi\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueOneOfHighChar2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\u208c~=\"hi\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ONE_OF_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\u208c~=\"hi\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueOneOfSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\ud83c\udf52~=\"hi\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ONE_OF_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\ud83c\udf52~=\"hi\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueOneOfSurrogate2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\ud83c\udf52~=\"hi\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ONE_OF_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\ud83c\udf52~=\"hi\"]", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorAttributeHyphen() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("p[lang|=\"en\"]");
 		assertNotNull(selist);
@@ -1194,6 +1452,74 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang|=\"en\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeHyphenHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\u208c|=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.BEGIN_HYPHEN_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\u208c|=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeHyphenHighChar2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\u208c|=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.BEGIN_HYPHEN_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\u208c|=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeHyphenSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\ud83c\udf52|=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.BEGIN_HYPHEN_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\ud83c\udf52|=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeHyphenSurrogate2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\ud83c\udf52|=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.BEGIN_HYPHEN_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\ud83c\udf52|=\"foo\"]", sel.toString());
 	}
 
 	@Test
@@ -1249,6 +1575,74 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttributeSubstringHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\u208c*=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\u208c*=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeSubstringHighChar2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\u208c*=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\u208c*=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeSubstringSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\ud83c\udf52*=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\ud83c\udf52*=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeSubstringSurrogate2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\ud83c\udf52*=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\ud83c\udf52*=\"foo\"]", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorAttributeEndSuffix() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("p[lang$=\"CH\"]");
 		assertNotNull(selist);
@@ -1283,6 +1677,74 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttributeEndSuffixHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\u208c$=\"2/3\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ENDS_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("2/3", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\u208c$=\"2/3\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeEndSuffixHighChar2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\u208c$=\"2/3\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ENDS_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("2/3", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\u208c$=\"2/3\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeEndSuffixSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\ud83c\udf52$=\"2/3\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ENDS_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("2/3", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\ud83c\udf52$=\"2/3\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeEndSuffixSurrogate2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\ud83c\udf52$=\"2/3\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ENDS_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("2/3", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\ud83c\udf52$=\"2/3\"]", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorAttributeBeginPrefix() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("p[style^=\"display:\"]");
 		assertNotNull(selist);
@@ -1314,6 +1776,74 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[lang^=\"en\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeBeginPrefixHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\u208c^=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.BEGINS_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\u208c^=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeBeginPrefixHighChar2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\u208c^=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.BEGINS_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\u208c", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\u208c^=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeBeginPrefixSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[\ud83c\udf52^=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.BEGINS_ATTRIBUTE, cond.getConditionType());
+		assertEquals("\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[\ud83c\udf52^=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeBeginPrefixSurrogate2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[_\ud83c\udf52^=\"foo\"]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.BEGINS_ATTRIBUTE, cond.getConditionType());
+		assertEquals("_\ud83c\udf52", ((AttributeCondition) cond).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[_\ud83c\udf52^=\"foo\"]", sel.toString());
 	}
 
 	@Test
@@ -1453,6 +1983,19 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("exampleclass⁑", ((AttributeCondition) cond).getValue());
 		assertEquals(".exampleclass⁑", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorClassHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(".foo\u208c");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.CLASS, cond.getConditionType());
+		assertEquals("foo\u208c", ((AttributeCondition) cond).getValue());
+		assertEquals(".foo\u208c", sel.toString());
 	}
 
 	@Test
@@ -1921,6 +2464,32 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
 		assertEquals("#exampleid", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorIdHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("#\u208c");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ID, cond.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond).getValue());
+		assertEquals("#\u208c", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorIdSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("#\ud950\udc90");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ID, cond.getConditionType());
+		assertEquals("\ud950\udc90", ((AttributeCondition) cond).getValue());
+		assertEquals("#\ud950\udc90", sel.toString());
 	}
 
 	@Test
@@ -4448,6 +5017,78 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ID, cond3.getConditionType());
 		assertEquals("123", ((AttributeCondition) cond3).getValue());
 		assertEquals(":not([style*=\"*foo\"],div,.\\39 z,#\\31 23)", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNotAttrHighChar() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(":not([\u208c*=\"foo\"])");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
+		assertEquals("not", ((ArgumentCondition) cond).getName());
+		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
+		assertEquals(1, arglist.getLength());
+		Selector item0 = arglist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
+		Condition cond0 = ((ConditionalSelector) item0).getCondition();
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond0.getConditionType());
+		assertEquals("\u208c", ((AttributeCondition) cond0).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond0).getValue());
+		assertEquals(":not([\u208c*=\"foo\"])", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNotAttrSurrogate() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(":not([\ud83c\udf52*=\"foo\"])");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
+		assertEquals("not", ((ArgumentCondition) cond).getName());
+		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
+		assertEquals(1, arglist.getLength());
+		Selector item0 = arglist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
+		Condition cond0 = ((ConditionalSelector) item0).getCondition();
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond0.getConditionType());
+		assertEquals("\ud83c\udf52", ((AttributeCondition) cond0).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond0).getValue());
+		assertEquals(":not([\ud83c\udf52*=\"foo\"])", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNotAttrSurrogate2() throws CSSException, IOException {
+		SelectorList selist = parseSelectors(":not([_\ud83c\udf52*=\"foo\"])");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
+		assertEquals("not", ((ArgumentCondition) cond).getName());
+		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
+		assertEquals(1, arglist.getLength());
+		Selector item0 = arglist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
+		Condition cond0 = ((ConditionalSelector) item0).getCondition();
+		assertEquals(ConditionType.SUBSTRING_ATTRIBUTE, cond0.getConditionType());
+		assertEquals("_\ud83c\udf52", ((AttributeCondition) cond0).getLocalName());
+		assertEquals("foo", ((AttributeCondition) cond0).getValue());
+		assertEquals(":not([_\ud83c\udf52*=\"foo\"])", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassNotAttrHighCharError() throws CSSException, IOException {
+		try {
+			parseSelectors(":not(p[\u26a1])"); // ⚡ high voltage sign
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {
+		}
 	}
 
 	@Test
