@@ -315,6 +315,22 @@ public class DOMDocumentTest {
 	}
 
 	@Test
+	public void testCreateElementNSHighChar() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+		DOMElement element = document.createElementNS(null, "\u208c");
+		assertEquals("\u208c", element.getLocalName());
+		assertEquals("\u208c", element.getTagName());
+	}
+
+	@Test
+	public void testCreateElementNSSurrogate() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+		DOMElement element = document.createElementNS(null, "\ud83c\udf52");
+		assertEquals("\ud83c\udf52", element.getLocalName());
+		assertEquals("\ud83c\udf52", element.getTagName());
+	}
+
+	@Test
 	public void testCreateElementError() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
 		try {
@@ -402,6 +418,17 @@ public class DOMDocumentTest {
 		}
 		try {
 			document.createElementNS("http://www.example.com/examplens", ":foo");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testCreateElementNSHighCharError() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+		try {
+			document.createElementNS(null, "\u26a1");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
