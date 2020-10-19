@@ -968,6 +968,41 @@ public class ParseHelper {
 				|| (codePoint >= 0x61 && codePoint <= 0x66);
 	}
 
+	/**
+	 * Check if the code point is a valid XML name character.
+	 * 
+	 * @param cp the code point.
+	 * @return true if is a valid XML character, excluding a-z, A-Z, 0-9.
+	 */
+	static boolean isValidXMLCharacter(int cp) {
+		return cp == 0x2d // -
+				|| cp == 0x2e // .
+				|| cp == 0xB7 // Middle dot
+				|| isValidXMLStartCharacter(cp);
+	}
+
+	/**
+	 * Check if the code point is a valid XML name start character.
+	 * 
+	 * @param cp the code point.
+	 * @return true if is a valid XML start character, excluding a-z, A-Z.
+	 */
+	static boolean isValidXMLStartCharacter(int cp) {
+		return cp == 0x5f // _
+				|| (cp >= 0xC0 && cp <= 0xD6) // #xC0-#xD6
+				|| (cp >= 0xD8 && cp <= 0xF6) // #xD8-#xF6
+				|| (cp >= 0xF8 && cp <= 0x2FF) // #xF8-#x2FF
+				|| (cp >= 0x370 && cp <= 0x37D) // #x370-#x37D
+				|| (cp >= 0x37F && cp <= 0x1FFF) // #x37F-#x1FFF
+				|| (cp >= 0x200C && cp <= 0x200D) // #x200C-#x200D
+				|| (cp >= 0x2070 && cp <= 0x218F) // #x2070-#x218F
+				|| (cp >= 0x2C00 && cp <= 0x2FEF) // #x2C00-#x2FEF
+				|| (cp >= 0x3001 && cp <= 0xDFFF) // #x3001-#xD7FF + surrogates #xD800-#xDFFF
+				|| (cp >= 0xF900 && cp <= 0xFDCF) // #xF900-#xFDCF
+				|| (cp >= 0xFDF0 && cp <= 0xFFFD) // #xFDF0-#xFFFD
+				|| (cp >= 0x10000 && cp <= 0xEFFFF); // #x10000-#xEFFFF (only String parse() variants)
+	}
+
 	public static boolean equalSelectorList(SelectorList list1, SelectorList list2) {
 		if (list1 == null) {
 			return list2 == null;

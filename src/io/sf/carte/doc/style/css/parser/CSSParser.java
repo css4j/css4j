@@ -3249,6 +3249,8 @@ public class CSSParser implements Parser2 {
 				} else if (stage == STAGE_ATTR_START) {
 					if (buffer.length() != 0) {
 						stage = STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE;
+					} else if (namespacePrefix != null) {
+						unexpectedCharError(index, codepoint);
 					}
 					return;
 				}
@@ -3710,10 +3712,25 @@ public class CSSParser implements Parser2 {
 						} else {
 							unexpectedCharError(index, codepoint);
 						}
-					} else if (((buffer.length() == 0 && namespacePrefix == null)
-							|| (codepoint != TokenProducer.CHAR_TILDE && codepoint != TokenProducer.CHAR_DOLLAR
-									&& codepoint != TokenProducer.CHAR_CIRCUMFLEX_ACCENT))
+					} else if (buffer.length() == 0) {
+						if (codepoint != TokenProducer.CHAR_TILDE && codepoint != TokenProducer.CHAR_DOLLAR
+								&& codepoint != TokenProducer.CHAR_CIRCUMFLEX_ACCENT
+								&& codepoint != TokenProducer.CHAR_ASTERISK) {
+							if (stage == STAGE_ATTR_START && ParseHelper.isValidXMLStartCharacter(codepoint)) {
+								bufferAppend(codepoint);
+								prevcp = 65;
+								return;
+							}
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (codepoint != TokenProducer.CHAR_TILDE && codepoint != TokenProducer.CHAR_DOLLAR
+							&& codepoint != TokenProducer.CHAR_CIRCUMFLEX_ACCENT
 							&& codepoint != TokenProducer.CHAR_ASTERISK) {
+						if (stage == STAGE_ATTR_START && ParseHelper.isValidXMLCharacter(codepoint)) {
+							bufferAppend(codepoint);
+							prevcp = 65;
+							return;
+						}
 						unexpectedCharError(index, codepoint);
 					}
 				} else if (codepoint == 42) { // *
@@ -3823,10 +3840,26 @@ public class CSSParser implements Parser2 {
 						buffer.append('-');
 					} else if (codepoint == 95) { // _
 						buffer.append('_');
-					} else if (stage < 8 || isUnexpectedCharacter(codepoint)) {
-						unexpectedCharError(index, codepoint);
 					} else {
-						bufferAppend(codepoint);
+						if (stage < 8) {
+							if (stage == 0) {
+								if (ParseHelper.isValidXMLStartCharacter(codepoint)) {
+									bufferAppend(codepoint);
+									stage = 1;
+									prevcp = 65;
+									return;
+								}
+							} else if (ParseHelper.isValidXMLCharacter(codepoint)) {
+								bufferAppend(codepoint);
+								prevcp = 65;
+								return;
+							}
+						} else if (!isUnexpectedCharacter(codepoint)) {
+							bufferAppend(codepoint);
+							prevcp = 65;
+							return;
+						}
+						unexpectedCharError(index, codepoint);
 					}
 				}
 			}
