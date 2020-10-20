@@ -2237,6 +2237,17 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 	}
 
+	@Override
+	void postAddChild(AbstractDOMNode newChild) {
+		super.postAddChild(newChild);
+		String data;
+		if (newChild.getNodeType() == Node.PROCESSING_INSTRUCTION_NODE
+				&& "xml-stylesheet".equals(newChild.getNodeName()) && (data = newChild.getNodeValue()) != null
+				&& data.contains("text/css")) {
+			onSheetModify();
+		}
+	}
+
 	@Deprecated
 	@Override
 	public Node renameNode(Node n, String namespaceURI, String qualifiedName) throws DOMException {
