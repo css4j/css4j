@@ -383,6 +383,54 @@ public class ImportRuleTest {
 	}
 
 	@Test
+	public void testDisallowedURL() throws DOMException, ParserConfigurationException {
+		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
+		Element head = doc.createElement("head");
+		Element style = doc.createElement("style");
+		style.setAttribute("id", "styleId");
+		style.setIdAttribute("id", true);
+		style.setAttribute("type", "text/css");
+		style.setTextContent("@import 'jar:http://www.example.com/evil.jar!/file';");
+		doc.getDocumentElement().appendChild(head);
+		head.appendChild(style);
+		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
+		CSSElement cssStyle = cssdoc.getElementById("styleId");
+		assertNotNull(cssStyle);
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
+		assertEquals(1, sheet.getCssRules().getLength());
+		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
+		assertFalse(cssdoc.getErrorHandler().hasErrors());
+		AbstractCSSStyleSheet imported = imp.getStyleSheet();
+		assertNotNull(imported);
+		CSSRuleArrayList list = imported.getCssRules();
+		assertEquals(0, list.getLength());
+		assertEquals("@import url('jar:http://www.example.com/evil.jar!/file'); ", imp.getCssText());
+		assertEquals("@import 'jar:http://www.example.com/evil.jar!/file';", imp.getMinifiedCssText());
+		//
+		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasSacWarnings());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		assertFalse(sheet.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(imported.getErrorHandler().hasSacErrors());
+		assertFalse(imported.getErrorHandler().hasSacWarnings());
+		assertFalse(imported.getErrorHandler().hasOMErrors());
+		assertFalse(imported.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(docsheet.getErrorHandler().hasSacErrors());
+		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
+		assertFalse(docsheet.getErrorHandler().hasOMErrors());
+		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
+		//
+		assertFalse(cssdoc.getErrorHandler().hasIOErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
+		assertTrue(cssdoc.getErrorHandler().hasErrors());
+		assertTrue(cssdoc.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test
 	public void testIOError() throws DOMException, ParserConfigurationException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
