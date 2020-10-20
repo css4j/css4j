@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +37,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.SelectorMatcher;
-import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.DummyDeviceFactory.DummyCanvas;
@@ -2076,7 +2075,7 @@ public class SelectorMatcherTest {
 		assertTrue(statePseudoClasses.isEmpty());
 	}
 
-	static CSSElement createElement(String name) throws ParserConfigurationException {
+	static CSSElement createElement(String name) {
 		CSSElement elm = doc.createElement(name);
 		doc.getDocumentElement().appendChild(elm);
 		return elm;
@@ -2086,7 +2085,7 @@ public class SelectorMatcherTest {
 		return new DOMSelectorMatcher((CSSElement) elm);
 	}
 
-	public BaseCSSStyleSheet parseStyle(String style) throws CSSException, IOException {
+	public BaseCSSStyleSheet parseStyle(String style) throws CSSParseException, IOException {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		StringReader re = new StringReader(style);

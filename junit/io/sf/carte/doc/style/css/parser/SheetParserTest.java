@@ -1191,8 +1191,8 @@ public class SheetParserTest {
 		assertEquals("my-style", handler.propertyNames.get(3));
 		assertEquals(4, handler.lexicalValues.size());
 		assertEquals("red", handler.lexicalValues.get(0).toString());
-		assertEquals("'Mechanical Bold'", handler.lexicalValues.get(1).toString());
-		assertEquals("url('font/MechanicalBd.otf')", handler.lexicalValues.get(2).toString());
+		assertEquals("'OpenSans Regular'", handler.lexicalValues.get(1).toString());
+		assertEquals("url('/fonts/OpenSans-Regular.ttf')", handler.lexicalValues.get(2).toString());
 		assertEquals("2", handler.lexicalValues.get(3).toString());
 		assertEquals(4, handler.priorities.size());
 		assertNull(handler.priorities.get(0));

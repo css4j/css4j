@@ -53,6 +53,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
@@ -970,7 +971,7 @@ public class HTMLDocumentTest {
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
-		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
+		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
@@ -1030,7 +1031,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 		xhtmlDoc.getErrorHandler().reset();
 		// Check for non-existing property
 		assertNull(styledecl.getPropertyCSSValue("does-not-exist"));
@@ -1079,7 +1080,7 @@ public class HTMLDocumentTest {
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
@@ -1118,7 +1119,7 @@ public class HTMLDocumentTest {
 		assertEquals(12.96f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		/*
 		 * attr() value in calc(), fallback.
@@ -1589,7 +1590,7 @@ public class HTMLDocumentTest {
 		assertEquals("", styledecl.getPropertyValue("does-not-exist"));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
@@ -1763,6 +1764,7 @@ public class HTMLDocumentTest {
 		link.setAttribute("media", "screen only and");
 		assertNull(link.getSheet());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasMediaErrors());
 	}
 
 	@Test
@@ -1777,6 +1779,7 @@ public class HTMLDocumentTest {
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == link);
+		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
@@ -1947,6 +1950,22 @@ public class HTMLDocumentTest {
 		element.setAttribute("size", "12pt");
 		assertTrue(element.hasPresentationalHints());
 		assertFalse(element.isVoid());
+	}
+
+	@Test
+	public void testFontIOError() {
+		DOMElement head = xhtmlDoc.getElementsByTagName("head").item(0);
+		DOMElement style = xhtmlDoc.createElement("style");
+		style.setAttribute("type", "text/css");
+		style.setTextContent("@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf');}");
+		head.appendChild(style);
+		DOMElement elm = xhtmlDoc.getElementById("firstH3");
+		assertNotNull(elm);
+		elm.getComputedStyle(null);
+		ErrorHandler errHandler = xhtmlDoc.getErrorHandler();
+		assertNotNull(errHandler);
+		assertTrue(errHandler.hasIOErrors());
+		assertTrue(errHandler.hasErrors());
 	}
 
 	@Test

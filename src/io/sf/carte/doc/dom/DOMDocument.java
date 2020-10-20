@@ -55,6 +55,7 @@ import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
@@ -569,7 +570,12 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		if (media.length() == 0) {
 			mediaList = MediaFactory.createImmutable();
 		} else {
-			mediaList = getStyleSheetFactory().createImmutableMediaQueryList(media, node);
+			try {
+				mediaList = getStyleSheetFactory().createImmutableMediaQueryList(media, node);
+			} catch (CSSBudgetException e) {
+				getErrorHandler().linkedStyleError(node, e.getMessage());
+				return null;
+			}
 			if (mediaList.isNotAllMedia() && mediaList.hasErrors()) {
 				return null;
 			}
@@ -597,6 +603,10 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			} else {
 				getErrorHandler().policyError(ownerNode, "Unauthorized URL: " + url.toExternalForm());
 			}
+		} catch (IOException e) {
+			getErrorHandler().ioError(href, e);
+		} catch (DOMException e) {
+			// Already logged
 		} catch (Exception e) {
 			getErrorHandler().linkedSheetError(e, sheet);
 		}

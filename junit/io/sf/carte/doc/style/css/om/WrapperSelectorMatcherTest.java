@@ -18,8 +18,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.StringReader;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMImplementation;
@@ -698,7 +696,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(3, sp.names_pseudoelements_count);
 	}
 
-	private Element createElement(String name) throws ParserConfigurationException {
+	private Element createElement(String name) {
 		Element elm = plaindoc.createElement(name);
 		plaindoc.getDocumentElement().appendChild(elm);
 		return elm;

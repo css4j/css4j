@@ -151,7 +151,7 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 
 	@Override
 	public boolean hasErrors() {
-		return hasInlineErrors() || hasComputedStyleErrors() || hasMediaErrors() || hasPolicyErrors();
+		return hasInlineErrors() || hasComputedStyleErrors() || hasMediaErrors() || hasIOErrors() || hasPolicyErrors();
 	}
 
 	@Override

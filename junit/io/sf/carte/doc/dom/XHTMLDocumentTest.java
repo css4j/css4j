@@ -46,6 +46,7 @@ import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
@@ -590,7 +591,7 @@ public class XHTMLDocumentTest {
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
-		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
+		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
@@ -648,7 +649,7 @@ public class XHTMLDocumentTest {
 		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
-		assertTrue(xmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasIOErrors());
 		xmlDoc.getErrorHandler().reset();
 		// Error in inline style
 		style.setCssText("width:calc(80%-)");
@@ -694,7 +695,7 @@ public class XHTMLDocumentTest {
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
 		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
-		assertTrue(xmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
@@ -821,6 +822,22 @@ public class XHTMLDocumentTest {
 		attr.setValue("http://www.example.com/other/base/");
 		base.setAttributeNode(attr);
 		assertEquals("http://www.example.com/other/base/", xmlDoc.getBaseURI());
+	}
+
+	@Test
+	public void testFontIOError() {
+		DOMElement head = xmlDoc.getElementsByTagName("head").item(0);
+		DOMElement style = xmlDoc.createElement("style");
+		style.setAttribute("type", "text/css");
+		style.setTextContent("@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf');}");
+		head.appendChild(style);
+		DOMElement elm = xmlDoc.getElementById("firstH3");
+		assertNotNull(elm);
+		elm.getComputedStyle(null);
+		ErrorHandler errHandler = xmlDoc.getErrorHandler();
+		assertNotNull(errHandler);
+		assertTrue(errHandler.hasIOErrors());
+		assertTrue(errHandler.hasErrors());
 	}
 
 	@Test

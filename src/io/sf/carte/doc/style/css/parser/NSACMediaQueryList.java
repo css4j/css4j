@@ -27,6 +27,7 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
@@ -330,7 +331,7 @@ class NSACMediaQueryList implements MediaQueryList {
 	 *         query list already contains a valid query, it will never return
 	 *         <code>false</code>.
 	 */
-	boolean parse(Parser parser, String mediaQueryString, Node owner) {
+	boolean parse(Parser parser, String mediaQueryString, Node owner) throws CSSBudgetException {
 		invalidQueryList = false;
 		MyMediaQueryHandler qhandler = new MyMediaQueryHandler(owner);
 		parser.parseMediaQueryList(mediaQueryString, new NSACMediaQueryFactory(), qhandler);

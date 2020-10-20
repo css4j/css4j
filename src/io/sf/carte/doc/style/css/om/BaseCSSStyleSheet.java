@@ -743,12 +743,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		} catch (DOMException e) {
 			getDocumentErrorHandler().linkedSheetError(e, this);
 			throw e;
-		} catch (IOException e) {
-			getDocumentErrorHandler().linkedSheetError(e, this);
-			throw e;
-		} catch (CSSException e) {
-			getDocumentErrorHandler().linkedSheetError(e, this);
-			throw e;
 		} finally {
 			try {
 				is.close();
