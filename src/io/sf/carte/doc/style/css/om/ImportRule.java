@@ -17,8 +17,10 @@ import java.io.StringReader;
 import java.net.URL;
 
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSImportRule;
 
+import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -70,13 +72,13 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	public AbstractCSSStyleSheet getStyleSheet() {
 		if (importedSheet == null) {
 			AbstractCSSStyleSheet parent = getParentStyleSheet();
-			importedSheet = parent.getStyleSheetFactory().createRuleStyleSheet(this, parent.getTitle(),
-					mediaList);
+			importedSheet = parent.getStyleSheetFactory().createRuleStyleSheet(this, parent.getTitle(), mediaList);
 			importedSheet.setParentStyleSheet(parent);
 			// Load the sheet
 			try {
 				loadStyleSheet();
 			} catch (DOMException e) {
+				// The exception was already reported, but here we give the rule text.
 				parent.getErrorHandler().badAtRule(e, getCssText());
 			} catch (IOException e) {
 				parent.getDocumentErrorHandler().ioError(styleSheetURI, e);
@@ -88,15 +90,29 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	/**
 	 * Loads and parses an imported CSS style sheet.
 	 * 
-	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, false
-	 *         otherwise.
-	 * @throws IOException
-	 *             if a problem appears fetching or resolving the uri contents.
-	 * @throws DOMException
-	 *             if there is a problem building the sheet's DOM.
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal
+	 *         errors and the sheet URL is allowed, <code>false</code> otherwise.
+	 * @throws IOException  if a problem appears fetching or resolving the uri
+	 *                      contents.
+	 * @throws DOMException if there is a problem building the sheet's DOM.
 	 */
 	private boolean loadStyleSheet() throws IOException, DOMException {
 		URL styleSheetURL = getURL(getHref());
+		Node owner = getParentStyleSheet().getOwnerNode();
+		CSSDocument cssdoc;
+		if (owner != null) {
+			if (owner.getNodeType() == Node.DOCUMENT_NODE) {
+				cssdoc = (CSSDocument) owner;
+			} else {
+				cssdoc = (CSSDocument) owner.getOwnerDocument();
+			}
+		} else {
+			cssdoc = null;
+		}
+		if (cssdoc != null && !cssdoc.isAuthorizedOrigin(styleSheetURL)) {
+			cssdoc.getErrorHandler().policyError(owner, "Unauthorized @import URL: " + styleSheetURL.toExternalForm());
+			return false;
+		}
 		// load & Parse
 		return importedSheet.loadStyleSheet(styleSheetURL, "");
 	}
@@ -105,8 +121,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	public void setCssText(String cssText) throws DOMException {
 		AbstractCSSStyleSheet parentSS = getParentStyleSheet();
 		if (parentSS == null) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR,
-					"This rule must be added to a sheet first");
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "This rule must be added to a sheet first");
 		}
 		// Create, load & Parse
 		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this, null, null);
