@@ -18,9 +18,11 @@ import java.net.URL;
 
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
 
+import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.ExtendedCSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -77,6 +79,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 			try {
 				loadStyleSheet();
 			} catch (DOMException e) {
+				// The exception was already reported, but here we give the rule text.
 				parent.getErrorHandler().badAtRule(e, getCssText());
 			} catch (IOException e) {
 				parent.getDocumentErrorHandler().ioError(styleSheetURI, e);
@@ -97,6 +100,21 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 	 */
 	private boolean loadStyleSheet() throws IOException, DOMException {
 		URL styleSheetURL = getURL(getHref());
+		Node owner = getParentStyleSheet().getOwnerNode();
+		CSSDocument cssdoc;
+		if (owner != null) {
+			if (owner.getNodeType() == Node.DOCUMENT_NODE) {
+				cssdoc = (CSSDocument) owner;
+			} else {
+				cssdoc = (CSSDocument) owner.getOwnerDocument();
+			}
+		} else {
+			cssdoc = null;
+		}
+		if (cssdoc != null && !cssdoc.isAuthorizedOrigin(styleSheetURL)) {
+			cssdoc.getErrorHandler().policyError(owner, "Unauthorized @import URL: " + styleSheetURL.toExternalForm());
+			return false;
+		}
 		// load & Parse
 		return importedSheet.loadStyleSheet(styleSheetURL, "");
 	}
@@ -174,6 +192,11 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, ExtendedCS
 		}
 		buf.append(';');
 		return buf.toString();
+	}
+
+	@Override
+	boolean hasErrorsOrWarnings() {
+		return mediaList != null && mediaList.hasErrors();
 	}
 
 	@Override
