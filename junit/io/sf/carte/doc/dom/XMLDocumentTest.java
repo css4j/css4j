@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -35,7 +36,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-import org.w3c.dom.css.CSSStyleSheet;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -44,15 +44,19 @@ import io.sf.carte.doc.dom.DOMDocument.LinkStyleProcessingInstruction;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.ErrorHandler;
+import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
 import io.sf.carte.doc.style.css.om.StyleRule;
+import io.sf.carte.doc.style.css.om.StyleSheetList;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class XMLDocumentTest {
@@ -739,7 +743,7 @@ public class XMLDocumentTest {
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
-		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
+		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
@@ -788,6 +792,11 @@ public class XMLDocumentTest {
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
 		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
 		assertEquals(15, styledecl.getLength());
+		//
+		ErrorHandler errHandler = xmlDoc.getErrorHandler();
+		assertNotNull(errHandler);
+		assertFalse(errHandler.hasErrors());
+		assertFalse(errHandler.hasIOErrors());
 	}
 
 	@Test
@@ -871,7 +880,7 @@ public class XMLDocumentTest {
 	@Test
 	public void testLinkElement() {
 		LinkStyleDefiner link = (LinkStyleDefiner) xmlDoc.getLinkedStyleNodeList().item(0);
-		CSSStyleSheet sheet = link.getSheet();
+		AbstractCSSStyleSheet sheet = link.getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() != 0);
@@ -904,6 +913,34 @@ public class XMLDocumentTest {
 	}
 
 	@Test
+	public void testAppendStyleProcessingInstruction() {
+		StyleSheetList list = xmlDoc.getStyleSheets();
+		assertNotNull(list);
+		assertEquals(6, list.getLength());
+		DOMElement head = xmlDoc.getElementsByTagName("head").item(0);
+		DOMElement style = xmlDoc.createElement("style");
+		style.setAttribute("id", "styleFontFamily");
+		style.setIdAttribute("id", true);
+		style.setAttribute("type", "text/css");
+		style.setTextContent("span.foospan{font-family:'Mechanical Bold'}");
+		head.appendChild(style);
+		list = xmlDoc.getStyleSheets();
+		assertEquals(6, list.getLength());
+		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"#styleFontFamily\"");
+		xmlDoc.insertBefore(pi, xmlDoc.getDocumentElement());
+		//
+		list = xmlDoc.getStyleSheets();
+		assertEquals(7, list.getLength());
+		AbstractCSSStyleSheet item = list.item(6);
+		CSSStyleSheet<?> sheet = ((LinkStyle<?>) pi).getSheet();
+		assertSame(sheet, item);
+		//
+		head.getComputedStyle(null);
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testCascade() throws IOException {
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader();
 		xmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
@@ -918,4 +955,5 @@ public class XMLDocumentTest {
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
 	}
+
 }

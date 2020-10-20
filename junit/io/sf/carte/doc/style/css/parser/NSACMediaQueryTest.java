@@ -30,7 +30,6 @@ import org.w3c.dom.Element;
 import io.sf.carte.doc.agent.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
@@ -423,7 +422,7 @@ public class NSACMediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalidCompat() throws DOMException, ParserConfigurationException, CSSMediaException {
+	public void testGetCssMediaInvalidCompat() throws DOMException, ParserConfigurationException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
 		Element head = doc.createElement("head");

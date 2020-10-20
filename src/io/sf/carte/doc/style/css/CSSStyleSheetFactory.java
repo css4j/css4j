@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.agent.DeviceFactory;
@@ -74,12 +75,11 @@ public interface CSSStyleSheetFactory {
 	 * appropriately merged with the other style sheets.
 	 * </p>
 	 *
-	 * @param re
-	 *            the reader with the user style sheet.
-	 * @throws IOException
-	 *             if there is a problem retrieving the reader.
+	 * @param re the reader with the user style sheet.
+	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws IOException  if there is a problem retrieving the reader.
 	 */
-	void setUserStyleSheet(Reader re) throws IOException;
+	void setUserStyleSheet(Reader re) throws DOMException, IOException;
 
 	/**
 	 * Set a configuration flag. Do not confuse with NSAC flags, which must be set

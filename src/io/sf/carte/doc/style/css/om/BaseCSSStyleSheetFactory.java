@@ -18,6 +18,7 @@ import java.io.Reader;
 import java.util.EnumSet;
 import java.util.Locale;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.agent.DeviceFactory;
@@ -30,6 +31,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 import io.sf.carte.doc.style.css.property.ColorValue;
@@ -157,25 +159,19 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	/**
 	 * Sets the CSS style sheet defined by the end-user.
 	 * <p>
-	 * The sheet in the supplied reader should contain user preferences, and
-	 * will be appropriately merged with the other style sheets.
+	 * The sheet in the supplied reader should contain user preferences, and will be
+	 * appropriately merged with the other style sheets.
 	 * </p>
 	 * 
-	 * @param re
-	 *            the reader with the user style sheet.
-	 * @throws IOException
-	 *             if there is a problem retrieving the reader.
+	 * @param re the reader with the user style sheet.
+	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws IOException  if there is a problem retrieving the reader.
 	 */
 	@Override
-	public void setUserStyleSheet(Reader re) throws IOException {
+	public void setUserStyleSheet(Reader re) throws DOMException, IOException {
 		if (re != null) {
-			AbstractCSSStyleSheet cssSheet;
-			try {
-				cssSheet = createDocumentStyleSheet(ORIGIN_USER);
-				cssSheet.parseStyleSheet(re);
-			} catch (IOException e) {
-				throw e;
-			}
+			AbstractCSSStyleSheet cssSheet = createDocumentStyleSheet(ORIGIN_USER);
+			cssSheet.parseStyleSheet(re);
 			this.userImportantSheet = createDocumentStyleSheet(ORIGIN_USER_IMPORTANT);
 			this.userNormalSheet = createDocumentStyleSheet(ORIGIN_USER);
 			userNormalSheet.getCssRules().ensureCapacity(cssSheet.getCssRules().getLength());
@@ -434,9 +430,10 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return a new media list for <code>mediaQueryString</code>.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
 	 */
 	@Override
-	public MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) {
+	public MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) throws CSSBudgetException {
 		if (mediaQueryString == null) {
 			return new MediaQueryListImpl();
 		}
@@ -452,9 +449,10 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return the unmodifiable media list.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
 	 */
 	@Override
-	public MediaQueryList createImmutableMediaQueryList(String media, Node owner) {
+	public MediaQueryList createImmutableMediaQueryList(String media, Node owner) throws CSSBudgetException {
 		if (media == null) {
 			return MediaQueryListImpl.createUnmodifiable();
 		}
@@ -469,8 +467,9 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return a new media query list for <code>mediaQueryString</code>.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
 	 */
-	MediaQueryList parseMediaQueryList(String mediaQueryString, Node owner) {
+	MediaQueryList parseMediaQueryList(String mediaQueryString, Node owner) throws CSSBudgetException {
 		Parser parser = new CSSOMParser();
 		if (getParserFlags().contains(Parser.Flag.IEVALUES)) {
 			parser.setFlag(Parser.Flag.IEVALUES);

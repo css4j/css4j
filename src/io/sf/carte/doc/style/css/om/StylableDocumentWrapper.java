@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.WeakReference;
@@ -59,6 +60,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -1156,12 +1158,16 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	}
 
-	private MediaQueryList parseMediaList(String media, Node ownerNode) {
+	private MediaQueryList parseMediaList(String media, Node ownerNode) throws CSSMediaException {
 		MediaQueryList mediaList;
 		if (media.length() == 0) {
 			mediaList = new MediaQueryListImpl().unmodifiable();
 		} else {
-			mediaList = getStyleSheetFactory().createMediaQueryList(media, ownerNode);
+			try {
+				mediaList = getStyleSheetFactory().createMediaQueryList(media, ownerNode);
+			} catch (CSSBudgetException e) {
+				throw new CSSMediaException(e);
+			}
 			if (mediaList.isNotAllMedia() && mediaList.hasErrors()) {
 				return null;
 			}
@@ -1171,7 +1177,13 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	private AbstractCSSStyleSheet parseEmbeddedStyleSheet(AbstractCSSStyleSheet sheet, String styleText, String title,
 			String media, Node ownerNode) {
-		MediaQueryList mediaList = parseMediaList(media.trim(), ownerNode);
+		MediaQueryList mediaList;
+		try {
+			mediaList = parseMediaList(media.trim(), ownerNode);
+		} catch (CSSMediaException e) {
+			getErrorHandler().mediaQueryError(ownerNode, e);
+			mediaList = null;
+		}
 		if (mediaList != null) {
 			if (sheet == null) {
 				sheet = getStyleSheetFactory().createLinkedStyleSheet(ownerNode, title, mediaList);
@@ -1197,8 +1209,15 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 	}
 
-	private AbstractCSSStyleSheet loadStyleSheet(AbstractCSSStyleSheet sheet, String href, String title, String media, Node ownerNode) {
-		MediaQueryList mediaList = parseMediaList(media.trim(), ownerNode);
+	private AbstractCSSStyleSheet loadStyleSheet(AbstractCSSStyleSheet sheet, String href, String title, String media,
+			Node ownerNode) {
+		MediaQueryList mediaList;
+		try {
+			mediaList = parseMediaList(media.trim(), ownerNode);
+		} catch (CSSMediaException e) {
+			getErrorHandler().mediaQueryError(ownerNode, e);
+			mediaList = null;
+		}
 		if (mediaList != null) {
 			String referrerPolicy = getReferrerpolicyAttribute(ownerNode);
 			if (sheet == null) {
@@ -1216,6 +1235,10 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				} else {
 					getErrorHandler().policyError(ownerNode, "Unauthorized URL: " + url.toExternalForm());
 				}
+			} catch (IOException e) {
+				getErrorHandler().ioError(href, e);
+			} catch (DOMException e) {
+				// Already logged
 			} catch (Exception e) {
 				getErrorHandler().linkedSheetError(e, sheet);
 			}

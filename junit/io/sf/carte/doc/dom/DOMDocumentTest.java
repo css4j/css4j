@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -38,8 +39,11 @@ import org.w3c.dom.Text;
 
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
+import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
+import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
+import io.sf.carte.doc.style.css.om.StyleSheetList;
 
 public class DOMDocumentTest {
 
@@ -861,6 +865,43 @@ public class DOMDocumentTest {
 		assertEquals("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"", pi.getData());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
+		//
+		StyleSheetList list = document.getStyleSheets();
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		AbstractCSSStyleSheet item = list.item(0);
+		assertSame(sheet, item);
+	}
+
+	@Test
+	public void testFontIOError() {
+		DOMDocument document = domImpl.createDocument("", "foo", null);
+		DOMElement element = document.getDocumentElement();
+		element.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base", "http://www.example.com/");
+		DOMElement style = document.createElement("style");
+		style.setAttribute("id", "styleBadFont");
+		style.setIdAttribute("id", true);
+		style.setAttribute("type", "text/css");
+		style.setTextContent("@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf');}");
+		element.appendChild(style);
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"#styleBadFont\"");
+		document.insertBefore(pi, element);
+		//
+		CSSStyleSheet<?> sheet = ((LinkStyle<?>) pi).getSheet();
+		StyleSheetList list = document.getStyleSheets();
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		AbstractCSSStyleSheet item = list.item(0);
+		assertSame(sheet, item);
+		//
+		ErrorHandler errHandler = document.getErrorHandler();
+		assertNotNull(errHandler);
+		assertFalse(errHandler.hasErrors());
+		element.getComputedStyle(null);
+		//
+		assertTrue(errHandler.hasIOErrors());
+		assertTrue(errHandler.hasErrors());
 	}
 
 	@Test
