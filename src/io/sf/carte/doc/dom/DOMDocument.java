@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
@@ -554,7 +555,12 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		if (media.length() == 0) {
 			mediaList = MediaList.createMediaList();
 		} else {
-			mediaList = getStyleSheetFactory().createMediaQueryList(media, node);
+			try {
+				mediaList = getStyleSheetFactory().createMediaQueryList(media, node);
+			} catch (CSSException e) {
+				getErrorHandler().linkedStyleError(node, e.getMessage());
+				return null;
+			}
 			if (mediaList.isNotAllMedia() && mediaList.hasErrors()) {
 				return null;
 			}
@@ -582,6 +588,10 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			} else {
 				getErrorHandler().policyError(ownerNode, "Unauthorized URL: " + url.toExternalForm());
 			}
+		} catch (IOException e) {
+			getErrorHandler().ioError(href, e);
+		} catch (DOMException e) {
+			// Already logged
 		} catch (Exception e) {
 			getErrorHandler().linkedSheetError(e, sheet);
 		}

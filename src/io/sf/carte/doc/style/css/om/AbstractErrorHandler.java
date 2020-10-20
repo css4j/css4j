@@ -149,7 +149,7 @@ abstract class AbstractErrorHandler implements ErrorHandler {
 
 	@Override
 	public boolean hasErrors() {
-		return hasInlineErrors() || hasComputedStyleErrors() || hasMediaErrors() || hasPolicyErrors();
+		return hasInlineErrors() || hasComputedStyleErrors() || hasMediaErrors() || hasIOErrors() || hasPolicyErrors();
 	}
 
 	@Override

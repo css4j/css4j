@@ -86,7 +86,7 @@ public class IEDocumentTest {
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals("background-color: red; ", ((CSSStyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
-		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
+		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ffval.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_URI, ((CSSPrimitiveValue) ffval).getPrimitiveType());
@@ -172,7 +172,7 @@ public class IEDocumentTest {
 		assertEquals("#90ff77", styledecl.getPropertyValue("background-color"));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test

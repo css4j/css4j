@@ -19,6 +19,7 @@ import java.util.EnumSet;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.SACMediaList;
@@ -169,22 +170,16 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * will be appropriately merged with the other style sheets.
 	 * </p>
 	 * 
-	 * @param re
-	 *            the reader with the user style sheet.
-	 * @throws IOException
-	 *             if there is a problem retrieving the reader.
+	 * @param re the reader with the user style sheet.
+	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws IOException  if there is a problem retrieving the reader.
 	 */
 	@Override
 	public void setUserStyleSheet(Reader re) throws IOException {
 		if (re != null) {
-			AbstractCSSStyleSheet cssSheet;
-			try {
-				org.w3c.css.sac.InputSource source = new org.w3c.css.sac.InputSource(re);
-				cssSheet = createDocumentStyleSheet(ORIGIN_USER);
-				cssSheet.parseStyleSheet(source);
-			} catch (IOException e) {
-				throw e;
-			}
+			org.w3c.css.sac.InputSource source = new org.w3c.css.sac.InputSource(re);
+			AbstractCSSStyleSheet cssSheet = createDocumentStyleSheet(ORIGIN_USER);
+			cssSheet.parseStyleSheet(source);
 			this.userImportantSheet = createDocumentStyleSheet(ORIGIN_USER_IMPORTANT);
 			this.userNormalSheet = createDocumentStyleSheet(ORIGIN_USER);
 			userNormalSheet.getCssRules().ensureCapacity(cssSheet.getCssRules().getLength());
@@ -459,6 +454,8 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return a new media list for <code>mediaQueryString</code>.
+	 * @throws CSSException.SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
+	 *         expressions was reached.
 	 */
 	@Override
 	public MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) {
@@ -477,6 +474,8 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return the immutable media list.
+	 * @throws CSSException.SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
+	 *         expressions was reached.
 	 */
 	@Override
 	public MediaQueryList createImmutableMediaQueryList(String media, Node owner) {
@@ -515,8 +514,10 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return a new media query list for <code>mediaQueryString</code>.
+	 * @throws CSSException.SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
+	 *         expressions was reached.
 	 */
-	MediaQueryList parseMediaQueryList(String mediaQueryString, Node owner) {
+	MediaQueryList parseMediaQueryList(String mediaQueryString, Node owner) throws CSSException {
 		MediaQueryListImpl qlist = new MediaQueryListImpl();
 		CSSParser parser = new CSSParser();
 		if (getParserFlags().contains(Parser2.Flag.IEVALUES)) {
@@ -534,8 +535,10 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return the media query list.
+	 * @throws CSSException.SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
+	 *         expressions was reached.
 	 */
-	public MediaQueryList createMediaList(SACMediaList media, Node owner) {
+	public MediaQueryList createMediaList(SACMediaList media, Node owner) throws CSSException {
 		int sz = media.getLength();
 		boolean plainMedium = true;
 		for (int i = 0; i < sz; i++) {

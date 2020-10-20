@@ -64,9 +64,6 @@ public interface ErrorHandler {
 
 	/**
 	 * Check whether this handler has processed any I/O errors.
-	 * <p>
-	 * I/O errors are considered transient errors and do not show up in
-	 * {@link #hasErrors()}.
 	 * 
 	 * @return <code>true</code> if this handler processed any I/O errors.
 	 */

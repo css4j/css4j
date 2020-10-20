@@ -66,7 +66,7 @@ public class XMLDocumentWrapperTest {
 	}
 
 	@Before
-	public void setUp() throws ParserConfigurationException, SAXException, IOException {
+	public void setUp() throws SAXException, IOException {
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleXMLReader();
 		InputSource is = new InputSource(re);
 		Document doc = docb.parse(is);
@@ -180,7 +180,7 @@ public class XMLDocumentWrapperTest {
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals("background-color: red; ", ((CSSStyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
-		assertEquals("url('http://www.example.com/css/font/MechanicalBd.otf')", fontface.getPropertyValue("src"));
+		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, ffval.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_URI, ((CSSPrimitiveValue) ffval).getPrimitiveType());

@@ -161,13 +161,15 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 		if (uri.length() == 0) {
 			throw new MalformedURLException("Empty URI");
 		}
+		String phref = getParentStyleSheet().getHref();
 		URL url;
-		if (uri.indexOf("://") < 0) {
-			String phref = getParentStyleSheet().getHref();
-			if (phref == null) {
-				throw new MalformedURLException("Relative URI but no href for parent style sheet.");
+		if (phref != null) {
+			URL pUrl;
+			try {
+				pUrl = new URL(phref);
+			} catch (MalformedURLException e) {
+				return new URL(uri);
 			}
-			URL pUrl = new URL(phref);
 			url = new URL(pUrl, uri);
 		} else {
 			url = new URL(uri);

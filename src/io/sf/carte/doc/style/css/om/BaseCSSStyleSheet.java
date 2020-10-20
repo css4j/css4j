@@ -752,12 +752,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		} catch (DOMException e) {
 			getDocumentErrorHandler().linkedSheetError(e, this);
 			throw e;
-		} catch (IOException e) {
-			getDocumentErrorHandler().linkedSheetError(e, this);
-			throw e;
 		} catch (CSSException e) {
 			getDocumentErrorHandler().linkedSheetError(e, this);
-			throw e;
+			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, "Hard limit found.");
+			ex.initCause(e);
+			throw ex;
 		} finally {
 			try {
 				is.close();

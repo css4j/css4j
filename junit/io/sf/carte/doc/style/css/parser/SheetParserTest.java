@@ -988,8 +988,8 @@ public class SheetParserTest {
 		assertEquals("src", handler.propertyNames.get(2));
 		assertEquals(3, handler.lexicalValues.size());
 		assertEquals("red", handler.lexicalValues.get(0).toString());
-		assertEquals("'Mechanical Bold'", handler.lexicalValues.get(1).toString());
-		assertEquals("url('font/MechanicalBd.otf')", handler.lexicalValues.get(2).toString());
+		assertEquals("'OpenSans Regular'", handler.lexicalValues.get(1).toString());
+		assertEquals("url('/fonts/OpenSans-Regular.ttf')", handler.lexicalValues.get(2).toString());
 		assertEquals(3, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertEquals(1, handler.fontFaceCount);

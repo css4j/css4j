@@ -402,7 +402,7 @@ public class ImportRuleTest {
 		StylableDocumentWrapper cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		assertNotNull(cssStyle);
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) cssStyle).getSheet();
 		assertEquals(1, sheet.getCssRules().getLength());
 		ImportRule imp = (ImportRule) sheet.getCssRules().item(0);
 		assertFalse(cssdoc.getErrorHandler().hasErrors());

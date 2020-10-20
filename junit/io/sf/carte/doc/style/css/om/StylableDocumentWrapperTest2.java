@@ -35,6 +35,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class StylableDocumentWrapperTest2 {
@@ -50,7 +51,7 @@ public class StylableDocumentWrapperTest2 {
 	}
 
 	@Test
-	public void testBaseAttribute() throws ParserConfigurationException {
+	public void testBaseAttribute() {
 		Document document = docbuilder.newDocument();
 		Element element = document.createElement("foo");
 		document.appendChild(element);
@@ -135,7 +136,7 @@ public class StylableDocumentWrapperTest2 {
 	}
 
 	@Test
-	public void testMetaElementDefaultStyle() throws ParserConfigurationException, SAXException, IOException {
+	public void testMetaElementDefaultStyle() throws SAXException, IOException {
 		InputStream is = DOMCSSStyleSheetFactoryTest.sampleHTMLStream();
 		Document doc;
 		try {
@@ -155,6 +156,35 @@ public class StylableDocumentWrapperTest2 {
 		cssFac.setLenientSystemValues(false);
 		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(doc);
 		assertEquals("Alter 2", wrapped.getSelectedStyleSheetSet());
+	}
+
+	@Test
+	public void testFontIOError() throws SAXException, IOException {
+		InputStream is = DOMCSSStyleSheetFactoryTest.sampleHTMLStream();
+		Document doc;
+		try {
+			docbuilder.setEntityResolver(new DefaultEntityResolver());
+			InputSource source = new InputSource(is);
+			doc = docbuilder.parse(source);
+		} finally {
+			is.close();
+		}
+		doc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
+		Node head = doc.getElementsByTagName("head").item(0);
+		Element style = doc.createElement("style");
+		style.setAttribute("type", "text/css");
+		style.setTextContent("@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf');}");
+		head.appendChild(style);
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(false);
+		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(doc);
+		CSSElement elm = wrapped.getElementById("firstH3");
+		assertNotNull(elm);
+		elm.getComputedStyle(null);
+		ErrorHandler errHandler = wrapped.getErrorHandler();
+		assertNotNull(errHandler);
+		assertTrue(errHandler.hasIOErrors());
+		assertTrue(errHandler.hasErrors());
 	}
 
 }
