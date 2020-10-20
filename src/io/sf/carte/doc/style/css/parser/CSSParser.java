@@ -342,7 +342,10 @@ public class CSSParser implements Parser2 {
 		try {
 			tp.parse(conditionText, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
-			throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested conditions exceed limit", e);
+			CSSException ex = new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested conditions exceeded limit",
+					e);
+			ex.initCause(e);
+			throw ex;
 		}
 		if (handler.errorCode == 0) {
 			return handler.getCondition();
@@ -372,7 +375,9 @@ public class CSSParser implements Parser2 {
 		try {
 			tp.parse(media, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
-			throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested queries exceed limit", e);
+			CSSException ex = new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR, "Nested queries exceed limit", e);
+			ex.initCause(e);
+			throw ex;
 		}
 	}
 
