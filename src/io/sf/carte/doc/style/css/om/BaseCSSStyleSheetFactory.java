@@ -454,11 +454,11 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return a new media list for <code>mediaQueryString</code>.
-	 * @throws CSSException.SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
+	 * @throws CSSException SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
 	 *         expressions was reached.
 	 */
 	@Override
-	public MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) {
+	public MediaQueryList createMediaQueryList(String mediaQueryString, Node owner) throws CSSException {
 		if (isPlainMediaList(mediaQueryString)) {
 			return MediaList.createMediaList(mediaQueryString);
 		}
@@ -474,7 +474,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return the immutable media list.
-	 * @throws CSSException.SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
+	 * @throws CSSException SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
 	 *         expressions was reached.
 	 */
 	@Override
@@ -514,7 +514,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return a new media query list for <code>mediaQueryString</code>.
-	 * @throws CSSException.SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
+	 * @throws CSSException SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
 	 *         expressions was reached.
 	 */
 	MediaQueryList parseMediaQueryList(String mediaQueryString, Node owner) throws CSSException {
@@ -535,7 +535,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 * @param owner
 	 *            the node that would handle errors, if any.
 	 * @return the media query list.
-	 * @throws CSSException.SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
+	 * @throws CSSException SAC_NOT_SUPPORTED_ERR if a hard-coded limit in nested 
 	 *         expressions was reached.
 	 */
 	public MediaQueryList createMediaList(SACMediaList media, Node owner) throws CSSException {
