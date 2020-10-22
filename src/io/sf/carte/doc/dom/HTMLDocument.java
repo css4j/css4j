@@ -168,7 +168,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		public DOMDocument getOwnerDocument() {
+		public HTMLDocument getOwnerDocument() {
 			return HTMLDocument.this;
 		}
 
@@ -318,8 +318,14 @@ abstract public class HTMLDocument extends DOMDocument {
 						node = node.getNextSibling();
 					}
 				}
+				// Set the baseURL field to null so it is re-computed
+				getOwnerDocument().baseURL = null;
+			} else {
+				// Set the baseURL field to null so it is re-computed
+				getOwnerDocument().baseURL = null;
+				//
+				super.setParentNode(parentNode);
 			}
-			super.setParentNode(parentNode);
 		}
 
 	}
@@ -820,9 +826,22 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		@Override
 		void setAttributeOwner(DOMElement newOwner) {
-			super.setAttributeOwner(newOwner);
 			if (newOwner != null) {
+				super.setAttributeOwner(newOwner);
 				onDOMChange(newOwner);
+			} else {
+				DOMElement owner = getOwnerElement();
+				// In principle, owner cannot be null here
+				if (owner.getTagName() == "base") {
+					String tagname = owner.getTagName();
+					if (tagname == "link") {
+						((LinkElement) owner).resetLinkedSheet();
+					} else if (tagname == "base") {
+						HTMLDocument doc = (HTMLDocument) getOwnerDocument();
+						doc.baseURL = null;
+					}
+					super.setAttributeOwner(newOwner);
+				}
 			}
 		}
 
@@ -842,7 +861,7 @@ abstract public class HTMLDocument extends DOMDocument {
 			} else if (tagname == "base") {
 				HTMLDocument doc = (HTMLDocument) getOwnerDocument();
 				String value = getValue();
-				if (!setBaseURL(owner, value) && doc != null) {
+				if (owner.isDocumentDescendant() && !setBaseURL(owner, value)) {
 					// Set the baseURL field to null so it is re-computed
 					doc.baseURL = null;
 				}
@@ -940,6 +959,7 @@ abstract public class HTMLDocument extends DOMDocument {
 						urlBase = new URL(base);
 					}
 				} catch (MalformedURLException e) {
+					getErrorHandler().ioError(base, e);
 					return false;
 				}
 				String docscheme = docUrl.getProtocol();
@@ -965,6 +985,7 @@ abstract public class HTMLDocument extends DOMDocument {
 					}
 					// Remote document wants to set a non-http base URL
 				} catch (MalformedURLException e) {
+					getErrorHandler().ioError(base, e);
 				}
 			}
 		}

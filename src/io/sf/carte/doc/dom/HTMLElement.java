@@ -75,4 +75,7 @@ abstract public class HTMLElement extends DOMElement implements org.w3c.dom.html
 		setAttribute("title", title);
 	}
 
+	@Override
+	abstract public HTMLDocument getOwnerDocument();
+
 }
