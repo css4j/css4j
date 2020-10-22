@@ -79,12 +79,13 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 	 */
 	@Override
 	void setAttributeOwner(DOMElement newOwner) {
+		DOMElement owner;
 		if (newOwner != null) {
 			if (isImplicitId()) {
 				newOwner.setIdAttributeNS(getNamespaceURI(), getLocalName(), true);
 			}
-		} else if (isImplicitId()) {
-			getOwnerElement().setIdAttributeNS(getNamespaceURI(), getLocalName(), false);
+		} else if (isImplicitId() && (owner = getOwnerElement()) != null) {
+			owner.setIdAttributeNS(getNamespaceURI(), getLocalName(), false);
 		}
 		super.setAttributeOwner(newOwner);
 	}

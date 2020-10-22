@@ -136,6 +136,22 @@ abstract class AbstractDOMNode implements DOMNode {
 		return parentNode;
 	}
 
+	/**
+	 * 
+	 * @return true if this node is a document node, or a descendant of a document
+	 *         node.
+	 */
+	boolean isDocumentDescendant() {
+		AbstractDOMNode node = this;
+		while (true) {
+			AbstractDOMNode parent = node.parentNode;
+			if (parent == null) {
+				return node.getNodeType() == Node.DOCUMENT_NODE;
+			}
+			node = parent;
+		}
+	}
+
 	@Override
 	public DOMNodeList getChildNodes() {
 		return getNodeList();

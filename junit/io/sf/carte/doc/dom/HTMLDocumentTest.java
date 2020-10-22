@@ -1778,6 +1778,7 @@ public class HTMLDocumentTest {
 		assertTrue(sheet.getOwnerNode() == link);
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test (timeout=8000)
@@ -1792,6 +1793,7 @@ public class HTMLDocumentTest {
 		assertTrue(sheet.getOwnerNode() == link);
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
@@ -1819,8 +1821,27 @@ public class HTMLDocumentTest {
 		DOMNode parent = base.getParentNode();
 		parent.removeChild(base);
 		attr.setValue("http://www.example.com/yet/another/base/");
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+		// Re-connect base
 		parent.appendChild(base);
 		assertEquals("http://www.example.com/yet/another/base/", xhtmlDoc.getBaseURI());
+		// Disconnect attribute
+		base.removeAttributeNode(attr);
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+		// Double remove to check for potential NPEs instead of DOMException
+		try {
+			base.removeAttributeNode(attr);
+			fail("Must throw exception.");
+		} catch (DOMException e) {}
+		// Re-connect attribute
+		base.setAttributeNode(attr);
+		assertEquals("http://www.example.com/yet/another/base/", xhtmlDoc.getBaseURI());
+		//
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		attr.setValue("foo://");
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test(timeout=8000)
@@ -1831,6 +1852,7 @@ public class HTMLDocumentTest {
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 		//
 		xhtmlDoc.getErrorHandler().reset();
 		base.setAttribute("href", "file:/dev/zero");
@@ -1838,6 +1860,13 @@ public class HTMLDocumentTest {
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
+		//
+		xhtmlDoc.getErrorHandler().reset();
+		xhtmlDoc.setDocumentURI("jar:http://www.example.com/trusted.jar!/document.html");
+		base.setAttribute("href", "jar:http://www.example.com/trusted.jar!/css/");
+		assertEquals("jar:http://www.example.com/trusted.jar!/css/", base.getBaseURI());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
 	@Test
