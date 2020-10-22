@@ -75,6 +75,10 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("jar:http://www.example.com/evil.jar!/file", attr.getValue());
 		assertTrue(wrapped.getErrorHandler().hasErrors());
 		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
+		attr.setValue("http://www.example.com/");
+		assertEquals("http://www.example.com/", wrapped.getBaseURI());
+		attr.setValue("jar:http://www.example.com/evil.jar!/file");
+		assertEquals("http://www.example.com/foo.html", wrapped.getBaseURI());
 		//
 		wrapped.getErrorHandler().reset();
 		attr.setValue("file:/dev/zero");
