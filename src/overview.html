@@ -141,8 +141,8 @@ values of some nodes.</p>
 <div style="margin: 2em 0 2.7em 0">
 <h3>Consistency of different DOM implementations</h3>
 <p>Beware that the computed styles found by each method (native DOM, DOM4J back-end or DOM wrapper) may not be completely identical, due to differences in the
-underlying document DOM implementations. Behaviour may vary due to, for example, a pseudo-class like <code>:target</code> being used (DOM4J has no <code>documentURI</code> support so it never matches).</p>
-<p>Such cases would be rare, though (no real-world tests have shown that). If you find a difference in styles computed from different back-ends that you believe to be a bug, please report.</p>
+underlying document DOM implementations. For example, XML-oriented DOM implementations do not implement the case sensitivity subtleties of HTML.
+If you find a difference in styles computed from different back-ends that you believe to be a bug, please report.</p>
 </div>
 <div style="margin: 2em 0 2.7em 0" id="mediahandling">
 <h3>Media Handling</h3>
