@@ -209,7 +209,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class HtmlRootElement extends MyHTMLElement {
+	private class HtmlRootElement extends MyHTMLElement {
 
 		private static final long serialVersionUID = 1L;
 
@@ -291,7 +291,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class BaseElement extends MetacontentElement {
+	private class BaseElement extends MetacontentElement {
 
 		private static final long serialVersionUID = 1L;
 
@@ -553,7 +553,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class MetaElement extends MyHTMLElement {
+	private class MetaElement extends MyHTMLElement {
 
 		private static final long serialVersionUID = 1L;
 
@@ -598,7 +598,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 	}
 
-	class ImgElement extends MyHTMLElement {
+	private class ImgElement extends MyHTMLElement {
 
 		private static final long serialVersionUID = 1L;
 
@@ -633,7 +633,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class FontElement extends MyHTMLElement {
+	private class FontElement extends MyHTMLElement {
 
 		private static final long serialVersionUID = 1L;
 
@@ -655,7 +655,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class TableElement extends MyHTMLElement {
+	private class TableElement extends MyHTMLElement {
 
 		private static final long serialVersionUID = 1L;
 
@@ -683,7 +683,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class TableRowElement extends MyHTMLElement {
+	private class TableRowElement extends MyHTMLElement {
 
 		private static final long serialVersionUID = 1L;
 
@@ -707,7 +707,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class TableCellElement extends MyHTMLElement {
+	private class TableCellElement extends MyHTMLElement {
 
 		private static final long serialVersionUID = 1L;
 
@@ -816,44 +816,30 @@ abstract public class HTMLDocument extends DOMDocument {
 		return myelem;
 	}
 
-	class HrefEventAttr extends MyAttr {
+	private class HrefEventAttr extends EventAttr {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2L;
 
 		HrefEventAttr(String namespaceURI) {
 			super("href", namespaceURI);
 		}
 
 		@Override
-		void setAttributeOwner(DOMElement newOwner) {
-			if (newOwner != null) {
-				super.setAttributeOwner(newOwner);
-				onDOMChange(newOwner);
-			} else {
-				DOMElement owner = getOwnerElement();
-				// In principle, owner cannot be null here
-				if (owner.getTagName() == "base") {
-					String tagname = owner.getTagName();
-					if (tagname == "link") {
-						((LinkElement) owner).resetLinkedSheet();
-					} else if (tagname == "base") {
-						HTMLDocument doc = (HTMLDocument) getOwnerDocument();
-						doc.baseURL = null;
-					}
-					super.setAttributeOwner(newOwner);
+		void onAttributeRemoval() {
+			DOMElement owner = getOwnerElement();
+			// In principle, owner cannot be null here
+			if (owner.getTagName() == "base") {
+				String tagname = owner.getTagName();
+				if (tagname == "link") {
+					((LinkElement) owner).resetLinkedSheet();
+				} else if (tagname == "base") {
+					HTMLDocument doc = (HTMLDocument) getOwnerDocument();
+					doc.baseURL = null;
 				}
 			}
 		}
 
 		@Override
-		public void setValue(String value) throws DOMException {
-			super.setValue(value);
-			DOMElement owner = getOwnerElement();
-			if (owner != null) {
-				onDOMChange(owner);
-			}
-		}
-
 		void onDOMChange(DOMElement owner) {
 			String tagname = owner.getTagName();
 			if (tagname == "link") {
@@ -867,6 +853,7 @@ abstract public class HTMLDocument extends DOMDocument {
 				}
 			}
 		}
+
 	}
 
 	@Override

@@ -1314,10 +1314,44 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	}
 
+	abstract class EventAttr extends MyAttr {
+
+		private static final long serialVersionUID = 1L;
+
+		EventAttr(String localName, String namespaceURI) {
+			super(localName, namespaceURI);
+		}
+
+		@Override
+		void setAttributeOwner(DOMElement newOwner) {
+			if (newOwner != null) {
+				super.setAttributeOwner(newOwner);
+				onDOMChange(newOwner);
+			} else {
+				onAttributeRemoval();
+				super.setAttributeOwner(null);
+			}
+		}
+
+		@Override
+		public void setValue(String value) throws DOMException {
+			super.setValue(value);
+			DOMElement owner = getOwnerElement();
+			if (owner != null) {
+				onDOMChange(owner);
+			}
+		}
+
+		abstract void onAttributeRemoval();
+
+		abstract void onDOMChange(DOMElement owner);
+
+	}
+
 	/**
 	 * An attribute that changes the meaning of its style-definer owner element.
 	 */
-	class StyleEventAttr extends MyAttr {
+	class StyleEventAttr extends EventAttr {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1326,20 +1360,17 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		void setAttributeOwner(DOMElement newOwner) {
-			super.setAttributeOwner(newOwner);
-			onDOMChange(newOwner);
+		void onAttributeRemoval() {
+			DOMElement owner = getOwnerElement();
+			if (owner instanceof LinkStyleDefiner) {
+				((LinkStyleDefiner) owner).resetLinkedSheet();
+			}
 		}
 
 		@Override
-		public void setValue(String value) throws DOMException {
-			super.setValue(value);
-			onDOMChange(getOwnerElement());
-		}
-
-		void onDOMChange(Node ownerNode) {
-			if (ownerNode != null && ownerNode instanceof LinkStyleDefiner) {
-				((LinkStyleDefiner) ownerNode).resetLinkedSheet();
+		void onDOMChange(DOMElement owner) {
+			if (owner instanceof LinkStyleDefiner) {
+				((LinkStyleDefiner) owner).resetLinkedSheet();
 			}
 		}
 
