@@ -16,7 +16,7 @@
 	<dependency>
 		<groupId>io.sf.jclf</groupId>
 		<artifactId>jclf</artifactId>
-		<version>4.0.4</version>
+		<version>[4.0.4,4.999]</version>
 		<type>jar</type>
 		<scope>compile</scope>
 		<optional>false</optional>
@@ -42,7 +42,7 @@
 		<scope>compile</scope>
 		<optional>false</optional>
 	</dependency>
-	<!-- https://mvnrepository.com/artifact/nu.validator.htmlparser/htmlparser -->
+	<!-- https://mvnrepository.com/artifact/nu.validator/htmlparser -->
 	<dependency>
 		<groupId>nu.validator</groupId>
 		<artifactId>htmlparser</artifactId>
