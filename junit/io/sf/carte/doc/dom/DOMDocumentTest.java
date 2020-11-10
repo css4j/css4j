@@ -41,7 +41,6 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
-import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
 
@@ -826,7 +825,6 @@ public class DOMDocumentTest {
 		assertTrue(pi instanceof LinkStyle);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test (timeout=8000)
 	public void testStyleProcessingInstructionEvil() {
 		DOMDocument document = domImpl.createDocument("", null, null);
@@ -836,7 +834,7 @@ public class DOMDocumentTest {
 				pi.toString());
 		document.appendChild(pi);
 		assertTrue(pi instanceof LinkStyle);
-		CSSStyleSheet<AbstractCSSRule> sheet = ((LinkStyle<AbstractCSSRule>) pi).getSheet();
+		CSSStyleSheet<?> sheet = ((LinkStyle<?>) pi).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(3, sheet.getCssRules().getLength());
@@ -846,7 +844,7 @@ public class DOMDocumentTest {
 		assertFalse(document.getErrorHandler().hasPolicyErrors());
 		//
 		pi.setData("type=\"text/css\" href=\"file:/dev/zero\"");
-		sheet = ((LinkStyle<AbstractCSSRule>) pi).getSheet();
+		sheet = ((LinkStyle<?>) pi).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
@@ -857,12 +855,24 @@ public class DOMDocumentTest {
 		//
 		document.getErrorHandler().reset();
 		pi.setData("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"");
-		sheet = ((LinkStyle<AbstractCSSRule>) pi).getSheet();
+		sheet = ((LinkStyle<?>) pi).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == pi);
 		assertEquals("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"", pi.getData());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasPolicyErrors());
+		//
+		document.getErrorHandler().reset();
+		DOMElement root = document.createElement("html");
+		document.appendChild(root);
+		root.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base", "jar:http://www.example.com/evil.jar!/dir/file");
+		sheet = ((LinkStyle<?>) pi).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getOwnerNode() == pi);
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
 		//

@@ -345,8 +345,6 @@ abstract public class HTMLDocument extends DOMDocument {
 		public void resetLinkedSheet() {
 			if (definedSheet != null) {
 				definedSheet.getCssRules().clear();
-				needsUpdate = true;
-				getSheet();
 			}
 			needsUpdate = true;
 			getOwnerDocument().onSheetModify();
@@ -376,6 +374,11 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		/**
 		 * Gets the associated style sheet for the node.
+		 * <p>
+		 * If you have a sheet returned by this method and then modify any attribute of
+		 * this element, be sure to call this method again instead of just using the old
+		 * sheet.
+		 * </p>
 		 * 
 		 * @return the associated style sheet for the node, or <code>null</code> if the sheet is
 		 *         not CSS or the media attribute was not understood. If the URL is invalid or the
@@ -487,10 +490,16 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		/**
 		 * Gets the associated style sheet for the node.
+		 * <p>
+		 * If you have a sheet returned by this method and then modify any attribute of
+		 * this element, be sure to call this method again instead of just using the old
+		 * sheet.
+		 * </p>
 		 * 
-		 * @return the associated style sheet for the node, or <code>null</code> if the sheet is
-		 *         not CSS or the media attribute was not understood. If the element is empty or
-		 *         the sheet could not be parsed, the returned sheet will be empty.
+		 * @return the associated style sheet for the node, or <code>null</code> if the
+		 *         sheet is not CSS or the media attribute was not understood. If the
+		 *         element is empty or the sheet could not be parsed, the returned sheet
+		 *         will be empty.
 		 */
 		@Override
 		public AbstractCSSStyleSheet getSheet() {
@@ -523,18 +532,24 @@ abstract public class HTMLDocument extends DOMDocument {
 		@Override
 		void postAddChild(AbstractDOMNode newChild) {
 			super.postAddChild(newChild);
-			resetLinkedSheet();
+			// If newChild is not the only child, reset sheet
+			if (getFirstChild().getNextSibling() != null) {
+				resetLinkedSheet();
+				getSheet();
+			}
 		}
 
 		@Override
 		void postRemoveChild(AbstractDOMNode removed) {
 			resetLinkedSheet();
+			getSheet();
 		}
 
 		@Override
 		public void setTextContent(String textContent) throws DOMException {
 			super.setTextContent(textContent);
 			resetLinkedSheet();
+			getSheet();
 		}
 
 		@Override
@@ -828,14 +843,15 @@ abstract public class HTMLDocument extends DOMDocument {
 		void onAttributeRemoval() {
 			DOMElement owner = getOwnerElement();
 			// In principle, owner cannot be null here
-			if (owner.getTagName() == "base") {
-				String tagname = owner.getTagName();
-				if (tagname == "link") {
-					((LinkElement) owner).resetLinkedSheet();
-				} else if (tagname == "base") {
+			String tagname = owner.getTagName();
+			if (tagname == "base") {
+				if (owner.isDocumentDescendant()) {
 					HTMLDocument doc = (HTMLDocument) getOwnerDocument();
 					doc.baseURL = null;
+					doc.onBaseModify();
 				}
+			} else if (tagname == "link") {
+				((LinkElement) owner).resetLinkedSheet();
 			}
 		}
 
@@ -847,10 +863,41 @@ abstract public class HTMLDocument extends DOMDocument {
 			} else if (tagname == "base") {
 				HTMLDocument doc = (HTMLDocument) getOwnerDocument();
 				String value = getValue();
-				if (owner.isDocumentDescendant() && !setBaseURL(owner, value)) {
-					// Set the baseURL field to null so it is re-computed
-					doc.baseURL = null;
+				if (owner.isDocumentDescendant()) {
+					if (!setBaseURL(owner, value)) {
+						// Set the baseURL field to null so it is re-computed
+						doc.baseURL = null;
+					}
+					onBaseModify();
 				}
+			}
+		}
+
+	}
+
+	/**
+	 * An attribute that changes the meaning of its style-definer owner element.
+	 */
+	private class StyleEventAttr extends EventAttr {
+
+		private static final long serialVersionUID = 1L;
+
+		StyleEventAttr(String name, String namespaceURI) {
+			super(name, namespaceURI);
+		}
+
+		@Override
+		void onAttributeRemoval() {
+			DOMElement owner = getOwnerElement();
+			if (owner instanceof LinkStyleDefiner) {
+				((LinkStyleDefiner) owner).resetLinkedSheet();
+			}
+		}
+
+		@Override
+		void onDOMChange(DOMElement owner) {
+			if (owner instanceof LinkStyleDefiner) {
+				((LinkStyleDefiner) owner).resetLinkedSheet();
 			}
 		}
 
@@ -1025,6 +1072,12 @@ abstract public class HTMLDocument extends DOMDocument {
 			return url.toExternalForm();
 		}
 		return null;
+	}
+
+	@Override
+	public void setDocumentURI(String documentURI) {
+		super.setDocumentURI(documentURI);
+		baseURL = null;
 	}
 
 	/**

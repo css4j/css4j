@@ -1348,29 +1348,25 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	}
 
-	/**
-	 * An attribute that changes the meaning of its style-definer owner element.
-	 */
-	class StyleEventAttr extends EventAttr {
+	private class BaseEventAttr extends EventAttr {
 
 		private static final long serialVersionUID = 1L;
 
-		StyleEventAttr(String name, String namespaceURI) {
-			super(name, namespaceURI);
+		BaseEventAttr() {
+			super("base", XML_NAMESPACE_URI);
 		}
 
 		@Override
 		void onAttributeRemoval() {
 			DOMElement owner = getOwnerElement();
-			if (owner instanceof LinkStyleDefiner) {
-				((LinkStyleDefiner) owner).resetLinkedSheet();
-			}
+			// In principle, owner cannot be null here
+			onDOMChange(owner);
 		}
 
 		@Override
 		void onDOMChange(DOMElement owner) {
-			if (owner instanceof LinkStyleDefiner) {
-				((LinkStyleDefiner) owner).resetLinkedSheet();
+			if (owner == getDocumentElement()) {
+				onBaseModify();
 			}
 		}
 
@@ -1825,7 +1821,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		} else if (localName == "class") {
 			my = new ClassAttr(namespaceURI);
 		} else if (localName == "base" && "xml".equals(prefix)) {
-			my = new StyleEventAttr(localName, namespaceURI);
+			my = new BaseEventAttr();
 		} else if (localName == "style" && prefix == null) {
 			my = new MyStyleAttr(localName);
 		} else {
@@ -2082,6 +2078,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	@Override
 	public void setDocumentURI(String documentURI) {
 		this.documentURI = documentURI;
+		if (!linkedStyle.isEmpty()) {
+			onBaseModify();
+		}
 	}
 
 	/**
@@ -2370,7 +2369,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		return sheets;
 	}
 
-	void updateStyleLists() {
+	private void updateStyleLists() {
 		// Find the linked styles
 		linkedStyle.clear();
 		NodeList nl = getLinkedStyleNodeList();
@@ -2619,6 +2618,18 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					sheet.setDisabled(false);
 				}
 			}
+		}
+	}
+
+	void onBaseModify() {
+		/*
+		 * Reset of linked styles
+		 */
+		NodeList nl = getLinkedStyleNodeList();
+		int len = nl.getLength();
+		for (int i = 0; i < len; i++) {
+			LinkStyleDefiner styleDefiner = (LinkStyleDefiner) nl.item(i);
+			styleDefiner.resetLinkedSheet();
 		}
 	}
 
@@ -2914,8 +2925,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	@Override
 	public boolean isAuthorizedOrigin(URL url) {
 		String scheme = url.getProtocol();
-		URL base = getBaseURL();
-		if (base != null) {
+		if (documentURI != null) {
+			URL base = getBaseURL();
 			String baseScheme = base.getProtocol();
 			// To try to speed things up, only the parameter's scheme is compared
 			// case-insensitively
