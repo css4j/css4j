@@ -1832,6 +1832,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 		//
 		xhtmlDoc.getErrorHandler().reset();
+		xhtmlDoc.getStyleSheets();
 		xhtmlDoc.setDocumentURI("jar:http://www.example.com/foo.jar!/dir/file1");
 		sheet = link.getSheet();
 		assertNotNull(sheet);
