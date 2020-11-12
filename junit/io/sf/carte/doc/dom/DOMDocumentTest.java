@@ -316,6 +316,8 @@ public class DOMDocumentTest {
 		}
 		document.appendChild(element);
 		assertTrue(element == document.getDocumentElement());
+		//
+		assertEquals("<element eId=\"myId\" foo=\"bar\"></element>", element.toString());
 	}
 
 	@Test
@@ -515,6 +517,10 @@ public class DOMDocumentTest {
 		span.appendChild(document.createTextNode("foo"));
 		p.appendChild(span);
 		df.isEqualNode(df.cloneNode(true));
+		//
+		assertEquals(
+				"<!--My comment--><div></div><!-- another comment --><p lang=\"en\" class=\"para\"><span>foo</span></p>",
+				df.toString());
 		//
 		ElementList elist = ((ParentNode) df).getElementsByTagName("span");
 		assertNotNull(elist);

@@ -263,16 +263,32 @@ public class HTMLDocumentTest {
 	public void testCreateElementNS() {
 		DOMElement elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "link");
 		assertTrue(elm instanceof LinkStyle);
+		//
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "LINK");
 		assertTrue(elm instanceof LinkStyle);
 		assertEquals("link", elm.getLocalName());
 		assertEquals("link", elm.getTagName());
 		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, elm.getNamespaceURI());
+		//
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "style");
 		assertTrue(elm instanceof LinkStyle);
+		//
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "STYLE");
 		assertTrue(elm instanceof LinkStyle);
 		assertEquals("style", elm.getLocalName());
+		//
+		elm = xhtmlDoc.createElementNS("http://www.w3.org/2000/svg", "g:rect");
+		assertEquals("g", elm.getPrefix());
+		assertEquals("rect", elm.getLocalName());
+		assertEquals("g:rect", elm.getTagName());
+		assertEquals("<g:rect></g:rect>", elm.toString());
+		//
+		try {
+			xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "s:div");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
 		try {
 			xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, null);
 			fail("Must throw exception");

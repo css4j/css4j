@@ -416,7 +416,9 @@ public class XHTMLDocumentTest {
 		assertEquals(1, list.getLength());
 		Node oldrect = list.item(0);
 		assertEquals("s:rect", oldrect.getNodeName());
+		// Create a <rect> element with a missing prefix
 		DOMElement newrect = xmlDoc.createElementNS("http://www.w3.org/2000/svg", "rect");
+		assertEquals("<s:rect></s:rect>", newrect.toString());
 		oldrect.getParentNode().appendChild(newrect);
 		assertEquals(Node.DOCUMENT_POSITION_PRECEDING, oldrect.compareDocumentPosition(newrect));
 		assertEquals(2, list.getLength());
