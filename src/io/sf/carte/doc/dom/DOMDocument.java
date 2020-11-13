@@ -826,7 +826,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			Node parent = getParentNode();
 			try {
 				String newdata = data.substring(0, offset);
-				newnode = getOwnerDocument().createTextNode(data.substring(offset, data.length()));
+				newnode = getOwnerDocument().createTextNode(data.substring(offset));
 				if (parent != null) {
 					parent.insertBefore(newnode, getNextSibling());
 				}
@@ -1287,30 +1287,59 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	}
 
+	abstract class EventAttr extends MyAttr {
+
+		EventAttr(String localName, String namespaceURI) {
+			super(localName, namespaceURI);
+		}
+
+		@Override
+		void setAttributeOwner(DOMElement newOwner) {
+			if (newOwner != null) {
+				super.setAttributeOwner(newOwner);
+				onDOMChange(newOwner);
+			} else {
+				onAttributeRemoval();
+				super.setAttributeOwner(null);
+			}
+		}
+
+		@Override
+		public void setValue(String value) throws DOMException {
+			super.setValue(value);
+			DOMElement owner = getOwnerElement();
+			if (owner != null) {
+				onDOMChange(owner);
+			}
+		}
+
+		abstract void onAttributeRemoval();
+
+		abstract void onDOMChange(DOMElement owner);
+
+	}
+
 	/**
 	 * An attribute that changes the meaning of its style-definer owner element.
 	 */
-	class StyleEventAttr extends MyAttr {
+	class StyleEventAttr extends EventAttr {
 
 		StyleEventAttr(String name, String namespaceURI) {
 			super(name, namespaceURI);
 		}
 
 		@Override
-		void setAttributeOwner(DOMElement newOwner) {
-			super.setAttributeOwner(newOwner);
-			onDOMChange(newOwner);
+		void onAttributeRemoval() {
+			DOMElement owner = getOwnerElement();
+			if (owner instanceof LinkStyleDefiner) {
+				((LinkStyleDefiner) owner).resetLinkedSheet();
+			}
 		}
 
 		@Override
-		public void setValue(String value) throws DOMException {
-			super.setValue(value);
-			onDOMChange(getOwnerElement());
-		}
-
-		void onDOMChange(Node ownerNode) {
-			if (ownerNode != null && ownerNode instanceof LinkStyleDefiner) {
-				((LinkStyleDefiner) ownerNode).resetLinkedSheet();
+		void onDOMChange(DOMElement owner) {
+			if (owner instanceof LinkStyleDefiner) {
+				((LinkStyleDefiner) owner).resetLinkedSheet();
 			}
 		}
 
@@ -1357,13 +1386,10 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		private boolean isSameNamespace(String ownerNamespaceURI) {
 			String namespaceURI = getNamespaceURI();
 			if (namespaceURI == null) {
-				if (ownerNamespaceURI == null || isDefaultNamespace(ownerNamespaceURI)) {
-					return true;
-				}
+				return ownerNamespaceURI == null || isDefaultNamespace(ownerNamespaceURI);
 			} else {
 				return namespaceURI.equals(ownerNamespaceURI);
 			}
-			return false;
 		}
 
 		@Override
@@ -1405,6 +1431,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		@Override
 		public String getId() {
 			String idAttrName = idAttrNameMap.get(null); // get the 'id' attribute name
+			if (idAttrName == null) {
+				idAttrName = idAttrNameMap.get(getNamespaceURI());
+			}
 			if (idAttrName != null) {
 				Attr attr = nodeMap.getNamedItem(idAttrName);
 				if (attr != null) {
@@ -1416,7 +1445,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 		@Override
 		boolean isIdAttributeNS(String namespaceURI, String localName) {
-			return localName.equals(idAttrNameMap.get(namespaceURI));
+			String name = idAttrNameMap.get(namespaceURI);
+			if (name == null) {
+				name = idAttrNameMap.get(getNamespaceURI());
+			}
+			return name != null && localName.equals(name);
 		}
 
 		@Override
@@ -1440,7 +1473,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			if (idAttr == null || !nodeMap.getNodeList().contains(idAttr)) {
 				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
 			}
-			setIdAttrNS(idAttr.getNamespaceURI(), idAttr.getLocalName(), isId);
+			String nsuri = idAttr.getNamespaceURI();
+			if (nsuri == null) {
+				nsuri = getNamespaceURI();
+			}
+			setIdAttrNS(nsuri, idAttr.getLocalName(), isId);
 		}
 
 		private void setIdAttrNS(String namespaceURI, String localName, boolean isId) {
@@ -1862,10 +1899,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	private String lookupPrefix(Node node, String namespaceURI) {
 		if (node.getNamespaceURI() == namespaceURI) {
 			String prefix = node.getPrefix();
-			if (prefix != null) {
-				return prefix;
-			}
-			return null;
+			return prefix;
 		}
 		Node cnode = node.getFirstChild();
 		while (cnode != null) {
@@ -1883,13 +1917,13 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	/**
 	 * Returns the Element that has an ID attribute with the given value.
 	 * <p>
-	 * If no such element exists, this returns <code>null</code>. If more than one element has
-	 * an ID attribute with that value, what is returned is undefined.
+	 * If no such element exists, this returns <code>null</code>. If more than one
+	 * element has an ID attribute with that value, what is returned is undefined.
 	 * <p>
-	 * By default, this implementations uses <code>'id'</code> as the ID attribute, but this
-	 * can be changed to a different case (e.g. 'ID') with the
-	 * {@link Element#setIdAttribute(String, boolean)}. Changes to the ID attribute on a
-	 * single element are <code>Document</code>-wide.
+	 * In HTML documents, by default, this implementation uses <code>'id'</code> as
+	 * the ID attribute, but this can be changed to a different case (e.g. 'ID')
+	 * with the {@link Element#setIdAttribute(String, boolean)}. Changes to the ID
+	 * attribute on a single element are <code>Document</code>-wide in HTML.
 	 * 
 	 * @param elementId
 	 *            The unique id value for an element.
