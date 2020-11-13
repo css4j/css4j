@@ -36,6 +36,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
+import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.stylesheets.LinkStyle;
 import org.w3c.dom.stylesheets.StyleSheet;
 
@@ -835,7 +836,7 @@ public class DOMDocumentTest {
 				pi.toString());
 		document.appendChild(pi);
 		assertTrue(pi instanceof LinkStyle);
-		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle) pi).getSheet();
+		CSSStyleSheet sheet = (CSSStyleSheet) ((LinkStyle) pi).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(3, sheet.getCssRules().getLength());
@@ -845,7 +846,7 @@ public class DOMDocumentTest {
 		assertFalse(document.getErrorHandler().hasPolicyErrors());
 		//
 		pi.setData("type=\"text/css\" href=\"file:/dev/zero\"");
-		sheet = (AbstractCSSStyleSheet) ((LinkStyle) pi).getSheet();
+		sheet = (CSSStyleSheet) ((LinkStyle) pi).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
@@ -856,12 +857,24 @@ public class DOMDocumentTest {
 		//
 		document.getErrorHandler().reset();
 		pi.setData("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"");
-		sheet = (AbstractCSSStyleSheet) ((LinkStyle) pi).getSheet();
+		sheet = (CSSStyleSheet) ((LinkStyle) pi).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == pi);
 		assertEquals("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"", pi.getData());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasPolicyErrors());
+		//
+		document.getErrorHandler().reset();
+		DOMElement root = document.createElement("html");
+		document.appendChild(root);
+		root.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base", "jar:http://www.example.com/evil.jar!/dir/file");
+		sheet = (CSSStyleSheet) ((LinkStyle) pi).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getMedia().getLength());
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getOwnerNode() == pi);
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
 		//
