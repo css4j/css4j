@@ -209,11 +209,14 @@ public class HTMLDocumentTest {
 		assertTrue(elm.isVoid());
 		elm = xhtmlDoc.createElement("LINK");
 		assertTrue(elm instanceof LinkStyle);
+		assertEquals("link", elm.getLocalName());
+		assertEquals("link", elm.getTagName());
 		elm = xhtmlDoc.createElement("style");
 		assertTrue(elm instanceof LinkStyle);
 		assertFalse(elm.isVoid());
 		elm = xhtmlDoc.createElement("STYLE");
 		assertTrue(elm instanceof LinkStyle);
+		assertEquals("style", elm.getLocalName());
 		//
 		HTMLElement html = (HTMLElement) xhtmlDoc.createElement("html");
 		assertFalse(html.isVoid());
@@ -259,12 +262,32 @@ public class HTMLDocumentTest {
 	public void testCreateElementNS() {
 		DOMElement elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "link");
 		assertTrue(elm instanceof LinkStyle);
+		//
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "LINK");
 		assertTrue(elm instanceof LinkStyle);
+		assertEquals("link", elm.getLocalName());
+		assertEquals("link", elm.getTagName());
+		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, elm.getNamespaceURI());
+		//
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "style");
 		assertTrue(elm instanceof LinkStyle);
+		//
 		elm = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "STYLE");
 		assertTrue(elm instanceof LinkStyle);
+		assertEquals("style", elm.getLocalName());
+		//
+		elm = xhtmlDoc.createElementNS("http://www.w3.org/2000/svg", "g:rect");
+		assertEquals("g", elm.getPrefix());
+		assertEquals("rect", elm.getLocalName());
+		assertEquals("g:rect", elm.getTagName());
+		assertEquals("<g:rect></g:rect>", elm.toString());
+		//
+		try {
+			xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "s:div");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
 		try {
 			xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, null);
 			fail("Must throw exception");
@@ -795,6 +818,11 @@ public class HTMLDocumentTest {
 		DOMElement elm = xhtmlDoc.getElementsByTagName("style").item(0);
 		assertNotNull(elm);
 		String text = elm.getTextContent();
+		assertNotNull(text);
+		assertEquals(1106, text.trim().length());
+		//
+		xhtmlDoc.normalizeDocument();
+		text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1106, text.trim().length());
 	}
@@ -1655,6 +1683,26 @@ public class HTMLDocumentTest {
 		AbstractCSSStyleSheet sheet = style.getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
+		//
+		style.setAttribute("type", "");
+		sheet = style.getSheet();
+		assertNull(sheet);
+		//
+		style.removeAttributeNode(style.getAttributeNode("type"));
+		sheet = style.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		//
+		style.setAttribute("type", "text/xsl");
+		sheet = style.getSheet();
+		assertNull(sheet);
+		//
+		style.removeAttribute("type");
+		sheet = style.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		style.setTextContent("body {color: blue;}");
+		assertEquals(1, sheet.getCssRules().getLength());
 	}
 
 	@Test
@@ -1942,6 +1990,20 @@ public class HTMLDocumentTest {
 
 	@Test
 	public void testMetaElementDefaultSheetSet() {
+		DOMElement meta = xhtmlDoc.createElement("meta");
+		meta.setAttribute("http-equiv", "Default-Style");
+		meta.setAttribute("content", "Alter 1");
+		DOMElement head = xhtmlDoc.getElementsByTagName("head").item(0);
+		head.appendChild(meta);
+		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
+		//
+		xhtmlDoc.normalizeDocument();
+		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
+	}
+
+	@Test
+	public void testMetaElementDefaultSheetSetNormalized() {
+		xhtmlDoc.normalizeDocument();
 		DOMElement meta = xhtmlDoc.createElement("meta");
 		meta.setAttribute("http-equiv", "Default-Style");
 		meta.setAttribute("content", "Alter 1");

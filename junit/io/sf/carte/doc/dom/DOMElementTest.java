@@ -519,6 +519,7 @@ public class DOMElementTest {
 		assertEquals("foo", body.getAttribute("class"));
 		list.add("bar");
 		assertEquals("foo bar", body.getAttribute("class"));
+		assertEquals("<body class=\"foo bar\"></body>", body.toString());
 		try {
 			list.add(null);
 			fail("Must throw exception");
@@ -544,6 +545,7 @@ public class DOMElementTest {
 		body.setClassName("bar");
 		assertEquals("bar", body.getAttribute("class"));
 		assertEquals("bar", list.getValue());
+		assertEquals("<body class=\"bar\"></body>", body.toString());
 	}
 
 	@Test
