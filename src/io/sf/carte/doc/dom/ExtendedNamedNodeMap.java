@@ -31,6 +31,8 @@ public interface ExtendedNamedNodeMap<T extends Node> extends NamedNodeMap, Iter
 	@Override
 	T item(int index);
 
+	boolean isEmpty();
+
 	/**
 	 * {@inheritDoc}
 	 */
