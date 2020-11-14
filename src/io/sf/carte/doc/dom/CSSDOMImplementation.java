@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.EnumSet;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.DocumentType;
@@ -96,18 +97,32 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 		}
 		DOMDocument document;
 		if (isHTMLDocument(namespaceURI, qualifiedName, doctype)) {
-			document = new MyHTMLDocument(doctype);
+			document = createHTMLDocument(doctype);
 		} else {
-			document = new MyXMLDocument(doctype);
+			document = createXMLDocument(doctype);
 		}
 		if (!strictErrorChecking) {
 			document.setStrictErrorChecking(false);
 		}
 		// Create and append a document element, if provided
 		if (qualifiedName != null && qualifiedName.length() != 0) {
-			document.appendChild(document.createElementNS(namespaceURI, qualifiedName));
+			DOMElement docElm = document.createElementNS(namespaceURI, qualifiedName);
+			if (docElm.getPrefix() != null && namespaceURI != null) {
+				Attr attr = document.createAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:" + docElm.getPrefix());
+				attr.setValue(namespaceURI);
+				docElm.setAttributeNodeNS(attr);
+			}
+			document.appendChild(docElm);
 		}
 		return document;
+	}
+
+	protected DOMDocument createXMLDocument(DocumentType doctype) {
+		return new MyXMLDocument(doctype);
+	}
+
+	protected HTMLDocument createHTMLDocument(DocumentType doctype) {
+		return new MyHTMLDocument(doctype);
 	}
 
 	private static boolean isHTMLDocument(String namespaceURI, String qualifiedName, DocumentType doctype) {

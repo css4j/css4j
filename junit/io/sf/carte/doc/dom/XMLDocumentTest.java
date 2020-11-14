@@ -42,7 +42,6 @@ import org.xml.sax.SAXException;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleProcessingInstruction;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
-import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.CSSValue;
@@ -89,9 +88,10 @@ public class XMLDocumentTest {
 	@Test
 	public void getDocumentElement() {
 		assertFalse(xmlDoc instanceof HTMLDocument);
-		CSSElement elm = xmlDoc.getDocumentElement();
+		DOMElement elm = xmlDoc.getDocumentElement();
 		assertNotNull(elm);
 		assertEquals("html", elm.getTagName());
+		assertEquals("<html xml:base=\"http://www.example.com/\">", elm.getStartTag());
 	}
 
 	@Test
@@ -117,7 +117,7 @@ public class XMLDocumentTest {
 	@Test
 	public void appendChild() throws DOMException {
 		Text text = xmlDoc.createTextNode("text");
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		try {
 			text.appendChild(p);
 			fail("Must throw exception.");
@@ -176,7 +176,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void testEntities1() {
-		CSSElement elm = xmlDoc.getElementById("entity");
+		DOMElement elm = xmlDoc.getElementById("entity");
 		assertNotNull(elm);
 		assertEquals("span", elm.getTagName());
 		assertEquals("<>", elm.getTextContent());
@@ -195,7 +195,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void testEntities2() {
-		CSSElement elm = xmlDoc.getElementById("entiacute");
+		DOMElement elm = xmlDoc.getElementById("entiacute");
 		assertNotNull(elm);
 		assertEquals("span", elm.getTagName());
 		assertEquals("ítem", elm.getTextContent());
@@ -209,7 +209,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void testAttributeEntities() {
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		Attr attr = xmlDoc.createAttribute("id");
 		attr.setValue("para>Id");
 		p.setAttributeNode(attr);
@@ -362,7 +362,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void getElementById() {
-		CSSElement elm = xmlDoc.getElementById("ul1");
+		DOMElement elm = xmlDoc.getElementById("ul1");
 		assertNotNull(elm);
 		assertEquals("ul", elm.getTagName());
 		assertNull(xmlDoc.getElementById("xxxxxx"));
@@ -481,9 +481,9 @@ public class XMLDocumentTest {
 		ElementList tablelist = xmlDoc.getElementsByClassName("tableclass");
 		assertNotNull(tablelist);
 		assertEquals(1, tablelist.getLength());
-		CSSElement elem = tablelist.item(0);
+		DOMElement elem = tablelist.item(0);
 		assertEquals("table", elem.getNodeName());
-		ElementList list = ((DOMElement) elem.getElementsByTagName("tr").item(0)).getElementsByClassName("tablecclass");
+		ElementList list = elem.getElementsByTagName("tr").item(0).getElementsByClassName("tablecclass");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		list = xmlDoc.getElementsByClassName("liclass");
@@ -526,6 +526,9 @@ public class XMLDocumentTest {
 		assertEquals(2, list.getLength());
 		DOMElement svg = list.item(0);
 		assertEquals("s:svg", svg.getNodeName());
+		assertEquals(
+				"<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" s:version=\"1.1\" s:viewBox=\"0 0 100 100\" id=\"svg1\">",
+				svg.getStartTag());
 		Attr version = svg.getAttributeNodeNS("http://www.w3.org/2000/svg", "version");
 		assertEquals("http://www.w3.org/2000/svg", version.getNamespaceURI());
 		assertEquals("s", svg.getPrefix());
@@ -556,7 +559,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void testQuerySelectorAll() {
-		CSSElement elm = xmlDoc.getElementById("ul1");
+		DOMElement elm = xmlDoc.getElementById("ul1");
 		ElementList qlist = xmlDoc.querySelectorAll("#ul1");
 		assertEquals(1, qlist.getLength());
 		assertTrue(elm == qlist.item(0));
@@ -590,7 +593,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void getTextContent() {
-		CSSElement elm = xmlDoc.getElementsByTagName("style").item(0);
+		DOMElement elm = xmlDoc.getElementsByTagName("style").item(0);
 		assertNotNull(elm);
 		String text = elm.getTextContent();
 		assertNotNull(text);
@@ -626,7 +629,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void TextGetWholeText() {
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		p.appendChild(xmlDoc.createTextNode("One"));
 		Text text = xmlDoc.createTextNode("Two");
 		p.appendChild(text);
@@ -637,7 +640,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void TextGetWholeTextWithER1() {
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		p.appendChild(xmlDoc.createTextNode("p1 "));
 		EntityReference amp = xmlDoc.createEntityReference("amp");
 		p.appendChild(amp);
@@ -650,7 +653,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void TextGetWholeTextWithER2() {
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		p.appendChild(xmlDoc.createTextNode("p1 "));
 		EntityReference amp = xmlDoc.createEntityReference("amp");
 		p.appendChild(amp);
@@ -663,7 +666,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void TextReplaceWholeText() {
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		p.appendChild(xmlDoc.createTextNode("One"));
 		Text text = xmlDoc.createTextNode("Two");
 		p.appendChild(text);
@@ -678,7 +681,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void TextReplaceWholeTextWithER1() {
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		p.appendChild(xmlDoc.createTextNode("p one"));
 		EntityReference amp = xmlDoc.createEntityReference("amp");
 		p.appendChild(amp);
@@ -692,7 +695,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void TextReplaceWholeTextWithER2() {
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		p.appendChild(xmlDoc.createTextNode("p one"));
 		EntityReference amp = xmlDoc.createEntityReference("amp");
 		p.appendChild(amp);
@@ -706,7 +709,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void TextReplaceWholeTextWithER3() {
-		CSSElement p = xmlDoc.createElement("p");
+		DOMElement p = xmlDoc.createElement("p");
 		p.appendChild(xmlDoc.createTextNode("p one"));
 		EntityReference amp = xmlDoc.createEntityReference("amp");
 		p.appendChild(amp);
@@ -784,7 +787,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void getComputedStyle() {
-		CSSElement elm = xmlDoc.getElementById("firstH3");
+		DOMElement elm = xmlDoc.getElementById("firstH3");
 		assertNotNull(elm);
 		DocumentCSSStyleSheet sheet = xmlDoc.getStyleSheet();
 		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
@@ -801,7 +804,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void getOverrideStyle() {
-		CSSElement elm = xmlDoc.getElementById("tablerow1");
+		DOMElement elm = xmlDoc.getElementById("tablerow1");
 		assertNotNull(elm);
 		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("5pt", style.getPropertyValue("margin-top"));
@@ -906,7 +909,7 @@ public class XMLDocumentTest {
 		base.setValue("http://www.example.com/newbase/");
 		assertEquals("http://www.example.com/newbase/", xmlDoc.getBaseURI());
 		// Changing an unrelated href attribute does nothing to base uri.
-		CSSElement anchor = xmlDoc.getElementsByTagName("a").item(0);
+		DOMElement anchor = xmlDoc.getElementsByTagName("a").item(0);
 		anchor.setAttribute("href", "http://www.example.com/foo/");
 		assertEquals("http://www.example.com/foo/", anchor.getAttribute("href"));
 		assertEquals("http://www.example.com/newbase/", xmlDoc.getBaseURI());
@@ -945,7 +948,7 @@ public class XMLDocumentTest {
 		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader();
 		xmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
 		re.close();
-		CSSElement elm = xmlDoc.getElementById("para1");
+		DOMElement elm = xmlDoc.getElementById("para1");
 		assertNotNull(elm);
 		CSSStyleDeclaration style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("#cd853f", style.getPropertyValue("background-color"));
