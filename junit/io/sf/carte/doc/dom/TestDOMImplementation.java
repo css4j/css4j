@@ -16,6 +16,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import org.w3c.dom.Attr;
 import org.w3c.css.sac.Parser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentType;
@@ -80,7 +81,13 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		}
 		// Create and append a document element, if provided
 		if (qualifiedName != null && qualifiedName.length() != 0) {
-			document.appendChild(document.createElementNS(namespaceURI, qualifiedName));
+			DOMElement docElm = document.createElementNS(namespaceURI, qualifiedName);
+			if (docElm.getPrefix() != null && namespaceURI != null) {
+				Attr attr = document.createAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:" + docElm.getPrefix());
+				attr.setValue(namespaceURI);
+				docElm.setAttributeNodeNS(attr);
+			}
+			document.appendChild(docElm);
 		}
 		return document;
 	}

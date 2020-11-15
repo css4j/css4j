@@ -79,6 +79,7 @@ public class HTMLDocumentTest {
 		DOMElement elm = xhtmlDoc.getDocumentElement();
 		assertNotNull(elm);
 		assertEquals("html", elm.getTagName());
+		assertEquals("<html>", elm.getStartTag());
 	}
 
 	@Test

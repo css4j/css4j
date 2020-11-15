@@ -1319,6 +1319,7 @@ public class DOMDocumentTest {
 	public void testLookupNamespaceURI() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", "x:doc", null);
 		DOMElement docelm = document.getDocumentElement();
+		assertEquals("<x:doc xmlns:x=\"http://www.example.com/examplens\"></x:doc>", docelm.toString());
 		assertEquals("http://www.example.com/examplens", docelm.lookupNamespaceURI("x"));
 		assertNull(docelm.lookupNamespaceURI("z"));
 		assertEquals("http://www.example.com/examplens", document.lookupNamespaceURI("x"));

@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.EnumSet;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.DocumentType;
@@ -93,24 +94,47 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 			throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, "Doctype already in use");
 		}
 		DOMDocument document;
-		/*
-		 * Trick: if namespaceURI is null, create an HTML document, if it is the empty string, an
-		 * XML one
-		 */
-		if (namespaceURI == null || namespaceURI.equals(HTMLDocument.HTML_NAMESPACE_URI)
-				|| (doctype != null && "html".equalsIgnoreCase(doctype.getName()))) {
-			document = new MyHTMLDocument(doctype);
+		if (isHTMLDocument(namespaceURI, qualifiedName, doctype)) {
+			document = createHTMLDocument(doctype);
 		} else {
-			document = new MyXMLDocument(doctype);
+			document = createXMLDocument(doctype);
 		}
 		if (!strictErrorChecking) {
 			document.setStrictErrorChecking(false);
 		}
 		// Create and append a document element, if provided
 		if (qualifiedName != null && qualifiedName.length() != 0) {
-			document.appendChild(document.createElementNS(namespaceURI, qualifiedName));
+			DOMElement docElm = document.createElementNS(namespaceURI, qualifiedName);
+			if (docElm.getPrefix() != null && namespaceURI != null) {
+				Attr attr = document.createAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:" + docElm.getPrefix());
+				attr.setValue(namespaceURI);
+				docElm.setAttributeNodeNS(attr);
+			}
+			document.appendChild(docElm);
 		}
 		return document;
+	}
+
+	protected DOMDocument createXMLDocument(DocumentType doctype) {
+		return new MyXMLDocument(doctype);
+	}
+
+	protected HTMLDocument createHTMLDocument(DocumentType doctype) {
+		return new MyHTMLDocument(doctype);
+	}
+
+	private static boolean isHTMLDocument(String namespaceURI, String qualifiedName, DocumentType doctype) {
+		if (doctype != null) {
+			return "html".equalsIgnoreCase(doctype.getName());
+		}
+		if (qualifiedName != null) {
+			return "html".equalsIgnoreCase(qualifiedName);
+		}
+		/*
+		 * Trick: if namespaceURI is null, create an HTML document, if it is the empty string, an
+		 * XML one
+		 */
+		return namespaceURI == null || HTMLDocument.HTML_NAMESPACE_URI.equals(namespaceURI);
 	}
 
 	/**
