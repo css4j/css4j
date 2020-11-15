@@ -23,6 +23,7 @@ import org.w3c.css.sac.SelectorList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
@@ -183,9 +184,11 @@ public class DOMWriter {
 	 * 
 	 * @param root   the root node.
 	 * @param writer the writer.
-	 * @throws IOException if an I/O problem occurred while writing.
+	 * @throws DOMException NAMESPACE_ERR if there is a DOM namespace inconsistency
+	 *                      preventing a satisfactory serialization.
+	 * @throws IOException  if an I/O problem occurred while writing.
 	 */
-	public static void writeTree(Node root, SimpleWriter writer) throws IOException {
+	public static void writeTree(Node root, SimpleWriter writer) throws DOMException, IOException {
 		DOMWriter domWriter = new DOMWriter();
 		domWriter.writeNode(root, writer);
 	}
@@ -198,8 +201,10 @@ public class DOMWriter {
 	 * 
 	 * @param root the root node.
 	 * @return the serialization.
+	 * @throws DOMException NAMESPACE_ERR if there is a DOM namespace inconsistency
+	 *                      preventing a satisfactory serialization.
 	 */
-	public String serializeToString(Node root) {
+	public String serializeToString(Node root) throws DOMException {
 		BufferSimpleWriter writer = new BufferSimpleWriter(512);
 		try {
 			writeNode(root, writer);
@@ -224,9 +229,11 @@ public class DOMWriter {
 	 * 
 	 * @param root   the node.
 	 * @param writer the writer.
-	 * @throws IOException if an I/O problem occurred while writing.
+	 * @throws DOMException NAMESPACE_ERR if there is a DOM namespace inconsistency
+	 *                      preventing a satisfactory serialization.
+	 * @throws IOException  if an I/O problem occurred while writing.
 	 */
-	public void writeNode(Node root, SimpleWriter writer) throws IOException {
+	public void writeNode(Node root, SimpleWriter writer) throws DOMException, IOException {
 		this.rootNode = root;
 		ExtendedCSSStyleSheet<?> oldUaSheet = uaSheet;
 		if (oldUaSheet == null) {
@@ -242,13 +249,15 @@ public class DOMWriter {
 	 * Serialize the given node and descendants, with an initial indenting context.
 	 * 
 	 * @param node     the node.
-	 * @param wri   the writer.
+	 * @param wri      the writer.
 	 * @param indented <code>true</code> if the current behaviour (specified by
 	 *                 parent or by direct method call) is to put each child node on
 	 *                 its own line and indent it.
-	 * @throws IOException if an I/O problem occurred while writing.
+	 * @throws DOMException NAMESPACE_ERR if there is a DOM namespace inconsistency
+	 *                      preventing a satisfactory serialization.
+	 * @throws IOException  if an I/O problem occurred while writing.
 	 */
-	protected void writeNode(Node node, SimpleWriter wri, boolean indented) throws IOException {
+	protected void writeNode(Node node, SimpleWriter wri, boolean indented) throws DOMException, IOException {
 		switch (node.getNodeType()) {
 		case Node.ELEMENT_NODE:
 			writeElement((DOMElement) node, wri, indented);
@@ -296,15 +305,34 @@ public class DOMWriter {
 	 * @param indented <code>true</code> if the current behaviour (specified by
 	 *                 parent or by direct method call) is to put each child node on
 	 *                 its own line and indent it.
-	 * @throws IOException if an I/O problem occurred while writing.
+	 * @throws DOMException NAMESPACE_ERR if there is a DOM namespace inconsistency
+	 *                      preventing a satisfactory serialization.
+	 * @throws IOException  if an I/O problem occurred while writing.
 	 */
-	protected void writeElement(DOMElement element, SimpleWriter wri, boolean indented) throws IOException {
+	protected void writeElement(DOMElement element, SimpleWriter wri, boolean indented)
+			throws DOMException, IOException {
 		if (indented) {
 			startIndentedNode(element, wri);
 		}
 		String tagname = element.getTagName();
 		wri.write('<');
 		wri.write(tagname);
+		// Check for the need of a namespace prefix declaration.
+		DOMNode parentNode = element.getParentNode();
+		if (parentNode != null) {
+			String nsUri = element.getNamespaceURI();
+			String nsPrefix = element.getPrefix();
+			// Verify whether this element needs an xmlns:prefix attribute but does not have it.
+			if (nsUri != null && nsPrefix != null && !nsPrefix.equals(parentNode.lookupPrefix(nsUri))
+					&& !hasXmlnsAttr(element.getAttributes(), nsPrefix, nsUri)) {
+				// Serialize the additional xmlns attribute
+				Attr attr = getOwnerDocument().createAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:" + nsPrefix);
+				attr.setValue(nsUri);
+				wri.write(' ');
+				writeAttribute(attr, wri);
+			}
+		}
+		//
 		writeAttributes(element.getAttributes(), wri);
 		if (!element.isVoid()) {
 			wri.write('>');
@@ -327,9 +355,38 @@ public class DOMWriter {
 		} else {
 			closeEmptyElementTag(wri);
 		}
+		//
 		if (indented) {
 			endIndentedNode(element, wri);
 		}
+	}
+
+	private boolean hasXmlnsAttr(AttributeNamedNodeMap attributeMap, String nsPrefix, String nsUri)
+			throws DOMException {
+		if (!attributeMap.isEmpty()) {
+			Iterator<Attr> it = attributeMap.iterator();
+			while (it.hasNext()) {
+				Attr attr = it.next();
+				if (DOMDocument.XMLNS_NAMESPACE_URI.equals(attr.getNamespaceURI()) && nsUri.equals(attr.getValue())) {
+					String localName = attr.getLocalName();
+					String prefix = attr.getPrefix();
+					if ("xmlns".equals(prefix)) {
+						/*
+						 * Check whether the attribute name is the same as the element's namespace prefix.
+						 * 
+						 * This consistency check could be done when setting the attributes, but that
+						 * would produce unwanted overhead when every attribute is created.
+						 */
+						if (nsPrefix.equals(localName)) {
+							return true;
+						}
+						throw new DOMException(DOMException.NAMESPACE_ERR, "Two prefixes for same namespace (" + nsUri
+								+ "): '" + nsPrefix + "' and '" + prefix + "'.");
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -369,9 +426,10 @@ public class DOMWriter {
 	 * @param indented <code>true</code> if the current behaviour (specified by
 	 *                 parent or by direct method call) is to put each child node on
 	 *                 its own line and indent it.
+	 * @throws DOMException if there is a DOM inconsistency preventing a satisfactory serialization.
 	 * @throws IOException if an I/O problem occurred while writing.
 	 */
-	protected void writeChildNodes(Node parent, SimpleWriter wri, boolean indented) throws IOException {
+	protected void writeChildNodes(Node parent, SimpleWriter wri, boolean indented) throws DOMException, IOException {
 		DOMNodeList list = ((DOMNode) parent).getChildNodes();
 		for (DOMNode node : list) {
 			writeNode(node, wri, indented);
