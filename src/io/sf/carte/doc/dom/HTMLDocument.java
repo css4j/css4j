@@ -233,10 +233,10 @@ abstract public class HTMLDocument extends DOMDocument {
 			super.preAddChild(newChild);
 			if (newChild.getNodeType() == Node.ELEMENT_NODE) {
 				String nname = newChild.getNodeName();
-				if (nname == "head" || nname == "body") {
+				if ("head".equals(nname) || "body".equals(nname)) {
 					Node node = getFirstChild();
 					while (node != null) {
-						if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName() == nname) {
+						if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(nname)) {
 							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 									"<html> already has a " + nname + " child.");
 						}
@@ -252,10 +252,10 @@ abstract public class HTMLDocument extends DOMDocument {
 			if (newChild.getNodeType() == Node.ELEMENT_NODE) {
 				String nname = newChild.getNodeName();
 				String rname = replaced.getNodeName();
-				if (!nname.equalsIgnoreCase(rname) && (nname == "head" || nname == "body")) {
+				if (!nname.equalsIgnoreCase(rname) && ("head".equals(nname) || "body".equals(nname))) {
 					Node node = getFirstChild();
 					while (node != null) {
-						if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName() == nname) {
+						if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(nname)) {
 							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 									"<html> already has a " + nname + " child.");
 						}
@@ -280,7 +280,7 @@ abstract public class HTMLDocument extends DOMDocument {
 			if (parentNode != null) {
 				short type = parentNode.getNodeType();
 				if (type != Node.DOCUMENT_FRAGMENT_NODE && (type != Node.ELEMENT_NODE
-						|| (parentNode.getNodeName() != "head" && parentNode.getNodeName() != "noscript"))) {
+						|| (!"head".equals(parentNode.getNodeName()) && !"noscript".equals(parentNode.getNodeName())))) {
 					String msg = "A <" + getNodeName() + "> tag can occur only in a head or noscript element, not in "
 							+ parentNode.toString();
 					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, msg);
@@ -311,7 +311,7 @@ abstract public class HTMLDocument extends DOMDocument {
 				if (parentNode.getNodeType() == Node.ELEMENT_NODE) {
 					Node node = parentNode.getFirstChild();
 					while (node != null) {
-						if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName() == "base" && node != this) {
+						if (node.getNodeType() == Node.ELEMENT_NODE && "base".equals(node.getNodeName()) && node != this) {
 							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 									"A document can have only one base element.");
 						}
@@ -609,7 +609,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		private boolean isValidContext(Node parentNode) {
 			String parentTag = parentNode.getNodeName();
-			return parentTag == "head" || parentTag == "noscript" || hasAttribute("itemprop");
+			return "head".equals(parentTag) || "noscript".equals(parentTag) || hasAttribute("itemprop");
 		}
 	}
 
@@ -789,33 +789,32 @@ abstract public class HTMLDocument extends DOMDocument {
 		if (!DOMDocument.isValidName(localName)) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);
 		}
-		localName = localName.intern();
 		//
 		DOMElement myelem;
 		if (namespaceURI == HTMLDocument.HTML_NAMESPACE_URI) {
-			if ("link" == localName) {
+			if ("link".equals(localName)) {
 				myelem = new LinkElement();
-			} else if ("style" == localName) {
+			} else if ("style".equals(localName)) {
 				myelem = new StyleElement();
-			} else if ("meta" == localName) {
+			} else if ("meta".equals(localName)) {
 				myelem = new MetaElement();
-			} else if ("base" == localName) {
+			} else if ("base".equals(localName)) {
 				myelem = new BaseElement();
-			} else if ("title" == localName) {
+			} else if ("title".equals(localName)) {
 				myelem = new MetacontentElement(localName);
-			} else if ("html" == localName) {
+			} else if ("html".equals(localName)) {
 				myelem = new HtmlRootElement();
-			} else if ("img" == localName) {
+			} else if ("img".equals(localName)) {
 				myelem = new ImgElement();
-			} else if ("font" == localName) {
+			} else if ("font".equals(localName)) {
 				myelem = new FontElement();
-			} else if ("table" == localName) {
+			} else if ("table".equals(localName)) {
 				myelem = new TableElement();
-			} else if ("tr" == localName) {
+			} else if ("tr".equals(localName)) {
 				myelem = new TableRowElement();
-			} else if ("td" == localName) {
+			} else if ("td".equals(localName)) {
 				myelem = new TableCellElement(localName);
-			} else if ("th" == localName) {
+			} else if ("th".equals(localName)) {
 				myelem = new TableCellElement(localName);
 			} else if (rawTextElementsExceptStyle.contains(localName)) {
 				myelem = new RawTextElement(localName, namespaceURI);
@@ -844,13 +843,13 @@ abstract public class HTMLDocument extends DOMDocument {
 			DOMElement owner = getOwnerElement();
 			// In principle, owner cannot be null here
 			String tagname = owner.getTagName();
-			if (tagname == "base") {
+			if ("base".equals(tagname)) {
 				if (owner.isDocumentDescendant()) {
 					HTMLDocument doc = (HTMLDocument) getOwnerDocument();
 					doc.baseURL = null;
 					doc.onBaseModify();
 				}
-			} else if (tagname == "link") {
+			} else if ("link".equals(tagname)) {
 				((LinkElement) owner).resetLinkedSheet();
 			}
 		}
@@ -858,9 +857,9 @@ abstract public class HTMLDocument extends DOMDocument {
 		@Override
 		void onDOMChange(DOMElement owner) {
 			String tagname = owner.getTagName();
-			if (tagname == "link") {
+			if ("link".equals(tagname)) {
 				((LinkElement) owner).resetLinkedSheet();
-			} else if (tagname == "base") {
+			} else if ("base".equals(tagname)) {
 				HTMLDocument doc = (HTMLDocument) getOwnerDocument();
 				String value = getValue();
 				if (owner.isDocumentDescendant()) {
@@ -939,21 +938,20 @@ abstract public class HTMLDocument extends DOMDocument {
 		if (!DOMDocument.isValidName(localName)) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);
 		}
-		localName = localName.intern();
 		Attr my;
 		if (namespaceURI == null || namespaceURI == HTMLDocument.HTML_NAMESPACE_URI) {
-			if (localName == "class") {
+			if ("class".equals(localName)) {
 				my = new ClassAttr(namespaceURI);
-			} else if (localName == "href") {
+			} else if ("href".equals(localName)) {
 				my = new HrefEventAttr(namespaceURI);
-			} else if (localName == "style" && prefix == null) {
+			} else if ("style".equals(localName) && prefix == null) {
 				my = new MyStyleAttr(localName);
-			} else if (localName == "media" || localName == "type") {
+			} else if ("media".equals(localName) || "type".equals(localName)) {
 				my = new StyleEventAttr(localName, namespaceURI);
 			} else {
 				my = new MyAttr(localName, namespaceURI);
 			}
-		} else if (localName == "xmlns") {
+		} else if ("xmlns".equals(localName)) {
 			if (!"http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
 				throw new DOMException(DOMException.NAMESPACE_ERR, "xmlns local name but not xmlns namespace");
 			}

@@ -64,7 +64,7 @@ class DOMElementLinkedList extends LinkedList<DOMElement> implements ElementList
 			while (node != null) {
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
 					DOMElement element = (DOMElement) node;
-					if (matchAll || element.getLocalName() == localName) {
+					if (matchAll || element.getLocalName().equals(localName)) {
 						if (isSameNamespace(element, namespaceURI)) {
 							add(element);
 						}

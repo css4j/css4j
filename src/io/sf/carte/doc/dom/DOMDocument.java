@@ -1668,7 +1668,6 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		if (!isValidName(localName)) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);
 		}
-		localName = localName.intern();
 		DOMElement myelem = new MyXMLElement(localName, namespaceURI);
 		if (prefix != null) {
 			myelem.setPrefix(prefix);
@@ -1803,7 +1802,6 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		} else if (qualifiedName.indexOf(':') != -1) {
 			throw new DOMException(DOMException.NAMESPACE_ERR, "Prefix with null namespace");
 		}
-		localName = localName.intern();
 		Attr my = createAttributeNS(namespaceURI, prefix, localName);
 		return my;
 	}
@@ -1813,16 +1811,16 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);
 		}
 		Attr my;
-		if (localName == "xmlns") {
+		if ("xmlns".equals(localName)) {
 			if (namespaceURI != null && !"http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
 				throw new DOMException(DOMException.NAMESPACE_ERR, "xmlns local name but not xmlns namespace");
 			}
 			my = new XmlnsAttr();
-		} else if (localName == "class") {
+		} else if ("class".equals(localName)) {
 			my = new ClassAttr(namespaceURI);
-		} else if (localName == "base" && "xml".equals(prefix)) {
+		} else if ("base".equals(localName) && "xml".equals(prefix)) {
 			my = new BaseEventAttr();
-		} else if (localName == "style" && prefix == null) {
+		} else if ("style".equals(localName) && prefix == null) {
 			my = new MyStyleAttr(localName);
 		} else {
 			my = new MyAttr(localName, namespaceURI);

@@ -319,7 +319,7 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 
 		@Override
 		public ElementList getElementsByTagName(String name) {
-			name = name.toLowerCase(Locale.ROOT).intern();
+			name = name.toLowerCase(Locale.ROOT);
 			DOMElementLinkedList list = findList(name);
 			if (list != null) {
 				return list;
