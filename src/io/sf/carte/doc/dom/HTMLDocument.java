@@ -983,15 +983,11 @@ abstract public class HTMLDocument extends DOMDocument {
 				try {
 					docUrl = new URL(docUri);
 				} catch (MalformedURLException e) {
-					docUrl = null;
+					return setBaseForNullDocumentURI(base, baseElement);
 				}
 				URL urlBase;
 				try {
-					if (docUrl != null) {
-						urlBase = new URL(docUrl, base);
-					} else {
-						urlBase = new URL(base);
-					}
+					urlBase = new URL(docUrl, base);
 				} catch (MalformedURLException e) {
 					getErrorHandler().ioError(base, e);
 					return false;
@@ -1010,18 +1006,24 @@ abstract public class HTMLDocument extends DOMDocument {
 				baseURL = urlBase;
 				return true;
 			} else {
-				try {
-					URL urlBase = new URL(base);
-					String scheme = urlBase.getProtocol();
-					if (scheme.equals("https") || scheme.equals("http")) {
-						baseURL = urlBase;
-						return true;
-					}
-					// Remote document wants to set a non-http base URL
-				} catch (MalformedURLException e) {
-					getErrorHandler().ioError(base, e);
-				}
+				return setBaseForNullDocumentURI(base, baseElement);
 			}
+		}
+		return false;
+	}
+
+	private boolean setBaseForNullDocumentURI(String base, DOMElement baseElement) {
+		try {
+			URL urlBase = new URL(base);
+			String scheme = urlBase.getProtocol();
+			if (scheme.equals("https") || scheme.equals("http")) {
+				baseURL = urlBase;
+				return true;
+			}
+			// Remote document wants to set a non-http base URL
+			getErrorHandler().policyError(baseElement,
+					"Untrusted document wants to set a non-http base URL: " + base);
+		} catch (MalformedURLException e) {
 		}
 		return false;
 	}
