@@ -2791,17 +2791,14 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					try {
 						docUrl = new URL(buri);
 					} catch (MalformedURLException e) {
-						docUrl = null;
+						return getBaseForNullDocumentURI(attr, elm);
 					}
 					URL bUrl;
 					try {
-						if (docUrl != null) {
-							bUrl = new URL(docUrl, attr);
-						} else {
-							bUrl = new URL(attr);
-						}
+						bUrl = new URL(docUrl, attr);
 					} catch (MalformedURLException e) {
-						return docUrl != null ? docUrl.toExternalForm() : null;
+						getErrorHandler().ioError(attr, e);
+						return docUrl.toExternalForm();
 					}
 					buri = bUrl.toExternalForm();
 					String docscheme = docUrl.getProtocol();
@@ -2812,25 +2809,31 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 							// Remote document wants to set a non-http base URI
 							getErrorHandler().policyError(elm,
 									"Remote document wants to set a non-http base URL: " + buri);
-							buri = docUrl != null ? docUrl.toExternalForm() : null;
+							buri = docUrl.toExternalForm();
 						}
 					}
 				} else {
-					try {
-						URL bUrl = new URL(attr);
-						String bscheme = bUrl.getProtocol();
-						if (bscheme.equals("https") || bscheme.equals("http")) {
-							buri = attr;
-						} else {
-							getErrorHandler().policyError(elm,
-									"Untrusted document wants to set a non-http base URL: " + buri);
-						}
-					} catch (MalformedURLException e) {
-					}
+					buri = getBaseForNullDocumentURI(attr, elm);
 				}
 			}
 		}
 		return buri;
+	}
+
+	private String getBaseForNullDocumentURI(String attr, DOMElement documentElement) {
+		URL bUrl;
+		try {
+			bUrl = new URL(attr);
+			String bscheme = bUrl.getProtocol();
+			if (bscheme.equals("https") || bscheme.equals("http")) {
+				return attr;
+			} else {
+				getErrorHandler().policyError(documentElement,
+						"Untrusted document wants to set a non-http base URL: " + attr);
+			}
+		} catch (MalformedURLException e) {
+		}
+		return null;
 	}
 
 	/**
