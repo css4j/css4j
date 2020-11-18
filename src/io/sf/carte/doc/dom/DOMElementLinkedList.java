@@ -1,16 +1,26 @@
+/*
+
+ Copyright (c) 2005-2020, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://css4j.github.io/LICENSE.txt
+
+ */
+
 package io.sf.carte.doc.dom;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.SortedSet;
 
 import org.w3c.dom.Node;
 
-import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 class DOMElementLinkedList extends LinkedList<DOMElement> implements ElementList {
-	private static final long serialVersionUID = 1L;
+
+	private static final long serialVersionUID = 2L;
 
 	DOMElementLinkedList() {
 		super();
@@ -38,8 +48,11 @@ class DOMElementLinkedList extends LinkedList<DOMElement> implements ElementList
 	public String toString() {
 		StringBuilder buf = new StringBuilder(size() * 32 + 40);
 		Iterator<DOMElement> it = iterator();
-		while (it.hasNext()) {
+		if (it.hasNext()) {
 			buf.append(it.next().toString());
+		}
+		while (it.hasNext()) {
+			buf.append(',').append(it.next().toString());
 		}
 		return buf.toString();
 	}
@@ -58,63 +71,5 @@ class DOMElementLinkedList extends LinkedList<DOMElement> implements ElementList
 		}
 	}
 
-	void fillByTagList(String localName, AbstractDOMNode contextNode, String namespaceURI, boolean matchAll) {
-		synchronized (contextNode) {
-			Node node = contextNode.getFirstChild();
-			while (node != null) {
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					DOMElement element = (DOMElement) node;
-					if (matchAll || element.getLocalName().equals(localName)) {
-						if (isSameNamespace(element, namespaceURI)) {
-							add(element);
-						}
-					}
-					fillByTagList(localName, element, namespaceURI, matchAll);
-				}
-				node = node.getNextSibling();
-			}
-		}
-	}
-
-	private static boolean isSameNamespace(DOMElement element, String ns2) {
-		String ns1 = element.getNamespaceURI();
-		if (ns1 == null) {
-			return ns2 == null || element.isDefaultNamespace(ns2);
-		}
-		return ns1.equals(ns2) || (ns2 == null && element.isDefaultNamespace(ns1));
-	}
-
-	void fillByClassList(SortedSet<String> sorted, AbstractDOMNode contextNode) {
-		synchronized (contextNode) {
-			Node node = contextNode.getFirstChild();
-			while (node != null) {
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					DOMElement element = (DOMElement) node;
-					if (element.hasAttribute("class") && element.getClassList().containsAll(sorted)) {
-						add(element);
-					}
-					fillByClassList(sorted, element);
-				}
-				node = node.getNextSibling();
-			}
-		}
-	}
-
-	void updateOnInsert(DOMElement newChild) {
-		int sz = size();
-		int i = 0;
-		for (; i < sz; i++) {
-			CSSElement elm = get(i);
-			if ((elm.compareDocumentPosition(newChild)
-					& Node.DOCUMENT_POSITION_FOLLOWING) == Node.DOCUMENT_POSITION_FOLLOWING) {
-				break;
-			}
-		}
-		add(i, newChild);
-	}
-
-	void updateOnRemove(DOMElement oldChild) {
-		remove(oldChild);
-	}
 }
 

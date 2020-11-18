@@ -1383,14 +1383,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		@Override
 		void setAttributeOwner(DOMElement newOwner) throws DOMException {
 			DOMElement oldOwner;
-			if (newOwner == null && (oldOwner = getOwnerElement()) != null && isSameNamespace(oldOwner.getNamespaceURI())) {
-				// getElementsByClassName is a collection of child elements,
-				// so we get the owner's parent
-				Node parent = oldOwner.getParentNode();
-				if (parent != null && parent.getNodeType() == Node.ELEMENT_NODE) {
-					DOMElement parentElm = (DOMElement) parent;
-					parentElm.updateClasslistsOnRemove(oldOwner, parentElm);
-				}
+			if (newOwner == null && (oldOwner = getOwnerElement()) != null
+					&& isSameNamespace(oldOwner.getNamespaceURI())) {
 				if (oldOwner.classList != null) {
 					// Restore attribute value from owner's classList and clear it.
 					this.value = oldOwner.classList.getValue();
@@ -1402,11 +1396,6 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				if (isSameNamespace(newOwner.getNamespaceURI())) {
 					if (newOwner.classList != null) {
 						newOwner.classList.setValue(this.value);
-					}
-					Node parent = newOwner.getParentNode();
-					if (parent != null && parent.getNodeType() == Node.ELEMENT_NODE) {
-						DOMElement parentElm = (DOMElement) parent;
-						parentElm.updateClasslists(newOwner, parentElm);
 					}
 				}
 			}

@@ -704,7 +704,7 @@ public class HTMLDocumentTest {
 		html.appendChild(xhtmlDoc.createElement("div"));
 		assertEquals(2, list.getLength());
 		NodeList stylelist2 = xhtmlDoc.getElementsByTagName("style");
-		assertTrue(stylelist == stylelist2);
+		assertEquals(stylelist.toString(), stylelist2.toString());
 		//
 		list = xhtmlDoc.getElementsByTagName("html");
 		assertEquals(1, list.getLength());
@@ -743,7 +743,7 @@ public class HTMLDocumentTest {
 		div.setAttribute("class", "nothing");
 		assertEquals(1, list.getLength());
 		ElementList tablelist2 = xhtmlDoc.getElementsByClassName("tableclass");
-		assertTrue(tablelist == tablelist2);
+		assertEquals(tablelist.toString(), tablelist2.toString());
 	}
 
 	@Test

@@ -418,7 +418,7 @@ public class HTMLElementTest {
 		assertTrue(body == attr.getOwnerElement());
 		assertEquals("foo bar", attr.getValue());
 		assertEquals(1, fooelms.getLength());
-		assertTrue(fooelms == xhtmlDoc.getElementsByClassName("foo"));
+		assertEquals(fooelms.toString(), xhtmlDoc.getElementsByClassName("foo").toString());
 		assertTrue(body == fooelms.item(0));
 		ElementList barelms = xhtmlDoc.getElementsByClassName("bar");
 		assertEquals(1, barelms.getLength());
@@ -453,7 +453,7 @@ public class HTMLElementTest {
 		assertTrue(body == attr.getOwnerElement());
 		assertEquals("foo bar", attr.getValue());
 		assertEquals(1, fooelms.getLength());
-		assertTrue(fooelms == xhtmlDoc.getElementsByClassName("foo"));
+		assertEquals(fooelms.toString(), xhtmlDoc.getElementsByClassName("foo").toString());
 		assertTrue(body == fooelms.item(0));
 		ElementList barelms = xhtmlDoc.getElementsByClassName("bar");
 		assertEquals(1, barelms.getLength());

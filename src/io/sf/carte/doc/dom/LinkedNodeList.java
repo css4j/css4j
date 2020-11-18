@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.dom;
 
+import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -19,7 +20,9 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
-abstract class LinkedNodeList implements AbstractDOMNode.RawNodeList {
+abstract class LinkedNodeList implements AbstractDOMNode.RawNodeList, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private AbstractDOMNode firstNode = null;
 	private AbstractDOMNode lastNode = null;
@@ -167,7 +170,6 @@ abstract class LinkedNodeList implements AbstractDOMNode.RawNodeList {
 	}
 
 	private void removeChild(AbstractDOMNode removed) {
-		preRemoveChild(removed);
 		removed.removeFromParent(this);
 		postRemoveChild(removed);
 	}
@@ -231,8 +233,6 @@ abstract class LinkedNodeList implements AbstractDOMNode.RawNodeList {
 	abstract void postAddChild(AbstractDOMNode node);
 
 	abstract void replaceChild(Node newChild, Node oldChild);
-
-	abstract void preRemoveChild(AbstractDOMNode removed);
 
 	abstract void postRemoveChild(AbstractDOMNode removed);
 

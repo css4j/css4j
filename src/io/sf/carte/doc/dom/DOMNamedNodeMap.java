@@ -43,6 +43,8 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 
 	private class MyLinkedNodeList extends LinkedNodeList {
 
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		void preAddChild(Node node) {
 		}
@@ -53,10 +55,6 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 
 		@Override
 		void replaceChild(Node newChild, Node oldChild) {
-		}
-
-		@Override
-		void preRemoveChild(AbstractDOMNode removed) {
 		}
 
 		@Override
