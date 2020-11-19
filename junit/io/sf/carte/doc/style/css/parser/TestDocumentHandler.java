@@ -133,5 +133,6 @@ class TestDocumentHandler extends TestDeclarationHandler {
 		assertEquals(mediaRuleLists.size(), endMediaCount);
 		assertEquals(pageRuleNames.size(), endPageCount);
 		assertEquals(fontFaceCount, endFontFaceCount);
+		assertEquals(1, streamEndcount);
 	}
 }

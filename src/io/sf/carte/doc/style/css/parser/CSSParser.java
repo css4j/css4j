@@ -2749,6 +2749,7 @@ public class CSSParser implements Parser2 {
 		public void endOfStream(int len) {
 			if (contextHandler != null) {
 				contextHandler.endOfStream(len);
+				return;
 			} else {
 				if (ruleType == MARGIN_RULE) {
 					handler.endPage(marginRule, null);

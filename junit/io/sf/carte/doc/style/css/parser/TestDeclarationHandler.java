@@ -27,12 +27,16 @@ class TestDeclarationHandler implements DocumentHandler {
 	LinkedList<String> priorities = new LinkedList<String>();
 	LinkedList<String> comments = new LinkedList<String>();
 
+	short streamEndcount = 0;
+
 	@Override
 	public void startDocument(InputSource source) throws CSSException {
+		streamEndcount = 0;
 	}
 
 	@Override
 	public void endDocument(InputSource source) throws CSSException {
+		streamEndcount++;
 	}
 
 	@Override
