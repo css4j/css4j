@@ -61,7 +61,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private boolean ignoreElementContentWhitespace = false;
 
-	private boolean ignoreImpliedAttributes = true;
+	private boolean ignoreNotSpecifiedAttributes = true;
 
 	public XMLDocumentBuilder(DOMImplementation domImpl) {
 		this(domImpl, SAXParserFactory.newInstance());
@@ -100,7 +100,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 		}
 		MyContentHandler handler;
-		if (ignoreImpliedAttributes) {
+		if (ignoreNotSpecifiedAttributes) {
 			handler = new MyContentHandler();
 		} else {
 			handler = new MyContentHandlerNotspecifiedAttr();
@@ -205,6 +205,9 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	/**
 	 * Configure the builder to ignore (or not) element content whitespace when
 	 * building the document.
+	 * <p>
+	 * Default is <code>false</code>.
+	 * </p>
 	 * 
 	 * @param ignore set it to <code>true</code> to ignore element content
 	 *               whitespace.
@@ -216,7 +219,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	/**
 	 * Same as <code>setIgnoreNotSpecifiedAttributes(boolean)</code>.
 	 * 
-	 * @param ignore set it to <code>true</code> to ignore <code>IMPLIED</code>
+	 * @param ignore set it to <code>true</code> to ignore not specified
 	 *               attributes.
 	 * @deprecated
 	 */
@@ -227,17 +230,23 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	/**
 	 * Configure the builder to ignore (or not) the attributes that were not
 	 * <code>specified</code>, when building the document.
+	 * <p>
+	 * Default is <code>true</code>.
+	 * </p>
 	 * 
 	 * @param ignore set it to <code>false</code> to set attributes that have a
 	 *               default value but were not specified.
 	 */
 	public void setIgnoreNotSpecifiedAttributes(boolean ignore) {
-		this.ignoreImpliedAttributes = ignore;
+		this.ignoreNotSpecifiedAttributes = ignore;
 	}
 
 	/**
 	 * Set the <code>strictErrorChecking</code> flag on the documents created by the
 	 * DOM implementation.
+	 * <p>
+	 * Default is <code>true</code>.
+	 * </p>
 	 * 
 	 * @param strictErrorChecking the value of the <code>strictErrorChecking</code>
 	 *                            flag.
@@ -367,8 +376,13 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 				String attrQName = atts2.getQName(i);
 				Attr attr = document.createAttributeNS(atts2.getURI(i), attrQName);
 				attr.setValue(atts2.getValue(i));
-				element.getAttributes().setNamedItem(attr);
-				if ("ID".equals(atts2.getType(i))) {
+				if (isNativeDOM) {
+					((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
+				} else {
+					element.getAttributes().setNamedItem(attr);
+				}
+				if ("ID".equals(atts2.getType(i))
+						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
 					element.setIdAttributeNode(attr, true);
 				}
 			}
@@ -597,8 +611,13 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 						((DOMElement) element).setRawText();
 					}
 				}
-				element.getAttributes().setNamedItem(attr);
-				if ("ID".equals(atts2.getType(i))) {
+				if (isNativeDOM) {
+					((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
+				} else {
+					element.getAttributes().setNamedItem(attr);
+				}
+				if ("ID".equals(atts2.getType(i))
+						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
 					element.setIdAttributeNode(attr, true);
 				}
 			}

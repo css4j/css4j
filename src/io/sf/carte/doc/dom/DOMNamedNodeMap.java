@@ -79,26 +79,34 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	@Override
 	public T setNamedItem(Node arg) throws DOMException {
 		verifyNewNode(arg);
-		AbstractDOMNode newItem = (AbstractDOMNode) arg;
-		String name = getMapKeyName(newItem);
+		T node = (T) arg;
+		String name = getMapKeyName(node);
 		T oldNode = attributeMap.get(name);
 		if (oldNode != null) {
 			if (oldNode == arg) {
 				return null;
 			}
 			// Check whether namespace is the same
-			if (isSameNamespace(newItem.getNamespaceURI(), oldNode)) {
-				attributes.replace(newItem, oldNode);
+			if (isSameNamespace(node.getNamespaceURI(), oldNode)) {
+				attributes.replace(node, oldNode);
 			} else {
 				throw new DOMException(DOMException.NAMESPACE_ERR, "Bad prefix in " + arg.getNodeName());
 			}
 		} else {
-			attributes.add(newItem);
+			attributes.add(node);
 		}
-		T node = (T) arg;
 		T oldItem = attributeMap.put(name, node);
 		registerNode(node);
 		return oldItem;
+	}
+
+	void setNamedItemUnchecked(Node arg) {
+		@SuppressWarnings("unchecked")
+		T node = (T) arg;
+		String name = getMapKeyName(node);
+		attributes.add(node);
+		attributeMap.put(name, node);
+		registerNode(node);
 	}
 
 	private String getMapKeyName(Node node) {
