@@ -2612,7 +2612,7 @@ public class DeclarationParserTest {
 
 	private void parseStyleDeclaration(String string) throws CSSParseException, IOException {
 		parser.parseStyleDeclaration(new StringReader(string));
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 }

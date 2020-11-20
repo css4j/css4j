@@ -206,7 +206,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -215,7 +215,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -223,7 +223,7 @@ public class RuleParserTest {
 		parseRule("@namespace url(;");
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -231,7 +231,7 @@ public class RuleParserTest {
 		parseRule("@namespace url();");
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -240,7 +240,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -249,7 +249,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get(""));
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -258,7 +258,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -267,7 +267,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -404,6 +404,7 @@ public class RuleParserTest {
 		assertTrue(list.isAllMedia());
 		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -417,6 +418,7 @@ public class RuleParserTest {
 		assertTrue(list.isAllMedia());
 		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -429,6 +431,7 @@ public class RuleParserTest {
 		assertEquals(1, list.getLength());
 		assertEquals("print", list.item(0));
 		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -442,6 +445,7 @@ public class RuleParserTest {
 		assertEquals("screen", list.item(0));
 		assertEquals("tv", list.item(1));
 		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -454,6 +458,7 @@ public class RuleParserTest {
 		assertEquals(1, list.getLength());
 		assertEquals("(orientation: landscape)", list.item(0));
 		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -466,6 +471,7 @@ public class RuleParserTest {
 		assertEquals(1, list.getLength());
 		assertEquals("screen and (orientation: landscape)", list.item(0));
 		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -473,6 +479,7 @@ public class RuleParserTest {
 		parseRule("@import url('foo.css') screen and ((orientation:landscape);");
 		assertEquals(0, handler.importURIs.size());
 		assertTrue(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -486,6 +493,7 @@ public class RuleParserTest {
 		assertTrue(list.isAllMedia());
 		assertEquals("all", list.getMedia());
 		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test
@@ -498,6 +506,7 @@ public class RuleParserTest {
 		assertEquals(1, list.getLength());
 		assertEquals("print", list.item(0));
 		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	@Test

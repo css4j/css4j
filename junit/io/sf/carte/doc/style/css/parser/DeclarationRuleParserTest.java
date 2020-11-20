@@ -67,7 +67,6 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("blue", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -84,7 +83,6 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("landscape", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -108,7 +106,6 @@ public class DeclarationRuleParserTest {
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals("640px", lu.toString());
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -125,7 +122,6 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("landscape", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -150,7 +146,6 @@ public class DeclarationRuleParserTest {
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals(" ", lu.getStringValue());
 		assertFalse(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
 	}
 
 	@Test
@@ -161,11 +156,11 @@ public class DeclarationRuleParserTest {
 		assertNull(handler.selectorNames.get(0));
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
-		assertTrue(handler.streamEnded);
 	}
 
 	private void parseDeclarationRule(String string) throws CSSParseException, IOException {
 		parser.parseDeclarationRule(new StringReader(string));
+		assertEquals(1, handler.streamEndcount);
 	}
 
 	static class TestDeclarationRuleHandler extends TestDeclarationHandler implements CSSParser.DeclarationRuleHandler {

@@ -255,6 +255,6 @@ class TestCSSHandler extends TestDeclarationHandler {
 		assertEquals(featureMapNames.size(), endFeatureMapCount);
 		assertEquals(fontFaceCount, endFontFaceCount);
 		assertEquals(viewportCount, endViewportCount);
-		assertTrue(streamEnded);
+		assertEquals(1, streamEndcount);
 	}
 }

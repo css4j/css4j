@@ -15,6 +15,7 @@ import java.util.LinkedList;
 
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.ParserControl;
 
 class TestDeclarationHandler extends EmptyCSSHandler implements CSSHandler {
 
@@ -23,7 +24,7 @@ class TestDeclarationHandler extends EmptyCSSHandler implements CSSHandler {
 	LinkedList<String> priorities = new LinkedList<String>();
 	LinkedList<String> comments = new LinkedList<String>();
 
-	boolean streamEnded = false;
+	short streamEndcount = 0;
 
 	@Override
 	public void comment(String text, boolean precededByLF) {
@@ -42,8 +43,13 @@ class TestDeclarationHandler extends EmptyCSSHandler implements CSSHandler {
 	}
 
 	@Override
+	public void parseStart(ParserControl parserctl) {
+		streamEndcount = 0;
+	}
+
+	@Override
 	public void endOfStream() {
-		streamEnded = true;
+		streamEndcount++;
 	}
 
 }

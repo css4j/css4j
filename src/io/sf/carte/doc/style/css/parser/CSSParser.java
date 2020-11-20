@@ -2648,6 +2648,8 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			public void endOfStream(int len) {
+				// handler was checked for not null before instantiation of RuleTokenHandler
+				handler.endOfStream();
 			}
 
 			@Override
@@ -3122,6 +3124,7 @@ public class CSSParser implements Parser, Cloneable {
 		public void endOfStream(int len) {
 			if (contextHandler != null) {
 				contextHandler.endOfStream(len);
+				return;
 			} else {
 				if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
