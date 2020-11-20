@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -202,6 +203,34 @@ public class HTMLElementTest {
 	}
 
 	@Test
+	public void setAttributeCI() {
+		CSSElement html = xhtmlDoc.getDocumentElement();
+		DOMElement body = xhtmlDoc.createElement("BODY");
+		html.appendChild(body);
+		assertFalse(body.hasAttributes());
+		body.setAttribute("FOO", "bar");
+		assertTrue(body.hasAttributes());
+		assertTrue(body.hasAttribute("foo"));
+		assertEquals("bar", body.getAttribute("foo"));
+		Attr attr = body.getAttributeNode("FOO");
+		assertFalse(attr.isId());
+		assertNull(attr.getSchemaTypeInfo().getTypeName());
+		assertEquals("https://www.w3.org/TR/xml/", attr.getSchemaTypeInfo().getTypeNamespace());
+		body.setAttribute("ID", "bodyId");
+		assertTrue(body.hasAttributes());
+		assertEquals(2, body.getAttributes().getLength());
+		assertEquals("bodyId", body.getAttribute("ID"));
+		attr = body.getAttributeNode("ID");
+		assertTrue(attr.isId());
+		assertEquals("ID", attr.getSchemaTypeInfo().getTypeName());
+		assertEquals("https://www.w3.org/TR/xml/", attr.getSchemaTypeInfo().getTypeNamespace());
+		body.setAttribute("id", "newId");
+		assertEquals("newId", body.getAttribute("id"));
+		assertTrue(attr == body.getAttributeNode("id"));
+		assertEquals(2, body.getAttributes().getLength());
+	}
+
+	@Test
 	public void testSetAttributeError() {
 		DOMElement p = xhtmlDoc.createElement("p");
 		try {
@@ -271,6 +300,109 @@ public class HTMLElementTest {
 	}
 
 	@Test
+	public void setAttributeNodeCI() {
+		CSSElement html = xhtmlDoc.getDocumentElement();
+		DOMElement body = xhtmlDoc.createElement("body");
+		html.appendChild(body);
+		Attr attr = xhtmlDoc.createAttribute("ID");
+		attr.setValue("bodyId");
+		body.setAttributeNode(attr);
+		assertTrue(body.hasAttributes());
+		assertTrue(attr.isId());
+		assertNull(attr.getParentNode());
+		assertNotNull(attr.getOwnerElement());
+		assertEquals("id", attr.getLocalName());
+		assertEquals("bodyId", body.getAttribute("ID"));
+		assertEquals(1, body.getAttributes().getLength());
+		// Set the attribute to itself
+		assertNull(body.setAttributeNode(attr));
+		assertEquals(1, body.getAttributes().getLength());
+		// Remove
+		Attr rmattr = body.removeAttributeNode(attr);
+		assertTrue(rmattr == attr);
+		assertFalse(body.hasAttributes());
+		assertEquals(0, body.getAttributes().getLength());
+		assertNull(attr.getOwnerElement());
+		assertEquals("bodyId", attr.getValue());
+		// Class attribute
+		body.setAttribute("CLASS", "fooclass");
+		assertTrue(body.hasAttributes());
+		assertEquals("fooclass", body.getAttribute("CLASS"));
+		assertFalse(body.getAttributeNode("class").isId());
+		// Set CLASS attribute with another namespace
+		attr = xhtmlDoc.createAttributeNS("http://www.example.com/examplens", "e:CLASS");
+		attr.setValue("barclass");
+		assertEquals("CLASS", attr.getLocalName());
+		body.setAttributeNodeNS(attr);
+		assertEquals("e:CLASS=\"barclass\"", attr.toString());
+		//
+		assertEquals("fooclass", body.getAttribute("CLASS"));
+		attr = xhtmlDoc.createAttribute("CLASS");
+		attr.setValue("barclass");
+		assertEquals("class", attr.getName());
+		body.setAttributeNode(attr);
+		assertEquals("barclass", body.getAttribute("CLASS"));
+		Attr attr2 = body.getAttributeNode("CLASS");
+		assertTrue(attr == attr2);
+	}
+
+	@Test
+	public void getAttributes() {
+		CSSElement html = xhtmlDoc.getDocumentElement();
+		DOMElement body = xhtmlDoc.createElement("body");
+		html.appendChild(body);
+		body.setAttribute("ID", "bodyId");
+		AttributeNamedNodeMap nnm = body.getAttributes();
+		assertNotNull(nnm);
+		assertEquals(1, nnm.getLength());
+		Attr attr = nnm.item(0);
+		assertTrue(attr.isId());
+		assertNull(attr.getParentNode());
+		assertNotNull(attr.getOwnerElement());
+		assertEquals("id", attr.getLocalName());
+		assertSame(attr, nnm.getNamedItem("ID"));
+		assertSame(attr, nnm.getNamedItemNS(HTMLDocument.HTML_NAMESPACE_URI, "id"));
+		// Set the attribute to itself
+		assertNull(nnm.setNamedItem(attr));
+		assertEquals(1, nnm.getLength());
+		// Remove
+		Attr rmattr = nnm.removeNamedItem(attr.getName());
+		assertTrue(rmattr == attr);
+		assertFalse(body.hasAttributes());
+		assertEquals(0, nnm.getLength());
+		assertNull(attr.getOwnerElement());
+		assertEquals("bodyId", attr.getValue());
+		// Class attribute
+		Attr classAttr = xhtmlDoc.createAttribute("CLASS");
+		classAttr.setValue("fooclass");
+		nnm.setNamedItem(classAttr);
+		assertTrue(body.hasAttributes());
+		assertEquals("fooclass", body.getAttribute("CLASS"));
+		assertFalse(body.getAttributeNode("class").isId());
+		assertSame(classAttr, nnm.getNamedItem("class"));
+		// Set CLASS attribute with another namespace
+		attr = xhtmlDoc.createAttributeNS("http://www.example.com/examplens", "e:CLASS");
+		attr.setValue("barclass");
+		nnm.setNamedItem(attr);
+		assertSame(attr, nnm.getNamedItem("e:CLASS"));
+		assertSame(attr, nnm.getNamedItemNS("http://www.example.com/examplens", "CLASS"));
+		//
+		assertEquals("fooclass", body.getAttribute("CLASS"));
+		attr = xhtmlDoc.createAttribute("CLASS");
+		attr.setValue("barclass");
+		assertEquals("class", attr.getName());
+		nnm.setNamedItem(attr);
+		assertEquals("barclass", body.getAttribute("CLASS"));
+		Attr attr2 = nnm.getNamedItem("CLASS");
+		assertTrue(attr == attr2);
+		assertEquals(2, nnm.getLength());
+		//
+		rmattr = nnm.removeNamedItem(attr.getName());
+		assertTrue(rmattr == attr);
+		assertEquals(1, nnm.getLength());
+	}
+
+	@Test
 	public void setAttributeNodeClass() {
 		ElementList fooelms = xhtmlDoc.getElementsByClassName("foo");
 		assertEquals(0, fooelms.getLength());
@@ -286,7 +418,7 @@ public class HTMLElementTest {
 		assertTrue(body == attr.getOwnerElement());
 		assertEquals("foo bar", attr.getValue());
 		assertEquals(1, fooelms.getLength());
-		assertTrue(fooelms == xhtmlDoc.getElementsByClassName("foo"));
+		assertEquals(fooelms.toString(), xhtmlDoc.getElementsByClassName("foo").toString());
 		assertTrue(body == fooelms.item(0));
 		ElementList barelms = xhtmlDoc.getElementsByClassName("bar");
 		assertEquals(1, barelms.getLength());
@@ -299,6 +431,41 @@ public class HTMLElementTest {
 		body.getClassList().toggle("bar");
 		assertEquals(1, barelms.getLength());
 		body.removeAttribute("class");
+		assertNull(attr.getOwnerElement());
+		assertEquals("foo bar", attr.getValue());
+		assertEquals(0, fooelms.getLength());
+		assertEquals(0, barelms.getLength());
+	}
+
+	@Test
+	public void testSetAttributeNodeClassCI() {
+		ElementList fooelms = xhtmlDoc.getElementsByClassName("foo");
+		assertEquals(0, fooelms.getLength());
+		DOMElement body = xhtmlDoc.createElement("body");
+		xhtmlDoc.getDocumentElement().appendChild(body);
+		Attr attr = xhtmlDoc.createAttribute("CLASS");
+		attr.setValue("foo bar");
+		assertEquals("class", attr.getName());
+		assertEquals("foo bar", attr.getValue());
+		body.setAttributeNode(attr);
+		assertTrue(body.hasAttribute("CLASS"));
+		assertNull(attr.getParentNode());
+		assertTrue(body == attr.getOwnerElement());
+		assertEquals("foo bar", attr.getValue());
+		assertEquals(1, fooelms.getLength());
+		assertEquals(fooelms.toString(), xhtmlDoc.getElementsByClassName("foo").toString());
+		assertTrue(body == fooelms.item(0));
+		ElementList barelms = xhtmlDoc.getElementsByClassName("bar");
+		assertEquals(1, barelms.getLength());
+		ElementList foobarelms = xhtmlDoc.getElementsByClassName("bar foo");
+		assertEquals(1, foobarelms.getLength());
+		assertTrue(body == foobarelms.item(0));
+		body.getClassList().remove("bar");
+		assertEquals(0, barelms.getLength());
+		assertEquals(0, foobarelms.getLength());
+		body.getClassList().toggle("bar");
+		assertEquals(1, barelms.getLength());
+		body.removeAttribute("CLASS");
 		assertNull(attr.getOwnerElement());
 		assertEquals("foo bar", attr.getValue());
 		assertEquals(0, fooelms.getLength());

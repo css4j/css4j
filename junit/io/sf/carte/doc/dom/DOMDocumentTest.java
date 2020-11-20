@@ -19,6 +19,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -928,6 +931,613 @@ public class DOMDocumentTest {
 				.createProcessingInstruction("xml-stylesheet", "type=\"application/xsl\" href=\"sheet.xsl\"");
 		assertEquals("<?xml-stylesheet type=\"application/xsl\" href=\"sheet.xsl\"?>", pi.toString());
 		assertTrue(pi instanceof LinkStyle);
+	}
+
+	@Test
+	public void getElementsByTagName() {
+		DOMDocument document = domImpl.createDocument("", "doc", null);
+		DOMElement docElm = document.getDocumentElement();
+		DOMElement elem1 = document.createElement("div");
+		elem1.setAttribute("id", "div1");
+		elem1.setIdAttribute("id", true);
+		docElm.appendChild(elem1);
+		DOMElement elem2 = document.createElement("div");
+		elem2.setAttribute("id", "div2");
+		elem2.setIdAttribute("id", true);
+		elem1.appendChild(elem2);
+		DOMElement elem3 = document.createElement("div");
+		elem3.setAttribute("id", "div3");
+		elem3.setIdAttribute("id", true);
+		elem2.appendChild(elem3);
+		DOMElement elem4 = document.createElement("div");
+		elem4.setAttribute("id", "div4");
+		elem4.setIdAttribute("id", true);
+		docElm.appendChild(elem4);
+		ElementList list = document.getElementsByTagName("div");
+		assertNotNull(list);
+		assertEquals(4, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem2, list.item(1));
+		assertSame(elem3, list.item(2));
+		assertSame(elem4, list.item(3));
+		assertNull(list.item(4));
+		//
+		assertTrue(list.contains(elem1));
+		assertTrue(list.contains(elem2));
+		assertTrue(list.contains(elem3));
+		assertTrue(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		Iterator<DOMElement> it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem2, it.next());
+		assertSame(elem3, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem4.getElementsByTagName("div");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		assertNull(list.item(-1));
+		assertNull(list.item(0));
+		//
+		assertFalse(list.contains(elem1));
+		assertFalse(list.contains(elem4));
+		//
+		it = list.iterator();
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void getElementsByTagNameNS() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", "doc", null);
+		DOMElement docElm = document.getDocumentElement();
+		DOMElement elem1 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem1.setAttribute("id", "div1");
+		elem1.setIdAttribute("id", true);
+		docElm.appendChild(elem1);
+		DOMElement elem2 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem2.setAttribute("id", "div2");
+		elem2.setIdAttribute("id", true);
+		elem1.appendChild(elem2);
+		DOMElement elem3 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem3.setAttribute("id", "div3");
+		elem3.setIdAttribute("id", true);
+		elem2.appendChild(elem3);
+		DOMElement elem4 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem4.setAttribute("id", "div4");
+		elem4.setIdAttribute("id", true);
+		docElm.appendChild(elem4);
+		ElementList list = document.getElementsByTagNameNS("http://www.example.com/examplens", "div");
+		assertNotNull(list);
+		assertEquals(4, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem2, list.item(1));
+		assertSame(elem3, list.item(2));
+		assertSame(elem4, list.item(3));
+		assertNull(list.item(4));
+		//
+		Iterator<DOMElement> it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem2, it.next());
+		assertSame(elem3, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void getElementsByTagNameNSAsterisk() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", "doc", null);
+		DOMElement docElm = document.getDocumentElement();
+		DOMElement elem1 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem1.setAttribute("id", "div1");
+		elem1.setIdAttribute("id", true);
+		docElm.appendChild(elem1);
+		DOMElement elem2 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem2.setAttribute("id", "div2");
+		elem2.setIdAttribute("id", true);
+		elem1.appendChild(elem2);
+		DOMElement elem3 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem3.setAttribute("id", "div3");
+		elem3.setIdAttribute("id", true);
+		elem2.appendChild(elem3);
+		DOMElement elem4 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem4.setAttribute("id", "div4");
+		elem4.setIdAttribute("id", true);
+		docElm.appendChild(elem4);
+		ElementList list = document.getElementsByTagNameNS("*", "div");
+		assertNotNull(list);
+		assertEquals(4, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem2, list.item(1));
+		assertSame(elem3, list.item(2));
+		assertSame(elem4, list.item(3));
+		assertNull(list.item(4));
+		//
+		Iterator<DOMElement> it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem2, it.next());
+		assertSame(elem3, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void getElementsByTagNameNSMixed() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", "doc", null);
+		DOMElement docElm = document.getDocumentElement();
+		DOMElement elem1 = document.createElementNS("http://www.example.com/differentns", "div");
+		elem1.setAttribute("id", "div1");
+		elem1.setIdAttribute("id", true);
+		docElm.appendChild(elem1);
+		DOMElement elem2 = document.createElementNS("http://www.example.com/differentns", "div");
+		elem2.setAttribute("id", "div2");
+		elem2.setIdAttribute("id", true);
+		elem1.appendChild(elem2);
+		DOMElement elem3 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem3.setAttribute("id", "div3");
+		elem3.setIdAttribute("id", true);
+		elem2.appendChild(elem3);
+		DOMElement elem4 = document.createElementNS("http://www.example.com/differentns", "div");
+		elem4.setAttribute("id", "div4");
+		elem4.setIdAttribute("id", true);
+		docElm.appendChild(elem4);
+		//
+		ElementList list = document.getElementsByTagNameNS("http://www.example.com/examplens", "div");
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem3, list.item(0));
+		assertNull(list.item(1));
+		//
+		Iterator<DOMElement> it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem3, it.next());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = document.getElementsByTagNameNS("http://www.example.com/differentns", "div");
+		assertNotNull(list);
+		assertEquals(3, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem2, list.item(1));
+		assertSame(elem4, list.item(2));
+		assertNull(list.item(3));
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem2, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem1.getElementsByTagNameNS("http://www.example.com/differentns", "div");
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem2, list.item(0));
+		assertNull(list.item(1));
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem2, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem1.getElementsByTagNameNS("http://www.example.com/examplens", "div");
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem3, list.item(0));
+		assertNull(list.item(1));
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem3, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem3.getElementsByTagNameNS("http://www.example.com/examplens", "div");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		assertNull(list.item(-1));
+		assertNull(list.item(0));
+		//
+		it = list.iterator();
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void getElementsByTagNameNSMixedAsterisk() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", "doc", null);
+		DOMElement docElm = document.getDocumentElement();
+		DOMElement elem1 = document.createElementNS("http://www.example.com/differentns", "div");
+		elem1.setAttribute("id", "div1");
+		elem1.setIdAttribute("id", true);
+		docElm.appendChild(elem1);
+		DOMElement elem2 = document.createElementNS("http://www.example.com/differentns", "div");
+		elem2.setAttribute("id", "div2");
+		elem2.setIdAttribute("id", true);
+		elem1.appendChild(elem2);
+		DOMElement elem3 = document.createElementNS("http://www.example.com/examplens", "div");
+		elem3.setAttribute("id", "div3");
+		elem3.setIdAttribute("id", true);
+		elem2.appendChild(elem3);
+		DOMElement elem4 = document.createElementNS("http://www.example.com/differentns", "div");
+		elem4.setAttribute("id", "div4");
+		elem4.setIdAttribute("id", true);
+		docElm.appendChild(elem4);
+		//
+		ElementList list = document.getElementsByTagNameNS("*", "div");
+		assertNotNull(list);
+		assertEquals(4, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem2, list.item(1));
+		assertSame(elem3, list.item(2));
+		assertSame(elem4, list.item(3));
+		assertNull(list.item(4));
+		//
+		Iterator<DOMElement> it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem2, it.next());
+		assertSame(elem3, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem1.getElementsByTagNameNS("*", "div");
+		assertNotNull(list);
+		assertEquals(2, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem2, list.item(0));
+		assertSame(elem3, list.item(1));
+		assertNull(list.item(2));
+		assertEquals(elem2.getStartTag() + ',' + elem3.getStartTag(), list.toString());
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem2, it.next());
+		assertSame(elem3, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem2.getElementsByTagNameNS("*", "div");
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem3, list.item(0));
+		assertNull(list.item(1));
+		assertEquals(elem3.getStartTag(), list.toString());
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem3, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem3.getElementsByTagNameNS("*", "div");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		assertNull(list.item(-1));
+		assertNull(list.item(0));
+		assertEquals("", list.toString());
+		//
+		it = list.iterator();
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void getElementsByClassName() {
+		DOMDocument document = domImpl.createDocument("", "doc", null);
+		DOMElement docElm = document.getDocumentElement();
+		DOMElement elem1 = document.createElement("div");
+		elem1.setAttribute("class", "foo bar");
+		docElm.appendChild(elem1);
+		DOMElement elem2 = document.createElement("p");
+		elem2.setAttribute("class", "foo");
+		elem1.appendChild(elem2);
+		DOMElement elem3 = document.createElement("span");
+		elem3.setAttribute("class", "foo");
+		elem2.appendChild(elem3);
+		DOMElement elem4 = document.createElement("section");
+		elem4.setAttribute("class", "bar foo otherclass");
+		docElm.appendChild(elem4);
+		ElementList list = document.getElementsByClassName("foo");
+		assertNotNull(list);
+		assertEquals(4, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem2, list.item(1));
+		assertSame(elem3, list.item(2));
+		assertSame(elem4, list.item(3));
+		assertNull(list.item(4));
+		//
+		assertTrue(list.contains(elem1));
+		assertTrue(list.contains(elem2));
+		assertTrue(list.contains(elem3));
+		assertTrue(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		Iterator<DOMElement> it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem2, it.next());
+		assertSame(elem3, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = document.getElementsByClassName("bar");
+		assertNotNull(list);
+		assertEquals(2, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem4, list.item(1));
+		assertNull(list.item(2));
+		//
+		assertTrue(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem3));
+		assertTrue(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = document.getElementsByClassName("foo bar");
+		assertNotNull(list);
+		assertEquals(2, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem4, list.item(1));
+		assertNull(list.item(2));
+		//
+		assertTrue(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem3));
+		assertTrue(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = document.getElementsByClassName("bar foo");
+		assertNotNull(list);
+		assertEquals(2, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem4, list.item(1));
+		assertNull(list.item(2));
+		//
+		assertTrue(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem3));
+		assertTrue(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem1, it.next());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = document.getElementsByClassName("otherclass");
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem4, list.item(0));
+		assertNull(list.item(1));
+		//
+		assertFalse(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem3));
+		assertTrue(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem4, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = document.getElementsByClassName("noclass");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		assertNull(list.item(-1));
+		assertNull(list.item(0));
+		//
+		assertFalse(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem3));
+		assertFalse(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = document.getElementsByClassName("");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		assertNull(list.item(-1));
+		assertNull(list.item(0));
+		//
+		assertFalse(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem3));
+		assertFalse(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem2.getElementsByClassName("bar");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		assertNull(list.item(-1));
+		assertNull(list.item(0));
+		//
+		assertFalse(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem3));
+		assertFalse(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem3.getElementsByClassName("foo");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		assertNull(list.item(-1));
+		assertNull(list.item(0));
+		//
+		assertFalse(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem3));
+		assertFalse(list.contains(elem4));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		list = elem2.getElementsByClassName("foo");
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem3, list.item(0));
+		assertNull(list.item(1));
+		//
+		assertFalse(list.contains(elem1));
+		assertFalse(list.contains(elem2));
+		assertFalse(list.contains(elem4));
+		assertTrue(list.contains(elem3));
+		assertFalse(list.contains(docElm));
+		//
+		it = list.iterator();
+		assertTrue(it.hasNext());
+		assertSame(elem3, it.next());
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception.");
+		} catch (NoSuchElementException e) {
+		}
 	}
 
 	@Test

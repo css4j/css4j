@@ -138,40 +138,12 @@ abstract class DOMParentNode extends NDTNode implements ParentNode {
 		return child.getElementsByTagName(name);
 	}
 
-	@Override
-	void updateTaglistsOnInsert(DOMElement newChild, AbstractDOMNode appendedTo) {
-		child.updateTaglistsOnInsert(newChild, appendedTo);
-		// Update parent's tag lists
-		super.updateTaglistsOnInsert(newChild, appendedTo);
-	}
-
-	@Override
-	void updateTaglistsOnRemove(DOMElement oldChild, AbstractDOMNode removedFrom) {
-		child.updateTaglistsOnRemove(oldChild, removedFrom);
-		// Update parent's tag lists
-		super.updateTaglistsOnRemove(oldChild, removedFrom);
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public ElementList getElementsByClassName(String names) {
 		return child.getElementsByClassName(names, getOwnerDocument().getComplianceMode());
-	}
-
-	@Override
-	void updateClasslists(DOMElement owner, AbstractDOMNode appendedTo) {
-		child.updateClasslists(owner, appendedTo);
-		// Update parent's class lists
-		super.updateClasslists(owner, appendedTo);
-	}
-
-	@Override
-	void updateClasslistsOnRemove(DOMElement oldChild, AbstractDOMNode removedFrom) {
-		child.updateClasslistsOnRemove(oldChild, removedFrom);
-		// Update parent's class lists
-		super.updateClasslistsOnRemove(oldChild, removedFrom);
 	}
 
 }

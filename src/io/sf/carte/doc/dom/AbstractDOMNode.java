@@ -236,35 +236,6 @@ abstract class AbstractDOMNode implements DOMNode {
 
 	void postAddChild(AbstractDOMNode newChild) {
 		newChild.setParentNode(this);
-		if (newChild.getNodeType() == Node.ELEMENT_NODE) {
-			DOMElement newElm = (DOMElement) newChild;
-			updateTaglistsOnInsert(newElm, this);
-			updateClasslists(newElm, this);
-		}
-	}
-
-	void updateTaglistsOnInsert(DOMElement newChild, AbstractDOMNode appendedTo) {
-		if (parentNode != null) {
-			parentNode.updateTaglistsOnInsert(newChild, appendedTo);
-		}
-	}
-
-	void updateTaglistsOnRemove(DOMElement oldChild, AbstractDOMNode removedFrom) {
-		if (parentNode != null) {
-			parentNode.updateTaglistsOnRemove(oldChild, removedFrom);
-		}
-	}
-
-	void updateClasslists(DOMElement owner, AbstractDOMNode appendedTo) {
-		if (parentNode != null) {
-			parentNode.updateClasslists(owner, appendedTo);
-		}
-	}
-
-	void updateClasslistsOnRemove(DOMElement oldChild, AbstractDOMNode removedFrom) {
-		if (parentNode != null) {
-			parentNode.updateClasslistsOnRemove(oldChild, removedFrom);
-		}
 	}
 
 	private void appendDocumentFragment(Node newChild) {
@@ -336,19 +307,9 @@ abstract class AbstractDOMNode implements DOMNode {
 
 	private void replaceWithNonDocumentFragment(AbstractDOMNode newNode, AbstractDOMNode replaced) {
 		preReplaceChild(newNode, replaced);
-		if (replaced.getNodeType() == Node.ELEMENT_NODE) {
-			DOMElement oldElm = (DOMElement) replaced;
-			updateTaglistsOnRemove(oldElm, this);
-			updateClasslistsOnRemove(oldElm, this);
-		}
 		replaced = getNodeList().replace(newNode, replaced);
 		callUserHandlers(UserDataHandler.NODE_DELETED, replaced, null);
 		newNode.setParentNode(this);
-		if (newNode.getNodeType() == Node.ELEMENT_NODE) {
-			DOMElement newElm = (DOMElement) newNode;
-			updateTaglistsOnInsert(newElm, this);
-			updateClasslists(newElm, this);
-		}
 	}
 
 	void preReplaceChild(AbstractDOMNode newNode, AbstractDOMNode replaced) {
@@ -387,18 +348,10 @@ abstract class AbstractDOMNode implements DOMNode {
 		if (!getNodeList().contains(oldChild)) {
 			throw new DOMException(DOMException.NOT_FOUND_ERR, "Not a child.");
 		}
-		preRemoveChild(oldChild);
 		AbstractDOMNode removed = (AbstractDOMNode) oldChild;
 		removed.removeFromParent(getNodeList());
 		postRemoveChild(removed);
 		return removed;
-	}
-
-	void preRemoveChild(Node removed) {
-		if (removed.getNodeType() == Node.ELEMENT_NODE) {
-			updateTaglistsOnRemove((DOMElement) removed, this);
-			updateClasslistsOnRemove((DOMElement) removed, this);
-		}
 	}
 
 	void postRemoveChild(AbstractDOMNode removed) {
@@ -928,14 +881,6 @@ abstract class AbstractDOMNode implements DOMNode {
 		ElementList getElementsByTagName(String name);
 
 		ElementList getElementsByClassName(String names, CSSDocument.ComplianceMode mode);
-
-		void updateTaglistsOnInsert(DOMElement newChild, AbstractDOMNode appendedTo);
-
-		void updateTaglistsOnRemove(DOMElement oldChild, AbstractDOMNode removedFrom);
-
-		void updateClasslists(DOMElement owner, AbstractDOMNode appendedTo);
-
-		void updateClasslistsOnRemove(DOMElement oldChild, AbstractDOMNode removedFrom);
 
 	}
 

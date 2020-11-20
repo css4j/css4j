@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -403,7 +404,7 @@ public class DOMElementTest {
 		assertTrue(body == attr.getOwnerElement());
 		assertEquals("foo bar", attr.getValue());
 		assertEquals(1, fooelms.getLength());
-		assertTrue(fooelms == xhtmlDoc.getElementsByClassName("foo"));
+		assertEquals(fooelms.toString(), xhtmlDoc.getElementsByClassName("foo").toString());
 		assertTrue(body == fooelms.item(0));
 		ElementList barelms = xhtmlDoc.getElementsByClassName("bar");
 		assertEquals(1, barelms.getLength());
@@ -832,6 +833,57 @@ public class DOMElementTest {
 		body.setAttributeNode(attr);
 		assertEquals("xmlId", body.getAttributeNS("http://www.w3.org/XML/1998/namespace", "id"));
 		assertTrue(body == xhtmlDoc.getElementById("xmlId"));
+	}
+
+	@Test
+	public void getElementsByTagName() {
+		DOMElement docElm = xhtmlDoc.getDocumentElement();
+		DOMElement elem1 = xhtmlDoc.createElement("div");
+		elem1.setAttribute("id", "div1");
+		elem1.setIdAttribute("id", true);
+		docElm.appendChild(elem1);
+		DOMElement elem2 = xhtmlDoc.createElement("div");
+		elem2.setAttribute("id", "div2");
+		elem2.setIdAttribute("id", true);
+		elem1.appendChild(elem2);
+		DOMElement elem3 = xhtmlDoc.createElement("div");
+		elem3.setAttribute("id", "div3");
+		elem3.setIdAttribute("id", true);
+		elem2.appendChild(elem3);
+		DOMElement elem4 = xhtmlDoc.createElement("div");
+		elem4.setAttribute("id", "div4");
+		elem4.setIdAttribute("id", true);
+		docElm.appendChild(elem4);
+		ElementList list = docElm.getElementsByTagName("div");
+		assertNotNull(list);
+		assertEquals(4, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem1, list.item(0));
+		assertSame(elem2, list.item(1));
+		assertSame(elem3, list.item(2));
+		assertSame(elem4, list.item(3));
+		assertNull(list.item(4));
+		//
+		list = elem1.getElementsByTagName("div");
+		assertNotNull(list);
+		assertEquals(2, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem2, list.item(0));
+		assertSame(elem3, list.item(1));
+		assertNull(list.item(2));
+		//
+		list = elem2.getElementsByTagName("div");
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		assertNull(list.item(-1));
+		assertSame(elem3, list.item(0));
+		assertNull(list.item(1));
+		//
+		list = elem4.getElementsByTagName("div");
+		assertNotNull(list);
+		assertEquals(0, list.getLength());
+		assertNull(list.item(-1));
+		assertNull(list.item(0));
 	}
 
 	@Test

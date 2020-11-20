@@ -196,6 +196,10 @@ public interface ParentNode extends DOMNode {
 	 * <p>
 	 * The list is a live collection, and changes to the document made after calling
 	 * this method are reflected in the <code>ElementList</code>.
+	 * </p>
+	 * <p>
+	 * The most efficient way to browse the returned list is to iterate it.
+	 * </p>
 	 * 
 	 * @param name The tag name of the elements to match on. The special value
 	 *             "<code>*</code>" matches all tag names.
@@ -211,6 +215,10 @@ public interface ParentNode extends DOMNode {
 	 * <p>
 	 * The list is a live collection, and changes to the document made after calling
 	 * this method are reflected in the <code>ElementList</code>.
+	 * </p>
+	 * <p>
+	 * The most efficient way to browse the returned list is to iterate it.
+	 * </p>
 	 * 
 	 * @param namespaceURI the namespace URI of the elements to match on. The
 	 *                     special value "<code>*</code>" matches all namespaces.
@@ -224,6 +232,13 @@ public interface ParentNode extends DOMNode {
 	/**
 	 * Gives a live <code>ElementList</code> containing all the descending elements
 	 * which have all of the given class names under this reference node.
+	 * <p>
+	 * The list is a live collection, and changes to the document made after calling
+	 * this method are reflected in the <code>ElementList</code>.
+	 * </p>
+	 * <p>
+	 * The most efficient way to browse the returned list is to iterate it.
+	 * </p>
 	 * 
 	 * @param names the names of the classes, separated by whitespace.
 	 * @return the live <code>ElementList</code> containing all the descending

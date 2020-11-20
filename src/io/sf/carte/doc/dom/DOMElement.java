@@ -275,18 +275,6 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		return child.getElementsByTagName(name);
 	}
 
-	@Override
-	void updateTaglistsOnInsert(DOMElement newChild, AbstractDOMNode appendedTo) {
-		child.updateTaglistsOnInsert(newChild, appendedTo);
-		super.updateTaglistsOnInsert(newChild, appendedTo);
-	}
-
-	@Override
-	void updateTaglistsOnRemove(DOMElement oldChild, AbstractDOMNode removedFrom) {
-		child.updateTaglistsOnRemove(oldChild, removedFrom);
-		super.updateTaglistsOnRemove(oldChild, removedFrom);
-	}
-
 	/*
 	 * Start of class list code
 	 */
@@ -322,7 +310,6 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 				value = "";
 			}
 			super.setValue(value);
-			updateClassLists();
 		}
 
 		@Override
@@ -333,39 +320,6 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 				attr.setValue(token);
 				DOMElement.this.nodeMap.setNamedItem(attr);
 				attr.setAttributeOwner(DOMElement.this);
-			}
-			updateClassLists();
-		}
-
-		@Override
-		protected void removeUnchecked(String token) throws DOMException {
-			super.removeUnchecked(token);
-			updateClassLists();
-		}
-
-		@Override
-		protected boolean toggleUnchecked(String token) throws DOMException {
-			boolean result = super.toggleUnchecked(token);
-			updateClassLists();
-			return result;
-		}
-
-		@Override
-		protected void replaceUnchecked(String oldToken, String newToken) throws DOMException {
-			super.replaceUnchecked(oldToken, newToken);
-			updateClassLists();
-		}
-
-		@Override
-		public void clear() {
-			super.clear();
-			updateClassLists();
-		}
-
-		private void updateClassLists() {
-			AbstractDOMNode parent = parentNode();
-			if (parent instanceof ParentNode) {
-				parent.updateClasslists(DOMElement.this, parent);
 			}
 		}
 
@@ -432,19 +386,6 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	@Override
 	public ElementList getElementsByClassName(String names) {
 		return child.getElementsByClassName(names, getOwnerDocument().getComplianceMode());
-	}
-
-	@Override
-	void updateClasslists(DOMElement owner, AbstractDOMNode appendedTo) {
-		child.updateClasslists(owner, appendedTo);
-		// Update parent's class lists
-		super.updateClasslists(owner, appendedTo);
-	}
-
-	@Override
-	void updateClasslistsOnRemove(DOMElement oldChild, AbstractDOMNode removedFrom) {
-		child.updateClasslistsOnRemove(oldChild, removedFrom);
-		super.updateClasslistsOnRemove(oldChild, removedFrom);
 	}
 
 	/*
