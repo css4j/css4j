@@ -314,37 +314,42 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-			Element element;
 			if (document == null) {
-				// This is the first element in the document. Are we in XHTML?
-				if (!"html".equals(localName) && (HTMLDocument.HTML_NAMESPACE_URI.equals(uri)
-						|| (documentType != null && "html".equalsIgnoreCase(documentType.getName())))) {
-					// Document is HTML but first element is not <html>:
-					String deQname = "html";
-					if (!qName.equalsIgnoreCase(localName)) {
-						int idx = qName.indexOf(':', 1);
-						if (idx != -1) {
-							deQname = qName.substring(0, idx) + ":html";
-						} else {
-							error("Bad qName: " + qName);
-						}
-					}
-					document = createDocument(uri, deQname, documentType);
-					element = document.createElementNS(uri, qName);
-					setAttributes(element, atts);
-					currentNode = document.getDocumentElement().appendChild(element);
-				} else {
-					document = createDocument(uri, qName, documentType);
-					element = document.getDocumentElement();
-					currentNode = element;
-					setAttributes(element, atts);
-				}
+				// This is the first element in the document.
+				documentElement(uri, localName, qName, atts);
 				insertPreDocElementNodes();
 			} else {
-				element = document.createElementNS(uri, qName);
+				Element element = document.createElementNS(uri, qName);
 				setAttributes(element, atts);
 				appendChild(element);
 				currentNode = element;
+			}
+		}
+
+		private void documentElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+			Element element;
+			// We have to create the first element in the document. Are we in XHTML?
+			if (!"html".equals(localName) && (HTMLDocument.HTML_NAMESPACE_URI.equals(uri)
+					|| (documentType != null && "html".equalsIgnoreCase(documentType.getName())))) {
+				// Document is HTML but first element is not <html>:
+				String deQname = "html";
+				if (!qName.equalsIgnoreCase(localName)) {
+					int idx = qName.indexOf(':', 1);
+					if (idx != -1) {
+						deQname = qName.substring(0, idx) + ":html";
+					} else {
+						error("Bad qName: " + qName);
+					}
+				}
+				document = createDocument(uri, deQname, documentType);
+				element = document.createElementNS(uri, qName);
+				setAttributes(element, atts);
+				currentNode = document.getDocumentElement().appendChild(element);
+			} else {
+				document = createDocument(uri, qName, documentType);
+				element = document.getDocumentElement();
+				currentNode = element;
+				setAttributes(element, atts);
 			}
 		}
 
