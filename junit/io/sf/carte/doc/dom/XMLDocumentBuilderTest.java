@@ -151,7 +151,8 @@ public class XMLDocumentBuilderTest {
 		element = document.getElementById("smip");
 		assertNotNull(element);
 		assertEquals("Paragraph with \u221e", element.getTextContent());
-		assertNull(document.getElementById("doesnotexist"));
+		assertNull(document.getElementById("not-here"));
+		assertNotNull(document.getElementById("doesnotexist"));
 		element = document.getElementById("para1");
 		assertNotNull(element);
 		assertTrue(element.hasAttribute("donotexist"));
@@ -312,7 +313,8 @@ public class XMLDocumentBuilderTest {
 		element = document.getElementById("smip");
 		assertNotNull(element);
 		assertEquals("Paragraph with \u221e", element.getTextContent());
-		assertNull(document.getElementById("doesnotexist"));
+		assertNull(document.getElementById("not-here"));
+		assertNotNull(document.getElementById("doesnotexist"));
 		element = document.getElementById("para1");
 		assertNotNull(element);
 		assertTrue(element.hasAttribute("donotexist"));
@@ -420,7 +422,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" A comment just after the document element ", node.getNodeValue());
 		// Entities etc.
-		assertNull(document.getElementById("entity"));
+		assertNull(document.getElementById("not-here"));
+		assertNotNull(document.getElementById("entity"));
 		DOMElement body = docelm.getChildren().item(1);
 		DOMElement element = body.getChildren().item(1).getFirstElementChild();
 		assertNotNull(element);
@@ -531,7 +534,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" A comment just after the document element ", node.getNodeValue());
 		// Entities etc.
-		assertNull(document.getElementById("entity"));
+		assertNull(document.getElementById("not-here"));
+		assertNotNull(document.getElementById("entity"));
 		DOMElement body = docelm.getChildren().item(1);
 		DOMElement element = body.getChildren().item(1).getFirstElementChild();
 		assertNotNull(element);
@@ -598,10 +602,10 @@ public class XMLDocumentBuilderTest {
 		assertEquals("http://www.example.com/xml/entities-nodtd.xhtml", document.getDocumentURI());
 		assertEquals("http://www.example.com/xml/entities-nodtd.xhtml", document.getBaseURI());
 		assertNull(document.getDoctype());
-		assertNull(document.getElementById("entity"));
 		DOMElement docelm = document.getDocumentElement();
+		assertNull(document.getElementById("not-here"));
+		assertNotNull(document.getElementById("entity"));
 		// Entities etc.
-		assertNull(document.getElementById("entity"));
 		DOMElement body = docelm.getChildren().item(1);
 		DOMElement element = body.getFirstElementChild();
 		assertNotNull(element);
