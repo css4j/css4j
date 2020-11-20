@@ -221,7 +221,8 @@ public class XMLDocumentBuilderTest {
 		element = document.getElementById("smip");
 		assertNotNull(element);
 		assertEquals("Paragraph with \u221e", element.getTextContent());
-		assertNull(document.getElementById("doesnotexist"));
+		assertNull(document.getElementById("not-here"));
+		assertNotNull(document.getElementById("doesnotexist"));
 		element = document.getElementById("para1");
 		assertNotNull(element);
 		assertTrue(element.hasAttribute("donotexist"));

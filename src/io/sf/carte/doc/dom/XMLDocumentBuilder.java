@@ -439,7 +439,11 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 				String attrQName = atts2.getQName(i);
 				Attr attr = document.createAttributeNS(atts2.getURI(i), attrQName);
 				attr.setValue(atts2.getValue(i));
-				element.getAttributes().setNamedItem(attr);
+				if (isNativeDOM) {
+					((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
+				} else {
+					element.getAttributes().setNamedItem(attr);
+				}
 				if ("ID".equals(atts2.getType(i))
 						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
 					element.setIdAttributeNode(attr, true);
@@ -673,8 +677,13 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 						((DOMElement) element).setRawText();
 					}
 				}
-				element.getAttributes().setNamedItem(attr);
-				if ("ID".equals(atts2.getType(i))) {
+				if (isNativeDOM) {
+					((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
+				} else {
+					element.getAttributes().setNamedItem(attr);
+				}
+				if ("ID".equals(atts2.getType(i))
+						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
 					element.setIdAttributeNode(attr, true);
 				}
 			}
