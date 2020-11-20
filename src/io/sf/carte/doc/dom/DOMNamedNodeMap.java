@@ -79,13 +79,13 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	@Override
 	public T setNamedItem(Node arg) throws DOMException {
 		verifyNewNode(arg);
-		if (attributeMap.containsValue(arg)) {
-			return null;
-		}
 		AbstractDOMNode newItem = (AbstractDOMNode) arg;
 		String name = getMapKeyName(newItem);
 		T oldNode = attributeMap.get(name);
 		if (oldNode != null) {
+			if (oldNode == arg) {
+				return null;
+			}
 			// Check whether namespace is the same
 			if (isSameNamespace(newItem.getNamespaceURI(), oldNode)) {
 				attributes.replace(newItem, oldNode);
