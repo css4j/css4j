@@ -638,7 +638,13 @@ public class HTMLDocumentTest {
 		assertEquals("ul1", elm.getId());
 		// The following is ignored
 		elm.setIdAttribute("id", true);
-		elm.setIdAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "id", true);
+		elm.setIdAttributeNS(null, "id", true);
+		try {
+			elm.setIdAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "id", true);
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
+		}
 		elm.setId("id");
 		// Test other attributes
 		Attr svgid = xhtmlDoc.createAttributeNS("http://www.w3.org/2000/svg", "svgid");
@@ -666,10 +672,16 @@ public class HTMLDocumentTest {
 			assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.code);
 		}
 		try {
-			elm.setIdAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo", true);
+			elm.setIdAttributeNS(null, "foo", true);
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.code);
+		}
+		try {
+			elm.setIdAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo", true);
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
 		}
 		Attr attr = xhtmlDoc.createAttribute("foo");
 		elm.setAttributeNode(attr);

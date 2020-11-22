@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -89,7 +90,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 				return null;
 			}
 			// Check whether namespace is the same
-			if (isSameNamespace(node.getNamespaceURI(), oldNode)) {
+			if (isSameNamespace(node.getNamespaceURI(), oldNode) || node.getNamespaceURI() == null) {
 				attributes.replace(node, oldNode);
 			} else {
 				throw new DOMException(DOMException.NAMESPACE_ERR, "Bad prefix in " + arg.getNodeName());
@@ -290,14 +291,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	}
 
 	private boolean isSameNamespace(String namespaceURI, Node memberNode) {
-		String nodeNamespaceURI = memberNode.getNamespaceURI();
-		if (nodeNamespaceURI == null) {
-			return namespaceURI == null || memberNode.isDefaultNamespace(namespaceURI);
-		} else if (namespaceURI == null) {
-			return memberNode.isDefaultNamespace(nodeNamespaceURI);
-		} else {
-			return nodeNamespaceURI.equals(namespaceURI);
-		}
+		return Objects.equals(namespaceURI, memberNode.getNamespaceURI());
 	}
 
 	@Override

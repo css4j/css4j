@@ -361,7 +361,8 @@ public class HTMLElementTest {
 		assertNotNull(attr.getOwnerElement());
 		assertEquals("id", attr.getLocalName());
 		assertSame(attr, nnm.getNamedItem("ID"));
-		assertSame(attr, nnm.getNamedItemNS(HTMLDocument.HTML_NAMESPACE_URI, "id"));
+		assertSame(attr, nnm.getNamedItemNS(null, "id"));
+		assertNull(nnm.getNamedItemNS(HTMLDocument.HTML_NAMESPACE_URI, "id"));
 		// Set the attribute to itself
 		assertNull(nnm.setNamedItem(attr));
 		assertEquals(1, nnm.getLength());
