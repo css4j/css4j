@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Parser;
@@ -232,7 +233,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	@Override
 	public void setAttributeNS(String namespaceURI, String qualifiedName, String value) throws DOMException {
 		Attr attr = nodeMap.getNamedItem(qualifiedName);
-		if (attr == null) {
+		if (attr == null || !Objects.equals(namespaceURI, attr.getNamespaceURI())) {
 			attr = getOwnerDocument().createAttributeNS(namespaceURI, qualifiedName);
 			nodeMap.setNamedItemNS(attr);
 		}

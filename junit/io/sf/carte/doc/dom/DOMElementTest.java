@@ -197,6 +197,34 @@ public class DOMElementTest {
 	}
 
 	@Test
+	public void testSetAttributeNS() {
+		DOMElement html = xhtmlDoc.getDocumentElement();
+		DOMElement body = xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "body");
+		html.appendChild(body);
+		assertFalse(body.hasAttributes());
+		body.setAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo", "bar");
+		assertTrue(body.hasAttribute("foo"));
+		assertTrue(body.hasAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo"));
+		assertEquals("bar", body.getAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo"));
+		assertEquals("bar", body.getAttribute("foo"));
+		body.setAttributeNS(null, "foo", "foobar");
+		assertTrue(body.hasAttribute("foo"));
+		assertFalse(body.hasAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo"));
+		assertEquals("foobar", body.getAttributeNS(null, "foo"));
+		assertEquals("foobar", body.getAttribute("foo"));
+		body.setAttribute("foo", "bar");
+		assertEquals("bar", body.getAttributeNS(null, "foo"));
+		assertEquals("bar", body.getAttribute("foo"));
+		Attr attr = body.getAttributeNode("foo");
+		try {
+			attr.setPrefix("pre");
+			fail("Must throw an exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.NAMESPACE_ERR, e.code);
+		}
+	}
+
+	@Test
 	public void testSetAttributeError() {
 		DOMElement p = xhtmlDoc.createElement("p");
 		try {
