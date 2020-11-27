@@ -153,7 +153,7 @@
  * NodeIterator} implements {@link java.util.ListIterator ListIterator}.
  * </p>
  * <p>
- * And finally, the {@link io.sf.carte.doc.dom.TreeWalker TreeWalker}, which can
+ * And finally the {@link io.sf.carte.doc.dom.TreeWalker TreeWalker}, which can
  * be created with the
  * {@link io.sf.carte.doc.dom.DOMDocument#createTreeWalker(org.w3c.dom.Node, int, NodeFilter)
  * createTreeWalker(Node, int, NodeFilter)} method:

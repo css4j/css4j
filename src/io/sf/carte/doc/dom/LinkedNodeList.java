@@ -165,6 +165,22 @@ abstract class LinkedNodeList implements AbstractDOMNode.RawNodeList, Serializab
 	}
 
 	@Override
+	public Iterator<DOMElement> elementIterator(String name) throws DOMException {
+		if (name == null || name.length() == 0) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid tag name.");
+		}
+		return new ElementNameIterator(name);
+	}
+
+	@Override
+	public Iterator<DOMElement> elementIteratorNS(String namespaceURI, String localName) {
+		if (localName == null || localName.length() == 0) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid localName.");
+		}
+		return new ElementNameIteratorNS(namespaceURI, localName);
+	}
+
+	@Override
 	public Iterator<Attr> attributeIterator() {
 		return new AttributeIterator();
 	}
@@ -581,6 +597,52 @@ abstract class LinkedNodeList implements AbstractDOMNode.RawNodeList, Serializab
 			return node.getNodeType() == Node.ELEMENT_NODE;
 		}
 
+	}
+
+	private class ElementNameIterator extends FilteredChildIterator<DOMElement> {
+
+		private final String tagname;
+
+		ElementNameIterator(String name) {
+			super();
+			this.tagname = name;
+		}
+
+		@Override
+		boolean isToShow(Node node) {
+			return node.getNodeType() == Node.ELEMENT_NODE && tagname.equals(node.getNodeName());
+		}
+
+	}
+
+	private class ElementNameIteratorNS extends FilteredChildIterator<DOMElement> {
+
+		private final String namespaceURI;
+		private final String localName;
+
+		ElementNameIteratorNS(String namespaceURI, String localName) {
+			super();
+			this.namespaceURI = namespaceURI;
+			this.localName = localName;
+		}
+
+		@Override
+		boolean isToShow(Node node) {
+			DOMElement element;
+			return node.getNodeType() == Node.ELEMENT_NODE
+					&& localName.equals((element = (DOMElement) node).getLocalName())
+					&& isSameNamespace(namespaceURI, element);
+		}
+
+	}
+
+	private boolean isSameNamespace(String namespaceURI, AbstractDOMNode node) {
+		String otherNamespaceURI = node.getNamespaceURI();
+		if (namespaceURI == null) {
+			return otherNamespaceURI == null || node.isDefaultNamespace(otherNamespaceURI);
+		} else {
+			return namespaceURI.equals(otherNamespaceURI);
+		}
 	}
 
 	private class AttributeIterator extends FilteredChildIterator<Attr> {

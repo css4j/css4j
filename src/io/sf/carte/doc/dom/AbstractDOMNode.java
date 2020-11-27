@@ -892,6 +892,10 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 
 		Iterator<DOMElement> elementIterator();
 
+		Iterator<DOMElement> elementIterator(String name) throws DOMException;
+
+		Iterator<DOMElement> elementIteratorNS(String namespaceURI, String localName);
+
 		Iterator<Attr> attributeIterator();
 
 	}
@@ -983,6 +987,22 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 
 		@Override
 		public Iterator<DOMElement> elementIterator() {
+			return new EmptyElementIterator();
+		}
+
+		@Override
+		public Iterator<DOMElement> elementIterator(String name) throws DOMException {
+			if (name == null || name.length() == 0) {
+				throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid tag name.");
+			}
+			return new EmptyElementIterator();
+		}
+
+		@Override
+		public Iterator<DOMElement> elementIteratorNS(String namespaceURI, String localName) {
+			if (localName == null || localName.length() == 0) {
+				throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid localName.");
+			}
 			return new EmptyElementIterator();
 		}
 
