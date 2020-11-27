@@ -318,6 +318,380 @@ public class FilteredIteratorTest {
 	}
 
 	@Test
+	public void testElementNameIterator() throws DOMException {
+		NodeList list = document.getChildNodes();
+		Iterator<DOMElement> it = document.elementIterator("html");
+		assertTrue(it.hasNext());
+		DOMElement node = it.next();
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertTrue(list.item(3) == node);
+		assertTrue(document.getDocumentElement() == node);
+		assertTrue(document.getFirstElementChild() == node);
+		assertTrue(document.getLastElementChild() == node);
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		it = document.elementIterator("p");
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void testElementNameIteratorRemove() throws DOMException {
+		NodeList list = document.getChildNodes();
+		Iterator<DOMElement> it = document.elementIterator("html");
+		assertTrue(it.hasNext());
+		DOMElement element = it.next();
+		assertEquals(Node.ELEMENT_NODE, element.getNodeType());
+		assertTrue(list.item(3) == element);
+		assertTrue(document.getDocumentElement() == element);
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+		it.remove();
+		try {
+			it.remove();
+			fail("Must throw exception");
+		} catch (IllegalStateException e) {
+		}
+		assertNull(document.getDocumentElement());
+		assertEquals(3, list.getLength());
+		Node node = document.getFirstChild(); // doctype
+		assertNotNull(node);
+		assertNull(node.getPreviousSibling());
+		node = node.getNextSibling(); // comment
+		assertNotNull(node);
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // pi
+		assertNotNull(node);
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		assertNull(node.getNextSibling());
+	}
+
+	@Test
+	public void testElementNameIterator2() throws DOMException {
+		DOMElement body = document.getDocumentElement().getFirstElementChild();
+		// body has these children: div, text, p, text, text, span, ul, text, comment
+		NodeList list = body.getChildNodes();
+		Iterator<DOMElement> it = body.elementIterator("p");
+		assertTrue(it.hasNext());
+		DOMElement node = it.next();
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("p", node.getNodeName());
+		assertTrue(list.item(2) == node);
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void testElementNameIteratorRemove2() throws DOMException {
+		DOMElement body = document.getDocumentElement().getFirstElementChild();
+		// body has these children: div, text, p, text, text, span, ul, text, comment
+		NodeList list = body.getChildNodes();
+		assertEquals(9, list.getLength());
+		Iterator<DOMElement> it = body.elementIterator("p");
+		assertTrue(it.hasNext());
+		DOMElement element = it.next();
+		assertEquals(Node.ELEMENT_NODE, element.getNodeType());
+		assertEquals("p", element.getNodeName());
+		assertTrue(list.item(2) == element);
+		body.insertAfter(document.createElement("p"), element);
+		assertTrue(it.hasNext());
+		it.remove();
+		try {
+			it.remove();
+			fail("Must throw exception");
+		} catch (IllegalStateException e) {
+		}
+		assertEquals(9, list.getLength());
+		element = it.next();
+		it.remove();
+		assertEquals(8, list.getLength());
+		try {
+			it.remove();
+			fail("Must throw exception");
+		} catch (IllegalStateException e) {
+		}
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+		Node node = body.getFirstChild(); // div
+		assertNotNull(node);
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("div", node.getNodeName());
+		assertNull(node.getPreviousSibling());
+		node = node.getNextSibling(); // text
+		assertNotNull(node);
+		assertEquals(Node.TEXT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // text
+		assertNotNull(node);
+		assertEquals(Node.TEXT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // text
+		assertNotNull(node);
+		assertEquals(Node.TEXT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // span
+		assertNotNull(node);
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("span", node.getNodeName());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // ul
+		assertNotNull(node);
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("ul", node.getNodeName());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // text
+		assertNotNull(node);
+		assertEquals(Node.TEXT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // comment
+		assertNotNull(node);
+		assertEquals(Node.COMMENT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		assertTrue(body.getLastChild() == node);
+		assertNull(node.getNextSibling());
+	}
+
+	@Test
+	public void testElementNameIteratorBad() throws DOMException {
+		try {
+			document.elementIterator(null);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		try {
+			document.elementIterator("");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testElementNameIteratorNS() throws DOMException {
+		NodeList list = document.getChildNodes();
+		Iterator<DOMElement> it = document.elementIteratorNS(null, "html");
+		assertTrue(it.hasNext());
+		DOMElement node = it.next();
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertTrue(list.item(3) == node);
+		assertTrue(document.getDocumentElement() == node);
+		assertTrue(document.getFirstElementChild() == node);
+		assertTrue(document.getLastElementChild() == node);
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+		//
+		it = document.elementIterator("p");
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void testElementNameIteratorNSRemove() throws DOMException {
+		NodeList list = document.getChildNodes();
+		Iterator<DOMElement> it = document.elementIteratorNS(null, "html");
+		assertTrue(it.hasNext());
+		DOMElement element = it.next();
+		assertEquals(Node.ELEMENT_NODE, element.getNodeType());
+		assertTrue(list.item(3) == element);
+		assertTrue(document.getDocumentElement() == element);
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+		it.remove();
+		try {
+			it.remove();
+			fail("Must throw exception");
+		} catch (IllegalStateException e) {
+		}
+		assertNull(document.getDocumentElement());
+		assertEquals(3, list.getLength());
+		Node node = document.getFirstChild(); // doctype
+		assertNotNull(node);
+		assertNull(node.getPreviousSibling());
+		node = node.getNextSibling(); // comment
+		assertNotNull(node);
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // pi
+		assertNotNull(node);
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		assertNull(node.getNextSibling());
+	}
+
+	@Test
+	public void testElementNameIteratorNS2() throws DOMException {
+		DOMElement body = document.getDocumentElement().getFirstElementChild();
+		// body has these children: div, text, p, text, text, span, ul, text, comment
+		NodeList list = body.getChildNodes();
+		Iterator<DOMElement> it = body.elementIteratorNS(null, "p");
+		assertTrue(it.hasNext());
+		DOMElement node = it.next();
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("p", node.getNodeName());
+		assertTrue(list.item(2) == node);
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void testElementNameIteratorNSRemove2() throws DOMException {
+		DOMElement body = document.getDocumentElement().getFirstElementChild();
+		// body has these children: div, text, p, text, text, span, ul, text, comment
+		NodeList list = body.getChildNodes();
+		assertEquals(9, list.getLength());
+		Iterator<DOMElement> it = body.elementIteratorNS(null, "p");
+		assertTrue(it.hasNext());
+		DOMElement element = it.next();
+		assertEquals(Node.ELEMENT_NODE, element.getNodeType());
+		assertEquals("p", element.getNodeName());
+		assertTrue(list.item(2) == element);
+		body.insertAfter(document.createElement("p"), element);
+		assertTrue(it.hasNext());
+		it.remove();
+		try {
+			it.remove();
+			fail("Must throw exception");
+		} catch (IllegalStateException e) {
+		}
+		assertEquals(9, list.getLength());
+		element = it.next();
+		it.remove();
+		assertEquals(8, list.getLength());
+		try {
+			it.remove();
+			fail("Must throw exception");
+		} catch (IllegalStateException e) {
+		}
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+		Node node = body.getFirstChild(); // div
+		assertNotNull(node);
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("div", node.getNodeName());
+		assertNull(node.getPreviousSibling());
+		node = node.getNextSibling(); // text
+		assertNotNull(node);
+		assertEquals(Node.TEXT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // text
+		assertNotNull(node);
+		assertEquals(Node.TEXT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // text
+		assertNotNull(node);
+		assertEquals(Node.TEXT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // span
+		assertNotNull(node);
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("span", node.getNodeName());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // ul
+		assertNotNull(node);
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("ul", node.getNodeName());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // text
+		assertNotNull(node);
+		assertEquals(Node.TEXT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		node = node.getNextSibling(); // comment
+		assertNotNull(node);
+		assertEquals(Node.COMMENT_NODE, node.getNodeType());
+		assertTrue(node.getPreviousSibling().getNextSibling() == node);
+		assertTrue(body.getLastChild() == node);
+		assertNull(node.getNextSibling());
+	}
+
+	@Test
+	public void testElementNameIteratorNS3() throws DOMException {
+		DOMElement body = document.getDocumentElement().getFirstElementChild();
+		DOMElement svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+		body.insertAfter(svg, body.getFirstElementChild());
+		// body has these children: div, svg, text, p, text, text, span, ul, text, comment
+		NodeList list = body.getChildNodes();
+		Iterator<DOMElement> it = body.elementIteratorNS("http://www.w3.org/2000/svg", "svg");
+		assertTrue(it.hasNext());
+		DOMElement node = it.next();
+		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
+		assertEquals("svg", node.getNodeName());
+		assertEquals("http://www.w3.org/2000/svg", node.getNamespaceURI());
+		assertTrue(list.item(1) == node);
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+		it.remove();
+		try {
+			it.remove();
+			fail("Must throw exception");
+		} catch (IllegalStateException e) {
+		}
+		assertEquals(9, list.getLength());
+		it = body.elementIteratorNS("http://www.w3.org/2000/svg", "svg");
+		assertFalse(it.hasNext());
+		try {
+			it.next();
+			fail("Must throw exception");
+		} catch (NoSuchElementException e) {
+		}
+	}
+
+	@Test
+	public void testElementNameIteratorNSBad() throws DOMException {
+		try {
+			document.elementIteratorNS(null, null);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		try {
+			document.elementIteratorNS(null, "");
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+	}
+
+	@Test
 	public void testElementTypeIterator() throws DOMException {
 		NodeList list = document.getChildNodes();
 		Iterator<DOMNode> it = document.typeIterator(Node.ELEMENT_NODE);

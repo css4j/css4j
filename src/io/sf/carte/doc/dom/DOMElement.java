@@ -606,6 +606,22 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Iterator<DOMElement> elementIterator(String name) {
+		return child.elementIterator(name);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Iterator<DOMElement> elementIteratorNS(String namespaceURI, String localName) {
+		return child.elementIteratorNS(namespaceURI, localName);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Iterator<DOMNode> iterator(int whatToShow, NodeFilter filter) {
 		return child.createIterator(whatToShow, filter);
 	}

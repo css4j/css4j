@@ -94,6 +94,22 @@ abstract class DOMParentNode extends NDTNode implements ParentNode {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Iterator<DOMElement> elementIterator(String tagname) {
+		return child.elementIterator(tagname);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Iterator<DOMElement> elementIteratorNS(String namespaceURI, String localName) {
+		return child.elementIteratorNS(namespaceURI, localName);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Iterator<DOMNode> iterator(int whatToShow, NodeFilter filter) {
 		return child.createIterator(whatToShow, filter);
 	}

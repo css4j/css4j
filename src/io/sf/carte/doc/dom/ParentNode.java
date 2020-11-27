@@ -169,6 +169,26 @@ public interface ParentNode extends DOMNode {
 	Iterator<DOMElement> elementIterator();
 
 	/**
+	 * Creates a new iterator over the child elements of the given tagname.
+	 * 
+	 * @param name The tag name of the child elements to match on.
+	 * @return an iterator over the child elements.
+	 * @throws DOMException INVALID_CHARACTER_ERR if the {@code name} if
+	 *                      {@code null} or the empty string.
+	 */
+	Iterator<DOMElement> elementIterator(String name) throws DOMException;
+
+	/**
+	 * Creates a new iterator over the child elements of the given namespaceURI and
+	 * localName.
+	 * 
+	 * @param namespaceURI the namespace URI of the elements to match on.
+	 * @param localName    The local name of the elements to match on.
+	 * @return an iterator over the child elements.
+	 */
+	Iterator<DOMElement> elementIteratorNS(String namespaceURI, String localName);
+
+	/**
 	 * Creates a new list iterator over the child nodes.
 	 * 
 	 * @return a list iterator over the child nodes.
@@ -246,4 +266,5 @@ public interface ParentNode extends DOMNode {
 	 *         node.
 	 */
 	ElementList getElementsByClassName(String names);
+
 }
