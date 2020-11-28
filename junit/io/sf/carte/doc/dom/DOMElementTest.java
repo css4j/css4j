@@ -510,11 +510,12 @@ public class DOMElementTest {
 		assertEquals("foo", list.item(0));
 		assertEquals("foo", list.getValue());
 		assertTrue(list.contains("foo"));
-		attr.setValue("foo bar");
+		attr.setValue("Foo bar");
 		assertEquals(2, list.getLength());
 		assertEquals("foo", list.item(0));
 		assertEquals("foo bar", list.getValue());
 		assertTrue(list.contains("foo"));
+		assertTrue(list.contains("Foo"));
 		list.add("000");
 		assertEquals(3, list.getLength());
 		assertEquals("foo", list.item(0));
@@ -630,10 +631,12 @@ public class DOMElementTest {
 		attr.setValue("foo");
 		body.setAttributeNode(attr);
 		assertTrue(body.matches(".foo", null));
+		assertTrue(body.matches(".Foo", null));
 		assertTrue(body.matches("#bodyId", null));
 		attr.setValue("foo bar");
 		assertTrue(body.matches(".bar", null));
 		assertTrue(div1.matches(".bar div", null));
+		assertTrue(div1.matches(".Bar div", null));
 		assertTrue(div1.matches("body > div", null));
 		assertTrue(div1.matches("div:first-child", null));
 		assertFalse(div2.matches("div:first-child", null));

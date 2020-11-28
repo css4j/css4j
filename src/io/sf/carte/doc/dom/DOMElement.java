@@ -339,7 +339,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 
 		@Override
 		public void setValue(String value) throws DOMException {
-			if (value != null && value.length() == 0) {
+			if (value != null && value.length() != 0) {
 				value = value.toLowerCase(Locale.ROOT);
 			}
 			super.setValue(value);
