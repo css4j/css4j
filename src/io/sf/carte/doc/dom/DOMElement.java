@@ -329,7 +329,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	class QuirksClassList extends ClassList {
 		@Override
 		public void setValue(String value) throws DOMException {
-			if (value != null && value.length() == 0) {
+			if (value != null && value.length() != 0) {
 				value = value.toLowerCase(Locale.ROOT);
 			}
 			super.setValue(value);
