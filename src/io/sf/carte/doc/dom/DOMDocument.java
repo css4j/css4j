@@ -55,6 +55,7 @@ import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDatabase;
+import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
@@ -1247,6 +1248,12 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		public void setPrefix(String prefix) throws DOMException {
 			throw new DOMException(DOMException.NAMESPACE_ERR, "Cannot set prefix for xmlns attribute");
 		}
+
+		@Override
+		boolean isBooleanAttribute() {
+			return false;
+		}
+
 	}
 
 	interface StyleAttr extends Attr {
@@ -1297,15 +1304,32 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			return inlineStyle;
 		}
 
-		void setInlineStyle(String value) {
+		private void setInlineStyle(String value) {
 			if (value == null) {
 				value = "";
 			}
 			try {
 				inlineStyle.setCssText(value);
+				StyleDeclarationErrorHandler eh;
+				if (inlineStyle.getLength() == 0
+						&& ((eh = inlineStyle.getStyleDeclarationErrorHandler()) == null || eh.hasErrors())) {
+					/*
+					 * If no property was set, this may be a 'style' attribute unrelated to CSS.
+					 * Null the style declaration just in case, so the normal DOM value is returned.
+					 */
+					inlineStyle = null;
+				}
 			} catch (DOMException e) {
 				getErrorHandler().inlineStyleError(getOwnerElement(), e, value);
+				if (inlineStyle.getLength() == 0) {
+					inlineStyle = null;
+				}
 			}
+		}
+
+		@Override
+		boolean isBooleanAttribute() {
+			return false;
 		}
 
 		void onDOMChange() {
@@ -1340,6 +1364,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			if (owner != null) {
 				onDOMChange(owner);
 			}
+		}
+
+		@Override
+		boolean isBooleanAttribute() {
+			return false;
 		}
 
 		abstract void onAttributeRemoval();
@@ -1434,6 +1463,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				return null;
 			}
 			return (ClassList) owner.getClassList();
+		}
+
+		@Override
+		boolean isBooleanAttribute() {
+			return false;
 		}
 
 	}
