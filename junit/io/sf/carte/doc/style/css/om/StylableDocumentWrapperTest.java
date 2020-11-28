@@ -342,7 +342,8 @@ public class StylableDocumentWrapperTest {
 		Attr type = style.getAttributeNode("type");
 		type.setValue("");
 		sheet = ((LinkStyle<?>) style).getSheet();
-		assertNull(sheet);
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
 		//
 		type.setValue("text/xsl");
 		sheet = ((LinkStyle<?>) style).getSheet();
