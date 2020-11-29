@@ -597,6 +597,7 @@ public class HTMLElementTest {
 		style.setCssText("font-family: Helvetica");
 		assertEquals("font-family: Helvetica; ", style.getCssText());
 		assertEquals("font-family: Helvetica; ", body.getAttribute("style"));
+		assertEquals("<body style=\"font-family: Helvetica; \" />", body.getStartTag());
 		body.removeAttribute("style");
 		// Upper case
 		body.setAttribute("STYLE", "font-family: Arial");
@@ -609,6 +610,9 @@ public class HTMLElementTest {
 		assertEquals("font-family: Arial; ", style.getCssText());
 		body.removeAttribute("STYLE");
 		assertNull(body.getStyle());
+		//
+		body.setAttribute("style", "font-family");
+		assertEquals("<body style=\"font-family\" />", body.getStartTag());
 	}
 
 	@Test

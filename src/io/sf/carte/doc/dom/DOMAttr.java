@@ -207,25 +207,38 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 
 	@Override
 	public String toString() {
-		String qname = getLocalName();
+		String name = getLocalName();
 		String prefix = getPrefix();
 		String value = getValue();
 		int vlen = value.length();
 		StringBuilder buf;
 		if (prefix != null) {
-			buf = new StringBuilder(qname.length() + prefix.length() + vlen + 4);
+			buf = new StringBuilder(name.length() + prefix.length() + vlen + 4);
 			buf.append(prefix);
 			buf.append(':');
 		} else {
-			buf = new StringBuilder(qname.length() + vlen + 3);
+			buf = new StringBuilder(name.length() + vlen + 3);
 		}
-		buf.append(qname);
-		if (vlen != 0) {
+		buf.append(name);
+		if (vlen != 0 || !isBooleanAttribute()) {
 			buf.append("=\"");
 			buf.append(escapeAttributeEntities(value));
 			buf.append('"');
 		}
 		return buf.toString();
+	}
+
+	/**
+	 * Is this a boolean attribute?
+	 * 
+	 * @return true if this attribute is boolean.
+	 */
+	boolean isBooleanAttribute() {
+		/*
+		 * By default, return true because we do not want to maintain a list of boolean
+		 * attributes, nor do we want to add unnecessary verbosity.
+		 */
+		return true;
 	}
 
 	void write(SimpleWriter wri) throws IOException {

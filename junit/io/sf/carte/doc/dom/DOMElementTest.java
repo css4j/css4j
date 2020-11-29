@@ -686,6 +686,9 @@ public class DOMElementTest {
 		assertEquals("font-family: Helvetica; ", style.getCssText());
 		assertEquals("font-family: Helvetica; ", body.getAttribute("style"));
 		body.removeAttribute("style");
+		//
+		body.setAttribute("style", "font-family");
+		assertEquals("<body style=\"font-family\" />", body.getStartTag());
 	}
 
 	@Test
