@@ -71,7 +71,6 @@ public class HTMLDocumentTest {
 	@Before
 	public void setUp() throws IOException{
 		xhtmlDoc = TestDOMImplementation.sampleHTMLDocument();
-		xhtmlDoc.normalizeDocument();
 	}
 
 	@Test
@@ -1645,16 +1644,31 @@ public class HTMLDocumentTest {
 		Attr type = style.getAttributeNode("type");
 		type.setNodeValue("foo");
 		assertNull(style.getSheet());
+		assertEquals("body {font-size: 14pt; margin-left: 7%; }h1 {font-size: 2.4em; }h3 {font-family: Arial; }",
+				style.getTextContent());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		// Empty type
+		type.setNodeValue("");
+		assertNotNull(style.getSheet());
+		assertEquals("body {font-size: 14pt; margin-left: 7%; }h1 {font-size: 2.4em; }h3 {font-family: Arial; }",
+				style.getTextContent());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		//
-		type.setNodeValue("text/css");
-		assertNotNull(style.getSheet());
+		type.setNodeValue("text/CSS");
+		sheet = style.getSheet();
+		assertNotNull(sheet);
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		Attr media = style.getAttributeNode("media");
 		media.setNodeValue("&%/(*");
 		assertNull(style.getSheet());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		xhtmlDoc.getErrorHandler().reset();
 		media.setNodeValue("screen");
 		sheet = style.getSheet();
 		assertNotNull(sheet);
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		// Test insertBefore
 		int sz = sheet.getCssRules().getLength();
 		assertEquals(3, sz);
@@ -1663,6 +1677,8 @@ public class HTMLDocumentTest {
 		int szp1 = sz + 1;
 		assertEquals(szp1, sheet.getCssRules().getLength());
 		sheet = style.getSheet();
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		CSSRuleArrayList rules = sheet.getCssRules();
 		assertEquals(szp1, rules.getLength());
 		assertEquals(ExtendedCSSRule.NAMESPACE_RULE, rules.item(0).getType());
@@ -1674,6 +1690,8 @@ public class HTMLDocumentTest {
 		rules = sheet.getCssRules();
 		assertEquals(szp1, rules.getLength());
 		assertEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, rules.item(0).getType());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		// Remove
 		try {
 			style.removeChild(text);
@@ -1684,9 +1702,28 @@ public class HTMLDocumentTest {
 		style.removeChild(text2);
 		assertEquals(sz, sheet.getCssRules().getLength());
 		sheet = style.getSheet();
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		rules = sheet.getCssRules();
 		assertEquals(sz, rules.getLength());
 		assertNotEquals(ExtendedCSSRule.FONT_FEATURE_VALUES_RULE, rules.item(0).getType());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		// Trigger a CSS error, and then check the error state.
+		style.setTextContent("$@foo{bar}");
+		sheet = style.getSheet();
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+		// Non-CSS style
+		type.setNodeValue("text/xsl");
+		style.setTextContent(
+				"<?xml version=\"1.0\"?><xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">"
+				+ "<xsl:output method=\"text\"/><xsl:template match=\"foo\">bar<xsl:value-of select=\".\"/>"
+				+ "</xsl:template></xsl:stylesheet>");
+		assertNull(style.getSheet());
+		assertEquals(
+				"<?xml version=\"1.0\"?><xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">"
+				+ "<xsl:output method=\"text\"/><xsl:template match=\"foo\">bar<xsl:value-of select=\".\"/>"
+				+ "</xsl:template></xsl:stylesheet>",
+				style.getTextContent());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -1699,7 +1736,8 @@ public class HTMLDocumentTest {
 		//
 		style.setAttribute("type", "");
 		sheet = style.getSheet();
-		assertNull(sheet);
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
 		//
 		style.removeAttributeNode(style.getAttributeNode("type"));
 		sheet = style.getSheet();
@@ -1716,6 +1754,12 @@ public class HTMLDocumentTest {
 		assertEquals(0, sheet.getCssRules().getLength());
 		style.setTextContent("body {color: blue;}");
 		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals("<style>body {color: blue;}</style>", style.toString());
+		//
+		style.setTextContent("foo:");
+		assertEquals("<style>foo:</style>", style.toString());
+		sheet = style.getSheet();
+		assertEquals("<style>foo:</style>", style.toString());
 	}
 
 	@Test
