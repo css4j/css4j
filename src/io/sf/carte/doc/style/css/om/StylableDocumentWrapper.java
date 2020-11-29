@@ -1151,7 +1151,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	private MediaQueryList parseMediaList(String media, Node ownerNode) throws CSSMediaException {
 		MediaQueryList mediaList;
 		if (media.length() == 0) {
-			mediaList = MediaList.createMediaList();
+			mediaList = MediaList.createUnmodifiable();
 		} else {
 			try {
 				mediaList = getStyleSheetFactory().createImmutableMediaQueryList(media, ownerNode);
