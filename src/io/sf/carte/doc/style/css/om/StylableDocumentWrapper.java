@@ -1128,7 +1128,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		public AbstractCSSStyleSheet getSheet() {
 			if (needsUpdate) {
 				String type = getAttribute("type");
-				if (type.length() != 0 && !"text/css".equalsIgnoreCase(type)) {
+				if (!"text/css".equalsIgnoreCase(type) && type.length() != 0) {
 					return null;
 				}
 				definedSheet = parseEmbeddedStyleSheet(definedSheet, getTextContent().trim(), getAttribute("title"),
