@@ -45,7 +45,7 @@ import io.sf.carte.doc.style.css.parser.CSSParser;
  */
 abstract public class DOMElement extends NamespacedNode implements CSSElement, ParentNode {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	final String localName;
 
@@ -268,7 +268,24 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		return "";
 	}
 
-	abstract boolean isIdAttributeNS(String namespaceURI, String localName);
+	@Override
+	@Deprecated
+	public void setIdAttribute(String name, boolean isId) {
+	}
+
+	@Override
+	@Deprecated
+	public void setIdAttributeNS(String namespaceURI, String localName, boolean isId) {
+	}
+
+	@Override
+	@Deprecated
+	public void setIdAttributeNode(Attr idAttr, boolean isId) {
+	}
+
+	boolean isIdAttribute(String localName) {
+		return getOwnerDocument().isIdAttribute(localName);
+	}
 
 	@Override
 	public ElementList getElementsByTagNameNS(String namespaceURI, String localName) {

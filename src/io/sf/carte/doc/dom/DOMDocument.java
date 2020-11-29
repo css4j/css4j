@@ -76,7 +76,7 @@ import io.sf.carte.doc.xml.dtd.ContentModel;
  */
 abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	static final String XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
 	static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
@@ -268,7 +268,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 */
 	abstract class MyNode extends NDTNode {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		MyNode(short nodeType) {
 			super(nodeType);
@@ -299,7 +299,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class DOMDocumentFragment extends DOMParentNode implements DocumentFragment {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		DOMDocumentFragment() {
 			super(Node.DOCUMENT_FRAGMENT_NODE);
@@ -362,7 +362,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyEntityReference extends MyNode implements EntityReference {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		private final String name;
 
@@ -396,7 +396,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyProcessingInstruction extends MyNode implements ProcessingInstruction {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		String data;
 		private final String target;
@@ -466,7 +466,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyStyleProcessingInstruction extends MyProcessingInstruction implements LinkStyleProcessingInstruction {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		private AbstractCSSStyleSheet linkedSheet = null;
 		private final LinkedHashMap<String, String> pseudoAttrs = new LinkedHashMap<String, String>();
@@ -651,7 +651,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	abstract class MyCharacterData extends MyNode implements CharacterData {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		String data = null;
 
@@ -761,7 +761,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyComment extends MyCharacterData implements Comment {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		MyComment() {
 			super(Node.COMMENT_NODE);
@@ -796,7 +796,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyText extends MyCharacterData implements Text {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		boolean elementContentWhitespace = false;
 
@@ -1167,7 +1167,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyCDATASection extends MyText implements CDATASection {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		MyCDATASection() {
 			super(Node.CDATA_SECTION_NODE);
@@ -1202,7 +1202,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyAttr extends DOMAttr {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		MyAttr(String localName, String namespaceURI) {
 			super(localName, namespaceURI);
@@ -1220,9 +1220,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 		@Override
 		public boolean isId() {
-			String nsuri = getNamespaceURI();
 			DOMElement owner = getOwnerElement();
-			return owner != null && owner.isIdAttributeNS(nsuri, getLocalName());
+			return owner != null && owner.isIdAttribute(getLocalName());
 		}
 
 		@Override
@@ -1238,7 +1237,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class XmlnsAttr extends MyAttr {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		XmlnsAttr() {
 			super("xmlns", "http://www.w3.org/2000/xmlns/");
@@ -1262,7 +1261,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyStyleAttr extends MyAttr implements StyleAttr {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		private AbstractCSSStyleDeclaration inlineStyle = null;
 
@@ -1340,7 +1339,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	abstract class EventAttr extends MyAttr {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		EventAttr(String localName, String namespaceURI) {
 			super(localName, namespaceURI);
@@ -1379,7 +1378,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	private class BaseEventAttr extends EventAttr {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		BaseEventAttr() {
 			super("base", XML_NAMESPACE_URI);
@@ -1403,7 +1402,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class ClassAttr extends MyAttr {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		ClassAttr(String namespaceURI) {
 			super("class", namespaceURI);
@@ -1474,72 +1473,10 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyXMLElement extends DOMElement {
 
-		private static final long serialVersionUID = 1L;
-
-		private final HashMap<String, String> idAttrNameMap = new HashMap<String, String>();
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		MyXMLElement(String localName, String namespaceURI) {
 			super(localName, namespaceURI);
-		}
-
-		@Override
-		public String getId() {
-			String idAttrName = idAttrNameMap.get(null); // get the 'id' attribute name
-			if (idAttrName == null) {
-				idAttrName = idAttrNameMap.get(getNamespaceURI());
-			}
-			if (idAttrName != null) {
-				Attr attr = nodeMap.getNamedItem(idAttrName);
-				if (attr != null) {
-					return attr.getNodeValue();
-				}
-			}
-			return super.getId();
-		}
-
-		@Override
-		boolean isIdAttributeNS(String namespaceURI, String localName) {
-			String name = idAttrNameMap.get(namespaceURI);
-			if (name == null) {
-				name = idAttrNameMap.get(getNamespaceURI());
-			}
-			return name != null && localName.equals(name);
-		}
-
-		@Override
-		public void setIdAttribute(String name, boolean isId) throws DOMException {
-			if (!hasAttribute(name)) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
-			}
-			setIdAttrNS(null, name, isId);
-		}
-
-		@Override
-		public void setIdAttributeNS(String namespaceURI, String localName, boolean isId) throws DOMException {
-			if (!hasAttributeNS(namespaceURI, localName)) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
-			}
-			setIdAttrNS(namespaceURI, localName, isId);
-		}
-
-		@Override
-		public void setIdAttributeNode(Attr idAttr, boolean isId) throws DOMException {
-			if (idAttr == null || !nodeMap.getNodeList().contains(idAttr)) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
-			}
-			String nsuri = idAttr.getNamespaceURI();
-			if (nsuri == null) {
-				nsuri = getNamespaceURI();
-			}
-			setIdAttrNS(nsuri, idAttr.getLocalName(), isId);
-		}
-
-		private void setIdAttrNS(String namespaceURI, String localName, boolean isId) {
-			if (isId) {
-				idAttrNameMap.put(namespaceURI, localName);
-			} else if (localName.equals(idAttrNameMap.get(namespaceURI))) {
-				idAttrNameMap.remove(namespaceURI);
-			}
 		}
 
 		@Override
@@ -1588,9 +1525,6 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				// directly cloned attributes always have 'specified = true'
 				myattr.specified = attr.getSpecified();
 				my.setAttributeNode(myattr);
-				if (attr.isId()) {
-					my.setIdAttributeNode(myattr, true);
-				}
 			}
 			if (deep) {
 				Node node = getFirstChild();
@@ -1603,6 +1537,14 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			return my;
 		}
 
+	}
+
+	boolean isIdAttribute(String localName) {
+		if (getComplianceMode() == CSSDocument.ComplianceMode.STRICT) {
+			return "id".equals(localName);
+		} else {
+			return "id".equalsIgnoreCase(localName);
+		}
 	}
 
 	/**
@@ -3001,7 +2943,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyOMStyleSheetList extends StyleSheetList {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		protected MyOMStyleSheetList(int initialCapacity) {
 			super(initialCapacity);
@@ -3053,7 +2995,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	class MyDefaultErrorHandler extends DefaultErrorHandler {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		@Override
 		protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {

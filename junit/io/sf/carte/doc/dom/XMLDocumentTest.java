@@ -923,7 +923,6 @@ public class XMLDocumentTest {
 		DOMElement head = xmlDoc.getElementsByTagName("head").item(0);
 		DOMElement style = xmlDoc.createElement("style");
 		style.setAttribute("id", "styleFontFamily");
-		style.setIdAttribute("id", true);
 		style.setAttribute("type", "text/css");
 		style.setTextContent("span.foospan{font-family:'Mechanical Bold'}");
 		head.appendChild(style);

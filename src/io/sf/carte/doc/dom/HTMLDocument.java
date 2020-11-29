@@ -38,13 +38,11 @@ import io.sf.carte.doc.style.css.property.AttributeToStyle;
  */
 abstract public class HTMLDocument extends DOMDocument {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	public static final String HTML_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 
 	private URL baseURL = null;
-
-	private String idAttrName = "id";
 
 	// Build raw set
 	private static final Set<String> rawTextElementsExceptStyle = new HashSet<>(6);
@@ -95,9 +93,9 @@ abstract public class HTMLDocument extends DOMDocument {
 		return doc;
 	}
 
-	class MyHTMLElement extends HTMLElement {
+	private class MyHTMLElement extends HTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		MyHTMLElement(String localName) {
 			this(localName, HTMLDocument.HTML_NAMESPACE_URI);
@@ -108,58 +106,8 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		boolean isIdAttributeNS(String namespaceURI, String localName) {
-			return idAttrName.equals(localName);
-		}
-
-		@Override
-		public void setIdAttribute(String name, boolean isId) throws DOMException {
-			if (!isId || !"id".equalsIgnoreCase(name)) {
-				throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "Id attribute is always 'id'");
-			}
-			if (!hasAttribute(name)) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
-			}
-			idAttrName = name;
-		}
-
-		@Override
-		public void setIdAttributeNS(String namespaceURI, String localName, boolean isId) throws DOMException {
-			if (!hasAttributeNS(namespaceURI, localName)) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
-			}
-			if (namespaceURI != null && namespaceURI.length() > 0
-					&& !namespaceURI.equals(HTMLDocument.HTML_NAMESPACE_URI)) {
-				return;
-			}
-			if (isId && !"id".equalsIgnoreCase(localName)) {
-				throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "Id attribute is always 'id'");
-			}
-			idAttrName = localName;
-		}
-
-		@Override
-		public void setIdAttributeNode(Attr idAttr, boolean isId) throws DOMException {
-			String nsuri;
-			if (idAttr == null || !hasAttributeNS(nsuri = idAttr.getNamespaceURI(), idAttr.getLocalName())) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "Not an attribute of this element");
-			}
-			if (nsuri == null || nsuri == HTMLDocument.HTML_NAMESPACE_URI) {
-				if (!"id".equalsIgnoreCase(idAttr.getName())) {
-					throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "Id attribute is always 'id'");
-				}
-				idAttrName = idAttr.getName();
-			}
-		}
-
-		@Override
 		public void setId(String id) {
-			setIdAttribute(id, true);
-		}
-
-		@Override
-		public String getId() {
-			return getAttribute(idAttrName);
+			setAttribute("id", id);
 		}
 
 		@Override
@@ -211,9 +159,9 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private class HtmlRootElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
-		HtmlRootElement() {
+		private HtmlRootElement() {
 			super("html");
 		}
 
@@ -267,9 +215,9 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class MetacontentElement extends MyHTMLElement {
+	private class MetacontentElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		MetacontentElement(String tagName) {
 			super(tagName);
@@ -293,7 +241,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private class BaseElement extends MetacontentElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		BaseElement() {
 			super("base");
@@ -330,9 +278,9 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	abstract class StyleDefinerElement extends MyHTMLElement implements LinkStyleDefiner {
+	abstract private class StyleDefinerElement extends MyHTMLElement implements LinkStyleDefiner {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		AbstractCSSStyleSheet definedSheet = null;
 		boolean needsUpdate = true;
@@ -354,7 +302,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class LinkElement extends StyleDefinerElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		LinkElement() {
 			super("link");
@@ -455,9 +403,9 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class RawTextElement extends MyHTMLElement {
+	private class RawTextElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		RawTextElement(String localName, String namespaceURI) {
 			super(localName, namespaceURI);
@@ -477,7 +425,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	class StyleElement extends StyleDefinerElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		StyleElement() {
 			super("style");
@@ -571,7 +519,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private class MetaElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		MetaElement() {
 			super("meta");
@@ -616,7 +564,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private class ImgElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		ImgElement() {
 			super("img");
@@ -651,7 +599,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private class FontElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		FontElement() {
 			super("font");
@@ -673,7 +621,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private class TableElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		TableElement() {
 			super("table");
@@ -701,7 +649,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private class TableRowElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		TableRowElement() {
 			super("tr");
@@ -725,7 +673,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private class TableCellElement extends MyHTMLElement {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		TableCellElement(String localName) {
 			super(localName);
@@ -880,7 +828,7 @@ abstract public class HTMLDocument extends DOMDocument {
 	 */
 	private class StyleEventAttr extends EventAttr {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
 		StyleEventAttr(String name, String namespaceURI) {
 			super(name, namespaceURI);

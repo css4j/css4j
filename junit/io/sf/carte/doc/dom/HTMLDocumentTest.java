@@ -173,7 +173,6 @@ public class HTMLDocumentTest {
 		assertTrue(document.getClass() == cloned.getClass());
 		DOMElement docElm = document.createElement("html");
 		docElm.setAttribute("id", "myId");
-		docElm.setIdAttribute("id", true);
 		document.appendChild(docElm);
 		assertTrue(document.isEqualNode(document.cloneNode(true)));
 	}
@@ -519,12 +518,6 @@ public class HTMLDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
-		try {
-			p.setIdAttribute("id", true);
-			fail("Must throw an exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
 	}
 
 	@Test
@@ -628,6 +621,7 @@ public class HTMLDocumentTest {
 		assertEquals(1, list.getLength());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void getElementById() {
 		HTMLElement elm = (HTMLElement) xhtmlDoc.getElementById("ul1");
@@ -636,61 +630,12 @@ public class HTMLDocumentTest {
 		assertNull(xhtmlDoc.getElementById("xxxxxx"));
 		assertEquals("ul1", elm.getAttribute("id"));
 		assertEquals("ul1", elm.getId());
+		elm.setId("ul2");
+		assertEquals("ul2", elm.getId());
 		// The following is ignored
 		elm.setIdAttribute("id", true);
 		elm.setIdAttributeNS(null, "id", true);
-		try {
-			elm.setIdAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "id", true);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
-		elm.setId("id");
-		// Test other attributes
-		Attr svgid = xhtmlDoc.createAttributeNS("http://www.w3.org/2000/svg", "svgid");
-		try {
-			elm.setIdAttributeNS("http://www.w3.org/2000/svg", "svgid", true);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
-		try {
-			elm.setIdAttributeNode(svgid, true);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
-		elm.setAttributeNode(svgid);
-		elm.setIdAttributeNS("http://www.w3.org/2000/svg", "svgid", true);
-		elm.setIdAttributeNode(svgid, true);
-		//
-		elm.setAttribute("foo", "bar");
-		try {
-			elm.setIdAttribute("foo", true);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.code);
-		}
-		try {
-			elm.setIdAttributeNS(null, "foo", true);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.code);
-		}
-		try {
-			elm.setIdAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo", true);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
-		Attr attr = xhtmlDoc.createAttribute("foo");
-		elm.setAttributeNode(attr);
-		try {
-			elm.setIdAttributeNode(attr, true);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.code);
-		}
+		elm.setIdAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "id", true);
 	}
 
 	@Test

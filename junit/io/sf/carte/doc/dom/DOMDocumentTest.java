@@ -282,7 +282,6 @@ public class DOMDocumentTest {
 		document = domImpl.createDocument("http://www.example.com/examplens", "foo", docType);
 		DOMElement docElm = document.getDocumentElement();
 		docElm.setAttribute("id", "myId");
-		docElm.setIdAttribute("id", true);
 		assertTrue(document.isEqualNode(document.cloneNode(true)));
 		cloned = document.cloneNode(false);
 		assertNull(cloned.getDoctype());
@@ -302,25 +301,17 @@ public class DOMDocumentTest {
 	public void testCreateElementNS() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
 		DOMElement element = document.createElementNS(null, "element");
-		element.setAttribute("eId", "myId");
-		element.setIdAttribute("eId", true);
-		assertEquals("myId", element.getAttribute("eId"));
+		element.setAttribute("Id", "myId");
+		assertEquals("myId", element.getAttribute("Id"));
 		assertEquals("myId", element.getId());
-		assertTrue(element.getAttributeNode("eId").isId());
+		assertTrue(element.getAttributeNode("Id").isId());
 		element.setAttribute("foo", "bar");
 		assertEquals("bar", element.getAttribute("foo"));
 		assertFalse(element.getAttributeNode("foo").isId());
-		Attr attr = document.createAttribute("noattr");
-		try {
-			element.setIdAttributeNode(attr, true);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
 		document.appendChild(element);
 		assertTrue(element == document.getDocumentElement());
 		//
-		assertEquals("<element eId=\"myId\" foo=\"bar\"></element>", element.toString());
+		assertEquals("<element Id=\"myId\" foo=\"bar\"></element>", element.toString());
 	}
 
 	@Test
@@ -899,7 +890,6 @@ public class DOMDocumentTest {
 		element.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base", "http://www.example.com/");
 		DOMElement style = document.createElement("style");
 		style.setAttribute("id", "styleBadFont");
-		style.setIdAttribute("id", true);
 		style.setAttribute("type", "text/css");
 		style.setTextContent("@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf');}");
 		element.appendChild(style);
@@ -937,19 +927,15 @@ public class DOMDocumentTest {
 		DOMElement docElm = document.getDocumentElement();
 		DOMElement elem1 = document.createElement("div");
 		elem1.setAttribute("id", "div1");
-		elem1.setIdAttribute("id", true);
 		docElm.appendChild(elem1);
 		DOMElement elem2 = document.createElement("div");
 		elem2.setAttribute("id", "div2");
-		elem2.setIdAttribute("id", true);
 		elem1.appendChild(elem2);
 		DOMElement elem3 = document.createElement("div");
 		elem3.setAttribute("id", "div3");
-		elem3.setIdAttribute("id", true);
 		elem2.appendChild(elem3);
 		DOMElement elem4 = document.createElement("div");
 		elem4.setAttribute("id", "div4");
-		elem4.setIdAttribute("id", true);
 		docElm.appendChild(elem4);
 		ElementList list = document.getElementsByTagName("div");
 		assertNotNull(list);
@@ -1004,19 +990,15 @@ public class DOMDocumentTest {
 		DOMElement docElm = document.getDocumentElement();
 		DOMElement elem1 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem1.setAttribute("id", "div1");
-		elem1.setIdAttribute("id", true);
 		docElm.appendChild(elem1);
 		DOMElement elem2 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem2.setAttribute("id", "div2");
-		elem2.setIdAttribute("id", true);
 		elem1.appendChild(elem2);
 		DOMElement elem3 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem3.setAttribute("id", "div3");
-		elem3.setIdAttribute("id", true);
 		elem2.appendChild(elem3);
 		DOMElement elem4 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem4.setAttribute("id", "div4");
-		elem4.setIdAttribute("id", true);
 		docElm.appendChild(elem4);
 		ElementList list = document.getElementsByTagNameNS("http://www.example.com/examplens", "div");
 		assertNotNull(list);
@@ -1048,19 +1030,15 @@ public class DOMDocumentTest {
 		DOMElement docElm = document.getDocumentElement();
 		DOMElement elem1 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem1.setAttribute("id", "div1");
-		elem1.setIdAttribute("id", true);
 		docElm.appendChild(elem1);
 		DOMElement elem2 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem2.setAttribute("id", "div2");
-		elem2.setIdAttribute("id", true);
 		elem1.appendChild(elem2);
 		DOMElement elem3 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem3.setAttribute("id", "div3");
-		elem3.setIdAttribute("id", true);
 		elem2.appendChild(elem3);
 		DOMElement elem4 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem4.setAttribute("id", "div4");
-		elem4.setIdAttribute("id", true);
 		docElm.appendChild(elem4);
 		ElementList list = document.getElementsByTagNameNS("*", "div");
 		assertNotNull(list);
@@ -1092,19 +1070,15 @@ public class DOMDocumentTest {
 		DOMElement docElm = document.getDocumentElement();
 		DOMElement elem1 = document.createElementNS("http://www.example.com/differentns", "div");
 		elem1.setAttribute("id", "div1");
-		elem1.setIdAttribute("id", true);
 		docElm.appendChild(elem1);
 		DOMElement elem2 = document.createElementNS("http://www.example.com/differentns", "div");
 		elem2.setAttribute("id", "div2");
-		elem2.setIdAttribute("id", true);
 		elem1.appendChild(elem2);
 		DOMElement elem3 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem3.setAttribute("id", "div3");
-		elem3.setIdAttribute("id", true);
 		elem2.appendChild(elem3);
 		DOMElement elem4 = document.createElementNS("http://www.example.com/differentns", "div");
 		elem4.setAttribute("id", "div4");
-		elem4.setIdAttribute("id", true);
 		docElm.appendChild(elem4);
 		//
 		ElementList list = document.getElementsByTagNameNS("http://www.example.com/examplens", "div");
@@ -1199,19 +1173,15 @@ public class DOMDocumentTest {
 		DOMElement docElm = document.getDocumentElement();
 		DOMElement elem1 = document.createElementNS("http://www.example.com/differentns", "div");
 		elem1.setAttribute("id", "div1");
-		elem1.setIdAttribute("id", true);
 		docElm.appendChild(elem1);
 		DOMElement elem2 = document.createElementNS("http://www.example.com/differentns", "div");
 		elem2.setAttribute("id", "div2");
-		elem2.setIdAttribute("id", true);
 		elem1.appendChild(elem2);
 		DOMElement elem3 = document.createElementNS("http://www.example.com/examplens", "div");
 		elem3.setAttribute("id", "div3");
-		elem3.setIdAttribute("id", true);
 		elem2.appendChild(elem3);
 		DOMElement elem4 = document.createElementNS("http://www.example.com/differentns", "div");
 		elem4.setAttribute("id", "div4");
-		elem4.setIdAttribute("id", true);
 		docElm.appendChild(elem4);
 		//
 		ElementList list = document.getElementsByTagNameNS("*", "div");
@@ -1550,7 +1520,6 @@ public class DOMDocumentTest {
 		Attr idAttr = document.createAttribute("id");
 		idAttr.setValue("bodyId");
 		body.setAttributeNode(idAttr);
-		body.setIdAttributeNode(idAttr, true);
 		assertTrue(idAttr.isId());
 		body.setAttribute("lang", "en");
 		Text text = document.createTextNode("text");
@@ -1584,7 +1553,6 @@ public class DOMDocumentTest {
 		idAttr = document.createAttribute("id");
 		idAttr.setValue("divId");
 		div.setAttributeNode(idAttr);
-		div.setIdAttributeNode(idAttr, true);
 		div.setAttribute("lang", "en");
 		Text textbd = document.createTextNode("text below div");
 		div.appendChild(textbd);

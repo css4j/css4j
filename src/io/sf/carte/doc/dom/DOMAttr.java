@@ -74,28 +74,6 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 		setValue(nodeValue);
 	}
 
-	/**
-	 * For attributes, we reuse field parentNode to store the owner.
-	 * 
-	 * @param newOwner the owner.
-	 */
-	@Override
-	void setAttributeOwner(DOMElement newOwner) {
-		DOMElement owner;
-		if (newOwner != null) {
-			if (isImplicitId()) {
-				newOwner.setIdAttributeNS(getNamespaceURI(), getLocalName(), true);
-			}
-		} else if (isImplicitId() && (owner = getOwnerElement()) != null) {
-			owner.setIdAttributeNS(getNamespaceURI(), getLocalName(), false);
-		}
-		super.setAttributeOwner(newOwner);
-	}
-
-	private boolean isImplicitId() {
-		return DOMDocument.XML_NAMESPACE_URI == getNamespaceURI() && "id".equals(getLocalName());
-	}
-
 	@Override
 	public DOMElement getOwnerElement() {
 		return (DOMElement) super.getParentNode();

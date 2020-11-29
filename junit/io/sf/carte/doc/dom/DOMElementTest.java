@@ -183,7 +183,6 @@ public class DOMElementTest {
 		assertEquals("https://www.w3.org/TR/xml/", attr.getSchemaTypeInfo().getTypeNamespace());
 		body.setAttribute("id", "bodyId");
 		assertTrue(body.hasAttributes());
-		body.setIdAttribute("id", true);
 		assertEquals(2, body.getAttributes().getLength());
 		assertEquals("bodyId", body.getAttribute("id"));
 		attr = body.getAttributeNode("id");
@@ -236,25 +235,6 @@ public class DOMElementTest {
 	}
 
 	@Test
-	public void testSetIdAttributeError() {
-		DOMElement p = xhtmlDoc.createElement("p");
-		try {
-			p.setIdAttribute("id", true);
-			fail("Must throw an exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
-		p.setAttribute("id", "fooId");
-		p.setIdAttribute("id", true);
-		try {
-			p.setIdAttributeNS("http://www.example.com/examplens", "id", true);
-			fail("Must throw an exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
-	}
-
-	@Test
 	public void testSetAttributeNode() {
 		DOMElement html = xhtmlDoc.getDocumentElement();
 		DOMElement body = xhtmlDoc.createElement("body");
@@ -263,7 +243,6 @@ public class DOMElementTest {
 		attr.setValue("bodyId");
 		assertFalse(attr.isId());
 		body.setAttributeNode(attr);
-		body.setIdAttributeNode(attr, true);
 		assertTrue(body.hasAttributes());
 		assertTrue(attr.isId());
 		assertNull(attr.getParentNode());
@@ -584,7 +563,6 @@ public class DOMElementTest {
 		DOMElement body = xhtmlDoc.createElement("body");
 		xhtmlDoc.getDocumentElement().appendChild(body);
 		body.setAttribute("id", "bodyId");
-		body.setIdAttribute("id", true);
 		DOMElement div1 = xhtmlDoc.createElement("div");
 		DOMElement div2 = xhtmlDoc.createElement("div");
 		body.appendChild(div1);
@@ -618,7 +596,6 @@ public class DOMElementTest {
 		DOMElement body = xhtmlDoc.createElement("body");
 		xhtmlDoc.getDocumentElement().appendChild(body);
 		body.setAttribute("id", "bodyId");
-		body.setIdAttribute("id", true);
 		DOMElement div1 = xhtmlDoc.createElement("div");
 		DOMElement div2 = xhtmlDoc.createElement("div");
 		body.appendChild(div1);
@@ -824,7 +801,6 @@ public class DOMElementTest {
 		Attr attr = xhtmlDoc.createAttribute("id");
 		attr.setValue("bodyId");
 		body.setAttributeNode(attr);
-		body.setIdAttributeNode(attr, true);
 		body.setAttribute("class", "fooclass");
 		DOMElement div = xhtmlDoc.createElement("div");
 		body.appendChild(div);
@@ -835,14 +811,14 @@ public class DOMElementTest {
 		Attr cloneId = elm.getAttributeNode("id");
 		assertTrue(cloneId.isId());
 		assertFalse(body.isEqualNode(elm));
-		elm.setIdAttributeNode(cloneId, false);
-		assertFalse(cloneId.isId());
+		assertTrue(cloneId.isId());
 		elm = body.cloneNode(true);
 		assertTrue(body.isEqualNode(elm));
 		assertEquals("div", elm.getChildNodes().item(0).getNodeName());
 		assertEquals("foo", elm.getChildNodes().item(0).getChildNodes().item(0).getNodeValue());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testGetElementById() {
 		DOMElement body = xhtmlDoc.createElement("body");
@@ -853,20 +829,17 @@ public class DOMElementTest {
 		fooAttr.setValue("bar");
 		body.setAttributeNode(attr);
 		body.setAttributeNode(fooAttr);
-		body.setIdAttributeNode(attr, true);
-		assertTrue(body == xhtmlDoc.getElementById("myId"));
-		body.setIdAttributeNode(attr, false);
-		assertNull(xhtmlDoc.getElementById("myId"));
-		body.setIdAttributeNode(fooAttr, true);
-		assertTrue(body == xhtmlDoc.getElementById("bar"));
-		body.setIdAttributeNode(fooAttr, false);
-		assertNull(xhtmlDoc.getElementById("bar"));
+		assertSame(body, xhtmlDoc.getElementById("myId"));
+		body.setIdAttributeNode(fooAttr, true); // Does not work, is ignored
+		assertFalse(body == xhtmlDoc.getElementById("bar"));
 		// test for xml:id
+		body.removeAttribute("id");
 		attr = xhtmlDoc.createAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:id");
 		attr.setValue("xmlId");
 		body.setAttributeNode(attr);
+		assertTrue(attr.isId());
 		assertEquals("xmlId", body.getAttributeNS("http://www.w3.org/XML/1998/namespace", "id"));
-		assertTrue(body == xhtmlDoc.getElementById("xmlId"));
+		assertSame(body, xhtmlDoc.getElementById("xmlId"));
 	}
 
 	@Test
@@ -874,19 +847,15 @@ public class DOMElementTest {
 		DOMElement docElm = xhtmlDoc.getDocumentElement();
 		DOMElement elem1 = xhtmlDoc.createElement("div");
 		elem1.setAttribute("id", "div1");
-		elem1.setIdAttribute("id", true);
 		docElm.appendChild(elem1);
 		DOMElement elem2 = xhtmlDoc.createElement("div");
 		elem2.setAttribute("id", "div2");
-		elem2.setIdAttribute("id", true);
 		elem1.appendChild(elem2);
 		DOMElement elem3 = xhtmlDoc.createElement("div");
 		elem3.setAttribute("id", "div3");
-		elem3.setIdAttribute("id", true);
 		elem2.appendChild(elem3);
 		DOMElement elem4 = xhtmlDoc.createElement("div");
 		elem4.setAttribute("id", "div4");
-		elem4.setIdAttribute("id", true);
 		docElm.appendChild(elem4);
 		ElementList list = docElm.getElementsByTagName("div");
 		assertNotNull(list);

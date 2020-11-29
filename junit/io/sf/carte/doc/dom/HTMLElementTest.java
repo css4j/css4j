@@ -242,20 +242,6 @@ public class HTMLElementTest {
 	}
 
 	@Test
-	public void testSetIdAttributeError() {
-		DOMElement p = xhtmlDoc.createElement("p");
-		p.setAttribute("id", "fooId");
-		p.setIdAttribute("id", true);
-		p.setAttribute("foo", "bar");
-		try {
-			p.setIdAttribute("foo", true);
-			fail("Must throw an exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.code);
-		}
-	}
-
-	@Test
 	public void setAttributeNode() {
 		CSSElement html = xhtmlDoc.getDocumentElement();
 		DOMElement body = xhtmlDoc.createElement("body");
