@@ -893,7 +893,7 @@ abstract public class HTMLDocument extends DOMDocument {
 				my = new ClassAttr(namespaceURI);
 			} else if ("href".equals(localName)) {
 				my = new HrefEventAttr(namespaceURI);
-			} else if ("style".equals(localName) && prefix == null) {
+			} else if ("style".equals(localName)) {
 				my = new MyStyleAttr(localName);
 			} else if ("media".equals(localName) || "type".equals(localName)) {
 				my = new StyleEventAttr(localName, namespaceURI);
@@ -905,6 +905,8 @@ abstract public class HTMLDocument extends DOMDocument {
 				throw new DOMException(DOMException.NAMESPACE_ERR, "xmlns local name but not xmlns namespace");
 			}
 			my = new XmlnsAttr();
+		} else if ("style".equals(localName) && prefix == null) {
+			my = new MyStyleAttr(localName);
 		} else {
 			my = new MyAttr(localName, namespaceURI);
 		}
