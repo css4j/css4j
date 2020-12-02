@@ -26,7 +26,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.UserDataHandler;
 
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
-import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.property.AttributeToStyle;
@@ -259,7 +258,8 @@ abstract public class HTMLDocument extends DOMDocument {
 				if (parentNode.getNodeType() == Node.ELEMENT_NODE) {
 					Node node = parentNode.getFirstChild();
 					while (node != null) {
-						if (node.getNodeType() == Node.ELEMENT_NODE && "base".equals(node.getNodeName()) && node != this) {
+						if (node.getNodeType() == Node.ELEMENT_NODE && "base".equals(node.getNodeName())
+								&& node != this) {
 							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 									"A document can have only one base element.");
 						}
@@ -278,34 +278,15 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	abstract private class StyleDefinerElement extends MyHTMLElement implements LinkStyleDefiner {
+	private class LinkElement extends MyHTMLElement implements LinkStyleDefiner {
 
 		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
-		AbstractCSSStyleSheet definedSheet = null;
-		boolean needsUpdate = true;
-
-		StyleDefinerElement(String localName) {
-			super(localName, HTMLDocument.HTML_NAMESPACE_URI);
-		}
-
-		@Override
-		public void resetLinkedSheet() {
-			if (definedSheet != null) {
-				definedSheet.getCssRules().clear();
-			}
-			needsUpdate = true;
-			getOwnerDocument().onSheetModify();
-		}
-
-	}
-
-	class LinkElement extends StyleDefinerElement {
-
-		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
+		private final StyleDefinerElementHelper helper;
 
 		LinkElement() {
 			super("link");
+			helper = new StyleDefinerElementHelper(this);
 		}
 
 		@Override
@@ -334,66 +315,12 @@ abstract public class HTMLDocument extends DOMDocument {
 		 */
 		@Override
 		public AbstractCSSStyleSheet getSheet() {
-			if (needsUpdate) {
-				String rel = getAttribute("rel");
-				String type = getAttribute("type");
-				int typelen = type.length();
-				if (typelen == 0) {
-					if (rel.length() == 0) {
-						return null;
-					}
-				} else if (!"text/css".equalsIgnoreCase(type)) {
-					return null;
-				}
-				byte relAttr = AbstractCSSStyleSheet.parseRelAttribute(rel);
-				if (relAttr != -1) {
-					String title = getAttribute("title").trim();
-					if (title.length() == 0) {
-						title = null;
-					}
-					String href = getAttribute("href");
-					if (href.length() != 0) {
-						if (relAttr == 0) {
-							if (loadStyleSheet(href, title)) {
-								needsUpdate = false;
-							}
-						} else {
-							if (title != null) {
-								if (href.length() != 0) {
-									// Disable this alternate sheet if it is a new sheet
-									// or is not the selected set
-									boolean disable = definedSheet == null
-											|| !title.equalsIgnoreCase(getSelectedStyleSheetSet());
-									if (loadStyleSheet(href, title)) {
-										// It is an alternate sheet
-										if (disable) {
-											definedSheet.setDisabled(true);
-										}
-										needsUpdate = false;
-									}
-								}
-							} else {
-								getErrorHandler().linkedStyleError(this, "Alternate sheet without title");
-							}
-						}
-					} else {
-						getErrorHandler().linkedStyleError(this, "Missing or void href attribute.");
-					}
-				} else {
-					definedSheet = null;
-				}
-			}
-			return definedSheet;
+			return helper.getLinkedSheet();
 		}
 
-		private boolean loadStyleSheet(String href, String title) {
-			MediaQueryList media = parseMediaList(getAttribute("media").trim(), this);
-			if (media == null) {
-				definedSheet = null;
-				return false;
-			}
-			definedSheet = HTMLDocument.this.loadStyleSheet(definedSheet, href, title, media, this);
-			return true;
+		@Override
+		public void resetSheet() {
+			helper.resetSheet();
 		}
 
 		@Override
@@ -423,12 +350,15 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	}
 
-	class StyleElement extends StyleDefinerElement {
+	private class StyleElement extends MyHTMLElement implements LinkStyleDefiner {
 
 		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
 
+		private final StyleDefinerElementHelper helper;
+
 		StyleElement() {
 			super("style");
+			helper = new StyleDefinerElementHelper(this);
 		}
 
 		@Override
@@ -451,24 +381,12 @@ abstract public class HTMLDocument extends DOMDocument {
 		 */
 		@Override
 		public AbstractCSSStyleSheet getSheet() {
-			if (needsUpdate) {
-				String type = getAttribute("type");
-				if (!"text/css".equalsIgnoreCase(type) && type.length() != 0) {
-					return null;
-				}
-				MediaQueryList mediaList = HTMLDocument.this.parseMediaList(getAttribute("media").trim(), this);
-				if (mediaList == null) {
-					return null;
-				}
-				String title = getAttribute("title").trim();
-				if (title.length() == 0) {
-					title = null;
-				}
-				String styleText = getTextContent().trim();
-				definedSheet = HTMLDocument.this.parseEmbeddedStyleSheet(definedSheet, styleText, title, mediaList, this);
-				needsUpdate = false;
-			}
-			return definedSheet;
+			return helper.getInlineSheet();
+		}
+
+		@Override
+		public void resetSheet() {
+			helper.resetSheet();
 		}
 
 		@Override
@@ -481,32 +399,34 @@ abstract public class HTMLDocument extends DOMDocument {
 		@Override
 		void postAddChild(AbstractDOMNode newChild) {
 			super.postAddChild(newChild);
-			// If newChild is not the only child, reset sheet
-			if (getFirstChild().getNextSibling() != null) {
-				resetLinkedSheet();
-				getSheet();
-			}
+			helper.postAddChildInline(newChild);
 		}
 
 		@Override
 		void postRemoveChild(AbstractDOMNode removed) {
-			resetLinkedSheet();
+			resetSheet();
 			getSheet();
 		}
 
 		@Override
 		public void setTextContent(String textContent) throws DOMException {
 			super.setTextContent(textContent);
-			resetLinkedSheet();
+			resetSheet();
 			getSheet();
 		}
 
 		@Override
 		public void normalize() {
-			if (definedSheet == null) {
+			if (!helper.containsCSS()) {
 				super.normalize();
 			} else {
-				super.setTextContent(definedSheet.toString());
+				// Local reference to sheet, to avoid race conditions.
+				final AbstractCSSStyleSheet sheet = getSheet();
+				if (sheet != null) {
+					super.setTextContent(sheet.toString());
+				} else {
+					super.normalize();
+				}
 			}
 		}
 
@@ -799,7 +719,7 @@ abstract public class HTMLDocument extends DOMDocument {
 					doc.onBaseModify();
 				}
 			} else if ("link".equals(tagname)) {
-				((LinkElement) owner).resetLinkedSheet();
+				((LinkElement) owner).resetSheet();
 			}
 		}
 
@@ -807,7 +727,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		void onDOMChange(DOMElement owner) {
 			String tagname = owner.getTagName();
 			if ("link".equals(tagname)) {
-				((LinkElement) owner).resetLinkedSheet();
+				((LinkElement) owner).resetSheet();
 			} else if ("base".equals(tagname)) {
 				HTMLDocument doc = (HTMLDocument) getOwnerDocument();
 				String value = getValue();
@@ -818,34 +738,6 @@ abstract public class HTMLDocument extends DOMDocument {
 					}
 					onBaseModify();
 				}
-			}
-		}
-
-	}
-
-	/**
-	 * An attribute that changes the meaning of its style-definer owner element.
-	 */
-	private class StyleEventAttr extends EventAttr {
-
-		private static final long serialVersionUID = HTMLDocument.serialVersionUID;
-
-		StyleEventAttr(String name, String namespaceURI) {
-			super(name, namespaceURI);
-		}
-
-		@Override
-		void onAttributeRemoval() {
-			DOMElement owner = getOwnerElement();
-			if (owner instanceof LinkStyleDefiner) {
-				((LinkStyleDefiner) owner).resetLinkedSheet();
-			}
-		}
-
-		@Override
-		void onDOMChange(DOMElement owner) {
-			if (owner instanceof LinkStyleDefiner) {
-				((LinkStyleDefiner) owner).resetLinkedSheet();
 			}
 		}
 

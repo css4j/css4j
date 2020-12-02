@@ -38,8 +38,6 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
-import io.sf.carte.doc.dom.HTMLDocument.LinkElement;
-import io.sf.carte.doc.dom.HTMLDocument.StyleElement;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSValue;
@@ -48,7 +46,6 @@ import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
@@ -729,20 +726,20 @@ public class XHTMLDocumentTest {
 
 	@Test
 	public void testStyleElement() {
-		StyleElement style = (StyleElement) xmlDoc.getElementsByTagName("style").item(0);
-		AbstractCSSStyleSheet sheet = style.getSheet();
+		DOMElement style = xmlDoc.getElementsByTagName("style").item(0);
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);
 		style.setAttribute("media", "screen");
-		AbstractCSSStyleSheet sheet2 = style.getSheet();
+		AbstractCSSStyleSheet sheet2 = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet2);
 		assertTrue(sheet2 == sheet);
 		assertEquals(1, sheet2.getMedia().getLength());
 		assertEquals("screen", sheet2.getMedia().item(0));
 		assertTrue(sheet2.getCssRules().getLength() > 0);
 		style.setTextContent("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertTrue(sheet2 == sheet);
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == style);
@@ -754,13 +751,13 @@ public class XHTMLDocumentTest {
 		//
 		Attr type = style.getAttributeNode("type");
 		type.setNodeValue("foo");
-		assertNull(((LinkStyle<AbstractCSSRule>) style).getSheet());
+		assertNull(((LinkStyleDefiner) style).getSheet());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testRawText() {
-		StyleElement style = (StyleElement) xmlDoc.getElementsByTagName("style").item(0);
+		DOMElement style = xmlDoc.getElementsByTagName("style").item(0);
 		// Test raw text behaviour
 		Text text = xmlDoc.createTextNode("data");
 		assertEquals("data", text.toString());
@@ -774,25 +771,25 @@ public class XHTMLDocumentTest {
 
 	@Test
 	public void testLinkElement() {
-		LinkElement link = (LinkElement) xmlDoc.getElementsByTagName("link").item(0);
-		AbstractCSSStyleSheet sheet = link.getSheet();
+		DOMElement link = xmlDoc.getElementsByTagName("link").item(0);
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);
 		link.setAttribute("media", "screen");
-		AbstractCSSStyleSheet sheet2 = link.getSheet();
+		AbstractCSSStyleSheet sheet2 = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet2);
 		assertTrue(sheet2 == sheet);
 		assertEquals(1, sheet2.getMedia().getLength());
 		assertEquals("screen", sheet2.getMedia().item(0));
 		link.setAttribute("href", "http://www.example.com/css/alter1.css");
-		sheet = link.getSheet();
+		sheet = ((LinkStyleDefiner) link).getSheet();
 		assertTrue(sheet2 == sheet);
 		assertEquals(1, sheet2.getMedia().getLength());
 		assertEquals("screen", sheet2.getMedia().item(0));
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 		link.setAttribute("href", "http://www.example.com/css/alter1.css");
-		sheet = link.getSheet();
+		sheet = ((LinkStyleDefiner) link).getSheet();
 		assertTrue(sheet2 == sheet);
 		assertTrue(sheet.getOwnerNode() == link);
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
@@ -800,13 +797,13 @@ public class XHTMLDocumentTest {
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
 		href.setValue("http://www.example.com/css/example.css");
-		assertNotNull(((LinkStyle<AbstractCSSRule>) link).getSheet());
+		assertNotNull(((LinkStyleDefiner) link).getSheet());
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		xmlDoc.getErrorHandler().reset();
 		//
 		link.setAttribute("media", "screen only and");
-		assertNull(((LinkStyle<AbstractCSSRule>) link).getSheet());
+		assertNull(((LinkStyleDefiner) link).getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 	}
 

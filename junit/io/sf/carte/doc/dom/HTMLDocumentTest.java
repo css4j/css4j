@@ -43,8 +43,6 @@ import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
-import io.sf.carte.doc.dom.HTMLDocument.LinkElement;
-import io.sf.carte.doc.dom.HTMLDocument.StyleElement;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
@@ -56,7 +54,6 @@ import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
@@ -1569,22 +1566,22 @@ public class HTMLDocumentTest {
 
 	@Test
 	public void testStyleElement() {
-		StyleElement style = (StyleElement) xhtmlDoc.getElementsByTagName("style").item(0);
-		AbstractCSSStyleSheet sheet = style.getSheet();
+		DOMElement style = xhtmlDoc.getElementsByTagName("style").item(0);
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);
 		assertTrue(sheet.getOwnerNode() == style);
 		// Change media
 		style.setAttribute("media", "screen");
-		AbstractCSSStyleSheet sheet2 = style.getSheet();
+		AbstractCSSStyleSheet sheet2 = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet2);
 		assertTrue(sheet2 == sheet);
 		assertEquals(1, sheet2.getMedia().getLength());
 		assertEquals("screen", sheet2.getMedia().item(0));
 		assertTrue(sheet2.getCssRules().getLength() > 0);
 		style.setTextContent("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertTrue(sheet2 == sheet);
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == style);
@@ -1596,29 +1593,29 @@ public class HTMLDocumentTest {
 		//
 		Attr type = style.getAttributeNode("type");
 		type.setNodeValue("foo");
-		assertNull(style.getSheet());
+		assertNull(((LinkStyleDefiner) style).getSheet());
 		assertEquals("body {font-size: 14pt; margin-left: 7%; }h1 {font-size: 2.4em; }h3 {font-family: Arial; }",
 				style.getTextContent());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		// Empty type
 		type.setNodeValue("");
-		assertNotNull(style.getSheet());
+		assertNotNull(((LinkStyleDefiner) style).getSheet());
 		assertEquals("body {font-size: 14pt; margin-left: 7%; }h1 {font-size: 2.4em; }h3 {font-family: Arial; }",
 				style.getTextContent());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		//
 		type.setNodeValue("text/CSS");
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		Attr media = style.getAttributeNode("media");
 		media.setNodeValue("&%/(*");
-		assertNull(style.getSheet());
+		assertNull(((LinkStyleDefiner) style).getSheet());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		xhtmlDoc.getErrorHandler().reset();
 		media.setNodeValue("screen");
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
@@ -1629,7 +1626,7 @@ public class HTMLDocumentTest {
 		style.insertBefore(text, style.getFirstChild());
 		int szp1 = sz + 1;
 		assertEquals(szp1, sheet.getCssRules().getLength());
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		CSSRuleArrayList rules = sheet.getCssRules();
@@ -1640,7 +1637,7 @@ public class HTMLDocumentTest {
 				"@font-feature-values Some Font, Other Font {@swash{swishy:1;flowing:2;}@styleset{double-W:14;sharp-terminals:16 1;}}\n");
 		style.replaceChild(text2, text);
 		assertEquals(szp1, sheet.getCssRules().getLength());
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		rules = sheet.getCssRules();
 		assertEquals(szp1, rules.getLength());
 		assertEquals(CSSRule.FONT_FEATURE_VALUES_RULE, rules.item(0).getType());
@@ -1655,7 +1652,7 @@ public class HTMLDocumentTest {
 		}
 		style.removeChild(text2);
 		assertEquals(sz, sheet.getCssRules().getLength());
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		rules = sheet.getCssRules();
 		assertEquals(sz, rules.getLength());
@@ -1663,7 +1660,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		// Trigger a CSS error, and then check the error state.
 		style.setTextContent("$@foo{bar}");
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 		// Non-CSS style
 		type.setNodeValue("text/xsl");
@@ -1671,39 +1668,45 @@ public class HTMLDocumentTest {
 				"<?xml version=\"1.0\"?><xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">"
 				+ "<xsl:output method=\"text\"/><xsl:template match=\"foo\">bar<xsl:value-of select=\".\"/>"
 				+ "</xsl:template></xsl:stylesheet>");
-		assertNull(style.getSheet());
+		assertNull(((LinkStyleDefiner) style).getSheet());
 		assertEquals(
 				"<?xml version=\"1.0\"?><xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">"
 				+ "<xsl:output method=\"text\"/><xsl:template match=\"foo\">bar<xsl:value-of select=\".\"/>"
 				+ "</xsl:template></xsl:stylesheet>",
 				style.getTextContent());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		style.normalize();
+		assertEquals(
+				"<?xml version=\"1.0\"?><xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">"
+				+ "<xsl:output method=\"text\"/><xsl:template match=\"foo\">bar<xsl:value-of select=\".\"/>"
+				+ "</xsl:template></xsl:stylesheet>",
+				style.getTextContent());
 	}
 
 	@Test
 	public void testStyleElement2() {
-		StyleElement style = (StyleElement) xhtmlDoc.createElement("style");
+		DOMElement style = xhtmlDoc.createElement("style");
 		style.setAttribute("type", "text/css");
-		AbstractCSSStyleSheet sheet = style.getSheet();
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
 		//
 		style.setAttribute("type", "");
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
 		//
 		style.removeAttributeNode(style.getAttributeNode("type"));
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
 		//
 		style.setAttribute("type", "text/xsl");
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNull(sheet);
 		//
 		style.removeAttribute("type");
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
 		style.setTextContent("body {color: blue;}");
@@ -1712,13 +1715,16 @@ public class HTMLDocumentTest {
 		//
 		style.setTextContent("foo:");
 		assertEquals("<style>foo:</style>", style.toString());
-		sheet = style.getSheet();
+		sheet = ((LinkStyleDefiner) style).getSheet();
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertEquals("<style>foo:</style>", style.toString());
+		style.normalize();
 		assertEquals("<style>foo:</style>", style.toString());
 	}
 
 	@Test
 	public void testRawText() {
-		StyleElement style = (StyleElement) xhtmlDoc.getElementsByTagName("style").item(0);
+		DOMElement style = xhtmlDoc.getElementsByTagName("style").item(0);
 		// Test raw text behaviour
 		Text text = xhtmlDoc.createTextNode("data");
 		assertEquals("data", text.toString());
@@ -1729,16 +1735,16 @@ public class HTMLDocumentTest {
 		text.setData("hello</foo>");
 		assertEquals("hello</foo>", text.toString());
 		// clone
-		StyleElement cloned = (StyleElement) style.cloneNode(true);
+		DOMElement cloned = style.cloneNode(true);
 		assertTrue(cloned.isRawText());
 		assertTrue(style.isEqualNode(cloned));
-		AbstractCSSStyleSheet sheet = style.getSheet();
-		AbstractCSSStyleSheet clonesheet = cloned.getSheet();
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) style).getSheet();
+		AbstractCSSStyleSheet clonesheet = ((LinkStyleDefiner) cloned).getSheet();
 		assertNotNull(clonesheet);
 		assertEquals(sheet.getCssRules().getLength(), clonesheet.getCssRules().getLength());
-		cloned = (StyleElement) style.cloneNode(false);
+		cloned = style.cloneNode(false);
 		assertTrue(cloned.isRawText());
-		clonesheet = cloned.getSheet();
+		clonesheet = ((LinkStyleDefiner) cloned).getSheet();
 		assertNotNull(clonesheet);
 		assertEquals(0, clonesheet.getCssRules().getLength());
 	}
@@ -1752,22 +1758,22 @@ public class HTMLDocumentTest {
 
 	@Test
 	public void testLinkElement() {
-		LinkElement link = (LinkElement) xhtmlDoc.getElementsByTagName("link").item(0);
-		AbstractCSSStyleSheet sheet = link.getSheet();
+		DOMElement link = xhtmlDoc.getElementsByTagName("link").item(0);
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);
 		assertTrue(sheet.getOwnerNode() == link);
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		link.setAttribute("media", "screen");
-		AbstractCSSStyleSheet sheet2 = link.getSheet();
+		AbstractCSSStyleSheet sheet2 = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet2);
 		assertTrue(sheet2 == sheet);
 		assertEquals(1, sheet2.getMedia().getLength());
 		assertEquals("screen", sheet2.getMedia().item(0));
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		link.setAttribute("href", "http://www.example.com/css/alter1.css");
-		sheet = link.getSheet();
+		sheet = ((LinkStyleDefiner) link).getSheet();
 		assertTrue(sheet2 == sheet);
 		assertTrue(sheet.getOwnerNode() == link);
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
@@ -1775,25 +1781,25 @@ public class HTMLDocumentTest {
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
 		href.setValue("http://www.example.com/css/example.css");
-		assertNotNull(((LinkStyle<AbstractCSSRule>) link).getSheet());
+		assertNotNull(((LinkStyleDefiner) link).getSheet());
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		xhtmlDoc.getErrorHandler().reset();
 		//
 		link.setAttribute("media", "screen only and");
-		assertNull(link.getSheet());
+		assertNull(((LinkStyleDefiner) link).getSheet());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasMediaErrors());
 	}
 
 	@Test
 	public void testLinkElement2() {
-		LinkElement link = (LinkElement) xhtmlDoc.createElement("link");
+		DOMElement link = xhtmlDoc.createElement("link");
 		link.setAttribute("href", "http://www.example.com/foo");
-		assertNull(link.getSheet());
+		assertNull(((LinkStyleDefiner) link).getSheet());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		link.setAttribute("rel", "stylesheet");
-		AbstractCSSStyleSheet sheet = link.getSheet();
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
@@ -1804,10 +1810,10 @@ public class HTMLDocumentTest {
 
 	@Test (timeout=8000)
 	public void testLinkElementEvil() {
-		LinkElement link = (LinkElement) xhtmlDoc.createElement("link");
+		DOMElement link = xhtmlDoc.createElement("link");
 		link.setAttribute("rel", "stylesheet");
 		link.setAttribute("href", "file:/dev/zero");
-		AbstractCSSStyleSheet sheet = link.getSheet();
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
@@ -1819,10 +1825,10 @@ public class HTMLDocumentTest {
 
 	@Test (timeout=8000)
 	public void testLinkElementEvilJar() {
-		LinkElement link = (LinkElement) xhtmlDoc.createElement("link");
+		DOMElement link = xhtmlDoc.createElement("link");
 		link.setAttribute("rel", "stylesheet");
 		link.setAttribute("href", "jar:http://www.example.com/evil.jar!/file");
-		AbstractCSSStyleSheet sheet = link.getSheet();
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
@@ -1837,11 +1843,11 @@ public class HTMLDocumentTest {
 		DOMElement base = xhtmlDoc.getElementsByTagName("base").item(0);
 		base.setAttribute("href", "jar:http://www.example.com/evil.jar!/dir/file1");
 		//
-		LinkElement link = (LinkElement) xhtmlDoc.createElement("link");
+		DOMElement link = xhtmlDoc.createElement("link");
 		link.setAttribute("rel", "stylesheet");
 		link.setAttribute("href", "jar:http://www.example.com/evil.jar!/file2");
 		xhtmlDoc.getElementsByTagName("head").item(0).appendChild(link);
-		AbstractCSSStyleSheet sheet = link.getSheet();
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
@@ -1853,7 +1859,7 @@ public class HTMLDocumentTest {
 		xhtmlDoc.getErrorHandler().reset();
 		xhtmlDoc.getStyleSheets();
 		xhtmlDoc.setDocumentURI("jar:http://www.example.com/foo.jar!/dir/file1");
-		sheet = link.getSheet();
+		sheet = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
@@ -1868,10 +1874,10 @@ public class HTMLDocumentTest {
 		DOMElement base = xhtmlDoc.getElementsByTagName("base").item(0);
 		base.setAttribute("href", "jar:http://www.example.com/evil.jar!/dir/file1");
 		//
-		LinkElement link = (LinkElement) xhtmlDoc.createElement("link");
+		DOMElement link = xhtmlDoc.createElement("link");
 		link.setAttribute("rel", "stylesheet");
 		link.setAttribute("href", "jar:http://www.example.com/evil.jar!/file2");
-		AbstractCSSStyleSheet sheet = link.getSheet();
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
@@ -2094,7 +2100,7 @@ public class HTMLDocumentTest {
 
 	private void assertReferrer(MockURLConnectionFactory urlfac, DOMElement link, String referrer) {
 		urlfac.assertReferrer(link.getAttribute("href"), referrer);
-		assertNotNull(((LinkStyle<AbstractCSSRule>) (LinkElement) link).getSheet());
+		assertNotNull(((LinkStyleDefiner) link).getSheet());
 		DefaultErrorHandler handler = (DefaultErrorHandler) xhtmlDoc.getErrorHandler();
 		LinkedHashMap<Exception, CSSStyleSheet> errorMap = handler.getLinkedSheetErrors();
 		assertNull(errorMap);

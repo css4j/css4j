@@ -457,21 +457,22 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		@Override
 		AbstractCSSStyleSheet getSheet();
 
-		void resetLinkedSheet();
+		void resetSheet();
 	}
 
 	interface LinkStyleProcessingInstruction extends LinkStyleDefiner, ProcessingInstruction {
 		String getPseudoAttribute(String name);
 	}
 
-	class MyStyleProcessingInstruction extends MyProcessingInstruction implements LinkStyleProcessingInstruction {
+	private class MyStyleProcessingInstruction extends MyProcessingInstruction
+			implements LinkStyleProcessingInstruction {
 
 		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		private AbstractCSSStyleSheet linkedSheet = null;
 		private final LinkedHashMap<String, String> pseudoAttrs = new LinkedHashMap<String, String>();
 
-		MyStyleProcessingInstruction(String data) {
+		private MyStyleProcessingInstruction(String data) {
 			super("xml-stylesheet", data);
 			parseData();
 		}
@@ -480,7 +481,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		public void setData(String data) throws DOMException {
 			super.setData(data);
 			parseData();
-			resetLinkedSheet();
+			resetSheet();
 			if (getParentNode() != null) {
 				DOMDocument.this.onSheetModify();
 			}
@@ -494,7 +495,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		void setParentNode(AbstractDOMNode parentNode) throws DOMException {
 			super.setParentNode(parentNode);
 			// Rescan of sheets may be required
-			onSheetModify();
+			DOMDocument.this.onSheetModify();
 		}
 
 		@Override
@@ -552,9 +553,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		public void resetLinkedSheet() {
+		public void resetSheet() {
 			linkedSheet = null;
-			getOwnerDocument().onSheetModify();
+			DOMDocument.this.onSheetModify();
 		}
 
 		@Override
@@ -562,6 +563,93 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			ProcessingInstruction my = new MyStyleProcessingInstruction(getData());
 			callUserHandlers(UserDataHandler.NODE_CLONED, this, my);
 			return my;
+		}
+
+	}
+
+	private class StyleElement extends MyXMLElement implements LinkStyleDefiner {
+
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
+
+		private final StyleDefinerElementHelper helper;
+
+		StyleElement(String namespaceURI) {
+			super("style", namespaceURI);
+			helper = new StyleDefinerElementHelper(this);
+		}
+
+		@Override
+		boolean isRawText() {
+			return true;
+		}
+
+		/**
+		 * Gets the associated style sheet for the node.
+		 * <p>
+		 * If you have a sheet returned by this method and then modify any attribute of
+		 * this element, be sure to call this method again instead of just using the old
+		 * sheet.
+		 * </p>
+		 * 
+		 * @return the associated style sheet for the node, or <code>null</code> if the
+		 *         sheet is not CSS or the media attribute was not understood. If the
+		 *         element is empty or the sheet could not be parsed, the returned sheet
+		 *         will be empty.
+		 */
+		@Override
+		public AbstractCSSStyleSheet getSheet() {
+			return helper.getInlineSheet();
+		}
+
+		@Override
+		public void resetSheet() {
+			helper.resetSheet();
+		}
+
+		@Override
+		void setParentNode(AbstractDOMNode parentNode) throws DOMException {
+			super.setParentNode(parentNode);
+			// Rescan of sheets may be required
+			onSheetModify();
+		}
+
+		@Override
+		void postAddChild(AbstractDOMNode newChild) {
+			super.postAddChild(newChild);
+			helper.postAddChildInline(newChild);
+		}
+
+		@Override
+		void postRemoveChild(AbstractDOMNode removed) {
+			resetSheet();
+			getSheet();
+		}
+
+		@Override
+		public void setTextContent(String textContent) throws DOMException {
+			super.setTextContent(textContent);
+			resetSheet();
+			getSheet();
+		}
+
+		@Override
+		public void normalize() {
+			if (!helper.containsCSS()) {
+				super.normalize();
+			} else {
+				// Local reference to sheet, to avoid race conditions.
+				final AbstractCSSStyleSheet sheet = getSheet();
+				if (sheet != null) {
+					super.setTextContent(sheet.toString());
+				} else {
+					super.normalize();
+				}
+			}
+		}
+
+		@Override
+		public DOMElement cloneNode(boolean deep) {
+			return cloneElementNode(new StyleElement(getNamespaceURI()), deep);
 		}
 
 	}
@@ -836,7 +924,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		void onDOMChange(DOMElement container) {
 			LinkStyleDefiner definer = getEmbeddedStyleDefiner(container);
 			if (definer != null) {
-				definer.resetLinkedSheet();
+				definer.resetSheet();
 			}
 		}
 
@@ -1400,6 +1488,34 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	}
 
+	/**
+	 * An attribute that changes the meaning of its style-definer owner element.
+	 */
+	class StyleEventAttr extends EventAttr {
+
+		private static final long serialVersionUID = DOMDocument.serialVersionUID;
+
+		StyleEventAttr(String name, String namespaceURI) {
+			super(name, namespaceURI);
+		}
+
+		@Override
+		void onAttributeRemoval() {
+			DOMElement owner = getOwnerElement();
+			if (owner instanceof LinkStyleDefiner) {
+				((LinkStyleDefiner) owner).resetSheet();
+			}
+		}
+
+		@Override
+		void onDOMChange(DOMElement owner) {
+			if (owner instanceof LinkStyleDefiner) {
+				((LinkStyleDefiner) owner).resetSheet();
+			}
+		}
+
+	}
+
 	class ClassAttr extends MyAttr {
 
 		private static final long serialVersionUID = DOMDocument.serialVersionUID;
@@ -1633,7 +1749,12 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		if (!isValidName(localName)) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);
 		}
-		DOMElement myelem = new MyXMLElement(localName, namespaceURI);
+		DOMElement myelem;
+		if (!"style".equals(localName)) {
+			myelem = new MyXMLElement(localName, namespaceURI);
+		} else {
+			myelem = new StyleElement(namespaceURI);
+		}
 		if (prefix != null) {
 			myelem.setPrefix(prefix);
 		}
@@ -1787,6 +1908,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			my = new BaseEventAttr();
 		} else if ("style".equals(localName) && prefix == null) {
 			my = new MyStyleAttr(localName);
+		} else if ("media".equals(localName) || "type".equals(localName)) {
+			my = new StyleEventAttr(localName, namespaceURI);
 		} else {
 			my = new MyAttr(localName, namespaceURI);
 		}
@@ -2592,7 +2715,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		int len = nl.getLength();
 		for (int i = 0; i < len; i++) {
 			LinkStyleDefiner styleDefiner = (LinkStyleDefiner) nl.item(i);
-			styleDefiner.resetLinkedSheet();
+			styleDefiner.resetSheet();
 		}
 	}
 

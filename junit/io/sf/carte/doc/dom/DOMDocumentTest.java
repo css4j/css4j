@@ -922,6 +922,47 @@ public class DOMDocumentTest {
 	}
 
 	@Test
+	public void testStyleElement() {
+		DOMDocument document = domImpl.createDocument("", "foo", null);
+		DOMElement style = document.createElement("style");
+		document.getDocumentElement().appendChild(style);
+		style.setAttribute("type", "text/css");
+		AbstractCSSStyleSheet sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		//
+		style.setAttribute("type", "");
+		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		//
+		style.removeAttributeNode(style.getAttributeNode("type"));
+		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		//
+		style.setAttribute("type", "text/xsl");
+		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
+		assertNull(sheet);
+		//
+		style.removeAttribute("type");
+		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+		style.setTextContent("body {color: blue;}");
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals("<style>body {color: blue;}</style>", style.toString());
+		//
+		style.setTextContent("foo:");
+		assertEquals("<style>foo:</style>", style.toString());
+		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertEquals("<style>foo:</style>", style.toString());
+		style.normalize();
+		assertEquals("<style>foo:</style>", style.toString());
+	}
+
+	@Test
 	public void getElementsByTagName() {
 		DOMDocument document = domImpl.createDocument("", "doc", null);
 		DOMElement docElm = document.getDocumentElement();
