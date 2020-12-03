@@ -2037,10 +2037,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * If no such element exists, this returns <code>null</code>. If more than one
 	 * element has an ID attribute with that value, what is returned is undefined.
 	 * <p>
-	 * In HTML documents, by default, this implementation uses <code>'id'</code> as
-	 * the ID attribute, but this can be changed to a different case (e.g. 'ID')
-	 * with the {@link Element#setIdAttribute(String, boolean)}. Changes to the ID
-	 * attribute on a single element are <code>Document</code>-wide in HTML.
+	 * This implementation uses <code>'id'</code> as the ID attribute, case
+	 * insensitively in {@link CSSDocument.ComplianceMode#QUIRKS QUIRKS} mode.
 	 * 
 	 * @param elementId The unique id value for an element.
 	 * @return The matching element or <code>null</code> if there is none.
@@ -2191,7 +2189,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			}
 			return attr;
 		case Node.ELEMENT_NODE:
-			Element elm;
+			DOMElement elm;
 			Element foreignElm = (Element) importedNode;
 			// Foreign elements can have null local name
 			if (foreignElm.getLocalName() != null) {
@@ -2206,9 +2204,6 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				attr = (DOMAttr) importNode(importedAttr, true);
 				attr.specified = importedAttr.getSpecified();
 				elm.setAttributeNode(attr);
-				if (importedAttr.isId()) {
-					elm.setIdAttributeNode(attr, true);
-				}
 			}
 			if (deep) {
 				Node node = importedNode.getFirstChild();
