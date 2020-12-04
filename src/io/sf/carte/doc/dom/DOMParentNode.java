@@ -14,6 +14,8 @@ package io.sf.carte.doc.dom;
 import java.util.BitSet;
 import java.util.Iterator;
 
+import org.w3c.dom.Node;
+
 abstract class DOMParentNode extends NDTNode implements ParentNode {
 
 	private static final long serialVersionUID = 1L;
@@ -153,7 +155,10 @@ abstract class DOMParentNode extends NDTNode implements ParentNode {
 	 */
 	@Override
 	public ElementList getElementsByTagName(String name) {
-		return child.getElementsByTagName(name);
+		DOMDocument doc = getOwnerDocument();
+		boolean isHTML = doc != null ? doc.isHTML()
+				: this.getNodeType() == Node.DOCUMENT_NODE && ((DOMDocument) this).isHTML();
+		return child.getElementsByTagName(name, isHTML);
 	}
 
 	/**

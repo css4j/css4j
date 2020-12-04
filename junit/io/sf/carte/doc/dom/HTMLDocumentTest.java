@@ -16,6 +16,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -637,13 +638,14 @@ public class HTMLDocumentTest {
 
 	@Test
 	public void getElementsByTagName() {
-		NodeList stylelist = xhtmlDoc.getElementsByTagName("style");
+		ElementList stylelist = xhtmlDoc.getElementsByTagName("style");
 		assertNotNull(stylelist);
 		assertEquals(1, stylelist.getLength());
 		assertEquals("style", stylelist.item(0).getNodeName());
 		assertNull(stylelist.item(-1));
 		assertNull(stylelist.item(1));
-		NodeList list = xhtmlDoc.getElementsByTagName("li");
+		assertFalse(stylelist.isEmpty());
+		ElementList list = xhtmlDoc.getElementsByTagName("li");
 		assertNotNull(list);
 		assertEquals(6, list.getLength());
 		assertEquals("li", list.item(0).getNodeName());
@@ -660,9 +662,25 @@ public class HTMLDocumentTest {
 		NodeList stylelist2 = xhtmlDoc.getElementsByTagName("style");
 		assertEquals(stylelist.toString(), stylelist2.toString());
 		//
+		stylelist = xhtmlDoc.getElementsByTagName("STYLE");
+		assertEquals(1, stylelist.getLength());
+		//
 		list = xhtmlDoc.getElementsByTagName("html");
 		assertEquals(1, list.getLength());
 		assertTrue(xhtmlDoc.getDocumentElement() == list.item(0));
+	}
+
+	@Test
+	public void getElementsByTagNameCI() {
+		DOMElement para = xhtmlDoc.getElementById("para1");
+		DOMElement spanUC = xhtmlDoc.createElementNS("http://www.example.com/foonamespace", "SPAN");
+		para.appendChild(spanUC);
+		ElementList list = xhtmlDoc.getElementsByTagName("SPAN");
+		assertFalse(list.isEmpty());
+		assertEquals(5, list.getLength());
+		assertSame(xhtmlDoc.getElementById("entity"), list.item(0));
+		assertSame(spanUC, list.item(1));
+		assertSame(xhtmlDoc.getElementById("span1"), list.item(2));
 	}
 
 	@Test
@@ -751,6 +769,7 @@ public class HTMLDocumentTest {
 		ElementList qlist = xhtmlDoc.querySelectorAll("p");
 		int sz = list.getLength();
 		assertEquals(sz, qlist.getLength());
+		assertFalse(qlist.isEmpty());
 		for (int i = 0; i < sz; i++) {
 			assertTrue(qlist.contains(list.item(i)));
 		}

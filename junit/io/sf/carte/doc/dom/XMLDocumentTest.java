@@ -576,6 +576,7 @@ public class XMLDocumentTest {
 		for (int i = 0; i < sz; i++) {
 			assertTrue(qlist.contains(list.item(i)));
 		}
+		assertFalse(qlist.isEmpty());
 	}
 
 	@Test

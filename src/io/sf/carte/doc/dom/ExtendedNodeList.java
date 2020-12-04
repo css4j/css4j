@@ -38,4 +38,6 @@ public interface ExtendedNodeList<T extends Node> extends NodeList, Iterable<T> 
 	@Override
 	T item(int index);
 
+	boolean isEmpty();
+
 }

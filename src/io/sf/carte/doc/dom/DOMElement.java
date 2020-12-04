@@ -294,7 +294,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 
 	@Override
 	public ElementList getElementsByTagName(String name) {
-		return child.getElementsByTagName(name);
+		return child.getElementsByTagName(name, getOwnerDocument().isHTML());
 	}
 
 	/*

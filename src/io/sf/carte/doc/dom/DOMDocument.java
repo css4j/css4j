@@ -139,6 +139,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 */
 	@Override
 	public DOMElement getDocumentElement() {
+		/*
+		 * The document element is often closer to the end of the child list.
+		 */
 		return getLastElementChild();
 	}
 
@@ -2434,6 +2437,10 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		} else {
 			return namespaceURI == null;
 		}
+	}
+
+	boolean isHTML() {
+		return false;
 	}
 
 	/**
