@@ -11,45 +11,46 @@
 
 package io.sf.carte.doc.dom;
 
+import java.util.Locale;
+import java.util.Objects;
+
 import org.w3c.dom.Node;
 
 class TagnameElementList extends AbstractElementLiveList {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String localName;
-	private final String namespaceURI;
+	private final String localName, htmlLocalName;
+	private final String prefix;
 	private final boolean matchAll;
-	private final boolean matchAllNS;
+	private final boolean isHTML;
 
-	TagnameElementList(NDTNode ndtNode, String localName, String namespaceURI, boolean matchAll, boolean matchAllNS) {
+	TagnameElementList(NDTNode ndtNode, String localName, String prefix, boolean matchAll, boolean isHTML) {
 		super(ndtNode);
 		this.localName = localName;
-		this.namespaceURI = namespaceURI;
+		this.htmlLocalName = localName.toLowerCase(Locale.ROOT);
+		this.prefix = prefix;
 		this.matchAll = matchAll;
-		this.matchAllNS = matchAllNS;
+		this.isHTML = isHTML;
 	}
 
 	@Override
 	boolean matches(DOMElement element, Node lookFor) {
-		return (matchAll || element.getLocalName().equals(localName)) && element == lookFor
-				&& isSameNamespace(element);
+		return element == lookFor && (matchAll || matchesLocalName(element))
+				&& Objects.equals(prefix, element.getPrefix());
 	}
 
 	@Override
 	boolean matches(DOMElement element) {
-		return (matchAll || element.getLocalName().equals(localName)) && isSameNamespace(element);
+		return matchAll || matchesLocalName(element) && Objects.equals(prefix, element.getPrefix());
 	}
 
-	private boolean isSameNamespace(DOMElement element) {
-		if (matchAllNS) {
-			return true;
+	boolean matchesLocalName(DOMElement element) {
+		String localNameToMatch = element.getLocalName();
+		if (isHTML && element.getNamespaceURI() == HTMLDocument.HTML_NAMESPACE_URI) {
+			return localNameToMatch.equals(htmlLocalName);
 		}
-		String ns1 = element.getNamespaceURI();
-		if (ns1 == null) {
-			return namespaceURI == null || element.isDefaultNamespace(namespaceURI);
-		}
-		return ns1.equals(namespaceURI) || (namespaceURI == null && element.isDefaultNamespace(ns1));
+		return localNameToMatch.equals(localName);
 	}
 
 }

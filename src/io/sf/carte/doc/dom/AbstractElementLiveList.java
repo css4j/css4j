@@ -105,6 +105,13 @@ abstract class AbstractElementLiveList implements ElementList, Serializable {
 		return counter;
 	}
 
+	@Override
+	public boolean isEmpty() {
+		ElementTuple tuple = new ElementTuple();
+		indexChildList(contextNode, 0, tuple);
+		return tuple.element == null;
+	}
+
 	abstract boolean matches(DOMElement element, Node lookFor);
 
 	abstract boolean matches(DOMElement element);

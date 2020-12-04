@@ -932,6 +932,11 @@ abstract public class HTMLDocument extends DOMDocument {
 		return my;
 	}
 
+	@Override
+	boolean isHTML() {
+		return true;
+	}
+
 	/**
 	 * Set the {@code BASE} URL obtained from the {@code href} attribute of the
 	 * given &lt;base&gt; element.

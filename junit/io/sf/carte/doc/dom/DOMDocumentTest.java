@@ -963,6 +963,7 @@ public class DOMDocumentTest {
 		assertSame(elem4, list.item(3));
 		assertNull(list.item(4));
 		//
+		assertFalse(list.isEmpty());
 		assertTrue(list.contains(elem1));
 		assertTrue(list.contains(elem2));
 		assertTrue(list.contains(elem3));
@@ -971,6 +972,7 @@ public class DOMDocumentTest {
 		//
 		Iterator<DOMElement> it = list.iterator();
 		assertTrue(it.hasNext());
+		assertFalse(list.isEmpty());
 		assertSame(elem1, it.next());
 		assertSame(elem2, it.next());
 		assertSame(elem3, it.next());
@@ -988,6 +990,7 @@ public class DOMDocumentTest {
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
 		//
+		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem4));
 		//
@@ -1319,6 +1322,7 @@ public class DOMDocumentTest {
 		assertSame(elem4, list.item(3));
 		assertNull(list.item(4));
 		//
+		assertFalse(list.isEmpty());
 		assertTrue(list.contains(elem1));
 		assertTrue(list.contains(elem2));
 		assertTrue(list.contains(elem3));
@@ -1442,6 +1446,7 @@ public class DOMDocumentTest {
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
 		//
+		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
@@ -1462,6 +1467,7 @@ public class DOMDocumentTest {
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
 		//
+		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
@@ -1482,6 +1488,7 @@ public class DOMDocumentTest {
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
 		//
+		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
@@ -1502,6 +1509,7 @@ public class DOMDocumentTest {
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
 		//
+		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
@@ -1523,6 +1531,7 @@ public class DOMDocumentTest {
 		assertSame(elem3, list.item(0));
 		assertNull(list.item(1));
 		//
+		assertFalse(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem4));

@@ -131,6 +131,11 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 		}
 
 		@Override
+		public boolean isEmpty() {
+			return getFirstElementChild() == null;
+		}
+
+		@Override
 		public String toString() {
 			StringBuilder buf = new StringBuilder(getLength() * 32 + 40);
 			Node node = getFirstChild();
@@ -243,28 +248,37 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 			if (namespaceURI != null && !matchAllNS) {
 				namespaceURI = namespaceURI.intern();
 			}
-			TagnameElementList list = new TagnameElementList(NDTNode.this, localName, namespaceURI, matchAll,
+			TagnameElementListNS list = new TagnameElementListNS(NDTNode.this, localName, namespaceURI, matchAll,
 					matchAllNS);
 			return list;
 		}
 
 		@Override
-		public ElementList getElementsByTagName(String name) {
-			name = name.toLowerCase(Locale.ROOT);
-			boolean matchAll = "*".equals(name);
-			String nsUri;
-			DOMDocument document = getOwnerDocument();
-			if (document != null) {
-				nsUri = document.getNamespaceURI();
-			} else {
-				nsUri = getNamespaceURI();
+		public ElementList getElementsByTagName(String name, boolean isHTML) {
+			if (name == null) {
+				return EmptyElementList.getInstance();
 			}
-			TagnameElementList list = new TagnameElementList(NDTNode.this, name, nsUri, matchAll, false);
+			boolean matchAll = "*".equals(name);
+			// Determine prefix
+			String prefix = null;
+			int idx = name.indexOf(':');
+			if (idx != -1) {
+				prefix = name.substring(0, idx);
+				idx++;
+				if (idx == name.length()) {
+					return EmptyElementList.getInstance();
+				}
+				name = name.substring(idx);
+			}
+			TagnameElementList list = new TagnameElementList(NDTNode.this, name, prefix, matchAll, isHTML);
 			return list;
 		}
 
 		@Override
 		public ElementList getElementsByClassName(String names, CSSDocument.ComplianceMode mode) {
+			if (names == null) {
+				return EmptyElementList.getInstance();
+			}
 			names = names.trim();
 			if (mode == CSSDocument.ComplianceMode.QUIRKS) {
 				names = names.toLowerCase(Locale.ROOT); // Quirks mode

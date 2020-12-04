@@ -740,11 +740,15 @@ public class DOMElementTest {
 		assertTrue(div4 == body.getLastElementChild());
 		assertEquals(list.getLength(), body.getChildElementCount());
 		assertTrue(list == body.getChildren());
+		assertFalse(list.isEmpty());
+		//
 		list = xhtmlDoc.getChildren();
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		assertTrue(html == list.item(0));
 		assertEquals(1, xhtmlDoc.getChildElementCount());
+		assertFalse(list.isEmpty());
+		//
 		list = html.getChildren();
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
@@ -755,6 +759,12 @@ public class DOMElementTest {
 		assertTrue(body == html.getFirstElementChild());
 		assertTrue(body == html.getLastElementChild());
 		assertTrue(list == html.getChildren());
+		assertFalse(list.isEmpty());
+		//
+		list = div4.getChildren();
+		assertTrue(list.isEmpty());
+		div4.appendChild(xhtmlDoc.createTextNode(" "));
+		assertTrue(list.isEmpty());
 	}
 
 	@Test
@@ -795,6 +805,7 @@ public class DOMElementTest {
 		assertTrue(list == body.getChildNodes());
 		assertTrue(list.contains(div4));
 		assertFalse(list.contains(html));
+		assertFalse(list.isEmpty());
 		//
 		list = xhtmlDoc.getChildNodes();
 		assertNotNull(list);
@@ -803,6 +814,8 @@ public class DOMElementTest {
 		assertTrue(xhtmlDoc.getDoctype() == xhtmlDoc.getFirstChild());
 		assertFalse(list.contains(div4));
 		assertTrue(list.contains(html));
+		assertFalse(list.isEmpty());
+		//
 		list = html.getChildNodes();
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
@@ -814,6 +827,12 @@ public class DOMElementTest {
 		assertTrue(list == html.getChildNodes());
 		assertTrue(list.contains(body));
 		assertFalse(list.contains(div4));
+		assertFalse(list.isEmpty());
+		//
+		list = div4.getChildNodes();
+		assertTrue(list.isEmpty());
+		div4.appendChild(xhtmlDoc.createTextNode(" "));
+		assertFalse(list.isEmpty());
 	}
 
 	@Test
@@ -918,6 +937,15 @@ public class DOMElementTest {
 		assertEquals(0, list.getLength());
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
+		DOMElement foo = xhtmlDoc.createElementNS("http://www.w3.org/2000/svg", "s:svg");
+		elem4.appendChild(foo);
+		list = elem4.getElementsByTagName("svg");
+		assertNotNull(list);
+		assertTrue(list.isEmpty());
+		//
+		list = elem4.getElementsByTagName("s:svg");
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
 	}
 
 	@Test
