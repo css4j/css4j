@@ -80,6 +80,7 @@ public class DOMElementTest {
 		attrs.setNamedItem(attr);
 		assertEquals(2, attrs.getLength());
 		assertTrue(body.hasAttribute("lang"));
+		assertEquals("en", body.getAttribute("lang"));
 		assertTrue(idattr.getNextSibling() == attr);
 		assertTrue(idattr == attr.getPreviousSibling());
 		assertTrue(idattr == attrs.getNamedItem("id"));
@@ -147,6 +148,7 @@ public class DOMElementTest {
 		assertFalse(body.hasAttribute("id"));
 		assertFalse(body.hasAttributes());
 		assertNull(idattr.getOwnerElement());
+		//
 		DOMElement svg = xhtmlDoc.createElementNS("http://www.w3.org/2000/svg", "svg");
 		Attr version = xhtmlDoc.createAttributeNS("http://www.w3.org/2000/svg", "version");
 		version.setValue("1.1");
@@ -166,6 +168,11 @@ public class DOMElementTest {
 		assertFalse(svg.hasAttributeNS("http://www.w3.org/2000/svg", "version"));
 		assertNull(version.getOwnerElement());
 		body.appendChild(svg);
+		// xml:lang
+		body.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:lang", "en_UK");
+		assertTrue(body.hasAttribute("xml:lang"));
+		assertEquals("en_UK", body.getAttribute("xml:lang"));
+		assertEquals("en_UK", body.getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang"));
 	}
 
 	@Test
@@ -227,11 +234,48 @@ public class DOMElementTest {
 	public void testSetAttributeError() {
 		DOMElement p = xhtmlDoc.createElement("p");
 		try {
+			p.setAttribute(null, "bar");
+			fail("Must throw an exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		try {
 			p.setAttribute("foo=", "bar");
 			fail("Must throw an exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
+		//
+		AttributeNamedNodeMap attrs = p.getAttributes();
+		assertNull(attrs.getNamedItem(null));
+	}
+
+	@Test
+	public void testSetAttributeNSError() {
+		DOMElement p = xhtmlDoc.createElement("p");
+		try {
+			p.setAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, null, "bar");
+			fail("Must throw an exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		try {
+			p.setAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo=", "bar");
+			fail("Must throw an exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+		//
+		AttributeNamedNodeMap attrs = p.getAttributes();
+		assertNull(attrs.getNamedItemNS(null, null));
+	}
+
+	@Test
+	public void testRemoveAttributeNotFound() {
+		DOMElement p = xhtmlDoc.createElement("p");
+		p.removeAttribute(null);
+		p.removeAttribute("");
+		p.removeAttribute("foo");
 	}
 
 	@Test

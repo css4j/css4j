@@ -67,7 +67,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	@Override
 	public T getNamedItem(String name) {
 		T ret = attributeMap.get(name);
-		if (ret == null && name.indexOf(':') == -1) {
+		if (ret == null && name != null && name.indexOf(':') == -1) {
 			name = name.toLowerCase(Locale.ROOT);
 			ret = attributeMap.get(name);
 			if (ret != null && HTMLDocument.HTML_NAMESPACE_URI != ret.getNamespaceURI()
@@ -128,11 +128,11 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	@Override
 	public T removeNamedItem(String name) throws DOMException {
 		if (!attributeMap.containsKey(name)) {
-			if (name.indexOf(':') == -1) {
+			if (name != null && name.indexOf(':') == -1) {
 				name = name.toLowerCase(Locale.ROOT);
 			}
 			if (!attributeMap.containsKey(name)) {
-				throw new DOMException(DOMException.NOT_FOUND_ERR, "No attribute with that name.");
+				throw new DOMException(DOMException.NOT_FOUND_ERR, "No attribute with that name: " + name);
 			}
 		}
 		T removedItem = attributeMap.remove(name);
