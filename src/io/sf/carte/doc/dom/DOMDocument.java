@@ -2152,7 +2152,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Gets the location of this document.
+	 * 
+	 * @return the location of this document, or {@code null} if not set.
 	 */
 	@Override
 	public String getDocumentURI() {
@@ -2160,7 +2162,18 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Sets the location of this document.
+	 * <p>
+	 * For security reasons, if you want to retrieve linked style sheets from local
+	 * URLs (like {@code file:}), you need to set the {@code documentURI} to a local
+	 * scheme ({@code file:} or {@code jar:}) as well.
+	 * </p>
+	 * <p>
+	 * No lexical checking is performed when setting this attribute; this could
+	 * result in a {@code null} value returned when using {@link #getBaseURI()}.
+	 * </p>
+	 * 
+	 * @param documentURI the document URI.
 	 */
 	@Override
 	public void setDocumentURI(String documentURI) {
