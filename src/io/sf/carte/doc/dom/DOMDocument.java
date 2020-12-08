@@ -2191,28 +2191,13 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		switch (importedNode.getNodeType()) {
 		case Node.ATTRIBUTE_NODE:
 			Attr importedAttr = (Attr) importedNode;
-			DOMAttr attr;
-			// Foreign attributes can have null local name
-			if (importedAttr.getLocalName() != null) {
-				attr = (DOMAttr) createAttributeNS(importedAttr.getNamespaceURI(), importedAttr.getLocalName());
-			} else {
-				attr = (DOMAttr) createAttribute(importedNode.getNodeName());
-			}
+			DOMAttr attr = (DOMAttr) createAttributeNS(importedAttr.getNamespaceURI(), importedAttr.getNodeName());
 			attr.specified = importedAttr.getSpecified();
 			attr.setValue(importedNode.getNodeValue());
-			if (importedAttr.getPrefix() != null) {
-				attr.setPrefix(importedAttr.getPrefix());
-			}
 			return attr;
 		case Node.ELEMENT_NODE:
-			DOMElement elm;
 			Element foreignElm = (Element) importedNode;
-			// Foreign elements can have null local name
-			if (foreignElm.getLocalName() != null) {
-				elm = createElementNS(foreignElm.getNamespaceURI(), foreignElm.getLocalName());
-			} else {
-				elm = createElement(importedNode.getNodeName());
-			}
+			DOMElement elm = createElementNS(foreignElm.getNamespaceURI(), foreignElm.getNodeName());
 			NamedNodeMap attributes = foreignElm.getAttributes();
 			int count = attributes.getLength();
 			for (int i = 0; i < count; i++) {
