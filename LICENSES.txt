@@ -15,6 +15,7 @@ license information):
  File: src/io/sf/carte/doc/dom/NonDocumentTypeChildNode.java
  File: src/io/sf/carte/doc/dom/ParentNode.java
  File: src/io/sf/carte/doc/dom/TreeWalker.java
+ File: src/io/sf/carte/doc/geom/DOMRect.java
  File: src/io/sf/carte/doc/style/css/CSSConditionRule.java
  File: src/io/sf/carte/doc/style/css/CSSCounterStyleRule.java
  File: src/io/sf/carte/doc/style/css/CSSDeclarationRule.java
