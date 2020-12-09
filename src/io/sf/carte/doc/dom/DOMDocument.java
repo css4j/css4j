@@ -1671,7 +1671,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * <p>
 	 * The <code>tagName</code> is transformed to lower case.
 	 * <p>
-	 * No <code>IMPLIED</code> attributes are created.
+	 * No default attributes are created.
 	 * 
 	 * @param tagName the tag name of the element to create.
 	 * @return the new <code>DOMElement</code>.
@@ -1692,7 +1692,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * If <code>namespaceURI</code> is <code>null</code> or the empty string, the
 	 * <code>qualifiedName</code> is transformed to lower case.
 	 * <p>
-	 * No <code>IMPLIED</code> attributes are created.
+	 * No default attributes are created.
 	 * 
 	 * @param namespaceURI  the namespace URI of the element to create.
 	 * @param qualifiedName the qualified name of the element to create. The
