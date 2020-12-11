@@ -32,7 +32,8 @@ import io.sf.carte.doc.style.css.om.DummyDeviceFactory;
 import io.sf.carte.doc.style.css.om.TestStyleDatabase;
 import io.sf.carte.doc.style.css.om.TestStyleFormattingFactory;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
-import nu.validator.htmlparser.dom.HtmlDocumentBuilder;
+import nu.validator.htmlparser.common.XmlViolationPolicy;
+import nu.validator.htmlparser.sax.HtmlParser;
 
 public class TestDOMImplementation extends CSSDOMImplementation {
 
@@ -117,10 +118,13 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	}
 
 	public static HTMLDocument sampleHTMLDocument() throws IOException {
+		HtmlParser parser = new HtmlParser(XmlViolationPolicy.ALTER_INFOSET);
+		parser.setReportingDoctype(true);
+		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
+		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
+		builder.setXMLReader(parser);
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleHTMLReader();
 		InputSource is = new InputSource(re);
-		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(new TestDOMImplementation(true));
-		builder.setIgnoringComments(false);
 		HTMLDocument xhtmlDoc;
 		try {
 			xhtmlDoc = (HTMLDocument) builder.parse(is);
@@ -152,12 +156,17 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	}
 
 	public static HTMLDocument sampleIEDocument() throws IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.sampleIEReader();
-		InputSource is = new InputSource(re);
+		HtmlParser parser = new HtmlParser(XmlViolationPolicy.ALTER_INFOSET);
+		parser.setReportingDoctype(true);
+		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
 		TestDOMImplementation domImpl = new TestDOMImplementation(true);
 		domImpl.getParserFlags().add(Parser.Flag.STARHACK);
 		domImpl.getParserFlags().add(Parser.Flag.IEVALUES);
-		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(domImpl);
+		XMLDocumentBuilder builder = new XMLDocumentBuilder(domImpl);
+		builder.setXMLReader(parser);
+		//
+		Reader re = DOMCSSStyleSheetFactoryTest.sampleIEReader();
+		InputSource is = new InputSource(re);
 		HTMLDocument xhtmlDoc;
 		try {
 			xhtmlDoc = (HTMLDocument) builder.parse(is);
@@ -171,9 +180,13 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	}
 
 	public static CSSDocument simpleBoxDocument() throws IOException {
+		HtmlParser parser = new HtmlParser(XmlViolationPolicy.ALTER_INFOSET);
+		parser.setReportingDoctype(true);
+		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
+		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
+		builder.setXMLReader(parser);
 		Reader re = DOMCSSStyleSheetFactoryTest.simpleBoxXHTMLReader();
 		InputSource is = new InputSource(re);
-		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(new TestDOMImplementation());
 		CSSDocument xhtmlDoc;
 		try {
 			xhtmlDoc = (CSSDocument) builder.parse(is);

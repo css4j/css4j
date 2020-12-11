@@ -74,6 +74,14 @@ public class HTMLDocumentTest {
 	}
 
 	@Test
+	public void getDoctype() {
+		DocumentType docType = xhtmlDoc.getDoctype();
+		assertNotNull(docType);
+		assertEquals("html", docType.getName());
+		assertEquals("<!DOCTYPE html>", docType.toString());
+	}
+
+	@Test
 	public void getDocumentElement() {
 		DOMElement elm = xhtmlDoc.getDocumentElement();
 		assertNotNull(elm);
@@ -616,7 +624,7 @@ public class HTMLDocumentTest {
 	public void getChildNodes() {
 		NodeList list = xhtmlDoc.getChildNodes();
 		assertNotNull(list);
-		assertEquals(1, list.getLength());
+		assertEquals(2, list.getLength());
 	}
 
 	@SuppressWarnings("deprecation")
