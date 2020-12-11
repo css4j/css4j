@@ -839,8 +839,6 @@ abstract class AbstractDOMNode implements DOMNode {
 		 */
 		int indexOf(Node node);
 
-		boolean isEmpty();
-
 		/**
 		 * Removes the first occurrence of the specified node from this list.
 		 * 
