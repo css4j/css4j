@@ -689,13 +689,13 @@ public class DOMWriter {
 	protected void writeDocumentType(DocumentType docType, SimpleWriter wri) throws IOException {
 		startIndentedNode(docType, wri);
 		String systemId = docType.getSystemId();
-		boolean hasSystemId = systemId != null;
+		boolean hasSystemId = systemId != null && systemId.length() != 0;
 		wri.write("<!DOCTYPE ");
 		String name = docType.getName();
 		name = DOMAttr.escapeAttributeEntities(name);
 		wri.write(name);
 		String publicId = docType.getPublicId();
-		if (publicId != null) {
+		if (publicId != null && publicId.length() != 0) {
 			wri.write(" PUBLIC \"");
 			wri.write(DOMAttr.escapeAttributeEntities(publicId));
 			wri.write('"');
