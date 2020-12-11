@@ -2099,7 +2099,6 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			attr.setValue(importedNode.getNodeValue());
 			return attr;
 		case Node.ELEMENT_NODE:
-			DOMElement elm;
 			Element foreignElm = (Element) importedNode;
 			DOMElement elm = createElementNS(foreignElm.getNamespaceURI(), foreignElm.getNodeName());
 			NamedNodeMap attributes = foreignElm.getAttributes();
