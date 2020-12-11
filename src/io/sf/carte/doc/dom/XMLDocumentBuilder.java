@@ -54,6 +54,8 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private final SAXParserFactory parserFactory;
 
+	private XMLReader xmlReader = null;
+
 	private EntityResolver resolver = null;
 
 	private ErrorHandler errorHandler = null;
@@ -100,6 +102,16 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 */
 	@Override
 	public Document parse(InputSource is) throws SAXException, IOException {
+		XMLReader xmlReader;
+		if (this.xmlReader == null) {
+			xmlReader = createXMLReader();
+		} else {
+			xmlReader = this.xmlReader;
+		}
+		return parse(is, xmlReader);
+	}
+
+	private XMLReader createXMLReader() throws SAXException {
 		SAXParser saxParser;
 		try {
 			saxParser = parserFactory.newSAXParser();
@@ -111,14 +123,21 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			xmlReader.setEntityResolver(resolver);
 		} else {
 			// It is unsafe to operate without an EntityResolver
-			xmlReader.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			try {
+				xmlReader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+				xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+			}
 		}
+		return xmlReader;
+	}
+
+	private Document parse(InputSource is, XMLReader xmlReader) throws SAXException, IOException {
 		MyContentHandler handler;
 		if (ignoreNotSpecifiedAttributes) {
-			handler = new MyContentHandler();
+			handler = new MyContentHandler(xmlReader);
 		} else {
-			handler = new MyContentHandlerNotspecifiedAttr();
+			handler = new MyContentHandlerNotspecifiedAttr(xmlReader);
 		}
 		xmlReader.setContentHandler(handler);
 		xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
@@ -260,6 +279,19 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	}
 
 	/**
+	 * Set the {@code XMLReader} to be used when parsing.
+	 * <p>
+	 * If no {@code XMLReader} is set, one will be created by the
+	 * {@code SAXParserFactory}.
+	 * </p>
+	 * 
+	 * @param xmlReader the XMLReader.
+	 */
+	public void setXMLReader(XMLReader xmlReader) {
+		this.xmlReader = xmlReader;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -296,10 +328,23 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 		final boolean isNativeDOM;
 
-		MyContentHandler() {
+		final boolean hasAttributes2;
+
+		MyContentHandler(XMLReader xmlReader) {
 			super();
 			ignoreECW = ignoreElementContentWhitespace;
 			isNativeDOM = domImpl instanceof CSSDOMImplementation;
+			hasAttributes2 = hasAttributes2Feature(xmlReader);
+		}
+
+		private boolean hasAttributes2Feature(XMLReader xmlReader) {
+			boolean result;
+			try {
+				result = xmlReader.getFeature("http://xml.org/sax/features/use-attributes2");
+			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+				result = false;
+			}
+			return result;
 		}
 
 		Document getDocument() {
@@ -428,23 +473,25 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		void setAttributes(Element element, Attributes atts) throws SAXException {
 			int len = atts.getLength();
 			for (int i = 0; i < len; i++) {
-				Attributes2 atts2 = (Attributes2) atts;
-				if (!atts2.isSpecified(i)) {
-					if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
-							&& "preserve".equalsIgnoreCase(atts.getValue(i)) && isNativeDOM) {
-						((DOMElement) element).setRawText();
-					}
-					continue;
+				if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
+						&& "preserve".equalsIgnoreCase(atts.getValue(i)) && isNativeDOM) {
+					((DOMElement) element).setRawText();
 				}
-				String attrQName = atts2.getQName(i);
-				Attr attr = document.createAttributeNS(atts2.getURI(i), attrQName);
-				attr.setValue(atts2.getValue(i));
+				if (hasAttributes2) {
+					Attributes2 atts2 = (Attributes2) atts;
+					if (!atts2.isSpecified(i)) {
+						continue;
+					}
+				}
+				String attrQName = atts.getQName(i);
+				Attr attr = document.createAttributeNS(atts.getURI(i), attrQName);
+				attr.setValue(atts.getValue(i));
 				if (isNativeDOM) {
 					((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
 				} else {
 					element.getAttributes().setNamedItem(attr);
 				}
-				if ("ID".equals(atts2.getType(i))
+				if ("ID".equals(atts.getType(i))
 						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
 					element.setIdAttributeNode(attr, true);
 				}
@@ -658,22 +705,27 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private class MyContentHandlerNotspecifiedAttr extends MyContentHandler {
 
+		MyContentHandlerNotspecifiedAttr(XMLReader xmlReader) {
+			super(xmlReader);
+		}
+
 		@Override
 		void setAttributes(Element element, Attributes atts) throws SAXException {
 			int len = atts.getLength();
 			for (int i = 0; i < len; i++) {
-				Attributes2 atts2 = (Attributes2) atts;
 				if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
 						&& "preserve".equalsIgnoreCase(atts.getValue(i)) && element instanceof DOMElement) {
 					((DOMElement) element).setRawText();
 				}
-				String attrQName = atts2.getQName(i);
-				Attr attr = document.createAttributeNS(atts2.getURI(i), attrQName);
-				attr.setValue(atts2.getValue(i));
+				String attrQName = atts.getQName(i);
+				Attr attr = document.createAttributeNS(atts.getURI(i), attrQName);
+				attr.setValue(atts.getValue(i));
 				if (isNativeDOM) {
-					((DOMAttr) attr).specified = atts2.isSpecified(i);
-					if (DOMDocument.XML_NAMESPACE_URI.equals(atts2.getURI(i)) && "space".equals(atts2.getLocalName(i))
-							&& "preserve".equalsIgnoreCase(atts2.getValue(i))) {
+					if (hasAttributes2) {
+						((DOMAttr) attr).specified = ((Attributes2) atts).isSpecified(i);
+					}
+					if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
+							&& "preserve".equalsIgnoreCase(atts.getValue(i))) {
 						((DOMElement) element).setRawText();
 					}
 				}
@@ -682,7 +734,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 				} else {
 					element.getAttributes().setNamedItem(attr);
 				}
-				if ("ID".equals(atts2.getType(i))
+				if ("ID".equals(atts.getType(i))
 						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
 					element.setIdAttributeNode(attr, true);
 				}
