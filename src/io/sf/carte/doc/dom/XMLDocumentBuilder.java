@@ -118,6 +118,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	}
 
 	private Document parse(InputSource is, XMLReader xmlReader) throws SAXException, IOException {
+		boolean errorHandlerSet = true;
 		MyContentHandler handler;
 		if (ignoreNotSpecifiedAttributes) {
 			handler = new MyContentHandler(xmlReader);
@@ -125,14 +126,30 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			handler = new MyContentHandlerNotspecifiedAttr(xmlReader);
 		}
 		xmlReader.setContentHandler(handler);
-		xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+		try {
+			xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+		} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+		}
 		if (errorHandler != null) {
 			xmlReader.setErrorHandler(errorHandler);
-		} else {
+		} else if (xmlReader.getErrorHandler() == null){
 			xmlReader.setErrorHandler(handler);
+		} else {
+			errorHandlerSet = false;
 		}
 		xmlReader.parse(is);
-		return handler.getDocument();
+		Document document = handler.getDocument();
+		// Help memory management
+		xmlReader.setContentHandler(null);
+		try {
+			xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", null);
+		} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+		}
+		if (errorHandlerSet) {
+			xmlReader.setErrorHandler(null);
+		}
+		//
+		return document;
 	}
 
 	/**
@@ -627,7 +644,6 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 		@Override
 		public void error(SAXParseException exception) throws SAXException {
-			throw exception;
 		}
 
 		@Override
