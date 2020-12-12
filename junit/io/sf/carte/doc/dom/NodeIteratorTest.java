@@ -315,7 +315,7 @@ public class NodeIteratorTest {
 		testIteratorCount(document, NodeFilter.SHOW_ELEMENT, filter, 6);
 		testIteratorCount(document, NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_ELEMENT, filter, 8);
 		testIteratorCount(document, NodeFilter.SHOW_DOCUMENT_TYPE, filter, 1);
-		testIteratorCount(document, NodeFilter.SHOW_TEXT, filter, 4);
+		testIteratorCount(document, NodeFilter.SHOW_TEXT, filter, 5);
 		filter = new ElementNameChildFilter("body");
 		testIteratorCount(document, NodeFilter.SHOW_ALL, filter, 6);
 		testIteratorCount(document.getDocumentElement(), NodeFilter.SHOW_ALL, filter, 2);

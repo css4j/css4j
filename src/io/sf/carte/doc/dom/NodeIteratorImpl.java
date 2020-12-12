@@ -67,9 +67,7 @@ class NodeIteratorImpl implements NodeIterator, org.w3c.dom.traversal.NodeIterat
 		while (next != rootNode) {
 			short filter = filter(next);
 			if (filter == NodeFilter.FILTER_ACCEPT) {
-				if (isToShow(next)) {
-					break;
-				}
+				break;
 			} else if (filter != NodeFilter.FILTER_SKIP_NODE) {
 				next = nextSiblingOrParent(next);
 				continue;
@@ -114,6 +112,9 @@ class NodeIteratorImpl implements NodeIterator, org.w3c.dom.traversal.NodeIterat
 	}
 
 	private short filter(Node node) {
+		if (!isToShow(node)) {
+			return NodeFilter.FILTER_SKIP_NODE;
+		}
 		return nodeFilter == null ? NodeFilter.FILTER_ACCEPT : nodeFilter.acceptNode(node);
 	}
 
@@ -130,7 +131,7 @@ class NodeIteratorImpl implements NodeIterator, org.w3c.dom.traversal.NodeIterat
 	}
 
 	private boolean isAccepted(AbstractDOMNode node) {
-		return isToShow(node) && filter(node) == NodeFilter.FILTER_ACCEPT;
+		return filter(node) == NodeFilter.FILTER_ACCEPT;
 	}
 
 	@Override
@@ -154,9 +155,7 @@ class NodeIteratorImpl implements NodeIterator, org.w3c.dom.traversal.NodeIterat
 			while (previous != rootNode) {
 				short filter = filter(previous);
 				if (filter == NodeFilter.FILTER_ACCEPT) {
-					if (isToShow(previous)) {
-						break;
-					}
+					break;
 				}
 				previous = previousNode(previous);
 			}

@@ -200,7 +200,7 @@ public class TreeWalkerTest {
 		testTreeWalkerCount(document, NodeFilter.SHOW_ELEMENT, filter, 6);
 		testTreeWalkerCount(document, NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_ELEMENT, filter, 8);
 		testTreeWalkerCount(document, NodeFilter.SHOW_DOCUMENT_TYPE, filter, 1);
-		testTreeWalkerCount(document, NodeFilter.SHOW_TEXT, filter, 4);
+		testTreeWalkerCount(document, NodeFilter.SHOW_TEXT, filter, 5);
 		filter = new ElementNameChildFilter("body");
 		testTreeWalkerCount(document, NodeFilter.SHOW_ALL, filter, 5);
 		testTreeWalkerCount(document.getDocumentElement(), NodeFilter.SHOW_ALL, filter, 1);
