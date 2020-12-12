@@ -77,6 +77,9 @@ class TreeWalkerImpl implements TreeWalker {
 	}
 
 	private short filter(Node node) {
+		if (!isToShow(node)) {
+			return NodeFilter.FILTER_SKIP_NODE;
+		}
 		return nodeFilter == null ? NodeFilter.FILTER_ACCEPT : nodeFilter.acceptNode(node);
 	}
 
@@ -106,7 +109,7 @@ class TreeWalkerImpl implements TreeWalker {
 	}
 
 	private AbstractDOMNode findNext() {
-		AbstractDOMNode current = lowestVisibleAncestor(currentNode);
+		AbstractDOMNode current = nextVisible(currentNode);
 		return findNext(current);
 	}
 
@@ -115,9 +118,7 @@ class TreeWalkerImpl implements TreeWalker {
 		while (next != rootNode) {
 			short filter = filter(next);
 			if (filter == NodeFilter.FILTER_ACCEPT) {
-				if (isToShow(next)) {
-					break;
-				}
+				break;
 			} else if (filter != NodeFilter.FILTER_SKIP_NODE) {
 				next = nextSiblingOrParent(next);
 				continue;
@@ -128,14 +129,14 @@ class TreeWalkerImpl implements TreeWalker {
 	}
 
 	/**
-	 * Find whether the given node is the inclusive descendant of a rejected
-	 * node (filtered as <code>NodeFilter.FILTER_SKIP_NODE_CHILD</code>), and
-	 * in that case return such ancestor that is closest to root.
+	 * Find whether the given node is the inclusive descendant of a rejected node
+	 * (filtered as <code>NodeFilter.FILTER_SKIP_NODE_CHILD</code>), and in that
+	 * case return such ancestor that is closest to root.
 	 * 
 	 * @param current the node to check.
-	 * @return the same node, or the first logically visible ancestor.
+	 * @return the same node, or the top logically invisible ancestor.
 	 */
-	private AbstractDOMNode lowestVisibleAncestor(AbstractDOMNode current) {
+	private AbstractDOMNode highestInvisibleAncestorOrMe(AbstractDOMNode current) {
 		AbstractDOMNode node = current;
 		while (node != rootNode) {
 			if (filter(node) == NodeFilter.FILTER_SKIP_NODE_CHILD) {
@@ -144,6 +145,51 @@ class TreeWalkerImpl implements TreeWalker {
 			node = (AbstractDOMNode) node.getParentNode();
 			if (node == null) {
 				break;
+			}
+		}
+		return current;
+	}
+
+	/**
+	 * Find the next logically visible node.
+	 * 
+	 * @param current the node to check.
+	 * @return the next logically visible node.
+	 */
+	private AbstractDOMNode nextVisible(AbstractDOMNode current) {
+		/*
+		 * Find whether the given node is the inclusive descendant of a rejected node
+		 * (filtered as <code>NodeFilter.FILTER_SKIP_NODE_CHILD</code>)
+		 */
+		AbstractDOMNode ancestor = null;
+		AbstractDOMNode node = current;
+		while (node != rootNode) {
+			if (filter(node) == NodeFilter.FILTER_SKIP_NODE_CHILD) {
+				ancestor = node;
+			}
+			node = (AbstractDOMNode) node.getParentNode();
+			if (node == null) {
+				break;
+			}
+		}
+		if (ancestor != null) {
+			/*
+			 * We were under a rejected node, now try to determine the next visible one
+			 */
+			if (ancestor != rootNode) {
+				current = nextSiblingOrParent(ancestor);
+				while (current != rootNode) {
+					short filter = filter(current);
+					if (filter == NodeFilter.FILTER_SKIP_NODE_CHILD) {
+						current = nextSiblingOrParent(current);
+					} else if (filter == NodeFilter.FILTER_SKIP_NODE) {
+						current = nextNode(current);
+					} else {
+						break;
+					}
+				}
+			} else {
+				current = rootNode;
 			}
 		}
 		return current;
@@ -179,7 +225,7 @@ class TreeWalkerImpl implements TreeWalker {
 	}
 
 	private boolean isAccepted(AbstractDOMNode node) {
-		return isToShow(node) && filter(node) == NodeFilter.FILTER_ACCEPT;
+		return filter(node) == NodeFilter.FILTER_ACCEPT;
 	}
 
 	@Override
@@ -201,7 +247,7 @@ class TreeWalkerImpl implements TreeWalker {
 	}
 
 	private AbstractDOMNode findPrevious() {
-		AbstractDOMNode current = lowestVisibleAncestor(currentNode);
+		AbstractDOMNode current = highestInvisibleAncestorOrMe(currentNode);
 		return findPrevious(current);
 	}
 
@@ -221,9 +267,7 @@ class TreeWalkerImpl implements TreeWalker {
 		while (previous != rootNode && previous != null) {
 			short filter = filter(previous);
 			if (filter == NodeFilter.FILTER_ACCEPT) {
-				if (isToShow(previous)) {
-					break;
-				}
+				break;
 			}
 			previous = previousNode(previous);
 		}
@@ -270,7 +314,7 @@ class TreeWalkerImpl implements TreeWalker {
 
 	private AbstractDOMNode findFirstChild() {
 		AbstractDOMNode node;
-		AbstractDOMNode current = lowestVisibleAncestor(currentNode);
+		AbstractDOMNode current = highestInvisibleAncestorOrMe(currentNode);
 		if (current == currentNode) {
 			node = current.getNodeList().getFirst();
 			while (node != null && !isAccepted(node)) {
@@ -293,7 +337,7 @@ class TreeWalkerImpl implements TreeWalker {
 
 	private AbstractDOMNode findLastChild() {
 		AbstractDOMNode node;
-		AbstractDOMNode current = lowestVisibleAncestor(currentNode);
+		AbstractDOMNode current = highestInvisibleAncestorOrMe(currentNode);
 		if (current == currentNode) {
 			node = current.getNodeList().getLast();
 			while (node != null && !isAccepted(node)) {
@@ -321,7 +365,7 @@ class TreeWalkerImpl implements TreeWalker {
 
 	private AbstractDOMNode findNextSibling() {
 		AbstractDOMNode node;
-		AbstractDOMNode current = lowestVisibleAncestor(currentNode);
+		AbstractDOMNode current = highestInvisibleAncestorOrMe(currentNode);
 		if (current == currentNode) {
 			node = current.nextSibling;
 			while (node != null && !isAccepted(node)) {
@@ -349,7 +393,7 @@ class TreeWalkerImpl implements TreeWalker {
 
 	private AbstractDOMNode findPreviousSibling() {
 		AbstractDOMNode node;
-		AbstractDOMNode current = lowestVisibleAncestor(currentNode);
+		AbstractDOMNode current = highestInvisibleAncestorOrMe(currentNode);
 		if (current == currentNode) {
 			node = current.previousSibling;
 			while (node != null && !isAccepted(node)) {
@@ -381,12 +425,12 @@ class TreeWalkerImpl implements TreeWalker {
 	private AbstractDOMNode findParentNode() {
 		AbstractDOMNode node;
 		if (currentNode != rootNode) {
-			node = (AbstractDOMNode) currentNode.getParentNode();
-			if (node != rootNode) {
-				node = lowestVisibleAncestor(node);
-				while (node != rootNode && !isAccepted(node)) {
-					node = (AbstractDOMNode) node.getParentNode();
-				}
+			AbstractDOMNode anc = highestInvisibleAncestorOrMe(currentNode);
+			if (anc == currentNode || anc != rootNode) {
+				node = (AbstractDOMNode) anc.getParentNode();
+			} else {
+				// rootNode is not visible then
+				node = null;
 			}
 		} else {
 			node = null;
