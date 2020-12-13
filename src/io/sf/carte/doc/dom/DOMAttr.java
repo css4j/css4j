@@ -215,10 +215,13 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 	 */
 	boolean isBooleanAttribute() {
 		/*
-		 * By default, return false if the document is not HTML, because we do not want
-		 * to maintain a list of boolean attributes.
+		 * By default, return false if the document is not HTML or the attribute not in
+		 * the HTML namespace, because we do not want to maintain a list of boolean
+		 * attributes.
 		 */
-		return getOwnerDocument().isHTML();
+		String nsUri;
+		return getOwnerDocument().isHTML()
+				&& ((nsUri = getNamespaceURI()) == null || nsUri == HTMLDocument.HTML_NAMESPACE_URI);
 	}
 
 	void write(SimpleWriter wri) throws IOException {
