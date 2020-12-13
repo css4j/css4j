@@ -211,15 +211,10 @@ class TreeWalkerImpl implements TreeWalker {
 		AbstractDOMNode next = current.nextSibling;
 		if (next == null) {
 			AbstractDOMNode parent = current.parentNode();
-			if (parent != null) {
-				if (parent != rootNode) {
-					next = nextSiblingOrParent(parent);
-				} else {
-					next = rootNode;
-				}
-			} else {
-				next = rootNode;
+			if (parent != rootNode && parent != null) {
+				return nextSiblingOrParent(parent);
 			}
+			next = rootNode;
 		}
 		return next;
 	}
