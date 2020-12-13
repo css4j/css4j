@@ -187,9 +187,8 @@ abstract class AbstractElementLiveList implements ElementList, Serializable {
 		private AbstractDOMNode nextSiblingOrParent(AbstractDOMNode current) {
 			AbstractDOMNode next = current.nextSibling;
 			if (next == null) {
-				next = current.parentNode();
 				AbstractDOMNode parent = current.parentNode();
-				if (parent != contextNode) {
+				if (parent != contextNode && parent != null) {
 					return nextSiblingOrParent(parent);
 				}
 				next = contextNode;
