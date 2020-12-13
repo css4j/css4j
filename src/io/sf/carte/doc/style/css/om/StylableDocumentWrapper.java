@@ -1932,15 +1932,11 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				try {
 					docUrl = new URL(docUri);
 				} catch (MalformedURLException e) {
-					docUrl = null;
+					return getBaseForNullDocumentURI(buri, elm);
 				}
 				URL bUrl;
 				try {
-					if (docUrl != null) {
-						bUrl = new URL(docUrl, buri);
-					} else {
-						bUrl = new URL(buri);
-					}
+					bUrl = new URL(docUrl, buri);
 				} catch (MalformedURLException e) {
 					return docUrl != null ? docUrl.toExternalForm() : null;
 				}
@@ -1957,24 +1953,30 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				}
 				return buri;
 			} else {
-				try {
-					URL bUrl = new URL(buri);
-					String bscheme = bUrl.getProtocol();
-					if (bscheme.equals("https") || bscheme.equals("http")) {
-						return buri;
-					} else {
-						getErrorHandler().policyError(elm,
-								"Untrusted document wants to set a non-http base URL: " + buri);
-					}
-				} catch (MalformedURLException e) {
+				buri = getBaseForNullDocumentURI(buri, elm);
+				if (buri == null) {
+					buri = document.getDocumentURI();
 				}
 			}
-		}
-		buri = document.getBaseURI();
-		if (buri == null) {
+		} else {
 			buri = document.getDocumentURI();
 		}
 		return buri;
+	}
+
+	private String getBaseForNullDocumentURI(String baseUri, Element elm) {
+		try {
+			URL bUrl = new URL(baseUri);
+			String bscheme = bUrl.getProtocol();
+			if (bscheme.equals("https") || bscheme.equals("http")) {
+				return baseUri;
+			} else {
+				getErrorHandler().policyError(elm,
+						"Untrusted document wants to set a non-http base URL: " + baseUri);
+			}
+		} catch (MalformedURLException e) {
+		}
+		return null;
 	}
 
 	/**
