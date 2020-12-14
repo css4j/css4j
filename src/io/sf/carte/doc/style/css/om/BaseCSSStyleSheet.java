@@ -836,7 +836,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
-			case CSSRule.PAGE_RULE:
 				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
 				if (((BaseCSSStyleDeclaration) stylerule.getStyle()).isPropertySet(propertyName)) {
 					SelectorList list = stylerule.getSelectorList();
@@ -886,7 +885,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
-			case CSSRule.PAGE_RULE:
 				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
 				if (value.equalsIgnoreCase(stylerule.getStyle().getPropertyValue(propertyName))) {
 					SelectorList list = stylerule.getSelectorList();
@@ -896,8 +894,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				}
 				break;
 			case CSSRule.MEDIA_RULE:
-				MediaRule mediarule = (MediaRule) rule;
-				scanRulesForValue(mediarule.getCssRules(), propertyName, value, selectors);
+			case ExtendedCSSRule.SUPPORTS_RULE:
+				GroupingRule grouping = (GroupingRule) rule;
+				scanRulesForValue(grouping.getCssRules(), propertyName, value, selectors);
 				break;
 			}
 		}
