@@ -1492,8 +1492,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		for (int i = 0; i < len; i++) {
 			Node n = nl.item(i);
 			if (!linkedStyle.isEmpty()) {
-				// Check whether we already have the sheet
-				if (isAlreadyLoaded(linkedStyle, ((Element) n).getAttribute("href"))) {
+				// Check whether we already have the sheet (by PI)
+				String href = ((Element) n).getAttribute("href").trim();
+				if (href.length() == 0 || isAlreadyLoaded(linkedStyle, href)) {
 					continue;
 				}
 			}
@@ -1508,22 +1509,50 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			}
 		}
 		// Find the embedded styles
-		nl = document.getElementsByTagName("style");
-		len = nl.getLength();
-		for (int i = 0; i < len; i++) {
-			Node n = nl.item(i);
-			if (!embeddedStyle.isEmpty()) {
-				// Check whether we already have the sheet
-				if (isAlreadyLoaded(embeddedStyle, ((Element) n).getAttribute("id"))) {
-					continue;
+		nl = document.getElementsByTagName("head");
+		if (nl.getLength() != 0) {
+			Element head = (Element) nl.item(0);
+			nl = head.getElementsByTagName("style");
+			len = nl.getLength();
+			for (int i = 0; i < len; i++) {
+				Node n = nl.item(i);
+				if (!embeddedStyle.isEmpty()) {
+					// Check whether we already have the sheet (by PI)
+					String id = ((Element) n).getAttribute("id");
+					if (id.length() != 0 && isAlreadyLoaded(embeddedStyle, id)) {
+						continue;
+					}
+				}
+				CSSNode mynode = getMappedCSSNode(n);
+				if (mynode == null) {
+					mynode = new StyleElement((Element) n);
+					nodemap.put(n, mynode);
+				}
+				embeddedStyle.add((LinkStyleDefiner) mynode);
+			}
+		} else {
+			// Only use top-level styles
+			Element docElm = document.getDocumentElement();
+			if (docElm != null) {
+				nl = docElm.getChildNodes();
+				len = nl.getLength();
+				for (int i = 0; i < len; i++) {
+					Node node = nl.item(i);
+					if (node.getNodeType() == Node.ELEMENT_NODE && "style".equals(node.getNodeName())) {
+						// Check whether we already have the sheet (by PI)
+						String id = ((Element) node).getAttribute("id");
+						if (id.length() != 0 && isAlreadyLoaded(embeddedStyle, id)) {
+							continue;
+						}
+						CSSNode mynode = getMappedCSSNode(node);
+						if (mynode == null) {
+							mynode = new StyleElement((Element) node);
+							nodemap.put(node, mynode);
+						}
+						embeddedStyle.add((LinkStyleDefiner) mynode);
+					}
 				}
 			}
-			CSSNode mynode = getMappedCSSNode(n);
-			if (mynode == null) {
-				mynode = new StyleElement((Element) n);
-				nodemap.put(n, mynode);
-			}
-			embeddedStyle.add((LinkStyleDefiner) mynode);
 		}
 	}
 
