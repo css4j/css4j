@@ -29,6 +29,7 @@ import io.sf.carte.doc.dom.IteratorTest;
 import io.sf.carte.doc.dom.NodeIteratorTest;
 import io.sf.carte.doc.dom.TreeWalkerTest;
 import io.sf.carte.doc.dom.XHTMLDocumentTest;
+import io.sf.carte.doc.dom.XMLDocumentBuilderJdkTest;
 import io.sf.carte.doc.dom.XMLDocumentBuilderTest;
 import io.sf.carte.doc.dom.XMLDocumentTest;
 import io.sf.carte.doc.style.css.CSSUnitTest;
@@ -159,6 +160,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 	CollectionsTest.class,
 	TreeWalkerTest.class,
 	XHTMLDocumentTest.class,
+	XMLDocumentBuilderJdkTest.class,
 	XMLDocumentBuilderTest.class,
 	XMLDocumentTest.class,
 	CSSUnitTest.class,
