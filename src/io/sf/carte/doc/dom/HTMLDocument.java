@@ -1076,7 +1076,17 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	@Override
 	ElementList getEmbeddedStyleNodeList() {
-		return getElementsByTagName("style");
+		HTMLElement docElm = getDocumentElement();
+		if (docElm != null) {
+			Iterator<DOMElement> it = docElm.elementIteratorNS(HTML_NAMESPACE_URI, "head");
+			if (it.hasNext()) {
+				DOMElement head = it.next();
+				return head.getElementsByTagNameNS(HTML_NAMESPACE_URI, "style");
+			} else {
+				return getNodeList().getElementsByTagNameNS(HTML_NAMESPACE_URI, "style");
+			}
+		}
+		return EmptyElementList.getInstance();
 	}
 
 }

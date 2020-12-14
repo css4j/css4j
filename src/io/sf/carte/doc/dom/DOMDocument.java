@@ -2347,20 +2347,19 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	private void updateStyleLists() {
 		// Find the linked styles
 		linkedStyle.clear();
-		NodeList nl = getLinkedStyleNodeList();
-		int len = nl.getLength();
-		for (int i = 0; i < len; i++) {
-			LinkStyleDefiner link = (LinkStyleDefiner) nl.item(i);
+		Iterator<? extends DOMNode> it = getLinkedStyleNodeList().iterator();
+		while (it.hasNext()) {
+			LinkStyleDefiner link = (LinkStyleDefiner) it.next();
 			if (link.getSheet() != null) {
 				linkedStyle.add(link);
 			}
 		}
 		// Find the embedded styles
 		embeddedStyle.clear();
-		nl = getEmbeddedStyleNodeList();
-		len = nl.getLength();
-		for (int i = 0; i < len; i++) {
-			embeddedStyle.add((LinkStyleDefiner) nl.item(i));
+		it = getEmbeddedStyleNodeList().iterator();
+		while (it.hasNext()) {
+			LinkStyleDefiner style = (LinkStyleDefiner) it.next();
+			embeddedStyle.add(style);
 		}
 		/*
 		 * Add the linked and embedded styles. Must be added in this order, as mandated by the CSS
@@ -2397,15 +2396,15 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 	}
 
-	NodeList getLinkedStyleNodeList() {
+	ExtendedNodeList<? extends DOMNode> getLinkedStyleNodeList() {
 		return getLinkedStyleNodeList(true);
 	}
 
-	NodeList getEmbeddedStyleNodeList() {
+	ExtendedNodeList<? extends DOMNode> getEmbeddedStyleNodeList() {
 		return getLinkedStyleNodeList(false);
 	}
 
-	private NodeList getLinkedStyleNodeList(boolean external) {
+	private DOMNodeList getLinkedStyleNodeList(boolean external) {
 		DefaultNodeList list = null;
 		AbstractDOMNode node = getNodeList().getFirst();
 		while (node != null) {
