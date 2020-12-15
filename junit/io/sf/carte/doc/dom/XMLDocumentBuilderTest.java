@@ -689,6 +689,7 @@ public class XMLDocumentBuilderTest {
 
 	@Test(timeout=1000)
 	public void testParseInputSourceImpliedHtmlElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
 		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(
 			"<!DOCTYPE html><body><div id='divid'><br/></div></body><!-- Final comment -->"),
 				"impliedhtml.xhtml");
@@ -714,6 +715,7 @@ public class XMLDocumentBuilderTest {
 
 	@Test
 	public void testParseInputSourceImpliedHeadElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
 		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(
 			"<!DOCTYPE html><html><title id='titleid'>Some Title</title><meta charset='utf-8'/><script id='scriptid'></script></html><!-- Final comment -->"),
 				"impliedhead.xhtml");
@@ -742,6 +744,7 @@ public class XMLDocumentBuilderTest {
 
 	@Test
 	public void testParseInputSourceImpliedBodyElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
 		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(
 			"<!DOCTYPE html><html><div id='divid'><br/></div></html><!-- Final comment -->"),
 				"impliedbody.xhtml");
@@ -764,6 +767,7 @@ public class XMLDocumentBuilderTest {
 
 	@Test
 	public void testParseInputSourceImpliedHeadBodyElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
 		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(
 			"<!DOCTYPE html><html><title id='titleid'>Some Title</title><meta charset='utf-8'/><script id='scriptid'></script><div id='divid'><br/></div></html><!-- Final comment -->"),
 				"impliedheadbody.xhtml");
