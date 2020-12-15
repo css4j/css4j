@@ -697,6 +697,7 @@ public class XMLDocumentBuilderTest {
 
 	@Test(timeout=1000)
 	public void testParseInputSourceImpliedHtmlElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
 		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(
 				"<!DOCTYPE html><body><div id='divid'><br/></div></body><!-- Final comment -->"),
 					"impliedhtml.xhtml");
@@ -718,6 +719,95 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(element);
 		assertEquals("html", element.getNodeName());
 		assertTrue(docElement == element);
+	}
+
+	@Test
+	public void testParseInputSourceImpliedHeadElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
+		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(
+			"<!DOCTYPE html><html><title id='titleid'>Some Title</title><meta charset='utf-8'/><script id='scriptid'></script></html><!-- Final comment -->"),
+				"impliedhead.xhtml");
+		assertNotNull(document);
+		DOMElement docElement = document.getDocumentElement();
+		assertNotNull(docElement);
+		DOMElement element = document.getElementById("titleid");
+		assertNotNull(element);
+		assertTrue(element.hasChildNodes());
+		DOMElement head = (DOMElement) element.getParentNode();
+		assertNotNull(head);
+		assertEquals("head", head.getNodeName());
+		DOMElement script = document.getElementById("scriptid");
+		assertNotNull(script);
+		assertSame(head, script.getParentNode());
+		assertEquals("meta", head.getChildren().item(1).getNodeName());
+		element = (DOMElement) head.getParentNode();
+		assertNotNull(element);
+		assertEquals("html", element.getNodeName());
+		assertTrue(docElement == element);
+		// Comment
+		DOMNode comment = docElement.getNextSibling();
+		assertNotNull(comment);
+		assertEquals(" Final comment ", comment.getNodeValue());
+	}
+
+	@Test
+	public void testParseInputSourceImpliedBodyElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
+		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(
+			"<!DOCTYPE html><html><div id='divid'><br/></div></html><!-- Final comment -->"),
+				"impliedbody.xhtml");
+		assertNotNull(document);
+		DOMElement docElement = document.getDocumentElement();
+		assertNotNull(docElement);
+		// Body elements
+		DOMElement div = document.getElementById("divid");
+		assertNotNull(div);
+		assertTrue(div.hasChildNodes());
+		DOMElement body = (DOMElement) div.getParentNode();
+		assertNotNull(body);
+		assertEquals("body", body.getNodeName());
+		assertSame(docElement, body.getParentNode());
+		// Comment
+		DOMNode comment = docElement.getNextSibling();
+		assertNotNull(comment);
+		assertEquals(" Final comment ", comment.getNodeValue());
+	}
+
+	@Test
+	public void testParseInputSourceImpliedHeadBodyElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
+		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(
+			"<!DOCTYPE html><html><title id='titleid'>Some Title</title><meta charset='utf-8'/><script id='scriptid'></script><div id='divid'><br/></div></html><!-- Final comment -->"),
+				"impliedheadbody.xhtml");
+		assertNotNull(document);
+		DOMElement docElement = document.getDocumentElement();
+		assertNotNull(docElement);
+		DOMElement element = document.getElementById("titleid");
+		assertNotNull(element);
+		assertTrue(element.hasChildNodes());
+		DOMElement head = (DOMElement) element.getParentNode();
+		assertNotNull(head);
+		assertEquals("head", head.getNodeName());
+		DOMElement script = document.getElementById("scriptid");
+		assertNotNull(script);
+		assertSame(head, script.getParentNode());
+		assertEquals("meta", head.getChildren().item(1).getNodeName());
+		element = (DOMElement) head.getParentNode();
+		assertNotNull(element);
+		assertEquals("html", element.getNodeName());
+		assertTrue(docElement == element);
+		// Body elements
+		DOMElement div = document.getElementById("divid");
+		assertNotNull(div);
+		assertTrue(div.hasChildNodes());
+		DOMElement body = (DOMElement) div.getParentNode();
+		assertNotNull(body);
+		assertEquals("body", body.getNodeName());
+		assertSame(docElement, body.getParentNode());
+		// Comment
+		DOMNode comment = docElement.getNextSibling();
+		assertNotNull(comment);
+		assertEquals(" Final comment ", comment.getNodeValue());
 	}
 
 	@Test

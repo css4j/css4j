@@ -433,6 +433,7 @@ public class XMLDocumentBuilderJdkTest {
 
 	@Test(timeout=1000)
 	public void testParseInputSourceImpliedHtmlElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
 		Document document = parseDocument(new StringReader(
 			"<!DOCTYPE html><body><div id='divid'><br/></div></body><!-- Final comment -->"),
 				"impliedhtml.xhtml");
@@ -454,6 +455,93 @@ public class XMLDocumentBuilderJdkTest {
 		assertNotNull(element);
 		assertEquals("html", element.getNodeName());
 		assertTrue(docElement == element);
+	}
+
+	@Test
+	public void testParseInputSourceImpliedHeadElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
+		Document document = parseDocument(new StringReader(
+			"<!DOCTYPE html><html><title id='titleid'>Some Title</title><meta charset='utf-8'/><script id='scriptid'></script></html><!-- Final comment -->"),
+				"impliedhead.xhtml");
+		assertNotNull(document);
+		Element docElement = document.getDocumentElement();
+		assertNotNull(docElement);
+		Element element = document.getElementById("titleid");
+		assertNotNull(element);
+		assertTrue(element.hasChildNodes());
+		Element head = (Element) element.getParentNode();
+		assertNotNull(head);
+		assertEquals("head", head.getNodeName());
+		Element script = document.getElementById("scriptid");
+		assertNotNull(script);
+		assertSame(head, script.getParentNode());
+		element = (Element) head.getParentNode();
+		assertNotNull(element);
+		assertEquals("html", element.getNodeName());
+		assertTrue(docElement == element);
+		// Comment
+		Node comment = docElement.getNextSibling();
+		assertNotNull(comment);
+		assertEquals(" Final comment ", comment.getNodeValue());
+	}
+
+	@Test
+	public void testParseInputSourceImpliedBodyElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
+		Document document = parseDocument(new StringReader(
+			"<!DOCTYPE html><html><div id='divid'><br/></div></html><!-- Final comment -->"),
+				"impliedbody.xhtml");
+		assertNotNull(document);
+		Element docElement = document.getDocumentElement();
+		assertNotNull(docElement);
+		// Body elements
+		Element div = document.getElementById("divid");
+		assertNotNull(div);
+		assertTrue(div.hasChildNodes());
+		Element body = (Element) div.getParentNode();
+		assertNotNull(body);
+		assertEquals("body", body.getNodeName());
+		assertSame(docElement, body.getParentNode());
+		// Comment
+		Node comment = docElement.getNextSibling();
+		assertNotNull(comment);
+		assertEquals(" Final comment ", comment.getNodeValue());
+	}
+
+	@Test
+	public void testParseInputSourceImpliedHeadBodyElement() throws SAXException, IOException {
+		builder.setHTMLProcessing(true);
+		Document document = parseDocument(new StringReader(
+			"<!DOCTYPE html><html><title id='titleid'>Some Title</title><meta charset='utf-8'/><script id='scriptid'></script><div id='divid'><br/></div></html><!-- Final comment -->"),
+				"impliedheadbody.xhtml");
+		assertNotNull(document);
+		Element docElement = document.getDocumentElement();
+		assertNotNull(docElement);
+		Element element = document.getElementById("titleid");
+		assertNotNull(element);
+		assertTrue(element.hasChildNodes());
+		Element head = (Element) element.getParentNode();
+		assertNotNull(head);
+		assertEquals("head", head.getNodeName());
+		Element script = document.getElementById("scriptid");
+		assertNotNull(script);
+		assertSame(head, script.getParentNode());
+		element = (Element) head.getParentNode();
+		assertNotNull(element);
+		assertEquals("html", element.getNodeName());
+		assertTrue(docElement == element);
+		// Body elements
+		Element div = document.getElementById("divid");
+		assertNotNull(div);
+		assertTrue(div.hasChildNodes());
+		Element body = (Element) div.getParentNode();
+		assertNotNull(body);
+		assertEquals("body", body.getNodeName());
+		assertSame(docElement, body.getParentNode());
+		// Comment
+		Node comment = docElement.getNextSibling();
+		assertNotNull(comment);
+		assertEquals(" Final comment ", comment.getNodeValue());
 	}
 
 	@Test

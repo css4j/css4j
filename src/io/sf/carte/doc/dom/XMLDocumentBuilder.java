@@ -12,6 +12,7 @@
 package io.sf.carte.doc.dom;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -61,9 +62,25 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private boolean strictErrorChecking = true;
 
+	private boolean htmlProcessing = false;
+
 	private boolean ignoreElementContentWhitespace = false;
 
 	private boolean ignoreNotSpecifiedAttributes = true;
+
+	private static final HashSet<String> headChildList;
+
+	static {
+		headChildList = new HashSet<>(8);
+		headChildList.add("base");
+		headChildList.add("link");
+		headChildList.add("meta");
+		headChildList.add("noscript");
+		headChildList.add("script");
+		headChildList.add("style");
+		headChildList.add("template");
+		headChildList.add("title");
+	}
 
 	public XMLDocumentBuilder(DOMImplementation domImpl) {
 		this(domImpl, SAXParserFactory.newInstance());
@@ -119,11 +136,11 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private Document parse(InputSource is, XMLReader xmlReader) throws SAXException, IOException {
 		boolean errorHandlerSet = true;
-		MyContentHandler handler;
-		if (ignoreNotSpecifiedAttributes) {
-			handler = new MyContentHandler(xmlReader);
+		XMLContentHandler handler;
+		if (htmlProcessing) {
+			handler = new XHTMLContentHandler(xmlReader);
 		} else {
-			handler = new MyContentHandlerNotspecifiedAttr(xmlReader);
+			handler = new XMLContentHandler(xmlReader);
 		}
 		xmlReader.setContentHandler(handler);
 		try {
@@ -132,7 +149,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		}
 		if (errorHandler != null) {
 			xmlReader.setErrorHandler(errorHandler);
-		} else if (xmlReader.getErrorHandler() == null){
+		} else if (xmlReader.getErrorHandler() == null) {
 			xmlReader.setErrorHandler(handler);
 		} else {
 			errorHandlerSet = false;
@@ -239,6 +256,18 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	}
 
 	/**
+	 * Configure the builder to process the document as XHTML.
+	 * <p>
+	 * Default is <code>false</code>.
+	 * </p>
+	 * 
+	 * @param html set it to <code>true</code> to process the document as HTML.
+	 */
+	public void setHTMLProcessing(boolean html) {
+		this.htmlProcessing = html;
+	}
+
+	/**
 	 * Configure the builder to ignore (or not) element content whitespace when
 	 * building the document.
 	 * <p>
@@ -249,7 +278,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 *               whitespace.
 	 */
 	public void setIgnoreElementContentWhitespace(boolean ignore) {
-		this.ignoreElementContentWhitespace  = ignore;
+		this.ignoreElementContentWhitespace = ignore;
 	}
 
 	/**
@@ -316,11 +345,11 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		errorHandler = null;
 	}
 
-	private class MyContentHandler implements ContentHandler, LexicalHandler, ErrorHandler {
+	private class XMLContentHandler implements ContentHandler, LexicalHandler, ErrorHandler {
 
 		Document document = null;
 
-		private DocumentType documentType = null;
+		DocumentType documentType = null;
 
 		private LinkedList<MockNode> preDocTypeNodes = null;
 
@@ -340,11 +369,18 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 		final boolean hasAttributes2;
 
-		MyContentHandler(XMLReader xmlReader) {
+		private final AttributeProcessor attrProcessor;
+
+		XMLContentHandler(XMLReader xmlReader) {
 			super();
 			ignoreECW = ignoreElementContentWhitespace;
 			isNativeDOM = domImpl instanceof CSSDOMImplementation;
 			hasAttributes2 = hasAttributes2Feature(xmlReader);
+			if (ignoreNotSpecifiedAttributes) {
+				attrProcessor = new AttributeProcessor();
+			} else {
+				attrProcessor = new NotSpecifiedAttributeProcessor();
+			}
 		}
 
 		private boolean hasAttributes2Feature(XMLReader xmlReader) {
@@ -391,66 +427,26 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 				documentElement(uri, localName, qName, atts);
 				insertPreDocElementNodes();
 			} else {
-				Element element = document.createElementNS(uri, qName);
-				setAttributes(element, atts);
-				appendChild(element);
-				currentNode = element;
+				newElement(uri, localName, qName, atts);
 			}
 		}
 
-		private void documentElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-			Element element;
-			// We have to create the first element in the document. Are we in XHTML?
-			if (!"html".equals(localName) && (HTMLDocument.HTML_NAMESPACE_URI.equals(uri)
-					|| (documentType != null && "html".equalsIgnoreCase(documentType.getName())))) {
-				// Document is HTML but first element is not <html>:
-				String deQname = "html";
-				if (!qName.equalsIgnoreCase(localName)) {
-					int idx = qName.indexOf(':', 1);
-					if (idx != -1) {
-						deQname = qName.substring(0, idx) + ":html";
-					} else {
-						error("Bad qName: " + qName);
-					}
-				}
-				document = createDocument(uri, deQname, documentType);
-				element = document.createElementNS(uri, qName);
-				setAttributes(element, atts);
-				currentNode = document.getDocumentElement().appendChild(element);
-			} else {
-				document = createDocument(uri, qName, documentType);
-				element = document.getDocumentElement();
-				currentNode = element;
-				setAttributes(element, atts);
-			}
+		void documentElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+			document = createDocument(uri, qName, documentType);
+			Element element = document.getDocumentElement();
+			currentNode = element;
+			setAttributes(element, atts);
+		}
+
+		void newElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+			Element element = document.createElementNS(uri, qName);
+			setAttributes(element, atts);
+			appendChild(element);
+			currentNode = element;
 		}
 
 		void setAttributes(Element element, Attributes atts) throws SAXException {
-			int len = atts.getLength();
-			for (int i = 0; i < len; i++) {
-				if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
-						&& "preserve".equalsIgnoreCase(atts.getValue(i)) && isNativeDOM) {
-					((DOMElement) element).setRawText();
-				}
-				if (hasAttributes2) {
-					Attributes2 atts2 = (Attributes2) atts;
-					if (!atts2.isSpecified(i)) {
-						continue;
-					}
-				}
-				String attrQName = atts.getQName(i);
-				Attr attr = document.createAttributeNS(atts.getURI(i), attrQName);
-				attr.setValue(atts.getValue(i));
-				if (isNativeDOM) {
-					((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
-				} else {
-					element.getAttributes().setNamedItem(attr);
-				}
-				if ("ID".equals(atts.getType(i))
-						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
-					element.setIdAttributeNode(attr, true);
-				}
-			}
+			attrProcessor.setAttributes(element, atts);
 		}
 
 		private void insertPreDocElementNodes() {
@@ -623,7 +619,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			}
 		}
 
-		private void error(String message) throws SAXException {
+		void error(String message) throws SAXException {
 			if (lastLocator == null) {
 				throw new SAXException(message);
 			} else {
@@ -652,46 +648,187 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			throw exception;
 		}
 
+		private class AttributeProcessor {
+
+			void setAttributes(Element element, Attributes atts) throws SAXException {
+				int len = atts.getLength();
+				for (int i = 0; i < len; i++) {
+					String namespaceURI = atts.getURI(i);
+					String value = atts.getValue(i);
+					if (isNativeDOM && DOMDocument.XML_NAMESPACE_URI.equals(namespaceURI)
+							&& "space".equals(atts.getLocalName(i)) && "preserve".equalsIgnoreCase(value)) {
+						((DOMElement) element).setRawText();
+					}
+					if (hasAttributes2) {
+						Attributes2 atts2 = (Attributes2) atts;
+						if (!atts2.isSpecified(i)) {
+							continue;
+						}
+					}
+					String attrQName = atts.getQName(i);
+					Attr attr = document.createAttributeNS(namespaceURI, attrQName);
+					attr.setValue(value);
+					if (isNativeDOM) {
+						((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
+					} else {
+						element.getAttributes().setNamedItem(attr);
+					}
+					if ("ID".equals(atts.getType(i))
+							|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
+						element.setIdAttributeNode(attr, true);
+					}
+				}
+			}
+
+		}
+
+		private class NotSpecifiedAttributeProcessor extends AttributeProcessor {
+
+			@Override
+			void setAttributes(Element element, Attributes atts) throws SAXException {
+				int len = atts.getLength();
+				for (int i = 0; i < len; i++) {
+					String namespaceURI = atts.getURI(i);
+					String value = atts.getValue(i);
+					String attrQName = atts.getQName(i);
+					Attr attr = document.createAttributeNS(namespaceURI, attrQName);
+					attr.setValue(value);
+					if (isNativeDOM) {
+						if (hasAttributes2) {
+							((DOMAttr) attr).specified = ((Attributes2) atts).isSpecified(i);
+						}
+						if (DOMDocument.XML_NAMESPACE_URI.equals(namespaceURI) && "space".equals(atts.getLocalName(i))
+								&& "preserve".equalsIgnoreCase(value)) {
+							((DOMElement) element).setRawText();
+						}
+						((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
+					} else {
+						element.getAttributes().setNamedItem(attr);
+					}
+					if ("ID".equals(atts.getType(i))
+							|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
+						element.setIdAttributeNode(attr, true);
+					}
+				}
+			}
+
+		}
+
 	}
 
-	private class MyContentHandlerNotspecifiedAttr extends MyContentHandler {
+	private class XHTMLContentHandler extends XMLContentHandler {
 
-		MyContentHandlerNotspecifiedAttr(XMLReader xmlReader) {
+		private boolean headPending = true, bodyPending = true;
+
+		private boolean headImplicit = false, bodyImplicit = false;
+
+		XHTMLContentHandler(XMLReader xmlReader) {
 			super(xmlReader);
 		}
 
 		@Override
-		void setAttributes(Element element, Attributes atts) throws SAXException {
-			int len = atts.getLength();
-			for (int i = 0; i < len; i++) {
-				if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
-						&& "preserve".equalsIgnoreCase(atts.getValue(i)) && element instanceof DOMElement) {
-					((DOMElement) element).setRawText();
-				}
-				String attrQName = atts.getQName(i);
-				Attr attr = document.createAttributeNS(atts.getURI(i), attrQName);
-				attr.setValue(atts.getValue(i));
-				if (isNativeDOM) {
-					if (hasAttributes2) {
-						((DOMAttr) attr).specified = ((Attributes2) atts).isSpecified(i);
-					}
-					if (DOMDocument.XML_NAMESPACE_URI.equals(atts.getURI(i)) && "space".equals(atts.getLocalName(i))
-							&& "preserve".equalsIgnoreCase(atts.getValue(i))) {
-						((DOMElement) element).setRawText();
+		void documentElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+			// We have to create the first element in the document. Are we in XHTML?
+			final boolean isXHTML = (HTMLDocument.HTML_NAMESPACE_URI.equals(uri)
+					|| (documentType != null && "html".equalsIgnoreCase(documentType.getName())));
+			if (!"html".equals(localName) && isXHTML) {
+				// Document is HTML but first element is not <html>:
+				String deQname = "html";
+				if (!qName.equalsIgnoreCase(localName)) {
+					int idx = qName.indexOf(':', 1);
+					if (idx != -1) {
+						deQname = qName.substring(0, idx) + ":html";
+					} else {
+						error("Bad qName: " + qName);
 					}
 				}
-				if (isNativeDOM) {
-					((DOMNamedNodeMap<?>) element.getAttributes()).setNamedItemUnchecked(attr);
-				} else {
-					element.getAttributes().setNamedItem(attr);
-				}
-				if ("ID".equals(atts.getType(i))
-						|| ("id".equals(attrQName) && element.getNamespaceURI() != document.getNamespaceURI())) {
-					element.setIdAttributeNode(attr, true);
+				document = createDocument(uri, deQname, documentType);
+				currentNode = document.getDocumentElement();
+				newElement(uri, localName, qName, atts);
+			} else {
+				document = createDocument(uri, qName, documentType);
+				Element element = document.getDocumentElement();
+				currentNode = element;
+				setAttributes(element, atts);
+				if (!isXHTML) {
+					headPending = false;
+					bodyPending = false;
 				}
 			}
 		}
 
+		@Override
+		void newElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+			// In HTML, an SVG element is implicitly in the SVG namespace
+			if ("svg".equals(localName) && uri == null) {
+				uri = "http://www.w3.org/2000/svg";
+			}
+			Element element = document.createElementNS(uri, qName);
+			setAttributes(element, atts);
+			/*
+			 * Check implicit parents.
+			 */
+			// Check for implicit HEAD element
+			if (headPending && currentNode.getParentNode() == document) {
+				if ("head".equals(qName)) {
+					appendChild(element);
+					headPending = false;
+					currentNode = element;
+					return;
+				} else if (isHeadChild(qName)) {
+					Element head = document.createElementNS(uri, "head");
+					currentNode.appendChild(head);
+					head.appendChild(element);
+					headImplicit = true;
+					headPending = false;
+					currentNode = element;
+					return;
+				}
+			}
+			// Check for implicit BODY element
+			if (bodyPending && (currentNode.getParentNode() == document
+					|| (headImplicit && currentNode.getParentNode().getParentNode() == document))) {
+				if ("body".equals(qName)) {
+					if (headImplicit) {
+						currentNode = currentNode.getParentNode();
+						headImplicit = false;
+					} else {
+						headPending = false;
+					}
+					bodyPending = false;
+				} else if (!isHeadChild(qName)) {
+					if (headImplicit) {
+						currentNode = currentNode.getParentNode();
+						headImplicit = false;
+					} else {
+						headPending = false;
+					}
+					Element body = document.createElementNS(uri, "body");
+					currentNode.appendChild(body);
+					body.appendChild(element);
+					currentNode = element;
+					bodyPending = false;
+					bodyImplicit = true;
+					return;
+				}
+			}
+			//
+			appendChild(element);
+			currentNode = element;
+		}
+
+		@Override
+		public void endElement(String uri, String localName, String qName) throws SAXException {
+			currentNode = currentNode.getParentNode();
+			if ((bodyImplicit || headImplicit) && "html".equals(currentNode.getNodeName())) {
+				currentNode = currentNode.getParentNode();
+			}
+		}
+
+	}
+
+	private static boolean isHeadChild(String qName) {
+		return headChildList.contains(qName);
 	}
 
 	abstract static class MockNode {

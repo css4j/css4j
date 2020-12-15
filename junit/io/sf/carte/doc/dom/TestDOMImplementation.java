@@ -140,6 +140,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		parser.setReportingDoctype(true);
 		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true, null));
+		builder.setHTMLProcessing(true);
 		builder.setXMLReader(parser);
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleHTMLReader();
 		InputSource is = new InputSource(re);
@@ -161,6 +162,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true, null));
 		builder.setIgnoreElementContentWhitespace(true);
 		builder.setEntityResolver(new DefaultEntityResolver());
+		builder.setHTMLProcessing(true);
 		HTMLDocument xhtmlDoc;
 		try {
 			xhtmlDoc = (HTMLDocument) builder.parse(is);
