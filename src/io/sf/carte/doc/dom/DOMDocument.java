@@ -1910,7 +1910,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			my = new BaseEventAttr();
 		} else if ("style".equals(localName) && prefix == null) {
 			my = new MyStyleAttr(localName);
-		} else if ("media".equals(localName) || "type".equals(localName)) {
+		} else if ("media".equals(localName) || "type".equals(localName) || "crossorigin".equals(localName)) {
 			my = new StyleEventAttr(localName, namespaceURI);
 		} else {
 			my = new MyAttr(localName, namespaceURI);

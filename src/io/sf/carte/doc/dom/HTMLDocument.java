@@ -787,7 +787,7 @@ abstract public class HTMLDocument extends DOMDocument {
 				my = new HrefEventAttr(namespaceURI);
 			} else if ("style".equals(localName)) {
 				my = new MyStyleAttr(localName);
-			} else if ("media".equals(localName) || "type".equals(localName)) {
+			} else if ("media".equals(localName) || "type".equals(localName) || "crossorigin".equals(localName)) {
 				my = new StyleEventAttr(localName, namespaceURI);
 			} else {
 				my = new MyAttr(localName, namespaceURI);
