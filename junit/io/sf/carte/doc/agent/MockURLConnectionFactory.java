@@ -27,7 +27,7 @@ public class MockURLConnectionFactory {
 
 	public static final String SAMPLE_URL = "http://www.example.com/xhtml/htmlsample.html";
 
-	private static final Map<String, String> mockURLMap = new HashMap<String, String>();
+	private final Map<String, String> mockURLMap = new HashMap<String, String>(12);
 
 	private final Map<String, Map<String, List<String>>> headerMap = new HashMap<String, Map<String, List<String>>>();
 
@@ -37,7 +37,8 @@ public class MockURLConnectionFactory {
 	 * After adding a file here and in classpath, remember to refresh the IDE if you
 	 * are using one.
 	 */
-	static {
+	public MockURLConnectionFactory() {
+		super();
 		mockURLMap.put(SAMPLE_URL, "htmlsample.html");
 		mockURLMap.put("http://www.example.com/css/common.css", "common.css");
 		mockURLMap.put("http://www.example.com/css/alter1.css", "alter1.css");
@@ -52,31 +53,36 @@ public class MockURLConnectionFactory {
 
 	public void setHeader(String ext, String headerName, String value) {
 		Map<String, List<String>> extheaders = headerMap.get(ext);
-		if(extheaders == null) {
+		if (extheaders == null) {
 			extheaders = new HashMap<String, List<String>>();
 			headerMap.put(ext, extheaders);
 		}
 		List<String> hdrs = extheaders.get(headerName);
-		if(hdrs == null) {
+		if (hdrs == null) {
 			hdrs = new ArrayList<String>(4);
 			extheaders.put(headerName, hdrs);
 		}
 		int idx = hdrs.indexOf(headerName);
-		if(idx < 0) {
+		if (idx < 0) {
 			hdrs.add(value);
 		} else {
 			hdrs.set(idx, value);
 		}
 	}
 
+	public void registerURL(String url, String path) {
+		synchronized (mockURLMap) {
+			mockURLMap.put(url, path);
+		}
+	}
+
 	private static InputStream inputStreamFromClasspath(final String filename) {
-		InputStream is = java.security.AccessController
-			.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-				@Override
-				public InputStream run() {
-					return getClass().getResourceAsStream(filename);
-				}
-			});
+		InputStream is = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
+			@Override
+			public InputStream run() {
+				return getClass().getResourceAsStream(filename);
+			}
+		});
 		return is;
 	}
 
@@ -155,7 +161,7 @@ public class MockURLConnectionFactory {
 			String path = getURL().getPath();
 			int pathlen = path.length();
 			int dot = path.lastIndexOf('.', pathlen - 2);
-			if(dot == -1) {
+			if (dot == -1) {
 				return null;
 			}
 			return path.substring(dot + 1, pathlen);
@@ -164,7 +170,7 @@ public class MockURLConnectionFactory {
 		@Override
 		public String getHeaderField(String name) {
 			List<String> hdrs = getHeaderFields().get(name);
-			if(hdrs == null) {
+			if (hdrs == null) {
 				return null;
 			}
 			return hdrs.get(hdrs.size() - 1);
@@ -178,11 +184,11 @@ public class MockURLConnectionFactory {
 		@Override
 		public String getContentType() {
 			String ext = getExtension();
-			if("css".equals(ext)) {
+			if ("css".equals(ext)) {
 				return "text/css";
-			} else if("html".equals(ext)) {
+			} else if ("html".equals(ext)) {
 				return "text/html";
-			} else if("xml".equals(ext)) {
+			} else if ("xml".equals(ext)) {
 				return "text/xml";
 			} else if (ext != null) {
 				List<String> ctype = getHeaderFields().get("content-type");
