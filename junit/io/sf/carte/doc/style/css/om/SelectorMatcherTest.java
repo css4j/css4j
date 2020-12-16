@@ -48,9 +48,12 @@ public class SelectorMatcherTest {
 
 	private static CSSDocument doc;
 
+	private TestDOMImplementation domImpl;
+
 	@Before
 	public void setUp() {
 		this.cssParser = new io.sf.carte.doc.style.css.parser.CSSParser();
+		domImpl = new TestDOMImplementation(false, cssParser.getClass().getCanonicalName());
 		setUpWithMode(CSSDocument.ComplianceMode.QUIRKS);
 	}
 
@@ -60,12 +63,11 @@ public class SelectorMatcherTest {
 	}
 
 	private DOMDocument createDocumentWithMode(CSSDocument.ComplianceMode mode) {
-		TestDOMImplementation impl = new TestDOMImplementation(false, cssParser.getClass().getCanonicalName());
 		DocumentType doctype = null;
 		if (mode == CSSDocument.ComplianceMode.STRICT) {
-			doctype = impl.createDocumentType("html", null, null);
+			doctype = domImpl.createDocumentType("html", null, null);
 		}
-		return impl.createDocument(null, "html", doctype);
+		return domImpl.createDocument(null, "html", doctype);
 	}
 
 	@Test
@@ -281,7 +283,7 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelector3Attribute() throws Exception {
+	public void testMatchSelectorOneOfAttribute() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p[title~=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
@@ -305,7 +307,38 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelector4Attribute() throws Exception {
+	public void testMatchSelectorOneOfAttributeCI() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p[title~='hi' i] {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		elm.setAttribute("title", "HO HI");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm.setAttribute("title", "HI");
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		//
+		elm.setAttribute("title", "h");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "ho hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorBeginHyphenAttribute() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p[lang|=\"en\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
@@ -324,6 +357,7 @@ public class SelectorMatcherTest {
 		//
 		elm.setAttribute("lang", "en");
 		assertTrue(matcher.matches(selist) >= 0);
+		//
 		elm.setAttribute("lang", "en_US");
 		assertTrue(matcher.matches(selist) < 0);
 		//
@@ -334,7 +368,37 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelector5Attribute() throws Exception {
+	public void testMatchSelectorBeginHyphenAttributeCI() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p[lang|=\"en\" i] {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p[lang|='en' i]", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		elm.setAttribute("lang", "EN-US");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm.setAttribute("lang", "EN");
+		assertTrue(matcher.matches(selist) >= 0);
+		//
+		elm.setAttribute("lang", "en_US");
+		assertTrue(matcher.matches(selist) < 0);
+		//
+		elm = createElement("div");
+		elm.setAttribute("lang", "en");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorBeginsAttribute() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p[title^=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
@@ -351,6 +415,10 @@ public class SelectorMatcherTest {
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 		//
+		elm.setAttribute("title", "hi");
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		//
 		elm = createElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -358,7 +426,39 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelector6Attribute() throws Exception {
+	public void testMatchSelectorBeginsAttributeCI() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p[title^=\"hi\" i] {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p[title^='hi' i]", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		elm.setAttribute("title", "HI HO");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm.setAttribute("title", "HI");
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		//
+		elm.setAttribute("title", "h");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorEndsAttribute() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p[title$=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
@@ -382,7 +482,39 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelector7Attribute() throws Exception {
+	public void testMatchSelectorEndsAttributeCI() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p[title$=\"hi\" i] {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p[title$='hi' i]", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		elm.setAttribute("title", "HO HI");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm.setAttribute("title", "HI");
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		//
+		elm.setAttribute("title", "i");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorSubstringAttribute() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p[title*=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
@@ -398,6 +530,45 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm = createElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorSubstringAttributeCI() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p[title*=\"hi\" i] {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p[title*='hi' i]", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		elm.setAttribute("title", "HO HI HO");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+		//
+		elm.setAttribute("title", "HI");
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		//
+		elm.setAttribute("title", "HI HO");
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		//
+		elm.setAttribute("title", "HOHI");
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		//
+		elm.setAttribute("title", "H");
+		assertEquals(-1, matcher.matches(selist));
 		//
 		elm = createElement("div");
 		elm.setAttribute("title", "hi");
@@ -1299,6 +1470,98 @@ public class SelectorMatcherTest {
 		//
 		parent.removeChild(lastp);
 		assertTrue(matcher.matches(selist) < 0);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoAnyLink() throws Exception {
+		Element a = doc.createElement("a");
+		a.setAttribute("href", "foo");
+		Element elm = doc.getDocumentElement();
+		elm.appendChild(a);
+		SelectorMatcher matcher = selectorMatcher(a);
+		BaseCSSStyleSheet css = parseStyle(":any-link {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":any-link", selectorListToString(selist, rule));
+		int selidx = matcher.matches(selist);
+		assertEquals(0, matcher.matches(selist));
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+		//
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "bar");
+		assertEquals(0, matcher.matches(selist));
+		//
+		a.removeAttribute("href");
+		matcher = selectorMatcher(a);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorPseudoLink() throws Exception {
+		Element a = doc.createElement("a");
+		a.setAttribute("href", "foo");
+		Element elm = doc.getDocumentElement();
+		elm.appendChild(a);
+		SelectorMatcher matcher = selectorMatcher(a);
+		BaseCSSStyleSheet css = parseStyle(":link {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":link", selectorListToString(selist, rule));
+		int selidx = matcher.matches(selist);
+		assertEquals(0, matcher.matches(selist));
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+		//
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "bar");
+		assertEquals(0, matcher.matches(selist));
+		//
+		a.removeAttribute("href");
+		matcher = selectorMatcher(a);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorPseudoVisited() throws Exception {
+		Element a = doc.createElement("a");
+		a.setAttribute("href", "https://www.example.com/foo");
+		Element elm = doc.getDocumentElement();
+		elm.appendChild(a);
+		SelectorMatcher matcher = selectorMatcher(a);
+		BaseCSSStyleSheet css = parseStyle(":visited {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":visited", selectorListToString(selist, rule));
+		int selidx = matcher.matches(selist);
+		assertEquals(-1, selidx);
+		domImpl.setVisitedURI("https://www.example.com/foo");
+		selidx = matcher.matches(selist);
+		assertEquals(0, selidx);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+		//
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "https://www.example.com/bar");
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "https://www.example.com/foo");
+		assertEquals(0, matcher.matches(selist));
+		//
+		a.removeAttribute("href");
+		matcher = selectorMatcher(a);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test

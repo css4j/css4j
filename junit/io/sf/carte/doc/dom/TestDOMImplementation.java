@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashSet;
 
 import org.w3c.dom.Attr;
 import org.w3c.css.sac.Parser;
@@ -39,6 +40,7 @@ import nu.validator.htmlparser.sax.HtmlParser;
 public class TestDOMImplementation extends CSSDOMImplementation {
 
 	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
+	private HashSet<String> visitedUris = new HashSet<>();
 	public String parserClass;
 	private boolean xmlOnly = false;
 
@@ -61,6 +63,10 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 
 	public MockURLConnectionFactory getConnectionFactory() {
 		return urlFactory;
+	}
+
+	public void setVisitedURI(String href) {
+		visitedUris.add(href);
 	}
 
 	@Override
@@ -257,6 +263,11 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 			return urlFactory.createConnection(url);
 		}
 
+		@Override
+		public boolean isVisitedURI(String href) {
+			return visitedUris.contains(href);
+		}
+
 	}
 
 	private class MyXMLDocument extends DOMDocument {
@@ -278,6 +289,11 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		@Override
 		protected CSSDOMImplementation getStyleSheetFactory() {
 			return TestDOMImplementation.this;
+		}
+
+		@Override
+		public boolean isVisitedURI(String href) {
+			return visitedUris.contains(href);
 		}
 
 	}

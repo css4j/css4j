@@ -82,6 +82,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	protected String getClassAttribute(CSSDocument.ComplianceMode mode) {
 		String classAttr = getAttributeValue("class");
 		if (mode != CSSDocument.ComplianceMode.STRICT) {
+			// Native DOM does not need the next conditional but DOM wrapper does
 			if (classAttr.length() == 0) {
 				classAttr = getAttributeValue("CLASS");
 				if (classAttr.length() == 0) {
@@ -242,70 +243,19 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		case Condition.SAC_ID_CONDITION:
 			return matchesId(((AttributeCondition) cond).getValue()) && matches(simple);
 		case Condition.SAC_ATTRIBUTE_CONDITION:
-			String attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName) && matches(simple)) {
-				cond_value = ((AttributeCondition) cond).getValue();
-				if (((AttributeCondition) cond).getSpecified() || cond_value != null) {
-					String attribValue = getAttributeValue(attrName);
-					if (cond instanceof AttributeCondition2 && ((AttributeCondition2) cond).hasFlag(AttributeCondition2.Flag.CASE_I)) {
-						return attribValue.equalsIgnoreCase(cond_value);
-					}
-					return attribValue.equals(cond_value);
-				} else {
-					return true;
-				}
-			}
-			break;
+			return matchesAttribute((AttributeCondition) cond, simple);
 		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName) && matches(simple)) {
-				String attrValue = getAttributeValue(attrName);
-				StringTokenizer tok = new StringTokenizer(attrValue, " ");
-				while (tok.hasMoreElements()) {
-					String token = tok.nextToken();
-					if (token.equals(((AttributeCondition) cond).getValue())) {
-						return true;
-					}
-				}
-			}
-			break;
+			return matchesOneOfAttribute((AttributeCondition) cond, simple);
 		case Condition.SAC_BEGIN_HYPHEN_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName) && matches(simple)) {
-				String attrValue = getAttributeValue(attrName);
-				int attrlen = attrValue.length();
-				String condstr = ((AttributeCondition) cond).getValue();
-				int condlen = condstr.length();
-				if (condlen == attrlen) {
-					return attrValue.equals(condstr);
-				} else if (condlen < attrlen) {
-					return attrValue.startsWith(condstr) && attrValue.charAt(condlen) == '-';
-				}
-			}
-			break;
+			return matchesBeginHyphenAttribute((AttributeCondition) cond, simple);
 		case Condition2.SAC_BEGINS_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).startsWith(((AttributeCondition) cond).getValue())
-						&& matches(simple);
-			}
-			break;
+			return matchesBeginsAttribute((AttributeCondition2) cond, simple);
 		case Condition2.SAC_ENDS_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).endsWith(((AttributeCondition) cond).getValue()) && matches(simple);
-			}
-			break;
+			return matchesEndsAttribute((AttributeCondition2) cond, simple);
 		case Condition2.SAC_SUBSTRING_ATTRIBUTE_CONDITION:
-			attrName = ((AttributeCondition) cond).getLocalName();
-			if (hasAttribute(attrName)) {
-				return getAttributeValue(attrName).contains(((AttributeCondition) cond).getValue()) && matches(simple);
-			}
-			break;
+			return matchesSubstringAttribute((AttributeCondition2) cond, simple);
 		case Condition.SAC_LANG_CONDITION:
-			attrName = ((LangCondition) cond).getLang();
-			String lang = getLanguage();
-			return lang.startsWith(attrName) && matches(simple);
+			return matchesLang((LangCondition) cond, simple);
 		case Condition.SAC_PSEUDO_CLASS_CONDITION:
 			// Non-state pseudo-classes are generally more expensive than other
 			// selectors, so we evaluate the simple selector first.
@@ -344,6 +294,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 					return isLastOfType();
 				} else if ("only-of-type".equals(pseudoClassName)) {
 					return isOnlyOfType();
+				} else if ("any-link".equals(pseudoClassName)) {
+					return isAnyLink();
 				} else if ("link".equals(pseudoClassName)) {
 					return isNotVisitedLink();
 				} else if ("visited".equals(pseudoClassName)) {
@@ -467,7 +419,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	}
 
 	private boolean matchesId(String value) {
-		CSSDocument.ComplianceMode mode = getComplianceMode();
+		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
 		String idAttr = getId();
 		if (mode != CSSDocument.ComplianceMode.STRICT) {
 			if (idAttr.length() == 0) {
@@ -490,7 +442,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	 * @return <code>true</code> if matches, <code>false</code> otherwise.
 	 */
 	private boolean matchesClass(String cond_value) {
-		CSSDocument.ComplianceMode mode = getComplianceMode();
+		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
 		String classAttr = getClassAttribute(mode);
 		if (!DOMTokenSetImpl.checkMultipleToken(classAttr)) {
 			classAttr = classAttr.trim();
@@ -518,6 +470,127 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 			}
 			return false;
 		}
+	}
+
+	private boolean matchesAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName) && matches(simple)) {
+			String cond_value = attrcond.getValue();
+			if (attrcond.getSpecified() || cond_value != null) {
+				String attribValue = getAttributeValue(attrName);
+				if (attrcond instanceof AttributeCondition2
+						&& ((AttributeCondition2) attrcond).hasFlag(AttributeCondition2.Flag.CASE_I)) {
+					return attribValue.equalsIgnoreCase(cond_value);
+				}
+				return attribValue.equals(cond_value);
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesOneOfAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName) && matches(simple)) {
+			boolean ignoreCase = attrcond instanceof AttributeCondition2
+					&& ((AttributeCondition2) attrcond).hasFlag(AttributeCondition2.Flag.CASE_I);
+			String cond_value = attrcond.getValue();
+			String attrValue = getAttributeValue(attrName);
+			StringTokenizer tok = new StringTokenizer(attrValue, " ");
+			if (ignoreCase) {
+				while (tok.hasMoreElements()) {
+					String token = tok.nextToken();
+					if (token.equalsIgnoreCase(cond_value)) {
+						return true;
+					}
+				}
+			} else {
+				while (tok.hasMoreElements()) {
+					String token = tok.nextToken();
+					if (token.equals(cond_value)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesBeginHyphenAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName) && matches(simple)) {
+			String attrValue = getAttributeValue(attrName);
+			int attrlen = attrValue.length();
+			String condValue = attrcond.getValue();
+			int condLen = condValue.length();
+			boolean ignoreCase = attrcond instanceof AttributeCondition2
+					&& ((AttributeCondition2) attrcond).hasFlag(AttributeCondition2.Flag.CASE_I);
+			if (condLen == attrlen) {
+				return ignoreCase ? attrValue.equalsIgnoreCase(condValue) : attrValue.equals(condValue);
+			} else if (condLen < attrlen) {
+				return attrValue.regionMatches(ignoreCase, 0, condValue, 0, condLen)
+						&& attrValue.charAt(condLen) == '-';
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesBeginsAttribute(AttributeCondition2 attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName)) {
+			String value = getAttributeValue(attrName);
+			if (matches(simple)) {
+				boolean ignoreCase = attrcond.hasFlag(AttributeCondition2.Flag.CASE_I);
+				String condValue = attrcond.getValue();
+				return value.regionMatches(ignoreCase, 0, condValue, 0, condValue.length());
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesEndsAttribute(AttributeCondition2 attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName)) {
+			String value = getAttributeValue(attrName);
+			if (matches(simple)) {
+				boolean ignoreCase = attrcond.hasFlag(AttributeCondition2.Flag.CASE_I);
+				String condValue = attrcond.getValue();
+				int len = value.length();
+				int condLen = condValue.length();
+				return value.regionMatches(ignoreCase, len - condLen, condValue, 0, condLen);
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesSubstringAttribute(AttributeCondition2 attrcond, SimpleSelector simple) {
+		String attrName = attrcond.getLocalName();
+		if (hasAttribute(attrName) && matches(simple)) {
+			String value = getAttributeValue(attrName);
+			boolean ignoreCase = attrcond.hasFlag(AttributeCondition2.Flag.CASE_I);
+			String condValue = attrcond.getValue();
+			if (!ignoreCase) { // That should be a bit faster
+				return value.contains(condValue);
+			}
+			int len = value.length();
+			int condLen = condValue.length();
+			int startLimit = len - condLen;
+			if (startLimit >= 0) {
+				for (int i = 0; i <= startLimit; i++) {
+					if (value.regionMatches(ignoreCase, i, condValue, 0, condLen)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesLang(LangCondition cond, SimpleSelector simple) {
+		String attrName = cond.getLang();
+		String lang = getLanguage();
+		return lang.startsWith(attrName) && matches(simple);
 	}
 
 	private int scopeMatch(String subselector, SimpleSelector scope) {
@@ -585,7 +658,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		}
 	}
 
-	abstract protected CSSDocument.ComplianceMode getComplianceMode();
+	abstract protected CSSDocument getOwnerDocument();
 
 	abstract protected boolean scopeMatchChild(DescendantSelector selector);
 
@@ -598,9 +671,36 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 				|| tagname.equals("keygen") || tagname.equals("fieldset");
 	}
 
-	abstract protected boolean isNotVisitedLink();
+	protected boolean isAnyLink() {
+		String href = getLinkHrefAttribute();
+		return href.length() != 0;
+	}
 
-	abstract protected boolean isVisitedLink();
+	protected boolean isNotVisitedLink() {
+		String href = getLinkHrefAttribute();
+		if (href.length() != 0) {
+			return !getOwnerDocument().isVisitedURI(href);
+		} else {
+			return false;
+		}
+	}
+
+	protected boolean isVisitedLink() {
+		String href = getLinkHrefAttribute();
+		if (href.length() != 0) {
+			return getOwnerDocument().isVisitedURI(href);
+		} else {
+			return false;
+		}
+	}
+
+	private String getLinkHrefAttribute() {
+		String href = getAttributeValue("href");
+		if (href.length() == 0 || (!"a".equals(localName) && !"link".equals(localName) && !"area".equals(localName))) {
+			href = getAttributeValue("xlink:href");
+		}
+		return href;
+	}
 
 	abstract protected boolean isTarget();
 
@@ -929,7 +1029,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		if (localName != null) {
 			sb.append(localName);
 		}
-		CSSDocument.ComplianceMode mode = getComplianceMode();
+		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
 		String classAttr = getClassAttribute(mode);
 		if (classAttr.length() != 0) {
 			sb.append('.').append(classAttr);
