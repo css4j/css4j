@@ -40,13 +40,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
@@ -2129,7 +2129,7 @@ public class HTMLDocumentTest {
 		urlfac.assertReferrer(link.getAttribute("href"), referrer);
 		assertNotNull(((LinkStyleDefiner) link).getSheet());
 		DefaultErrorHandler handler = (DefaultErrorHandler) xhtmlDoc.getErrorHandler();
-		LinkedHashMap<Exception, CSSStyleSheet> errorMap = handler.getLinkedSheetErrors();
+		LinkedHashMap<Exception, CSSStyleSheet<? extends CSSRule>> errorMap = handler.getLinkedSheetErrors();
 		assertNull(errorMap);
 	}
 

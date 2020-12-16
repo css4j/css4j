@@ -14,9 +14,10 @@ package io.sf.carte.doc.style.css.om;
 import java.util.LinkedHashMap;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 
 abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 
@@ -24,7 +25,7 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 
 	private LinkedHashMap<Node, String> linkedStyleErrors = null;
 	private LinkedHashMap<Exception, String> inlineStyleErrors = null;
-	private LinkedHashMap<Exception, CSSStyleSheet> linkedSheetErrors = null;
+	private LinkedHashMap<Exception, CSSStyleSheet<? extends CSSRule>> linkedSheetErrors = null;
 
 	@Override
 	public boolean hasErrors() {
@@ -41,9 +42,9 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void linkedSheetError(Exception e, CSSStyleSheet sheet) {
+	public void linkedSheetError(Exception e, CSSStyleSheet<? extends CSSRule> sheet) {
 		if (linkedSheetErrors == null) {
-			linkedSheetErrors = new LinkedHashMap<Exception, CSSStyleSheet>();
+			linkedSheetErrors = new LinkedHashMap<>();
 		}
 		linkedSheetErrors.put(e, sheet);
 	}
@@ -72,7 +73,7 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 		return inlineStyleErrors;
 	}
 
-	public LinkedHashMap<Exception, CSSStyleSheet> getLinkedSheetErrors() {
+	public LinkedHashMap<Exception, CSSStyleSheet<? extends CSSRule>> getLinkedSheetErrors() {
 		return linkedSheetErrors;
 	}
 

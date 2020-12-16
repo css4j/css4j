@@ -14,10 +14,11 @@ package io.sf.carte.doc.style.css.om;
 import java.util.WeakHashMap;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 
 class StandAloneErrorHandler extends AbstractErrorHandler {
@@ -68,7 +69,7 @@ class StandAloneErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
-	public void linkedSheetError(Exception e, CSSStyleSheet sheet) {
+	public void linkedSheetError(Exception e, CSSStyleSheet<? extends CSSRule> sheet) {
 		errors = true;
 		throw new IllegalStateException(e);
 	}

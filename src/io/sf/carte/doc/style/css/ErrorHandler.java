@@ -15,7 +15,6 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
@@ -158,7 +157,7 @@ public interface ErrorHandler {
 	 * @param exception the exception describing the problem.
 	 * @param sheet     the linked or embedded style sheet.
 	 */
-	void linkedSheetError(Exception exception, CSSStyleSheet sheet);
+	void linkedSheetError(Exception exception, CSSStyleSheet<? extends CSSRule> sheet);
 
 	/**
 	 * A I/O error was produced when retrieving a resource while processing a rule,
