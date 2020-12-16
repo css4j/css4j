@@ -48,6 +48,8 @@ public class SelectorMatcherTest {
 
 	private static CSSDocument doc;
 
+	private TestDOMImplementation domImpl = new TestDOMImplementation(false);
+
 	@Before
 	public void setUp() {
 		this.cssParser = new io.sf.carte.doc.style.css.parser.CSSParser();
@@ -60,12 +62,11 @@ public class SelectorMatcherTest {
 	}
 
 	private DOMDocument createDocumentWithMode(CSSDocument.ComplianceMode mode) {
-		TestDOMImplementation impl = new TestDOMImplementation(false);
 		DocumentType doctype = null;
 		if (mode == CSSDocument.ComplianceMode.STRICT) {
-			doctype = impl.createDocumentType("html", null, null);
+			doctype = domImpl.createDocumentType("html", null, null);
 		}
-		return impl.createDocument(null, "html", doctype);
+		return domImpl.createDocument(null, "html", doctype);
 	}
 
 	@Test
@@ -1472,6 +1473,98 @@ public class SelectorMatcherTest {
 		//
 		parent.removeChild(lastp);
 		assertTrue(matcher.matches(selist) < 0);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoAnyLink() throws Exception {
+		Element a = doc.createElement("a");
+		a.setAttribute("href", "foo");
+		Element elm = doc.getDocumentElement();
+		elm.appendChild(a);
+		SelectorMatcher matcher = selectorMatcher(a);
+		BaseCSSStyleSheet css = parseStyle(":any-link {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":any-link", selectorListToString(selist, rule));
+		int selidx = matcher.matches(selist);
+		assertEquals(0, matcher.matches(selist));
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+		//
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "bar");
+		assertEquals(0, matcher.matches(selist));
+		//
+		a.removeAttribute("href");
+		matcher = selectorMatcher(a);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorPseudoLink() throws Exception {
+		Element a = doc.createElement("a");
+		a.setAttribute("href", "foo");
+		Element elm = doc.getDocumentElement();
+		elm.appendChild(a);
+		SelectorMatcher matcher = selectorMatcher(a);
+		BaseCSSStyleSheet css = parseStyle(":link {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":link", selectorListToString(selist, rule));
+		int selidx = matcher.matches(selist);
+		assertEquals(0, matcher.matches(selist));
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+		//
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "bar");
+		assertEquals(0, matcher.matches(selist));
+		//
+		a.removeAttribute("href");
+		matcher = selectorMatcher(a);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorPseudoVisited() throws Exception {
+		Element a = doc.createElement("a");
+		a.setAttribute("href", "https://www.example.com/foo");
+		Element elm = doc.getDocumentElement();
+		elm.appendChild(a);
+		SelectorMatcher matcher = selectorMatcher(a);
+		BaseCSSStyleSheet css = parseStyle(":visited {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":visited", selectorListToString(selist, rule));
+		int selidx = matcher.matches(selist);
+		assertEquals(-1, selidx);
+		domImpl.setVisitedURI("https://www.example.com/foo");
+		selidx = matcher.matches(selist);
+		assertEquals(0, selidx);
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(1, sp.attrib_classes_count);
+		assertEquals(0, sp.names_pseudoelements_count);
+		//
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "https://www.example.com/bar");
+		assertEquals(-1, matcher.matches(selist));
+		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "https://www.example.com/foo");
+		assertEquals(0, matcher.matches(selist));
+		//
+		a.removeAttribute("href");
+		matcher = selectorMatcher(a);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	@Test

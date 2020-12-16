@@ -41,7 +41,7 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
  */
 abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private String localName = null;
 
@@ -242,6 +242,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 					return isOnlyChild();
 				} else if ("only-of-type".equals(pseudoClassName)) {
 					return isOnlyOfType();
+				} else if ("any-link".equals(pseudoClassName)) {
+					return isAnyLink();
 				} else if ("link".equals(pseudoClassName)) {
 					return isNotVisitedLink();
 				} else if ("visited".equals(pseudoClassName)) {
@@ -294,7 +296,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	}
 
 	private boolean matchesId(String value) {
-		CSSDocument.ComplianceMode mode = getComplianceMode();
+		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
 		String idAttr = getId();
 		if (mode != CSSDocument.ComplianceMode.STRICT) {
 			if (idAttr.length() == 0) {
@@ -328,7 +330,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	 * @return <code>true</code> if matches, <code>false</code> otherwise.
 	 */
 	private boolean matchesClass(String cond_value) {
-		CSSDocument.ComplianceMode mode = getComplianceMode();
+		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
 		String classAttr = getClassAttribute(mode);
 		if (!DOMTokenSetImpl.checkMultipleToken(classAttr)) {
 			classAttr = classAttr.trim();
@@ -617,6 +619,37 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		return s.length() != 0 && !s.equalsIgnoreCase("false");
 	}
 
+	protected boolean isAnyLink() {
+		String href = getLinkHrefAttribute();
+		return href.length() != 0;
+	}
+
+	protected boolean isNotVisitedLink() {
+		String href = getLinkHrefAttribute();
+		if (href.length() != 0) {
+			return !getOwnerDocument().isVisitedURI(href);
+		} else {
+			return false;
+		}
+	}
+
+	protected boolean isVisitedLink() {
+		String href = getLinkHrefAttribute();
+		if (href.length() != 0) {
+			return getOwnerDocument().isVisitedURI(href);
+		} else {
+			return false;
+		}
+	}
+
+	private String getLinkHrefAttribute() {
+		String href = getAttributeValue("href");
+		if (href.length() == 0 || (!"a".equals(localName) && !"link".equals(localName) && !"area".equals(localName))) {
+			href = getAttributeValue("xlink:href");
+		}
+		return href;
+	}
+
 	/**
 	 * The element in this matcher is the only child?
 	 * 
@@ -666,7 +699,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		return false;
 	}
 
-	abstract protected CSSDocument.ComplianceMode getComplianceMode();
+	abstract protected CSSDocument getOwnerDocument();
 
 	/**
 	 * Gets the namespace URI of the element associated to this selector matcher.
@@ -774,10 +807,6 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 
 	abstract protected boolean isNthLastOfType(int step, int offset);
 
-	abstract protected boolean isNotVisitedLink();
-
-	abstract protected boolean isVisitedLink();
-
 	abstract protected boolean isTarget();
 
 	abstract protected boolean isRoot();
@@ -852,7 +881,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		if (localName != null) {
 			sb.append(localName);
 		}
-		CSSDocument.ComplianceMode mode = getComplianceMode();
+		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
 		String classAttr = getClassAttribute(mode);
 		if (classAttr.length() != 0) {
 			sb.append('.').append(classAttr);

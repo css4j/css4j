@@ -218,26 +218,6 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 	}
 
 	@Override
-	protected boolean isNotVisitedLink() {
-		String href = element.getAttribute("href");
-		if (href.length() != 0) {
-			return !element.getOwnerDocument().isVisitedURI(href);
-		} else {
-			return false;
-		}
-	}
-
-	@Override
-	protected boolean isVisitedLink() {
-		String href = element.getAttribute("href");
-		if (href.length() != 0) {
-			return element.getOwnerDocument().isVisitedURI(href);
-		} else {
-			return false;
-		}
-	}
-
-	@Override
 	protected boolean isTarget() {
 		String uri = element.getOwnerDocument().getDocumentURI();
 		int idx;
@@ -395,8 +375,8 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 	}
 
 	@Override
-	protected CSSDocument.ComplianceMode getComplianceMode() {
-		return element.getOwnerDocument().getComplianceMode();
+	protected CSSDocument getOwnerDocument() {
+		return element.getOwnerDocument();
 	}
 
 	@Override
