@@ -11,12 +11,25 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 
-class AbstractSACList<E> extends LinkedList<E> {
+class AbstractSACList<E> extends ArrayList<E> {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
+
+	protected AbstractSACList() {
+		super();
+	}
+
+	protected AbstractSACList(Collection<? extends E> c) {
+		super(c);
+	}
+
+	protected AbstractSACList(int initialCapacity) {
+		super(initialCapacity);
+	}
 
 	@Override
 	public boolean add(E sel) {
@@ -24,12 +37,6 @@ class AbstractSACList<E> extends LinkedList<E> {
 			return super.add(sel);
 		}
 		return false;
-	}
-
-	@Override
-	public void addLast(E sel) {
-		if (!contains(sel))
-			super.addLast(sel);
 	}
 
 	public int getLength() {

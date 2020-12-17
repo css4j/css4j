@@ -18,4 +18,8 @@ class PageSelectorListImpl extends AbstractSACList<PageSelector> implements Page
 
 	private static final long serialVersionUID = 1L;
 
+	PageSelectorListImpl() {
+		super(6);
+	}
+
 }

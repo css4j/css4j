@@ -11,6 +11,8 @@
  */
 package io.sf.carte.doc.style.css.nsac;
 
+import org.w3c.dom.DOMException;
+
 /**
  * List of selectors.
  * <p>
@@ -33,5 +35,27 @@ public interface SelectorList extends Iterable<Selector> {
 	 *         index is not valid.
 	 */
 	Selector item(int index);
+
+	/**
+	 * Replace the selector at <code>index</code> with the given selector.
+	 * <p>
+	 * This method is not intended to trigger any event, so if you modify a a
+	 * selector belonging to a rule obtained from the DOM, it is your responsibility
+	 * to update the styles of the document.
+	 * </p>
+	 * 
+	 * @param index    the index at which the selector has to be replaced.
+	 * @param selector the new selector.
+	 * @return the replaced selector.
+	 * @throws DOMException         INDEX_SIZE_ERR if the <code>index</code> is less
+	 *                              than zero or greater than the largest possible
+	 *                              index.<br/>
+	 *                              NO_MODIFICATION_ALLOWED_ERR if replacing
+	 *                              selectors is not allowed.
+	 * @throws NullPointerException if <code>selector</code> is <code>null</code>.
+	 */
+	default Selector replace(int index, Selector selector) throws DOMException {
+		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
+	}
 
 }

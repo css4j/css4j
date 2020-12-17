@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -232,6 +233,12 @@ public class SelectorParserTest {
 		sel = selist.item(1);
 		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("span", ((ElementSelector) sel).getLocalName());
+		// Replace
+		SelectorList selist2 = parseSelectors("div");
+		assertEquals("span", selist.replace(1, selist2.item(0)).toString());
+		assertEquals("p,div", selist.toString());
+		sel = selist.item(1);
+		assertSame(sel, selist2.item(0));
 	}
 
 	@Test
