@@ -5168,10 +5168,6 @@ public class CSSParser implements Parser, Cloneable {
 			return last != null;
 		}
 
-		protected boolean isValidSelectorList() {
-			return !selist.isEmpty() && currentsel == null;
-		}
-
 		@Override
 		void resetHandler() {
 			super.resetHandler();
