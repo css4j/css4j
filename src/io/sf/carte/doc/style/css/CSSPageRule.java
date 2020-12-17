@@ -19,6 +19,12 @@ import org.w3c.dom.DOMException;
  */
 public interface CSSPageRule extends CSSDeclarationRule {
 
+	/**
+	 * Get the list of page-margin rules.
+	 * 
+	 * @return the list of page-margin rules, or {@code null} if there are no margin
+	 *         rules.
+	 */
 	CSSRuleList<? extends CSSMarginRule> getMarginRules();
 
 	String getSelectorText();
