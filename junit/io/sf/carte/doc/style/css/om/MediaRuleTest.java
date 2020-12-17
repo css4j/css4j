@@ -112,6 +112,14 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
+		// Visitor
+		StyleCountVisitor visitor = new StyleCountVisitor();
+		sheet.acceptStyleRuleVisitor(visitor);
+		assertEquals(3, visitor.getCount());
+		//
+		PropertyCountVisitor visitorP = new PropertyCountVisitor();
+		sheet.acceptDeclarationRuleVisitor(visitorP);
+		assertEquals(4, visitorP.getCount());
 	}
 
 	@Test

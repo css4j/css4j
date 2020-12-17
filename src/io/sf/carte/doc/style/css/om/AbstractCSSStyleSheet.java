@@ -20,10 +20,13 @@ import java.net.URLConnection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
+import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.util.Visitor;
 
 /**
  * Abstract class to be inherited by all CSS style sheets.
@@ -354,6 +357,20 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 		}
 		return port;
 	}
+
+	/**
+	 * Accept a style rule visitor.
+	 * 
+	 * @param visitor the visitor.
+	 */
+	abstract public void acceptStyleRuleVisitor(Visitor<CSSStyleRule> visitor);
+
+	/**
+	 * Accept a declaration rule visitor.
+	 * 
+	 * @param visitor the visitor.
+	 */
+	abstract public void acceptDeclarationRuleVisitor(Visitor<CSSDeclarationRule> visitor);
 
 	abstract protected void setParentStyleSheet(AbstractCSSStyleSheet parent);
 

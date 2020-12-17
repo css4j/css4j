@@ -51,6 +51,10 @@ public class CounterStyleRuleTest {
 				rule.getMinifiedCssText());
 		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1F44D;\n    suffix: \" \";\n}\n",
 				rule.getCssText());
+		// Visitor
+		PropertyCountVisitor visitor = new PropertyCountVisitor();
+		sheet.acceptDeclarationRuleVisitor(visitor);
+		assertEquals(3, visitor.getCount());
 	}
 
 	@Test

@@ -92,6 +92,10 @@ public class KeyframesRuleTest {
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());
 		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
+		// Visitor
+		PropertyCountVisitor visitor = new PropertyCountVisitor();
+		sheet.acceptDeclarationRuleVisitor(visitor);
+		assertEquals(6, visitor.getCount());
 	}
 
 	@Test

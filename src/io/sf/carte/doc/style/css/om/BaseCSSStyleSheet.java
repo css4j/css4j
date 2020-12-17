@@ -29,9 +29,11 @@ import java.util.Map.Entry;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
 import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -55,6 +57,7 @@ import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.util.BufferSimpleWriter;
+import io.sf.carte.util.Visitor;
 import io.sf.carte.util.agent.AgentUtil;
 
 /**
@@ -883,6 +886,75 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			case CSSRule.SUPPORTS_RULE:
 				GroupingRule grouping = (GroupingRule) rule;
 				scanRulesForValue(grouping.getCssRules(), propertyName, value, selectors);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Accept a style rule visitor.
+	 * 
+	 * @param visitor the visitor.
+	 */
+	@Override
+	public void acceptStyleRuleVisitor(Visitor<CSSStyleRule> visitor) {
+		acceptStyleRuleVisitor(cssRules, visitor);
+	}
+
+	private void acceptStyleRuleVisitor(CSSRuleArrayList rules, Visitor<CSSStyleRule> visitor) {
+		for (CSSRule rule : rules) {
+			switch (rule.getType()) {
+			case CSSRule.STYLE_RULE:
+				StyleRule stylerule = (StyleRule) rule;
+				visitor.visit(stylerule);
+				break;
+			case CSSRule.MEDIA_RULE:
+			case CSSRule.SUPPORTS_RULE:
+				GroupingRule grouping = (GroupingRule) rule;
+				acceptStyleRuleVisitor(grouping.getCssRules(), visitor);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Accept a declaration rule visitor.
+	 * 
+	 * @param visitor the visitor.
+	 */
+	@Override
+	public void acceptDeclarationRuleVisitor(Visitor<CSSDeclarationRule> visitor) {
+		acceptDeclarationRuleVisitor(cssRules, visitor);
+	}
+
+	private void acceptDeclarationRuleVisitor(AbstractRuleList<? extends CSSRule> rules,
+			Visitor<CSSDeclarationRule> visitor) {
+		for (CSSRule rule : rules) {
+			switch (rule.getType()) {
+			case CSSRule.STYLE_RULE:
+			case CSSRule.FONT_FACE_RULE:
+			case CSSRule.KEYFRAME_RULE:
+			case CSSRule.MARGIN_RULE:
+			case CSSRule.COUNTER_STYLE_RULE:
+			case CSSRule.VIEWPORT_RULE:
+				CSSDeclarationRule declRule = (CSSDeclarationRule) rule;
+				visitor.visit(declRule);
+				break;
+			case CSSRule.MEDIA_RULE:
+			case CSSRule.SUPPORTS_RULE:
+				GroupingRule grouping = (GroupingRule) rule;
+				acceptDeclarationRuleVisitor(grouping.getCssRules(), visitor);
+				break;
+			case CSSRule.PAGE_RULE:
+				PageRule pageRule = (PageRule) rule;
+				MarginRuleList marginBoxes = pageRule.getMarginRules();
+				if (marginBoxes != null) {
+					acceptDeclarationRuleVisitor(marginBoxes, visitor);
+				}
+				break;
+			case CSSRule.KEYFRAMES_RULE:
+				KeyframesRule kfsRule = (KeyframesRule) rule;
+				acceptDeclarationRuleVisitor(kfsRule.getCssRules(), visitor);
 				break;
 			}
 		}

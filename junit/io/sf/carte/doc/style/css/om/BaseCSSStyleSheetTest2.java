@@ -113,6 +113,14 @@ public class BaseCSSStyleSheetTest2 {
 		pagerule = (PageRule) sheet.getCssRules().item(3);
 		assertEquals("@page bar :right,:blank {margin-right: 2em; }", pagerule.getCssText());
 		assertEquals("@page bar :right,:blank{margin-right:2em}", pagerule.getMinifiedCssText());
+		// Visitor
+		StyleCountVisitor visitor = new StyleCountVisitor();
+		sheet.acceptStyleRuleVisitor(visitor);
+		assertEquals(1, visitor.getCount());
+		//
+		PropertyCountVisitor visitorP = new PropertyCountVisitor();
+		sheet.acceptDeclarationRuleVisitor(visitorP);
+		assertEquals(3, visitorP.getCount());
 	}
 
 	@Test
@@ -296,6 +304,14 @@ public class BaseCSSStyleSheetTest2 {
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		assertFalse(css.getErrorHandler().hasOMErrors());
 		assertEquals(csstext.replace(" ", ""), css.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+		// Visitor
+		StyleCountVisitor visitor = new StyleCountVisitor();
+		css.acceptStyleRuleVisitor(visitor);
+		assertEquals(1, visitor.getCount());
+		//
+		PropertyCountVisitor visitorP = new PropertyCountVisitor();
+		css.acceptDeclarationRuleVisitor(visitorP);
+		assertEquals(1, visitorP.getCount());
 	}
 
 	@Test

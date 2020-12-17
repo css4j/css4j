@@ -54,6 +54,10 @@ public class FontFaceRuleTest {
 		assertEquals("@font-face {\n    font-family: 'Mechanical Bold';\n    src: url('font/MechanicalBd.otf');\n}\n",
 				ffrule.getCssText());
 		assertEquals("url('font/MechanicalBd.otf')", ffrule.getStyle().getPropertyValue("src"));
+		// Visitor
+		PropertyCountVisitor visitor = new PropertyCountVisitor();
+		sheet.acceptDeclarationRuleVisitor(visitor);
+		assertEquals(2, visitor.getCount());
 	}
 
 	@Test

@@ -47,6 +47,10 @@ public class ViewportRuleTest {
 		assertEquals("@viewport {\n    orientation: landscape;\n}\n", rule.getCssText());
 		assertEquals("@viewport{orientation:landscape}", rule.getMinifiedCssText());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		// Visitor
+		PropertyCountVisitor visitor = new PropertyCountVisitor();
+		sheet.acceptDeclarationRuleVisitor(visitor);
+		assertEquals(1, visitor.getCount());
 	}
 
 	@Test
