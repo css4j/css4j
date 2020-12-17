@@ -284,8 +284,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		private final StyleDefinerElementHelper helper;
 
-		LinkElement() {
-			super("link");
+		LinkElement(String namespaceURI) {
+			super("link", namespaceURI);
 			helper = new StyleDefinerElementHelper(this);
 		}
 
@@ -325,7 +325,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		@Override
 		public HTMLElement cloneNode(boolean deep) {
-			return cloneElementNode(new LinkElement(), deep);
+			return cloneElementNode(new LinkElement(getNamespaceURI()), deep);
 		}
 
 	}
@@ -356,8 +356,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		private final StyleDefinerElementHelper helper;
 
-		StyleElement() {
-			super("style");
+		StyleElement(String namespaceURI) {
+			super("style", namespaceURI);
 			helper = new StyleDefinerElementHelper(this);
 		}
 
@@ -432,7 +432,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		@Override
 		public HTMLElement cloneNode(boolean deep) {
-			return cloneElementNode(new StyleElement(), deep);
+			return cloneElementNode(new StyleElement(getNamespaceURI()), deep);
 		}
 
 	}
@@ -660,12 +660,12 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 		//
 		DOMElement myelem;
-		if (namespaceURI == HTMLDocument.HTML_NAMESPACE_URI) {
-			if ("link".equals(localName)) {
-				myelem = new LinkElement();
-			} else if ("style".equals(localName)) {
-				myelem = new StyleElement();
-			} else if ("meta".equals(localName)) {
+		if ("link".equals(localName)) {
+			myelem = new LinkElement(namespaceURI);
+		} else if ("style".equals(localName)) {
+			myelem = new StyleElement(namespaceURI);
+		} else if (namespaceURI == HTMLDocument.HTML_NAMESPACE_URI) {
+			if ("meta".equals(localName)) {
 				myelem = new MetaElement();
 			} else if ("base".equals(localName)) {
 				myelem = new BaseElement();
@@ -952,11 +952,14 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	@Override
 	ElementList getEmbeddedStyleNodeList() {
+		ElementList list;
 		HTMLElement docElm = getDocumentElement();
 		if (docElm != null) {
-			return docElm.getElementsByTagNameNS(HTML_NAMESPACE_URI, "style");
+			list = docElm.getElementsByTagNameNS(HTML_NAMESPACE_URI, "style");
+		} else {
+			list = EmptyElementList.getInstance();
 		}
-		return EmptyElementList.getInstance();
+		return list;
 	}
 
 }
