@@ -151,8 +151,8 @@ public class StylableDocumentWrapperTest {
 		assertNotNull(css);
 		assertNotNull(css.getCssRules());
 		int countInternalSheets = xhtmlDoc.embeddedStyle.size() + xhtmlDoc.linkedStyle.size();
-		assertEquals(6, countInternalSheets);
-		assertEquals(6, xhtmlDoc.getStyleSheets().getLength());
+		assertEquals(7, countInternalSheets);
+		assertEquals(7, xhtmlDoc.getStyleSheets().getLength());
 		assertEquals("http://www.example.com/css/common.css", xhtmlDoc.getStyleSheets().item(0).getHref());
 		assertEquals(3, xhtmlDoc.getStyleSheetSets().getLength());
 		Iterator<LinkStyleDefiner> it = xhtmlDoc.linkedStyle.iterator();
@@ -176,7 +176,7 @@ public class StylableDocumentWrapperTest {
 		assertNotNull(sheet);
 		assertEquals("Alter 1", sheet.getTitle());
 		assertEquals(2, sheet.getCssRules().getLength());
-		assertEquals(defSz + 20, css.getCssRules().getLength());
+		assertEquals(defSz + 21, css.getCssRules().getLength());
 		assertFalse(xhtmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
 	}
 

@@ -704,10 +704,11 @@ public class HTMLDocumentTest {
 	public void getElementsByTagName() {
 		ElementList stylelist = xhtmlDoc.getElementsByTagName("style");
 		assertNotNull(stylelist);
-		assertEquals(1, stylelist.getLength());
+		assertEquals(2, stylelist.getLength());
 		assertEquals("style", stylelist.item(0).getNodeName());
+		assertEquals("style", stylelist.item(1).getNodeName());
 		assertNull(stylelist.item(-1));
-		assertNull(stylelist.item(1));
+		assertNull(stylelist.item(2));
 		assertFalse(stylelist.isEmpty());
 		ElementList list = xhtmlDoc.getElementsByTagName("li");
 		assertNotNull(list);
@@ -787,7 +788,7 @@ public class HTMLDocumentTest {
 	public void getElementsByTagNameNS() {
 		ElementList list = xhtmlDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "*");
 		assertNotNull(list);
-		assertEquals(2, list.getLength());
+		assertEquals(3, list.getLength());
 		DOMElement svg = list.item(0);
 		assertEquals("svg", svg.getNodeName());
 		Attr version = svg.getAttributeNode("version");
@@ -795,7 +796,7 @@ public class HTMLDocumentTest {
 		assertNull(svg.getPrefix());
 		assertEquals("rect", list.item(1).getNodeName());
 		list.item(0).appendChild(xhtmlDoc.createElementNS("http://www.w3.org/2000/svg", "circle"));
-		assertEquals(3, list.getLength());
+		assertEquals(4, list.getLength());
 		ElementList svglist = xhtmlDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "svg");
 		assertNotNull(svglist);
 		assertEquals(1, svglist.getLength());
