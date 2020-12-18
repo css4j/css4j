@@ -86,7 +86,8 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			case LEFT_BRACKET:
 				// Line name
 				if (lasttype == LexicalType.STRING) {
-					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
+					// We skipped a track-size
+					gridTemplateRows.add(createAutoValue());
 				}
 				LexicalUnit nlu = currentValue.getNextLexicalUnit();
 				ListValueItem item = valueFactory.parseBracketList(nlu, styleDeclaration, true);
@@ -107,7 +108,8 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 				break;
 			case STRING:
 				if (lasttype == LexicalType.STRING) {
-					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
+					// We skipped a track-size
+					gridTemplateRows.add(createAutoValue());
 				}
 				lineNames = null;
 				value = createCSSValue();
@@ -117,6 +119,10 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 				break;
 			case OPERATOR_SLASH:
 				if (lasttype != LexicalType.UNKNOWN) {
+					if (lasttype == LexicalType.STRING) {
+						// We skipped a track-size
+						gridTemplateRows.add(createAutoValue());
+					}
 					currentValue = currentValue.getNextLexicalUnit();
 					if (currentValue != null) {
 						value = valueFactory.createCSSValue(currentValue, styleDeclaration);
@@ -158,18 +164,13 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			return false;
 		}
 		if (gridTemplateRows.getLength() != 0) {
-			// Is it different than a set of 'auto' ?
-			if (!isAutoOnly(gridTemplateRows)) {
-				StyleValue value;
-				if (gridTemplateRows.getLength() != 1) {
-					value = gridTemplateRows;
-				} else {
-					value = gridTemplateRows.item(0);
-				}
-				setSubpropertyValue("grid-template-rows", value);
+			StyleValue value;
+			if (gridTemplateRows.getLength() != 1) {
+				value = gridTemplateRows;
 			} else {
-				setSubpropertyValue("grid-template-rows", gridTemplateRows.item(0));
+				value = gridTemplateRows.item(0);
 			}
+			setSubpropertyValue("grid-template-rows", value);
 		} else if (setTemplateAreas) {
 			IdentifierValue auto = new IdentifierValue("auto");
 			auto.setSubproperty(true);
@@ -183,7 +184,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 				value = gridTemplateAreas.item(0);
 			}
 			setSubpropertyValue("grid-template-areas", value);
-		}
+		} // grid-template-areas: none (initial value)
 		return true;
 	}
 
@@ -226,6 +227,12 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			}
 		}
 		return true;
+	}
+
+	static IdentifierValue createAutoValue() {
+		IdentifierValue ident = new IdentifierValue("auto");
+		ident.setSubproperty(true);
+		return ident;
 	}
 
 	/* @formatter:off

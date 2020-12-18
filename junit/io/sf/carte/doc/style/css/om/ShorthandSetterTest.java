@@ -5179,16 +5179,6 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
-	public void testGridTemplate10() {
-		emptyStyleDecl.setCssText("grid-template: \"a a a\" \"b b b\" / 50% auto");
-		assertEquals("\"a a a\" \"b b b\"", emptyStyleDecl.getPropertyValue("grid-template-areas"));
-		assertEquals("auto", emptyStyleDecl.getPropertyValue("grid-template-rows"));
-		assertEquals("50% auto", emptyStyleDecl.getPropertyValue("grid-template-columns"));
-		assertEquals("grid-template: \"a a a\" \"b b b\" / 50% auto; ", emptyStyleDecl.getCssText());
-		assertEquals("grid-template:\"a a a\" \"b b b\"/50% auto;", emptyStyleDecl.getMinifiedCssText());
-	}
-
-	@Test
 	public void testGridTemplate11() {
 		emptyStyleDecl.setCssText("grid-template: \"a a\" 1fr / auto");
 		assertEquals("a a", emptyStyleDecl.getPropertyValue("grid-template-areas"));
@@ -5206,6 +5196,43 @@ public class ShorthandSetterTest {
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("grid-template-columns"));
 		assertEquals("grid-template: repeat(1, 10px) / auto; ", emptyStyleDecl.getCssText());
 		assertEquals("grid-template:repeat(1,10px)/auto;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testGridTemplate13() {
+		emptyStyleDecl.setCssText(
+				"grid-template:\". .\" auto \"a a a\" minmax(auto, max-content) \"b b b\" max-content \"c c c\" max-content \"d d d\" auto / auto 7rem");
+		assertEquals("\". .\" \"a a a\" \"b b b\" \"c c c\" \"d d d\"",
+				emptyStyleDecl.getPropertyValue("grid-template-areas"));
+		assertEquals("auto minmax(auto, max-content) max-content max-content auto",
+				emptyStyleDecl.getPropertyValue("grid-template-rows"));
+		assertEquals("auto 7rem", emptyStyleDecl.getPropertyValue("grid-template-columns"));
+		assertEquals(
+				"grid-template: \". .\" auto \"a a a\" minmax(auto, max-content) \"b b b\" max-content \"c c c\" max-content \"d d d\" auto / auto 7rem; ",
+				emptyStyleDecl.getCssText());
+		assertEquals(
+				"grid-template:\". .\" auto \"a a a\" minmax(auto,max-content) \"b b b\" max-content \"c c c\" max-content \"d d d\" auto/auto 7rem;",
+				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testGridTemplateImpliedLastAuto() {
+		emptyStyleDecl.setCssText("grid-template: \"a a a\" \"b b b\" / 50% auto");
+		assertEquals("\"a a a\" \"b b b\"", emptyStyleDecl.getPropertyValue("grid-template-areas"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("grid-template-rows"));
+		assertEquals("50% auto", emptyStyleDecl.getPropertyValue("grid-template-columns"));
+		assertEquals("grid-template: \"a a a\" \"b b b\" / 50% auto; ", emptyStyleDecl.getCssText());
+		assertEquals("grid-template:\"a a a\" \"b b b\"/50% auto;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testGridTemplateImpliedLastAuto2() {
+		emptyStyleDecl.setCssText("grid-template: \"a a a\" \"b b b\" / auto 1fr auto");
+		assertEquals("\"a a a\" \"b b b\"", emptyStyleDecl.getPropertyValue("grid-template-areas"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("grid-template-rows"));
+		assertEquals("auto 1fr auto", emptyStyleDecl.getPropertyValue("grid-template-columns"));
+		assertEquals("grid-template: \"a a a\" \"b b b\" / auto 1fr auto; ", emptyStyleDecl.getCssText());
+		assertEquals("grid-template:\"a a a\" \"b b b\"/auto 1fr auto;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test

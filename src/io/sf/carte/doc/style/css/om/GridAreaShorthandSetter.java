@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -96,15 +95,9 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 			// It must be either a custom-ident or 'auto' (in any case is what we want)
 			other = cssval;
 		} else {
-			other = createAutoValue();
+			other = BaseGridShorthandSetter.createAutoValue();
 		}
 		return other;
-	}
-
-	static IdentifierValue createAutoValue() {
-		IdentifierValue ident = new IdentifierValue("auto");
-		ident.setSubproperty(true);
-		return ident;
 	}
 
 }
