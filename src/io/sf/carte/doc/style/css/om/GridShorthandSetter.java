@@ -95,7 +95,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 			case LexicalUnit2.SAC_LEFT_BRACKET:
 				// Line name
 				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {
-					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
+					gridTemplateRows.add(createAutoValue());
 				}
 				LexicalUnit nlu = currentValue.getNextLexicalUnit();
 				ListValueItem item = valueFactory.parseBracketList(nlu, styleDeclaration, true);
@@ -116,7 +116,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 				break;
 			case LexicalUnit.SAC_STRING_VALUE:
 				if (lasttype == LexicalUnit.SAC_STRING_VALUE) {
-					gridTemplateRows.add(GridAreaShorthandSetter.createAutoValue());
+					gridTemplateRows.add(createAutoValue());
 				}
 				setTemplateAreas = true;
 				lineNames = null;

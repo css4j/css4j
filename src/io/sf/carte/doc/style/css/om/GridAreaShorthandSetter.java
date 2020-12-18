@@ -98,7 +98,7 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 			// It must be either a custom-ident or 'auto' (in any case is what we want)
 			other = cssval;
 		} else {
-			other = createAutoValue();
+			other = BaseGridShorthandSetter.createAutoValue();
 		}
 		return other;
 	}
