@@ -55,7 +55,7 @@ public interface DOMRect {
 	/**
 	 * Set the width of the rectangle.
 	 * 
-	 * @param value the value of {@code width}. Can be negative.
+	 * @param width the value of {@code width}. Can be negative.
 	 */
 	void setWidth(double width);
 
@@ -69,7 +69,7 @@ public interface DOMRect {
 	/**
 	 * Set the height of the rectangle.
 	 * 
-	 * @param value the value of {@code height}. Can be negative.
+	 * @param height the value of {@code height}. Can be negative.
 	 */
 	void setHeight(double height);
 
