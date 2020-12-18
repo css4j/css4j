@@ -40,13 +40,11 @@ import io.sf.jclf.text.TokenParser;
  */
 class NSACSelectorFactory implements NamespaceMap {
 
-	private static final SelectorList universalSelectorList;
 	private static final ElementSelector universalSelector;
 	private HashMap<String, String> mapNsPrefix2Uri = null;
 
 	static {
-		universalSelectorList = new SingleSelectorList(new AnyNodeSelector());
-		universalSelector = (ElementSelector) universalSelectorList.item(0);
+		universalSelector = new AnyNodeSelector();
 	}
 
 	NSACSelectorFactory() {
@@ -62,10 +60,6 @@ class NSACSelectorFactory implements NamespaceMap {
 
 	static ElementSelector getUniversalSelector() {
 		return universalSelector;
-	}
-
-	static SelectorList getUniversalSelectorList() {
-		return universalSelectorList;
 	}
 
 	ElementSelector createUniversalSelector(String namespaceUri) {
@@ -219,63 +213,6 @@ class NSACSelectorFactory implements NamespaceMap {
 			return getNamespacePrefix(namespaceUri) + "|*";
 		}
 
-	}
-
-	/**
-	 * A selector list that only contains one selector.
-	 */
-	private static class SingleSelectorList implements SelectorList {
-		private final Selector selector;
-
-		SingleSelectorList(Selector selector) {
-			super();
-			this.selector = selector;
-		}
-
-		@Override
-		public int getLength() {
-			return 1;
-		}
-
-		@Override
-		public Selector item(int index) {
-			if (index != 0)
-				return null;
-			else
-				return selector;
-		}
-
-		@Override
-	    public int hashCode() {
-	    	/*
-	    	 * This should be compatible with the linked list hashCode implementation.
-	    	 */
-	        int hashCode = 31;
-	        if (selector != null) {
-	        	hashCode += selector.hashCode();
-	        }
-	        return hashCode;
-	    }
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (!super.equals(obj)) {
-				return false;
-			}
-			if (!(obj instanceof SelectorList)) {
-				return false;
-			}
-			SelectorList other = (SelectorList) obj;
-			return other.getLength() == 1 && selector.equals(other.item(0));
-		}
-
-		@Override
-		public String toString() {
-			return selector.toString();
-		}
 	}
 
 	class ElementSelectorImpl extends AbstractSelector implements ElementSelector {

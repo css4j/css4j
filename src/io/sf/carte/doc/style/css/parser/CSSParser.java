@@ -4312,13 +4312,6 @@ public class CSSParser implements Parser2 {
 			return true;
 		}
 
-		protected boolean isValidSelectorList() {
-			if (selist.isEmpty() || currentsel != null) {
-				return false;
-			}
-			return true;
-		}
-
 		@Override
 		void resetHandler() {
 			super.resetHandler();
