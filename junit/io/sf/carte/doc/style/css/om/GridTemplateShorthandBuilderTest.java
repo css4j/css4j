@@ -168,6 +168,18 @@ public class GridTemplateShorthandBuilderTest {
 	}
 
 	@Test
+	public void testGridTemplate20() {
+		assertShorthandText("grid-template:\"a a a\" max-content \"b b b\" max-content \"c c c\"/1fr 200px;",
+				"grid-template:\"a a a\" max-content \"b b b\" max-content \"c c c\" auto /1fr 200px");
+	}
+
+	@Test
+	public void testGridTemplate21() {
+		assertShorthandText("grid-template:\". .\" \"a a a\" minmax(auto,max-content) \"b b b\" max-content \"c c c\" max-content \"d d d\"/auto 7rem;",
+				"grid-template:\". .\" auto \"a a a\" minmax(auto, max-content) \"b b b\" max-content \"c c c\" max-content \"d d d\" auto / auto 7rem;");
+	}
+
+	@Test
 	public void testGridTemplateFromLonghands() {
 		emptyStyleDecl.setCssText(
 				"grid-template-rows: auto; grid-template-areas: \"media-text-media media-text-content\"; grid-template-columns: 50% auto;");

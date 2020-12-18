@@ -373,14 +373,16 @@ class GridShorthandBuilder extends ShorthandBuilder {
 					idx++;
 				}
 			}
+			//
+			int lm1 = buf.length() - 1;
+			if (buf.charAt(lm1) == ' ') {
+				// trim trailing space
+				buf.setLength(lm1);
+			}
+			//
 			if (!defaultGridTColumns) {
 				buf.append('/');
 				appendValueText(buf, cssGridTColumns);
-			} else {
-				int lm1 = buf.length() - 1;
-				if (buf.charAt(lm1) == ' ') {
-					buf.setLength(lm1);
-				}
 			}
 			return true;
 		}
