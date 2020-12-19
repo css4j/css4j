@@ -635,11 +635,7 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 			}
 			break;
 		case Node.TEXT_NODE:
-			if (((Text) this).isElementContentWhitespace()) {
-				text = "";
-			} else {
-				text = getNodeValue();
-			}
+			text = getNodeValue();
 			break;
 		case Node.CDATA_SECTION_NODE:
 		case Node.COMMENT_NODE:

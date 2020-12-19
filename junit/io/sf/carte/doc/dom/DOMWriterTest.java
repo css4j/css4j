@@ -163,7 +163,7 @@ public class DOMWriterTest {
 		assertEquals(expected, result);
 		//
 		DOMDocument pdoc = parseDocument(new StringReader(result));
-		pdoc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
+		pdoc.setDocumentURI(document.getDocumentURI());
 		StyleFormattingFactory factory = new DefaultStyleFormattingFactory();
 		pdoc.getImplementation().setStyleFormattingFactory(factory);
 		document.getImplementation().setStyleFormattingFactory(factory);
@@ -193,7 +193,7 @@ public class DOMWriterTest {
 		assertEquals(expected, result);
 		//
 		DOMDocument pdoc = parseDocument(new StringReader(result));
-		pdoc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
+		pdoc.setDocumentURI(document.getDocumentURI());
 		StyleFormattingFactory factory = new DefaultStyleFormattingFactory();
 		pdoc.getImplementation().setStyleFormattingFactory(factory);
 		document.getImplementation().setStyleFormattingFactory(factory);
