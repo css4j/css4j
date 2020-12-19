@@ -4200,15 +4200,16 @@ public class CSSParser implements Parser, Cloneable {
 			if (cond instanceof AttributeConditionImpl) {
 				AttributeConditionImpl attrcond = (AttributeConditionImpl) cond;
 				if (attrcond != null) {
-					if (attrcond.value == null) {
-						attrcond.value = value.toString();
+					String oldValue = attrcond.getValue();
+					if (oldValue == null) {
+						attrcond.setValue(value.toString());
 					} else {
-						StringBuilder buf = new StringBuilder(attrcond.value.length() + value.length() + 1);
-						buf.append(attrcond.value);
+						StringBuilder buf = new StringBuilder(oldValue.length() + value.length() + 1);
+						buf.append(oldValue);
 						if (isPrevCpWhitespace()) {
 							buf.append(' ');
 						}
-						attrcond.value = buf.append(value).toString();
+						attrcond.setValue(buf.append(value).toString());
 					}
 					return;
 				}
@@ -4922,10 +4923,10 @@ public class CSSParser implements Parser, Cloneable {
 				case SUBSTRING_ATTRIBUTE:
 				case BEGINS_ATTRIBUTE:
 					if (namespacePrefix != null) {
-						((AttributeConditionImpl) condition).namespaceURI = getNamespaceURI(index);
+						((AttributeConditionImpl) condition).setNamespaceURI(getNamespaceURI(index));
 					}
 					if (isNotForbiddenIdentStart(name)) {
-						((AttributeConditionImpl) condition).localName = safeUnescapeIdentifier(index, name).trim();
+						((AttributeConditionImpl) condition).setLocalName(safeUnescapeIdentifier(index, name).trim());
 					} else {
 						handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 								"Invalid pseudo-class: " + name);
@@ -4933,7 +4934,7 @@ public class CSSParser implements Parser, Cloneable {
 					}
 					break;
 				default:
-					((AttributeConditionImpl) condition).value = lcname.trim();
+					((AttributeConditionImpl) condition).setValue(lcname.trim());
 				}
 			}
 			//

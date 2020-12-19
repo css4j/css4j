@@ -434,9 +434,9 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 
 		ConditionType type;
-		String namespaceURI = null;
-		String localName = null;
-		String value = null;
+		private String namespaceURI = null;
+		private String localName = null;
+		private String value = null;
 		private Flag flag = null;
 
 		AttributeConditionImpl(ConditionType type) {
@@ -454,14 +454,26 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			return namespaceURI;
 		}
 
+		void setNamespaceURI(String namespaceURI) {
+			this.namespaceURI = namespaceURI;
+		}
+
 		@Override
 		public String getLocalName() {
 			return localName;
 		}
 
+		void setLocalName(String localName) {
+			this.localName = localName;
+		}
+
 		@Override
 		public String getValue() {
 			return value;
+		}
+
+		void setValue(String value) {
+			this.value = value;
 		}
 
 		@Override
