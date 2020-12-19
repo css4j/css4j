@@ -44,4 +44,13 @@ public interface CSSStyleRule extends CSSDeclarationRule {
 	 */
 	SelectorList getSelectorList();
 
+	/**
+	 * Set the selectors of this style rule.
+	 * 
+	 * @param selectorList the selector list.
+	 * @throws NullPointerException if {@code selectorList} is null.
+	 * @throws IllegalArgumentException if {@code selectorList} is empty.
+	 */
+	void setSelectorList(SelectorList selectorList);
+
 }

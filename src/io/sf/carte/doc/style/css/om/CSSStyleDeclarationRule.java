@@ -78,7 +78,20 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		this.selectorText = selectorText;
 	}
 
-	void setSelectorList(SelectorList selectorList) {
+	/**
+	 * Set the selectors of this style rule.
+	 * 
+	 * @param selectorList the selector list.
+	 * @throws NullPointerException if {@code selectorList} is null.
+	 * @throws IllegalArgumentException if {@code selectorList} is empty.
+	 */
+	public void setSelectorList(SelectorList selectorList) {
+		if (selectorList == null) {
+			throw new NullPointerException("Null selector list");
+		}
+		if (selectorList.getLength() == 0) {
+			throw new IllegalArgumentException("Empty selector list");
+		}
 		this.selectorList = selectorList;
 		updateSelectorText();
 	}
