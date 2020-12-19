@@ -165,7 +165,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	abstract public PageRule createPageRule();
 
 	@Override
-	abstract public CSSStyleDeclarationRule createStyleRule();
+	abstract public StyleRule createStyleRule();
 
 	@Override
 	abstract public SupportsRule createSupportsRule();

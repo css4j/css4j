@@ -22,7 +22,6 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 
 /**
  * A style sheet.
@@ -186,7 +185,7 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 	 *
 	 * @return a CSS style rule.
 	 */
-	CSSStyleDeclarationRule createStyleRule();
+	CSSStyleRule createStyleRule();
 
 	/**
 	 * Create a CSSSupportsRule compatible with this implementation.
