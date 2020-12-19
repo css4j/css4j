@@ -30,10 +30,6 @@ public class CSSOMBridge {
 		return style.getOptimizedCssText();
 	}
 
-	public static SelectorList getSelectorList(CSSStyleDeclarationRule rule) {
-		return rule.getSelectorList();
-	}
-
 	public static CSSHandler createDocumentHandler(BaseCSSStyleSheet css, short commentMode) {
 		return css.createSheetHandler(commentMode);
 	}
