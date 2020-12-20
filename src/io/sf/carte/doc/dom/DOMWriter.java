@@ -630,13 +630,16 @@ public class DOMWriter {
 	 * @throws IOException if an I/O problem occurred while writing.
 	 */
 	protected void writeCDataSection(CDATASection data, SimpleWriter wri) throws IOException {
-		startIndentedNode(data, wri);
+		AbstractDOMNode parentNode = ((AbstractDOMNode) data).parentNode();
+		boolean indentMe = parentNode == null || parentNode.getNodeType() != Node.ELEMENT_NODE
+				|| !((DOMElement) parentNode).isRawText();
+		if (indentMe) {
+			startIndentedNode(data, wri);
+		}
 		wri.write("<![CDATA[");
 		wri.write(data.getData());
 		wri.write("]]>");
-		AbstractDOMNode parentNode = ((AbstractDOMNode) data).parentNode();
-		if (parentNode == null || parentNode.getNodeType() != Node.ELEMENT_NODE
-				|| !((DOMElement) parentNode).isRawText()) {
+		if (indentMe) {
 			endIndentedNode(data, wri);
 		}
 	}
@@ -745,8 +748,9 @@ public class DOMWriter {
 	 */
 	protected boolean afterStartTag(DOMElement element, SimpleWriter wri) throws IOException {
 		boolean indentChild = false;
+		boolean startsWithNL = false;
 		ElementList elist = element.getChildren();
-		if (elist.getLength() != 0) {
+		if (!elist.isEmpty()) {
 			for (DOMElement el : elist) {
 				String display = getDisplayProperty(el);
 				if ("block".equalsIgnoreCase(display) || "table".equalsIgnoreCase(display)
@@ -755,15 +759,46 @@ public class DOMWriter {
 					break;
 				}
 			}
-		}
-		String tc = element.getTextContent();
-		if (!indentChild) {
-			indentChild = tc.length() > 64 || tc.indexOf('\n') != -1;
-		}
-		if (indentChild && !tc.startsWith("\n")) {
-			wri.newLine();
+			StringBuilder buf = new StringBuilder(128);
+			effectiveTextContent(element, buf);
+			int len = buf.length();
+			if (len != 0) {
+				startsWithNL = buf.charAt(0) == '\n';
+				if (!indentChild) {
+					indentChild = len > 64;
+					if (!indentChild) {
+						indentChild = buf.charAt(len - 1) == '\n';
+					}
+				}
+			}
+			if (indentChild && (!isRawTextElement(element) || !startsWithNL)) {
+				wri.newLine();
+			}
 		}
 		return indentChild;
+	}
+
+	private void effectiveTextContent(DOMElement element, StringBuilder buf) {
+		boolean foundElement = false;
+		Iterator<DOMNode> it = element.iterator();
+		while (it.hasNext()) {
+			DOMNode child = it.next();
+			short type = child.getNodeType();
+			if (type == Node.ELEMENT_NODE) {
+				if (child.hasChildNodes()) {
+					effectiveTextContent((DOMElement) child, buf);
+				}
+				foundElement = true;
+			} else if (type == Node.TEXT_NODE) {
+				if (!((Text) child).isElementContentWhitespace()) {
+					buf.append(child.getNodeValue());
+				} else if (foundElement) {
+					buf.append(' ');
+				}
+			} else if (type == Node.CDATA_SECTION_NODE) {
+				buf.append(child.getNodeValue());
+			}
+		}
 	}
 
 	/**

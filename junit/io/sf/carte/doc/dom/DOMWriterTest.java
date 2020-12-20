@@ -158,7 +158,7 @@ public class DOMWriterTest {
 		String result = writer.toString();
 		assertEquals(expected, result);
 		DOMDocument pdoc = parseDocument(new StringReader(result));
-		pdoc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
+		pdoc.setDocumentURI(document.getDocumentURI());
 		// Normalize and re-test.
 		pdoc.normalizeDocument();
 		document.normalizeDocument();
@@ -181,6 +181,7 @@ public class DOMWriterTest {
 		String result = writer.toString();
 		assertEquals(expected, result);
 		DOMDocument pdoc = parseDocument(new StringReader(result));
+		pdoc.setDocumentURI(document.getDocumentURI());
 		pdoc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
 		// Normalize and re-test.
 		pdoc.normalizeDocument();

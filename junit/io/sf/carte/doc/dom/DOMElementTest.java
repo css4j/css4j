@@ -880,6 +880,36 @@ public class DOMElementTest {
 	}
 
 	@Test
+	public void testGetTextContent() {
+		DOMElement html = xhtmlDoc.getDocumentElement();
+		DOMElement body = xhtmlDoc.createElement("body");
+		html.appendChild(body);
+		body.appendChild(xhtmlDoc.createTextNode("    "));
+		DOMElement div = xhtmlDoc.createElement("div");
+		body.appendChild(div);
+		div.appendChild(xhtmlDoc.createTextNode("   "));
+		DOMElement span1 = xhtmlDoc.createElement("span");
+		span1.appendChild(xhtmlDoc.createTextNode("span 1"));
+		div.appendChild(span1);
+		div.appendChild(xhtmlDoc.createTextNode("   "));
+		DOMElement span2 = xhtmlDoc.createElement("span");
+		span2.appendChild(xhtmlDoc.createTextNode("span 2"));
+		div.appendChild(span2);
+		body.appendChild(xhtmlDoc.createTextNode("   "));
+		DOMElement span3 = xhtmlDoc.createElement("span");
+		span3.appendChild(xhtmlDoc.createTextNode("span 3"));
+		body.appendChild(span3);
+		body.appendChild(xhtmlDoc.createTextNode("     "));
+		body.appendChild(xhtmlDoc.createComment("This is a comment"));
+		DOMElement span4 = xhtmlDoc.createElement("span");
+		span4.appendChild(xhtmlDoc.createTextNode("span 4"));
+		body.appendChild(span4);
+		body.appendChild(xhtmlDoc.createTextNode("   "));
+		//
+		assertEquals("       span 1   span 2   span 3     span 4   ", body.getTextContent());
+	}
+
+	@Test
 	public void testCloneNode() {
 		DOMElement html = xhtmlDoc.getDocumentElement();
 		DOMElement body = xhtmlDoc.createElement("body");
