@@ -263,7 +263,7 @@ public class DOMWriter {
 			break;
 		case Node.TEXT_NODE:
 			Text text = (Text) node;
-			if (!text.isElementContentWhitespace() || isParentWhitespacePre(text)) {
+			if (!text.isElementContentWhitespace() || isParentWhitespacePreserving(text)) {
 				writeText(text, wri, indented);
 			} else if (!indented) {
 				writeElementContentWhitespace(text, wri);
@@ -437,17 +437,19 @@ public class DOMWriter {
 
 	/**
 	 * Determine if the parent of the given text node computes {@code white-space}
-	 * to {@code pre}.
+	 * to a whitespace-preserving value.
 	 * 
 	 * @param text the text node.
 	 * @return {@code true} if the parent of the text node has a computed value of
-	 *         {@code pre} for {@code white-space}.
+	 *         {@code pre}, {@code pre-wrap} or {@code break-spaces} for
+	 *         {@code white-space}.
 	 */
-	private boolean isParentWhitespacePre(Text text) {
+	private boolean isParentWhitespacePreserving(Text text) {
 		Node node = text.getParentNode();
 		if (node.getNodeType() == Node.ELEMENT_NODE) {
 			String value = ((DOMElement) node).getComputedStyle(null).getPropertyValue("white-space");
-			return "pre".equalsIgnoreCase(value);
+			return "pre".equalsIgnoreCase(value) || "pre-wrap".equalsIgnoreCase(value)
+					|| "break-spaces".equalsIgnoreCase(value);
 		}
 		return false;
 	}
