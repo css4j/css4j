@@ -46,6 +46,27 @@ abstract public class HTMLElement extends DOMElement implements org.w3c.dom.html
 	}
 
 	@Override
+	boolean isNonPrintableElement() {
+		/*
+		 * Elements that have a default 'display' property different to 'none' in the UA
+		 * sheet but should not be printed
+		 */
+		String name = getLocalName();
+		return "iframe".equals(name) || "canvas".equals(name) || "video".equals(name) || "button".equals(name)
+				|| "select".equals(name) || "noscript".equals(name);
+	}
+
+	@Override
+	boolean innerTextVoidElement(DOMElement element, boolean lastTextPreserved, StringBuilder buf) {
+		if ("br".equals(element.getLocalName())) {
+			trimBuffer(lastTextPreserved, buf);
+			buf.append('\n');
+			return true;
+		}
+		return lastTextPreserved;
+	}
+
+	@Override
 	public String getDir() {
 		return getAttribute("dir");
 	}

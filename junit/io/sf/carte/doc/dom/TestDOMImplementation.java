@@ -211,11 +211,26 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 
 	public static DOMDocument loadDocument(String filename) throws IOException {
 		HtmlParser parser = new HtmlParser(XmlViolationPolicy.ALTER_INFOSET);
-		parser.setReportingDoctype(true);
-		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
 		builder.setHTMLProcessing(true);
 		builder.setXMLReader(parser);
+		Reader re = new InputStreamReader(classpathStream(filename), StandardCharsets.UTF_8);
+		InputSource is = new InputSource(re);
+		DOMDocument htmlDoc;
+		try {
+			htmlDoc = (DOMDocument) builder.parse(is);
+		} catch (SAXException e) {
+			return null;
+		} finally {
+			re.close();
+		}
+		htmlDoc.setDocumentURI("http://www.example.com/" + filename);
+		return htmlDoc;
+	}
+
+	public static DOMDocument loadXMLDocument(String filename) throws IOException {
+		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
+		builder.setEntityResolver(new DefaultEntityResolver());
 		Reader re = new InputStreamReader(classpathStream(filename), StandardCharsets.UTF_8);
 		InputSource is = new InputSource(re);
 		DOMDocument xhtmlDoc;

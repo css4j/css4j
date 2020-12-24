@@ -34,6 +34,7 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.SelectorMatcher;
+import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
@@ -675,6 +676,254 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	@Override
 	public NodeListIterator listIterator() {
 		return child.createListIterator();
+	}
+
+	/**
+	 * Gives a representation of the text content of an element, approximately as if
+	 * it was rendered according to the styling and the document language.
+	 * <p>
+	 * This method is computationally more expensive than {@link #getTextContent()}.
+	 * </p>
+	 * 
+	 * @return a representation of the text content of an element.
+	 * @throws StyleDatabaseRequiredException if style computations require a style
+	 *                                        database which is not present.
+	 */
+	public String getInnerText() {
+		StringBuilder buf = new StringBuilder(256);
+		addInnerText(this, buf, false);
+		return buf.toString();
+	}
+
+	private boolean addInnerText(DOMElement element, StringBuilder buf, boolean lastTextPreserved) throws DOMException {
+		ComputedCSSStyle style = element.getComputedStyle(null);
+		String display = style.getPropertyValue("display");
+		String[] displays = display.split(" ");
+		if (!element.hasPrintableNodes() || matchesString(displays, "none") || element.isNonPrintableElement()) {
+			return lastTextPreserved;
+		}
+		// Determine text-transform
+		String sTextTransform = style.getPropertyValue("text-transform");
+		short textTransform = 0;
+		if ("uppercase".equalsIgnoreCase(sTextTransform)) {
+			textTransform = 2;
+		} else if ("lowercase".equalsIgnoreCase(sTextTransform)) {
+			textTransform = 1;
+		} else if ("capitalize".equalsIgnoreCase(sTextTransform)) {
+			textTransform = 3;
+		}
+		//
+		boolean visible = !"hidden".equalsIgnoreCase(style.getPropertyValue("visibility"));
+		//
+		boolean inline = false;
+		boolean isBlock = matchesString(displays, "block") || (matchesString(displays, "list-item")
+				|| (matchesString(displays, "table") || matchesString(displays, "table-caption"))
+						&& !(inline = matchesString(displays, "inline")));
+		if (visible) {
+			int buflenM1;
+			if (isBlock && (buflenM1 = buf.length() - 1) != -1 && buf.charAt(buflenM1) != '\n') {
+				buf.append('\n');
+			}
+			if (hasPrecedingAnonymousBox(displays, style)) {
+				buf.append(' ');
+			} else if (matchesString(displays, "table-cell") && element.getPreviousElementSibling() != null) {
+				buf.append('\t'); // sort of 'table cell separator'
+			}
+		}
+		//
+		boolean firstTextAdded = true;
+		Iterator<DOMNode> it = element.getNodeList().iterator();
+		while (it.hasNext()) {
+			DOMNode node = it.next();
+			switch (node.getNodeType()) {
+			case Node.ELEMENT_NODE:
+				if (!node.getChildNodes().isEmpty()) {
+					lastTextPreserved = addInnerText((DOMElement) node, buf, lastTextPreserved);
+					firstTextAdded = false;
+				} else if (visible) {
+					// Element processing was skipped, check for table-cell
+					DOMElement childElm = (DOMElement) node;
+					ComputedCSSStyle childStyle = childElm.getComputedStyle(null);
+					String childDisplay = childStyle.getPropertyValue("display");
+					String[] childDisplays = childDisplay.split(" ");
+					if (matchesString(childDisplays, "table-cell") && childElm.getPreviousElementSibling() != null) {
+						buf.append('\t');
+					} else {
+						lastTextPreserved = innerTextVoidElement(childElm, lastTextPreserved, buf);
+					}
+				}
+				break;
+			case Node.TEXT_NODE:
+				if (!visible) {
+					continue;
+				}
+				String text = node.getNodeValue();
+				String whiteSpace = style.getPropertyValue("white-space");
+				if ("pre".equalsIgnoreCase(whiteSpace) || "pre-wrap".equalsIgnoreCase(whiteSpace)
+						|| "break-spaces".equalsIgnoreCase(whiteSpace)) {
+					if (textTransform == 0) {
+						buf.append(text);
+					} else {
+						appendTransformedText(text, textTransform, buf);
+					}
+					lastTextPreserved = true;
+				} else {
+					appendNormalizedWhitespace(text, "pre-line".equalsIgnoreCase(whiteSpace), isBlock && firstTextAdded,
+							textTransform, buf);
+					lastTextPreserved = false;
+				}
+				firstTextAdded = false;
+				break;
+			case Node.CDATA_SECTION_NODE:
+				if (!visible) {
+					continue;
+				}
+				text = node.getNodeValue();
+				buf.append(text);
+				firstTextAdded = false;
+				lastTextPreserved = true;
+			default:
+			}
+		}
+		//
+		if (visible) {
+			boolean isRow = false;
+			if (isBlock || ((isRow = matchesString(displays, "table-row")) && !inline)) {
+				// If last character is a non-preserved white space, trim it.
+				trimBuffer(lastTextPreserved, buf);
+				if (!isRow || element.getNextElementSibling() != null) {
+					buf.append('\n');
+				}
+			}
+		}
+		return lastTextPreserved;
+	}
+
+	private static boolean matchesString(String[] values, String value) {
+		for (String s : values) {
+			if (value.equalsIgnoreCase(s)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	boolean isNonPrintableElement() {
+		return false;
+	}
+
+	private boolean hasPrintableNodes() {
+		Iterator<DOMNode> it = getNodeList().iterator();
+		while (it.hasNext()) {
+			DOMNode node = it.next();
+			switch (node.getNodeType()) {
+			case Node.ELEMENT_NODE:
+				if (((DOMElement) node).hasPrintableNodes()) {
+					return true;
+				}
+				break;
+			case Node.TEXT_NODE:
+			case Node.CDATA_SECTION_NODE:
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean hasPrecedingAnonymousBox(String[] displays, ComputedCSSStyle style) {
+		return matchesString(displays, "list-item")
+				&& "inside".equalsIgnoreCase(style.getPropertyValue("list-style-position"));
+	}
+
+	boolean innerTextVoidElement(DOMElement element, boolean lastTextPreserved, StringBuilder buf) {
+		return lastTextPreserved;
+	}
+
+	private static void appendTransformedText(String text, short textTransform, StringBuilder buf) {
+		boolean whitespaceLast = false;
+		int len = text.length();
+		for (int i = 0; i < len; i = text.offsetByCodePoints(i, 1)) {
+			int c = text.codePointAt(i);
+			if (Character.isWhitespace(c)) {
+				if (!whitespaceLast) {
+					whitespaceLast = true;
+				}
+			} else {
+				if (whitespaceLast) {
+					whitespaceLast = false;
+					if (textTransform == 3) {
+						c = Character.toUpperCase(c);
+						buf.appendCodePoint(c);
+						continue;
+					}
+				}
+				if (textTransform == 2) {
+					c = Character.toUpperCase(c);
+				} else if (textTransform == 1) {
+					c = Character.toLowerCase(c);
+				}
+			}
+			buf.appendCodePoint(c);
+		}
+	}
+
+	private static void appendNormalizedWhitespace(String text, boolean preserveNL, boolean firstText,
+			short textTransform, StringBuilder buf) {
+		boolean whitespaceLast = firstText;
+		int buflen = buf.length();
+		char c;
+		if (buflen != 0 && Character.isWhitespace(c = buf.charAt(buflen - 1))) {
+			if (!preserveNL || c != '\n') {
+				whitespaceLast = true;
+			}
+		}
+		//
+		int cp;
+		int len = text.length();
+		for (int i = 0; i < len; i = text.offsetByCodePoints(i, 1)) {
+			cp = text.codePointAt(i);
+			if (Character.isWhitespace(cp)) {
+				if (!preserveNL || cp != '\n') {
+					if (!whitespaceLast) {
+						whitespaceLast = true;
+						buf.append(' ');
+					}
+				} else {
+					if (whitespaceLast) {
+						int buflenM1 = buf.length() - 1;
+						char b = buf.charAt(buflenM1);
+						if (b != '\n') {
+							buf.setLength(buflenM1);
+						}
+					} else {
+						whitespaceLast = true;
+					}
+					buf.appendCodePoint(cp);
+				}
+			} else {
+				if (whitespaceLast) {
+					whitespaceLast = false;
+					if (textTransform == 3) {
+						cp = Character.toUpperCase(cp);
+						buf.appendCodePoint(cp);
+						continue;
+					}
+				}
+				if (textTransform == 2) {
+					cp = Character.toUpperCase(cp);
+				} else if (textTransform == 1) {
+					cp = Character.toLowerCase(cp);
+				}
+				buf.appendCodePoint(cp);
+			}
+		}
+	}
+
+	void trimBuffer(boolean lastTextPreserved, StringBuilder buf) {
+		final int buflenM1;
+		if (!lastTextPreserved && (buflenM1 = buf.length() - 1) != -1 && buf.charAt(buflenM1) == ' ') {
+			buf.setLength(buflenM1);
+		}
 	}
 
 	/**

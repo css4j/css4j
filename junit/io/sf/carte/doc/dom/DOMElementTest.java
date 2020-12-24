@@ -887,6 +887,44 @@ public class DOMElementTest {
 	}
 
 	@Test
+	public void testGetInnerText() {
+		DOMElement html = xhtmlDoc.getDocumentElement();
+		DOMElement body = xhtmlDoc.createElement("body");
+		html.appendChild(body);
+		body.appendChild(xhtmlDoc.createTextNode("    "));
+		DOMElement div = xhtmlDoc.createElement("div");
+		body.appendChild(div);
+		div.appendChild(xhtmlDoc.createTextNode("   "));
+		DOMElement span1 = xhtmlDoc.createElement("span");
+		span1.appendChild(xhtmlDoc.createTextNode(" span   1 "));
+		div.appendChild(span1);
+		div.appendChild(xhtmlDoc.createTextNode("   "));
+		DOMElement span2 = xhtmlDoc.createElement("span");
+		span2.appendChild(xhtmlDoc.createTextNode(" span     2 "));
+		span2.setAttribute("style", "text-transform: capitalize");
+		div.appendChild(span2);
+		// pre
+		DOMElement pre = xhtmlDoc.createElement("pre");
+		pre.appendChild(xhtmlDoc.createTextNode("  white  space   must   be\n   preserved   "));
+		div.appendChild(pre);
+		//
+		body.appendChild(xhtmlDoc.createTextNode("   "));
+		DOMElement span3 = xhtmlDoc.createElement("span");
+		span3.appendChild(xhtmlDoc.createTextNode(" span 3"));
+		body.appendChild(span3);
+		body.appendChild(xhtmlDoc.createTextNode("     "));
+		body.appendChild(xhtmlDoc.createComment("This is a comment"));
+		DOMElement span4 = xhtmlDoc.createElement("span");
+		span4.appendChild(xhtmlDoc.createTextNode(" span \n 4 "));
+		span4.setAttribute("style", "white-space: pre-line; text-transform: uppercase");
+		body.appendChild(span4);
+		body.appendChild(xhtmlDoc.createTextNode("   "));
+		//
+		assertEquals(" span 1 Span 2 \n  white  space   must   be\n   preserved   \n\nspan 3 SPAN\n4\n",
+				body.getInnerText());
+	}
+
+	@Test
 	public void testCloneNode() {
 		DOMElement html = xhtmlDoc.getDocumentElement();
 		DOMElement body = xhtmlDoc.createElement("body");

@@ -1,0 +1,190 @@
+<!-- InnerText sample by Aryeh Gregor + Juriy Zaytsev.
+     See http://kangax.github.io/jstests/innerText/
+ -->
+<html>
+<body id="bodyId">
+<p> He<strong>llo!</strong>
+
+</p><p>Hello <span>to you </span>too.
+
+</p><p style="display:none">Secret
+
+</p><div> </div>
+
+<hr>
+
+<p style="visibility:hidden">visibility:hidden <span style="visibility:visible">visibility:visible</span>
+
+</p><div><div><div> Triple nested div </div></div></div>
+
+<div style="margin:1em">Margined div</div>
+
+<table>
+  <tbody><tr><th>Stuff</th><th>More stuff </th><th>Even more stuff
+  </th></tr><tr><td> Data  </td><td>More data </td><td>..
+  </td></tr><tr><td>? </td><td> </td><td>Last cell was empty!
+  </td></tr><tr><td></td><td></td><td>Last two cells empty
+</td></tr></tbody></table>
+
+<pre> Preformatted </pre>
+
+<pre>Also
+pre
+   formatted
+</pre>
+
+<div style="white-space:pre"> white-space
+  pre</div>
+<div style="white-space:pre-line"> Pre-
+  line
+</div>
+<div style="white-space:nowrap"> No
+  wrap
+</div>
+<div style="white-space:pre-wrap"> Pre-
+  wrap
+</div>
+<div style="float:left"> Float left </div>
+<div> Normal div </div>
+<div style="float:right"> Float right </div>
+<div> Normal div </div>
+
+<div style="float:left"> Float left </div>
+<div style="clear:left"> Left-cleared div </div>
+
+An <table style="display:inline"> <tbody><tr><td>Inline </td><td>Table</td></tr></tbody></table>.  Line
+break:
+
+<br>
+
+Two line breaks:<br><br>
+
+Three line breaks:<br><br><br>
+
+An <table style="display:inline"><tbody><tr><td>Inline </td><td>table</td></tr><tr><td>with
+</td><td>multiple rows</td></tr></tbody></table>.
+
+<p style="content: ' You should see this generated content \A'">You should not
+see this un-generated content
+
+</p><p class="before">Is there text before this?
+
+</p><p class="after">Is there text after this?
+
+</p><div style="width: 50px; overflow: hidden; text-overflow: ellipsis">text-overflow: ellipsis</div>
+
+<p style="text-transform:uppercase">Transformed to uppercase
+
+</p><p style="text-transform:lowercase">Transformed to lowercase
+
+</p><p style="text-transform:capitalize">Transformed to titlecase
+
+</p>
+<p style="white-space:pre-line">   Now, 
+white-space preserving:  </p>
+<p style="white-space:pre; text-transform:uppercase">  Transformed  to uppercase,  preserving  white  space</p>
+<p style="white-space:pre; text-transform:lowercase">  Transformed  to Lowercase,  preserving  white  space</p>
+<p style="white-space:pre; text-transform:capitalize"> Transformed to titlecase,  preserving  white  space</p>
+<ul>
+<li> Unordered
+</li><li> List
+</li></ul>
+
+<ol>
+<li> Ordered
+</li><li> List
+</li></ol>
+
+<ul style="list-style: inside">
+<li> List,
+</li><li> inside marker
+</li></ul>
+
+<div> this line has 1 leading and 1 trailing spaces </div>
+<p>
+  And here's    4 spaces
+</p>
+
+<p>
+  And a triple&nbsp;&nbsp;&nbsp;nbsp's
+</p>
+
+<p><i>some</i> <del>more</del> <b>formatting</b></p>
+
+<table border="1">
+<caption>Table caption</caption>
+<tbody><tr><td>Regular </td><td>old
+</td></tr><tr><td>data </td><td>table
+</td></tr></tbody></table>
+
+<table border="1">
+<caption>Table caption</caption>
+<tbody><tr><td><p>Table cell </p><p>with </p><p>paragraphs </p></td><td>Cell 2
+</td></tr><tr><td>Next </td><td>row
+</td></tr></tbody></table>
+
+<div style="position:relative;height:200px;width:200px">
+  <div style="position:absolute;right:0;top:0;height:100px;width:100px">
+    <p>Top right (absolute position)
+  </p></div>
+  <div style="position:absolute;left:0;bottom:0;height:100px;width:100px">
+    <p>Bottom left (absolute position)
+  </p></div>
+</div>
+
+<select>
+  <option>select option 1</option>
+  <option>select option 2</option>
+</select>
+
+<input type="text" value="input">
+<button>button</button>
+
+<link rel="stylesheet" type="text/css" href="some.css"><style class="darkreader darkreader--sync" media="screen"></style>
+
+<style type="text/css">body { color: #333; }</style><style class="darkreader darkreader--sync" media="screen"></style>
+<style type="text/css">/* comment in a style */</style><style class="darkreader darkreader--sync" media="screen"></style>
+
+<script>var x = 'this is a script content'</script>
+<script>/* comment in a script */</script>
+<script src="foo.js"></script>
+<noscript>this is a noscript content</noscript>
+<template>this is a template content</template>
+
+<iframe src="foo.html" width="300" height="300">iframe fallback content</iframe>
+
+<!-- <p>This should not show (comment).</p>-->
+
+<unknown> tags</unknown>
+
+<p>
+  This is text before<span style="display:block">a span
+              with display:block.</span>...and after.
+</p>
+
+<div style="display: inline">div w. display:inline</div>
+<div style="display: inline">div w. display:inline</div>
+
+<div style="display: table">
+  <div style="display: table-cell">div w. table-cell</div>
+  <div style="display: table-cell">div w. table-cell</div>
+</div>
+
+<img src="foo.png" alt="img alt value">
+
+<canvas width="10" height="10">fallback canvas content</canvas>
+
+<video src="foo.ogg" autoplay="" poster="foo.jpg">fallback video content</video>
+
+<br>
+
+Text without any tags
+
+<br>
+
+<span>top level span</span>
+
+<em>top level em</em>
+
+</body>
+</html>

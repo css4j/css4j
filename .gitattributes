@@ -9,5 +9,6 @@
 *.txt text
 *.sh text
 *.xml text
+*.bin binary
 *.png binary
 

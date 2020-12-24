@@ -25,6 +25,7 @@ import io.sf.carte.doc.dom.FilteredIteratorTest;
 import io.sf.carte.doc.dom.HTMLDocumentTest;
 import io.sf.carte.doc.dom.HTMLElementTest;
 import io.sf.carte.doc.dom.IEDocumentTest;
+import io.sf.carte.doc.dom.InnerTextTest;
 import io.sf.carte.doc.dom.IteratorTest;
 import io.sf.carte.doc.dom.NodeIteratorTest;
 import io.sf.carte.doc.dom.TreeWalkerTest;
@@ -157,6 +158,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 	HTMLDocumentTest.class,
 	HTMLElementTest.class,
 	IEDocumentTest.class,
+	InnerTextTest.class,
 	IteratorTest.class,
 	NodeIteratorTest.class,
 	CollectionsTest.class,
