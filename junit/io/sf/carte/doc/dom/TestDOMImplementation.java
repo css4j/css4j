@@ -12,9 +12,12 @@
 package io.sf.carte.doc.dom;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 
 import org.w3c.dom.Attr;
@@ -24,7 +27,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.agent.MockURLConnectionFactory;
-import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser;
@@ -187,7 +189,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		return xhtmlDoc;
 	}
 
-	public static CSSDocument simpleBoxDocument() throws IOException {
+	public static DOMDocument simpleBoxDocument() throws IOException {
 		HtmlParser parser = new HtmlParser(XmlViolationPolicy.ALTER_INFOSET);
 		parser.setReportingDoctype(true);
 		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
@@ -195,9 +197,9 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		builder.setXMLReader(parser);
 		Reader re = DOMCSSStyleSheetFactoryTest.simpleBoxXHTMLReader();
 		InputSource is = new InputSource(re);
-		CSSDocument xhtmlDoc;
+		DOMDocument xhtmlDoc;
 		try {
-			xhtmlDoc = (CSSDocument) builder.parse(is);
+			xhtmlDoc = (DOMDocument) builder.parse(is);
 		} catch (SAXException e) {
 			return null;
 		} finally {
@@ -205,6 +207,36 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		}
 		xhtmlDoc.setDocumentURI("http://www.example.com/xhtml/simplebox.html");
 		return xhtmlDoc;
+	}
+
+	public static DOMDocument loadDocument(String filename) throws IOException {
+		HtmlParser parser = new HtmlParser(XmlViolationPolicy.ALTER_INFOSET);
+		parser.setReportingDoctype(true);
+		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
+		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
+		builder.setHTMLProcessing(true);
+		builder.setXMLReader(parser);
+		Reader re = new InputStreamReader(classpathStream(filename), StandardCharsets.UTF_8);
+		InputSource is = new InputSource(re);
+		DOMDocument xhtmlDoc;
+		try {
+			xhtmlDoc = (DOMDocument) builder.parse(is);
+		} catch (SAXException e) {
+			return null;
+		} finally {
+			re.close();
+		}
+		xhtmlDoc.setDocumentURI("http://www.example.com/" + filename);
+		return xhtmlDoc;
+	}
+
+	private static InputStream classpathStream(final String filename) {
+		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
+			@Override
+			public InputStream run() {
+				return this.getClass().getResourceAsStream(filename);
+			}
+		});
 	}
 
 	private class TestDeviceFactory extends DummyDeviceFactory {
