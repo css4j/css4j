@@ -280,7 +280,7 @@ public class DOMWriterTest {
 		return xhtmlDoc;
 	}
 
-	private static String classPathFile(String filename) {
+	static String classPathFile(String filename) {
 		Reader re = classpathReader(filename);
 		StringBuilder buf = new StringBuilder();
 		char[] bbuf = new char[4096];
