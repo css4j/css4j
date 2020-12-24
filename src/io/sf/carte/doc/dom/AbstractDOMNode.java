@@ -431,7 +431,7 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 				}
 				boolean isECW = config.cssWhitespaceProcessing && text.isElementContentWhitespace();
 				if (isECW && isWhitespacePre == 0) {
-					if (isWhitespacePre()) {
+					if (isWhitespacePreserving()) {
 						isWhitespacePre = 1;
 						isECW = false;
 					} else {
@@ -472,7 +472,7 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 					// coalesce nodes
 					Text prevText = (Text) lastnode;
 					if (!prevText.isElementContentWhitespace() || isWhitespacePre == 1
-							|| (isWhitespacePre == 0 && (isWhitespacePre = whitespacePre()) == 1)) {
+							|| (isWhitespacePre == 0 && (isWhitespacePre = whitespacePreserving()) == 1)) {
 						if (!isECW || (next != null && (next.getNodeType() != Node.TEXT_NODE
 								|| !((Text) next).isElementContentWhitespace()))) {
 							prevText.setData(prevText.getData() + data);
@@ -496,14 +496,15 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 		}
 	}
 
-	private byte whitespacePre() {
-		return isWhitespacePre() ? (byte) 1 : 2;
+	private byte whitespacePreserving() {
+		return isWhitespacePreserving() ? (byte) 1 : 2;
 	}
 
-	private boolean isWhitespacePre() {
+	private boolean isWhitespacePreserving() {
 		if (getNodeType() == Node.ELEMENT_NODE) {
 			String value = ((DOMElement) this).getComputedStyle(null).getPropertyValue("white-space");
-			return "pre".equalsIgnoreCase(value);
+			return "pre".equalsIgnoreCase(value) || "pre-wrap".equalsIgnoreCase(value)
+					|| "break-spaces".equalsIgnoreCase(value);
 		} else {
 			return false;
 		}
