@@ -743,7 +743,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
-		String data = null;
+		String data = "";
 
 		MyCharacterData(short nodeType) {
 			super(nodeType);
