@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import io.sf.carte.doc.DOMTokenSetImpl;
+import io.sf.carte.doc.DirectionalityHelper.Directionality;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
@@ -272,6 +273,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 					return isChecked();
 				} else if ("indeterminate".equals(pseudoClassName)) {
 					return isIndeterminate();
+				} else if ("dir".equals(pseudoClassName)) {
+					return isDir(pseudocond.getArgument());
 				}
 				return isActivePseudoClass(pseudoClassName);
 			}
@@ -476,6 +479,18 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		String attrName = cond.getLang();
 		String lang = getLanguage();
 		return lang.startsWith(attrName) && matches(simple);
+	}
+
+	private boolean isDir(String argument) {
+		if (argument != null) {
+			Directionality dir = getDirectionality();
+			if ("rtl".equalsIgnoreCase(argument)) {
+				return dir == Directionality.RTL;
+			} else if ("ltr".equalsIgnoreCase(argument)) {
+				return dir == Directionality.LTR;
+			}
+		}
+		return false;
 	}
 
 	private boolean matchesPositional(PositionalCondition pcond) {
@@ -768,6 +783,13 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	 * other XML.
 	 */
 	abstract protected String getLanguage();
+
+	/**
+	 * Get the directionality of the element associated to this matcher.
+	 * 
+	 * @return the directionality.
+	 */
+	abstract protected Directionality getDirectionality();
 
 	/**
 	 * The element in this matcher is the first child?

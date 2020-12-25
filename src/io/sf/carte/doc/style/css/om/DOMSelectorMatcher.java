@@ -17,6 +17,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import io.sf.carte.doc.DirectionalityHelper;
+import io.sf.carte.doc.DirectionalityHelper.Directionality;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -404,6 +406,11 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 			}
 		}
 		return lang;
+	}
+
+	@Override
+	protected Directionality getDirectionality() {
+		return DirectionalityHelper.getDirectionality(element);
 	}
 
 	@Override
