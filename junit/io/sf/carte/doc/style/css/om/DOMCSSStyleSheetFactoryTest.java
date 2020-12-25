@@ -213,6 +213,10 @@ public class DOMCSSStyleSheetFactoryTest {
 		return xhtmlClasspathReader("/io/sf/carte/doc/agent/simplebox.html");
 	}
 
+	public static Reader directionalityHTMLReader() {
+		return xhtmlClasspathReader("/io/sf/carte/doc/dir.html");
+	}
+
 	private static InputStream xhtmlClasspathStream(final String filename) {
 		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
 			@Override
