@@ -481,7 +481,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		return lang.startsWith(attrName) && matches(simple);
 	}
 
-	private boolean isDir(String argument) {
+	protected boolean isDir(String argument) {
 		if (argument != null) {
 			Directionality dir = getDirectionality();
 			if ("rtl".equalsIgnoreCase(argument)) {
