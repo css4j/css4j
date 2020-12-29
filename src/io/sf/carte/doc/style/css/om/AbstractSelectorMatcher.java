@@ -298,8 +298,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		return false;
 	}
 
-	private boolean matchesId(String value) {
-		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
+	protected boolean matchesId(String value) {
+		CSSDocument.ComplianceMode mode = getComplianceMode();
 		String idAttr = getId();
 		if (mode != CSSDocument.ComplianceMode.STRICT) {
 			if (idAttr.length() == 0) {
@@ -333,7 +333,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	 * @return <code>true</code> if matches, <code>false</code> otherwise.
 	 */
 	private boolean matchesClass(String cond_value) {
-		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
+		CSSDocument.ComplianceMode mode = getComplianceMode();
 		String classAttr = getClassAttribute(mode);
 		if (!DOMTokenSetImpl.checkMultipleToken(classAttr)) {
 			classAttr = classAttr.trim();
@@ -642,7 +642,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	protected boolean isNotVisitedLink() {
 		String href = getLinkHrefAttribute();
 		if (href.length() != 0) {
-			return !getOwnerDocument().isVisitedURI(href);
+			return !isVisitedURI(href);
 		} else {
 			return false;
 		}
@@ -651,7 +651,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	protected boolean isVisitedLink() {
 		String href = getLinkHrefAttribute();
 		if (href.length() != 0) {
-			return getOwnerDocument().isVisitedURI(href);
+			return isVisitedURI(href);
 		} else {
 			return false;
 		}
@@ -714,7 +714,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		return false;
 	}
 
-	abstract protected CSSDocument getOwnerDocument();
+	abstract protected CSSDocument.ComplianceMode getComplianceMode();
 
 	/**
 	 * Gets the namespace URI of the element associated to this selector matcher.
@@ -841,6 +841,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 
 	abstract protected boolean isDefaultButton();
 
+	abstract protected boolean isVisitedURI(String href);
+
 	/**
 	 * Add to the list all the state pseudo-classes found in the selector.
 	 * <p>
@@ -903,7 +905,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		if (localName != null) {
 			sb.append(localName);
 		}
-		CSSDocument.ComplianceMode mode = getOwnerDocument().getComplianceMode();
+		CSSDocument.ComplianceMode mode = getComplianceMode();
 		String classAttr = getClassAttribute(mode);
 		if (classAttr.length() != 0) {
 			sb.append('.').append(classAttr);

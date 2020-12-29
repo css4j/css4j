@@ -38,7 +38,7 @@ class WrapperSelectorMatcher extends DOMSelectorMatcher {
 	}
 
 	@Override
-	protected AbstractSelectorMatcher createSelectorMatcher(CSSElement element) {
+	protected AbstractSelectorMatcher obtainSelectorMatcher(CSSElement element) {
 		return new WrapperSelectorMatcher(element, (Element) ((StylableDocumentWrapper.MyElement) element).rawnode);
 	}
 
