@@ -305,7 +305,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important, int index) {
+		public void property(String name, LexicalUnit value, boolean important) {
 			if (currentRule != null) {
 				if (important) {
 					// Declarations marked as important must be ignored
@@ -315,7 +315,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 					currentRule.getStyleDeclarationErrorHandler().wrongValue(name, ex);
 				} else {
 					try {
-						super.property(name, value, important, index);
+						super.property(name, value, important);
 					} catch (DOMException e) {
 						if (currentRule.getStyleDeclarationErrorHandler() != null) {
 							CSSPropertyValueException ex = new CSSPropertyValueException(e);

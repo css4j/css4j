@@ -169,7 +169,7 @@ public class DeclarationRuleParserTest {
 		private LinkedList<String> selectorNames = new LinkedList<String>();
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important, int index) {
+		public void property(String name, LexicalUnit value, boolean important) {
 			propertyNames.add(name);
 			lexicalValues.add(value);
 			if (important) {

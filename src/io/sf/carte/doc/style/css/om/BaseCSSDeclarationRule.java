@@ -252,9 +252,9 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important, int index) {
+		public void property(String name, LexicalUnit value, boolean important) {
 			try {
-				super.property(name, value, important, index);
+				super.property(name, value, important);
 			} catch (DOMException e) {
 				if (getStyleDeclarationErrorHandler() != null) {
 					CSSPropertyValueException ex = new CSSPropertyValueException(e);

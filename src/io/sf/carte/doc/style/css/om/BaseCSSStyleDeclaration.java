@@ -817,7 +817,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	@Override
-	public void setProperty(String propertyName, LexicalUnit value, boolean important, int index) throws DOMException {
+	public void setProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException {
 		propertyName = getCanonicalPropertyName(propertyName);
 		// Check for shorthand properties
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
@@ -1088,7 +1088,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
 		boolean important = "important".equalsIgnoreCase(priority);
-		setProperty(propertyName, lunit, important, 0);
+		setProperty(propertyName, lunit, important);
 	}
 
 	/**
@@ -1916,9 +1916,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important, int index) {
+		public void property(String name, LexicalUnit value, boolean important) {
 			try {
-				super.property(name, value, important, index);
+				super.property(name, value, important);
 			} catch (DOMException e) {
 				if (getStyleDeclarationErrorHandler() != null) {
 					CSSPropertyValueException ex = new CSSPropertyValueException(e);

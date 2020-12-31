@@ -32,12 +32,10 @@ interface LexicalPropertyListener {
 	 *            the lexical value.
 	 * @param important
 	 *            <code>true</code> if the priority is important.
-	 * @param index
-	 *            the index at which the declaration parsing ended.
 	 * 
 	 * @throws DOMException
 	 *             if some error or inconsistency is found in the value.
 	 */
-	void setProperty(String propertyName, LexicalUnit value, boolean important, int index) throws DOMException;
+	void setProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException;
 
 }

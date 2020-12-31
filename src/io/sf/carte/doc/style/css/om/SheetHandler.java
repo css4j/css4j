@@ -541,18 +541,17 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
-	public void property(String name, LexicalUnit value, boolean important, int index) {
+	public void property(String name, LexicalUnit value, boolean important) {
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
 				try {
-					((BaseCSSDeclarationRule) currentRule).getStyle().setProperty(name,
-							value, important, index);
+					((BaseCSSDeclarationRule) currentRule).getStyle().setProperty(name, value, important);
 				} catch (RuntimeException e) {
 					CSSPropertyValueException ex = new CSSPropertyValueException(e);
 					ex.setValueText(value.toString());
 					((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().wrongValue(name, ex);
 					// NSAC report
-					Locator locator = parserctl.createLocator(index);
+					Locator locator = parserctl.createLocator();
 					CSSParseException pe = new CSSParseException("Invalid value for property " + name, locator, e);
 					error(pe);
 				}

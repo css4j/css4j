@@ -26,7 +26,7 @@ class PropertyCounterHandler extends EmptyCSSHandler {
 	}
 
 	@Override
-	public void property(String name, LexicalUnit value, boolean important, int index) {
+	public void property(String name, LexicalUnit value, boolean important) {
 		count++;
 	}
 

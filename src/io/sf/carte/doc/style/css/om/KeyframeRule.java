@@ -155,7 +155,7 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important, int index) {
+		public void property(String name, LexicalUnit value, boolean important) {
 			if (important) {
 				// Declarations marked as important must be ignored
 				CSSPropertyValueException ex = new CSSPropertyValueException(
@@ -163,7 +163,7 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 				ex.setValueText(value.toString() + " !important");
 				getStyleDeclarationErrorHandler().wrongValue(name, ex);
 			} else {
-				super.property(name, value, important, index);
+				super.property(name, value, important);
 			}
 		}
 	}

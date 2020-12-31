@@ -40,11 +40,10 @@ public interface ParserControl {
 	CSSErrorHandler getErrorHandler();
 
 	/**
-	 * Create a locator for the given character index.
+	 * Create a locator for the current parsing location.
 	 * 
-	 * @param index the character index.
 	 * @return the locator.
 	 */
-	Locator createLocator(int index);
+	Locator createLocator();
 
 }

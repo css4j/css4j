@@ -265,9 +265,7 @@ public interface CSSHandler {
 	 * @param name      the name of the property.
 	 * @param value     the value of the property.
 	 * @param important is this property important ?
-	 * @param index     the character index at which the parsing of the given
-	 *                  property declaration ended.
 	 */
-	void property(String name, LexicalUnit value, boolean important, int index);
+	void property(String name, LexicalUnit value, boolean important);
 
 }

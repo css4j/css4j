@@ -73,8 +73,8 @@ class TestCSSHandler extends TestDeclarationHandler {
 	}
 
 	@Override
-	public void property(String name, LexicalUnit value, boolean important, int index) {
-		super.property(name, value, important, index);
+	public void property(String name, LexicalUnit value, boolean important) {
+		super.property(name, value, important);
 		this.eventSeq.add("property");
 	}
 

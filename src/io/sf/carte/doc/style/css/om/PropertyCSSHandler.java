@@ -49,11 +49,11 @@ class PropertyCSSHandler extends EmptyCSSHandler {
 	}
 
 	@Override
-	public void property(String name, LexicalUnit value, boolean important, int index) {
+	public void property(String name, LexicalUnit value, boolean important) {
 		try {
-			listener.setProperty(name, value, important, index);
+			listener.setProperty(name, value, important);
 		} catch (DOMException e) {
-			Locator locator = parserctl.createLocator(index);
+			Locator locator = parserctl.createLocator();
 			CSSParseException pe = new CSSParseException("Invalid value for property " + name, locator, e);
 			error(pe);
 			throw e;

@@ -481,7 +481,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important, int index) {
+		public void property(String name, LexicalUnit value, boolean important) {
 			LinkedList<PrimitiveValue> values = new LinkedList<PrimitiveValue>();
 			for (; value != null; value = value.getNextLexicalUnit()) {
 				LexicalType lutype = value.getLexicalUnitType();
@@ -501,7 +501,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				}
 				String msg = "Found non-integer value: " + value.toString();
 				if (parserctl != null) {
-					Locator locator = parserctl.createLocator(index);
+					Locator locator = parserctl.createLocator();
 					CSSParseException ex = new CSSParseException(msg, locator);
 					parserctl.getErrorHandler().error(ex);
 				} else {

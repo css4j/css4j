@@ -1156,7 +1156,8 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		CSSParseException createException(int index, byte errCode, String message) {
-			Locator locator = createLocator(index);
+			setCurrentLocation(index);
+			Locator locator = createLocator();
 			return new CSSMediaParseException(message, locator);
 		}
 
@@ -6287,7 +6288,8 @@ public class CSSParser implements Parser, Cloneable {
 
 		protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
 				boolean priorityImportant) {
-			handler.property(propertyName, lunit, priorityImportant, index);
+			setCurrentLocation(index);
+			handler.property(propertyName, lunit, priorityImportant);
 		}
 
 		@Override
@@ -7025,14 +7027,18 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	abstract class CSSTokenHandler implements TokenHandler, ParserControl {
+
 		private int line;
 		private int prevlinelength;
 		private boolean foundCp13andNotYet10or12 = false;
+		private int column;
+
 		int prevcp = 32;
 		int endcp = -1;
 		short parendepth = 0;
 		StringBuilder buffer;
 		int escapedTokenIndex = -1;
+
 		boolean parseError = false;
 
 		CSSTokenHandler() {
@@ -7063,8 +7069,8 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public Locator createLocator(int index) {
-			return new LocatorImpl(line, index - prevlinelength);
+		public Locator createLocator() {
+			return new LocatorImpl(line, column);
 		}
 
 		int getCurrentLine() {
@@ -7073,6 +7079,10 @@ public class CSSParser implements Parser, Cloneable {
 
 		int getPrevLineLength() {
 			return prevlinelength;
+		}
+
+		void setCurrentLocation(int index) {
+			this.column = index - prevlinelength;
 		}
 
 		@Override
@@ -7375,7 +7385,8 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		CSSParseException createException(int index, byte errCode, String message) {
-			Locator locator = createLocator(index);
+			setCurrentLocation(index);
+			Locator locator = createLocator();
 			if (errCode == ParseHelper.ERR_UNKNOWN_NAMESPACE) {
 				return new CSSNamespaceParseException(message, locator);
 			}

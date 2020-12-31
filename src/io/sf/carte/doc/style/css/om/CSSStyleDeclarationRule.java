@@ -252,9 +252,9 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		}
 
 		@Override
-		public void property(String name, LexicalUnit value, boolean important, int index) {
+		public void property(String name, LexicalUnit value, boolean important) {
 			try {
-				super.property(name, value, important, index);
+				super.property(name, value, important);
 			} catch (DOMException e) {
 				CSSPropertyValueException ex = new CSSPropertyValueException(e);
 				ex.setValueText(value.toString());
