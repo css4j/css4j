@@ -1129,7 +1129,6 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		void emptyQuery(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_EOF, "No valid query found");
 		}
 
 		@Override
@@ -3713,10 +3712,6 @@ public class CSSParser implements Parser, Cloneable {
 				currentCondition = new ConditionWrapper(mql, currentCondition);
 				handler.startMedia(currentCondition.getMediaList());
 				setSelectorHandler();
-			}
-
-			@Override
-			void emptyQuery(int index) {
 			}
 
 			@Override

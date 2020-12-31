@@ -46,6 +46,7 @@ import io.sf.carte.doc.style.css.om.BorderBuilderTest;
 import io.sf.carte.doc.style.css.om.BorderImageBuilderTest;
 import io.sf.carte.doc.style.css.om.BorderRadiusBuilderTest;
 import io.sf.carte.doc.style.css.om.BoxModelHelperTest;
+import io.sf.carte.doc.style.css.om.CSSOMParserTest;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRuleTest;
 import io.sf.carte.doc.style.css.om.CascadeTest;
 import io.sf.carte.doc.style.css.om.CompatInlineDeclarationTest;
@@ -186,6 +187,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		ContribSheetTest.class,
 		CSSStyleDeclarationRuleTest.class,
 		CounterStyleRuleTest.class,
+		CSSOMParserTest.class,
 		DirMatcherTest.class,
 		FontFaceRuleTest.class,
 		FontFeatureValuesRuleTest.class,

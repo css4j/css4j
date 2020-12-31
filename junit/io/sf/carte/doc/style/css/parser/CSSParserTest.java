@@ -21,6 +21,11 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.PageSelector;
 import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 
@@ -165,6 +170,123 @@ public class CSSParserTest {
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testParseMediaQueryListAll() {
+		CSSParser parser = new CSSParser();
+		MediaQueryList mql = parser.parseMediaQueryList("all", null);
+		assertNotNull(mql);
+		assertTrue(mql.isAllMedia());
+		assertFalse(mql.isNotAllMedia());
+		assertFalse(mql.hasErrors());
+		assertEquals("all", mql.getMediaText());
+	}
+
+	@Test
+	public void testParseMediaQueryListEmpty() {
+		CSSParser parser = new CSSParser();
+		MediaQueryList mql = parser.parseMediaQueryList("", null);
+		assertNotNull(mql);
+		assertTrue(mql.isAllMedia());
+		assertFalse(mql.isNotAllMedia());
+		assertFalse(mql.hasErrors());
+		assertEquals("all", mql.getMediaText());
+	}
+
+	@Test
+	public void testParseMediaQueryListScreen() {
+		CSSParser parser = new CSSParser();
+		MediaQueryList mql = parser.parseMediaQueryList("screen", null);
+		assertNotNull(mql);
+		assertFalse(mql.isAllMedia());
+		assertFalse(mql.isNotAllMedia());
+		assertFalse(mql.hasErrors());
+		assertEquals("screen", mql.getMediaText());
+		//
+		MediaQueryList mqlAll = parser.parseMediaQueryList("all", null);
+		assertFalse(mql.matches(mqlAll));
+		assertTrue(mqlAll.matches(mql));
+	}
+
+	@Test
+	public void testParseMediaQueryListError() {
+		CSSParser parser = new CSSParser();
+		MediaQueryList mql = parser.parseMediaQueryList("4/", null);
+		assertNotNull(mql);
+		assertFalse(mql.isAllMedia());
+		assertTrue(mql.isNotAllMedia());
+		assertTrue(mql.hasErrors());
+		assertEquals("not all", mql.getMediaText());
+		//
+		MediaQueryList mqlAll = parser.parseMediaQueryList("all", null);
+		assertFalse(mql.matches(mqlAll));
+		assertFalse(mqlAll.matches(mql));
+	}
+
+	@Test
+	public void testParseSupportsCondition() {
+		CSSParser parser = new CSSParser();
+		BooleanCondition cond = parser.parseSupportsCondition("(display: flex)", null);
+		assertNotNull(cond);
+		assertEquals(BooleanCondition.Type.PREDICATE, cond.getType());
+		assertEquals("display", ((DeclarationCondition) cond).getName());
+		CSSValue value = ((DeclarationCondition) cond).getValue();
+		assertEquals(Type.IDENT, value.getPrimitiveType());
+		assertEquals("flex", value.getCssText());
+	}
+
+	@Test
+	public void testParseSupportsConditionError() {
+		CSSParser parser = new CSSParser();
+		try {
+			parser.parseSupportsCondition("", null);
+			fail("Must throw exception.");
+		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
+		}
+		//
+		try {
+			parser.parseSupportsCondition("   ", null);
+			fail("Must throw exception.");
+		} catch (CSSParseException e) {
+			assertEquals(4, e.getColumnNumber());
+		}
+		try {
+			parser.parseSupportsCondition("()", null);
+			fail("Must throw exception.");
+		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
+		}
+		//
+		//
+		try {
+			parser.parseSupportsCondition("(display: flex", null);
+			fail("Must throw exception.");
+		} catch (CSSParseException e) {
+			assertEquals(15, e.getColumnNumber());
+		}
+		//
+		try {
+			parser.parseSupportsCondition("display: flex", null);
+			fail("Must throw exception.");
+		} catch (CSSParseException e) {
+			assertEquals(14, e.getColumnNumber());
+		}
+		//
+		try {
+			parser.parseSupportsCondition("(display:)", null);
+			fail("Must throw exception.");
+		} catch (CSSParseException e) {
+			assertEquals(10, e.getColumnNumber());
+		}
+		//
+		try {
+			parser.parseSupportsCondition("(display:9pt0)", null);
+			fail("Must throw exception.");
+		} catch (CSSParseException e) {
+			assertEquals(14, e.getColumnNumber());
 		}
 	}
 
