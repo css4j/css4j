@@ -2286,6 +2286,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			void setCurrentLocation(int index) {
+				NestedRuleTH.this.setCurrentLocation(index);
+			}
+
+			@Override
 			protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
 					boolean priorityImportant) {
 				if (!priorityImportant) {
@@ -2348,6 +2353,11 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			TokenControl getTokenControl() {
 				return NestedRuleTH.this.getTokenControl();
+			}
+
+			@Override
+			void setCurrentLocation(int index) {
+				NestedRuleTH.this.setCurrentLocation(index);
 			}
 
 			@Override
@@ -2635,6 +2645,11 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void escaped(int index, int codePoint) {
 				reportError(index);
+			}
+
+			@Override
+			void setCurrentLocation(int index) {
+				RuleTokenHandler.this.setCurrentLocation(index);
 			}
 
 			@Override
@@ -3450,6 +3465,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
+			}
+
+			@Override
 			public void control(int index, int codepoint) {
 				SheetTokenHandler.this.control(index, codepoint);
 			}
@@ -3500,6 +3520,11 @@ public class CSSParser implements Parser, Cloneable {
 				super(ShorthandDatabase.getInstance());
 				setRuleName("counter-style");
 				setStage(STAGE_RULE_NAME_SELECTOR);
+			}
+
+			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
 			}
 
 			@Override
@@ -3563,6 +3588,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
+			}
+
+			@Override
 			void endBlockList() {
 				super.endBlockList();
 				endRuleBody();
@@ -3596,6 +3626,11 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			TokenControl getTokenControl() {
 				return SheetTokenHandler.this.getTokenControl();
+			}
+
+			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
 			}
 
 			@Override
@@ -3635,6 +3670,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
+			}
+
+			@Override
 			void endBlockList() {
 				super.endBlockList();
 				endRuleBody();
@@ -3658,6 +3698,11 @@ public class CSSParser implements Parser, Cloneable {
 
 			MySupportsTokenHandler() {
 				super(null);
+			}
+
+			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
 			}
 
 			@Override
@@ -3857,6 +3902,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
+			}
+
+			@Override
 			public void control(int index, int codepoint) {
 				SheetTokenHandler.this.control(index, codepoint);
 			}
@@ -3943,6 +3993,11 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			TokenControl getTokenControl() {
 				return SheetTokenHandler.this.getTokenControl();
+			}
+
+			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
 			}
 
 			@Override

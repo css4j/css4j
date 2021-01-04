@@ -15,14 +15,18 @@ import java.util.LinkedList;
 
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.Locator;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 
 class TestDeclarationHandler extends EmptyCSSHandler implements CSSHandler {
 
-	LinkedList<String> propertyNames = new LinkedList<String>();
-	LinkedList<LexicalUnit> lexicalValues = new LinkedList<LexicalUnit>();
-	LinkedList<String> priorities = new LinkedList<String>();
-	LinkedList<String> comments = new LinkedList<String>();
+	private ParserControl parserctl;
+
+	LinkedList<String> propertyNames = new LinkedList<>();
+	LinkedList<LexicalUnit> lexicalValues = new LinkedList<>();
+	LinkedList<String> priorities = new LinkedList<>();
+	LinkedList<Locator> ptyLocators = new LinkedList<>();
+	LinkedList<String> comments = new LinkedList<>();
 
 	short streamEndcount = 0;
 
@@ -40,16 +44,22 @@ class TestDeclarationHandler extends EmptyCSSHandler implements CSSHandler {
 		} else {
 			priorities.add(null);
 		}
+		ptyLocators.add(getParserControl().createLocator());
 	}
 
 	@Override
 	public void parseStart(ParserControl parserctl) {
+		this.parserctl = parserctl;
 		streamEndcount = 0;
 	}
 
 	@Override
 	public void endOfStream() {
 		streamEndcount++;
+	}
+
+	ParserControl getParserControl() {
+		return parserctl;
 	}
 
 }
