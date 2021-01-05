@@ -4,7 +4,7 @@
  * Copyright © 1999,2000 W3C® (MIT, INRIA, Keio). All Rights Reserved.
  * https://www.w3.org/Consortium/Legal/copyright-software-19980720
  *
- * Copyright © 2005-2020 Carlos Amengual.
+ * Copyright © 2005-2021 Carlos Amengual.
  *
  * SPDX-License-Identifier: W3C-19980720
  *
