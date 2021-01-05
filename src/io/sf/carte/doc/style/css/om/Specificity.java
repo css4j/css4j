@@ -24,10 +24,13 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 /**
- * The specificity of this rule.
+ * The specificity of a selector (in the context given by a
+ * {@code SelectorMatcher}).
  * <p>
- * See Cascading Style Sheets, level 2 revision 1 CSS 2.1 Specification,
- * paragraph 6.4.3.
+ * See Cascading Style Sheets, level 2 revision 1 CSS 2.1 Specification, § 6.4.3
+ * and also Selectors Level 4 § 16,
+ * <a href="https://www.w3.org/TR/selectors-4/#specificity-rules">Calculating a
+ * selector’s specificity</a>.
  */
 public class Specificity implements java.io.Serializable {
 
@@ -41,6 +44,12 @@ public class Specificity implements java.io.Serializable {
 
 	private final SelectorMatcher selectorMatcher;
 
+	/**
+	 * Construct a specificity for a selector and a {@code SelectorMatcher} context.
+	 * 
+	 * @param selector the selector.
+	 * @param matcher  the selector matcher.
+	 */
 	public Specificity(Selector selector, SelectorMatcher matcher) {
 		super();
 		this.selectorMatcher = matcher;
@@ -195,9 +204,17 @@ public class Specificity implements java.io.Serializable {
 		return true;
 	}
 
-	public static int selectorCompare(Specificity o1, Specificity o2) {
-		return (o1.id_count - o2.id_count) * 16384 + (o1.attrib_classes_count - o2.attrib_classes_count) * 128
-				+ (o1.names_pseudoelements_count - o2.names_pseudoelements_count);
+	/**
+	 * Compare two specificities according to its selectors.
+	 * 
+	 * @param s1 the first specificity being compared.
+	 * @param s2 the other specificity (to compare against the first).
+	 * @return a negative integer, zero, or a positive integer as the first argument
+	 *         is less than, equal to, or greater than the second.
+	 */
+	public static int selectorCompare(Specificity s1, Specificity s2) {
+		return (s1.id_count - s2.id_count) * 16384 + (s1.attrib_classes_count - s2.attrib_classes_count) * 128
+				+ (s1.names_pseudoelements_count - s2.names_pseudoelements_count);
 	}
 
 	@Override
