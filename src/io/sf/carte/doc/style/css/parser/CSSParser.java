@@ -1855,13 +1855,13 @@ public class CSSParser implements Parser, Cloneable {
 			StringBuilder buf = new StringBuilder(9);
 			byte parsingWord = 0;
 			if (isNotSeparator(cp)) {
-				buf.append(Character.toChars(cp));
+				buf.appendCodePoint(cp);
 				parsingWord = 1;
 				count = 1;
 			}
 			while ((cp = reader.read()) != -1 && parsingWord != 2) {
 				if (isNotSeparator(cp)) {
-					buf.append(Character.toChars(cp));
+					buf.appendCodePoint(cp);
 					count++;
 					if (count == 10) {
 						return false;
@@ -3296,7 +3296,7 @@ public class CSSParser implements Parser, Cloneable {
 					SheetTokenHandler.this.setEscapedTokenStart(index);
 					SheetTokenHandler.this.buffer.append('\\');
 				}
-				SheetTokenHandler.this.buffer.append(Character.toChars(codePoint));
+				SheetTokenHandler.this.buffer.appendCodePoint(codePoint);
 				SheetTokenHandler.this.prevcp = 65;
 			}
 
@@ -4927,7 +4927,7 @@ public class CSSParser implements Parser, Cloneable {
 					if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
 						StringBuilder buf = new StringBuilder(name.length() * 2 + 26);
 						buf.append("Expected ':").append(name).append("(', found ':").append(name)
-								.append(Character.toChars(triggerCp)).append('\'');
+								.appendCodePoint(triggerCp).append('\'');
 						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, buf.toString());
 						return;
 					}
@@ -7243,7 +7243,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		void bufferAppend(int codepoint) {
-			buffer.append(Character.toChars(codepoint));
+			buffer.appendCodePoint(codepoint);
 		}
 
 		String rawBuffer() {
