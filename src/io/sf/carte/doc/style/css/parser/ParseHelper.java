@@ -173,7 +173,7 @@ public class ParseHelper {
 				return false;
 			}
 		default:
-			buf.append(Character.toChars(cp));
+			buf.appendCodePoint(cp);
 		}
 		return true;
 	}
@@ -264,7 +264,7 @@ public class ParseHelper {
 					} else {
 						if (!escapeSurrogates) {
 							if (!noesc) {
-								buf.append(Character.toChars(cp));
+								buf.appendCodePoint(cp);
 							}
 						} else {
 							if (noesc) {
@@ -380,7 +380,7 @@ public class ParseHelper {
 					} else {
 						if (!escapeSurrogates) {
 							if (!noesc) {
-								buf.append(Character.toChars(cp));
+								buf.appendCodePoint(cp);
 							}
 						} else {
 							if (noesc) {
@@ -516,7 +516,7 @@ public class ParseHelper {
 					}
 				} else {
 					if (!noesc) {
-						buf.append(Character.toChars(cp));
+						buf.appendCodePoint(cp);
 					}
 					i = newIdx;
 				}
