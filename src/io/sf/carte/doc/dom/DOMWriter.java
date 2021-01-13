@@ -585,7 +585,7 @@ public class DOMWriter {
 				continue;
 			}
 			if (buf != null) {
-				buf.append(Character.toChars(cp));
+				buf.appendCodePoint(cp);
 			}
 		}
 		return buf == null ? line : buf.toString();
