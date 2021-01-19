@@ -116,7 +116,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 			float val = ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG);
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(1);
+			format.setMaximumFractionDigits(2);
 			String s = format.format(val);
 			buf.append(s);
 		} else {
@@ -141,8 +141,8 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 			buf.append("hsl(");
 		}
 		appendMinifiedHue(buf);
-		buf.append(',').append(saturation.getCssText())
-				.append(',').append(lightness.getCssText());
+		buf.append(',').append(saturation.getMinifiedCssText("color"))
+				.append(',').append(lightness.getMinifiedCssText("color"));
 		if (nonOpaque) {
 			buf.append(',');
 			appendAlphaChannelMinified(buf);
@@ -155,8 +155,8 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("hsl(");
 		appendMinifiedHue(buf);
-		buf.append(' ').append(saturation.getCssText())
-				.append(' ').append(lightness.getCssText());
+		buf.append(' ').append(saturation.getMinifiedCssText("color"))
+				.append(' ').append(lightness.getMinifiedCssText("color"));
 		if (nonOpaque) {
 			buf.append('/');
 			appendAlphaChannelMinified(buf);
@@ -171,7 +171,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMinimumIntegerDigits(0);
 			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(1);
+			format.setMaximumFractionDigits(2);
 			String s = format.format(val);
 			buf.append(s);
 		} else {
