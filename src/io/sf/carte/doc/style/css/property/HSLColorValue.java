@@ -81,11 +81,7 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
 		String css = hslColor.toString();
-		if (css != null) {
-			wri.write(css);
-			return;
-		}
-		wri.write(toRGBColorValue().toString());
+		wri.write(css);
 	}
 
 	@Override
