@@ -22,6 +22,7 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.RGBAColor;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -130,6 +131,31 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	@Override
 	abstract public ColorValue clone();
 
+	static void checkPcntCompValidity(PrimitiveValue primisat, LexicalUnit lunit) {
+		if (primisat.getUnitType() != CSSUnit.CSS_PERCENTAGE && primisat.getCssValueType() != CssType.PROXY
+				&& primisat.getPrimitiveType() != Type.EXPRESSION) {
+			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
+		}
+	}
+
+	static void checkNumberCompValidity(PrimitiveValue primihue, LexicalUnit lunit) {
+		if (primihue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(primihue.getUnitType())
+				&& primihue.getCssValueType() != CssType.PROXY && primihue.getPrimitiveType() != Type.EXPRESSION) {
+			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
+		}
+	}
+
+	static void checkHueValidity(PrimitiveValue primihue, LexicalUnit lunit) {
+		if (primihue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(primihue.getUnitType())
+				&& primihue.getCssValueType() != CssType.PROXY && primihue.getPrimitiveType() != Type.EXPRESSION) {
+			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
+		}
+	}
+
+	static boolean isConvertibleComponent(PrimitiveValue comp) {
+		return comp != null && comp.getPrimitiveType() == Type.NUMERIC;
+	}
+
 	class CSSRGBColor extends BaseColor implements RGBAColor {
 
 		private static final long serialVersionUID = 1L;
@@ -153,16 +179,30 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 
 		private void enforceColorComponentType(PrimitiveValue primi) {
 			if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
-				float fv = ((CSSTypedValue) primi).getFloatValue(CSSUnit.CSS_NUMBER);
+				CSSTypedValue typed = (CSSTypedValue) primi;
+				float fv = typed.getFloatValue(CSSUnit.CSS_NUMBER);
 				if (fv < 0f) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-							"Color component cannot be smaller than zero.");
+					if (!typed.isCalculatedNumber()) {
+						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+								"Color component cannot be smaller than zero.");
+					}
+					// Clamp
+					typed.setFloatValue(CSSUnit.CSS_NUMBER, 0f);
 				}
 			} else if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-				float fv = ((CSSTypedValue) primi).getFloatValue(CSSUnit.CSS_PERCENTAGE);
+				CSSTypedValue typed = (CSSTypedValue) primi;
+				float fv = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 				if (fv < 0f || fv > 100f) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-							"Color component percentage cannot be smaller than zero or greater than 100%.");
+					if (!typed.isCalculatedNumber()) {
+						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+								"Color component percentage cannot be smaller than zero or greater than 100%.");
+					}
+					// Clamp
+					if (fv < 0f) {
+						typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 0f);
+					} else {
+						typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 100f);
+					}
 				}
 			} else if (primi.getCssValueType() != CssType.PROXY && primi.getPrimitiveType() != Type.EXPRESSION) {
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with color component.");

@@ -1955,10 +1955,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 * @return true if the value is a color.
 	 */
 	public static boolean testColor(LexicalUnit lunit) {
-		LexicalType utype = lunit.getLexicalUnitType();
-		if (LexicalType.RGBCOLOR == utype || LexicalType.HSLCOLOR == utype) {
+		switch (lunit.getLexicalUnitType()) {
+		case RGBCOLOR:
+		case HSLCOLOR:
+		case LABCOLOR:
+		case LCHCOLOR:
 			return true;
-		} else if (LexicalType.IDENT == utype) {
+		case IDENT:
 			String sv = lunit.getStringValue();
 			if (sv == null) {
 				return false;
@@ -1966,11 +1969,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			sv = sv.toLowerCase(Locale.ROOT);
 			ColorIdentifiers colorids = ColorIdentifiers.getInstance();
 			return colorids.isColorIdentifier(sv) || "transparent".equals(sv) || "currentcolor".equals(sv);
-		} else if (LexicalType.FUNCTION == utype) {
+		case FUNCTION:
 			String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
 			if ("hwb".equals(func) || "color".equals(func)) {
 				return true;
 			}
+		default:
+			break;
 		}
 		return false;
 	}

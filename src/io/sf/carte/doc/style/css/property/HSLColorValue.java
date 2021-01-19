@@ -130,10 +130,6 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		return color;
 	}
 
-	static boolean isConvertibleComponent(PrimitiveValue comp) {
-		return comp != null && comp.getPrimitiveType() == Type.NUMERIC;
-	}
-
 	@Override
 	public HSLColor getHSLColorValue() {
 		return hslColor;
@@ -208,20 +204,6 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			hslColor.setLightness(primilight);
 		}
 
-	}
-
-	static void checkHueValidity(PrimitiveValue primihue, LexicalUnit lunit) {
-		if (primihue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(primihue.getUnitType())
-				&& primihue.getCssValueType() != CssType.PROXY && primihue.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
-		}
-	}
-
-	static void checkPcntCompValidity(PrimitiveValue primisat, LexicalUnit lunit) {
-		if (primisat.getUnitType() != CSSUnit.CSS_PERCENTAGE && primisat.getCssValueType() != CssType.PROXY
-				&& primisat.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
-		}
 	}
 
 	private void translateHSL(float hue, float sat, float light, CSSRGBColor color) {

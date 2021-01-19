@@ -974,6 +974,14 @@ public class ValueFactory {
 				primi = new HSLColorValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case LABCOLOR:
+				primi = new LABColorValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case LCHCOLOR:
+				primi = new LCHColorValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case CALC:
 				primi = new CalcValue();
 				setter = primi.newLexicalSetter();

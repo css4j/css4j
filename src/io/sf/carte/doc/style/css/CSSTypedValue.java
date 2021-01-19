@@ -83,8 +83,11 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 *
 	 * @return the RGBA color value.
 	 * @exception DOMException INVALID_ACCESS_ERR: if this value can't return a RGB
-	 *                         color value (either is not a <code>COLOR</code> or it
-	 *                         could not be converted to RGB for any reason).
+	 *                         color value (either is not a <code>COLOR</code>, not
+	 *                         a typed value, or the color does not map into the
+	 *                         -implicit- sRGB color space).<br/>
+	 *                         NOT_SUPPORTED_ERR: if the conversion needs device
+	 *                         color space information to be performed accurately.
 	 */
 	RGBAColor toRGBColorValue() throws DOMException;
 

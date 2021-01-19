@@ -85,6 +85,8 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			break;
 		case RGBCOLOR:
 		case HSLCOLOR:
+		case LABCOLOR:
+		case LCHCOLOR:
 			type = Type.COLOR;
 			break;
 		case CALC:
@@ -208,6 +210,8 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case VAR:
 		case ATTR:
 		case HSLCOLOR:
+		case LABCOLOR:
+		case LCHCOLOR:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
 		case CUBIC_BEZIER_FUNCTION:

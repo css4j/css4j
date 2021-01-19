@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -20,6 +21,7 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.util.SimpleWriter;
 
 abstract class BaseColor implements Cloneable, java.io.Serializable {
 
@@ -81,6 +83,16 @@ abstract class BaseColor implements Cloneable, java.io.Serializable {
 	boolean isNonOpaque() {
 		return alpha.getPrimitiveType() != Type.NUMERIC
 				|| ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_NUMBER) != 1f;
+	}
+
+	void appendAlphaChannel(SimpleWriter wri) throws IOException {
+		if (alpha.getUnitType() == CSSUnit.CSS_NUMBER) {
+			float f = ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_NUMBER);
+			String text = formattedNumber(f);
+			wri.write(text);
+		} else {
+			alpha.writeCssText(wri);
+		}
 	}
 
 	StringBuilder appendAlphaChannel(StringBuilder buf) {
