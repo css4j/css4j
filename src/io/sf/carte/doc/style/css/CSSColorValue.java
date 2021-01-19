@@ -17,16 +17,16 @@ package io.sf.carte.doc.style.css;
 public interface CSSColorValue extends CSSTypedValue {
 
 	/**
-	 * Enumeration of color spaces.
+	 * Enumeration of color models.
 	 */
-	enum ColorSpace {RGB, HSL, HWB}
+	enum ColorModel {RGB, HSL, HWB}
 
 	/**
-	 * Get the color space with which this value was set.
+	 * Get the color model with which this value was set.
 	 * 
-	 * @return the color space.
+	 * @return the color model.
 	 */
-	ColorSpace getColorSpace();
+	ColorModel getColorModel();
 
 	/**
 	 * Get the RGB(A) color represented by this value.

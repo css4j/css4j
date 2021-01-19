@@ -43,8 +43,8 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public CSSColorValue.ColorSpace getColorSpace() {
-		return CSSColorValue.ColorSpace.HSL;
+	public CSSColorValue.ColorModel getColorModel() {
+		return CSSColorValue.ColorModel.HSL;
 	}
 
 	@Override

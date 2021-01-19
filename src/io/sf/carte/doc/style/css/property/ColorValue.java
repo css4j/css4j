@@ -78,7 +78,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 				} else {
 					failSetCssText();
 				}
-			} else if (ptype != Type.COLOR || ((ColorValue) value).getColorSpace() != getColorSpace()) {
+			} else if (ptype != Type.COLOR || ((ColorValue) value).getColorModel() != getColorModel()) {
 				failSetCssText();
 			}
 			set(value);
@@ -89,7 +89,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 
 	private void failSetCssText() {
 		throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-				"This value can only be set to a color in the " + getColorSpace() + " color space.");
+				"This value can only be set to a color in the " + getColorModel() + " color model.");
 	}
 
 	void set(StyleValue value) {

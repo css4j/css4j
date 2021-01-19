@@ -43,8 +43,8 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public CSSColorValue.ColorSpace getColorSpace() {
-		return CSSColorValue.ColorSpace.HWB;
+	public CSSColorValue.ColorModel getColorModel() {
+		return CSSColorValue.ColorModel.HWB;
 	}
 
 	@Override

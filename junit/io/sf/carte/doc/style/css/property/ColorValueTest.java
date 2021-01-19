@@ -309,7 +309,7 @@ public class ColorValueTest {
 	}
 
 	@Test
-	public void testHSLColorspace() {
+	public void testHSLColorModel() {
 		CSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("color: hsl(120, 100%, 50%); ");
 		CSSValue value = style.getPropertyCSSValue("color");
@@ -337,7 +337,7 @@ public class ColorValueTest {
 		value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals(CSSColorValue.ColorSpace.HSL, ((CSSColorValue) value).getColorSpace());
+		assertEquals(CSSColorValue.ColorModel.HSL, ((CSSColorValue) value).getColorModel());
 		HSLColor hsl = ((HSLColorValue) value).getHSLColorValue();
 		CalcValue calc = (CalcValue) hsl.getHue();
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, calc.getExpression().getPartType());
@@ -351,7 +351,7 @@ public class ColorValueTest {
 		value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals(CSSColorValue.ColorSpace.HSL, ((CSSColorValue) value).getColorSpace());
+		assertEquals(CSSColorValue.ColorModel.HSL, ((CSSColorValue) value).getColorModel());
 		hsl = ((HSLColorValue) value).getHSLColorValue();
 		calc = (CalcValue) hsl.getHue();
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, calc.getExpression().getPartType());
@@ -453,13 +453,15 @@ public class ColorValueTest {
 	}
 
 	@Test
-	public void testHWBColorspace() {
+	public void testHWBColorModel() {
 		CSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("color: hwb(205 19% 14%); ");
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		RGBAColor rgb = ((CSSTypedValue) value).toRGBColorValue();
+		ColorValue color = (ColorValue) value;
+		assertEquals(CSSColorValue.ColorModel.HWB, color.getColorModel());
+		RGBAColor rgb = color.toRGBColorValue();
 		assertEquals(19f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
 		assertEquals(58.08334f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
 		assertEquals(86f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);

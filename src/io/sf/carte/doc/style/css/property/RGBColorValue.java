@@ -47,8 +47,8 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public CSSColorValue.ColorSpace getColorSpace() {
-		return CSSColorValue.ColorSpace.RGB;
+	public CSSColorValue.ColorModel getColorModel() {
+		return CSSColorValue.ColorModel.RGB;
 	}
 
 	@Override
