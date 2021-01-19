@@ -91,7 +91,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 			float val = ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG);
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(1);
+			format.setMaximumFractionDigits(2);
 			String s = format.format(val);
 			buf.append(s);
 		} else {
@@ -120,7 +120,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMinimumIntegerDigits(0);
 			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(1);
+			format.setMaximumFractionDigits(2);
 			String s = format.format(val);
 			buf.append(s);
 		} else {

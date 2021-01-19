@@ -59,23 +59,23 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public String getCssText() {
-		String css = hwbColor.toString();
-		if (css != null) {
-			return css;
-		}
-		return toRGBColorValue().toString();
+		return hwbColor.toString();
 	}
 
 	@Override
 	public String getMinifiedCssText(String propertyValue) {
-		if (hwbColor.getAlpha().getPrimitiveType() != Type.NUMERIC
-				|| ((CSSTypedValue) hwbColor.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER) != 1f) {
-			String css = hwbColor.toMinifiedString();
-			if (css != null) {
-				return css;
+		String css = hwbColor.toMinifiedString();
+		if (hwbColor.getAlpha().getPrimitiveType() == Type.NUMERIC
+				&& ((CSSTypedValue) hwbColor.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER) == 1f
+				&& hwbColor.getHue().getPrimitiveType() == Type.NUMERIC
+				&& hwbColor.getWhiteness().getPrimitiveType() == Type.NUMERIC
+				&& hwbColor.getBlackness().getPrimitiveType() == Type.NUMERIC) {
+			String rgbCss = ((CSSRGBColor) toRGBColorValue()).toMinifiedString();
+			if (rgbCss.length() < css.length()) {
+				css = rgbCss;
 			}
 		}
-		return ((CSSRGBColor) toRGBColorValue()).toMinifiedString();
+		return css;
 	}
 
 	@Override
