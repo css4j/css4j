@@ -5978,7 +5978,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
-			} else {
+			} else if (type != LexicalType.CALC) {
 				return false;
 			}
 			//
@@ -5992,6 +5992,10 @@ public class CSSParser implements Parser, Cloneable {
 			do {
 				type = lu.getLexicalUnitType();
 				switch (type) {
+				case CALC:
+					if (numericValueCount == 0 && !hasVar) {
+						break;
+					}
 				case REAL:
 				case INTEGER:
 					numericValueCount++;
@@ -6051,7 +6055,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
-			} else {
+			} else if (type != LexicalType.CALC) {
 				return false;
 			}
 			//
@@ -6062,7 +6066,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			// Now it must be the chroma (unless var() involved)
 			type = lu.getLexicalUnitType();
-			if (type != LexicalType.REAL && type != LexicalType.INTEGER) {
+			if (type != LexicalType.REAL && type != LexicalType.INTEGER && type != LexicalType.CALC) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
 				} else if (hasVar) {
@@ -6088,7 +6092,8 @@ public class CSSParser implements Parser, Cloneable {
 				return hasVar;
 			}
 			type = lu.getLexicalUnitType();
-			if (type != LexicalType.REAL && type != LexicalType.INTEGER && !CSSUnit.isAngleUnitType(lu.getCssUnit())) {
+			if (type != LexicalType.REAL && type != LexicalType.INTEGER && !CSSUnit.isAngleUnitType(lu.getCssUnit())
+					&& type != LexicalType.CALC) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
 				} else if (hasVar) {
@@ -6144,6 +6149,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 				break;
 			case VAR:
+			case CALC:
 				break;
 			default:
 				return false;
