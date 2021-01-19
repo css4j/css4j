@@ -448,18 +448,18 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			Hsl hsl = new Hsl();
 			if (max != min) {
 				if (l <= 0.5f) {
-					hsl.s = Math.round((max - min) / l * 50f);
+					hsl.s = Math.round((max - min) / l * 500f) * 0.1f;
 				} else {
-					hsl.s = Math.round((max - min) / (1f - l) * 50f);
+					hsl.s = Math.round((max - min) / (1f - l) * 500f) * 0.1f;
 				}
 			} else {
 				hsl.s = 0;
 			}
-			hsl.h = Math.round(h);
-			if (hsl.h == 360) {
-				hsl.h = 0;
+			hsl.h = Math.round(h * 10f) * 0.1f;
+			if (hsl.h >= 360f) {
+				hsl.h -= 360f;
 			}
-			hsl.l = Math.round(l * 100f);
+			hsl.l = Math.round(l * 1000f) * 0.1f;
 			return hsl;
 		}
 
@@ -477,14 +477,20 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 
 		private String oldHSLString(Hsl hsl, boolean nonOpaque) {
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumFractionDigits(0);
+			format.setMaximumFractionDigits(1);
 			StringBuilder buf = new StringBuilder(22);
 			if (nonOpaque) {
 				buf.append("hsla(");
 			} else {
 				buf.append("hsl(");
 			}
-			buf.append(hsl.h).append(", ").append(hsl.s)
-					.append('%').append(", ").append(hsl.l).append('%');
+			buf.append(format.format(hsl.h));
+			buf.append(", ");
+			buf.append(format.format(hsl.s));
+			buf.append('%').append(", ");
+			buf.append(format.format(hsl.l)).append('%');
 			if (nonOpaque) {
 				buf.append(", ");
 				appendAlphaChannel(buf);
@@ -494,9 +500,17 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 
 		private String hslString(Hsl hsl, boolean nonOpaque) {
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumFractionDigits(0);
+			format.setMaximumFractionDigits(1);
 			StringBuilder buf = new StringBuilder(20);
-			buf.append("hsl(").append(hsl.h).append(' ').append(hsl.s)
-					.append('%').append(' ').append(hsl.l).append('%');
+			buf.append("hsl(");
+			buf.append(format.format(hsl.h));
+			buf.append(' ');
+			buf.append(format.format(hsl.s));
+			buf.append('%').append(' ');
+			buf.append(format.format(hsl.l));
+			buf.append('%');
 			if (nonOpaque) {
 				buf.append(" / ");
 				appendAlphaChannel(buf);
@@ -519,14 +533,17 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 
 		private String oldHSLMinifiedString(Hsl hsl, boolean nonOpaque) {
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumFractionDigits(0);
+			format.setMaximumFractionDigits(1);
 			StringBuilder buf = new StringBuilder(21);
 			if (nonOpaque) {
 				buf.append("hsla(");
 			} else {
 				buf.append("hsl(");
 			}
-			buf.append(hsl.h).append(',').append(hsl.s)
-					.append('%').append(',').append(hsl.l).append('%');
+			buf.append(format.format(hsl.h)).append(',').append(format.format(hsl.s));
+			buf.append('%').append(',').append(format.format(hsl.l)).append('%');
 			if (nonOpaque) {
 				buf.append(',');
 				appendAlphaChannelMinified(buf);
@@ -536,9 +553,13 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 
 		private String hslMinifiedString(Hsl hsl, boolean nonOpaque) {
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumFractionDigits(0);
+			format.setMaximumFractionDigits(1);
 			StringBuilder buf = new StringBuilder(20);
-			buf.append("hsl(").append(hsl.h).append(' ').append(hsl.s)
-					.append('%').append(' ').append(hsl.l).append('%');
+			buf.append("hsl(").append(format.format(hsl.h)).append(' ');
+			buf.append(format.format(hsl.s)).append('%').append(' ');
+			buf.append(format.format(hsl.l)).append('%');
 			if (nonOpaque) {
 				buf.append('/');
 				appendAlphaChannelMinified(buf);
@@ -621,7 +642,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	}
 
 	private static class Hsl {
-		int h, s, l;
+		float h, s, l;
 	}
 
 	class MyHSLColorImpl extends HSLColorImpl {
