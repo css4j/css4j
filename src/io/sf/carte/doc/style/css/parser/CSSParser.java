@@ -5878,16 +5878,16 @@ public class CSSParser implements Parser, Cloneable {
 				LexicalType type = lu.getLexicalUnitType();
 				if (type == LexicalType.PERCENTAGE) {
 					if (lastType == LexicalType.UNKNOWN) {
-						// First type must be integer, angle or VAR
+						// First type must be integer, real, angle or VAR
 						return false;
 					}
 					if (hasCommas) {
 						if (lastType != LexicalType.OPERATOR_COMMA) {
 							return false;
 						}
-					} else if (lastType == LexicalType.INTEGER || lastType == LexicalType.EXT1
-							|| lastType == LexicalType.VAR) {
-						// last type was integer, angle or var().
+					} else if (lastType == LexicalType.INTEGER || lastType == LexicalType.REAL
+							|| lastType == LexicalType.EXT1 || lastType == LexicalType.VAR) {
+						// last type was integer, real, angle or var().
 						hasNoCommas = true;
 					}
 					pcntCount++;
@@ -5916,11 +5916,13 @@ public class CSSParser implements Parser, Cloneable {
 						return false;
 					}
 				} else if (type == LexicalType.REAL) {
-					if ((lastType != LexicalType.OPERATOR_SLASH && lastType != LexicalType.OPERATOR_COMMA)
-							|| (pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)) {
-						return false;
+					if (lastType != LexicalType.UNKNOWN) {
+						if ((lastType != LexicalType.OPERATOR_SLASH && lastType != LexicalType.OPERATOR_COMMA)
+								|| (pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)) {
+							return false;
+						}
+						pcntCount = 3;
 					}
-					pcntCount = 3;
 				} else if (type == LexicalType.CALC) {
 					if (lastType == LexicalType.UNKNOWN) {
 						type = LexicalType.INTEGER;
