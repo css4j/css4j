@@ -355,7 +355,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			return hexr.length() == 1 || hexr.charAt(0) != hexr.charAt(1);
 		}
 
-		HSLColor toHSLColor() {
+		public HSLColor toHSLColor() {
 			Hsl hsl = toHSL();
 			if (hsl == null) {
 				throw new DOMException(DOMException.INVALID_STATE_ERR, "Conversion to hsl() failed.");
