@@ -911,7 +911,7 @@ public class GradientValueTest {
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(hsl(0 0% 75%), hsl(0 0% 25%))", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(hsl(0 0% 75%), hsl(0 0% 25%)); ", style.getCssText());
-		assertEquals("background-image:conic-gradient(rgb(75% 75% 75%),rgb(25% 25% 25%))", style.getMinifiedCssText());
+		assertEquals("background-image:conic-gradient(hsl(0 0% 75%),hsl(0 0% 25%))", style.getMinifiedCssText());
 		val = (GradientValue) style.getPropertyCSSValue("background-image");
 		assertNotNull(val);
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());

@@ -59,23 +59,23 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public String getCssText() {
-		String css = hslColor.toString(commaSyntax);
-		if (css != null) {
-			return css;
-		}
-		return toRGBColorValue().toString();
+		return hslColor.toString(commaSyntax);
 	}
 
 	@Override
 	public String getMinifiedCssText(String propertyValue) {
-		if (hslColor.getAlpha().getPrimitiveType() != Type.NUMERIC
-				|| ((CSSTypedValue) hslColor.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER) != 1f) {
-			String css = hslColor.toMinifiedString(commaSyntax);
-			if (css != null) {
-				return css;
+		String css = hslColor.toMinifiedString(commaSyntax);
+		if (hslColor.getAlpha().getPrimitiveType() == Type.NUMERIC
+				&& ((CSSTypedValue) hslColor.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER) == 1f
+				&& hslColor.getHue().getPrimitiveType() == Type.NUMERIC
+				&& hslColor.getSaturation().getPrimitiveType() == Type.NUMERIC
+				&& hslColor.getLightness().getPrimitiveType() == Type.NUMERIC) {
+			String rgbCss = ((CSSRGBColor) toRGBColorValue()).toMinifiedString();
+			if (rgbCss.length() < css.length()) {
+				css = rgbCss;
 			}
 		}
-		return ((CSSRGBColor) toRGBColorValue()).toMinifiedString();
+		return css;
 	}
 
 	@Override
