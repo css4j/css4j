@@ -383,6 +383,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case VAR:
 		case ATTR:
 		case HSLCOLOR:
+		case LABCOLOR:
+		case LCHCOLOR:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
 		case CUBIC_BEZIER_FUNCTION:

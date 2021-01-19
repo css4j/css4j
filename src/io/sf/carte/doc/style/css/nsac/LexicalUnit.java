@@ -156,6 +156,23 @@ public interface LexicalUnit {
 		HSLCOLOR,
 
 		/**
+		 * lab() colors, for example: <code>lab(53.2% 42.4 57.76 / 0.6)</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		LABCOLOR,
+
+		/**
+		 * lch() colors, for example: <code>lch(58.9% 44.4 97.21 / 0.6)</code> or
+		 * <code>lch(58.9% 44.4 97.21deg / 0.6)</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		LCHCOLOR,
+
+		/**
 		 * Identifier, both predefined and custom.
 		 * 
 		 * @see #getStringValue
@@ -528,6 +545,8 @@ public interface LexicalUnit {
 	 * @see LexicalType#FUNCTION
 	 * @see LexicalType#RGBCOLOR
 	 * @see LexicalType#HSLCOLOR
+	 * @see LexicalType#LABCOLOR
+	 * @see LexicalType#LCHCOLOR
 	 */
 	String getFunctionName();
 
@@ -549,6 +568,8 @@ public interface LexicalUnit {
 	 * @see LexicalType#FUNCTION
 	 * @see LexicalType#RGBCOLOR
 	 * @see LexicalType#HSLCOLOR
+	 * @see LexicalType#LABCOLOR
+	 * @see LexicalType#LCHCOLOR
 	 */
 	LexicalUnit getParameters();
 

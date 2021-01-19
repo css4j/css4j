@@ -5605,6 +5605,10 @@ public class CSSParser implements Parser, Cloneable {
 				lu = newLexicalUnit(LexicalType.ATTR);
 			} else if ("var".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalType.VAR);
+			} else if ("lab".equalsIgnoreCase(name)) {
+				lu = newLexicalUnit(LexicalType.LABCOLOR);
+			} else if ("lch".equalsIgnoreCase(name)) {
+				lu = newLexicalUnit(LexicalType.LCHCOLOR);
 			} else if ("element".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalType.ELEMENT_REFERENCE);
 				functionToken = true;
@@ -5716,7 +5720,9 @@ public class CSSParser implements Parser, Cloneable {
 				return;
 			}
 			if ((type == LexicalType.RGBCOLOR && !isValidRGBColor(index)) ||
-					(type == LexicalType.HSLCOLOR && !isValidHSLColor())) {
+					(type == LexicalType.HSLCOLOR && !isValidHSLColor()) ||
+					(type == LexicalType.LABCOLOR && !isValidLABColor()) ||
+					(type == LexicalType.LCHCOLOR && !isValidLCHColor())) {
 				String s;
 				try {
 					s = "Wrong color: " + currentlu.toString();
@@ -5956,6 +5962,201 @@ public class CSSParser implements Parser, Cloneable {
 		private boolean isAngleType(short type) {
 			return type == CSSUnit.CSS_DEG || type == CSSUnit.CSS_RAD || type == CSSUnit.CSS_GRAD
 					|| type == CSSUnit.CSS_TURN;
+		}
+
+		private boolean isValidLABColor() {
+			LexicalUnit lu = currentlu.parameters;
+			boolean hasVar = false;
+			if (lu == null) {
+				return false;
+			}
+			// First argument: percentage
+			LexicalType type = lu.getLexicalUnitType();
+			if (type == LexicalType.PERCENTAGE) {
+				if (lu.getFloatValue() < 0f) {
+					return false;
+				}
+			} else if (type == LexicalType.VAR) {
+				hasVar = true;
+			} else {
+				return false;
+			}
+			//
+			lu = lu.getNextLexicalUnit();
+			if (lu == null) {
+				// Just one value: only OK if it was a var().
+				return hasVar;
+			}
+			// Establish a value loop
+			int numericValueCount = 1;
+			do {
+				type = lu.getLexicalUnitType();
+				switch (type) {
+				case REAL:
+				case INTEGER:
+					numericValueCount++;
+					if (numericValueCount > 3) {
+						if (!hasVar || numericValueCount > 4) {
+							return false;
+						}
+						return isValidAlpha(lu);
+					}
+					break;
+				case OPERATOR_SLASH:
+					lu = lu.getNextLexicalUnit();
+					// This must be alpha channel value
+					if (lu == null || numericValueCount > 3 || (numericValueCount < 3 && !hasVar)) {
+						return false;
+					}
+					return isValidAlpha(lu);
+				case PERCENTAGE:
+					if (!hasVar || numericValueCount > 3) {
+						return false;
+					}
+					float fAlpha = lu.getFloatValue();
+					if (fAlpha < 0 || fAlpha > 100f) {
+						return false;
+					}
+					// Loop while there are VARs
+					lu = lu.getNextLexicalUnit();
+					while (lu != null) {
+						if (lu.getLexicalUnitType() != LexicalType.VAR) {
+							return false;
+						}
+						lu = lu.getNextLexicalUnit();
+					}
+					return true;
+				case VAR:
+					hasVar = true;
+					break;
+				default:
+					return false;
+				}
+				lu = lu.getNextLexicalUnit();
+			} while (lu != null);
+			return true;
+		}
+
+		private boolean isValidLCHColor() {
+			LexicalUnit lu = currentlu.parameters;
+			boolean hasVar = false;
+			if (lu == null) {
+				return false;
+			}
+			// First argument: percentage
+			LexicalType type = lu.getLexicalUnitType();
+			if (type == LexicalType.PERCENTAGE) {
+				if (lu.getFloatValue() < 0f) {
+					return false;
+				}
+			} else if (type == LexicalType.VAR) {
+				hasVar = true;
+			} else {
+				return false;
+			}
+			//
+			lu = lu.getNextLexicalUnit();
+			if (lu == null) {
+				// Just one value: only OK if it was a var().
+				return hasVar;
+			}
+			// Now it must be the chroma (unless var() involved)
+			type = lu.getLexicalUnitType();
+			if (type != LexicalType.REAL && type != LexicalType.INTEGER) {
+				if (type == LexicalType.VAR) {
+					hasVar = true;
+				} else if (hasVar) {
+					// If not an angle, must be slash or alpha
+					if (!CSSUnit.isAngleUnitType(lu.getCssUnit())) {
+						if (type == LexicalType.OPERATOR_SLASH) {
+							lu = lu.getNextLexicalUnit();
+							// This must be alpha channel value
+							if (lu == null) {
+								return false;
+							}
+						}
+						return isValidAlpha(lu);
+					}
+				} else {
+					return false;
+				}
+			}
+			// Now the hue
+			lu = lu.getNextLexicalUnit();
+			if (lu == null) {
+				// Just two values: only OK if a var() is involved.
+				return hasVar;
+			}
+			type = lu.getLexicalUnitType();
+			if (type != LexicalType.REAL && type != LexicalType.INTEGER && !CSSUnit.isAngleUnitType(lu.getCssUnit())) {
+				if (type == LexicalType.VAR) {
+					hasVar = true;
+				} else if (hasVar) {
+					if (type == LexicalType.OPERATOR_SLASH) {
+						lu = lu.getNextLexicalUnit();
+						// This must be alpha channel value
+						if (lu == null) {
+							return false;
+						}
+					}
+					return isValidAlpha(lu);
+				} else {
+					return false;
+				}
+			}
+			// We are done, unless there is an alpha channel
+			lu = lu.getNextLexicalUnit();
+			if (lu != null) {
+				type = lu.getLexicalUnitType();
+				if (type == LexicalType.OPERATOR_SLASH) {
+					lu = lu.getNextLexicalUnit();
+					// This must be alpha channel value
+					if (lu == null) {
+						return false;
+					}
+				} else if (!hasVar) {
+					return false;
+				}
+				return isValidAlpha(lu);
+			}
+			return true;
+		}
+
+		private boolean isValidAlpha(LexicalUnit lu) {
+			LexicalType type = lu.getLexicalUnitType();
+			switch (type) {
+			case INTEGER:
+				int iAlpha = lu.getIntegerValue();
+				if (iAlpha < 0 || iAlpha > 1) {
+					return false;
+				}
+				break;
+			case REAL:
+				float fAlpha = lu.getFloatValue();
+				if (fAlpha < 0 || fAlpha > 1) {
+					return false;
+				}
+				break;
+			case PERCENTAGE:
+				fAlpha = lu.getFloatValue();
+				if (fAlpha < 0 || fAlpha > 100f) {
+					return false;
+				}
+				break;
+			case VAR:
+				break;
+			default:
+				return false;
+			}
+			// Loop while there are VARs
+			lu = lu.getNextLexicalUnit();
+			while (lu != null) {
+				if (lu.getLexicalUnitType() != LexicalType.VAR) {
+					return false;
+				}
+				lu = lu.getNextLexicalUnit();
+			}
+			return true;
 		}
 
 		protected void handleRightCurlyBracket(int index) {

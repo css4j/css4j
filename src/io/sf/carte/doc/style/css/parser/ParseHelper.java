@@ -912,6 +912,8 @@ public class ParseHelper {
 		case CALC:
 		case VAR:
 		case HSLCOLOR:
+		case LABCOLOR:
+		case LCHCOLOR:
 		case RECT_FUNCTION:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
