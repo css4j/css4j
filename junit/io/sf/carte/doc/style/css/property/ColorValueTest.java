@@ -1316,12 +1316,19 @@ public class ColorValueTest {
 		assertEquals(CssType.TYPED, value.getCssValueType());
 		assertEquals(Type.COLOR, value.getPrimitiveType());
 		ColorValue color = (ColorValue) value;
-		// To RGB (99.8771%, 0.2075%, -1.2%)
+		// To RGB (99.8771%, 0.207%, -1.2%)
 		try {
-			color.toRGBColorValue();
+			color.toRGBColorValue(false);
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
 		}
+		// To RGB, clamped
+		RGBAColor rgb = color.toRGBColorValue();
+		assertEquals(99.8771f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-4);
+		assertEquals(0.2073f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-4);
+		assertEquals(0f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-3);
+		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals("rgb(99.88% 0.21% 0%)", rgb.toString());
 	}
 
 	@Test
@@ -1694,12 +1701,19 @@ public class ColorValueTest {
 		assertEquals(CssType.TYPED, value.getCssValueType());
 		assertEquals(Type.COLOR, value.getPrimitiveType());
 		ColorValue color = (ColorValue) value;
-		// To RGB (99.8771%, 0.2075%, -1.2%)
+		// To RGB (99.8771%, 0.207%, -1.2%)
 		try {
-			color.toRGBColorValue();
+			color.toRGBColorValue(false);
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
 		}
+		// To RGB, clamped
+		RGBAColor rgb = color.toRGBColorValue();
+		assertEquals(99.8771f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-4);
+		assertEquals(0.207f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-3);
+		assertEquals(0f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-3);
+		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals("rgb(99.88% 0.21% 0%)", rgb.toString());
 	}
 
 	@Test

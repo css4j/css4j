@@ -36,17 +36,22 @@ public interface CSSColorValue extends CSSTypedValue {
 	 * The returned value is implicitly in the sRGB color space, unless stated
 	 * otherwise.
 	 * </p>
-	 *
+	 * 
+	 * @param clamp {@code true} if the converted value has to be clamped when it
+	 *              does not fall into the sRGB color gamut.
+	 * 
 	 * @return the RGBA color value.
 	 * @exception DOMException INVALID_ACCESS_ERR: if this value can't return a RGB
 	 *                         color value (either is not a <code>COLOR</code>, not
-	 *                         a typed value, or the color does not map into the
-	 *                         -implicit- sRGB color space).<br/>
+	 *                         a typed value, or {@code clamp} is false and the
+	 *                         color does not map into the -implicit- sRGB color
+	 *                         space).<br/>
 	 *                         NOT_SUPPORTED_ERR: if the conversion needs device
 	 *                         color space information to be performed accurately.
 	 */
-	@Override
-	RGBAColor toRGBColorValue() throws DOMException;
+	default RGBAColor toRGBColorValue(boolean clamp) throws DOMException {
+		return toRGBColorValue();
+	}
 
 	@Override
 	CSSColorValue clone();

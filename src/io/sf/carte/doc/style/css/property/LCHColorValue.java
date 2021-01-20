@@ -106,6 +106,11 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColorValue() throws DOMException {
+		return toRGBColorValue(true);
+	}
+
+	@Override
+	public RGBAColor toRGBColorValue(boolean clamp) throws DOMException {
 		if (!isConvertibleComponent(lchColor.getChroma()) || !isConvertibleComponent(lchColor.getHue())
 				|| !isConvertibleComponent(lchColor.getLightness())) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
@@ -127,7 +132,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE);
 		//
 		CSSRGBColor color = new CSSRGBColor();
-		LABColorValue.labToRGB(light, a, b, lchColor.getAlpha(), color);
+		LABColorValue.labToRGB(light, a, b, clamp, lchColor.getAlpha(), color);
 		return color;
 	}
 

@@ -106,6 +106,11 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColorValue() throws DOMException {
+		return toRGBColorValue(true);
+	}
+
+	@Override
+	public RGBAColor toRGBColorValue(boolean clamp) throws DOMException {
 		// Convert to XYZ
 		if (!isConvertibleComponent(labColor.getA()) || !isConvertibleComponent(labColor.getB())
 				|| !isConvertibleComponent(labColor.getLightness())) {
@@ -116,11 +121,11 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
 		CSSRGBColor color = new CSSRGBColor();
-		labToRGB(light, a, b, labColor.getAlpha(), color);
+		labToRGB(light, a, b, clamp, labColor.getAlpha(), color);
 		return color;
 	}
 
-	static void labToRGB(float light, float a, float b, PrimitiveValue alpha, CSSRGBColor color) {
+	static void labToRGB(float light, float a, float b, boolean clamp, PrimitiveValue alpha, CSSRGBColor color) {
 		float fy = (light + 16f) / 116f;
 		float fx = a / 500f + fy;
 		float fz = fy - b / 200f;
@@ -147,16 +152,15 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		//
 		float x = xr * xwhite;
 		float z = zr * zwhite;
-		xyzToRGB(x, yr, z, alpha, color);
+		xyzToRGB(x, yr, z, clamp, alpha, color);
 	}
 
-	private static void xyzToRGB(float x, float y, float z, PrimitiveValue alpha, CSSRGBColor color) {
+	private static void xyzToRGB(float x, float y, float z, boolean clamp, PrimitiveValue alpha, CSSRGBColor color) {
 		// Chromatic adjustment: D50 to D65, Bradford
 		// See http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 		/*
-		 *  0.9555766 -0.0230393  0.0631636
-		 * -0.0282895  1.0099416  0.0210077
-		 *  0.0122982 -0.0204830  1.3299098
+		 * 0.9555766 -0.0230393 0.0631636 -0.0282895 1.0099416 0.0210077 0.0122982
+		 * -0.0204830 1.3299098
 		 */
 		float xa = 0.9555766f * x + -0.0230393f * y + 0.0631636f * z;
 		float ya = -0.0282895f * x + 1.0099416f * y + 0.0210077f * z;
@@ -172,9 +176,9 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		float g = -0.9692660f * xa + 1.8760108f * ya + 0.0415560f * za;
 		float b = 0.0556434f * xa - 0.2040259f * ya + 1.0572252f * za;
 		//
-		r = sRGBCompanding(r);
-		g = sRGBCompanding(g);
-		b = sRGBCompanding(b);
+		r = sRGBCompanding(r, clamp);
+		g = sRGBCompanding(g, clamp);
+		b = sRGBCompanding(b, clamp);
 		//
 		color.setAlpha(alpha.clone());
 		NumberValue red = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, r * 100f);
@@ -188,7 +192,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		color.setBlue(blue);
 	}
 
-	private static float sRGBCompanding(float linearComponent) {
+	private static float sRGBCompanding(float linearComponent, boolean clamp) {
 		// sRGB Companding
 		// See http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_RGB.html
 		float nlComp;
@@ -198,7 +202,14 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			nlComp = 1.055f * (float) Math.pow(linearComponent, 1d/2.4d) - 0.055f;
 		}
 		// range check
-		if (nlComp < 0) {
+		if (clamp) {
+			if (nlComp < 0) {
+				nlComp = 0f;
+			} else if (nlComp > 1f) {
+				nlComp = 1f;
+			}
+		} else if (nlComp < 0 || nlComp > 1f) {
+			// Perhaps it is a rounding issue
 			nlComp = Math.round(nlComp * 100f) * 0.01f;
 		}
 		return nlComp;
