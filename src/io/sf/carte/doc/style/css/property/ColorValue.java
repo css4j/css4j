@@ -42,7 +42,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 
 	private boolean systemDefault = false;
 
-	boolean commaSyntax = false;
+	boolean commaSyntax = true;
 
 	ColorValue() {
 		super(Type.COLOR);
@@ -51,6 +51,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	ColorValue(ColorValue copied) {
 		super(copied);
 		this.systemDefault = copied.systemDefault;
+		this.commaSyntax = copied.commaSyntax;
 	}
 
 	public void setSystemDefault() {
@@ -320,7 +321,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 
 		private boolean isInteger(float r) {
-			return Math.abs(r - (float) Math.rint(r)) < 1e-6;
+			return Math.abs(r - (float) Math.rint(r)) < 3e-4;
 		}
 
 		private String minifiedFunctionalString(boolean nonOpaque) {
