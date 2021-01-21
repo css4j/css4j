@@ -157,6 +157,11 @@ public interface DOMNode extends io.sf.carte.doc.style.css.CSSNode {
 	DOMNode insertBefore(Node newChild, Node refChild) throws DOMException;
 
 	/**
+	 * Removes all the children from this node, if any.
+	 */
+	void removeAllChild();
+
+	/**
 	 * Removes the node <code>oldChild</code> from the children of this node.
 	 * 
 	 * @param oldChild the node to remove.

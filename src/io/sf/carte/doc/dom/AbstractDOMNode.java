@@ -369,6 +369,19 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 		callUserHandlers(UserDataHandler.NODE_DELETED, this, null);
 	}
 
+	@Override
+	public void removeAllChild() {
+		if (hasChildNodes()) {
+			RawNodeList childnodes = getNodeList();
+			Iterator<DOMNode> it = childnodes.iterator();
+			while (it.hasNext()) {
+				AbstractDOMNode removed = (AbstractDOMNode) it.next();
+				removed.removeFromParent(childnodes);
+				postRemoveChild(removed);
+			}
+		}
+	}
+
 	static void callUserHandlers(short operation, AbstractDOMNode child, Node destNode) {
 		if (child.userDataHandler != null) {
 			Iterator<Entry<String, UserDataHandler>> it = child.userDataHandler.entrySet().iterator();

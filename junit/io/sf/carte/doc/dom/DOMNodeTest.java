@@ -1148,6 +1148,49 @@ public class DOMNodeTest {
 	}
 
 	@Test
+	public void removeAllChild() throws DOMException {
+		DOMElement html = xhtmlDoc.getDocumentElement();
+		DOMElement body = xhtmlDoc.createElement("body");
+		body.removeAllChild();
+		assertFalse(body.hasChildNodes());
+		html.appendChild(body);
+		DOMElement elm = xhtmlDoc.createElement("span");
+		Text text = xhtmlDoc.createTextNode("foo");
+		elm.appendChild(text);
+		Text text2 = xhtmlDoc.createTextNode("bar");
+		body.appendChild(text2);
+		// Call it on text node, nothing happens
+		((DOMNode) text2).removeAllChild();
+		// keep adding children
+		DOMElement div = xhtmlDoc.createElement("div");
+		div.appendChild(xhtmlDoc.createTextNode("inside div"));
+		body.appendChild(div);
+		body.appendChild(elm);
+		DOMElement p = xhtmlDoc.createElement("p");
+		p.appendChild(xhtmlDoc.createTextNode("inside p"));
+		body.appendChild(p);
+		// Remove all
+		body.removeAllChild();
+		assertFalse(body.hasChildNodes());
+		assertEquals(0, body.getChildNodes().getLength());
+		assertNull(body.getFirstChild());
+		assertNull(body.getLastChild());
+		assertNull(body.getFirstElementChild());
+		assertNull(body.getLastElementChild());
+		assertNull(div.getParentNode());
+		assertNull(elm.getParentNode());
+		assertNull(p.getParentNode());
+		assertNull(text2.getParentNode());
+		// Remove again (nothing happens)
+		body.removeAllChild();
+		assertFalse(body.hasChildNodes());
+		// Remove body
+		html.removeAllChild();
+		assertFalse(html.hasChildNodes());
+		assertNull(body.getParentNode());
+	}
+
+	@Test
 	public void replaceChild() throws DOMException {
 		DOMElement html = xhtmlDoc.getDocumentElement();
 		DOMElement body = xhtmlDoc.createElement("body");
