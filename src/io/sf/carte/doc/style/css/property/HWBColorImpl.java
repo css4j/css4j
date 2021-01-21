@@ -11,12 +11,8 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -75,7 +71,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 		boolean nonOpaque = isNonOpaque();
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("hwb(");
-		appendHue(buf);
+		appendHue(buf, hue);
 		buf.append(' ').append(whiteness.getCssText())
 				.append(' ').append(blackness.getCssText());
 		if (nonOpaque) {
@@ -86,24 +82,11 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 		return buf.toString();
 	}
 
-	private void appendHue(StringBuilder buf) {
-		if (hue.getUnitType() == CSSUnit.CSS_DEG) {
-			float val = ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(2);
-			String s = format.format(val);
-			buf.append(s);
-		} else {
-			buf.append(hue.getCssText());
-		}
-	}
-
 	String toMinifiedString() {
 		boolean nonOpaque = isNonOpaque();
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("hwb(");
-		appendMinifiedHue(buf);
+		appendMinifiedHue(buf, hue);
 		buf.append(' ').append(whiteness.getCssText())
 				.append(' ').append(blackness.getCssText());
 		if (nonOpaque) {
@@ -112,20 +95,6 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 		}
 		buf.append(')');
 		return buf.toString();
-	}
-
-	private void appendMinifiedHue(StringBuilder buf) {
-		if (hue.getUnitType() == CSSUnit.CSS_DEG) {
-			float val = ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumIntegerDigits(0);
-			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(2);
-			String s = format.format(val);
-			buf.append(s);
-		} else {
-			buf.append(hue.getMinifiedCssText("color"));
-		}
 	}
 
 	@Override

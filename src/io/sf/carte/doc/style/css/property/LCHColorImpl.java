@@ -12,18 +12,15 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.LCHColor;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
-import io.sf.carte.doc.style.css.LCHColor;
 
 class LCHColorImpl extends BaseColor implements LCHColor {
 
@@ -95,7 +92,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 		wri.write(' ');
 		chroma.writeCssText(wri);
 		wri.write(' ');
-		writeHue(wri);
+		writeHue(wri, hue);
 		if (isNonOpaque()) {
 			wri.write(" / ");
 			appendAlphaChannel(wri);
@@ -103,56 +100,17 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 		wri.write(')');
 	}
 
-	private void writeHue(SimpleWriter wri) throws IOException {
-		if (hue.getUnitType() == CSSUnit.CSS_DEG) {
-			float val = ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumFractionDigits(0);
-			int mxfd;
-			if (((CSSTypedValue) hue).isCalculatedNumber()) {
-				mxfd = 3;
-			} else {
-				mxfd = 4;
-			}
-			format.setMaximumFractionDigits(mxfd);
-			String s = format.format(val);
-			wri.write(s);
-		} else {
-			hue.writeCssText(wri);
-		}
-	}
-
 	public String toMinifiedString() {
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("lch(").append(lightness.getMinifiedCssText("color"));
 		buf.append(' ').append(chroma.getMinifiedCssText("color")).append(' ');
-		appendMinifiedHue(buf);
+		appendMinifiedHue(buf, hue);
 		if (isNonOpaque()) {
 			buf.append('/');
 			appendAlphaChannelMinified(buf);
 		}
 		buf.append(')');
 		return buf.toString();
-	}
-
-	private void appendMinifiedHue(StringBuilder buf) {
-		if (hue.getUnitType() == CSSUnit.CSS_DEG) {
-			float val = ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumIntegerDigits(0);
-			format.setMinimumFractionDigits(0);
-			int mxfd;
-			if (((CSSTypedValue) hue).isCalculatedNumber()) {
-				mxfd = 3;
-			} else {
-				mxfd = 4;
-			}
-			format.setMaximumFractionDigits(mxfd);
-			String s = format.format(val);
-			buf.append(s);
-		} else {
-			buf.append(hue.getMinifiedCssText("color"));
-		}
 	}
 
 	@Override

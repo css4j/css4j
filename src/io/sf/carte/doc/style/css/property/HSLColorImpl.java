@@ -11,12 +11,8 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -86,7 +82,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 		} else {
 			buf.append("hsl(");
 		}
-		appendHue(buf);
+		appendHue(buf, hue);
 		buf.append(", ").append(saturation.getCssText())
 				.append(", ").append(lightness.getCssText());
 		if (nonOpaque) {
@@ -100,7 +96,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	private String newString(boolean nonOpaque) {
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("hsl(");
-		appendHue(buf);
+		appendHue(buf, hue);
 		buf.append(' ').append(saturation.getCssText())
 				.append(' ').append(lightness.getCssText());
 		if (nonOpaque) {
@@ -109,19 +105,6 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 		}
 		buf.append(')');
 		return buf.toString();
-	}
-
-	private void appendHue(StringBuilder buf) {
-		if (hue.getUnitType() == CSSUnit.CSS_DEG) {
-			float val = ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(2);
-			String s = format.format(val);
-			buf.append(s);
-		} else {
-			buf.append(hue.getCssText());
-		}
 	}
 
 	String toMinifiedString(boolean commaSyntax) {
@@ -140,7 +123,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 		} else {
 			buf.append("hsl(");
 		}
-		appendMinifiedHue(buf);
+		appendMinifiedHue(buf, hue);
 		buf.append(',').append(saturation.getMinifiedCssText("color"))
 				.append(',').append(lightness.getMinifiedCssText("color"));
 		if (nonOpaque) {
@@ -154,7 +137,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	private String minifiedString(boolean nonOpaque) {
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("hsl(");
-		appendMinifiedHue(buf);
+		appendMinifiedHue(buf, hue);
 		buf.append(' ').append(saturation.getMinifiedCssText("color"))
 				.append(' ').append(lightness.getMinifiedCssText("color"));
 		if (nonOpaque) {
@@ -163,20 +146,6 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 		}
 		buf.append(')');
 		return buf.toString();
-	}
-
-	private void appendMinifiedHue(StringBuilder buf) {
-		if (hue.getUnitType() == CSSUnit.CSS_DEG) {
-			float val = ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumIntegerDigits(0);
-			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(2);
-			String s = format.format(val);
-			buf.append(s);
-		} else {
-			buf.append(hue.getMinifiedCssText("color"));
-		}
 	}
 
 	@Override

@@ -132,4 +132,59 @@ abstract class BaseColor implements Cloneable, java.io.Serializable {
 		return format.format(f);
 	}
 
+	void appendHue(StringBuilder buf, PrimitiveValue hue) {
+		short unit = hue.getUnitType();
+		if (unit == CSSUnit.CSS_DEG || unit == CSSUnit.CSS_GRAD) {
+			CSSTypedValue number = (CSSTypedValue) hue;
+			float val = number.getFloatValue(unit);
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumFractionDigits(0);
+			format.setMaximumFractionDigits(4);
+			String s = format.format(val);
+			buf.append(s);
+			if (unit == CSSUnit.CSS_GRAD) {
+				buf.append("grad");
+			}
+		} else {
+			buf.append(hue.getCssText());
+		}
+	}
+
+	void writeHue(SimpleWriter wri, PrimitiveValue hue) throws IOException {
+		short unit = hue.getUnitType();
+		if (unit == CSSUnit.CSS_DEG || unit == CSSUnit.CSS_GRAD) {
+			CSSTypedValue number = (CSSTypedValue) hue;
+			float val = number.getFloatValue(unit);
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumFractionDigits(0);
+			format.setMaximumFractionDigits(4);
+			String s = format.format(val);
+			wri.write(s);
+			if (unit == CSSUnit.CSS_GRAD) {
+				wri.write("grad");
+			}
+		} else {
+			hue.writeCssText(wri);
+		}
+	}
+
+	void appendMinifiedHue(StringBuilder buf, PrimitiveValue hue) {
+		short unit = hue.getUnitType();
+		if (unit == CSSUnit.CSS_DEG || unit == CSSUnit.CSS_GRAD) {
+			CSSTypedValue number = (CSSTypedValue) hue;
+			float val = number.getFloatValue(unit);
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumIntegerDigits(0);
+			format.setMinimumFractionDigits(0);
+			format.setMaximumFractionDigits(4);
+			String s = format.format(val);
+			buf.append(s);
+			if (unit == CSSUnit.CSS_GRAD) {
+				buf.append("grad");
+			}
+		} else {
+			buf.append(hue.getMinifiedCssText("color"));
+		}
+	}
+
 }
