@@ -5560,7 +5560,7 @@ public class CSSParser implements Parser, Cloneable {
 							prevcp = codepoint;
 						} else if (buffer.length() == 0) {
 							// Sub-values
-							newLexicalUnit(LexicalType.SUB_EXPRESSION);
+							newLexicalUnit(LexicalType.SUB_EXPRESSION, true);
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
 									"Unexpected token: " + buffer.toString());
@@ -5581,7 +5581,7 @@ public class CSSParser implements Parser, Cloneable {
 				if (!parseError) {
 					if (propertyName != null) {
 						processBuffer(index);
-						newLexicalUnit(LexicalType.LEFT_BRACKET);
+						newLexicalUnit(LexicalType.LEFT_BRACKET, false);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -5594,37 +5594,37 @@ public class CSSParser implements Parser, Cloneable {
 			LexicalUnitImpl lu;
 			String name = unescapeBuffer(index);
 			if ("url".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.URI);
+				lu = newLexicalUnit(LexicalType.URI, true);
 			} else if ("rgb".equalsIgnoreCase(name) || "rgba".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.RGBCOLOR);
+				lu = newLexicalUnit(LexicalType.RGBCOLOR, true);
 			} else if ("hsl".equalsIgnoreCase(name) || "hsla".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.HSLCOLOR);
+				lu = newLexicalUnit(LexicalType.HSLCOLOR, true);
 			} else if ("calc".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.CALC);
+				lu = newLexicalUnit(LexicalType.CALC, true);
 			} else if ("attr".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.ATTR);
+				lu = newLexicalUnit(LexicalType.ATTR, true);
 			} else if ("var".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.VAR);
+				lu = newLexicalUnit(LexicalType.VAR, true);
 			} else if ("lab".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.LABCOLOR);
+				lu = newLexicalUnit(LexicalType.LABCOLOR, true);
 			} else if ("lch".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.LCHCOLOR);
+				lu = newLexicalUnit(LexicalType.LCHCOLOR, true);
 			} else if ("element".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.ELEMENT_REFERENCE);
+				lu = newLexicalUnit(LexicalType.ELEMENT_REFERENCE, true);
 				functionToken = true;
 				return;
 			} else if ("rect".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.RECT_FUNCTION);
+				lu = newLexicalUnit(LexicalType.RECT_FUNCTION, true);
 			} else if ("counter".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.COUNTER_FUNCTION);
+				lu = newLexicalUnit(LexicalType.COUNTER_FUNCTION, true);
 			} else if ("counters".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.COUNTERS_FUNCTION);
+				lu = newLexicalUnit(LexicalType.COUNTERS_FUNCTION, true);
 			} else if ("cubic-bezier".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.CUBIC_BEZIER_FUNCTION);
+				lu = newLexicalUnit(LexicalType.CUBIC_BEZIER_FUNCTION, true);
 			} else if ("steps".equalsIgnoreCase(name)) {
-				lu = newLexicalUnit(LexicalType.STEPS_FUNCTION);
+				lu = newLexicalUnit(LexicalType.STEPS_FUNCTION, true);
 			} else {
-				lu = newLexicalUnit(LexicalType.FUNCTION);
+				lu = newLexicalUnit(LexicalType.FUNCTION, true);
 			}
 			lu.value = name;
 			functionToken = true;
@@ -5640,7 +5640,7 @@ public class CSSParser implements Parser, Cloneable {
 			getTokenControl().setTokenHandler(ignoreth);
 		}
 
-		private LexicalUnitImpl newLexicalUnit(LexicalType unitType) {
+		private LexicalUnitImpl newLexicalUnit(LexicalType unitType, boolean functionOrSubexpression) {
 			LexicalUnitImpl lu;
 			if (functionToken) {
 				if (currentlu.getLexicalUnitType() == LexicalType.URI) {
@@ -5649,7 +5649,7 @@ public class CSSParser implements Parser, Cloneable {
 				} else {
 					lu = new LexicalUnitImpl(unitType);
 					currentlu.addFunctionParameter(lu);
-					if (ParseHelper.isFunctionUnitType(unitType) || unitType == LexicalType.SUB_EXPRESSION) {
+					if (functionOrSubexpression) {
 						currentlu = lu;
 					}
 				}
@@ -5697,7 +5697,7 @@ public class CSSParser implements Parser, Cloneable {
 				if (!parseError) {
 					if (propertyName != null) {
 						processBuffer(index);
-						newLexicalUnit(LexicalType.RIGHT_BRACKET);
+						newLexicalUnit(LexicalType.RIGHT_BRACKET, false);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -6226,7 +6226,7 @@ public class CSSParser implements Parser, Cloneable {
 					if (!functionToken || currentlu.parameters == null || !addToIdentCompat()) {
 						processBuffer(index);
 					}
-					newLexicalUnit(LexicalType.OPERATOR_COMMA);
+					newLexicalUnit(LexicalType.OPERATOR_COMMA, false);
 				} else if (codepoint == 33) { // !
 					if (!functionToken) {
 						processBuffer(index);
@@ -6239,7 +6239,7 @@ public class CSSParser implements Parser, Cloneable {
 						if (functionToken && !unicodeRange) {
 							processBuffer(index);
 							if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-								newLexicalUnit(LexicalType.OPERATOR_MINUS);
+								newLexicalUnit(LexicalType.OPERATOR_MINUS, false);
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
@@ -6258,7 +6258,7 @@ public class CSSParser implements Parser, Cloneable {
 								buffer.append('%');
 							} else {
 								processBuffer(index);
-								newLexicalUnit(LexicalType.OPERATOR_MOD);
+								newLexicalUnit(LexicalType.OPERATOR_MOD, false);
 							}
 						} else if (codepoint == 35) { // #
 							if (buffer.length() != 0) {
@@ -6288,7 +6288,7 @@ public class CSSParser implements Parser, Cloneable {
 							} else if (functionToken) {
 								processBuffer(index);
 								if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-									newLexicalUnit(LexicalType.OPERATOR_PLUS);
+									newLexicalUnit(LexicalType.OPERATOR_PLUS, false);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
@@ -6298,7 +6298,7 @@ public class CSSParser implements Parser, Cloneable {
 						} else if (codepoint == 47) { // '/'
 							processBuffer(index);
 							if (!functionToken || (currentlu.parameters != null && lastParamIsOperand())) {
-								newLexicalUnit(LexicalType.OPERATOR_SLASH);
+								newLexicalUnit(LexicalType.OPERATOR_SLASH, false);
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
@@ -6306,7 +6306,7 @@ public class CSSParser implements Parser, Cloneable {
 							if (codepoint == 42) { // '*'
 								processBuffer(index);
 								if (currentlu.parameters != null && lastParamIsOperand()) {
-									newLexicalUnit(LexicalType.OPERATOR_MULTIPLY);
+									newLexicalUnit(LexicalType.OPERATOR_MULTIPLY, false);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
@@ -6371,7 +6371,7 @@ public class CSSParser implements Parser, Cloneable {
 						if (escapedTokenIndex == -1) {
 							buffer.append('=');
 							String s = buffer.toString();
-							newLexicalUnit(LexicalType.COMPAT_IDENT).value = s;
+							newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = s;
 							buffer.setLength(0);
 							hexColor = false;
 							warnIdentCompat(index - buflen, s);
@@ -6392,7 +6392,7 @@ public class CSSParser implements Parser, Cloneable {
 							lu.value += '=';
 							return true;
 						} else if (lutype == LexicalType.RIGHT_BRACKET) {
-							newLexicalUnit(LexicalType.COMPAT_IDENT).value = "=";
+							newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = "=";
 							warnIdentCompat(index, "=");
 							return true;
 						}
@@ -6502,7 +6502,7 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				} else if (parendepth == 1 && functionToken && allowSemicolonArgument()) {
 					processBuffer(index);
-					newLexicalUnit(LexicalType.OPERATOR_SEMICOLON);
+					newLexicalUnit(LexicalType.OPERATOR_SEMICOLON, false);
 					return;
 				}
 			}
@@ -6697,13 +6697,13 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			if (i == -1) {
 				if (ident.equalsIgnoreCase("inherit")) {
-					newLexicalUnit(LexicalType.INHERIT);
+					newLexicalUnit(LexicalType.INHERIT, false);
 				} else if (ident.equalsIgnoreCase("initial")) {
-					newLexicalUnit(LexicalType.INITIAL);
+					newLexicalUnit(LexicalType.INITIAL, false);
 				} else if (ident.equalsIgnoreCase("unset")) {
-					newLexicalUnit(LexicalType.UNSET);
+					newLexicalUnit(LexicalType.UNSET, false);
 				} else if (ident.equalsIgnoreCase("revert")) {
-					newLexicalUnit(LexicalType.REVERT);
+					newLexicalUnit(LexicalType.REVERT, false);
 				} else {
 					if (!newIdentifier(raw, ident, cssText)) {
 						handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
@@ -6753,7 +6753,7 @@ public class CSSParser implements Parser, Cloneable {
 				handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
 				return;
 			}
-			LexicalUnitImpl range = newLexicalUnit(LexicalType.UNICODE_RANGE);
+			LexicalUnitImpl range = newLexicalUnit(LexicalType.UNICODE_RANGE, false);
 			range.addFunctionParameter(lu1);
 			if (lu2 != null) {
 				range.addFunctionParameter(lu2);
@@ -6802,7 +6802,7 @@ public class CSSParser implements Parser, Cloneable {
 				} catch (NumberFormatException e) {
 					return false;
 				}
-				lu = newLexicalUnit(unitType);
+				lu = newLexicalUnit(unitType, false);
 				lu.floatValue = flval;
 				lu.dimensionUnitText = unit;
 				lu.setCssUnit(cssUnit);
@@ -6838,7 +6838,7 @@ public class CSSParser implements Parser, Cloneable {
 		private boolean parseHexColor(int buflen) {
 			try {
 				if (buflen == 3) {
-					newLexicalUnit(LexicalType.RGBCOLOR);
+					newLexicalUnit(LexicalType.RGBCOLOR, true);
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -6848,7 +6848,7 @@ public class CSSParser implements Parser, Cloneable {
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 6) {
-					newLexicalUnit(LexicalType.RGBCOLOR);
+					newLexicalUnit(LexicalType.RGBCOLOR, true);
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -6858,7 +6858,7 @@ public class CSSParser implements Parser, Cloneable {
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 8) {
-					newLexicalUnit(LexicalType.RGBCOLOR);
+					newLexicalUnit(LexicalType.RGBCOLOR, true);
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -6866,12 +6866,12 @@ public class CSSParser implements Parser, Cloneable {
 					parseHexComponent(2, 4, false);
 					parseHexComponent(4, 6, false);
 					int comp = hexComponent(6, 8, false);
-					newLexicalUnit(LexicalType.OPERATOR_SLASH);
+					newLexicalUnit(LexicalType.OPERATOR_SLASH, false);
 					newNumberUnit(LexicalType.REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 4) {
-					newLexicalUnit(LexicalType.RGBCOLOR);
+					newLexicalUnit(LexicalType.RGBCOLOR, true);
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -6879,7 +6879,7 @@ public class CSSParser implements Parser, Cloneable {
 					parseHexComponent(1, 2, true);
 					parseHexComponent(2, 3, true);
 					int comp = hexComponent(3, 4, true);
-					newLexicalUnit(LexicalType.OPERATOR_SLASH);
+					newLexicalUnit(LexicalType.OPERATOR_SLASH, false);
 					newNumberUnit(LexicalType.REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
@@ -6898,7 +6898,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private LexicalUnitImpl newNumberUnit(LexicalType sacType) {
-			LexicalUnitImpl lu = newLexicalUnit(sacType);
+			LexicalUnitImpl lu = newLexicalUnit(sacType, false);
 			lu.setCssUnit(CSSUnit.CSS_NUMBER);
 			return lu;
 		}
@@ -6941,7 +6941,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 					}
 				}
-				LexicalUnitImpl lu = newLexicalUnit(LexicalType.IDENT);
+				LexicalUnitImpl lu = newLexicalUnit(LexicalType.IDENT, false);
 				lu.value = ident;
 				lu.identCssText = cssText;
 				return true;
@@ -6965,7 +6965,7 @@ public class CSSParser implements Parser, Cloneable {
 				processBuffer(index);
 				if (!parseError) {
 					String s = quoted.toString();
-					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING);
+					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING, false);
 					lu.value = safeUnescapeIdentifier(index, s);
 					char c = (char) quoteChar;
 					StringBuilder buf = new StringBuilder(s.length() + 2);
@@ -6987,7 +6987,7 @@ public class CSSParser implements Parser, Cloneable {
 				processBuffer(index);
 				if (!parseError) {
 					String s = quoted.toString();
-					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING);
+					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING, false);
 					lu.value = safeUnescapeIdentifier(index, s);
 					char c = (char) quoteChar;
 					lu.identCssText = c + ParseHelper.escapeControl(s) + c;
@@ -7143,7 +7143,7 @@ public class CSSParser implements Parser, Cloneable {
 				currentlu.setUnitType(LexicalType.COMPAT_IDENT);
 				currentlu.setCssUnit(CSSUnit.CSS_INVALID);
 			} else {
-				newLexicalUnit(LexicalType.COMPAT_IDENT).value = lastvalue;
+				newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = lastvalue;
 			}
 			warnIdentCompat(index, lastvalue);
 			return true;
@@ -7175,7 +7175,7 @@ public class CSSParser implements Parser, Cloneable {
 				lunit.setUnitType(LexicalType.COMPAT_IDENT);
 				lunit.setCssUnit(CSSUnit.CSS_INVALID);
 			} else {
-				newLexicalUnit(LexicalType.COMPAT_IDENT).value = newval;
+				newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = newval;
 			}
 			return newval;
 		}

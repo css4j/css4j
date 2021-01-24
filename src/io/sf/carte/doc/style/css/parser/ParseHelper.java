@@ -17,7 +17,6 @@ import io.sf.carte.doc.DOMCharacterException;
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.Condition;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -902,29 +901,6 @@ public class ParseHelper {
 			return CSSUnit.CSS_FR;
 		}
 		return CSSUnit.CSS_OTHER;
-	}
-
-	static boolean isFunctionUnitType(LexicalUnit.LexicalType unitType) {
-		switch (unitType) {
-		case FUNCTION:
-		case RGBCOLOR:
-		case URI:
-		case CALC:
-		case VAR:
-		case HSLCOLOR:
-		case LABCOLOR:
-		case LCHCOLOR:
-		case RECT_FUNCTION:
-		case COUNTER_FUNCTION:
-		case COUNTERS_FUNCTION:
-		case CUBIC_BEZIER_FUNCTION:
-		case STEPS_FUNCTION:
-		case ATTR:
-		case ELEMENT_REFERENCE:
-			return true;
-		default:
-		}
-		return false;
 	}
 
 	/**
