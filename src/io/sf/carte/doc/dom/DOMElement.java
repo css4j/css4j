@@ -1105,7 +1105,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 			buf.append(' ');
 			nodeMap.appendTo(buf);
 		}
-		if (!isVoid()) {
+		if (hasChildNodes() || (getNamespaceURI() == HTMLDocument.HTML_NAMESPACE_URI && !isVoid())) {
 			buf.append('>');
 			if (hasChildNodes()) {
 				NodeList list = getChildNodes();
@@ -1115,7 +1115,10 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 			}
 			buf.append("</").append(tagname).append('>');
 		} else {
-			buf.append(" />");
+			if (getNamespaceURI() == HTMLDocument.HTML_NAMESPACE_URI) {
+				buf.append(' ');
+			}
+			buf.append("/>");
 		}
 		return buf.toString();
 	}

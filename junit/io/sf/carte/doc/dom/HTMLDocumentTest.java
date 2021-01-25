@@ -111,22 +111,39 @@ public class HTMLDocumentTest {
 	}
 
 	@Test
-	public void appendChild() throws DOMException {
+	public void testAppendChildElementHierarchyError() throws DOMException {
 		DOMElement elm = xhtmlDoc.createElement("head");
+		// Document already has a HEAD element
 		try {
 			xhtmlDoc.getDocumentElement().appendChild(elm);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+		//
 		elm = xhtmlDoc.createElement("body");
+		// Document already has a BODY element
 		try {
 			xhtmlDoc.getDocumentElement().appendChild(elm);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+		// Add text node to an empty element
+		elm = xhtmlDoc.createElement("br");
 		Text text = xhtmlDoc.createTextNode("text");
+		try {
+			elm.appendChild(text);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testAppendChildToTextError() throws DOMException {
+		Text text = xhtmlDoc.createTextNode("text");
+		// Append element to Text node
 		DOMElement p = xhtmlDoc.createElement("p");
 		try {
 			text.appendChild(p);
@@ -134,6 +151,7 @@ public class HTMLDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+		// Append attribute to Text node
 		Attr foo = xhtmlDoc.createAttribute("foo");
 		try {
 			text.appendChild(foo);
@@ -141,6 +159,7 @@ public class HTMLDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+		// Append PI to Text node
 		ProcessingInstruction pi = xhtmlDoc.createProcessingInstruction("xml-stylesheet",
 				"type=\"text/css\" href=\"sheet.css\"");
 		try {
@@ -152,7 +171,7 @@ public class HTMLDocumentTest {
 	}
 
 	@Test
-	public void appendChild2() throws DOMException {
+	public void testAppendChildTwoDoctypesError() throws DOMException {
 		DOMDocument document = new TestDOMImplementation(false).createDocument(null, null, null);
 		document.appendChild(document.getImplementation().createDocumentType("foo", null, null));
 		try {
@@ -287,7 +306,7 @@ public class HTMLDocumentTest {
 		assertEquals("g", elm.getPrefix());
 		assertEquals("rect", elm.getLocalName());
 		assertEquals("g:rect", elm.getTagName());
-		assertEquals("<g:rect></g:rect>", elm.toString());
+		assertEquals("<g:rect/>", elm.toString());
 		//
 		try {
 			xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "s:div");
