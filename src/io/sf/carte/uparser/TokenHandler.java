@@ -1,6 +1,6 @@
 /*
 
- Copyright (c) 2017-2020, Carlos Amengual.
+ Copyright (c) 2017-2021, Carlos Amengual.
 
  SPDX-License-Identifier: BSD-3-Clause
 
