@@ -32,6 +32,7 @@ import org.w3c.css.sac.SiblingSelector;
 import org.w3c.css.sac.SimpleSelector;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DirectionalityHelper.Directionality;
 import io.sf.carte.doc.DOMTokenSetImpl;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.SACParserFactory;
@@ -324,6 +325,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 					return isChecked();
 				} else if ("indeterminate".equals(pseudoClassName)) {
 					return isIndeterminate();
+				} else if ("dir".equals(pseudoClassName)) {
+					return isDir(argument);
 				}
 				if (pseudoClassName.equals("is") || pseudoClassName.equals("where")) {
 					// Parse selector list
@@ -593,6 +596,18 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		return lang.startsWith(attrName) && matches(simple);
 	}
 
+	protected boolean isDir(String argument) {
+		if (argument != null) {
+			Directionality dir = getDirectionality();
+			if ("rtl".equalsIgnoreCase(argument)) {
+				return dir == Directionality.RTL;
+			} else if ("ltr".equalsIgnoreCase(argument)) {
+				return dir == Directionality.LTR;
+			}
+		}
+		return false;
+	}
+
 	private int scopeMatch(String subselector, SimpleSelector scope) {
 		// This is intended for non-NSAC parsers. Parser's selectors must have
 		// a meaningful toString() method for this to work
@@ -772,6 +787,13 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 	 *         sibling.
 	 */
 	abstract protected AbstractSelectorMatcher getPreviousSiblingSelectorMatcher();
+
+	/**
+	 * Get the directionality of the element associated to this matcher.
+	 * 
+	 * @return the directionality.
+	 */
+	abstract protected Directionality getDirectionality();
 
 	/**
 	 * The element in this matcher is the first child?

@@ -231,7 +231,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		HtmlParser parser = new HtmlParser(XmlViolationPolicy.ALTER_INFOSET);
 		parser.setReportingDoctype(true);
 		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
-		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
+		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true, null));
 		builder.setHTMLProcessing(true);
 		builder.setXMLReader(parser);
 		Reader re = new InputStreamReader(classpathStream(filename), StandardCharsets.UTF_8);

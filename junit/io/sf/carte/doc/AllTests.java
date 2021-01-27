@@ -54,6 +54,7 @@ import io.sf.carte.doc.style.css.om.ContribSheetTest;
 import io.sf.carte.doc.style.css.om.CounterStyleRuleTest;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetTest;
+import io.sf.carte.doc.style.css.om.DirMatcherTest;
 import io.sf.carte.doc.style.css.om.FlexShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.FontBuilderTest;
 import io.sf.carte.doc.style.css.om.FontFaceRuleTest;
@@ -177,6 +178,7 @@ import io.sf.carte.util.BufferSimpleWriterTest;
 		ComputedCSSStyleTest.class,
 		ContribSheetTest.class,
 		CSSStyleDeclarationRuleTest.class,
+		DirMatcherTest.class,
 		CounterStyleRuleTest.class,
 		FontFaceRuleTest.class,
 		FontFeatureValuesRuleTest.class,

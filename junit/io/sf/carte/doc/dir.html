@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head id="head" dir="auto">
+<style type="text/css">
+body {
+font-family: Arial, Helvetica;
+font-size: 12pt;
+margin-left: 5%;
+margin-right: 5%;
+margin-top: 3em;
+margin-bottom: 4em;
+background-color: white;
+width: 900px;
+}
+h1 {
+  font-size: 3em;
+  font-weight: bold;
+  margin: .67em 0;
+}
+h2 {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin: .83em 0;
+}
+p {margin-right: 1%;}
+p.boldmargin {font-weight: bold; margin-left: 2%; border: solid blue; }
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+#tablerow1 {margin: 5pt; }
+#cell12 {padding:4pt 6pt;margin-left:5pt;}
+</style>
+<title>مثال على ملف HTML الاتجاهي</title>
+<base href="http://www.example.com/" />
+</head>
+<body>
+<h1 id="h1" style="background: url(headerbg.png);" dir="ltr">Header 1</h1>
+<p id="para1" class="boldmargin" dir="rtl">فقرة</p><p id="para2" dir="auto"><span id="span1">الفقرة</span>2 بامتداد</p>
+<h2 id="h2">Header 2</h2>
+<div>
+<table id="tableid">
+<tr id="tablerow1" style="margin: 10px"><th>Header 1</th><th>Header 2</th><th>Header 3</th></tr>
+<tr dir="rtl"><td>Cell</td><td>Cell</td><td id="cell12">زنزانة</td></tr>
+<tr id="tr1" dir="auto"><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+</table>
+<form id="form1" action="/servlet/form1" dir="auto">
+<label for="username">Username:</label>
+<input type="text" id="username" name="Username" value="اسم المستخدم" dir="auto"/>
+<label for="telephone" id="phonelabel" dir="auto">Telephone:</label>
+<input type="telephone" id="telephone" value="555 55 55" dir="foo"/>
+<textarea id="textareartl" dir="auto">منطقة النص</textarea>
+<textarea id="textarealtr" dir="auto">Text area</textarea>
+<textarea id="textareaempty" dir="auto"></textarea>
+<button type="submit">Send</button>
+</form>
+<bdi id="bdirtl"><p>عنصر عزل ثنائي الاتجاه</p></bdi>
+<bdi id="bdiltr"><p>Bidirectional Isolate element</p></bdi>
+<bdi id="bdiauto" dir="auto"><p>Bidirectional Isolate element</p></bdi>
+<bdi id="bdiempty"><p></p></bdi>
+<bdi id="bdiautoempty" dir="auto"><p></p></bdi>
+<bdi id="bdibadempty" dir="foo"><p></p></bdi>
+</div>
+</body>
+</html>
