@@ -1,6 +1,6 @@
 /*
 
- Copyright (c) 2005-2020, Carlos Amengual.
+ Copyright (c) 2005-2021, Carlos Amengual.
 
  SPDX-License-Identifier: BSD-3-Clause
 
@@ -112,22 +112,39 @@ public class HTMLDocumentTest {
 	}
 
 	@Test
-	public void appendChild() throws DOMException {
+	public void testAppendChildElementHierarchyError() throws DOMException {
 		DOMElement elm = xhtmlDoc.createElement("head");
+		// Document already has a HEAD element
 		try {
 			xhtmlDoc.getDocumentElement().appendChild(elm);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+		//
 		elm = xhtmlDoc.createElement("body");
+		// Document already has a BODY element
 		try {
 			xhtmlDoc.getDocumentElement().appendChild(elm);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+		// Add text node to an empty element
+		elm = xhtmlDoc.createElement("br");
 		Text text = xhtmlDoc.createTextNode("text");
+		try {
+			elm.appendChild(text);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testAppendChildToTextError() throws DOMException {
+		Text text = xhtmlDoc.createTextNode("text");
+		// Append element to Text node
 		DOMElement p = xhtmlDoc.createElement("p");
 		try {
 			text.appendChild(p);
@@ -135,6 +152,7 @@ public class HTMLDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+		// Append attribute to Text node
 		Attr foo = xhtmlDoc.createAttribute("foo");
 		try {
 			text.appendChild(foo);
@@ -142,6 +160,7 @@ public class HTMLDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+		// Append PI to Text node
 		ProcessingInstruction pi = xhtmlDoc.createProcessingInstruction("xml-stylesheet",
 				"type=\"text/css\" href=\"sheet.css\"");
 		try {
@@ -153,7 +172,7 @@ public class HTMLDocumentTest {
 	}
 
 	@Test
-	public void appendChild2() throws DOMException {
+	public void testAppendChildTwoDoctypesError() throws DOMException {
 		DOMDocument document = new TestDOMImplementation(false, null).createDocument(null, null, null);
 		document.appendChild(document.getImplementation().createDocumentType("foo", null, null));
 		try {
@@ -215,20 +234,20 @@ public class HTMLDocumentTest {
 	public void testCreateElement() {
 		DOMElement elm = xhtmlDoc.createElement("link");
 		assertTrue(elm instanceof LinkStyle);
-		assertTrue(elm.isVoid());
+		assertTrue(elm.isNonHTMLOrVoid());
 		elm = xhtmlDoc.createElement("LINK");
 		assertTrue(elm instanceof LinkStyle);
 		assertEquals("link", elm.getLocalName());
 		assertEquals("link", elm.getTagName());
 		elm = xhtmlDoc.createElement("style");
 		assertTrue(elm instanceof LinkStyle);
-		assertFalse(elm.isVoid());
+		assertFalse(elm.isNonHTMLOrVoid());
 		elm = xhtmlDoc.createElement("STYLE");
 		assertTrue(elm instanceof LinkStyle);
 		assertEquals("style", elm.getLocalName());
 		//
 		HTMLElement html = (HTMLElement) xhtmlDoc.createElement("html");
-		assertFalse(html.isVoid());
+		assertFalse(html.isNonHTMLOrVoid());
 		try {
 			elm.appendChild(html);
 			fail("Must throw exception");
@@ -289,7 +308,7 @@ public class HTMLDocumentTest {
 		assertEquals("g", elm.getPrefix());
 		assertEquals("rect", elm.getLocalName());
 		assertEquals("g:rect", elm.getTagName());
-		assertEquals("<g:rect></g:rect>", elm.toString());
+		assertEquals("<g:rect/>", elm.toString());
 		//
 		try {
 			xhtmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "s:div");
@@ -1963,7 +1982,7 @@ public class HTMLDocumentTest {
 		assertEquals("http://www.example.com/", xhtmlDoc.getBaseURL().toExternalForm());
 		DOMElement base = xhtmlDoc.getElementsByTagName("base").item(0);
 		assertEquals("http://www.example.com/", base.getBaseURI());
-		assertTrue(base.isVoid());
+		assertTrue(base.isNonHTMLOrVoid());
 		base.setAttribute("href", "http://www.example.com/newbase/");
 		assertEquals("http://www.example.com/newbase/", xhtmlDoc.getBaseURI());
 		assertEquals("http://www.example.com/newbase/", base.getBaseURI());
@@ -2034,7 +2053,7 @@ public class HTMLDocumentTest {
 		DOMElement meta = xhtmlDoc.createElement("meta");
 		meta.setAttribute("http-equiv", "Content-Type");
 		meta.setAttribute("content", "text/html; charset=utf-8");
-		assertTrue(meta.isVoid());
+		assertTrue(meta.isNonHTMLOrVoid());
 		try {
 			xhtmlDoc.getDocumentElement().appendChild(meta);
 			fail("Should throw an exception");
@@ -2113,7 +2132,7 @@ public class HTMLDocumentTest {
 		DOMElement element = xhtmlDoc.createElement("img");
 		element.setAttribute("width", "300px");
 		assertTrue(element.hasPresentationalHints());
-		assertTrue(element.isVoid());
+		assertTrue(element.isNonHTMLOrVoid());
 	}
 
 	@Test
@@ -2121,7 +2140,7 @@ public class HTMLDocumentTest {
 		DOMElement element = xhtmlDoc.createElement("font");
 		element.setAttribute("size", "12pt");
 		assertTrue(element.hasPresentationalHints());
-		assertFalse(element.isVoid());
+		assertFalse(element.isNonHTMLOrVoid());
 	}
 
 	@Test

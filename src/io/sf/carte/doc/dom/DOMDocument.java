@@ -1,6 +1,6 @@
 /*
 
- Copyright (c) 2005-2020, Carlos Amengual.
+ Copyright (c) 2005-2021, Carlos Amengual.
 
  SPDX-License-Identifier: BSD-3-Clause
 
@@ -1511,7 +1511,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		boolean isVoid() {
+		boolean isNonHTMLOrVoid() {
+			if (getNamespaceURI() != HTMLDocument.HTML_NAMESPACE_URI) {
+				return true;
+			}
+			// HTML
 			DocumentType docType = getDoctype();
 			if (docType != null) {
 				ContentModel contentModel;

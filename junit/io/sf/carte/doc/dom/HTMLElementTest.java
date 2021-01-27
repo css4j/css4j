@@ -762,6 +762,7 @@ public class HTMLElementTest {
 	@Test
 	public void testToString() {
 		CSSElement elm = xhtmlDoc.createElement("p");
+		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, elm.getNamespaceURI());
 		Attr attr = xhtmlDoc.createAttribute("foo");
 		attr.setValue("bar\"");
 		elm.setAttributeNode(attr);

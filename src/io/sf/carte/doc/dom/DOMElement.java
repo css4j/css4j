@@ -83,10 +83,6 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		return child;
 	}
 
-	boolean isVoid() {
-		return false;
-	}
-
 	void setRawText() {
 		rawTextElement = true;
 	}
@@ -772,15 +768,9 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	@Override
 	abstract public DOMElement cloneNode(boolean deep);
 
-	abstract CSSStyleSheetFactory getStyleSheetFactory();
+	abstract boolean isNonHTMLOrVoid();
 
-	@Override
-	public TypeInfo getSchemaTypeInfo() {
-		if (schemaTypeInfo == null) {
-			schemaTypeInfo = new ElementTypeInfo();
-		}
-		return schemaTypeInfo;
-	}
+	abstract CSSStyleSheetFactory getStyleSheetFactory();
 
 	public String getStartTag() {
 		StringBuilder buf = new StringBuilder(128);
@@ -812,7 +802,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 			buf.append(' ');
 			nodeMap.appendTo(buf);
 		}
-		if (!isVoid()) {
+		if (hasChildNodes() || !isNonHTMLOrVoid()) {
 			buf.append('>');
 			if (hasChildNodes()) {
 				NodeList list = getChildNodes();
@@ -822,9 +812,20 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 			}
 			buf.append("</").append(tagname).append('>');
 		} else {
-			buf.append(" />");
+			if (getNamespaceURI() == HTMLDocument.HTML_NAMESPACE_URI) {
+				buf.append(' ');
+			}
+			buf.append("/>");
 		}
 		return buf.toString();
+	}
+
+	@Override
+	public TypeInfo getSchemaTypeInfo() {
+		if (schemaTypeInfo == null) {
+			schemaTypeInfo = new ElementTypeInfo();
+		}
+		return schemaTypeInfo;
 	}
 
 	/*

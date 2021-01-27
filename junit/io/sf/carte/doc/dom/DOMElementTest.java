@@ -593,7 +593,7 @@ public class DOMElementTest {
 		assertEquals("foo", body.getAttribute("class"));
 		list.add("bar");
 		assertEquals("foo bar", body.getAttribute("class"));
-		assertEquals("<body class=\"foo bar\"></body>", body.toString());
+		assertEquals("<body class=\"foo bar\"/>", body.toString());
 		try {
 			list.add(null);
 			fail("Must throw exception");
@@ -619,7 +619,7 @@ public class DOMElementTest {
 		body.setClassName("bar");
 		assertEquals("bar", body.getAttribute("class"));
 		assertEquals("bar", list.getValue());
-		assertEquals("<body class=\"bar\"></body>", body.toString());
+		assertEquals("<body class=\"bar\"/>", body.toString());
 	}
 
 	@Test
@@ -1046,7 +1046,7 @@ public class DOMElementTest {
 		Attr attr = xhtmlDoc.createAttribute("foo");
 		attr.setValue("bar\"");
 		elm.setAttributeNode(attr);
-		assertEquals("<p foo=\"bar&quot;\"></p>", elm.toString());
+		assertEquals("<p foo=\"bar&quot;\"/>", elm.toString());
 	}
 
 	@Test
@@ -1057,14 +1057,14 @@ public class DOMElementTest {
 		elm.setAttributeNode(attr);
 		DocumentType docType = xhtmlDoc.getDoctype();
 		xhtmlDoc.removeChild(docType);
-		assertEquals("<link href=\"http://www.example.com/\"></link>", elm.toString());
+		assertEquals("<link href=\"http://www.example.com/\"/>", elm.toString());
 		DocumentType newDocType = impl.createDocumentType("html", "-//W3C//DTD XHTML 1.0 Transitional//EN",
 				"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");
 		assertEquals(
 				"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
 				newDocType.toString());
 		xhtmlDoc.prependChild(newDocType);
-		assertEquals("<link href=\"http://www.example.com/\" />", elm.toString());
+		assertEquals("<link href=\"http://www.example.com/\"/>", elm.toString());
 	}
 
 }

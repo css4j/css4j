@@ -318,9 +318,9 @@ public class DOMWriter {
 		wri.write('<');
 		wri.write(tagname);
 		// Check for the need of a namespace prefix declaration.
+		String nsUri = element.getNamespaceURI();
 		DOMNode parentNode = element.getParentNode();
 		if (parentNode != null) {
-			String nsUri = element.getNamespaceURI();
 			String nsPrefix = element.getPrefix();
 			// Verify whether this element needs an xmlns:prefix attribute but does not have it.
 			if (nsUri != null && nsPrefix != null && !nsPrefix.equals(parentNode.lookupPrefix(nsUri))
@@ -334,7 +334,7 @@ public class DOMWriter {
 		}
 		//
 		writeAttributes(element.getAttributes(), wri);
-		if (!element.isVoid()) {
+		if (element.hasChildNodes() || !element.isNonHTMLOrVoid()) {
 			wri.write('>');
 			boolean ast = afterStartTag(element, wri);
 			if (element.hasChildNodes()) {
@@ -353,7 +353,11 @@ public class DOMWriter {
 			wri.write(tagname);
 			wri.write(">");
 		} else {
-			closeEmptyElementTag(wri);
+			// EmptyElemTag production of XML
+			if (nsUri == HTMLDocument.HTML_NAMESPACE_URI) {
+				wri.write(' ');
+			}
+			wri.write("/>");
 		}
 		//
 		if (indented) {
@@ -840,19 +844,6 @@ public class DOMWriter {
 			}
 		}
 		return display;
-	}
-
-	/**
-	 * Close an empty element tag.
-	 * <p>
-	 * This method could be overridden to, for example, not let any whitespace
-	 * before the slash.
-	 * 
-	 * @param wri the writer.
-	 * @throws IOException if an I/O problem occurred while writing.
-	 */
-	protected void closeEmptyElementTag(SimpleWriter wri) throws IOException {
-		wri.write(" />");
 	}
 
 	/**

@@ -1,6 +1,6 @@
 /*
 
- Copyright (c) 2005-2020, Carlos Amengual.
+ Copyright (c) 2005-2021, Carlos Amengual.
 
  SPDX-License-Identifier: BSD-3-Clause
 
@@ -321,7 +321,7 @@ public class DOMDocumentTest {
 		document.appendChild(element);
 		assertTrue(element == document.getDocumentElement());
 		//
-		assertEquals("<element eId=\"myId\" foo=\"bar\"></element>", element.toString());
+		assertEquals("<element eId=\"myId\" foo=\"bar\"/>", element.toString());
 	}
 
 	@Test
@@ -523,7 +523,7 @@ public class DOMDocumentTest {
 		df.isEqualNode(df.cloneNode(true));
 		//
 		assertEquals(
-				"<!--My comment--><div></div><!-- another comment --><p lang=\"en\" class=\"para\"><span>foo</span></p>",
+				"<!--My comment--><div/><!-- another comment --><p lang=\"en\" class=\"para\"><span>foo</span></p>",
 				df.toString());
 		//
 		ElementList elist = ((ParentNode) df).getElementsByTagName("span");
@@ -1938,7 +1938,7 @@ public class DOMDocumentTest {
 	public void testLookupNamespaceURI() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", "x:doc", null);
 		DOMElement docelm = document.getDocumentElement();
-		assertEquals("<x:doc xmlns:x=\"http://www.example.com/examplens\"></x:doc>", docelm.toString());
+		assertEquals("<x:doc xmlns:x=\"http://www.example.com/examplens\"/>", docelm.toString());
 		assertEquals("http://www.example.com/examplens", docelm.lookupNamespaceURI("x"));
 		assertNull(docelm.lookupNamespaceURI("z"));
 		assertEquals("http://www.example.com/examplens", document.lookupNamespaceURI("x"));

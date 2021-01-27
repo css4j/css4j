@@ -30,13 +30,13 @@ abstract public class HTMLElement extends DOMElement implements org.w3c.dom.html
 	@Override
 	void checkAppendNodeHierarchy(Node newChild) {
 		super.checkAppendNodeHierarchy(newChild);
-		if (isVoid()) {
+		if (isNonHTMLOrVoid()) {
 			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "This element is void");
 		}
 	}
 
 	@Override
-	boolean isVoid() {
+	boolean isNonHTMLOrVoid() {
 		return "br".equals(localName) || "hr".equals(localName) || "input".equals(localName) || 
 				"area".equals(localName) || "col".equals(localName) || "embed".equals(localName) || 
 				"param".equals(localName) || "source".equals(localName) || "track".equals(localName) || 
