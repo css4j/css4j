@@ -641,7 +641,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	abstract class MyCharacterData extends MyNode implements CharacterData {
 
-		String data = null;
+		String data = "";
 
 		MyCharacterData(short nodeType) {
 			super(nodeType);
