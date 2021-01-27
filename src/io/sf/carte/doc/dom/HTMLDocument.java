@@ -247,7 +247,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		boolean isVoid() {
+		boolean isNonHTMLOrVoid() {
 			return true;
 		}
 
@@ -290,7 +290,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		boolean isVoid() {
+		boolean isNonHTMLOrVoid() {
 			return true;
 		}
 
@@ -446,7 +446,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		boolean isVoid() {
+		boolean isNonHTMLOrVoid() {
 			return true;
 		}
 
@@ -491,7 +491,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		boolean isVoid() {
+		boolean isNonHTMLOrVoid() {
 			return true;
 		}
 

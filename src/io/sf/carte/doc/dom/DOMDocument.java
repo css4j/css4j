@@ -1598,7 +1598,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		boolean isVoid() {
+		boolean isNonHTMLOrVoid() {
+			if (getNamespaceURI() != HTMLDocument.HTML_NAMESPACE_URI) {
+				return true;
+			}
+			// HTML
 			DocumentType docType = getDoctype();
 			if (docType != null) {
 				ContentModel contentModel;

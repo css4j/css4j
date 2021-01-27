@@ -333,7 +333,7 @@ public class DOMWriter {
 		}
 		//
 		writeAttributes(element.getAttributes(), wri);
-		if (element.hasChildNodes() || (nsUri == HTMLDocument.HTML_NAMESPACE_URI && !element.isVoid())) {
+		if (element.hasChildNodes() || !element.isNonHTMLOrVoid()) {
 			wri.write('>');
 			boolean ast = afterStartTag(element, wri);
 			if (element.hasChildNodes()) {

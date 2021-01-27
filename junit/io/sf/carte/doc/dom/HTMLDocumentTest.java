@@ -232,20 +232,20 @@ public class HTMLDocumentTest {
 	public void testCreateElement() {
 		DOMElement elm = xhtmlDoc.createElement("link");
 		assertTrue(elm instanceof LinkStyle);
-		assertTrue(elm.isVoid());
+		assertTrue(elm.isNonHTMLOrVoid());
 		elm = xhtmlDoc.createElement("LINK");
 		assertTrue(elm instanceof LinkStyle);
 		assertEquals("link", elm.getLocalName());
 		assertEquals("link", elm.getTagName());
 		elm = xhtmlDoc.createElement("style");
 		assertTrue(elm instanceof LinkStyle);
-		assertFalse(elm.isVoid());
+		assertFalse(elm.isNonHTMLOrVoid());
 		elm = xhtmlDoc.createElement("STYLE");
 		assertTrue(elm instanceof LinkStyle);
 		assertEquals("style", elm.getLocalName());
 		//
 		HTMLElement html = (HTMLElement) xhtmlDoc.createElement("html");
-		assertFalse(html.isVoid());
+		assertFalse(html.isNonHTMLOrVoid());
 		try {
 			elm.appendChild(html);
 			fail("Must throw exception");
@@ -1942,7 +1942,7 @@ public class HTMLDocumentTest {
 		assertEquals("http://www.example.com/", xhtmlDoc.getBaseURL().toExternalForm());
 		DOMElement base = xhtmlDoc.getElementsByTagName("base").item(0);
 		assertEquals("http://www.example.com/", base.getBaseURI());
-		assertTrue(base.isVoid());
+		assertTrue(base.isNonHTMLOrVoid());
 		base.setAttribute("href", "http://www.example.com/newbase/");
 		assertEquals("http://www.example.com/newbase/", xhtmlDoc.getBaseURI());
 		assertEquals("http://www.example.com/newbase/", base.getBaseURI());
@@ -2013,7 +2013,7 @@ public class HTMLDocumentTest {
 		DOMElement meta = xhtmlDoc.createElement("meta");
 		meta.setAttribute("http-equiv", "Content-Type");
 		meta.setAttribute("content", "text/html; charset=utf-8");
-		assertTrue(meta.isVoid());
+		assertTrue(meta.isNonHTMLOrVoid());
 		try {
 			xhtmlDoc.getDocumentElement().appendChild(meta);
 			fail("Should throw an exception");
@@ -2092,7 +2092,7 @@ public class HTMLDocumentTest {
 		DOMElement element = xhtmlDoc.createElement("img");
 		element.setAttribute("width", "300px");
 		assertTrue(element.hasPresentationalHints());
-		assertTrue(element.isVoid());
+		assertTrue(element.isNonHTMLOrVoid());
 	}
 
 	@Test
@@ -2100,7 +2100,7 @@ public class HTMLDocumentTest {
 		DOMElement element = xhtmlDoc.createElement("font");
 		element.setAttribute("size", "12pt");
 		assertTrue(element.hasPresentationalHints());
-		assertFalse(element.isVoid());
+		assertFalse(element.isNonHTMLOrVoid());
 	}
 
 	@Test
