@@ -156,6 +156,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		}
 		xmlReader.parse(is);
 		Document document = handler.getDocument();
+		document.setDocumentURI(is.getSystemId());
 		// Help memory management
 		xmlReader.setContentHandler(null);
 		try {

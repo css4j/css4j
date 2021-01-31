@@ -45,6 +45,7 @@ import io.sf.carte.doc.agent.TestEntityResolver;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class XMLDocumentBuilderTest {
+
 	private TestDOMImplementation domImpl;
 	private XMLDocumentBuilder builder;
 
@@ -114,6 +115,21 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(rect);
 		assertEquals("http://www.w3.org/2000/svg", rect.getNamespaceURI());
 		assertEquals("s", rect.getPrefix());
+	}
+
+	@Test
+	public void testParseInputSourceURI() throws SAXException, IOException {
+		InputSource is = new InputSource("http://www.example.com/xml/entities.xhtml");
+		Reader re = loadClasspathReader("entities.xhtml");
+		is.setCharacterStream(re);
+		DOMDocument document = (DOMDocument) builder.parse(is);
+		re.close();
+		assertNotNull(document);
+		assertEquals("http://www.example.com/xml/entities.xhtml", document.getDocumentURI());
+		assertEquals("http://www.example.com/", document.getBaseURI());
+		Node node = document.getFirstChild();
+		assertNotNull(node);
+		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 	}
 
 	@Test(timeout=1000)
