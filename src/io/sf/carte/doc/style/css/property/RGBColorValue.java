@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.property;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
@@ -62,6 +63,30 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Color not set");
 		}
 		return color;
+	}
+
+	public LABColorValue toLABColorValue() throws DOMException {
+		if (!isConvertibleComponent(color.getRed()) || !isConvertibleComponent(color.getGreen())
+				|| !isConvertibleComponent(color.getBlue())) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+		float r = rgbComponentNormalized((TypedValue) color.getRed());
+		float g = rgbComponentNormalized((TypedValue) color.getGreen());
+		float b = rgbComponentNormalized((TypedValue) color.getBlue());
+		//
+		LABColorValue lab = new LABColorValue();
+		LABColorValue.rgbToLab(r, g, b, color.getAlpha(), (LABColorImpl) lab.getLABColorValue());
+		return lab;
+	}
+
+	private static float rgbComponentNormalized(TypedValue number) {
+		float comp;
+		if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+			comp = number.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01f;
+		} else {
+			comp = number.getFloatValue(CSSUnit.CSS_NUMBER) / 255f;
+		}
+		return comp;
 	}
 
 	@Override

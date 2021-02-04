@@ -146,7 +146,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		} else {
 			yr = light / kappa;
 		}
-		// D50 reference white
+		// D50 reference white (from ASTM E308-01 via Lindbloom)
 		float xwhite = 0.96422f;
 		float zwhite = 0.82521f;
 		//
@@ -158,23 +158,16 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	private static void xyzToRGB(float x, float y, float z, boolean clamp, PrimitiveValue alpha, CSSRGBColor color) {
 		// Chromatic adjustment: D50 to D65, Bradford
 		// See http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-		/*
-		 * 0.9555766 -0.0230393 0.0631636 -0.0282895 1.0099416 0.0210077 0.0122982
-		 * -0.0204830 1.3299098
-		 */
-		float xa = 0.9555766f * x + -0.0230393f * y + 0.0631636f * z;
-		float ya = -0.0282895f * x + 1.0099416f * y + 0.0210077f * z;
-		float za = 0.0122982f * x + -0.0204830f * y + 1.3299098f * z;
+		double xa = 0.9555766 * x + -0.0230393 * y + 0.0631636 * z;
+		double ya = -0.0282895 * x + 1.0099416 * y + 0.0210077 * z;
+		double za = 0.0122982 * x + -0.0204830 * y + 1.3299098 * z;
 		// XYZ to RGB
-		// See http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_RGB.html
-		/*
-		 *  3.2404542 -1.5371385 -0.4985314
-		 * -0.9692660  1.8760108  0.0415560
-		 *  0.0556434 -0.2040259  1.0572252
-		 */
-		float r = 3.2404542f * xa - 1.5371385f * ya - 0.4985314f * za;
-		float g = -0.9692660f * xa + 1.8760108f * ya + 0.0415560f * za;
-		float b = 0.0556434f * xa - 0.2040259f * ya + 1.0572252f * za;
+		// See http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_RGB.html for explanation
+		// but the real figures are from:
+		// https://github.com/w3c/csswg-drafts/issues/5922#issue-800549440
+		float r = (float) (3.24096994190452 * xa - 1.53738317757 * ya - 0.498610760293 * za);
+		float g = (float) (-0.96924363628088 * xa + 1.8759675015077 * ya + 0.04155505740718 * za);
+		float b = (float) (0.055630079697 * xa - 0.20397695888898 * ya + 1.05697151424288 * za);
 		//
 		r = sRGBCompanding(r, clamp);
 		g = sRGBCompanding(g, clamp);
@@ -215,6 +208,78 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		return nlComp;
 	}
 
+	static void rgbToLab(float r, float g, float b, PrimitiveValue alpha, LABColorImpl lab) {
+		r = inverseSRGBCompanding(r);
+		g = inverseSRGBCompanding(g);
+		b = inverseSRGBCompanding(b);
+		//
+		float[] xyz = rgbToXYZ(r, g, b);
+		// XYZ to Lab
+		// D50 reference white (from ASTM E308-01 via Lindbloom)
+		float xwhite = 0.96422f;
+		float zwhite = 0.82521f;
+		xyz[0] /= xwhite;
+		xyz[2] /= zwhite;
+		//
+		float fx = fxyz(xyz[0]);
+		float fy = fxyz(xyz[1]);
+		float fz = fxyz(xyz[2]);
+		float labL = 116f * fy - 16f;
+		float laba = 500f * (fx - fy);
+		float labb = 200f * (fy - fz);
+		//
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, labL);
+		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, laba);
+		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, labb);
+		primiL.setAbsolutizedUnit();
+		primia.setAbsolutizedUnit();
+		primib.setAbsolutizedUnit();
+		lab.setLightness(primiL);
+		lab.setA(primia);
+		lab.setB(primib);
+		lab.setAlpha(alpha.clone());
+	}
+
+	private static float inverseSRGBCompanding(float compandedComponent) {
+		// Inverse sRGB Companding
+		// See http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
+		float linearComp;
+		if (compandedComponent <= 0.04045f) {
+			linearComp = compandedComponent / 12.92f;
+		} else {
+			linearComp = (float) Math.pow((compandedComponent + 0.055f) / 1.055f, 2.4d);
+		}
+		return linearComp;
+	}
+
+	private static float[] rgbToXYZ(float r, float g, float b) {
+		// RGB to XYZ
+		// https://github.com/w3c/csswg-drafts/issues/5922#issue-800549440
+		double x = 0.41239079926595934 * r + 0.357584339383878 * g + 0.1804807884018343 * b;
+		double y = 0.21263900587151027 * r + 0.715168678767756 * g + 0.07219231536073371 * b;
+		double z = 0.01933081871559182 * r + 0.11919477979462598 * g + 0.9505321522496607 * b;
+		//
+		// Chromatic adjustment: D65 to D50, Bradford
+		// See http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+		float[] xyz = new float[3];
+		xyz[0] = (float) (1.0478112 * x + 0.0228866 * y - 0.0501270 * z);
+		xyz[1] = (float) (0.0295424 * x + 0.9904844 * y - 0.0170491 * z);
+		xyz[2] = (float) (-0.0092345 * x + 0.0150436 * y + 0.7521316 * z);
+		return xyz;
+	}
+
+	private static float fxyz(float xyz) {
+		final float eps = 216f / 24389f;
+		final float kappa = 24389f / 27f;
+		float f;
+		if (xyz > eps) {
+			f = (float) Math.pow(xyz, 1d/3d);
+		} else {
+			f = (kappa * xyz + 16f) / 116f;
+		}
+		return f;
+	}
+
 	@Override
 	public LCHColorValue toLCHColorValue() throws DOMException {
 		if (!isConvertibleComponent(labColor.getA()) || !isConvertibleComponent(labColor.getB())
@@ -226,6 +291,9 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		//
 		float c = (float) Math.sqrt(a * a + b * b);
 		float h = (float) (Math.atan2(b, a) * 180f / Math.PI);
+		if (h < 0f) {
+			h += 360f;
+		}
 		NumberValue chroma = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, c);
 		NumberValue hue = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, h);
 		chroma.setAbsolutizedUnit();
