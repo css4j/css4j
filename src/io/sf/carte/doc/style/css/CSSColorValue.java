@@ -49,8 +49,8 @@ public interface CSSColorValue extends CSSTypedValue {
 	 *                         NOT_SUPPORTED_ERR: if the conversion needs device
 	 *                         color space information to be performed accurately.
 	 */
-	default RGBAColor toRGBColorValue(boolean clamp) throws DOMException {
-		return toRGBColorValue();
+	default RGBAColor toRGBColor(boolean clamp) throws DOMException {
+		return toRGBColor();
 	}
 
 	@Override

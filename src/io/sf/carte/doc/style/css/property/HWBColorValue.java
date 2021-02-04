@@ -70,7 +70,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 				&& hwbColor.getHue().getPrimitiveType() == Type.NUMERIC
 				&& hwbColor.getWhiteness().getPrimitiveType() == Type.NUMERIC
 				&& hwbColor.getBlackness().getPrimitiveType() == Type.NUMERIC) {
-			String rgbCss = ((CSSRGBColor) toRGBColorValue()).toMinifiedString();
+			String rgbCss = ((CSSRGBColor) toRGBColor()).toMinifiedString();
 			if (rgbCss.length() < css.length()) {
 				css = rgbCss;
 			}
@@ -117,7 +117,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue() throws DOMException {
+	public RGBAColor toRGBColor() throws DOMException {
 		if (!HSLColorValue.isConvertibleComponent(hwbColor.getHue())
 				|| !HSLColorValue.isConvertibleComponent(hwbColor.getWhiteness())
 				|| !HSLColorValue.isConvertibleComponent(hwbColor.getBlackness())) {
@@ -132,7 +132,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public HWBColor getHWBColorValue() {
+	public HWBColor getHWBColor() {
 		return hwbColor;
 	}
 

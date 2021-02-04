@@ -23,9 +23,9 @@ public interface LABColorValue extends CSSColorValue {
 	/**
 	 * Get the {@code lab()} color represented by this value.
 	 *
-	 * @return the {@code lab()} color value.
+	 * @return the {@code lab()} color.
 	 */
-	LABColor getLABColorValue();
+	LABColor getLABColor();
 
 	/**
 	 * Convert this value to {@code lch()}.

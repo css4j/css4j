@@ -70,7 +70,7 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 				&& hslColor.getHue().getPrimitiveType() == Type.NUMERIC
 				&& hslColor.getSaturation().getPrimitiveType() == Type.NUMERIC
 				&& hslColor.getLightness().getPrimitiveType() == Type.NUMERIC) {
-			String rgbCss = ((CSSRGBColor) toRGBColorValue()).toMinifiedString();
+			String rgbCss = ((CSSRGBColor) toRGBColor()).toMinifiedString();
 			if (rgbCss.length() < css.length()) {
 				css = rgbCss;
 			}
@@ -117,7 +117,7 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue() throws DOMException {
+	public RGBAColor toRGBColor() throws DOMException {
 		if (!isConvertibleComponent(hslColor.getHue()) || !isConvertibleComponent(hslColor.getSaturation())
 				|| !isConvertibleComponent(hslColor.getLightness())) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
@@ -131,7 +131,7 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public HSLColor getHSLColorValue() {
+	public HSLColor getHSLColor() {
 		return hslColor;
 	}
 

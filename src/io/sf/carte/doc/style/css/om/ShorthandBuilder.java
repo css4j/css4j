@@ -602,7 +602,7 @@ abstract class ShorthandBuilder {
 			ValueFactory factory = new ValueFactory();
 			try {
 				CSSTypedValue val = (CSSTypedValue) factory.parseProperty(spec);
-				return val.toRGBColorValue().equals(color.toRGBColorValue());
+				return val.toRGBColor().equals(color.toRGBColor());
 			} catch (DOMException e) {
 			}
 		}

@@ -105,12 +105,12 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue() throws DOMException {
-		return toRGBColorValue(true);
+	public RGBAColor toRGBColor() throws DOMException {
+		return toRGBColor(true);
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue(boolean clamp) throws DOMException {
+	public RGBAColor toRGBColor(boolean clamp) throws DOMException {
 		if (!isConvertibleComponent(lchColor.getChroma()) || !isConvertibleComponent(lchColor.getHue())
 				|| !isConvertibleComponent(lchColor.getLightness())) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
@@ -170,7 +170,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public LCHColor getLCHColorValue() {
+	public LCHColor getLCHColor() {
 		return lchColor;
 	}
 

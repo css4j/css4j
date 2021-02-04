@@ -19,9 +19,21 @@ public interface RGBColorValue extends CSSColorValue {
 	/**
 	 * Get the RGB(A) color represented by this value.
 	 *
-	 * @return the RGB color value.
+	 * @return the RGB color.
+	 * @deprecated
+	 * @see #getRGBColor()
 	 */
-	RGBAColor getRGBColorValue();
+	@Deprecated
+	default RGBAColor getRGBColorValue() {
+		return getRGBColor();
+	}
+
+	/**
+	 * Get the RGB(A) color represented by this value.
+	 *
+	 * @return the RGB color.
+	 */
+	RGBAColor getRGBColor();
 
 	@Override
 	RGBColorValue clone();

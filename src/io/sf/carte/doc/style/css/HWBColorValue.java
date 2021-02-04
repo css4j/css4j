@@ -19,9 +19,21 @@ public interface HWBColorValue extends CSSColorValue {
 	/**
 	 * Get the HWB color represented by this value.
 	 *
-	 * @return the HWB color value.
+	 * @return the HWB color.
+	 * @deprecated
+	 * @see #getHWBColor()
 	 */
-	HWBColor getHWBColorValue();
+	@Deprecated
+	default HWBColor getHWBColorValue() {
+		return getHWBColor();
+	}
+
+	/**
+	 * Get the HWB color represented by this value.
+	 *
+	 * @return the HWB color.
+	 */
+	HWBColor getHWBColor();
 
 	@Override
 	HWBColorValue clone();

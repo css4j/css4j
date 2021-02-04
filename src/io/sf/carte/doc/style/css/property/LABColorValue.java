@@ -105,12 +105,12 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue() throws DOMException {
-		return toRGBColorValue(true);
+	public RGBAColor toRGBColor() throws DOMException {
+		return toRGBColor(true);
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue(boolean clamp) throws DOMException {
+	public RGBAColor toRGBColor(boolean clamp) throws DOMException {
 		// Convert to XYZ
 		if (!isConvertibleComponent(labColor.getA()) || !isConvertibleComponent(labColor.getB())
 				|| !isConvertibleComponent(labColor.getLightness())) {
@@ -308,7 +308,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public LABColor getLABColorValue() {
+	public LABColor getLABColor() {
 		return labColor;
 	}
 

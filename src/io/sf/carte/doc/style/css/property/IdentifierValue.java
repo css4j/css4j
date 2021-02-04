@@ -122,7 +122,7 @@ public class IdentifierValue extends AbstractTextValue {
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue() throws DOMException {
+	public RGBAColor toRGBColor() throws DOMException {
 		String ident = getStringValue().toLowerCase(Locale.ROOT);
 		String spec;
 		if ("transparent".equals(ident)) {
@@ -135,7 +135,7 @@ public class IdentifierValue extends AbstractTextValue {
 			try {
 				StyleValue val = factory.parseProperty(spec);
 				if (val.getCssValueType() == CssType.TYPED && val.getPrimitiveType() == Type.COLOR) {
-					return ((TypedValue) val).toRGBColorValue();
+					return ((TypedValue) val).toRGBColor();
 				}
 			} catch (DOMException e) {
 			}

@@ -65,7 +65,7 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue() throws DOMException {
+	public RGBAColor toRGBColor() throws DOMException {
 		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not an RGB Color");
 	}
 

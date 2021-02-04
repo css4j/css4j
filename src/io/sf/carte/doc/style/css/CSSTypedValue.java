@@ -83,15 +83,40 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 * <p>
 	 * If the color does not map into the sRGB gamut, it is clamped.
 	 * </p>
+	 * <p>
+	 * This method was intended to replace the old {@code getRGBColorValue()} and
+	 * was named similarly, but to avoid confusions it was deprecated in favor of
+	 * {@link #toRGBColor()}.
+	 * </p>
 	 *
-	 * @return the RGBA color value.
+	 * @return the RGBA color.
+	 * @exception DOMException INVALID_ACCESS_ERR: if this value can't return a RGB
+	 *                         color value (either is not a <code>COLOR</code> or
+	 *                         not a typed value).<br/>
+	 *                         NOT_SUPPORTED_ERR: if the conversion needs device
+	 *                         color space information to be performed accurately.
+	 * @deprecated
+	 * @see #toRGBColor()
+	 */
+	@Deprecated
+	default RGBAColor toRGBColorValue() throws DOMException {
+		return toRGBColor();
+	}
+
+	/**
+	 * If this value represents a color, get it or transform to a RGB color.
+	 * <p>
+	 * If the color does not map into the sRGB gamut, it is clamped.
+	 * </p>
+	 *
+	 * @return the RGBA color.
 	 * @exception DOMException INVALID_ACCESS_ERR: if this value can't return a RGB
 	 *                         color value (either is not a <code>COLOR</code> or not
 	 *                         a typed value).<br/>
 	 *                         NOT_SUPPORTED_ERR: if the conversion needs device
 	 *                         color space information to be performed accurately.
 	 */
-	RGBAColor toRGBColorValue() throws DOMException;
+	RGBAColor toRGBColor() throws DOMException;
 
 	/**
 	 * Test whether this is a numeric value that was the result of a

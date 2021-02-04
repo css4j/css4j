@@ -102,17 +102,17 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 
 	@Override
 	public String getCssText() {
-		return toRGBColorValue().toString();
+		return toRGBColor().toString();
 	}
 
 	@Override
 	public String getMinifiedCssText(String propertyValue) {
-		return ((CSSRGBColor) toRGBColorValue()).toMinifiedString();
+		return ((CSSRGBColor) toRGBColor()).toMinifiedString();
 	}
 
 	@Override
 	public void writeCssText(SimpleWriter wri) throws IOException {
-		wri.write(toRGBColorValue().toString());
+		wri.write(toRGBColor().toString());
 	}
 
 	/**

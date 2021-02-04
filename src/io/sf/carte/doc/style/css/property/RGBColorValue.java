@@ -53,12 +53,12 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public RGBAColor getRGBColorValue() {
+	public RGBAColor getRGBColor() {
 		return color;
 	}
 
 	@Override
-	public RGBAColor toRGBColorValue() throws DOMException {
+	public RGBAColor toRGBColor() throws DOMException {
 		if (color.getRed() == null || color.getGreen() == null || color.getBlue() == null) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Color not set");
 		}
@@ -75,7 +75,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		float b = rgbComponentNormalized((TypedValue) color.getBlue());
 		//
 		LABColorValue lab = new LABColorValue();
-		LABColorValue.rgbToLab(r, g, b, color.getAlpha(), (LABColorImpl) lab.getLABColorValue());
+		LABColorValue.rgbToLab(r, g, b, color.getAlpha(), (LABColorImpl) lab.getLABColor());
 		return lab;
 	}
 

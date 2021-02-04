@@ -161,13 +161,13 @@ public class ComputedCSSStyleTest {
 		assertNotNull(style);
 		assertEquals("#000080", style.getCSSColor().getCssText());
 		assertEquals(0,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getRed()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getRed()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
 		assertEquals(0,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getGreen()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getGreen()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
 		assertEquals(128f,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getBlue()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getBlue()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
 	}
 
@@ -179,13 +179,13 @@ public class ComputedCSSStyleTest {
 		assertNotNull(style);
 		assertEquals("#cc2578", style.getCSSColor().getCssText());
 		assertEquals(204f,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getRed()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getRed()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
 		assertEquals(37f,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getGreen()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getGreen()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
 		assertEquals(120f,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getBlue()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getBlue()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
 	}
 
@@ -197,13 +197,13 @@ public class ComputedCSSStyleTest {
 		assertNotNull(style);
 		assertEquals("rgb(24% 37% 67%)", style.getCSSColor().getCssText());
 		assertEquals(24f,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				1e-5);
 		assertEquals(37f,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				1e-5);
 		assertEquals(67f,
-				((CSSTypedValue) style.getCSSColor().toRGBColorValue().getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) style.getCSSColor().toRGBColor().getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				1e-5);
 	}
 
@@ -602,7 +602,7 @@ public class ComputedCSSStyleTest {
 		style = elm.getComputedStyle(null);
 		CSSTypedValue color = (CSSTypedValue) style.getPropertyCSSValue("color");
 		assertEquals(CSSValue.Type.COLOR, color.getPrimitiveType());
-		RGBAColor rgb = color.toRGBColorValue();
+		RGBAColor rgb = color.toRGBColor();
 		assertEquals("#00f", rgb.toString());
 	}
 
