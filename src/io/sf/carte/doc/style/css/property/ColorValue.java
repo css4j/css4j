@@ -397,6 +397,12 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 
 		public HSLColor toHSLColor() {
+			HSLColorImpl hslColor = new MyHSLColorImpl();
+			toHSLColor(hslColor);
+			return hslColor;
+		}
+
+		void toHSLColor(HSLColorImpl hslColor) {
 			Hsl hsl = toHSL();
 			if (hsl == null) {
 				throw new DOMException(DOMException.INVALID_STATE_ERR, "Conversion to hsl() failed.");
@@ -407,12 +413,10 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			s.setFloatValue(CSSUnit.CSS_PERCENTAGE, hsl.s);
 			PercentageValue l = new PercentageValue();
 			l.setFloatValue(CSSUnit.CSS_PERCENTAGE, hsl.l);
-			HSLColorImpl hslColor = new MyHSLColorImpl();
 			hslColor.setHue(h);
 			hslColor.setSaturation(s);
 			hslColor.setLightness(l);
 			hslColor.setAlpha(getAlpha());
-			return hslColor;
 		}
 
 		/**

@@ -135,6 +135,10 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		return hslColor;
 	}
 
+	HSLColorImpl getHSLColorImpl() {
+		return hslColor;
+	}
+
 	@Override
 	LexicalSetter newLexicalSetter() {
 		return new MyLexicalSetter();

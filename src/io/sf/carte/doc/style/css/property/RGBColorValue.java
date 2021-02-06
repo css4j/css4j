@@ -65,6 +65,13 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		return color;
 	}
 
+	/**
+	 * Convert this value to a {@link LABColorValue}, if possible.
+	 * 
+	 * @return the converted {@code LABColorValue}.
+	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted.
+	 */
+	@Override
 	public LABColorValue toLABColorValue() throws DOMException {
 		if (!isConvertibleComponent(color.getRed()) || !isConvertibleComponent(color.getGreen())
 				|| !isConvertibleComponent(color.getBlue())) {
@@ -77,6 +84,23 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		LABColorValue lab = new LABColorValue();
 		LABColorValue.rgbToLab(r, g, b, color.getAlpha(), (LABColorImpl) lab.getLABColor());
 		return lab;
+	}
+
+	/**
+	 * Convert this value to a {@link HSLColorValue}, if possible.
+	 * 
+	 * @return the converted {@code HSLColorValue}.
+	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted.
+	 */
+	public HSLColorValue toHSLColorValue() throws DOMException {
+		if (!isConvertibleComponent(color.getRed()) || !isConvertibleComponent(color.getGreen())
+				|| !isConvertibleComponent(color.getBlue())) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+		//
+		HSLColorValue hsl = new HSLColorValue();
+		color.toHSLColor(hsl.getHSLColorImpl());
+		return hsl;
 	}
 
 	private static float rgbComponentNormalized(TypedValue number) {
