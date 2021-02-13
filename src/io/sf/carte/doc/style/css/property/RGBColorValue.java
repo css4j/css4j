@@ -14,7 +14,9 @@ package io.sf.carte.doc.style.css.property;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
@@ -53,7 +55,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public RGBAColor getRGBColor() {
+	public RGBAColor getColor() {
 		return color;
 	}
 
@@ -73,8 +75,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	 */
 	@Override
 	public LABColorValue toLABColorValue() throws DOMException {
-		if (!isConvertibleComponent(color.getRed()) || !isConvertibleComponent(color.getGreen())
-				|| !isConvertibleComponent(color.getBlue())) {
+		if (!color.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		float r = rgbComponentNormalized((TypedValue) color.getRed());
@@ -82,7 +83,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		float b = rgbComponentNormalized((TypedValue) color.getBlue());
 		//
 		LABColorValue lab = new LABColorValue();
-		LABColorValue.rgbToLab(r, g, b, color.getAlpha(), (LABColorImpl) lab.getLABColor());
+		ColorUtil.rgbToLab(r, g, b, color.getAlpha(), (LABColorImpl) lab.getColor());
 		return lab;
 	}
 
@@ -93,8 +94,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted.
 	 */
 	public HSLColorValue toHSLColorValue() throws DOMException {
-		if (!isConvertibleComponent(color.getRed()) || !isConvertibleComponent(color.getGreen())
-				|| !isConvertibleComponent(color.getBlue())) {
+		if (!color.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		//
@@ -143,6 +143,46 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		case 3:
 			color.setBlue((PrimitiveValue) component);
 		}
+	}
+
+	@Override
+	boolean hasConvertibleComponents() {
+		return color.hasConvertibleComponents();
+	}
+
+	@Override
+	public float deltaE2000(CSSColorValue color) {
+		if (!this.color.hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
+		}
+		//
+		LABColor lab1;
+		LABColor lab2;
+		switch (color.getColorModel()) {
+		case LCH:
+		case LAB:
+			// Delegate on the higher-precision color models
+			return color.deltaE2000(this);
+		case RGB:
+			lab1 = toLABColorValue().getColor();
+			lab2 = ((RGBColorValue) color).toLABColorValue().getColor();
+			break;
+		default:
+			RGBAColor rgb = color.toRGBColor(false);
+			RGBColorValue rgbValue = new RGBColorValue();
+			rgbValue.setComponent(0, (StyleValue) rgb.getAlpha());
+			rgbValue.setComponent(1, (StyleValue) rgb.getRed());
+			rgbValue.setComponent(2, (StyleValue) rgb.getGreen());
+			rgbValue.setComponent(3, (StyleValue) rgb.getBlue());
+			lab2 = rgbValue.toLABColorValue().getColor();
+			lab1 = toLABColorValue().getColor();
+		}
+		return ColorUtil.deltaE2000Lab(((CSSTypedValue) lab1.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lab1.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) lab1.getB()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) lab2.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lab2.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) lab2.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
 
 	@Override

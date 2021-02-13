@@ -17,6 +17,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.HSLColor;
+import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 
 class HSLColorImpl extends BaseColor implements HSLColor {
 
@@ -28,6 +29,11 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 
 	HSLColorImpl() {
 		super();
+	}
+
+	@Override
+	ColorModel getColorModel() {
+		return ColorModel.HSL;
 	}
 
 	@Override
@@ -64,6 +70,12 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	public void setLightness(PrimitiveValue lightness) {
 		checkPcntComponent(lightness);
 		this.lightness = lightness;
+	}
+
+	@Override
+	boolean hasConvertibleComponents() {
+		return isConvertibleComponent(getSaturation()) && isConvertibleComponent(getHue())
+				&& isConvertibleComponent(getLightness());
 	}
 
 	String toString(boolean commaSyntax) {

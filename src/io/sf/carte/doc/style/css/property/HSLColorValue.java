@@ -118,8 +118,7 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColor() throws DOMException {
-		if (!isConvertibleComponent(hslColor.getHue()) || !isConvertibleComponent(hslColor.getSaturation())
-				|| !isConvertibleComponent(hslColor.getLightness())) {
+		if (!hslColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		float hue = ((CSSTypedValue) hslColor.getHue()).getFloatValue(CSSUnit.CSS_DEG) / 360f;
@@ -131,7 +130,12 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public HSLColor getHSLColor() {
+	boolean hasConvertibleComponents() {
+		return hslColor.hasConvertibleComponents();
+	}
+
+	@Override
+	public HSLColor getColor() {
 		return hslColor;
 	}
 

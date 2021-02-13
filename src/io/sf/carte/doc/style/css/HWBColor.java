@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css;
 /**
  * Represents a hwb color.
  */
-public interface HWBColor {
+public interface HWBColor extends CSSColor {
 
 	/**
 	 * Get the hue of this color.
@@ -37,13 +37,7 @@ public interface HWBColor {
 	 */
 	CSSPrimitiveValue getBlackness();
 
-	/**
-	 * Get the alpha channel of this color.
-	 * 
-	 * @return the alpha channel.
-	 */
-	CSSPrimitiveValue getAlpha();
-
+	@Override
 	HWBColor clone();
 
 }

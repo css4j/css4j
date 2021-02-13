@@ -117,10 +117,13 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
+	boolean hasConvertibleComponents() {
+		return hwbColor.hasConvertibleComponents();
+	}
+
+	@Override
 	public RGBAColor toRGBColor() throws DOMException {
-		if (!HSLColorValue.isConvertibleComponent(hwbColor.getHue())
-				|| !HSLColorValue.isConvertibleComponent(hwbColor.getWhiteness())
-				|| !HSLColorValue.isConvertibleComponent(hwbColor.getBlackness())) {
+		if (!hwbColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		float hue = ((CSSTypedValue) hwbColor.getHue()).getFloatValue(CSSUnit.CSS_DEG) / 360f;
@@ -132,7 +135,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public HWBColor getHWBColor() {
+	public HWBColor getColor() {
 		return hwbColor;
 	}
 

@@ -25,11 +25,11 @@ public interface RGBColorValue extends CSSColorValue {
 	 *
 	 * @return the RGB color.
 	 * @deprecated
-	 * @see #getRGBColor()
+	 * @see #getColor()
 	 */
 	@Deprecated
 	default RGBAColor getRGBColorValue() {
-		return getRGBColor();
+		return getColor();
 	}
 
 	/**
@@ -37,7 +37,7 @@ public interface RGBColorValue extends CSSColorValue {
 	 *
 	 * @return the RGB color.
 	 */
-	RGBAColor getRGBColor();
+	RGBAColor getColor();
 
 	/**
 	 * Convert this value to a {@link LABColorValue}, if possible.

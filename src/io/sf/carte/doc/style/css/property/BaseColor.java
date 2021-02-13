@@ -17,13 +17,16 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSColor;
+import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.util.SimpleWriter;
 
-abstract class BaseColor implements Cloneable, java.io.Serializable {
+abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -33,6 +36,7 @@ abstract class BaseColor implements Cloneable, java.io.Serializable {
 		super();
 	}
 
+	@Override
 	public PrimitiveValue getAlpha() {
 		return alpha;
 	}
@@ -73,6 +77,12 @@ abstract class BaseColor implements Cloneable, java.io.Serializable {
 				 && primi.getPrimitiveType() != Type.EXPRESSION){
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Invalid color component: " + primi.getCssText());
 		}
+	}
+
+	abstract boolean hasConvertibleComponents();
+
+	static boolean isConvertibleComponent(CSSPrimitiveValue comp) {
+		return comp != null && comp.getPrimitiveType() == Type.NUMERIC;
 	}
 
 	/**
@@ -134,17 +144,15 @@ abstract class BaseColor implements Cloneable, java.io.Serializable {
 
 	void appendHue(StringBuilder buf, PrimitiveValue hue) {
 		short unit = hue.getUnitType();
-		if (unit == CSSUnit.CSS_DEG || unit == CSSUnit.CSS_GRAD) {
-			CSSTypedValue number = (CSSTypedValue) hue;
-			float val = number.getFloatValue(unit);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(4);
-			String s = format.format(val);
-			buf.append(s);
-			if (unit == CSSUnit.CSS_GRAD) {
-				buf.append("grad");
+		if (unit == CSSUnit.CSS_DEG) {
+			NumberValue deg = (NumberValue) hue;
+			float val = deg.getFloatValue(unit);
+			NumberValue number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, val);
+			if (!deg.isSpecified()) {
+				number.setAbsolutizedUnit();
 			}
+			String s = number.getCssText();
+			buf.append(s);
 		} else {
 			buf.append(hue.getCssText());
 		}
@@ -152,17 +160,14 @@ abstract class BaseColor implements Cloneable, java.io.Serializable {
 
 	void writeHue(SimpleWriter wri, PrimitiveValue hue) throws IOException {
 		short unit = hue.getUnitType();
-		if (unit == CSSUnit.CSS_DEG || unit == CSSUnit.CSS_GRAD) {
-			CSSTypedValue number = (CSSTypedValue) hue;
-			float val = number.getFloatValue(unit);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(4);
-			String s = format.format(val);
-			wri.write(s);
-			if (unit == CSSUnit.CSS_GRAD) {
-				wri.write("grad");
+		if (unit == CSSUnit.CSS_DEG) {
+			NumberValue deg = (NumberValue) hue;
+			float val = deg.getFloatValue(unit);
+			NumberValue number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, val);
+			if (!deg.isSpecified()) {
+				number.setAbsolutizedUnit();
 			}
+			number.writeCssText(wri);
 		} else {
 			hue.writeCssText(wri);
 		}
@@ -170,21 +175,23 @@ abstract class BaseColor implements Cloneable, java.io.Serializable {
 
 	void appendMinifiedHue(StringBuilder buf, PrimitiveValue hue) {
 		short unit = hue.getUnitType();
-		if (unit == CSSUnit.CSS_DEG || unit == CSSUnit.CSS_GRAD) {
-			CSSTypedValue number = (CSSTypedValue) hue;
-			float val = number.getFloatValue(unit);
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumIntegerDigits(0);
-			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(4);
-			String s = format.format(val);
-			buf.append(s);
-			if (unit == CSSUnit.CSS_GRAD) {
-				buf.append("grad");
+		if (unit == CSSUnit.CSS_DEG) {
+			NumberValue deg = (NumberValue) hue;
+			float val = deg.getFloatValue(unit);
+			NumberValue number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, val);
+			if (!deg.isSpecified()) {
+				number.setAbsolutizedUnit();
 			}
+			String s = number.getMinifiedCssText("");
+			buf.append(s);
 		} else {
-			buf.append(hue.getMinifiedCssText("color"));
+			buf.append(hue.getMinifiedCssText(""));
 		}
 	}
+
+	abstract CSSColorValue.ColorModel getColorModel();
+
+	@Override
+	abstract public BaseColor clone();
 
 }

@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -32,6 +33,11 @@ class LABColorImpl extends BaseColor implements LABColor {
 
 	LABColorImpl() {
 		super();
+	}
+
+	@Override
+	ColorModel getColorModel() {
+		return ColorModel.LAB;
 	}
 
 	@Override
@@ -72,6 +78,12 @@ class LABColorImpl extends BaseColor implements LABColor {
 				&& axis.getCssValueType() != CssType.PROXY && axis.getPrimitiveType() != Type.EXPRESSION) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible.");
 		}
+	}
+
+	@Override
+	boolean hasConvertibleComponents() {
+		return isConvertibleComponent(getA()) && isConvertibleComponent(getB())
+				&& isConvertibleComponent(getLightness());
 	}
 
 	@Override

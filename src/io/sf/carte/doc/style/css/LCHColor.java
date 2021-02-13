@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css;
 /**
  * Represents a {@code lch()} color.
  */
-public interface LCHColor {
+public interface LCHColor extends CSSColor {
 
 	/**
 	 * Get the lightness of this color.
@@ -37,13 +37,7 @@ public interface LCHColor {
 	 */
 	CSSPrimitiveValue getHue();
 
-	/**
-	 * Get the alpha channel of this color.
-	 * 
-	 * @return the alpha channel.
-	 */
-	CSSPrimitiveValue getAlpha();
-
+	@Override
 	LCHColor clone();
 
 }

@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
 /**
  * Based on W3C's {@code RGBColor} interface.
  */
-public interface RGBAColor {
+public interface RGBAColor extends CSSColor {
 
 	/**
 	 * Get the red component of this colour.
@@ -38,10 +38,4 @@ public interface RGBAColor {
 	 */
 	CSSPrimitiveValue getBlue();
 
-	/**
-	 * Get the alpha channel of this colour.
-	 * 
-	 * @return the alpha channel.
-	 */
-	CSSPrimitiveValue getAlpha();
 }

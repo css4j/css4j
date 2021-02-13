@@ -24,11 +24,26 @@ public interface CSSColorValue extends CSSTypedValue {
 	enum ColorModel {RGB, HSL, HWB, LAB, LCH}
 
 	/**
+	 * Get the color represented by this value.
+	 *
+	 * @return the color.
+	 */
+	CSSColor getColor();
+
+	/**
 	 * Get the color model with which this value was set.
 	 * 
 	 * @return the color model.
 	 */
 	ColorModel getColorModel();
+
+	/**
+	 * Compute the difference to the given color, according to CIE Delta E 2000.
+	 * 
+	 * @param color the color to compute the delta from.
+	 * @return the CIE Delta E 2000.
+	 */
+	float deltaE2000(CSSColorValue color);
 
 	/**
 	 * Get the RGB(A) color representation of this value.

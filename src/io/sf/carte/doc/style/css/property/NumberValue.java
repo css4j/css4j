@@ -59,6 +59,7 @@ public class NumberValue extends TypedValue {
 		this.realvalue = copied.realvalue;
 		this.asInteger = copied.asInteger;
 		this.calculated = copied.calculated;
+		this.specified = copied.specified;
 		this.lengthUnitType = copied.lengthUnitType;
 		this.dimensionUnitText = copied.dimensionUnitText;
 	}
@@ -264,6 +265,7 @@ public class NumberValue extends TypedValue {
 	 */
 	void setCalculatedNumber(boolean calculated) {
 		this.calculated = calculated;
+		this.specified = this.specified && !calculated;
 	}
 
 	/**
@@ -275,6 +277,10 @@ public class NumberValue extends TypedValue {
 	 */
 	public void setAbsolutizedUnit() {
 		this.specified = false;
+	}
+
+	boolean isSpecified() {
+		return specified;
 	}
 
 	@Override

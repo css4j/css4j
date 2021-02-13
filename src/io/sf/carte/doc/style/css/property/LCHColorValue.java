@@ -111,35 +111,26 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColor(boolean clamp) throws DOMException {
-		if (!isConvertibleComponent(lchColor.getChroma()) || !isConvertibleComponent(lchColor.getHue())
-				|| !isConvertibleComponent(lchColor.getLightness())) {
+		if (!lchColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		//
 		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
 		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
-		float h;
-		short unit = primihue.getUnitType();
-		if (unit == CSSUnit.CSS_NUMBER) {
-			h = primihue.getFloatValue(CSSUnit.CSS_NUMBER);
-			h = NumberValue.floatValueConversion(h, CSSUnit.CSS_DEG, CSSUnit.CSS_RAD);
-		} else {
-			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
-		}
+		float h = hueRadians(primihue);
 		//
 		float a = (float) (c * Math.cos(h));
 		float b = (float) (c * Math.sin(h));
 		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE);
 		//
 		CSSRGBColor color = new CSSRGBColor();
-		LABColorValue.labToRGB(light, a, b, clamp, lchColor.getAlpha(), color);
+		ColorUtil.labToRGB(light, a, b, clamp, lchColor.getAlpha(), color);
 		return color;
 	}
 
 	@Override
 	public LABColorValue toLABColorValue() throws DOMException {
-		if (!isConvertibleComponent(lchColor.getChroma()) || !isConvertibleComponent(lchColor.getHue())
-				|| !isConvertibleComponent(lchColor.getLightness())) {
+		if (!lchColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		//
@@ -170,8 +161,59 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public LCHColor getLCHColor() {
+	public LCHColor getColor() {
 		return lchColor;
+	}
+
+	@Override
+	boolean hasConvertibleComponents() {
+		return lchColor.hasConvertibleComponents();
+	}
+
+	@Override
+	public float deltaE2000(CSSColorValue color) {
+		if (!lchColor.hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
+		}
+		//
+		LCHColor lch;
+		switch (color.getColorModel()) {
+		case LCH:
+			lch = ((LCHColorValue) color).getColor();
+			break;
+		case LAB:
+			lch = ((LABColorValue) color).toLCHColorValue().getColor();
+			break;
+		case RGB:
+			lch = ((RGBColorValue) color).toLABColorValue().toLCHColorValue().getColor();
+			break;
+		default:
+			RGBAColor rgb = color.toRGBColor(false);
+			RGBColorValue rgbValue = new RGBColorValue();
+			rgbValue.setComponent(0, (StyleValue) rgb.getAlpha());
+			rgbValue.setComponent(1, (StyleValue) rgb.getRed());
+			rgbValue.setComponent(2, (StyleValue) rgb.getGreen());
+			rgbValue.setComponent(3, (StyleValue) rgb.getBlue());
+			lch = rgbValue.toLABColorValue().toLCHColorValue().getColor();
+		}
+		return ColorUtil.deltaE2000LCh(((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
+				hueRadians((CSSTypedValue) lchColor.getHue()),
+				((CSSTypedValue) lch.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lch.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
+				hueRadians((CSSTypedValue) lch.getHue()));
+	}
+
+	private static float hueRadians(CSSTypedValue primihue) {
+		float h;
+		short unit = primihue.getUnitType();
+		if (unit == CSSUnit.CSS_NUMBER) {
+			h = primihue.getFloatValue(CSSUnit.CSS_NUMBER);
+			h = NumberValue.floatValueConversion(h, CSSUnit.CSS_DEG, CSSUnit.CSS_RAD);
+		} else {
+			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
+		}
+		return h;
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.HWBColor;
+import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 
 class HWBColorImpl extends BaseColor implements HWBColor {
 
@@ -28,6 +29,11 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 
 	HWBColorImpl() {
 		super();
+	}
+
+	@Override
+	ColorModel getColorModel() {
+		return ColorModel.HWB;
 	}
 
 	@Override
@@ -64,6 +70,12 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	public void setBlackness(PrimitiveValue blackness) {
 		checkPcntComponent(blackness);
 		this.blackness = blackness;
+	}
+
+	@Override
+	boolean hasConvertibleComponents() {
+		return isConvertibleComponent(getWhiteness()) && isConvertibleComponent(getHue())
+				&& isConvertibleComponent(getBlackness());
 	}
 
 	@Override

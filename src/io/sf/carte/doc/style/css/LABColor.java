@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css;
 /**
  * Represents a LAB ({@code lab()}) color.
  */
-public interface LABColor {
+public interface LABColor extends CSSColor {
 
 	/**
 	 * Get the lightness of this color.
@@ -37,13 +37,7 @@ public interface LABColor {
 	 */
 	CSSPrimitiveValue getB();
 
-	/**
-	 * Get the alpha channel of this color.
-	 * 
-	 * @return the alpha channel.
-	 */
-	CSSPrimitiveValue getAlpha();
-
+	@Override
 	LABColor clone();
 
 }

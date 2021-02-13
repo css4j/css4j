@@ -21,11 +21,11 @@ public interface HSLColorValue extends CSSColorValue {
 	 *
 	 * @return the HSL color.
 	 * @deprecated
-	 * @see #getHSLColor()
+	 * @see #getColor()
 	 */
 	@Deprecated
 	default HSLColor getHSLColorValue() {
-		return getHSLColor();
+		return getColor();
 	}
 
 	/**
@@ -33,7 +33,8 @@ public interface HSLColorValue extends CSSColorValue {
 	 *
 	 * @return the HSL color.
 	 */
-	HSLColor getHSLColor();
+	@Override
+	HSLColor getColor();
 
 	@Override
 	HSLColorValue clone();

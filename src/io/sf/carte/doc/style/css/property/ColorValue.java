@@ -21,6 +21,7 @@ import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HSLColor;
+import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
@@ -115,6 +116,41 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		wri.write(toRGBColor().toString());
 	}
 
+	@Override
+	public float deltaE2000(CSSColorValue color) {
+		if (!hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
+		}
+		switch (color.getColorModel()) {
+		case LCH:
+		case LAB:
+			// Delegate on the higher-precision color models
+			return color.deltaE2000(this);
+		default:
+		}
+		RGBAColor color1 = toRGBColor(false);
+		RGBAColor color2 = color.toRGBColor(false);
+		RGBColorValue rgb1 = new RGBColorValue();
+		RGBColorValue rgb2 = new RGBColorValue();
+		rgb1.setComponent(0, (StyleValue) color1.getAlpha());
+		rgb1.setComponent(1, (StyleValue) color1.getRed());
+		rgb1.setComponent(2, (StyleValue) color1.getGreen());
+		rgb1.setComponent(3, (StyleValue) color1.getBlue());
+		rgb2.setComponent(0, (StyleValue) color2.getAlpha());
+		rgb2.setComponent(1, (StyleValue) color2.getRed());
+		rgb2.setComponent(2, (StyleValue) color2.getGreen());
+		rgb2.setComponent(3, (StyleValue) color2.getBlue());
+		//
+		LABColor lab1 = rgb1.toLABColorValue().getColor();
+		LABColor lab2 = rgb2.toLABColorValue().getColor();
+		return ColorUtil.deltaE2000Lab(((CSSTypedValue) lab1.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lab1.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) lab1.getB()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) lab2.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lab2.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
+				((CSSTypedValue) lab2.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
+	}
+
 	/**
 	 * Get the color component at {@code index}.
 	 * <p>
@@ -128,6 +164,8 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	 */
 	@Override
 	abstract public PrimitiveValue getComponent(int index);
+
+	abstract boolean hasConvertibleComponents();
 
 	@Override
 	abstract public ColorValue clone();
@@ -153,10 +191,6 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 	}
 
-	static boolean isConvertibleComponent(PrimitiveValue comp) {
-		return comp != null && comp.getPrimitiveType() == Type.NUMERIC;
-	}
-
 	class CSSRGBColor extends BaseColor implements RGBAColor {
 
 		private static final long serialVersionUID = 1L;
@@ -168,6 +202,11 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 
 		CSSRGBColor() {
 			super();
+		}
+
+		@Override
+		ColorModel getColorModel() {
+			return ColorModel.RGB;
 		}
 
 		public void setRed(PrimitiveValue red) {
@@ -396,6 +435,12 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			return hexr.length() == 1 || hexr.charAt(0) != hexr.charAt(1);
 		}
 
+		@Override
+		boolean hasConvertibleComponents() {
+			return isConvertibleComponent(getRed()) && isConvertibleComponent(getGreen())
+					&& isConvertibleComponent(getBlue());
+		}
+
 		public HSLColor toHSLColor() {
 			HSLColorImpl hslColor = new MyHSLColorImpl();
 			toHSLColor(hslColor);
@@ -409,10 +454,13 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			}
 			NumberValue h = new NumberValue();
 			h.setFloatValue(CSSUnit.CSS_DEG, hsl.h);
+			h.setAbsolutizedUnit();
 			PercentageValue s = new PercentageValue();
 			s.setFloatValue(CSSUnit.CSS_PERCENTAGE, hsl.s);
+			s.setAbsolutizedUnit();
 			PercentageValue l = new PercentageValue();
 			l.setFloatValue(CSSUnit.CSS_PERCENTAGE, hsl.l);
+			l.setAbsolutizedUnit();
 			hslColor.setHue(h);
 			hslColor.setSaturation(s);
 			hslColor.setLightness(l);

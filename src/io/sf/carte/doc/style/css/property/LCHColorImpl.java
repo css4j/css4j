@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -32,6 +33,11 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 
 	LCHColorImpl() {
 		super();
+	}
+
+	@Override
+	ColorModel getColorModel() {
+		return ColorModel.LAB;
 	}
 
 	@Override
@@ -74,6 +80,12 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with hue.");
 		}
 		this.hue = hue;
+	}
+
+	@Override
+	boolean hasConvertibleComponents() {
+		return isConvertibleComponent(getChroma()) && isConvertibleComponent(getHue())
+				&& isConvertibleComponent(getLightness());
 	}
 
 	@Override

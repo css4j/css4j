@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css;
 /**
  * Represents a hsl color.
  */
-public interface HSLColor {
+public interface HSLColor extends CSSColor {
 
 	/**
 	 * Get the hue of this color.
@@ -37,13 +37,7 @@ public interface HSLColor {
 	 */
 	CSSPrimitiveValue getLightness();
 
-	/**
-	 * Get the alpha channel of this color.
-	 * 
-	 * @return the alpha channel.
-	 */
-	CSSPrimitiveValue getAlpha();
-
+	@Override
 	HSLColor clone();
 
 }
