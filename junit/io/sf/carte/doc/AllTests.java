@@ -76,6 +76,7 @@ import io.sf.carte.doc.style.css.om.NamespaceRuleTest;
 import io.sf.carte.doc.style.css.om.OrderedTwoValueShorthandBuilderTest;
 import io.sf.carte.doc.style.css.om.PaddingBuilderTest;
 import io.sf.carte.doc.style.css.om.PageRuleTest;
+import io.sf.carte.doc.style.css.om.RGBColorDeclarationFormattingContextTest;
 import io.sf.carte.doc.style.css.om.RuleListTest;
 import io.sf.carte.doc.style.css.om.SelectorMatcherTest;
 import io.sf.carte.doc.style.css.om.SequenceShorthandBuilderTest;
@@ -196,6 +197,7 @@ import io.sf.carte.util.SingleElementIteratorTest;
 		MediaRuleTest.class,
 		NamespaceRuleTest.class,
 		PageRuleTest.class,
+		RGBColorDeclarationFormattingContextTest.class,
 		RuleListTest.class,
 		StyleRuleTest.class,
 		StyleRuleTest2.class,

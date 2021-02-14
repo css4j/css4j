@@ -16,13 +16,16 @@ import java.util.List;
 
 import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.util.SimpleWriter;
 
-public class DefaultStyleFormattingContext implements StyleFormattingContext, java.io.Serializable {
+/**
+ * Default implementation of a StyleFormattingContext.
+ */
+public class DefaultStyleFormattingContext extends DefaultDeclarationFormattingContext
+		implements StyleFormattingContext {
 
 	private static final long serialVersionUID = 1L;
 
@@ -76,19 +79,8 @@ public class DefaultStyleFormattingContext implements StyleFormattingContext, ja
 	}
 
 	@Override
-	public void newLine(SimpleWriter wri) throws IOException {
-		wri.newLine();
-		writeFullIndent(wri);
-	}
-
-	@Override
 	public void setParentContext(CSSRule rule) {
 		parentContextRule = rule;
-	}
-
-	@Override
-	public void startPropertyDeclaration(SimpleWriter wri) throws IOException {
-		writeFullIndent(wri);
 	}
 
 	@Override
@@ -117,18 +109,6 @@ public class DefaultStyleFormattingContext implements StyleFormattingContext, ja
 			deepenCurrentContext();
 			rule = rule.getParentRule();
 		}
-	}
-
-	@Override
-	public void writeColon(SimpleWriter wri) throws IOException {
-		wri.write(':');
-		wri.write(' ');
-	}
-
-	@Override
-	public void writeComma(SimpleWriter wri) throws IOException {
-		wri.write(',');
-		wri.write(' ');
 	}
 
 	@Override
@@ -186,11 +166,6 @@ public class DefaultStyleFormattingContext implements StyleFormattingContext, ja
 		String quoted = ParseHelper.quote(href, quote);
 		wri.write(quoted);
 		wri.write(')');
-	}
-
-	@Override
-	public void writeValue(SimpleWriter wri, String propertyName, CSSValue value) throws IOException {
-		value.writeCssText(wri);
 	}
 
 	@Override

@@ -39,6 +39,7 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -288,36 +289,28 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	String getComputedPlainCssText() {
-		int sz = propertyList.size();
-		StringBuilder sb = new StringBuilder(50 + sz * 18);
-		for (int i = 0; i < sz; i++) {
-			String ptyname = propertyList.get(i);
-			String prio = priorities.get(i);
-			StyleValue value = getCSSValue(ptyname);
-			sb.append(ptyname).append(':').append(' ');
-			appendCssText(sb, value);
-			if (prio != null && "important".equals(prio)) {
-				sb.append(" ! important");
+		if (!propertyList.isEmpty()) {
+			int sz = propertyList.size();
+			BufferSimpleWriter wri = new BufferSimpleWriter(50 + sz * 18);
+			DeclarationFormattingContext formatter = getStyleSheetFactory().getStyleFormattingFactory()
+					.createComputedStyleFormattingContext();
+			try {
+				writeComputedCssText(wri, formatter);
+			} catch (IOException e) {
 			}
-			sb.append(';').append(' ');
+			return wri.toString();
 		}
-		return sb.toString();
+		return "";
 	}
 
-	void writeComputedCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
-		int sz = propertyList.size();
-		for (int i = 0; i < sz; i++) {
-			String ptyname = propertyList.get(i);
-			String prio = priorities.get(i);
+	void writeComputedCssText(SimpleWriter wri, DeclarationFormattingContext context) throws IOException {
+		for (String ptyname : propertyList) {
+			context.startPropertyDeclaration(wri);
 			wri.write(ptyname);
-			wri.write(':');
-			wri.write(' ');
+			context.writeColon(wri);
 			context.writeValue(wri, ptyname, getCSSValue(ptyname));
-			if (prio != null && "important".equals(prio)) {
-				context.writeImportantPriority(wri);
-			}
-			wri.write(';');
-			wri.write(' ');
+			context.writeSemiColon(wri);
+			context.endPropertyDeclaration(wri);
 		}
 	}
 

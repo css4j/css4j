@@ -23,4 +23,12 @@ public interface StyleFormattingFactory {
 	 * @return a StyleFormattingContext.
 	 */
 	StyleFormattingContext createStyleFormattingContext();
+
+	/**
+	 * Create a new DeclarationFormattingContext to serialize computed styles.
+	 * 
+	 * @return a DeclarationFormattingContext.
+	 */
+	DeclarationFormattingContext createComputedStyleFormattingContext();
+
 }

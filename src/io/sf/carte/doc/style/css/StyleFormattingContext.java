@@ -27,13 +27,11 @@ import io.sf.carte.util.SimpleWriter;
  * @see StyleFormattingFactory
  * @see CSSStyleSheetFactory#setStyleFormattingFactory(StyleFormattingFactory)
  */
-public interface StyleFormattingContext {
+public interface StyleFormattingContext extends DeclarationFormattingContext {
 
 	void deepenCurrentContext();
 
 	void endCurrentContext(CSSRule rule);
-
-	void endPropertyDeclaration(SimpleWriter wri) throws IOException;
 
 	void endInlinePropertyDeclaration(SimpleWriter wri) throws IOException;
 
@@ -43,33 +41,13 @@ public interface StyleFormattingContext {
 
 	void endStyleDeclaration(SimpleWriter wri) throws IOException;
 
-	/**
-	 * Serialize a newline to a {@code SimpleWriter}.
-	 * 
-	 * @param wri the writer.
-	 * @throws IOException if an I/O problem happens while writing to the
-	 *                     {@code SimpleWriter}.
-	 */
-	void newLine(SimpleWriter wri) throws IOException;
-
 	void setParentContext(CSSRule rule);
-
-	void startPropertyDeclaration(SimpleWriter wri) throws IOException;
 
 	void startRule(SimpleWriter wri, List<String> precedingComments) throws IOException;
 
 	void startStyleDeclaration(SimpleWriter wri) throws IOException;
 
 	void updateContext(CSSRule rule);
-
-	/**
-	 * Serialize a colon to a {@code SimpleWriter}.
-	 * 
-	 * @param wri the writer.
-	 * @throws IOException if an I/O problem happens while writing to the
-	 *                     {@code SimpleWriter}.
-	 */
-	void writeColon(SimpleWriter wri) throws IOException;
 
 	/**
 	 * Serialize a comment that precedes a rule.
@@ -80,24 +58,6 @@ public interface StyleFormattingContext {
 	 *                     {@code SimpleWriter}.
 	 */
 	void writeComment(SimpleWriter wri, String comment) throws IOException;
-
-	/**
-	 * Serialize a comma to a {@code SimpleWriter}.
-	 * 
-	 * @param wri the writer.
-	 * @throws IOException if an I/O problem happens while writing to the
-	 *                     {@code SimpleWriter}.
-	 */
-	void writeComma(SimpleWriter wri) throws IOException;
-
-	/**
-	 * Serialize a full paragraph indent to a {@code SimpleWriter}.
-	 * 
-	 * @param wri the writer.
-	 * @throws IOException if an I/O problem happens while writing to the
-	 *                     {@code SimpleWriter}.
-	 */
-	void writeFullIndent(SimpleWriter wri) throws IOException;
 
 	/**
 	 * Serialize an {@code important} priority declaration to a
@@ -135,35 +95,6 @@ public interface StyleFormattingContext {
 	 *                     {@code SimpleWriter}.
 	 */
 	void writeRightCurlyBracket(SimpleWriter wri) throws IOException;
-
-	/**
-	 * Serialize a semicolon to a {@code SimpleWriter}.
-	 * 
-	 * @param wri the writer.
-	 * @throws IOException if an I/O problem happens while writing to the
-	 *                     {@code SimpleWriter}.
-	 */
-	void writeSemiColon(SimpleWriter wri) throws IOException;
-
-	/**
-	 * Serialize a URL/URI to a {@code SimpleWriter}.
-	 * 
-	 * @param wri the writer.
-	 * @param href the URI.
-	 * @throws IOException if an I/O problem happens while writing to the
-	 *                     {@code SimpleWriter}.
-	 */
-	void writeURL(SimpleWriter wri, String href) throws IOException;
-
-	/**
-	 * Write a css value to the given writer.
-	 * 
-	 * @param wri          the writer.
-	 * @param propertyName the name of the property whose value is being printed.
-	 * @param value        the value to write.
-	 * @throws IOException if an error happened while writing.
-	 */
-	void writeValue(SimpleWriter wri, String propertyName, CSSValue value) throws IOException;
 
 	/**
 	 * Serialize a css shorthand value to the given writer.

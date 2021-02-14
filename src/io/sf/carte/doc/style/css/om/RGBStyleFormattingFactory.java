@@ -15,16 +15,21 @@ import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 
-public class TestStyleFormattingFactory implements StyleFormattingFactory {
+/**
+ * A {@code StyleFormattingFactory} that serializes computed colors as RGB.
+ */
+public class RGBStyleFormattingFactory implements StyleFormattingFactory, java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public StyleFormattingContext createStyleFormattingContext() {
-		return new InlineStyleFormattingContext();
+		return new DefaultStyleFormattingContext();
 	}
 
 	@Override
 	public DeclarationFormattingContext createComputedStyleFormattingContext() {
-		return new DefaultDeclarationFormattingContext();
+		return new RGBColorDeclarationFormattingContext();
 	}
 
 }

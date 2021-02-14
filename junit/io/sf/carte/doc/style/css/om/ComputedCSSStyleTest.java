@@ -53,7 +53,7 @@ public class ComputedCSSStyleTest {
 
 	static CSSStyleSheet sheet;
 
-	static CSSDocument xhtmlDoc;
+	CSSDocument xhtmlDoc;
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
