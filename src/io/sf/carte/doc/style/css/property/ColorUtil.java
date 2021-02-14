@@ -108,6 +108,12 @@ class ColorUtil {
 		if (isInGamut(light, current_a, current_b, rgb, rgbClamped2, labClamped)) {
 			return rgbClamped2;
 		}
+		// Initial guesstimate
+		float c = (float) Math.sqrt(current_a * current_a + current_b * current_b) - labClamped[0];
+		current_a = c * cosh;
+		current_b = c * sinh;
+		labToRGB(light, current_a, current_b, rgb);
+		//
 		final float FACTOR_INCR = 1.0002f;
 		float factor = 0.972f;
 		// Refine the value
@@ -116,10 +122,8 @@ class ColorUtil {
 			rangeClamp(rgb, rgbClamped);
 			rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], labClamped);
 			// Check deltaE2000
-			float c = (float) Math.sqrt(current_a * current_a + current_b * current_b);
-			final float c2 = (float) Math.sqrt(labClamped[1] * labClamped[1] + labClamped[2] * labClamped[2]);
-			final double c_av = (c + c2) * 0.5f;
-			float dE = deltaE2000(0d, light, c_av, current_a, current_b, labClamped[1], labClamped[2]);
+			c = (float) Math.sqrt(current_a * current_a + current_b * current_b);
+			float dE = deltaE2000ChromaReduction(light, c, current_a, current_b, labClamped);
 			if (dE < 2f) {
 				if (factor < 1f) {
 					// Now final attempt to drive chromaticity up a bit
@@ -157,9 +161,7 @@ class ColorUtil {
 		rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], labClamped);
 		// Check deltaE2000
 		float c = (float) Math.sqrt(current_a * current_a + current_b * current_b);
-		final float c2 = (float) Math.sqrt(labClamped[1] * labClamped[1] + labClamped[2] * labClamped[2]);
-		final double c_av = (c + c2) * 0.5f;
-		float dE = deltaE2000(0d, light, c_av, current_a, current_b, labClamped[1], labClamped[2]);
+		float dE = deltaE2000ChromaReduction(light, c, current_a, current_b, labClamped);
 		return dE < 2f;
 	}
 
@@ -273,8 +275,8 @@ class ColorUtil {
 
 	static float deltaE2000LCh(float l1, float c1, float h1, float l2, float c2, float h2) {
 		final double dL = l2 - l1;
-		final double lav = (l1 + l2) * 0.5f;
-		final double c_av = (c1 + c2) * 0.5f;
+		final double lav = (l1 + l2) * 0.5d;
+		final double c_av = (c1 + c2) * 0.5d;
 		// a and b
 		final double a1 = c1 * Math.cos(h1);
 		final double a2 = c2 * Math.cos(h2);
@@ -286,10 +288,10 @@ class ColorUtil {
 
 	static float deltaE2000Lab(float l1, float a1, float b1, float l2, float a2, float b2) {
 		final double dL = l2 - l1;
-		final double lav = (l1 + l2) * 0.5f;
+		final double lav = (l1 + l2) * 0.5d;
 		final double c1 = Math.sqrt(a1 * a1 + b1 * b1);
 		final double c2 = Math.sqrt(a2 * a2 + b2 * b2);
-		final double c_av = (c1 + c2) * 0.5f;
+		final double c_av = (c1 + c2) * 0.5d;
 		//
 		return deltaE2000(dL, lav, c_av, a1, b1, a2, b2);
 	}
@@ -349,6 +351,68 @@ class ColorUtil {
 		final double h_comp = dHprime / sH;
 		final double hue_rotation = rt * c_comp * h_comp;
 		final double dE00 = Math.sqrt(l_comp * l_comp + c_comp * c_comp + h_comp * h_comp + hue_rotation);
+		return (float) dE00;
+	}
+
+	private static float deltaE2000ChromaReduction(double lav, double c1, double a1, double b1, float[] labClamped) {
+		final double c2 = Math.sqrt(labClamped[1] * labClamped[1] + labClamped[2] * labClamped[2]);
+		final double c_av = (c1 + c2) * 0.5d;
+		final double cav_pow7 = Math.pow(c_av, 7d);
+		// 6103515625d = 25^7
+		final double gplus1 = 1d + 0.5d * (1d - Math.sqrt(cav_pow7 / (cav_pow7 + 6103515625d)));
+		final double a1prime = a1 * gplus1;
+		final double a2prime = labClamped[1] * gplus1;
+		final double c1prime = Math.sqrt(a1prime * a1prime + b1 * b1);
+		final double c2prime = Math.sqrt(a2prime * a2prime + labClamped[2] * labClamped[2]);
+		final double deltaCprime = c2prime - c1prime;
+		final double cprime_av = (c1prime + c2prime) * 0.5f;
+		//
+		final double TWOPI = Math.PI + Math.PI;
+		double h1prime = Math.atan2(b1, a1prime);
+		if (h1prime < 0d) {
+			h1prime += TWOPI;
+		}
+		double h2prime = Math.atan2(labClamped[2], a2prime);
+		if (h2prime < 0d) {
+			h2prime += TWOPI;
+		}
+		//
+		double hprime_av = 0d;
+		double dhprime = h2prime - h1prime;
+		if (Math.abs(h1prime - h2prime) > Math.PI) {
+			if (h2prime <= h1prime) {
+				dhprime += TWOPI;
+			} else {
+				dhprime -= TWOPI;
+			}
+			hprime_av = Math.PI;
+		}
+		hprime_av += (h1prime + h2prime) * 0.5f;
+		final double dHprime = 2d * Math.sqrt(c1prime * c2prime) * Math.sin(dhprime * 0.5d);
+		//
+		final double t = 1d - 0.17d * Math.cos(hprime_av - 0.5235988d) + 0.24d * Math.cos(hprime_av + hprime_av)
+				+ 0.32d * Math.cos(3d * hprime_av + 0.1047198d) - 0.2d * Math.cos(4d * hprime_av - 1.099557d);
+		//
+		final double sC = 1d + 0.045d * cprime_av;
+		final double sH = 1d + 0.015d * cprime_av * t;
+		//
+		final double cprime_av_pow7 = Math.pow(cprime_av, 7d);
+		final double exp_arg = (hprime_av - 4.799655443d) / 0.436332313d;
+		final double rt = -2d * Math.sqrt(cprime_av_pow7 / (cprime_av_pow7 + 6103515625d))
+				* Math.sin(1.04719755d * Math.exp(-exp_arg * exp_arg));
+		//
+		final double c_comp = deltaCprime / sC;
+		final double h_comp = dHprime / sH;
+		final double hue_rotation = rt * c_comp * h_comp;
+		final double dE00 = Math.sqrt(c_comp * c_comp + h_comp * h_comp + hue_rotation);
+		// To have a wild guess of the next chroma, put adjusted deltaCprime into labClamped[0]
+		final double dE00minus2 = dE00 - 2d;
+		double sqrtArg = dE00minus2 * dE00minus2 - h_comp * h_comp - hue_rotation;
+		if (sqrtArg > 0d) {
+			labClamped[0] = (float) (sC * Math.sqrt(sqrtArg));
+		} else {
+			labClamped[0] = 0f;
+		}
 		return (float) dE00;
 	}
 
