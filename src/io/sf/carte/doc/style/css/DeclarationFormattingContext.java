@@ -24,15 +24,6 @@ import io.sf.carte.util.SimpleWriter;
  */
 public interface DeclarationFormattingContext {
 
-	/**
-	 * Serialize a newline to a {@code SimpleWriter}.
-	 * 
-	 * @param wri the writer.
-	 * @throws IOException if an I/O problem happens while writing to the
-	 *                     {@code SimpleWriter}.
-	 */
-	void newLine(SimpleWriter wri) throws IOException;
-
 	void startPropertyDeclaration(SimpleWriter wri) throws IOException;
 
 	void endPropertyDeclaration(SimpleWriter wri) throws IOException;

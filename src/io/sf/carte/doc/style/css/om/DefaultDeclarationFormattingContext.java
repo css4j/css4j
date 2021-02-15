@@ -30,12 +30,6 @@ public class DefaultDeclarationFormattingContext implements DeclarationFormattin
 	}
 
 	@Override
-	public void newLine(SimpleWriter wri) throws IOException {
-		wri.newLine();
-		writeFullIndent(wri);
-	}
-
-	@Override
 	public void startPropertyDeclaration(SimpleWriter wri) throws IOException {
 		writeFullIndent(wri);
 	}
