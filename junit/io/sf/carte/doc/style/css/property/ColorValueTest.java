@@ -2601,9 +2601,9 @@ public class ColorValueTest {
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals(100f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-2);
 		assertEquals(66.61f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-2);
-		assertEquals(47.94f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-2);
+		assertEquals(47.93f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-2);
 		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
-		assertEquals("rgb(100%, 66.61%, 47.94%)", rgb.toString());
+		assertEquals("rgb(100%, 66.61%, 47.93%)", rgb.toString());
 		//
 		RGBColorValue rgbValue = new RGBColorValue();
 		rgbValue.setCssText(rgb.toString());

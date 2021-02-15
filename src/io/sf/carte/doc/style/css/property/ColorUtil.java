@@ -103,10 +103,10 @@ class ColorUtil {
 			labToRGB(light, current_a, current_b, rgb);
 		}
 		// Now look for a clipped color that is close enough according to deltaE2000
-		float[] rgbClamped2 = new float[3];
+		float[] rgbClamped = new float[3];
 		float[] labClamped = new float[3];
-		if (isInGamut(light, current_a, current_b, rgb, rgbClamped2, labClamped)) {
-			return rgbClamped2;
+		if (isInGamut(light, current_a, current_b, rgb, rgbClamped, labClamped)) {
+			return rgbClamped;
 		}
 		// Initial guesstimate
 		float c = (float) Math.sqrt(current_a * current_a + current_b * current_b) - labClamped[0];
@@ -114,10 +114,10 @@ class ColorUtil {
 		current_b = c * sinh;
 		labToRGB(light, current_a, current_b, rgb);
 		//
-		final float FACTOR_INCR = 1.0002f;
-		float factor = 0.972f;
-		// Refine the value
-		float[] rgbClamped = new float[3];
+		float eps = 0.025f;
+		float factor = 0.97f;
+		// Refine the value, starting with a progressive reduction.
+		// A classical bisection is avoided, as the gamut shape may lead to wrong results.
 		do {
 			rangeClamp(rgb, rgbClamped);
 			rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], labClamped);
@@ -126,14 +126,17 @@ class ColorUtil {
 			float dE = deltaE2000ChromaReduction(light, c, current_a, current_b, labClamped);
 			if (dE < 2f) {
 				if (factor < 1f) {
-					// Now final attempt to drive chromaticity up a bit
-					factor = FACTOR_INCR;
+					if (eps < 9e-5) {
+						return rgbClamped;
+					}
+					// Now drive chromaticity up
+					eps *= 0.15f;
+					factor = 1 + eps;
 				}
 			} else if (factor > 1f) {
-				return rgbClamped2;
+				eps *= 0.15f;
+				factor = 1 - eps;
 			}
-			// Save old clamped array
-			System.arraycopy(rgbClamped, 0, rgbClamped2, 0, 3);
 			// refine chromaticity with a factor, and compute new RGB
 			c = c * factor;
 			current_a = c * cosh;
@@ -253,7 +256,7 @@ class ColorUtil {
 		double z = 0.01933081871559182 * r + 0.11919477979462598 * g + 0.9505321522496607 * b;
 		//
 		// Chromatic adjustment: D65 to D50, Bradford
-		// See http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+		// See http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
 		float[] xyz = new float[3];
 		xyz[0] = (float) (1.0478112 * x + 0.0228866 * y - 0.0501270 * z);
 		xyz[1] = (float) (0.0295424 * x + 0.9904844 * y - 0.0170491 * z);
