@@ -41,6 +41,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 	LinkedList<LexicalUnit> keyframeSelectors = new LinkedList<LexicalUnit>();
 	LinkedList<String[]> fontFeaturesNames = new LinkedList<>();
 	LinkedList<String> featureMapNames = new LinkedList<String>();
+	LinkedList<String> customPropertyNames = new LinkedList<String>();
 	LinkedList<String> eventSeq = new LinkedList<String>();
 
 	int fontFaceCount = 0;
@@ -56,6 +57,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 	int endFontFeaturesCount = 0;
 	int endFeatureMapCount = 0;
 	int endViewportCount = 0;
+	int endPropertyRuleCount = 0;
 
 	@Override
 	public void startSelector(SelectorList selectors) throws CSSException {
@@ -228,6 +230,18 @@ class TestCSSHandler extends TestDeclarationHandler {
 	}
 
 	@Override
+	public void startProperty(String name) {
+		customPropertyNames.add(name);
+		this.eventSeq.add("startProperty");
+	}
+
+	@Override
+	public void endProperty(boolean discard) {
+		this.eventSeq.add("endProperty");
+		endPropertyRuleCount++;
+	}
+
+	@Override
 	public void startViewport() {
 		this.eventSeq.add("startViewport");
 		viewportCount++;
@@ -254,6 +268,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 		assertEquals(fontFeaturesNames.size(), endFontFeaturesCount);
 		assertEquals(featureMapNames.size(), endFeatureMapCount);
 		assertEquals(fontFaceCount, endFontFaceCount);
+		assertEquals(customPropertyNames.size(), endPropertyRuleCount);
 		assertEquals(viewportCount, endViewportCount);
 		assertEquals(1, streamEndcount);
 	}

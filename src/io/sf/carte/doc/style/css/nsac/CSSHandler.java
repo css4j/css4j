@@ -217,6 +217,20 @@ public interface CSSHandler {
 	void endFeatureMap();
 
 	/**
+	 * Start a {@literal @}property rule.
+	 * 
+	 * @param name the custom property name.
+	 */
+	void startProperty(String name);
+
+	/**
+	 * End of {@literal @}property rule.
+	 * 
+	 * @param discard if {@code true}, the rule should be discarded.
+	 */
+	void endProperty(boolean discard);
+
+	/**
 	 * Receive notification of the beginning of a supports rule.
 	 * <p>
 	 * The Parser will invoke this method at the beginning of every supports rule in

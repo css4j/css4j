@@ -130,6 +130,14 @@ abstract public class EmptyCSSHandler implements CSSHandler, CSSErrorHandler {
 	}
 
 	@Override
+	public void startProperty(String name) {
+	}
+
+	@Override
+	public void endProperty(boolean discard) {
+	}
+
+	@Override
 	public void startSupports(BooleanCondition condition) {
 	}
 

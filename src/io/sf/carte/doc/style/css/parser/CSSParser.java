@@ -3384,6 +3384,9 @@ public class CSSParser implements Parser, Cloneable {
 			} else if ("font-feature-values".equals(ruleName)) {
 				buffer.setLength(0);
 				contextHandler = new MyFontFeatureValuesTH();
+			} else if ("property".equals(ruleName)) {
+				buffer.setLength(0);
+				contextHandler = new PropertyRuleTokenHandler();
 			} else {
 				buffer.append(word);
 				if (isPrevCpWhitespace()) {
@@ -3496,7 +3499,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void endAtRule() {
+			protected void endAtRule(int index) {
 				handler.endViewport();
 				endRuleBody();
 			}
@@ -3563,7 +3566,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void endAtRule() {
+			protected void endAtRule(int index) {
 				handler.endCounterStyle();
 				endRuleBody();
 			}
@@ -3705,6 +3708,111 @@ public class CSSParser implements Parser, Cloneable {
 				super.endOfStream(len);
 				contextHandler = null;
 				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			CSSParseException createException(int index, byte errCode, String message) {
+				return SheetTokenHandler.this.createException(index, errCode, message);
+			}
+
+		}
+
+		private class PropertyRuleTokenHandler extends DeclarationRuleTokenHandler {
+
+			private boolean hasSyntax, hasInherits;
+
+			private PropertyRuleTokenHandler() {
+				super(ShorthandDatabase.getInstance());
+				setRuleName("property");
+				setStage(STAGE_RULE_NAME_SELECTOR);
+			}
+
+			@Override
+			void setCurrentLocation(int index) {
+				SheetTokenHandler.this.setCurrentLocation(index);
+			}
+
+			@Override
+			public void control(int index, int codepoint) {
+				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			public void tokenStart(TokenControl control) {
+				SheetTokenHandler.this.tokenStart(control);
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return SheetTokenHandler.this.getTokenControl();
+			}
+
+			@Override
+			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
+				try {
+					handler.startProperty(ruleSecondPart);
+				} catch (DOMException e) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "@property rule could not be created.", e);
+					setStage(INVALID_RULE);
+				}
+			}
+
+			@Override
+			protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
+					boolean priorityImportant) {
+				if ("syntax".equalsIgnoreCase(propertyName)) {
+					if (lunit.getLexicalUnitType() != LexicalType.STRING) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"'syntax' descriptor in @property rule must be a string.");
+						setStage(INVALID_RULE);
+						return;
+					}
+					hasSyntax = true;
+				} else if ("inherits".equalsIgnoreCase(propertyName)) {
+					String s;
+					if (lunit.getLexicalUnitType() != LexicalType.IDENT
+							|| (!"true".equals(s = lunit.getStringValue().toLowerCase(Locale.ROOT))
+									&& !"false".equals(s))) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"'inherits' descriptor in @property rule must be either 'true' or 'false'.");
+						setStage(INVALID_RULE);
+						return;
+					}
+					hasInherits = true;
+				}
+				super.handleProperty(index, propertyName, lunit, priorityImportant);
+			}
+
+			@Override
+			protected void endAtRule(int index) {
+				if (!hasSyntax) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+							"@property rule lacks mandatory 'syntax' descriptor.");
+					handler.endProperty(true);
+				} else if (!hasInherits) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+							"@property rule lacks mandatory 'inherits' descriptor.");
+					handler.endProperty(true);
+				} else {
+					handler.endProperty(false);
+				}
+				endRuleBody();
+			}
+
+			@Override
+			void skipDeclarationBlock() {
+				contextHandler = new MyIgnoredDeclarationTokenHandler();
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				contextHandler = null;
+				SheetTokenHandler.this.endOfStream(len);
+			}
+
+			@Override
+			protected void endDeclarationList() {
 			}
 
 			@Override
@@ -5362,7 +5470,7 @@ public class CSSParser implements Parser, Cloneable {
 		@Override
 		protected void handleRightCurlyBracket(int index) {
 			if (stage == STAGE_RULE_BODY) {
-				endAtRule();
+				endAtRule(index);
 				resetHandler();
 				ruleFirstPart = null;
 				stage = STAGE_RULE_END;
@@ -5371,7 +5479,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		protected void endAtRule() {
+		protected void endAtRule(int index) {
 			((DeclarationRuleHandler) handler).endAtRule();
 		}
 

@@ -96,6 +96,7 @@ public interface CSSRule extends org.w3c.dom.css.CSSRule {
 
 	short REGION_STYLE_RULE = 16;
 	short CUSTOM_MEDIA_RULE = 17;
+	short PROPERTY_RULE = 18;
 
 	/**
 	 * A minified parsable textual representation of the rule. This reflects the current state

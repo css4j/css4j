@@ -482,6 +482,39 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
+	public void startProperty(String name) {
+		ignoreImports = true;
+		newRule();
+		if (ignoreGroupingRules == 0) {
+			PropertyRule rule = parentSheet.createPropertyRule(name);
+			rule.setParentRule(currentRule);
+			currentRule = rule;
+			setCommentsToRule(currentRule);
+		} else {
+			resetCommentStack();
+		}
+	}
+
+	@Override
+	public void endProperty(boolean discard) {
+		if (discard) {
+			discardGenericRule();
+		} else {
+			endGenericRule();
+		}
+	}
+
+	private void discardGenericRule() {
+		if (ignoreGroupingRules == 0) {
+			if (currentRule != null) {
+				// Restore parent rule
+				currentRule = currentRule.getParentRule();
+			}
+		}
+		resetCommentStack();
+	}
+
+	@Override
 	public void startViewport() {
 		ignoreImports = true;
 		newRule();

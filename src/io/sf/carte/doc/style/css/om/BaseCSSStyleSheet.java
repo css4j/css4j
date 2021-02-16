@@ -558,6 +558,13 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
+	public PropertyRule createPropertyRule(String name) {
+		PropertyRule rule = new PropertyRule(this, getOrigin());
+		rule.setName(name);
+		return rule;
+	}
+
+	@Override
 	public StyleRule createStyleRule() {
 		return new StyleRule(this, getOrigin());
 	}
@@ -936,6 +943,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			case CSSRule.KEYFRAME_RULE:
 			case CSSRule.MARGIN_RULE:
 			case CSSRule.COUNTER_STYLE_RULE:
+			case CSSRule.PROPERTY_RULE:
 			case CSSRule.VIEWPORT_RULE:
 				CSSDeclarationRule declRule = (CSSDeclarationRule) rule;
 				visitor.visit(declRule);

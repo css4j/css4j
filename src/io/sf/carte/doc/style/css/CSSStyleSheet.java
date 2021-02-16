@@ -181,6 +181,13 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 	CSSPageRule createPageRule();
 
 	/**
+	 * Create a CSS property rule compatible with this implementation.
+	 *
+	 * @return a CSS property rule.
+	 */
+	CSSPropertyRule createPropertyRule(String name);
+
+	/**
 	 * Create a CSS style rule.
 	 *
 	 * @return a CSS style rule.
