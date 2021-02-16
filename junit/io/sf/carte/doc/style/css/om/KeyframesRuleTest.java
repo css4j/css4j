@@ -96,6 +96,10 @@ public class KeyframesRuleTest {
 		PropertyCountVisitor visitor = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitor);
 		assertEquals(6, visitor.getCount());
+		//
+		visitor.reset();
+		sheet.acceptDescriptorRuleVisitor(visitor);
+		assertEquals(6, visitor.getCount());
 	}
 
 	@Test
@@ -130,6 +134,14 @@ public class KeyframesRuleTest {
 		rule.deleteRule("75%");
 		assertNull(rule.findRule("75%"));
 		assertEquals(2, rule.getCssRules().getLength());
+		// Visitor
+		PropertyCountVisitor visitor = new PropertyCountVisitor();
+		sheet.acceptDeclarationRuleVisitor(visitor);
+		assertEquals(4, visitor.getCount());
+		//
+		visitor.reset();
+		sheet.acceptDescriptorRuleVisitor(visitor);
+		assertEquals(4, visitor.getCount());
 	}
 
 	@Test

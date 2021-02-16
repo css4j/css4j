@@ -372,6 +372,16 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 */
 	abstract public void acceptDeclarationRuleVisitor(Visitor<CSSDeclarationRule> visitor);
 
+	/**
+	 * Accept a descriptor rule visitor.
+	 * <p>
+	 * This method scans for declaration rules that declare descriptors.
+	 * </p>
+	 * 
+	 * @param visitor the visitor.
+	 */
+	abstract public void acceptDescriptorRuleVisitor(Visitor<CSSDeclarationRule> visitor);
+
 	abstract protected void setParentStyleSheet(AbstractCSSStyleSheet parent);
 
 	/**

@@ -791,7 +791,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
-			case CSSRule.PAGE_RULE:
+			case CSSRule.PAGE_RULE: // 'page' property is a property, the rest are descriptors
 				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
 				if (((BaseCSSStyleDeclaration) stylerule.getStyle()).isPropertySet(propertyName)) {
 					subset.add(stylerule);
@@ -959,10 +959,50 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				if (marginBoxes != null) {
 					acceptDeclarationRuleVisitor(marginBoxes, visitor);
 				}
+				visitor.visit(pageRule);
 				break;
 			case CSSRule.KEYFRAMES_RULE:
 				KeyframesRule kfsRule = (KeyframesRule) rule;
 				acceptDeclarationRuleVisitor(kfsRule.getCssRules(), visitor);
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void acceptDescriptorRuleVisitor(Visitor<CSSDeclarationRule> visitor) {
+		acceptDescriptorRuleVisitor(cssRules, visitor);
+	}
+
+	private void acceptDescriptorRuleVisitor(AbstractRuleList<? extends CSSRule> rules,
+			Visitor<CSSDeclarationRule> visitor) {
+		for (CSSRule rule : rules) {
+			switch (rule.getType()) {
+			case CSSRule.FONT_FACE_RULE:
+			case CSSRule.KEYFRAME_RULE:
+			case CSSRule.MARGIN_RULE:
+			case CSSRule.COUNTER_STYLE_RULE:
+			case CSSRule.PROPERTY_RULE:
+			case CSSRule.VIEWPORT_RULE:
+				CSSDeclarationRule declRule = (CSSDeclarationRule) rule;
+				visitor.visit(declRule);
+				break;
+			case CSSRule.MEDIA_RULE:
+			case CSSRule.SUPPORTS_RULE:
+				GroupingRule grouping = (GroupingRule) rule;
+				acceptDescriptorRuleVisitor(grouping.getCssRules(), visitor);
+				break;
+			case CSSRule.PAGE_RULE:
+				PageRule pageRule = (PageRule) rule;
+				MarginRuleList marginBoxes = pageRule.getMarginRules();
+				if (marginBoxes != null) {
+					acceptDescriptorRuleVisitor(marginBoxes, visitor);
+				}
+				visitor.visit(pageRule);
+				break;
+			case CSSRule.KEYFRAMES_RULE:
+				KeyframesRule kfsRule = (KeyframesRule) rule;
+				acceptDescriptorRuleVisitor(kfsRule.getCssRules(), visitor);
 				break;
 			}
 		}

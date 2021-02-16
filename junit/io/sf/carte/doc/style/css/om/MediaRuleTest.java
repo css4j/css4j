@@ -120,12 +120,16 @@ public class MediaRuleTest {
 		PropertyCountVisitor visitorP = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitorP);
 		assertEquals(4, visitorP.getCount());
+		//
+		visitorP.reset();
+		sheet.acceptDescriptorRuleVisitor(visitorP);
+		assertEquals(0, visitorP.getCount());
 	}
 
 	@Test
 	public void testParse2() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}");
+				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}nav.foo{display:none}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
@@ -133,8 +137,20 @@ public class MediaRuleTest {
 		assertEquals("screen and (-webkit-min-device-pixel-ratio: 0)", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals(
-				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}",
+				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}nav.foo{display:none}}",
 				rule.getMinifiedCssText());
+		// Visitor
+		StyleCountVisitor visitor = new StyleCountVisitor();
+		sheet.acceptStyleRuleVisitor(visitor);
+		assertEquals(1, visitor.getCount());
+		//
+		PropertyCountVisitor visitorP = new PropertyCountVisitor();
+		sheet.acceptDeclarationRuleVisitor(visitorP);
+		assertEquals(3, visitorP.getCount());
+		//
+		visitorP.reset();
+		sheet.acceptDescriptorRuleVisitor(visitorP);
+		assertEquals(2, visitorP.getCount());
 	}
 
 	@Test

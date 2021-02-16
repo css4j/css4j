@@ -31,4 +31,8 @@ class PropertyCountVisitor implements Visitor<CSSDeclarationRule> {
 		count += rule.getStyle().getLength();
 	}
 
+	public void reset() {
+		count = 0;
+	}
+
 }

@@ -120,7 +120,11 @@ public class BaseCSSStyleSheetTest2 {
 		//
 		PropertyCountVisitor visitorP = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitorP);
-		assertEquals(3, visitorP.getCount());
+		assertEquals(6, visitorP.getCount());
+		//
+		visitorP.reset();
+		sheet.acceptDescriptorRuleVisitor(visitorP);
+		assertEquals(5, visitorP.getCount());
 	}
 
 	@Test
@@ -312,6 +316,10 @@ public class BaseCSSStyleSheetTest2 {
 		PropertyCountVisitor visitorP = new PropertyCountVisitor();
 		css.acceptDeclarationRuleVisitor(visitorP);
 		assertEquals(1, visitorP.getCount());
+		//
+		visitorP.reset();
+		css.acceptDescriptorRuleVisitor(visitorP);
+		assertEquals(0, visitorP.getCount());
 	}
 
 	@Test
