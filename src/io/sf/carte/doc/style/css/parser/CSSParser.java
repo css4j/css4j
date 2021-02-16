@@ -3475,6 +3475,16 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			public void tokenStart(TokenControl control) {
+				SheetTokenHandler.this.tokenStart(control);
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return SheetTokenHandler.this.getTokenControl();
+			}
+
+			@Override
 			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
 				if (ruleSecondPart == null) {
 					handler.startViewport();
@@ -3530,6 +3540,16 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void control(int index, int codepoint) {
 				SheetTokenHandler.this.control(index, codepoint);
+			}
+
+			@Override
+			public void tokenStart(TokenControl control) {
+				SheetTokenHandler.this.tokenStart(control);
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return SheetTokenHandler.this.getTokenControl();
 			}
 
 			@Override

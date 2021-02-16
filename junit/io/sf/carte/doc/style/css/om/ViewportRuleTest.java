@@ -74,6 +74,22 @@ public class ViewportRuleTest {
 	}
 
 	@Test
+	public void testParseRuleBad2() throws DOMException, IOException {
+		StringReader re = new StringReader("@viewport ;{orientation: landscape; min-width: 640px;}");
+		sheet.parseStyleSheet(re);
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
+	public void testParseRuleBad3() throws DOMException, IOException {
+		StringReader re = new StringReader("@viewport@{orientation: landscape; min-width: 640px;}");
+		sheet.parseStyleSheet(re);
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
 	public void testSetCssTextString() {
 		ViewportRule rule = new ViewportRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText("@viewport{orientation:landscape}");

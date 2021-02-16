@@ -95,6 +95,13 @@ public class CounterStyleRuleTest {
 	}
 
 	@Test
+	public void testParseRuleError6() throws DOMException, IOException {
+		StringReader re = new StringReader("@counter-style outsi@de {");
+		sheet.parseStyleSheet(re);
+		assertEquals(0, sheet.getCssRules().getLength());
+	}
+
+	@Test
 	public void testSetCssTextString() {
 		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		// Rule taken from mozilla website
