@@ -51,7 +51,6 @@ abstract class AbstractPageSelector implements PageSelector, java.io.Serializabl
 		buf.append(getCssText());
 		PageSelector sel = nextSelector;
 		do {
-			buf.append(' ');
 			buf.append(sel.getCssText());
 			sel = sel.getNext();
 		} while (sel != null);

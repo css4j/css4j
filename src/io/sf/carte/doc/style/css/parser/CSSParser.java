@@ -333,40 +333,63 @@ public class CSSParser implements Parser, Cloneable {
 		while (commast.hasMoreTokens()) {
 			String selstr = commast.nextToken();
 			selstr = ParseHelper.unescapeStringValue(selstr, true, false);
-			AbstractPageSelector psitem = null;
-			AbstractPageSelector ps = null;
-			StringTokenizer st = new StringTokenizer(selstr);
+			StringTokenizer st = new StringTokenizer(selstr, ",");
 			while (st.hasMoreTokens()) {
-				String s = st.nextToken();
-				if (s.charAt(0) == ':') {
-					if (s.length() > 1) {
-						s = s.substring(1).toLowerCase(Locale.ROOT);
-						if (containsOnlyLcLetters(s)) {
-							PseudoPageSelector pps = new PseudoPageSelector(s);
-							if (ps != null) {
-								ps.setNextSelector(pps);
-							} else {
-								psitem = pps;
-							}
-							ps = pps;
-							continue;
-						}
-					}
+				String s = st.nextToken().trim();
+				AbstractPageSelector psitem = parsePageSelector(s);
+				if (psitem != null) {
+					list.add(psitem);
 				} else {
-					// Page type selector
-					if (ps == null) {
-						ps = new PageTypeSelector(s);
-						psitem = ps;
-						continue;
-					}
+					throw new DOMException(DOMException.SYNTAX_ERR, "Bad page selector: " + s);
 				}
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad page selector: " + s);
-			}
-			if (ps != null) {
-				list.add(psitem);
 			}
 		}
 		return list;
+	}
+
+	private AbstractPageSelector parsePageSelector(String s) {
+		AbstractPageSelector psitem = null;
+		AbstractPageSelector ps = null;
+		int colonidx = s.indexOf(':');
+		if (colonidx == -1) {
+			// Page type selector
+			return new PageTypeSelector(s);
+		} else if (colonidx != 0) {
+			String pts = s.substring(0, colonidx);
+			if (!isValidIdentifier(pts)) {
+				return null;
+			}
+			ps = new PageTypeSelector(pts);
+			psitem = ps;
+		}
+		colonidx++;
+		final int len = s.length();
+		while (colonidx < len) {
+			int nextColonIdx = s.indexOf(':', colonidx);
+			if (nextColonIdx == colonidx) {
+				return null;
+			}
+			String pp;
+			if (nextColonIdx == -1) {
+				pp = s.substring(colonidx).toLowerCase(Locale.ROOT);
+				colonidx = len;
+			} else {
+				pp = s.substring(colonidx, nextColonIdx).toLowerCase(Locale.ROOT);
+				colonidx = nextColonIdx + 1;
+			}
+			if (containsOnlyLcLetters(pp)) {
+				PseudoPageSelector pps = new PseudoPageSelector(pp);
+				if (ps != null) {
+					ps.setNextSelector(pps);
+				} else {
+					psitem = pps;
+				}
+				ps = pps;
+			} else {
+				return null;
+			}
+		}
+		return psitem;
 	}
 
 	private boolean containsOnlyLcLetters(String s) {
@@ -1920,6 +1943,57 @@ public class CSSParser implements Parser, Cloneable {
 		return cp != 32 && cp != 9 && cp != 10 && cp != 12 && cp != 13;
 	}
 
+	/**
+	 * Is the given string a valid CSS identifier?
+	 * 
+	 * @param s the identifier to test; cannot contain hex escapes.
+	 * @return true if is a valid identifier.
+	 */
+	static boolean isValidIdentifier(String s) {
+		int len = s.length();
+		int idx;
+		char c = s.charAt(0);
+		if (c != '-') {
+			if (!isNameStartChar(c) && c != '\\') {
+				return false;
+			}
+			idx = 1;
+		} else if (len > 1) {
+			c = s.charAt(1);
+			if (!isNameStartChar(c) && c != '-' && c != '\\') {
+				return false;
+			}
+			idx = 2;
+		} else {
+			return false;
+		}
+		while (idx < len) {
+			c = s.charAt(idx);
+			if (!isNameChar(c)) {
+				return false;
+			}
+			idx++;
+		}
+		return true;
+	}
+
+	private static boolean isNameChar(char cp) {
+		return (cp >= 0x61 && cp <= 0x7A) // a-z
+				|| (cp >= 0x41 && cp <= 0x5A) // A-Z
+				|| (cp >= 0x30 && cp <= 0x39) // 0-9
+				|| cp == 0x2d // -
+				|| cp == 0x5f // _
+				|| cp > 0x80 // non-ASCII code point
+				|| cp == 0x5c; // '\'
+	}
+
+	private static boolean isNameStartChar(char cp) {
+		return (cp >= 0x61 && cp <= 0x7A) // a-z
+				|| (cp >= 0x41 && cp <= 0x5A) // A-Z
+				|| cp == 0x5f // _
+				|| cp > 0x80; // non-ASCII code point
+	}
+
 	@Override
 	public CSSParser clone() {
 		CSSParser parser = new CSSParser(this);
@@ -2100,10 +2174,11 @@ public class CSSParser implements Parser, Cloneable {
 						}
 						return;
 					} else if (stage == STAGE_FOUND_NESTED_SELECTOR) {
-						processNestedSelector(index);
-						prevcp = codePoint;
-						stage = STAGE_DECLARATION_LIST;
-						declarationHandler.curlyBracketDepth = 1;
+						if (processNestedSelector(index)) {
+							prevcp = codePoint;
+							stage = STAGE_DECLARATION_LIST;
+							declarationHandler.curlyBracketDepth = 1;
+						}
 						return;
 					} else if (!parseError) {
 						unexpectedCharError(index, codePoint, STAGE_SELECTOR_ERROR);
@@ -2129,7 +2204,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		abstract void processNestedSelector(int index);
+		abstract boolean processNestedSelector(int index);
 
 		abstract void endBlockList();
 
@@ -2387,14 +2462,16 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void processNestedSelector(int index) {
+		boolean processNestedSelector(int index) {
 			String name = rawBuffer().trim();
 			if (isMarginRuleName(name)) {
 				handler.startMargin(name);
 			} else {
 				handleError(index, ParseHelper.ERR_INVALID_IDENTIFIER, "Unknown margin rule name.");
 				setStage(STAGE_NESTED_SELECTOR_ERROR);
+				return false;
 			}
+			return true;
 		}
 
 		@Override
@@ -2432,7 +2509,9 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		void endBlockList() {
-			handler.endPage(pageSelectorList);
+			if (getStage() != STAGE_SELECTOR_ERROR) {
+				handler.endPage(pageSelectorList);
+			}
 			pageSelectorList = null;
 		}
 
@@ -2485,7 +2564,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void processNestedSelector(int index) {
+		boolean processNestedSelector(int index) {
 			String selector = rawBuffer();
 			LexicalUnit kfsel;
 			try {
@@ -2494,10 +2573,11 @@ public class CSSParser implements Parser, Cloneable {
 			} catch (CSSException e) {
 				handleError(index, ParseHelper.ERR_WRONG_VALUE, e.getMessage());
 				setStage(STAGE_SELECTOR_ERROR);
-				return;
+				return false;
 			} catch (IOException e) {
 				// Should not happen
 			}
+			return true;
 		}
 
 		@Override
@@ -2538,13 +2618,15 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void processNestedSelector(int index) {
+		boolean processNestedSelector(int index) {
 			String selector = unescapeBuffer(index);
 			if (selector.length() > 1 && selector.charAt(0) == '@') {
 				handler.startFeatureMap(selector.substring(1).trim());
 			} else {
 				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Bad feature name: " + selector);
+				return false;
 			}
+			return true;
 		}
 
 		@Override
@@ -7638,57 +7720,6 @@ public class CSSParser implements Parser, Cloneable {
 				return !Character.isDigit(c);
 			}
 			return (s.length() > 1 && !Character.isDigit(c = s.charAt(1))) || c == '\\';
-		}
-
-		/**
-		 * Is the given string a valid CSS identifier?
-		 * 
-		 * @param s the identifier to test; cannot contain hex escapes.
-		 * @return true if is a valid identifier.
-		 */
-		boolean isValidIdentifier(String s) {
-			int len = s.length();
-			int idx;
-			char c = s.charAt(0);
-			if (c != '-') {
-				if (!isNameStartChar(c) && c != '\\') {
-					return false;
-				}
-				idx = 1;
-			} else if (len > 1) {
-				c = s.charAt(1);
-				if (!isNameStartChar(c) && c != '-' && c != '\\') {
-					return false;
-				}
-				idx = 2;
-			} else {
-				return false;
-			}
-			while (idx < len) {
-				c = s.charAt(idx);
-				if (!isNameChar(c)) {
-					return false;
-				}
-				idx++;
-			}
-			return true;
-		}
-
-		private boolean isNameChar(char cp) {
-			return (cp >= 0x61 && cp <= 0x7A) // a-z
-					|| (cp >= 0x41 && cp <= 0x5A) // A-Z
-					|| (cp >= 0x30 && cp <= 0x39) // 0-9
-					|| cp == 0x2d // -
-					|| cp == 0x5f // _
-					|| cp > 0x80 // non-ASCII code point
-					|| cp == 0x5c; // '\'
-		}
-
-		private boolean isNameStartChar(char cp) {
-			return (cp >= 0x61 && cp <= 0x7A) // a-z
-					|| (cp >= 0x41 && cp <= 0x5A) // A-Z
-					|| cp == 0x5f // _
-					|| cp > 0x80; // non-ASCII code point
 		}
 
 		boolean isValidPseudoName(String s) {

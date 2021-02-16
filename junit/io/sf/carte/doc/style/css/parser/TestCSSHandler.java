@@ -132,7 +132,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 	@Override
 	public void endMargin() {
 		this.eventSeq.add("endMargin");
-		endMarginCount ++;
+		endMarginCount++;
 	}
 
 	@Override
@@ -262,6 +262,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 		assertTrue(selectors.equals(endSelectors));
 		assertEquals(mediaRuleLists.size(), endMediaCount);
 		assertEquals(pageRuleSelectors.size(), endPageCount);
+		assertEquals(marginRuleNames.size(), endMarginCount);
 		assertEquals(counterStyleNames.size(), endCounterStyleCount);
 		assertEquals(keyframesNames.size(), endKeyframesCount);
 		assertEquals(keyframeSelectors.size(), endKeyframeCount);

@@ -35,6 +35,8 @@ import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Locator;
+import io.sf.carte.doc.style.css.nsac.PageSelector;
+import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
@@ -1480,8 +1482,8 @@ public class SheetParserTest {
 		assertNull(handler.priorities.get(0));
 		assertEquals(3, handler.pageRuleSelectors.size());
 		assertEquals(":first", handler.pageRuleSelectors.get(0).toString());
-		assertEquals("foo :left", handler.pageRuleSelectors.get(1).toString());
-		assertEquals("bar :right,:blank", handler.pageRuleSelectors.get(2).toString());
+		assertEquals("foo:left", handler.pageRuleSelectors.get(1).toString());
+		assertEquals("bar:right,:blank", handler.pageRuleSelectors.get(2).toString());
 		assertEquals(2, handler.marginRuleNames.size());
 		assertEquals("top-center", handler.marginRuleNames.get(0));
 		assertEquals("bottom-center", handler.marginRuleNames.get(1));
@@ -1535,6 +1537,176 @@ public class SheetParserTest {
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(28, loc.getColumnNumber());
 		assertEquals(52, handler.ptyLocators.get(1).getColumnNumber());
+		assertEquals(63, handler.ptyLocators.get(2).getColumnNumber());
+		//
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetPageRule3() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@page LetterHead:first{margin-top:20%;@top-left{content:'foo';color:green}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.pageRuleSelectors.size());
+		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
+		assertEquals(1, psl.getLength());
+		assertEquals("LetterHead:first", psl.toString());
+		PageSelector ps = psl.item(0);
+		assertEquals("LetterHead:first", ps.toString());
+		assertEquals("LetterHead", ps.getCssText());
+		assertEquals("LetterHead", ps.getName());
+		assertEquals(PageSelector.Type.PAGE_TYPE, ps.getSelectorType());
+		ps = ps.getNext();
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
+		assertEquals(":first", ps.getCssText());
+		assertEquals("first", ps.getName());
+		assertNull(ps.getNext());
+		assertEquals(1, handler.marginRuleNames.size());
+		assertEquals("top-left", handler.marginRuleNames.get(0));
+		assertEquals(3, handler.propertyNames.size());
+		assertEquals("margin-top", handler.propertyNames.get(0));
+		assertEquals("content", handler.propertyNames.get(1));
+		assertEquals(3, handler.lexicalValues.size());
+		assertEquals("20%", handler.lexicalValues.get(0).toString());
+		assertEquals("'foo'", handler.lexicalValues.get(1).toString());
+		assertEquals("green", handler.lexicalValues.get(2).toString());
+		assertEquals(3, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertEquals(7, handler.eventSeq.size());
+		assertEquals("startPage", handler.eventSeq.get(0));
+		assertEquals("property", handler.eventSeq.get(1));
+		assertEquals("startMargin", handler.eventSeq.get(2));
+		assertEquals("property", handler.eventSeq.get(3));
+		assertEquals("property", handler.eventSeq.get(4));
+		assertEquals("endMargin", handler.eventSeq.get(5));
+		assertEquals("endPage", handler.eventSeq.get(6));
+		//
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(38, loc.getColumnNumber());
+		assertEquals(62, handler.ptyLocators.get(1).getColumnNumber());
+		assertEquals(74, handler.ptyLocators.get(2).getColumnNumber());
+		//
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetPageRule4() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@page Foo:blank:first,:right{margin-top:20%;@top-left{content:'foo';color:green}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.pageRuleSelectors.size());
+		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
+		assertEquals(2, psl.getLength());
+		assertEquals("Foo:blank:first,:right", psl.toString());
+		PageSelector ps = psl.item(0);
+		assertEquals("Foo:blank:first", ps.toString());
+		assertEquals("Foo", ps.getCssText());
+		assertEquals("Foo", ps.getName());
+		assertEquals(PageSelector.Type.PAGE_TYPE, ps.getSelectorType());
+		ps = ps.getNext();
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
+		assertEquals(":blank", ps.getCssText());
+		assertEquals("blank", ps.getName());
+		ps = ps.getNext();
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
+		assertEquals(":first", ps.getCssText());
+		assertEquals("first", ps.getName());
+		assertNull(ps.getNext());
+		//
+		ps = psl.item(1);
+		assertEquals(":right", ps.toString());
+		assertEquals(":right", ps.getCssText());
+		assertEquals("right", ps.getName());
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
+		assertNull(ps.getNext());
+		//
+		assertEquals(1, handler.marginRuleNames.size());
+		assertEquals("top-left", handler.marginRuleNames.get(0));
+		assertEquals(3, handler.propertyNames.size());
+		assertEquals("margin-top", handler.propertyNames.get(0));
+		assertEquals("content", handler.propertyNames.get(1));
+		assertEquals(3, handler.lexicalValues.size());
+		assertEquals("20%", handler.lexicalValues.get(0).toString());
+		assertEquals("'foo'", handler.lexicalValues.get(1).toString());
+		assertEquals("green", handler.lexicalValues.get(2).toString());
+		assertEquals(3, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertEquals(7, handler.eventSeq.size());
+		assertEquals("startPage", handler.eventSeq.get(0));
+		assertEquals("property", handler.eventSeq.get(1));
+		assertEquals("startMargin", handler.eventSeq.get(2));
+		assertEquals("property", handler.eventSeq.get(3));
+		assertEquals("property", handler.eventSeq.get(4));
+		assertEquals("endMargin", handler.eventSeq.get(5));
+		assertEquals("endPage", handler.eventSeq.get(6));
+		//
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(44, loc.getColumnNumber());
+		assertEquals(68, handler.ptyLocators.get(1).getColumnNumber());
+		assertEquals(80, handler.ptyLocators.get(2).getColumnNumber());
+		//
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetPageRule5() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@page:first{margin-top:20%;@top-left{content:'foo';color:green}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.pageRuleSelectors.size());
+		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
+		assertEquals(1, psl.getLength());
+		assertEquals(":first", psl.toString());
+		PageSelector ps = psl.item(0);
+		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
+		assertEquals(":first", ps.toString());
+		assertEquals(":first", ps.getCssText());
+		assertEquals("first", ps.getName());
+		assertNull(ps.getNext());
+		assertEquals(1, handler.marginRuleNames.size());
+		assertEquals("top-left", handler.marginRuleNames.get(0));
+		assertEquals(3, handler.propertyNames.size());
+		assertEquals("margin-top", handler.propertyNames.get(0));
+		assertEquals("content", handler.propertyNames.get(1));
+		assertEquals(3, handler.lexicalValues.size());
+		assertEquals("20%", handler.lexicalValues.get(0).toString());
+		assertEquals("'foo'", handler.lexicalValues.get(1).toString());
+		assertEquals("green", handler.lexicalValues.get(2).toString());
+		assertEquals(3, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertEquals(7, handler.eventSeq.size());
+		assertEquals("startPage", handler.eventSeq.get(0));
+		assertEquals("property", handler.eventSeq.get(1));
+		assertEquals("startMargin", handler.eventSeq.get(2));
+		assertEquals("property", handler.eventSeq.get(3));
+		assertEquals("property", handler.eventSeq.get(4));
+		assertEquals("endMargin", handler.eventSeq.get(5));
+		assertEquals("endPage", handler.eventSeq.get(6));
+		//
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(27, loc.getColumnNumber());
+		assertEquals(51, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(63, handler.ptyLocators.get(2).getColumnNumber());
 		//
 		assertFalse(errorHandler.hasError());
@@ -1634,6 +1806,92 @@ public class SheetParserTest {
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(38, errorHandler.getLastException().getColumnNumber());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetPageRuleBad4() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@page LetterHead :first{margin-top:20%;@top-left{content:'foo';color:green}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(0, handler.pageRuleSelectors.size());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertEquals(0, handler.priorities.size());
+		assertEquals(0, handler.eventSeq.size());
+		//
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(24, errorHandler.getLastException().getColumnNumber());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetPageRuleBadNestedMarginBox() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@page LetterHead:first{margin-top:20%;@top-left @{content:'foo';color:green}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.pageRuleSelectors.size());
+		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
+		assertEquals(1, psl.getLength());
+		assertEquals("LetterHead:first", psl.toString());
+		assertEquals(0, handler.marginRuleNames.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin-top", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("20%", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertEquals(3, handler.eventSeq.size());
+		assertEquals("startPage", handler.eventSeq.get(0));
+		assertEquals("property", handler.eventSeq.get(1));
+		assertEquals("endPage", handler.eventSeq.get(2));
+		//
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(49, errorHandler.getLastException().getColumnNumber());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetPageRuleBadNestedMarginBox2() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@page LetterHead:first{margin-top:20%;@top-foo{content:'foo';color:green}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.pageRuleSelectors.size());
+		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
+		assertEquals(1, psl.getLength());
+		assertEquals("LetterHead:first", psl.toString());
+		assertEquals(0, handler.marginRuleNames.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin-top", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("20%", handler.lexicalValues.get(0).toString());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertEquals(3, handler.eventSeq.size());
+		assertEquals("startPage", handler.eventSeq.get(0));
+		assertEquals("property", handler.eventSeq.get(1));
+		assertEquals("endPage", handler.eventSeq.get(2));
+		//
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(47, errorHandler.getLastException().getColumnNumber());
 		handler.checkRuleEndings();
 	}
 

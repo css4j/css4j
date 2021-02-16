@@ -106,13 +106,13 @@ public class BaseCSSStyleSheetTest2 {
 		//
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(2).getType());
 		pagerule = (PageRule) sheet.getCssRules().item(2);
-		assertEquals("@page foo :left {margin-left: 10%; @top-center {content: none; }@bottom-center {content: counter(page); }}", pagerule.getCssText());
-		assertEquals("@page foo :left{margin-left:10%;@top-center{content:none}@bottom-center{content:counter(page)}}", pagerule.getMinifiedCssText());
+		assertEquals("@page foo:left {margin-left: 10%; @top-center {content: none; }@bottom-center {content: counter(page); }}", pagerule.getCssText());
+		assertEquals("@page foo:left{margin-left:10%;@top-center{content:none}@bottom-center{content:counter(page)}}", pagerule.getMinifiedCssText());
 		//
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(3).getType());
 		pagerule = (PageRule) sheet.getCssRules().item(3);
-		assertEquals("@page bar :right,:blank {margin-right: 2em; }", pagerule.getCssText());
-		assertEquals("@page bar :right,:blank{margin-right:2em}", pagerule.getMinifiedCssText());
+		assertEquals("@page bar:right,:blank {margin-right: 2em; }", pagerule.getCssText());
+		assertEquals("@page bar:right,:blank{margin-right:2em}", pagerule.getMinifiedCssText());
 		// Visitor
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		sheet.acceptStyleRuleVisitor(visitor);
