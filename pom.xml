@@ -15,8 +15,8 @@
   <dependencies>
 	<dependency>
 		<groupId>io.sf.jclf</groupId>
-		<artifactId>jclf</artifactId>
-		<version>[4.0.4,4.999]</version>
+		<artifactId>jclf-text</artifactId>
+		<version>[5.0.0,)</version>
 		<type>jar</type>
 		<scope>compile</scope>
 		<optional>false</optional>
