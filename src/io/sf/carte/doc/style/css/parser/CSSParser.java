@@ -3541,12 +3541,37 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		private class ViewportTokenHandler extends DeclarationRuleTokenHandler {
+		private class ViewportTokenHandler extends MyDeclarationRuleTokenHandler {
 
 			private ViewportTokenHandler() {
 				super(ShorthandDatabase.getInstance());
 				setRuleName("viewport");
 				setStage(STAGE_RULE_NAME_SELECTOR);
+			}
+
+			@Override
+			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
+				if (ruleSecondPart == null) {
+					handler.startViewport();
+				} else {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected token after @viewport: " + ruleSecondPart);
+					setStage(INVALID_RULE);
+				}
+			}
+
+			@Override
+			protected void endAtRule(int index) {
+				handler.endViewport();
+				endRuleBody();
+			}
+
+		}
+
+		private class MyDeclarationRuleTokenHandler extends DeclarationRuleTokenHandler {
+
+			MyDeclarationRuleTokenHandler(ShorthandDatabase propertyDatabase) {
+				super(propertyDatabase);
 			}
 
 			@Override
@@ -3567,23 +3592,6 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			TokenControl getTokenControl() {
 				return SheetTokenHandler.this.getTokenControl();
-			}
-
-			@Override
-			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
-				if (ruleSecondPart == null) {
-					handler.startViewport();
-				} else {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-							"Unexpected token after @viewport: " + ruleSecondPart);
-					setStage(INVALID_RULE);
-				}
-			}
-
-			@Override
-			protected void endAtRule(int index) {
-				handler.endViewport();
-				endRuleBody();
 			}
 
 			@Override
@@ -3609,32 +3617,12 @@ public class CSSParser implements Parser, Cloneable {
 
 		}
 
-		private class CounterStyleTokenHandler extends DeclarationRuleTokenHandler {
+		private class CounterStyleTokenHandler extends MyDeclarationRuleTokenHandler {
 
 			private CounterStyleTokenHandler() {
 				super(ShorthandDatabase.getInstance());
 				setRuleName("counter-style");
 				setStage(STAGE_RULE_NAME_SELECTOR);
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			public void tokenStart(TokenControl control) {
-				SheetTokenHandler.this.tokenStart(control);
-			}
-
-			@Override
-			TokenControl getTokenControl() {
-				return SheetTokenHandler.this.getTokenControl();
 			}
 
 			@Override
@@ -3651,27 +3639,6 @@ public class CSSParser implements Parser, Cloneable {
 			protected void endAtRule(int index) {
 				handler.endCounterStyle();
 				endRuleBody();
-			}
-
-			@Override
-			void skipDeclarationBlock() {
-				contextHandler = new MyIgnoredDeclarationTokenHandler();
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				super.endOfStream(len);
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			protected void endDeclarationList() {
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
 			}
 
 		}
@@ -3799,7 +3766,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		}
 
-		private class PropertyRuleTokenHandler extends DeclarationRuleTokenHandler {
+		private class PropertyRuleTokenHandler extends MyDeclarationRuleTokenHandler {
 
 			private boolean hasSyntax, hasInherits;
 
@@ -3807,26 +3774,6 @@ public class CSSParser implements Parser, Cloneable {
 				super(ShorthandDatabase.getInstance());
 				setRuleName("property");
 				setStage(STAGE_RULE_NAME_SELECTOR);
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			public void tokenStart(TokenControl control) {
-				SheetTokenHandler.this.tokenStart(control);
-			}
-
-			@Override
-			TokenControl getTokenControl() {
-				return SheetTokenHandler.this.getTokenControl();
 			}
 
 			@Override
@@ -3879,27 +3826,6 @@ public class CSSParser implements Parser, Cloneable {
 					handler.endProperty(false);
 				}
 				endRuleBody();
-			}
-
-			@Override
-			void skipDeclarationBlock() {
-				contextHandler = new MyIgnoredDeclarationTokenHandler();
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				super.endOfStream(len);
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			protected void endDeclarationList() {
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
 			}
 
 		}
