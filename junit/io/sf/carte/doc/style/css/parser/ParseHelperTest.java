@@ -27,6 +27,7 @@ public class ParseHelperTest {
 	public void testUnescapeStringValue() {
 		assertEquals("", ParseHelper.unescapeStringValue(""));
 		assertEquals(" ", ParseHelper.unescapeStringValue(" "));
+		assertEquals(" ", ParseHelper.unescapeStringValue("\\ "));
 		assertEquals("\\", ParseHelper.unescapeStringValue("\\\\"));
 		assertEquals("\n", ParseHelper.unescapeStringValue("\\A "));
 		assertEquals("&", ParseHelper.unescapeStringValue("\\26 "));
@@ -114,35 +115,44 @@ public class ParseHelperTest {
 
 	@Test
 	public void testEscapeString() {
-		assertEquals(" ", ParseHelper.escape(" "));
+		assertEquals("\\ ", ParseHelper.escape(" "));
 		assertEquals("-", ParseHelper.escape("-"));
 		assertEquals("_a", ParseHelper.escape("_a"));
 		assertEquals("a_", ParseHelper.escape("a_"));
 		assertEquals("-a", ParseHelper.escape("-a"));
 		assertEquals("-a-b", ParseHelper.escape("-a-b"));
+		assertEquals("𝜀", ParseHelper.escape("\ud835\udf00"));
 		assertEquals("a\\a0 b", ParseHelper.escape("a\u00a0b"));
 		assertEquals("a\\ad b", ParseHelper.escape("a\u00adb"));
 		assertEquals("-\\39 a", ParseHelper.escape("-9a"));
+		assertEquals("\\[\\]\\(\\)\\{\\}", ParseHelper.escape("[](){}"));
 		assertEquals("\\\\", ParseHelper.escape("\\"));
-		assertEquals(" \\\\", ParseHelper.escape(" \\"));
-		assertEquals(" \\9", ParseHelper.escape(" \u0009"));
+		assertEquals("\\ \\\\", ParseHelper.escape(" \\"));
+		assertEquals("\\ \\9", ParseHelper.escape(" \u0009"));
 		assertEquals("\\1b", ParseHelper.escape("\u001b"));
 		assertEquals("\\1b\\\\", ParseHelper.escape("\u001b\\"));
-		assertEquals("\\\\ foo🚧bar", ParseHelper.escape("\\ foo🚧bar"));
+		assertEquals("\\\\\\ foo🚧bar", ParseHelper.escape("\\ foo🚧bar"));
 		assertEquals("\\e", ParseHelper.escape("\u000e"));
 		assertEquals("a\\/", ParseHelper.escape("a/"));
 		assertEquals("\\31 a\\/", ParseHelper.escape("1a/"));
 		assertEquals("progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)",
 				ParseHelper.escape("progid:DXImageTransform.Microsoft.gradient(enabled=false)"));
 		assertEquals("\\+foo🚧bar", ParseHelper.escape("+foo🚧bar"));
-		assertEquals("\\9  C", ParseHelper.escape("\u0009 C"));
+		assertEquals("\\9 \\ C", ParseHelper.escape("\u0009 C"));
 		assertEquals("\\9 C\\&D", ParseHelper.escape("\u0009C&D"));
 		assertEquals("\\9 C\\&D\\\\", ParseHelper.escape("\u0009C&D\\"));
-		assertEquals(" \\9 C \\&", ParseHelper.escape(" \u0009C &"));
+		assertEquals("\\ \\9 C\\ \\&", ParseHelper.escape(" \u0009C &"));
 		assertEquals("\\fffd", ParseHelper.escape("\ufffd"));
 		assertEquals("\\0", ParseHelper.escape("\u0000"));
 		assertEquals("\\1F44D", ParseHelper.escape("\\1F44D"));
 		assertEquals("foo\\1F44D bar", ParseHelper.escape("foo\\1F44D bar"));
+	}
+
+	@Test
+	public void testEscapeStringBooleanBoolean() {
+		assertEquals("\\ ", ParseHelper.escape(" ", true, true));
+		assertEquals("\\1d700", ParseHelper.escape("\ud835\udf00", true, true));
+		assertEquals("\\9 C\\&D", ParseHelper.escape("\u0009C&D", true, true));
 	}
 
 	@Test
