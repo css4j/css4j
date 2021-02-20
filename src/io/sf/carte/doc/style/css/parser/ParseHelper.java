@@ -228,6 +228,7 @@ public class ParseHelper {
 			i = 1;
 			c = text.charAt(1);
 		}
+		//
 		boolean noesc = c < 0x30 || c > 0x39; // First char is not digit ?
 		if (!noesc) {
 			// First char is digit
@@ -238,16 +239,29 @@ public class ParseHelper {
 			buf.append("\\3").append(c).append(' ');
 			i++;
 		}
+		//
+		boolean preservingHex = false;
 		while (i < len) {
 			int cp = text.codePointAt(i);
 			if ((cp >= 0x30 && cp <= 0x39) || (cp >= 0x41 && cp <= 0x5a) || (cp >= 0x61 && cp <= 0x7a) || cp == 0x2d
 					|| cp == 0x5f) {
+				if (preservingHex && !ParseHelper.isHexCodePoint(cp)) {
+					preservingHex = false;
+				}
 				if (!noesc) {
 					buf.append((char) cp);
 				}
-			} else if (cp > 0x79) {
+			} else if (cp > 0x7a) {
+				preservingHex = false;
+				if (cp < 0x7f) {
+					if (noesc) {
+						noesc = false;
+						buf = new StringBuilder(len + 1);
+						buf.append(text.subSequence(0, i));
+					}
+					buf.append('\\').append((char) cp);
 				// Escape (high) controls and non-breaking spaces, soft hyphens and replacement char
-				if ((cp >= 0x7f && cp <= 0x9f) || cp == 0xa0 || cp == 0xad|| cp == 0xfffd) {
+				} else if (cp <= 0x9f || cp == 0xa0 || cp == 0xad|| cp == 0xfffd) {
 					if (noesc) {
 						noesc = false;
 						buf = new StringBuilder(len + 24);
@@ -259,8 +273,7 @@ public class ParseHelper {
 					}
 				} else {
 					int newIdx = text.offsetByCodePoints(i, 1);
-					i++;
-					if (newIdx == i) {
+					if (newIdx == i + 1) {
 						if (!noesc) {
 							buf.append((char) cp);
 						}
@@ -276,37 +289,43 @@ public class ParseHelper {
 								buf.append(text.subSequence(0, i));
 							}
 							buf.append('\\').append(Integer.toHexString(cp));
-							if (cp < 0xfffff && needsSpace(text, i + 1, len)) {
+							if (cp < 0xfffff && needsSpace(text, newIdx, len)) {
 								buf.append(' ');
 							}
 						}
-						i = newIdx;
 					}
+					i = newIdx;
 					continue;
 				}
 			} else if (cp <= 0x1f || cp == 0x20) {
 				// Low control characters and whitespace
-				if (cp != 0x20 || !preserveHexEscapes) {
-					if (noesc) {
-						noesc = false;
-						buf = new StringBuilder(len + 24);
-						buf.append(text.subSequence(0, i));
+				if (noesc) {
+					noesc = false;
+					buf = new StringBuilder(len + 24);
+					buf.append(text.subSequence(0, i));
+				}
+				if (cp == 0x20) {
+					if (!preservingHex) {
+						buf.append('\\');
 					}
+					buf.append(' ');
+				} else {
 					buf.append('\\').append(Integer.toHexString(cp));
 					if (needsSpace(text, i + 1, len)) {
 						buf.append(' ');
 					}
-				} else if (!noesc) {
-					buf.append(' ');
 				}
+				preservingHex = false;
 			} else if (preserveHexEscapes && cp == 0x5c && i != len - 1 && isHexCodePoint(text.codePointAt(i + 1))) {
+				preservingHex = true;
 				if (!noesc) {
 					buf.append('\\');
 				}
 			} else {
+				preservingHex = false;
 				if (noesc) {
 					noesc = false;
-					buf = new StringBuilder(len + 24);
+					buf = new StringBuilder(len + 1);
 					buf.append(text.subSequence(0, i));
 				}
 				buf.append('\\').append((char) cp);
