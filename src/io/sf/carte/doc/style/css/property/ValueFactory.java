@@ -99,7 +99,6 @@ public class ValueFactory {
 		case CSSUnit.CSS_QUARTER_MM:
 		case CSSUnit.CSS_REM:
 		case CSSUnit.CSS_RLH:
-		case CSSUnit.CSS_TURN:
 		case CSSUnit.CSS_VB:
 		case CSSUnit.CSS_VH:
 		case CSSUnit.CSS_VI:
