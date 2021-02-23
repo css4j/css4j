@@ -45,6 +45,11 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 	}
 
 	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
 	public LexicalUnit getFallback() {
 		return fallback;
 	}
@@ -206,11 +211,6 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 			}
 			this.nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override
