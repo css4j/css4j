@@ -534,6 +534,33 @@ public class NumberValue extends TypedValue {
 				return fvalue * 1000f;
 			}
 			break;
+		case CSSUnit.CSS_DPI:
+			if (unitType == CSSUnit.CSS_DPCM) {
+				// 2.54cm = 1in
+				return fvalue / 2.54f;
+			} else if (unitType == CSSUnit.CSS_DPPX) {
+				// 1in = 96px
+				return fvalue / 96f;
+			}
+			break;
+		case CSSUnit.CSS_DPCM:
+			if (unitType == CSSUnit.CSS_DPI) {
+				// 2.54cm = 1in
+				return fvalue * 2.54f;
+			} else if (unitType == CSSUnit.CSS_DPPX) {
+				// 1cm = 37.795276px
+				return fvalue / 37.7952756f;
+			}
+			break;
+		case CSSUnit.CSS_DPPX:
+			if (unitType == CSSUnit.CSS_DPI) {
+				// 1in = 96px
+				return fvalue * 96f;
+			} else if (unitType == CSSUnit.CSS_DPCM) {
+				// 1cm = 37.795276px
+				return fvalue * 37.7952756f;
+			}
+			break;
 		default:
 			if (CSSUnit.CSS_OTHER == unitType) {
 				// Unknown dimension, return as is.

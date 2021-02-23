@@ -475,6 +475,27 @@ public class NumberValueTest {
 				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_DEG), 1e-5);
 		assertEquals(200f,
 				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_GRAD), 1e-5);
+		//
+		assertEquals(37.7952766f,
+				NumberValue.floatValueConversion(96f, CSSUnit.CSS_DPI, CSSUnit.CSS_DPCM),
+				1e-6);
+		assertEquals(1f,
+				NumberValue.floatValueConversion(96f, CSSUnit.CSS_DPI, CSSUnit.CSS_DPPX),
+				1e-6);
+		//
+		assertEquals(76.2f,
+				NumberValue.floatValueConversion(30f, CSSUnit.CSS_DPCM, CSSUnit.CSS_DPI),
+				1e-6);
+		assertEquals(1.00542f,
+				NumberValue.floatValueConversion(38f, CSSUnit.CSS_DPCM, CSSUnit.CSS_DPPX),
+				1e-5);
+		//
+		assertEquals(96f,
+				NumberValue.floatValueConversion(1f, CSSUnit.CSS_DPPX, CSSUnit.CSS_DPI),
+				1e-6);
+		assertEquals(37.795277f,
+				NumberValue.floatValueConversion(1f, CSSUnit.CSS_DPPX, CSSUnit.CSS_DPCM),
+				1e-6);
 	}
 
 }
