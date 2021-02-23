@@ -141,12 +141,14 @@ public class PropertyRuleTest {
 	@Test
 	public void testSetCssTextStringComment() {
 		PropertyRule rule = new PropertyRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText("/* pre-rule */ @property --my-color {syntax: '<color>'; inherits: false; initial-value: #047b42;}");
+		rule.setCssText(
+				"/* pre-rule */ @property --my-color {syntax: '<color>'; inherits: false; initial-value: #047b42;}/* post-rule */");
 		assertEquals("--my-color", rule.getName());
 		assertEquals(3, rule.getStyle().getLength());
 		assertEquals("@property --my-color {syntax:'<color>';inherits:false;initial-value:#047b42}",
 				rule.getMinifiedCssText());
-		assertEquals("@property --my-color {\n    syntax: '<color>';\n    inherits: false;\n    initial-value: #047b42;\n}\n",
+		assertEquals(
+				"/* pre-rule */\n@property --my-color {\n    syntax: '<color>';\n    inherits: false;\n    initial-value: #047b42;\n} /* post-rule */\n",
 				rule.getCssText());
 	}
 

@@ -47,6 +47,7 @@ public class PageRuleTest {
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
 		assertEquals("@page {\n    margin-top: 20%;\n}\n", pagerule.getCssText());
 		assertEquals("@page{margin-top:20%}", pagerule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -67,6 +68,7 @@ public class PageRuleTest {
 				"@media print {\n    @page {\n        margin-top: 20%;\n    }\n    h3 {\n        width: 80%;\n    }\n}\n",
 				rule.getCssText());
 		assertEquals("@media print{@page{margin-top:20%}h3{width:80%}}", rule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -78,6 +80,7 @@ public class PageRuleTest {
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
 		assertEquals("@page foo {\n    margin-top: 20%;\n}\n", pagerule.getCssText());
 		assertEquals("@page foo{margin-top:20%}", pagerule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -89,6 +92,7 @@ public class PageRuleTest {
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
 		assertEquals("@page :first {\n    margin-top: 20%;\n}\n", pagerule.getCssText());
 		assertEquals("@page :first{margin-top:20%}", pagerule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -100,6 +104,7 @@ public class PageRuleTest {
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
 		assertEquals("@page foo:first,bar:right {\n    margin-top: 20%;\n}\n", pagerule.getCssText());
 		assertEquals("@page foo:first,bar:right{margin-top:20%}", pagerule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -116,6 +121,7 @@ public class PageRuleTest {
 		assertEquals(
 				"@page foo:first,bar:right{margin-top:20%;@top-left{margin-top:.7em;margin-left:1ex}@bottom-center{content:counter(page)}}",
 				pagerule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -132,6 +138,7 @@ public class PageRuleTest {
 				"@page :first {\n    margin-top: 20%;\n    @top-left {\n        content: 'foo';\n        color: blue;\n    }\n}\n",
 				pagerule.getCssText());
 		assertEquals("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}", pagerule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -140,6 +147,7 @@ public class PageRuleTest {
 		rule.setCssText("@page {margin-top: 20%;}");
 		assertEquals("", rule.getSelectorText());
 		assertEquals("@page{margin-top:20%}", rule.getMinifiedCssText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -148,6 +156,7 @@ public class PageRuleTest {
 		rule.setCssText("@page{margin-top: 20%;}");
 		assertEquals("", rule.getSelectorText());
 		assertEquals("@page{margin-top:20%}", rule.getMinifiedCssText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -156,6 +165,7 @@ public class PageRuleTest {
 		rule.setCssText("@page\n{margin-top: 20%;}");
 		assertEquals("", rule.getSelectorText());
 		assertEquals("@page{margin-top:20%}", rule.getMinifiedCssText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -164,6 +174,7 @@ public class PageRuleTest {
 		rule.setCssText("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}");
 		assertEquals("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}", rule.getMinifiedCssText());
 		assertEquals(":first", rule.getSelectorText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -172,6 +183,7 @@ public class PageRuleTest {
 		rule.setCssText("/* pre-rule */ @page :first{margin-top:20%;@top-left{content:'foo';color:blue}}");
 		assertEquals("@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}", rule.getMinifiedCssText());
 		assertEquals(":first", rule.getSelectorText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -180,6 +192,7 @@ public class PageRuleTest {
 		rule.setCssText("@page foo:first{margin-top: 20%;}");
 		assertEquals("foo:first", rule.getSelectorText());
 		assertEquals("@page foo:first{margin-top:20%}", rule.getMinifiedCssText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -189,6 +202,7 @@ public class PageRuleTest {
 		assertEquals("foo:first,bar:right", rule.getSelectorText());
 		assertEquals("@page foo:first,bar:right {\n    margin-top: 20%;\n}\n", rule.getCssText());
 		assertEquals("@page foo:first,bar:right{margin-top:20%}", rule.getMinifiedCssText());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test

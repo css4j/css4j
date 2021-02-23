@@ -9,8 +9,7 @@
 
 package io.sf.carte.doc.style.css;
 
-import java.util.List;
-
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 
 /**
@@ -43,7 +42,7 @@ public interface CSSFontFeatureValuesMap {
 	 * @return the list of comments, or <code>null</code> if there were no preceding
 	 *         comments.
 	 */
-	List<String> getPrecedingComments();
+	StringList getPrecedingComments();
 
 	/**
 	 * Get a list of the comments that were found right after this map, if any.
@@ -51,6 +50,6 @@ public interface CSSFontFeatureValuesMap {
 	 * @return the list of comments, or <code>null</code> if there were no trailing
 	 *         comments.
 	 */
-	List<String> getTrailingComments();
+	StringList getTrailingComments();
 
 }

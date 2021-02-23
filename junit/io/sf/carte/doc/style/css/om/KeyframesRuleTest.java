@@ -52,6 +52,7 @@ public class KeyframesRuleTest {
 				"/* pre-rule */@keyframes /* skip 1 */ foo /* skip 2 */ {  /* pre-from */ from /* skip 3 */ { margin-left: 100%;  width: 300%;} /* pre-50% */ 50% {margin-left: 50%;    width: 50%; }  to {margin-left: 0%;    width: 100%; }/* skip 4 */}");
 		sheet.parseStyleSheet(re, CSSStyleSheet.COMMENTS_PRECEDING);
 		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals(CSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		CSSRuleArrayList kfrules = rule.getCssRules();
@@ -108,6 +109,7 @@ public class KeyframesRuleTest {
 				"@keyframes foo {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals(CSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("foo", rule.getName());
@@ -150,6 +152,7 @@ public class KeyframesRuleTest {
 				"@keyframes \"My Animation\" {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals(CSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("My Animation", rule.getName());
@@ -166,6 +169,7 @@ public class KeyframesRuleTest {
 				"@keyframes \\66 00 {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals(CSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("f00", rule.getName());
@@ -185,6 +189,7 @@ public class KeyframesRuleTest {
 				"@keyframes animate-opacity{0%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals(CSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("animate-opacity", rule.getName());
@@ -203,6 +208,7 @@ public class KeyframesRuleTest {
 				"@keyframes animate-opacity{0%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals(CSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("animate-opacity", rule.getName());

@@ -93,4 +93,5 @@ abstract public class AbstractCSSStyleDeclaration
 	 */
 	abstract protected void prioritySplit(AbstractCSSStyleDeclaration importantDecl,
 			AbstractCSSStyleDeclaration normalDecl);
+
 }

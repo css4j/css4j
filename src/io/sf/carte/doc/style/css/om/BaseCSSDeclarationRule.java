@@ -265,6 +265,21 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		}
 
 		@Override
+		public void comment(String text, boolean precededByLF) {
+			if (!ruleStarted) {
+				if (getPrecedingComments() == null) {
+					setPrecedingComments(new LinkedStringList());
+				}
+				getPrecedingComments().add(text);
+			} else if (!precededByLF && ruleEnded) {
+				if (getTrailingComments() == null) {
+					setTrailingComments(new LinkedStringList());
+				}
+				getTrailingComments().add(text);
+			}
+		}
+
+		@Override
 		public void warning(CSSParseException exception) throws CSSParseException {
 			getStyleDeclarationErrorHandler().sacWarning(exception, getStyle().getLength() - 1);
 		}

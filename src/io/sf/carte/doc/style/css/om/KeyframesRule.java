@@ -15,12 +15,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.LinkedStringList;
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSKeyframesRule;
 import io.sf.carte.doc.style.css.CSSRule;
@@ -271,7 +271,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 
 		private KeyframeRule lastRule = null;
 
-		private LinkedList<String> comments = null;
+		private StringList comments = null;
 
 		private MyKeyframesHandler() {
 			super();
@@ -347,7 +347,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			} else {
 				if (currentRule == null) {
 					if (comments == null) {
-						comments = new LinkedList<String>();
+						comments = new LinkedStringList();
 					}
 					comments.add(text);
 				}

@@ -112,6 +112,7 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		// Visitor
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		sheet.acceptStyleRuleVisitor(visitor);
@@ -139,6 +140,7 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}nav.foo{display:none}}",
 				rule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		// Visitor
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		sheet.acceptStyleRuleVisitor(visitor);
@@ -174,6 +176,7 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media{nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -357,6 +360,7 @@ public class MediaRuleTest {
 				rule.getCssText());
 		assertEquals("@media screen{.foo{bottom:20px!important}@media (max-width:1600px){div.foo{margin:1em;}}}",
 				rule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test

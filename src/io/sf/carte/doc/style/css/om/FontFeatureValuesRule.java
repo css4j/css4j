@@ -12,19 +12,20 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.ArrayStringList;
+import io.sf.carte.doc.LinkedStringList;
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesMap;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
 import io.sf.carte.doc.style.css.CSSRule;
@@ -519,13 +520,13 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		public void comment(String text, boolean precededByLF) {
 			if (lastMap != null && !precededByLF) {
 				if (lastMap.trailingComments == null) {
-					lastMap.trailingComments = new LinkedList<String>();
+					lastMap.trailingComments = new LinkedStringList();
 				}
 				lastMap.trailingComments.add(text);
 			} else {
 				if (currentMap == null) {
 					if (comments == null) {
-						comments = new LinkedList<String>();
+						comments = new LinkedStringList();
 					}
 					comments.add(text);
 				}
@@ -534,7 +535,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		private void setCommentsToCurrentMap() {
 			if (comments != null && !comments.isEmpty()) {
-				ArrayList<String> ruleComments = new ArrayList<String>(comments.size());
+				ArrayStringList ruleComments = new ArrayStringList(comments.size());
 				ruleComments.addAll(comments);
 				currentMap.setPrecedingComments(ruleComments);
 			}
@@ -648,8 +649,8 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		private static final long serialVersionUID = 1L;
 
 		private final LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
-		private List<String> precedingComments = null;
-		private LinkedList<String> trailingComments = null;
+		private StringList precedingComments = null;
+		private StringList trailingComments = null;
 
 		void addAll(CSSFontFeatureValuesMapImpl othermap) {
 			featureMap.putAll(othermap.featureMap);
@@ -682,17 +683,17 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			return featureMap.isEmpty();
 		}
 
-		void setPrecedingComments(List<String> ruleComments) {
+		void setPrecedingComments(StringList ruleComments) {
 			this.precedingComments  = ruleComments;
 		}
 
 		@Override
-		public List<String> getPrecedingComments() {
+		public StringList getPrecedingComments() {
 			return precedingComments;
 		}
 
 		@Override
-		public List<String> getTrailingComments() {
+		public StringList getTrailingComments() {
 			return trailingComments;
 		}
 
