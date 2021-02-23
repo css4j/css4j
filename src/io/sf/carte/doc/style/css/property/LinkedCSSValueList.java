@@ -22,7 +22,7 @@ import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Linked-list implementation of <code>CSSValueList</code>.
+ * Linked-list implementation of <code>CSSValueList</code>, comma-separated.
  */
 public class LinkedCSSValueList extends LinkedList<StyleValue> implements CSSValueList<StyleValue> {
 
@@ -70,7 +70,7 @@ public class LinkedCSSValueList extends LinkedList<StyleValue> implements CSSVal
 	 * @return a clone of this instance.
 	 */
 	@Override
-	public CSSValueList<StyleValue> clone() {
+	public LinkedCSSValueList clone() {
 		LinkedCSSValueList copy = new LinkedCSSValueList();
 		copy.addAll(this);
 		return copy;
