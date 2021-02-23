@@ -976,7 +976,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						&& Math.abs((fval = value.getFloatValue(ptype)) - Math.round(fval)) < 7e-6) {
 					return value;
 				}
-			} else if ("%".equals(type)) {
+			} else if ("percentage".equals(type)) {
 				if (ptype == CSSUnit.CSS_NUMBER) {
 					float fval = value.getFloatValue(CSSUnit.CSS_NUMBER);
 					value.setFloatValue(CSSUnit.CSS_PERCENTAGE, fval);

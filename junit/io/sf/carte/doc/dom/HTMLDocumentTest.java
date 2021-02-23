@@ -1512,8 +1512,8 @@ public class HTMLDocumentTest {
 		/*
 		 * attr() percentage invalid value type.
 		 */
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin %)");
-		assertEquals("margin-left: attr(leftmargin %); ", elm.getOverrideStyle(null).getCssText());
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin percentage)");
+		assertEquals("margin-left: attr(leftmargin percentage); ", elm.getOverrideStyle(null).getCssText());
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		// Default fallback
@@ -1525,7 +1525,7 @@ public class HTMLDocumentTest {
 		/*
 		 * attr() percentage invalid value type, fallback.
 		 */
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin %, 1.2em)");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin percentage, 1.2em)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(25.92f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
@@ -1537,7 +1537,7 @@ public class HTMLDocumentTest {
 		 * attr() percentage value type.
 		 */
 		elm.setAttribute("leftmargin", "2");
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin %)");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin percentage)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(2f, marginLeft.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
@@ -1548,7 +1548,7 @@ public class HTMLDocumentTest {
 		 * attr() percentage value type (II).
 		 */
 		elm.setAttribute("leftmargin", "2%");
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin %)");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin percentage)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(2f, marginLeft.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);

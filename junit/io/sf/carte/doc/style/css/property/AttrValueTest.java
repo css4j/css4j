@@ -22,12 +22,16 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class AttrValueTest {
 
@@ -93,20 +97,20 @@ public class AttrValueTest {
 		assertEquals("attr(width px)", value.getCssText());
 		assertEquals("attr(width px)", value.getMinifiedCssText(""));
 		//
-		value.setCssText("attr(width %, 40%)");
+		value.setCssText("attr(width percentage, 40%)");
 		assertEquals("width", value.getAttributeName());
-		assertEquals("%", value.getAttributeType());
+		assertEquals("percentage", value.getAttributeType());
 		assertEquals("40%", value.getFallback().getCssText());
-		assertEquals("attr(width %, 40%)", value.getCssText());
-		assertEquals("attr(width %,40%)", value.getMinifiedCssText(""));
+		assertEquals("attr(width percentage, 40%)", value.getCssText());
+		assertEquals("attr(width percentage,40%)", value.getMinifiedCssText(""));
 		//
-		value.setCssText("attr(width %)");
+		value.setCssText("attr(width percentage)");
 		assertEquals("width", value.getAttributeName());
-		assertEquals("%", value.getAttributeType());
+		assertEquals("percentage", value.getAttributeType());
 		assertNull(value.getFallback());
 		assertEquals("0%", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
-		assertEquals("attr(width %)", value.getCssText());
-		assertEquals("attr(width %)", value.getMinifiedCssText(""));
+		assertEquals("attr(width percentage)", value.getCssText());
+		assertEquals("attr(width percentage)", value.getMinifiedCssText(""));
 		//
 		value.setCssText("attr(elev angle, 20deg)");
 		assertEquals("elev", value.getAttributeName());
@@ -268,6 +272,18 @@ public class AttrValueTest {
 	}
 
 	@Test
+	public void testSetCssTextStringAttributeTypePercentage() {
+		AttrValue value = new AttrValue((byte) 0);
+		value.setCssText("attr(data-pcnt percentage)");
+		assertEquals("data-pcnt", value.getAttributeName());
+		assertEquals("percentage", value.getAttributeType());
+		assertNull(value.getFallback());
+		assertEquals(0, AttrValue.defaultFallback(value.getAttributeType()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				1e-7);
+		assertEquals("attr(data-pcnt percentage)", value.getCssText());
+	}
+
+	@Test
 	public void testSetCssTextStringAttributeTypeFallback() {
 		AttrValue value = new AttrValue((byte) 0);
 		value.setCssText("attr(data-title string, \"My Title\")");
@@ -333,10 +349,10 @@ public class AttrValueTest {
 	@Test
 	public void testParseAttr() {
 		BaseCSSStyleDeclaration style = createStyleDeclaration();
-		style.setCssText("margin-left:attr(leftmargin %)");
+		style.setCssText("margin-left:attr(leftmargin percentage)");
 		StyleValue marginLeft = style.getPropertyCSSValue("margin-left");
 		assertNotNull(marginLeft);
-		assertEquals("attr(leftmargin %)", marginLeft.getCssText());
+		assertEquals("attr(leftmargin percentage)", marginLeft.getCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
