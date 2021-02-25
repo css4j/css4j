@@ -3572,6 +3572,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			MyDeclarationRuleTokenHandler(ShorthandDatabase propertyDatabase) {
 				super(propertyDatabase);
+				setStage(STAGE_RULE_NAME_SELECTOR);
 			}
 
 			@Override
@@ -5509,6 +5510,27 @@ public class CSSParser implements Parser, Cloneable {
 		protected void processBuffer(int index) {
 			if (getCurlyBracketDepth() != 0) {
 				super.processBuffer(index);
+			}
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			if (!parseError && buffer.length() == 0 && propertyName == null
+					&& (curlyBracketDepth == 1 || ruleFirstPart == null) && parendepth == 0 && commentType == 0) {
+				handler.comment(comment, isPreviousCpLF());
+			}
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			super.endOfStream(len);
+			if (stage != STAGE_RULE_END) {
+				if (stage == STAGE_RULE_BODY) {
+					handleWarning(len, ParseHelper.WARN_UNEXPECTED_EOF, "Unexpected end of stream");
+					endAtRule(len);
+				} else if (!parseError) {
+					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+				}
 			}
 		}
 
