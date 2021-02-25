@@ -290,6 +290,6 @@ public interface CSSHandler {
 	 * @param value     the value of the property.
 	 * @param important is this property important ?
 	 */
-	void lexicalProperty(String propertyName, LexicalUnit lunit, boolean important);
+	void lexicalProperty(String name, LexicalUnit value, boolean important);
 
 }

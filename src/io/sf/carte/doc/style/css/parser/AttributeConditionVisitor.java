@@ -139,7 +139,7 @@ abstract public class AttributeConditionVisitor implements Visitor<AttributeCond
 	 * Sets the value of the attribute condition.
 	 * 
 	 * @param cond  the attribute condition to be set.
-	 * @param value the new value.
+	 * @param newValue the new value.
 	 * @throws DOMException INVALID_ACCESS_ERR if the {@code ConditionType} is
 	 *                      {@code CLASS} and the value is {@code null} or empty.
 	 */
