@@ -227,6 +227,26 @@ public interface CSSUnit {
 	}
 
 	/**
+	 * Check whether the given unit is a time.
+	 * 
+	 * @param unitType the unit type.
+	 * @return true if the unit is a time.
+	 */
+	static boolean isTimeUnitType(short unitType) {
+		return unitType == CSS_S || unitType == CSS_MS;
+	}
+
+	/**
+	 * Check whether the given unit is a resolution unit.
+	 * 
+	 * @param unitType the unit type.
+	 * @return true if the unit is a resolution unit.
+	 */
+	static boolean isResolutionUnitType(short unitType) {
+		return unitType >= CSS_DPI && unitType <= CSS_DPPX;
+	}
+
+	/**
 	 * Gives the dimension unit string associated to the given CSS unit type.
 	 * 
 	 * @param unitType the CSS primitive unit type.
