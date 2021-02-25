@@ -112,7 +112,7 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_S, 0);
 		} else if ("frequency".equalsIgnoreCase(valueType)) {
 			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_HZ, 0);
-		} else if ("%".equalsIgnoreCase(valueType)) {
+		} else if ("percentage".equalsIgnoreCase(valueType)) {
 			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, 0);
 		} else {
 			String lctypeval = valueType.toLowerCase(Locale.ROOT).intern();
