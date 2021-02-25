@@ -45,6 +45,13 @@ public interface DocumentCSSStyleSheet extends CSSStyleSheet<AbstractCSSRule> {
 	CSSComputedProperties getComputedStyle(CSSElement elm, Condition pseudoElt);
 
 	/**
+	 * Registers the definition of a custom property.
+	 * 
+	 * @param definition the definition.
+	 */
+	void registerProperty(CSSPropertyDefinition definition);
+
+	/**
 	 * Clone this style sheet.
 	 *
 	 * @return the cloned style sheet.

@@ -182,7 +182,8 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 
 	/**
 	 * Create a CSS property rule compatible with this implementation.
-	 *
+	 * 
+	 * @param name the (unescaped) property name.
 	 * @return a CSS property rule.
 	 */
 	CSSPropertyRule createPropertyRule(String name);

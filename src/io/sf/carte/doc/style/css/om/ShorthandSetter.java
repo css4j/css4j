@@ -30,7 +30,6 @@ import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.InitialValue;
 import io.sf.carte.doc.style.css.property.KeywordValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.RevertValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.UnsetValue;
@@ -47,8 +46,6 @@ import io.sf.carte.doc.style.css.property.ValueList;
 class ShorthandSetter extends BaseShorthandSetter {
 
 	private boolean priorityImportant = false;
-
-	private final PropertyDatabase pdb = PropertyDatabase.getInstance();
 
 	final ValueFactory valueFactory;
 
@@ -85,10 +82,6 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	void setPriority(boolean important) {
 		this.priorityImportant = important;
-	}
-
-	public final PropertyDatabase getPropertyDatabase() {
-		return pdb;
 	}
 
 	/**
@@ -337,7 +330,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 	 * @return the initial value for the property, or null if none was found.
 	 */
 	StyleValue defaultPropertyValue(String propertyName) {
-		StyleValue cssVal = styleDeclaration.defaultPropertyValue(propertyName, getPropertyDatabase());
+		StyleValue cssVal = styleDeclaration.defaultPropertyValue(propertyName);
 		if (cssVal != null) {
 			CssType type = cssVal.getCssValueType();
 			if (type == CssType.TYPED) {

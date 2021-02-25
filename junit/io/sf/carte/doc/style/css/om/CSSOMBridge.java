@@ -17,13 +17,12 @@ import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 public class CSSOMBridge {
 
-	public static StyleValue getInitialValue(String propertyName, BaseCSSStyleDeclaration style, PropertyDatabase pdb) {
-		return style.defaultPropertyValue(propertyName, pdb);
+	public static StyleValue getInitialValue(String propertyName, BaseCSSStyleDeclaration style) {
+		return style.defaultPropertyValue(propertyName);
 	}
 
 	public static String getOptimizedCssText(BaseCSSStyleDeclaration style) {

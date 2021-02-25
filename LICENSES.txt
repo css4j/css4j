@@ -30,6 +30,7 @@ license information):
  File: src/io/sf/carte/doc/style/css/CSSNamespaceRule.java
  File: src/io/sf/carte/doc/style/css/CSSNode.java
  File: src/io/sf/carte/doc/style/css/CSSPageRule.java
+ File: src/io/sf/carte/doc/style/css/CSSPropertyDefinition.java
  File: src/io/sf/carte/doc/style/css/CSSPropertyRule.java
  File: src/io/sf/carte/doc/style/css/CSSRule.java
  File: src/io/sf/carte/doc/style/css/CSSRuleList.java

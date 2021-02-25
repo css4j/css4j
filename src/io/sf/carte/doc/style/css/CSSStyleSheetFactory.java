@@ -175,6 +175,24 @@ public interface CSSStyleSheetFactory {
 	MediaQueryList createImmutableMediaQueryList(String media, Node owner);
 
 	/**
+	 * Create a property definition.
+	 * <p>
+	 * To parse the syntax, use a parser like
+	 * {@link io.sf.carte.doc.style.css.parser.SyntaxParser SyntaxParser}.
+	 * </p>
+	 * 
+	 * @param name         the property name (unescaped).
+	 * @param syntax       the syntax.
+	 * @param inherited    whether the property is inherited or not.
+	 * @param initialValue the initial value.
+	 * @return the property definition.
+	 * @throws DOMException INVALID_ACCESS_ERR if the initial value does not match
+	 *                      the syntax.
+	 */
+	CSSPropertyDefinition createPropertyDefinition(String name, CSSValueSyntax syntax, boolean inherited,
+			CSSLexicalValue initialValue) throws DOMException;
+
+	/**
 	 * Get the style formatting factory to be used with this sheet factory.
 	 *
 	 * @return the style formatting factory.

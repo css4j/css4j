@@ -18,6 +18,7 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -48,6 +49,7 @@ import io.sf.carte.doc.dom.DOMElement.ClassList;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
@@ -89,6 +91,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	final Set<LinkStyleDefiner> linkedStyle = new LinkedHashSet<LinkStyleDefiner>(4);
 
 	final Set<LinkStyleDefiner> embeddedStyle = new LinkedHashSet<LinkStyleDefiner>(3);
+
+	private Set<CSSPropertyDefinition> registeredPropertySet = null;
 
 	private BaseDocumentCSSStyleSheet mergedStyleSheet = null;
 
@@ -2444,6 +2448,15 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		return false;
 	}
 
+	@Override
+	public void registerProperty(CSSPropertyDefinition definition) {
+		if (registeredPropertySet == null) {
+			registeredPropertySet = new HashSet<>();
+		}
+		registeredPropertySet.add(definition);
+		mergedStyleSheet = null;
+	}
+
 	/**
 	 * A list containing all the style sheets explicitly linked into or embedded in a
 	 * document. For HTML documents, this includes external style sheets, included via the
@@ -2600,6 +2613,12 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		Iterator<AbstractCSSStyleSheet> it = sheets.iterator();
 		while (it.hasNext()) {
 			mergedStyleSheet.addStyleSheet(it.next());
+		}
+		// Add DOM property definitions
+		if (registeredPropertySet != null) {
+			for (CSSPropertyDefinition def : registeredPropertySet) {
+				mergedStyleSheet.registerProperty(def);
+			}
 		}
 	}
 

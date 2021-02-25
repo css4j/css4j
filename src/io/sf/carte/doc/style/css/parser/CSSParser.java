@@ -37,6 +37,7 @@ import io.sf.carte.doc.style.css.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.BooleanConditionFactory;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryHandler;
@@ -3769,7 +3770,11 @@ public class CSSParser implements Parser, Cloneable {
 
 		private class PropertyRuleTokenHandler extends MyDeclarationRuleTokenHandler {
 
-			private boolean hasSyntax, hasInherits;
+			private CSSValueSyntax syntax = null;
+
+			private boolean isUniversalSyntax, hasInherits;
+
+			private LexicalUnit initialValue = null;
 
 			private PropertyRuleTokenHandler() {
 				super(ShorthandDatabase.getInstance());
@@ -3779,11 +3784,19 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
-				try {
-					handler.startProperty(ruleSecondPart);
-				} catch (DOMException e) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "@property rule could not be created.", e);
+				if (ruleSecondPart == null) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Null name in @property rule.");
 					setStage(INVALID_RULE);
+				} else {
+					try {
+						ruleSecondPart = ParseHelper.parseIdent(ruleSecondPart);
+					} catch (DOMException e) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Bad name in @property rule: " + ruleSecondPart,
+								e);
+						setStage(INVALID_RULE);
+						return;
+					}
+					handler.startProperty(ruleSecondPart);
 				}
 			}
 
@@ -3794,10 +3807,18 @@ public class CSSParser implements Parser, Cloneable {
 					if (lunit.getLexicalUnitType() != LexicalType.STRING) {
 						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
 								"'syntax' descriptor in @property rule must be a string.");
-						setStage(INVALID_RULE);
 						return;
 					}
-					hasSyntax = true;
+					String s = lunit.getStringValue().trim();
+					SyntaxParser parser = new SyntaxParser();
+					try {
+						syntax = parser.parseSyntax(s);
+					} catch (CSSException e) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"Wrong 'syntax' descriptor in @property rule: '" + s + '\'');
+						return;
+					}
+					isUniversalSyntax = syntax.getCategory() == CSSValueSyntax.Category.universal;
 				} else if ("inherits".equalsIgnoreCase(propertyName)) {
 					String s;
 					if (lunit.getLexicalUnitType() != LexicalType.IDENT
@@ -3805,23 +3826,32 @@ public class CSSParser implements Parser, Cloneable {
 									&& !"false".equals(s))) {
 						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
 								"'inherits' descriptor in @property rule must be either 'true' or 'false'.");
-						setStage(INVALID_RULE);
 						return;
 					}
 					hasInherits = true;
+				} else if ("initial-value".equalsIgnoreCase(propertyName)) {
+					setCurrentLocation(index);
+					handler.lexicalProperty(propertyName, lunit, priorityImportant);
+					initialValue = lunit;
+					return;
 				}
 				super.handleProperty(index, propertyName, lunit, priorityImportant);
 			}
 
 			@Override
 			protected void endAtRule(int index) {
-				if (!hasSyntax) {
+				if (syntax == null) {
 					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
 							"@property rule lacks mandatory 'syntax' descriptor.");
 					handler.endProperty(true);
 				} else if (!hasInherits) {
 					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
 							"@property rule lacks mandatory 'inherits' descriptor.");
+					handler.endProperty(true);
+				} else if (!isUniversalSyntax
+						&& (initialValue == null || initialValue.matches(syntax) != CSSValueSyntax.Match.TRUE)) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+							"@property rule lacks a valid 'initial-value' descriptor.");
 					handler.endProperty(true);
 				} else {
 					handler.endProperty(false);

@@ -25,8 +25,13 @@ import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.agent.HeadlessDeviceFactory;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSLexicalValue;
+import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -146,6 +151,28 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 */
 	public void setClassLoader(ClassLoader loader) {
 		classLoader = loader;
+	}
+
+	@Override
+	public CSSPropertyDefinition createPropertyDefinition(String name, CSSValueSyntax syntax, boolean inherited,
+			CSSLexicalValue initialValue) throws DOMException {
+		if (name == null) {
+			throw new NullPointerException("Null name.");
+		}
+		if (syntax == null) {
+			throw new NullPointerException("Null syntax.");
+		}
+		if (initialValue == null) {
+			if (syntax.getCategory() != Category.universal) {
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null initial value.");
+			}
+		} else if (initialValue.matches(syntax) != Match.TRUE) {
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Value " + initialValue.getCssText() + " does not match syntax " + syntax.toString() + '.');
+		}
+		//
+		PropertyDefinition def = new PropertyDefinition(name, syntax, inherited, initialValue);
+		return def;
 	}
 
 	@Override

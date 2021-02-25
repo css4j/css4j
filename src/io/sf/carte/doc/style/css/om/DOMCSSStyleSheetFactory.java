@@ -34,7 +34,6 @@ import io.sf.carte.doc.DocumentException;
 import io.sf.carte.doc.agent.AbstractUserAgent;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
@@ -55,18 +54,18 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	private static final long serialVersionUID = 1L;
 
-	private DocumentCSSStyleSheet defStyleSheet = null;
-	private DocumentCSSStyleSheet defQStyleSheet = null;
+	private BaseDocumentCSSStyleSheet defStyleSheet = null;
+	private BaseDocumentCSSStyleSheet defQStyleSheet = null;
 
 	/**
 	 * User-agent style sheet for standards (strict) mode.
 	 */
-	private DocumentCSSStyleSheet uaStyleSheet = null;
+	private BaseDocumentCSSStyleSheet uaStyleSheet = null;
 
 	/**
 	 * User-agent style sheet for quirks mode.
 	 */
-	private DocumentCSSStyleSheet uaQStyleSheet = null;
+	private BaseDocumentCSSStyleSheet uaQStyleSheet = null;
 
 	private EntityResolver resolver = createEntityResolver();
 
@@ -121,7 +120,7 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 	 * @return the default style sheet, or an empty sheet if no User Agent sheet was defined.
 	 */
 	@Override
-	public DocumentCSSStyleSheet getUserAgentStyleSheet(CSSDocument.ComplianceMode mode) {
+	public BaseDocumentCSSStyleSheet getUserAgentStyleSheet(CSSDocument.ComplianceMode mode) {
 		if (mode == CSSDocument.ComplianceMode.STRICT) {
 			if (uaStyleSheet == null) {
 				// Create an empty one
@@ -137,11 +136,11 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 	}
 
 	@Override
-	protected DocumentCSSStyleSheet getDefaultStyleSheet(CSSDocument.ComplianceMode mode) {
+	protected BaseDocumentCSSStyleSheet getDefaultStyleSheet(CSSDocument.ComplianceMode mode) {
 		if (defStyleSheet == null) {
 			mergeUserSheets();
 		}
-		DocumentCSSStyleSheet sheet;
+		BaseDocumentCSSStyleSheet sheet;
 		if (mode == CSSDocument.ComplianceMode.STRICT) {
 			sheet = defStyleSheet;
 		} else {

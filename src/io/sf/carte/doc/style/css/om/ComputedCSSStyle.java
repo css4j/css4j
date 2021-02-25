@@ -30,6 +30,7 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -64,6 +65,7 @@ import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PercentageEvaluator;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
+import io.sf.carte.doc.style.css.property.ProxyValue;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -265,12 +267,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		if (value == null) {
 			// Is the property inherited ?
-			PropertyDatabase propertydb = PropertyDatabase.getInstance();
-			boolean inherited = propertydb.isInherited(property) || isCustomPropertyName(property);
+			CSSPropertyDefinition definition = null;
+			boolean inherited = PropertyDatabase.getInstance().isInherited(property) || (isCustomPropertyName(property)
+					&& ((definition = getOwnerSheet().getPropertyDefinition(property)) == null || definition.inherits()));
 			if (inherited) {
 				value = InheritValue.getValue();
+			} else if (definition != null) {
+				value = (StyleValue) definition.getInitialValue();
 			} else {
-				value = defaultPropertyValue(property, propertydb);
+				value = defaultPropertyValue(property);
 			}
 		}
 		return value;
@@ -295,9 +300,20 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	@Override
 	public StyleValue getCSSValue(String property) throws StyleDatabaseRequiredException {
 		// Is the property inherited ?
-		PropertyDatabase propertydb = PropertyDatabase.getInstance();
-		boolean inherited = propertydb.isInherited(property) || isCustomPropertyName(property);
-		StyleValue value = super.getCSSValue(property);
+		CSSPropertyDefinition definition = null;
+		boolean inherited = PropertyDatabase.getInstance().isInherited(property) || (isCustomPropertyName(property)
+				&& ((definition = getOwnerSheet().getPropertyDefinition(property)) == null || definition.inherits()));
+		// Compute value
+		StyleValue comp = getCSSValue(property, inherited);
+		if (comp == null && definition != null) {
+			LexicalValue initial = (LexicalValue) definition.getInitialValue();
+			comp = customPropertyFallback(property, initial, initial.getLexicalUnit(), false);
+		}
+		return comp;
+	}
+
+	StyleValue getCSSValue(String property, boolean inherited) throws StyleDatabaseRequiredException {
+		StyleValue value = getDeclaredCSSValue(property);
 		// Check for unset
 		if (value != null) {
 			if (value.getPrimitiveType() == Type.INTERNAL) {
@@ -323,7 +339,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (value != null && value.getPrimitiveType() == Type.INHERIT) {
 			value = null;
 		}
-		value = computeValue(property, value, inherited, propertydb);
+		value = computeValue(property, value, inherited);
 		return value;
 	}
 
@@ -364,12 +380,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return setShorthandLonghands(shorthand, lunit, prioImportant, null);
 	}
 
-	private StyleValue computeValue(String property, StyleValue value, boolean inherited,
-			PropertyDatabase propertydb) {
+	private StyleValue computeValue(String property, StyleValue value, boolean inherited) {
 		// Check for null, and apply initial values if appropriate
 		if (value == null || value.getPrimitiveType() == Type.INITIAL
 				|| (!inherited && value.getPrimitiveType() == Type.UNSET)) {
-			value = defaultPropertyValue(property, propertydb);
+			value = defaultPropertyValue(property);
 		}
 		// If value is null now, we have no idea about this property's value
 		if (value != null) {
@@ -391,7 +406,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						ComputedCSSStyle ancStyle = this;
 						do {
 							value = inheritValue(ancStyle, property, value, true);
-							value = ancStyle.computeValue(property, value, inherited, propertydb);
+							value = ancStyle.computeValue(property, value, inherited);
 							if (value != null) {
 								break;
 							}
@@ -399,7 +414,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						} while (ancStyle != null);
 					}
 					if (value == null || value.getPrimitiveType() == Type.INHERIT) {
-						value = defaultPropertyValue(property, propertydb);
+						value = defaultPropertyValue(property);
 					}
 				}
 				if ("display".equals(property)) {
@@ -445,7 +460,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			value = evaluateCustomProperty(propertyName, varValue, useParentStyle);
 			if (value != null && (value.getPrimitiveType() == Type.INITIAL || (value.getPrimitiveType() == Type.UNSET
 					&& !PropertyDatabase.getInstance().isInherited(propertyName)))) {
-				value = defaultPropertyValue(propertyName, PropertyDatabase.getInstance());
+				value = defaultPropertyValue(propertyName);
 				if (value != null) {
 					// Enforce integer, if expected
 					if (varValue.isExpectingInteger()) {
@@ -1047,32 +1062,43 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		}
 		customPropertyStack.add(propertyName);
+		//
+		CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(propertyName);
+		boolean inherited = definition == null || definition.inherits();
 		StyleValue custom;
 		try {
-			custom = getCSSValue(propertyName);
+			custom = getCSSValue(propertyName, inherited);
 			if (custom == null) {
 				LexicalUnit fallback = value.getFallback();
-				if (fallback != null) {
-					custom = customPropertyFallback(property, value, fallback, useParentStyle);
-				} else {
-					// Unable to evaluate custom property
-					customPropertyStack.remove(propertyName);
-					return null;
+				if (fallback == null) {
+					if (definition == null) {
+						// Unable to evaluate custom property
+						customPropertyStack.remove(propertyName);
+						return null;
+					} else {
+						fallback = definition.getInitialValue().getLexicalUnit();
+					}
 				}
+				custom = customPropertyFallback(property, value, fallback, useParentStyle);
 			} else {
 				if (custom.getCssValueType() == CssType.KEYWORD) {
-					PropertyDatabase propertydb = PropertyDatabase.getInstance();
-					boolean inherited = propertydb.isInherited(property);
+					boolean inheritedDestPty = PropertyDatabase.getInstance().isInherited(property);
 					if (custom.getPrimitiveType() != Type.UNSET) {
-						custom = inheritValue(this, property, custom, inherited);
+						custom = inheritValue(this, property, custom, inheritedDestPty);
 						// Still inheriting ?
 						if (custom == null || custom.getPrimitiveType() == Type.INHERIT) {
-							customPropertyStack.remove(propertyName);
-							return null;
+							if (definition == null) {
+								// Unable to evaluate custom property
+								customPropertyStack.remove(propertyName);
+								return null;
+							} else {
+								LexicalUnit initial = definition.getInitialValue().getLexicalUnit();
+								custom = customPropertyFallback(property, value, initial, useParentStyle);
+							}
 						}
 					} else {
 						customPropertyStack.remove(propertyName);
-						if (inherited) {
+						if (inheritedDestPty) {
 							custom = null;
 						}
 						return custom;
@@ -1087,7 +1113,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 								"Error evaluating var(), attempting fallback.", e);
 						custom = customPropertyFallback(property, value, fallback, useParentStyle);
 					} else {
-						throw e;
+						if (definition == null) {
+							throw e;
+						} else {
+							LexicalUnit initial = definition.getInitialValue().getLexicalUnit();
+							custom = customPropertyFallback(property, value, initial, useParentStyle);
+							custom = absoluteValue(property, custom, useParentStyle);
+						}
 					}
 				}
 			}
@@ -1107,7 +1139,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return custom;
 	}
 
-	private StyleValue customPropertyFallback(String property, VarValue value, LexicalUnit fallback,
+	private StyleValue customPropertyFallback(String property, ProxyValue varValue, LexicalUnit fallback,
 			boolean useParentStyle) {
 		StyleValue custom = new ValueFactory().createCSSValue(fallback, this);
 		if (custom.getCssValueType() == CssType.KEYWORD) {
@@ -1119,7 +1151,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		if (custom != null) {
 			// Check fallback for expecting integer.
-			if (value.isExpectingInteger()) {
+			if (varValue.isExpectingInteger()) {
 				if (custom.isPrimitiveValue()) {
 					((CSSPrimitiveValue) custom).setExpectInteger();
 				} else if (custom.getCssValueType() == CSSValue.CssType.LIST) {
@@ -1227,19 +1259,22 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return lexval;
 	}
 
-	private LexicalUnit evaluateCustomPropertyValue(String property, String customProperty, LexicalUnit param,
+	private LexicalUnit evaluateCustomPropertyValue(String property, String customProperty, LexicalUnit fallbackLU,
 			Parser parser) throws DOMException {
+		CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(customProperty);
+		boolean inherited = definition == null || definition.inherits();
+		//
 		Exception exception = null;
 		customPropertyStack.add(customProperty);
 		try {
-			StyleValue custom = getCSSValue(customProperty);
+			StyleValue custom = getCSSValue(customProperty, inherited);
 			if (custom != null) {
 				if (custom.getCssValueType() == CssType.KEYWORD) {
-					boolean inherited = PropertyDatabase.getInstance().isInherited(property);
-					if (inherited && custom.getPrimitiveType() == Type.UNSET) {
+					boolean inheritedDestPty = PropertyDatabase.getInstance().isInherited(property);
+					if (inheritedDestPty && custom.getPrimitiveType() == Type.UNSET) {
 						custom = null;
 					}
-					custom = inheritValue(this, customProperty, custom, inherited);
+					custom = inheritValue(this, customProperty, custom, inheritedDestPty);
 					if (custom != null && custom.getPrimitiveType() == Type.LEXICAL) {
 						LexicalUnit lu = ((LexicalValue) custom).getLexicalUnit().clone();
 						lu = replaceLexicalVar(property, lu, parser);
@@ -1263,16 +1298,21 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			exception = e;
 		}
 		// Fallback
-		if (param != null) {
+		if (fallbackLU != null) {
 			// Replace param, just in case
 			try {
-				param = replaceLexicalVar(property, param.clone(), parser);
+				fallbackLU = replaceLexicalVar(property, fallbackLU.clone(), parser);
 				customPropertyStack.remove(customProperty);
-				return param;
+				return fallbackLU;
 			} catch (DOMException e) {
 				exception = e;
 			}
 		}
+		//
+		if (definition != null) {
+			return definition.getInitialValue().getLexicalUnit();
+		}
+		//
 		customPropertyStack.clear();
 		DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
 				"Unable to evaluate custom property " + customProperty);
@@ -1683,9 +1723,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		}
 		customPropertyStack.add(propertyName);
+		//
+		CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(propertyName);
+		boolean inherited = definition == null || definition.inherits();
 		StyleValue custom;
 		try {
-			custom = getCSSValue(propertyName);
+			custom = getCSSValue(propertyName, inherited);
 			if (custom == null) {
 				LexicalUnit fallback = cssSize.getFallback();
 				if (fallback != null) {
@@ -1693,18 +1736,30 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					if (custom.getPrimitiveType() == Type.UNSET) {
 						custom = null;
 					}
-					custom = inheritValue(this, propertyName, custom, true);
+					custom = inheritValue(this, propertyName, custom, inherited);
 					if (custom != null) {
 						custom = absoluteFontSizeValue(custom, true);
 					}
 				} else {
-					custom = null;
+					if (definition == null) {
+						custom = null;
+					} else {
+						fallback = definition.getInitialValue().getLexicalUnit();
+						custom = new ValueFactory().createCSSValue(fallback, this);
+						if (custom.getPrimitiveType() == Type.UNSET) {
+							custom = null;
+						}
+						custom = inheritValue(this, propertyName, custom, inherited);
+						if (custom != null) {
+							custom = absoluteFontSizeValue(custom, true);
+						}
+					}
 				}
 			} else {
 				if (custom.getPrimitiveType() == Type.UNSET) {
 					custom = null;
 				}
-				custom = inheritValue(this, propertyName, custom, true);
+				custom = inheritValue(this, propertyName, custom, inherited);
 				if (custom != null) {
 					custom = absoluteFontSizeValue(custom, true);
 				}
@@ -2160,7 +2215,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		TypedValue typed;
 		StyleValue value = getCSSValue(propertyName);
 		if (value.getCssValueType() != CssType.TYPED) {
-			typed = (TypedValue) defaultPropertyValue(propertyName, PropertyDatabase.getInstance());
+			typed = (TypedValue) defaultPropertyValue(propertyName);
 		} else {
 			typed = (TypedValue) value;
 		}
@@ -2180,7 +2235,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				ancStyle = ancStyle.getParentComputedStyle();
 			} while (ancStyle != null);
 			if (value == null) {
-				value = defaultPropertyValue(propertyName, PropertyDatabase.getInstance());
+				value = defaultPropertyValue(propertyName);
 			}
 		}
 		return (TypedValue) value;

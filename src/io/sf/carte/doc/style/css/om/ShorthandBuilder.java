@@ -88,11 +88,10 @@ abstract class ShorthandBuilder {
 	}
 
 	StyleValue getInitialPropertyValue(String propertyName) {
-		PropertyDatabase pdb = PropertyDatabase.getInstance();
 		if (parentStyle instanceof ComputedCSSStyle) {
-			return parentStyle.defaultPropertyValue(propertyName, pdb);
+			return parentStyle.defaultPropertyValue(propertyName);
 		}
-		StyleValue defval = pdb.getInitialValue(propertyName);
+		StyleValue defval = PropertyDatabase.getInstance().getInitialValue(propertyName);
 		if (defval == null) {
 			if (propertyName.equals("color")) {
 				defval = SystemDefaultValue.getInstance();

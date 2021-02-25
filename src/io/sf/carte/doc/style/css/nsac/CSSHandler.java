@@ -282,4 +282,14 @@ public interface CSSHandler {
 	 */
 	void property(String name, LexicalUnit value, boolean important);
 
+	/**
+	 * Receive notification of a property declaration that must be processed as a
+	 * lexical value.
+	 * 
+	 * @param name      the name of the property.
+	 * @param value     the value of the property.
+	 * @param important is this property important ?
+	 */
+	void lexicalProperty(String propertyName, LexicalUnit lunit, boolean important);
+
 }

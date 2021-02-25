@@ -2487,7 +2487,7 @@ public class SheetParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRule() throws CSSException, IOException {
+	public void testParsePropertyRule() throws IOException {
 		Reader re = new StringReader(
 				"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 24px; ignore-me:0}");
 		TestCSSHandler handler = new TestCSSHandler();
@@ -2521,8 +2521,128 @@ public class SheetParserTest {
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(33, loc.getColumnNumber());
 		//
+		assertEquals("endProperty", handler.eventSeq.get(5));
+		//
 		handler.checkRuleEndings();
 		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParsePropertyRuleNoNameError() throws IOException {
+		Reader re = new StringReader(
+				"@property {syntax: '<length>'; inherits: false;\ninitial-value: 24px}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(0, handler.customPropertyNames.size());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertEquals(0, handler.atRules.size());
+		//
+		assertEquals(0, handler.eventSeq.size());
+		//
+		handler.checkRuleEndings();
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(11, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyRuleBadNameError() throws IOException {
+		Reader re = new StringReader(
+				"@property 111 {syntax: '<length>'; inherits: false;\ninitial-value: 24px}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(0, handler.customPropertyNames.size());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertEquals(0, handler.atRules.size());
+		//
+		assertEquals(0, handler.eventSeq.size());
+		//
+		handler.checkRuleEndings();
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(15, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyRuleSyntaxDescriptorError() throws IOException {
+		Reader re = new StringReader(
+				"@property --my-length {syntax: '<foo>'; inherits: false;\ninitial-value: 24px}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.customPropertyNames.size());
+		assertEquals("--my-length", handler.customPropertyNames.get(0));
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("inherits", handler.propertyNames.get(0));
+		assertEquals("initial-value", handler.propertyNames.get(1));
+		assertEquals(2, handler.lexicalValues.size());
+		assertEquals("false", handler.lexicalValues.get(0).toString());
+		assertEquals("24px", handler.lexicalValues.get(1).toString());
+		assertEquals(0, handler.atRules.size());
+		//
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(56, loc.getColumnNumber());
+		loc = handler.ptyLocators.get(1);
+		assertEquals(2, loc.getLineNumber());
+		assertEquals(20, loc.getColumnNumber());
+		//
+		assertEquals("endProperty-Discard", handler.eventSeq.get(3));
+		//
+		handler.checkRuleEndings();
+		assertTrue(errorHandler.hasError());
+		assertEquals(2, errorHandler.getLastException().getLineNumber());
+		assertEquals(20, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyRuleInitialValueDescriptorError() throws IOException {
+		Reader re = new StringReader(
+				"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 72dpi}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.customPropertyNames.size());
+		assertEquals("--my-length", handler.customPropertyNames.get(0));
+		assertEquals(3, handler.propertyNames.size());
+		assertEquals("syntax", handler.propertyNames.get(0));
+		assertEquals("inherits", handler.propertyNames.get(1));
+		assertEquals("initial-value", handler.propertyNames.get(2));
+		assertEquals(3, handler.lexicalValues.size());
+		assertEquals("'<length>'", handler.lexicalValues.get(0).toString());
+		assertEquals("false", handler.lexicalValues.get(1).toString());
+		assertEquals("72dpi", handler.lexicalValues.get(2).toString());
+		assertEquals(0, handler.atRules.size());
+		//
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(42, loc.getColumnNumber());
+		loc = handler.ptyLocators.get(1);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(59, loc.getColumnNumber());
+		//
+		assertEquals("endProperty-Discard", handler.eventSeq.get(4));
+		//
+		handler.checkRuleEndings();
+		assertTrue(errorHandler.hasError());
+		assertEquals(2, errorHandler.getLastException().getLineNumber());
+		assertEquals(21, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test

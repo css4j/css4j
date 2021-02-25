@@ -10,19 +10,20 @@
 package io.sf.carte.doc.style.css;
 
 /**
- * <code>{@literal @}property</code> rule.
- * @see <a href=
- * "https://www.w3.org/TR/css-properties-values-api-1/#at-property-rule">CSS
+ * A property definition.
+ * <p>
+ * See <a href=
+ * "https://www.w3.org/TR/css-properties-values-api-1/#the-propertydefinition-dictionary">CSS
  * Properties and Values API Level 1</a>.
+ * </p>
  */
-public interface CSSPropertyRule extends CSSRule, CSSPropertyDefinition {
+public interface CSSPropertyDefinition {
 
 	/**
-	 * Gets the custom property name.
+	 * Gets the property name.
 	 * 
 	 * @return the property name.
 	 */
-	@Override
 	String getName();
 
 	/**
@@ -30,23 +31,20 @@ public interface CSSPropertyRule extends CSSRule, CSSPropertyDefinition {
 	 * 
 	 * @return {@code true} if the property inherits.
 	 */
-	@Override
 	boolean inherits();
 
 	/**
-	 * The initial value associated with the <code>{@literal @}property</code> rule.
+	 * The initial value associated with the property.
 	 * 
 	 * @return the initial value, or {@code null} if none was specified.
 	 */
-	@Override
 	CSSLexicalValue getInitialValue();
 
 	/**
-	 * The syntax associated with the <code>{@literal @}property</code> rule.
+	 * The syntax associated with the property.
 	 * 
 	 * @return the syntax, or {@code null} if invalid.
 	 */
-	@Override
 	CSSValueSyntax getSyntax();
 
 }

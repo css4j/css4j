@@ -18,6 +18,7 @@ import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -52,6 +53,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSNode;
+import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
@@ -81,11 +83,13 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	// Maps original DOM nodes to CSS-enabled nodes.
 	private final Map<Node, CSSNode> nodemap = new HashMap<Node, CSSNode>();
 
-	private DocumentCSSStyleSheet mergedStyleSheet = null;
+	private BaseDocumentCSSStyleSheet mergedStyleSheet = null;
 
 	Set<LinkStyleDefiner> linkedStyle = new LinkedHashSet<LinkStyleDefiner>(4);
 
 	Set<LinkStyleDefiner> embeddedStyle = new LinkedHashSet<LinkStyleDefiner>(3);
+
+	private Set<CSSPropertyDefinition> registeredPropertySet = null;
 
 	private final StyleSheetList sheets = new MyOMStyleSheetList(7);
 
@@ -1402,6 +1406,15 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
 	}
 
+	@Override
+	public void registerProperty(CSSPropertyDefinition definition) {
+		if (registeredPropertySet == null) {
+			registeredPropertySet = new HashSet<>();
+		}
+		registeredPropertySet.add(definition);
+		mergedStyleSheet = null;
+	}
+
 	/**
 	 * A list containing all the style sheets explicitly linked into or embedded
 	 * in a document. For HTML documents, this includes external style sheets,
@@ -1620,17 +1633,23 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	private void mergeStyleSheets() {
 		getStyleSheets(); // Make sure that sheets is up to date
-		DocumentCSSStyleSheet defSheet = getStyleSheetFactory().getDefaultStyleSheet(getComplianceMode());
+		BaseDocumentCSSStyleSheet defSheet = getStyleSheetFactory().getDefaultStyleSheet(getComplianceMode());
 		if (targetMedium == null) {
 			mergedStyleSheet = defSheet.clone();
 		} else {
 			mergedStyleSheet = defSheet.clone(targetMedium);
 		}
-		((BaseDocumentCSSStyleSheet) mergedStyleSheet).setOwnerDocument(this);
+		mergedStyleSheet.setOwnerDocument(this);
 		// Add styles referenced by link and style elements
 		Iterator<AbstractCSSStyleSheet> it = sheets.iterator();
 		while (it.hasNext()) {
 			mergedStyleSheet.addStyleSheet(it.next());
+		}
+		// Add DOM property definitions
+		if (registeredPropertySet != null) {
+			for (CSSPropertyDefinition def : registeredPropertySet) {
+				mergedStyleSheet.registerProperty(def);
+			}
 		}
 	}
 

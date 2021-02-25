@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
+import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
@@ -47,7 +48,11 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 
 	protected BaseCSSDeclarationRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {
 		super(parentSheet, type, origin);
-		declaration = parentSheet.createStyleDeclaration(this);
+		declaration = createStyleDeclaration(parentSheet);
+	}
+
+	AbstractCSSStyleDeclaration createStyleDeclaration(AbstractCSSStyleSheet parentSheet) {
+		return parentSheet.createStyleDeclaration(this);
 	}
 
 	/**
@@ -238,6 +243,9 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 	}
 
 	class DeclarationRuleCSSHandler extends PropertyCSSHandler implements CSSParser.DeclarationRuleHandler {
+
+		private boolean ruleStarted = false, ruleEnded = false;
+
 		DeclarationRuleCSSHandler() {
 			super();
 		}
@@ -245,10 +253,12 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		@Override
 		public void startAtRule(String name, String pseudoSelector) {
 			BaseCSSDeclarationRule.this.startAtRule(name, pseudoSelector);
+			ruleStarted = true;
 		}
 
 		@Override
 		public void endAtRule() {
+			ruleEnded = true;
 		}
 
 		@Override

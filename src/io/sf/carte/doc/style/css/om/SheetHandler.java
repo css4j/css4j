@@ -599,6 +599,32 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		} // else { Ignoring property due to target media mismatch
 	}
 
+	@Override
+	public void lexicalProperty(String name, LexicalUnit lunit, boolean important) {
+		if (ignoreGroupingRules == 0) {
+			if (currentRule != null) {
+				try {
+					((BaseCSSDeclarationRule) currentRule).getStyle().setLexicalProperty(name, lunit, important);
+				} catch (RuntimeException e) {
+					CSSPropertyValueException ex = new CSSPropertyValueException(e);
+					ex.setValueText(lunit.toString());
+					((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().wrongValue(name, ex);
+					// NSAC report
+					Locator locator = parserctl.createLocator();
+					CSSParseException pe = new CSSParseException("Invalid value for property " + name, locator, e);
+					error(pe);
+				}
+			} else {
+				/*
+				 * A property was received for being processed outside of a rule. This should
+				 * never happen, and if it happens it means that the NSAC parser is
+				 * malfunctioning.
+				 */
+				parentSheet.getErrorHandler().sacMalfunction("Unexpected property " + name + ": " + lunit.toString());
+			}
+		} // else { Ignoring property due to target media mismatch
+	}
+
 	private void resetCurrentRule() {
 		currentRule = null;
 		resetCommentStack();

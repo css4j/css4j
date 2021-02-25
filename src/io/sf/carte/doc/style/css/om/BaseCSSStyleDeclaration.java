@@ -51,6 +51,7 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
+import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StringValue;
@@ -810,6 +811,14 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	@Override
+	public void setLexicalProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException {
+		propertyName = getCanonicalPropertyName(propertyName);
+		LexicalValue lexicalValue = new LexicalValue();
+		lexicalValue.setLexicalUnit(value);
+		setProperty(propertyName, lexicalValue, important);
+	}
+
+	@Override
 	public void setProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException {
 		propertyName = getCanonicalPropertyName(propertyName);
 		// Check for shorthand properties
@@ -1502,14 +1511,12 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	/**
 	 * Computes the initial (default) value for the given property.
 	 * 
-	 * @param pdb
-	 *            the PropertyDatabase object.
 	 * @param propertyName
 	 *            the name of the property.
 	 * @return the initial value for the property, or null if none was found.
 	 */
-	StyleValue defaultPropertyValue(String propertyName, PropertyDatabase pdb) {
-		StyleValue defval = pdb.getInitialValue(propertyName);
+	StyleValue defaultPropertyValue(String propertyName) {
+		StyleValue defval = PropertyDatabase.getInstance().getInitialValue(propertyName);
 		if (defval == null) {
 			if (propertyName.equals("color")) {
 				// Initial value depends on user agent

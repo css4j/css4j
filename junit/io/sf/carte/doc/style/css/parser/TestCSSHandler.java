@@ -237,7 +237,11 @@ class TestCSSHandler extends TestDeclarationHandler {
 
 	@Override
 	public void endProperty(boolean discard) {
-		this.eventSeq.add("endProperty");
+		if (discard) {
+			this.eventSeq.add("endProperty-Discard");
+		} else {
+			this.eventSeq.add("endProperty");
+		}
 		endPropertyRuleCount++;
 	}
 

@@ -35,7 +35,6 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.NumberValue;
-import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.util.Diff;
@@ -897,8 +896,7 @@ public class BaseCSSStyleDeclarationTest {
 
 	@Test
 	public void testDefaultPropertyValueStringPropertyDatabase() {
-		PropertyDatabase pdb = PropertyDatabase.getInstance();
-		assertEquals("transparent", emptyStyleDecl.defaultPropertyValue("background-color", pdb).getCssText());
+		assertEquals("transparent", emptyStyleDecl.defaultPropertyValue("background-color").getCssText());
 	}
 
 	@Test

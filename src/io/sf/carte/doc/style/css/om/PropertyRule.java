@@ -18,8 +18,14 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSPropertyRule;
 import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
+import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -40,18 +46,22 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 		super(parentSheet, CSSRule.PROPERTY_RULE, origin);
 	}
 
+	@Override
+	PropertyDescriptorStyleDeclaration createStyleDeclaration(AbstractCSSStyleSheet parentSheet) {
+		return new PropertyDescriptorStyleDeclaration(this);
+	}
+
 	/**
-	 * Gets the custom property name.
+	 * Gets the (unescaped) custom property name.
 	 * 
 	 * @return the custom property name.
 	 */
 	@Override
 	public String getName() {
-		return ParseHelper.escape(name);
+		return name;
 	}
 
 	void setName(String name) throws DOMException {
-		name = ParseHelper.parseIdent(name);
 		this.name = name;
 	}
 
@@ -62,37 +72,59 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 	}
 
 	@Override
-	public StyleValue getInitialValue() {
-		return getStyle().getPropertyCSSValue("initial-value");
+	public LexicalValue getInitialValue() {
+		return (LexicalValue) getStyle().getPropertyCSSValue("initial-value");
+	}
+
+	@Override
+	public CSSValueSyntax getSyntax() {
+		StyleValue cssVal = getStyle().getPropertyCSSValue("syntax");
+		if (cssVal == null || cssVal.getPrimitiveType() != Type.STRING) {
+			return null;
+		}
+		String s = ((CSSTypedValue) cssVal).getStringValue();
+		CSSValueSyntax syn;
+		try {
+			syn = new SyntaxParser().parseSyntax(s);
+		} catch (CSSException e) {
+			return null;
+		}
+		return syn;
 	}
 
 	@Override
 	public String getCssText() {
-		StyleFormattingContext context = getStyleFormattingContext();
-		context.setParentContext(getParentRule());
-		BufferSimpleWriter sw = new BufferSimpleWriter(50 + getStyle().getLength() * 24);
-		try {
-			writeCssText(sw, context);
-		} catch (IOException e) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+		PropertyDescriptorStyleDeclaration decl = (PropertyDescriptorStyleDeclaration) getStyle();
+		if (decl.isValidDeclaration() && name != null) {
+			StyleFormattingContext context = getStyleFormattingContext();
+			context.setParentContext(getParentRule());
+			BufferSimpleWriter sw = new BufferSimpleWriter(50 + getStyle().getLength() * 24);
+			try {
+				writeCssText(sw, context);
+			} catch (IOException e) {
+				throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+			}
+			return sw.toString();
 		}
-		return sw.toString();
+		return "";
 	}
 
 	@Override
 	public String getMinifiedCssText() {
-		if (name != null || getStyle().getLength() != 0) {
-			return "@property " + getName() + " {" + getStyle().getMinifiedCssText() + '}';
+		PropertyDescriptorStyleDeclaration decl = (PropertyDescriptorStyleDeclaration) getStyle();
+		if (decl.isValidDeclaration() && name != null) {
+			return "@property " + ParseHelper.escape(name) + " {" + getStyle().getMinifiedCssText() + '}';
 		}
 		return "";
 	}
 
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
-		if (name != null || getStyle().getLength() != 0) {
+		PropertyDescriptorStyleDeclaration decl = (PropertyDescriptorStyleDeclaration) getStyle();
+		if (decl.isValidDeclaration() && name != null) {
 			context.startRule(wri, getPrecedingComments());
 			wri.write("@property ");
-			wri.write(getName());
+			wri.write(ParseHelper.escape(name));
 			context.updateContext(this);
 			context.writeLeftCurlyBracket(wri);
 			context.startStyleDeclaration(wri);
@@ -111,7 +143,17 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 		if (idx < 11) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad property rule: " + cssText);
 		}
-		super.setCssText(cssText);
+		try {
+			super.setCssText(cssText);
+		} catch (DOMException e) {
+			clear();
+			throw e;
+		}
+		PropertyDescriptorStyleDeclaration decl = (PropertyDescriptorStyleDeclaration) getStyle();
+		if (!decl.isValidDeclaration()) {
+			clear();
+			throw new DOMException(DOMException.SYNTAX_ERR, "Bad property rule: " + cssText);
+		}
 	}
 
 	@Override
@@ -122,7 +164,8 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 		if (pseudoSelector == null) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "No property name.");
 		}
-		setName(pseudoSelector.trim());
+		pseudoSelector = ParseHelper.parseIdent(pseudoSelector);
+		setName(pseudoSelector);
 	}
 
 	@Override
@@ -155,8 +198,8 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 	public PropertyRule clone(AbstractCSSStyleSheet parentSheet) {
 		PropertyRule rule = new PropertyRule(parentSheet, getOrigin());
 		rule.setName(getName());
-		String oldHrefContext = getParentStyleSheet().getHref();
-		rule.setWrappedStyle((BaseCSSStyleDeclaration) getStyle(), oldHrefContext);
+		PropertyDescriptorStyleDeclaration cloneStyle = (PropertyDescriptorStyleDeclaration) rule.getStyle();
+		cloneStyle.addStyle((BaseCSSStyleDeclaration) getStyle());
 		return rule;
 	}
 

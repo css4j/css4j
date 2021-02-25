@@ -136,6 +136,15 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	void enableStyleSheetsForSet(String name);
 
 	/**
+	 * Registers the definition of a custom property.
+	 * 
+	 * @param definition the definition.
+	 * @see CSSStyleSheetFactory#createPropertyDefinition(String, CSSValueSyntax,
+	 *      boolean, CSSLexicalValue)
+	 */
+	void registerProperty(CSSPropertyDefinition definition);
+
+	/**
 	 * Gets the merged style sheet that applies to this document, resulting from
 	 * the merge of the document's default style sheet, the document linked or
 	 * embedded style sheets, and the non-important part of the user style

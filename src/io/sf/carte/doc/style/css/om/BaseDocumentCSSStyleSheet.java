@@ -11,8 +11,10 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -23,6 +25,7 @@ import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
@@ -42,6 +45,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 
 	private String targetMedium = null;
 
+	private Map<String, CSSPropertyDefinition> registeredPropertyMap;
+
 	protected BaseDocumentCSSStyleSheet(String medium, byte origin) {
 		super(null, new MediaQueryListImpl(medium), null, origin);
 		if ("all".equals(medium)) {
@@ -49,6 +54,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 		} else {
 			targetMedium = medium;
 		}
+		registeredPropertyMap = new HashMap<>();
 	}
 
 	@Override
@@ -96,7 +102,20 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 							&& !((ImportRule) rule).getMedia().matches(targetMedium, canvas))) {
 				continue;
 			}
-			myCopy.cssRules.add(rule.clone(myCopy));
+			if (type == CSSRule.PROPERTY_RULE) {
+				registerProperty((CSSPropertyDefinition) rule);
+			} else {
+				myCopy.cssRules.add(rule.clone(myCopy));
+			}
+		}
+	}
+
+	@Override
+	protected void addLocalRule(CSSRule rule) {
+		if (rule.getType() == CSSRule.PROPERTY_RULE) {
+			registerProperty((CSSPropertyDefinition) rule);
+		} else {
+			super.addLocalRule(rule);
 		}
 	}
 
@@ -142,6 +161,27 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 	 */
 	@Override
 	abstract public BaseDocumentCSSStyleSheet clone(String targetMedium);
+
+	/**
+	 * Get the definition for the given property.
+	 * 
+	 * @param name the property name.
+	 * @return the definition, or {@code null} if no property with that name was
+	 *         registered.
+	 */
+	CSSPropertyDefinition getPropertyDefinition(String name) {
+		return registeredPropertyMap.get(name);
+	}
+
+	/**
+	 * Registers the definition of a custom property.
+	 * 
+	 * @param definition the definition.
+	 */
+	@Override
+	public void registerProperty(CSSPropertyDefinition definition) {
+		registeredPropertyMap.put(definition.getName(), definition);
+	}
 
 	/**
 	 * Compute the style for an element.

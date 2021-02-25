@@ -26,16 +26,23 @@ interface LexicalPropertyListener {
 	/**
 	 * Set a CSS property, based on lexical value.
 	 * 
-	 * @param propertyName
-	 *            the name of the property.
-	 * @param value
-	 *            the lexical value.
-	 * @param important
-	 *            <code>true</code> if the priority is important.
+	 * @param propertyName the name of the property.
+	 * @param value        the lexical value.
+	 * @param important    <code>true</code> if the priority is important.
 	 * 
-	 * @throws DOMException
-	 *             if some error or inconsistency is found in the value.
+	 * @throws DOMException if some error or inconsistency is found in the value.
 	 */
 	void setProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException;
+
+	/**
+	 * Set a CSS property as a raw lexical value.
+	 * 
+	 * @param propertyName the name of the property.
+	 * @param value        the lexical value.
+	 * @param important    <code>true</code> if the priority is important.
+	 * 
+	 * @throws DOMException if some error or inconsistency is found in the value.
+	 */
+	void setLexicalProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException;
 
 }

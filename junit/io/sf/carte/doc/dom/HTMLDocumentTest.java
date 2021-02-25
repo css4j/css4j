@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
@@ -44,6 +45,7 @@ import org.w3c.dom.Text;
 import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
@@ -51,19 +53,25 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
+import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.om.CSSRuleArrayList;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
 import io.sf.carte.doc.style.css.om.StyleRule;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
+import io.sf.carte.doc.style.css.property.LexicalValue;
 
 public class HTMLDocumentTest {
 	HTMLDocument xhtmlDoc;
@@ -1123,6 +1131,99 @@ public class HTMLDocumentTest {
 		assertEquals(
 				"display:table-row;vertical-align:middle;border-color:#808080;unicode-bidi:embed;margin:16pt;color:#f00;",
 				style.getMinifiedCssText());
+	}
+
+	@Test
+	public void testComputedStyleRegisteredProperties() throws CSSParseException, IOException {
+		// Prepare property definition
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		//
+		CSSOMParser parser = new CSSOMParser();
+		LexicalUnit lunit = parser.parsePropertyValue(new StringReader("15pt"));
+		LexicalValue value = new LexicalValue();
+		value.setLexicalUnit(lunit);
+		CSSPropertyDefinition pdef = xhtmlDoc.getStyleSheet().getStyleSheetFactory().createPropertyDefinition("--foo",
+				syn, false, value);
+		xhtmlDoc.registerProperty(pdef);
+		//
+		DOMElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		/*
+		 * custom property substitution.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		//
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,7pt)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(7f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		//
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,1vb);--foo:8pt");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(8f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		//
+		DOMElement listpara = xhtmlDoc.getElementById("listpara");
+		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,19pt)");
+		style = listpara.getComputedStyle(null);
+		CSSTypedValue customProperty = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		assertNotNull(customProperty);
+		assertEquals(15f, customProperty.getFloatValue(CSSUnit.CSS_PT), 1e-6);
+		CSSTypedValue fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(19f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * Same as above, with custom property set in parent style
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		DOMElement body = (DOMElement) elm.getParentNode();
+		body.getOverrideStyle(null).setCssText("--foo:9pt");
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * Same as above, with custom property set in parent style, fallback
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		body = (DOMElement) elm.getParentNode();
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,21pt)");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(21f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * custom property substitution, var() in fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--no-way,var(--foo));");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		/*
+		 * custom property substitution, var() in fallback, fallback-of-fallback.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-left:var(--no-way,var(--foo,17pt));");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(17f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 	}
 
 	@Test

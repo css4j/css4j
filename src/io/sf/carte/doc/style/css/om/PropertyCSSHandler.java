@@ -61,6 +61,18 @@ class PropertyCSSHandler extends EmptyCSSHandler {
 	}
 
 	@Override
+	public void lexicalProperty(String name, LexicalUnit value, boolean important) {
+		try {
+			listener.setLexicalProperty(name, value, important);
+		} catch (DOMException e) {
+			Locator locator = parserctl.createLocator();
+			CSSParseException pe = new CSSParseException("Invalid value for property " + name, locator, e);
+			error(pe);
+			throw e;
+		}
+	}
+
+	@Override
 	public void error(CSSParseException exception) throws CSSParseException {
 		throw exception;
 	}
