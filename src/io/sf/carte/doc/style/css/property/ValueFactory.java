@@ -99,7 +99,6 @@ public class ValueFactory {
 		case LexicalUnit2.SAC_QUARTER_MILLIMETER:
 		case LexicalUnit2.SAC_REM:
 		case LexicalUnit2.SAC_RLH:
-		case LexicalUnit2.SAC_TURN:
 		case LexicalUnit2.SAC_VB:
 		case LexicalUnit2.SAC_VH:
 		case LexicalUnit2.SAC_VI:
