@@ -11,12 +11,18 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.DOMCharacterException;
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -40,7 +46,16 @@ public class ParseHelper {
 	public static final byte WARN_IDENT_COMPAT = -2;
 	public static final byte WARN_PROGID_HACK = -3;
 	public static final byte WARN_PROPERTY_NAME = -4;
-	public static final byte WARN_VALUE = -5; // Generic warning about a property value
+
+	/**
+	 * Generic warning about a property value
+	 */
+	public static final byte WARN_VALUE = -5;
+
+	/**
+	 * Non-fatal unexpected EOF
+	 */
+	public static final byte WARN_UNEXPECTED_EOF = -6;
 
 	public static String unescapeStringValue(String value) {
 		return unescapeStringValue(value, true, true);
@@ -1080,6 +1095,96 @@ public class ParseHelper {
 		PseudoConditionImpl cond = new PseudoConditionImpl(Condition.ConditionType.PSEUDO_ELEMENT);
 		cond.name = pseudoElement;
 		return cond;
+	}
+
+	/**
+	 * For internal use by the library, may be removed in the future.
+	 * <p>
+	 * Determine if the name is a transform function.
+	 * </p>
+	 * 
+	 * @param functionName the function name.
+	 * @return true if the name is a transform function.
+	 */
+	public static boolean isTransformFunction(String functionName) {
+		return functionName.equals("matrix") || functionName.equals("translate") || functionName.equals("translateX")
+				|| functionName.equals("translateY") || functionName.equals("scale") || functionName.equals("scaleX")
+				|| functionName.equals("scaleY") || functionName.equals("rotate") || functionName.equals("skew")
+				|| functionName.equals("skewX") || functionName.equals("skewY");
+	}
+
+	/**
+	 * For internal use by the library, may be removed in the future.
+	 * 
+	 * @param dataType the attr data type.
+	 * @param cat the grammar data type category to check.
+	 * @return true if the data type matches the syntax category.
+	 */
+	public static boolean matchAttrType(String dataType, Category cat) {
+		if ("length".equals(dataType)) {
+			return cat == Category.length || cat == Category.lengthPercentage;
+		} else if ("percentage".equals(dataType)) {
+			return cat == Category.percentage || cat == Category.lengthPercentage;
+		} else if ("color".equals(dataType)) {
+			return cat == Category.color;
+		} else if ("integer".equals(dataType)) {
+			return cat == Category.integer || cat == Category.number;
+		} else if ("number".equals(dataType)) {
+			return cat == Category.number;
+		} else if ("angle".equals(dataType)) {
+			return cat == Category.angle;
+		} else if ("time".equals(dataType)) {
+			return cat == Category.time;
+		} else if ("frequency".equals(dataType)) {
+			return cat == Category.frequency;
+		} else if ("string".equals(dataType)) {
+			return cat == Category.string;
+		} else if ("flex".equals(dataType)) {
+			return cat == Category.flex;
+		} else {
+			CSSParser parser = new CSSParser();
+			try {
+				LexicalUnit lu = parser.parsePropertyValue(new StringReader("1" + dataType));
+				return matchesDimension(lu.getCssUnit(), cat);
+			} catch (CSSParseException | IOException e) {
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Determine whether the given unit matches the category.
+	 * 
+	 * @param unit the dimension unit.
+	 * @param cat the grammar data type category to check.
+	 * @return true if the unit matches the syntax category.
+	 */
+	static boolean matchesDimension(short unit, Category cat) {
+		switch (cat) {
+		case length:
+			return CSSUnit.isLengthUnitType(unit);
+		case lengthPercentage:
+			return CSSUnit.isLengthUnitType(unit) || unit == CSSUnit.CSS_PERCENTAGE;
+		case percentage:
+			return unit == CSSUnit.CSS_PERCENTAGE;
+		case angle:
+			return CSSUnit.isAngleUnitType(unit);
+		case time:
+			return CSSUnit.isTimeUnitType(unit);
+		case resolution:
+			return CSSUnit.isResolutionUnitType(unit);
+		case flex:
+			return unit == CSSUnit.CSS_FR;
+		case frequency:
+			return unit == CSSUnit.CSS_HZ || unit == CSSUnit.CSS_KHZ;
+		case integer:
+		case number:
+			// This probably never returns true (only actual dimensions reach this)
+			return unit == CSSUnit.CSS_NUMBER;
+		default:
+			break;
+		}
+		return false;
 	}
 
 }

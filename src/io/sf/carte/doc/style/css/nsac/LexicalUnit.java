@@ -14,6 +14,8 @@
 package io.sf.carte.doc.style.css.nsac;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 
 /**
  * Based on SAC's {@code LexicalUnit} interface by Philippe Le Hegaret.
@@ -606,6 +608,103 @@ public interface LexicalUnit {
 	 * @return the parsable serialization of this unit.
 	 */
 	String getCssText();
+
+	/**
+	 * Verify whether this value matches the given grammar.
+	 * <p>
+	 * This method is intended to be used for generic sanity checks and,
+	 * consequently, some corner cases may not be taken into account. For example,
+	 * when matching {@code var()}, the implementations are allowed to assume that
+	 * the property substitution shall not be empty, otherwise values like
+	 * {@code var(--data) 1px} would give a non-{@code FALSE} match simultaneously
+	 * on syntaxes with and without a multiplier ({@code +} or {@code #}), which
+	 * would probably not be what that use case wants.
+	 * </p>
+	 * <p>
+	 * In the case of {@code calc()}, if implementations do not perform a full
+	 * dimensional analysis it is more acceptable to return a bogus {@code TRUE}
+	 * than a {@code FALSE}.
+	 * </p>
+	 * <p>
+	 * Here are some examples of matching:
+	 * </p>
+	 * <table style="border:1px solid;border-collapse:collapse;">
+	 * <thead>
+	 * <tr>
+	 * <th style="border: 1px solid;padding:6pt">Value</th>
+	 * <th style="border:1px solid">Syntax</th>
+	 * <th style="border:1px solid">Match</th>
+	 * </tr>
+	 * </thead><tbody>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:6pt" rowspan=
+	 * "7"><code>attr(data-width length, 8%)</code></td>
+	 * <td style="border:1px
+	 * solid;padding:4pt"><code>&lt;percentage&gt; | &lt;length&gt;</code></td>
+	 * <td><code>TRUE</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>&lt;length&gt;</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>PENDING</code></td>
+	 * </tr>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>&lt;percentage&gt;</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>PENDING</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>&lt;length&gt;#</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>PENDING</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px
+	 * solid;padding:4pt"><code>&lt;length-percentage&gt;</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>TRUE</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>&lt;resolution&gt;</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>FALSE</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>*</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>TRUE</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:6pt" rowspan=
+	 * "5"><code>6pt var(--custom) 12.3px</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>&lt;length&gt;+</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>PENDING</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>&lt;length&gt;#</code></td>
+	 * <td style="border:1px solid;padding:2pt
+	 * 4pt"><code>PENDING</code><sup>1</sup></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>&lt;length&gt;</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>FALSE</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>&lt;number&gt;+</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>FALSE</code></td>
+	 * </tr>
+	 * <tr style="text-align:center;">
+	 * <td style="border:1px solid;padding:4pt"><code>*</code></td>
+	 * <td style="border:1px solid;padding:4pt"><code>TRUE</code></td>
+	 * </tr>
+	 * </tbody>
+	 * </table>
+	 * <ol style="font-size:smaller">
+	 * <li>Despite the value containing no commas, the syntax with a {@code #}
+	 * multiplier matches as {@code PENDING} because the custom property could have
+	 * commas and start and end with one.</li>
+	 * </ol>
+	 * <br/>
+	 * 
+	 * @param syntax the syntax.
+	 * @return the matching for the syntax.
+	 */
+	Match matches(CSSValueSyntax syntax);
 
 	/**
 	 * Creates a deep copy of this lexical unit and the next ones, unlinked to any

@@ -14,9 +14,14 @@ package io.sf.carte.doc.style.css.parser;
 import java.util.Locale;
 
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Multiplier;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 
 class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
@@ -496,6 +501,362 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		}
 		buf.append(')');
 		return buf.toString();
+	}
+
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		switch (getLexicalUnitType()) {
+		case INHERIT:
+		case INITIAL:
+		case UNSET:
+		case REVERT:
+			// If a keyword is followed by something, it matches nothing
+			return nextLexicalUnit == null ? Match.PENDING : Match.FALSE;
+		default:
+			break;
+		}
+		//
+		CSSValueSyntax comp = syntax;
+		do {
+			//
+			Multiplier mult = comp.getMultiplier();
+			Category cat = comp.getCategory();
+			if (cat == Category.universal) {
+				return Match.TRUE;
+			}
+			// If there is a next unit but no multiplier defined, skip this syntax
+			if (mult != Multiplier.NONE || nextLexicalUnit == null || cat == Category.transformList) {
+				Match result;
+				if ((result = matchesComponent(syntax, comp)) != Match.FALSE) {
+					return result;
+				}
+			}
+			comp = comp.getNext();
+		} while (comp != null);
+		return Match.FALSE;
+	}
+
+	private Match matchesComponent(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
+		LexicalUnitImpl lu = this;
+		Match prevmatch = Match.FALSE;
+		do {
+			Match match = matchesComponent(lu, rootSyntax, syntax);
+			if (match == Match.FALSE) {
+				return Match.FALSE;
+			}
+			if (prevmatch != Match.PENDING) {
+				prevmatch = match;
+			}
+			//
+			lu = lu.nextLexicalUnit;
+			if (lu == null) {
+				break;
+			}
+			//
+			if (syntax.getMultiplier() == Multiplier.NUMBER) {
+				if (lu.unitType == LexicalType.OPERATOR_COMMA) {
+					lu = lu.nextLexicalUnit;
+					if (lu == null) {
+						break;
+					}
+				} else if (syntax.getCategory() != Category.transformList && lu.unitType != LexicalType.VAR
+						&& lu.previousLexicalUnit.unitType != LexicalType.VAR) {
+					return Match.FALSE;
+				}
+			}
+		} while (true);
+		return prevmatch;
+	}
+
+	private static Match matchesComponent(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax,
+			CSSValueSyntax syntax) {
+		LexicalType type = lexicalUnit.getLexicalUnitType();
+		switch (type) {
+		case OPERATOR_COMMA:
+			if (syntax.getMultiplier() != Multiplier.NUMBER || lexicalUnit.nextLexicalUnit == null) {
+				return Match.FALSE;
+			}
+			// Unlikely to reach this (unless consecutive commas when testing a # multiplier)
+			return Match.TRUE;
+		case INHERIT:
+		case INITIAL:
+		case UNSET:
+		case REVERT:
+		case OPERATOR_SEMICOLON:
+		case OPERATOR_PLUS:
+		case OPERATOR_MINUS:
+		case OPERATOR_MULTIPLY:
+		case OPERATOR_SLASH:
+		case OPERATOR_MOD:
+		case OPERATOR_EXP:
+		case OPERATOR_LT:
+		case OPERATOR_GT:
+		case OPERATOR_LE:
+		case OPERATOR_GE:
+		case OPERATOR_TILDE:
+			return Match.FALSE;
+		default:
+			break;
+		}
+		//
+		Category cat = syntax.getCategory();
+		if (cat == Category.universal) {
+			return Match.TRUE;
+		}
+		//
+		switch (type) {
+		case IDENT:
+			return matchBoolean(cat == Category.customIdent
+					|| (cat == Category.IDENT && syntax.getName().equals(lexicalUnit.getStringValue()))
+					|| (cat == Category.color && ColorIdentifiers.getInstance()
+							.isColorIdentifier(lexicalUnit.getStringValue().toLowerCase(Locale.ROOT))));
+		case STRING:
+			return matchBoolean(cat == Category.string);
+		case ATTR:
+			return matchAttr(lexicalUnit, rootSyntax, syntax);
+		case URI:
+			return matchBoolean(cat == Category.url || cat == Category.image);
+		case DIMENSION:
+			return matchBoolean(ParseHelper.matchesDimension(lexicalUnit.getCssUnit(), cat));
+		case PERCENTAGE:
+			return matchBoolean(cat == Category.percentage || cat == Category.lengthPercentage);
+		case REAL:
+			return matchBoolean(cat == Category.number);
+		case INTEGER:
+			return matchBoolean(cat == Category.integer || cat == Category.number);
+		case RGBCOLOR:
+		case HSLCOLOR:
+		case LABCOLOR:
+		case LCHCOLOR:
+			return matchBoolean(cat == Category.color);
+		case CALC:
+			return isNumericCategory(cat) ? matchesOperandOfSyntax(lexicalUnit.getParameters(), syntax) : Match.FALSE;
+		case FUNCTION:
+			return matchFunction(lexicalUnit, syntax);
+		case ELEMENT_REFERENCE:
+			return matchBoolean(cat == Category.image);
+		case VAR:
+			return Match.PENDING;
+		case UNICODE_RANGE:
+		case UNICODE_WILDCARD:
+			return matchBoolean(cat == Category.unicodeRange);
+		default:
+		}
+		return Match.FALSE;
+	}
+
+	private static Match matchBoolean(boolean b) {
+		return b ? Match.TRUE : Match.FALSE;
+	}
+
+	private static Match matchAttr(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
+		Match result = Match.FALSE;
+		LexicalUnit param = lexicalUnit.getParameters();
+		if (param != null) {
+			String dataType;
+			LexicalUnit fallback = null;
+			param = param.getNextLexicalUnit();
+			if (param != null) {
+				switch (param.getLexicalUnitType()) {
+				case OPERATOR_COMMA:
+					dataType = "string";
+					fallback = param.getNextLexicalUnit();
+					break;
+				case IDENT:
+					// We got a data type spec
+					dataType = param.getStringValue().toLowerCase(Locale.ROOT);
+					param = param.getNextLexicalUnit();
+					if (param != null) {
+						if (param.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
+							return Match.FALSE; // Should never happen
+						}
+						fallback = param.getNextLexicalUnit();
+					}
+					break;
+				case VAR:
+					return Match.PENDING;
+				default:
+					return Match.FALSE; // Should never happen
+				}
+			} else { // Implicit "string"
+				return syntax.getCategory() == Category.string ? Match.TRUE : Match.FALSE;
+			}
+			// Now, let's try matching the attr datatype and the fallback (if available).
+			CSSValueSyntax typeMatch = null;
+			CSSValueSyntax comp = rootSyntax;
+			topLoop: do {
+				boolean attrTypeMatch = ParseHelper.matchAttrType(dataType, comp.getCategory());
+				if (attrTypeMatch) {
+					result = Match.PENDING;
+					typeMatch = comp;
+				}
+				//
+				if (fallback != null) {
+					// We got a fallback
+					CSSValueSyntax fallbackComp = rootSyntax;
+					do {
+						Match match = fallback.matches(fallbackComp);
+						if (match == Match.FALSE) {
+							continue;
+						} else if (match == Match.PENDING) {
+							result = Match.PENDING;
+							if (attrTypeMatch) {
+								continue;
+							}
+						} else { // TRUE
+							if (!attrTypeMatch) {
+								result = Match.PENDING;
+								// Perhaps we'll have better luck matching attr datatype with next syntax
+								continue topLoop;
+							} else if (hasNoSiblings(lexicalUnit) || (typeMatch == fallbackComp)) {
+								result = Match.TRUE;
+							} // Here, attrTypeMatch is true and 'result' should be PENDING
+						}
+						return result;
+					} while ((fallbackComp = fallbackComp.getNext()) != null);
+				} else if (attrTypeMatch) {
+					return Match.TRUE;
+				}
+			} while ((comp = comp.getNext()) != null);
+		}
+		return result;
+	}
+
+	private static boolean hasNoSiblings(LexicalUnit lexicalUnit) {
+		return lexicalUnit.getNextLexicalUnit() == null
+				&& lexicalUnit.getPreviousLexicalUnit() == null;
+	}
+
+	private static Match matchFunction(LexicalUnitImpl lexicalUnit, CSSValueSyntax syntax) {
+		Category cat = syntax.getCategory();
+		String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
+		if ("hwb".equals(func) || "color".equals(func)) {
+			return matchBoolean(cat == Category.color);
+		} else if (func.endsWith("-gradient")) {
+			return matchBoolean(cat == Category.image);
+		} else if (func.equals("env")) {
+			return Match.PENDING;
+		} else if (isNumericCategory(cat)) {
+			if (isCompatibleNumberFunction(func, cat)) {
+				return Match.TRUE;
+			}
+			return matchesOperandOfSyntax(lexicalUnit.getParameters(), syntax);
+		} else {
+			return matchBoolean(ParseHelper.isTransformFunction(func));
+		}
+	}
+
+	/**
+	 * If the supplied value represents the chain of operands of an expression,
+	 * determine if the expression has operands that could be consistent with the
+	 * requested category.
+	 * 
+	 * @param lunit the lexical value containing the first operand.
+	 * @param cat   the data type category.
+	 * @return the match that would be expected from the expression.
+	 */
+	private static Match matchesOperandOfSyntax(LexicalUnit lunit, CSSValueSyntax syntax) {
+		Category cat = syntax.getCategory();
+		Match expected = Match.FALSE;
+		while (lunit != null) {
+			LexicalType sacType = lunit.getLexicalUnitType();
+			if (sacType == LexicalType.DIMENSION) {
+				if (ParseHelper.matchesDimension(lunit.getCssUnit(), cat) || cat == Category.number) {
+					if (expected != Match.PENDING) {
+						expected = Match.TRUE;
+					}
+				} else if (cat == Category.percentage) {
+					return Match.FALSE;
+				} else { // Probably FALSE, but...
+					expected = Match.PENDING;
+				}
+			} else if (sacType == LexicalType.REAL) {
+				if (cat == Category.number && expected != Match.PENDING) {
+					expected = Match.TRUE;
+				}
+			} else if (sacType == LexicalType.INTEGER) {
+				if ((cat == Category.integer || cat == Category.number) && expected != Match.PENDING) {
+					expected = Match.TRUE;
+				}
+			} else if (sacType == LexicalType.PERCENTAGE) {
+				if (ParseHelper.matchesDimension(CSSUnit.CSS_PERCENTAGE, cat)) {
+					if (expected != Match.PENDING) {
+						expected = Match.TRUE;
+					}
+				} else {
+					return Match.FALSE;
+				}
+			} else if (sacType == LexicalType.CALC) {
+				Match match = matchesOperandOfSyntax(lunit.getParameters(), syntax);
+				if (match != Match.FALSE) {
+					if (expected != Match.PENDING) {
+						expected = match;
+					}
+				} else {
+					return Match.FALSE;
+				}
+			} else if (sacType == LexicalType.VAR) {
+				expected = Match.PENDING;
+				break;
+			} else if (sacType == LexicalType.SUB_EXPRESSION) {
+				Match match = matchesOperandOfSyntax(lunit.getSubValues(), syntax);
+				if (match != Match.FALSE) {
+					if (expected != Match.PENDING) {
+						expected = match;
+					}
+				} else {
+					return Match.FALSE;
+				}
+			} else if (sacType == LexicalType.ATTR || sacType == LexicalType.FUNCTION) {
+				LexicalUnit attr = lunit;
+				if (lunit.getNextLexicalUnit() != null) {
+					attr = lunit.shallowClone();
+				}
+				Match match = attr.matches(syntax);
+				if (match == Match.FALSE) {
+					expected = Match.FALSE;
+					break;
+				}
+				if (expected != Match.PENDING) {
+					expected = match;
+				}
+			}
+			lunit = lunit.getNextLexicalUnit();
+		}
+		return expected;
+	}
+
+	private static boolean isCompatibleNumberFunction(String func, Category cat) {
+		switch (cat) {
+		case number:
+			return "sin".equals(func) || "cos".equals(func) || "tan".equals(func)
+					|| "sign".equals(func);
+		case angle:
+			return "asin".equals(func) || "acos".equals(func) || "atan".equals(func)
+					|| "atan2".equals(func);
+		default:
+			break;
+		}
+		return false;
+	}
+
+	private static boolean isNumericCategory(Category cat) {
+		switch (cat) {
+		case number:
+		case integer:
+		case length:
+		case percentage:
+		case lengthPercentage:
+		case angle:
+		case time:
+		case frequency:
+		case resolution:
+		case flex:
+			return true;
+		default:
+			break;
+		}
+		return false;
 	}
 
 	@Override
