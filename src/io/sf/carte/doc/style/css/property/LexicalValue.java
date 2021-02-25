@@ -18,6 +18,7 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSLexicalValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -132,6 +133,11 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 	private boolean isRatioCompUnit(LexicalType lutype) {
 		return lutype == LexicalType.INTEGER || lutype == LexicalType.REAL || lutype == LexicalType.CALC
 				|| lutype == LexicalType.FUNCTION;
+	}
+
+	@Override
+	public CSSValueSyntax.Match matches(CSSValueSyntax syntax) {
+		return lexicalUnit.matches(syntax);
 	}
 
 	@Override

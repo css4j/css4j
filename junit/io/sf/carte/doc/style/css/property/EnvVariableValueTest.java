@@ -26,13 +26,16 @@ import io.sf.carte.doc.style.css.CSSEnvVariableValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class EnvVariableValueTest {
 
@@ -75,6 +78,14 @@ public class EnvVariableValueTest {
 		assertEquals("env(safe-area-inset-left)", val.getCssText());
 		assertEquals("safe-area-inset-left", val.getName());
 		assertNull(val.getFallback());
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.PENDING, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.PENDING, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
 	}
 
 	@Test

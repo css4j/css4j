@@ -22,11 +22,14 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class UnicodeRangeValueTest {
 
@@ -89,6 +92,16 @@ public class UnicodeRangeValueTest {
 		assertEquals("unicode-range: U+???; ", style.getCssText());
 		assertEquals("unicode-range:U+???", style.getMinifiedCssText());
 		assertEquals("U+???", style.getPropertyValue("unicode-range"));
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<unicode-range>#");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
 	}
 
 	@Test
@@ -103,6 +116,17 @@ public class UnicodeRangeValueTest {
 		assertEquals(CSSValue.Type.UNICODE_WILDCARD, unicode.getPrimitiveType());
 		assertEquals("U+???", unicode.getCssText());
 		assertEquals("???", unicode.getStringValue());
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<unicode-range>#");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		//
 		try {
 			unicode.setStringValue(CSSValue.Type.UNICODE_WILDCARD, null);
 			fail("Must throw exception.");
@@ -155,6 +179,16 @@ public class UnicodeRangeValueTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
 		}
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<unicode-range>#");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
 	}
 
 	@Test
@@ -168,6 +202,16 @@ public class UnicodeRangeValueTest {
 		assertEquals("unicode-range:U+25-ff", style.getMinifiedCssText());
 		UnicodeRangeValue val = (UnicodeRangeValue) cssval;
 		assertEquals("U+25-ff", val.getCssText());
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<unicode-range>#");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
 	}
 
 	@Test

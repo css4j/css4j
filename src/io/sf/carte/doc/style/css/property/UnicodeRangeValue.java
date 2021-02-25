@@ -16,6 +16,9 @@ import java.io.IOException;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSUnicodeRangeValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
@@ -78,6 +81,11 @@ public class UnicodeRangeValue extends TypedValue implements CSSUnicodeRangeValu
 	@Override
 	public TypedValue getEndValue() {
 		return endValue;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		return syntax.getCategory() == Category.unicodeRange ? Match.TRUE : Match.FALSE;
 	}
 
 	@Override

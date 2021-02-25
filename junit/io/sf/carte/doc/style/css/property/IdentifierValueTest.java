@@ -23,10 +23,13 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class IdentifierValueTest {
 
@@ -188,6 +191,64 @@ public class IdentifierValueTest {
 		assertEquals("screen\\0", value.getCssText());
 		assertEquals("screen\\fffd ", value.getMinifiedCssText(""));
 		assertEquals("screen\ufffd", value.getStringValue());
+	}
+
+	@Test
+	public void testMatch() {
+		SyntaxParser syntaxParser = new SyntaxParser();
+		IdentifierValue value = new IdentifierValue();
+		value.setCssText("auto");
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("auto");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("auto+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("auto#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("Auto");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color> | <custom-ident>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+	}
+
+	@Test
+	public void testMatchColor() {
+		SyntaxParser syntaxParser = new SyntaxParser();
+		IdentifierValue value = new IdentifierValue();
+		value.setCssText("Green");
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("Green");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test

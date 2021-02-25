@@ -22,12 +22,15 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class CustomPropertyValueTest {
 
@@ -73,6 +76,12 @@ public class CustomPropertyValueTest {
 		VarValue val = (VarValue) cssval;
 		assertEquals("var(--my-identifier)", val.getCssText());
 		assertEquals("--my-identifier", val.getName());
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.PENDING, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
 	}
 
 	@Test

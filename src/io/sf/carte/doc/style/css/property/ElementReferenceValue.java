@@ -16,6 +16,8 @@ import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -77,6 +79,17 @@ class ElementReferenceValue extends TypedValue {
 	}
 
 	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		switch (syntax.getCategory()) {
+		case image:
+		case universal:
+			return Match.TRUE;
+		default:
+			return Match.FALSE;
+		}
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
@@ -126,6 +139,9 @@ class ElementReferenceValue extends TypedValue {
 	public void setStringValue(Type stringType, String stringValue) throws DOMException {
 		if (stringType != getPrimitiveType()) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Type not supported.");
+		}
+		if (stringValue == null || (stringValue = stringValue.trim()).length() == 0) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Empty or null value.");
 		}
 		refname = stringValue;
 	}

@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+
 /**
  * A PROXY value, like <code>attr()</code>.
  * 
@@ -32,6 +35,11 @@ abstract public class ProxyValue extends PrimitiveValue {
 	@Override
 	public CssType getCssValueType() {
 		return CssType.PROXY;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		return Match.PENDING;
 	}
 
 	public boolean isExpectingInteger() {

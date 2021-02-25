@@ -21,12 +21,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class CountersValueTest {
 
@@ -74,6 +77,12 @@ public class CountersValueTest {
 		assertEquals("ListCounter", counter.getName());
 		assertNull(counter.getCounterStyle());
 		assertEquals("|", counter.getSeparator());
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
 	}
 
 	@Test

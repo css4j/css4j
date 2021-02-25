@@ -16,6 +16,8 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSGradientValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
@@ -41,6 +43,17 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 	@Override
 	public GradientType getGradientType() {
 		return gradientType;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		switch (syntax.getCategory()) {
+		case image:
+		case universal:
+			return Match.TRUE;
+		default:
+			return Match.FALSE;
+		}
 	}
 
 	@Override

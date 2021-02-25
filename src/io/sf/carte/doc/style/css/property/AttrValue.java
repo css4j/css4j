@@ -19,6 +19,9 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSAttrValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -127,6 +130,95 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 			}
 		}
 		return defaultFallback;
+	}
+
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		if (syntax.getCategory() == Category.universal) {
+			return Match.TRUE;
+		}
+		//
+		String dataType;
+		if (typeval != null) {
+			dataType = typeval.toLowerCase(Locale.ROOT);
+		} else { // Implicit "string"
+			dataType = "string";
+		}
+		//
+		Match result = Match.FALSE;
+		CSSValueSyntax comp = syntax;
+		topLoop: do {
+			boolean attrTypeMatch = ParseHelper.matchAttrType(dataType, comp.getCategory());
+			if (attrTypeMatch) {
+				result = Match.PENDING;
+			}
+			// Now check the fallback
+			if (fallback != null) {
+				CSSValueSyntax fallbackComp = syntax;
+				do {
+					Match match = fallback.matches(fallbackComp);
+					if (match == Match.FALSE) {
+						continue;
+					} else if (match == Match.PENDING) {
+						result = Match.PENDING;
+						if (attrTypeMatch) {
+							continue;
+						}
+					} else { // TRUE
+						if (!attrTypeMatch) {
+							result = Match.PENDING;
+							// Perhaps we'll have better luck matching attr datatype with next syntax
+							continue topLoop;
+						} else {
+							result = Match.TRUE;
+						} // Here, attrTypeMatch is true and 'result' should be PENDING
+					}
+					return result;
+				} while ((fallbackComp = fallbackComp.getNext()) != null);
+			} else if (attrTypeMatch) {
+				return Match.TRUE;
+			}
+		} while ((comp = comp.getNext()) != null);
+		return result;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		/*
+		 * This method is not called from matches(), but is called from lists.
+		 */
+		if (syntax.getCategory() == Category.universal) {
+			return Match.TRUE;
+		}
+		//
+		String dataType;
+		if (typeval != null) {
+			dataType = typeval.toLowerCase(Locale.ROOT);
+		} else { // Implicit "string"
+			dataType = "string";
+		}
+		//
+		Match result = Match.FALSE;
+		boolean attrTypeMatch = ParseHelper.matchAttrType(dataType, syntax.getCategory());
+		if (attrTypeMatch) {
+			result = Match.PENDING;
+		}
+		// Now check the fallback
+		if (fallback != null) {
+			Match match = fallback.matchesComponent(syntax);
+			if (match == Match.TRUE) {
+				if (!attrTypeMatch) {
+					result = Match.PENDING;
+				} else {
+					result = Match.TRUE;
+				}
+			} else if (match == Match.PENDING) {
+				result = Match.PENDING;
+			}
+		} else if (attrTypeMatch) {
+			result = Match.TRUE;
+		}
+		return result;
 	}
 
 	@Override

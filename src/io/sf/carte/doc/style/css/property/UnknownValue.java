@@ -15,6 +15,9 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
@@ -52,6 +55,14 @@ public class UnknownValue extends AbstractTextValue {
 
 	public boolean isPriorityCompat() {
 		return priorityCompat;
+	}
+
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		if (syntax != null && syntax.getCategory() == Category.universal) {
+			return Match.PENDING;
+		}
+		return Match.FALSE;
 	}
 
 	@Override

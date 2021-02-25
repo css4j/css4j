@@ -20,6 +20,10 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValueList;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Multiplier;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -229,8 +233,84 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 
 	abstract public boolean isCommaSeparated();
 
+	/**
+	 * Is this a bracket list?
+	 * 
+	 * @return {@code true} if this is a bracket list.
+	 */
 	public boolean isBracketList() {
 		return false;
+	}
+
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		Match result = Match.FALSE;
+		if (!isEmpty() && syntax != null) {
+			// If the list has one value, match directly on it
+			if (getLength() == 1) {
+				return item(0).matches(syntax);
+			}
+			// Check for universal
+			if (syntax.getCategory() == Category.universal) {
+				return Match.TRUE;
+			}
+			// Match according to multipliers (including implicit)
+			do {
+				Multiplier mult = syntax.getMultiplier();
+				if (mult == Multiplier.NUMBER) {
+					if (isCommaSeparated() || syntax.getCategory() == Category.transformList) {
+						Match match = valuesMatch(iterator(), syntax);
+						if (match == Match.TRUE) {
+							return Match.TRUE;
+						} else if (result == Match.FALSE) {
+							result = match;
+						}
+					}
+				} else if (mult == Multiplier.PLUS || syntax.getCategory() == Category.transformList) {
+					if (!isCommaSeparated()) {
+						Match match = valuesMatch(iterator(), syntax);
+						if (match == Match.TRUE) {
+							return Match.TRUE;
+						} else if (result == Match.FALSE) {
+							result = match;
+						}
+					}
+				}
+			} while ((syntax = syntax.getNext()) != null);
+		}
+		return result;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		Multiplier mult = syntax.getMultiplier();
+		if (mult == Multiplier.NUMBER) {
+			if (isCommaSeparated() || getLength() == 1 || syntax.getCategory() == Category.transformList) {
+				return valuesMatch(iterator(), syntax);
+			}
+		} else if (mult == Multiplier.PLUS || syntax.getCategory() == Category.transformList) {
+			if (!isCommaSeparated()) {
+				return valuesMatch(iterator(), syntax);
+			}
+		}
+		return Match.FALSE;
+	}
+
+	static Match valuesMatch(Iterator<StyleValue> it, CSSValueSyntax syntax) {
+		Match result = Match.TRUE;
+		while (it.hasNext()) {
+			StyleValue value = it.next();
+			if (value.getCssValueType() == CssType.LIST && syntax.getCategory() != Category.transformList) {
+				return Match.FALSE;
+			}
+			Match match = value.matchesComponent(syntax);
+			if (match == Match.FALSE) {
+				return Match.FALSE;
+			} else if (match == Match.PENDING) {
+				result = Match.PENDING;
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -552,4 +632,5 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 	}
 
 	abstract public ValueList wrap(String oldHrefContext, String parentSheetHref);
+
 }

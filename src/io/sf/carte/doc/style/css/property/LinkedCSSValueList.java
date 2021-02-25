@@ -18,6 +18,10 @@ import java.util.LinkedList;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValueList;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Multiplier;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -144,6 +148,34 @@ public class LinkedCSSValueList extends LinkedList<StyleValue> implements CSSVal
 	public void setCssText(String cssText) throws DOMException {
 		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
 				"This value has to be modified by accessing its elements.");
+	}
+
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		Match result = Match.FALSE;
+		if (!isEmpty() && syntax != null) {
+			// If the list has one value, match directly on it
+			if (getLength() == 1) {
+				return item(0).matches(syntax);
+			}
+			// Check for universal
+			if (syntax.getCategory() == Category.universal) {
+				return Match.TRUE;
+			}
+			// Match according to multipliers (including implicit)
+			do {
+				Multiplier mult = syntax.getMultiplier();
+				if (mult != Multiplier.PLUS) {
+					Match match = ValueList.valuesMatch(iterator(), syntax);
+					if (match == Match.TRUE) {
+						return Match.TRUE;
+					} else if (result == Match.FALSE) {
+						result = match;
+					}
+				}
+			} while ((syntax = syntax.getNext()) != null);
+		}
+		return result;
 	}
 
 }

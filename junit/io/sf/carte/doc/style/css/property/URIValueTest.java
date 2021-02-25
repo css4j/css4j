@@ -18,6 +18,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class URIValueTest {
 
@@ -72,6 +75,35 @@ public class URIValueTest {
 		URIValue wrapped = new URIValueWrapper(value, null, "http://www.example.com/");
 		assertEquals(value.getCssText(), wrapped.getCssText());
 		assertEquals(value.getMinifiedCssText(""), wrapped.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testMatch() {
+		SyntaxParser syntaxParser = new SyntaxParser();
+		URIValue value = new URIValue((byte) 0);
+		value.setCssText("http://www.example.com");
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <image>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test

@@ -17,8 +17,11 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
@@ -319,6 +322,63 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 
 	boolean mustRoundResult() {
 		return roundResult;
+	}
+
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		if (syntax == null) {
+			return Match.FALSE;
+		}
+		//
+		return dimensionalAnalysis(syntax, true);
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		return dimensionalAnalysis(syntax, false);
+	}
+
+	private Match dimensionalAnalysis(CSSValueSyntax syntax, boolean followComponents) {
+		DimensionalEvaluator eval = new DimensionalEvaluator();
+		Category result;
+		try {
+			result = eval.dimensionalAnalysis(getExpression());
+		} catch (DOMException e) {
+			return Match.FALSE;
+		}
+		// Universal match (after checking the expression correctness)
+		if (syntax.getCategory() == Category.universal) {
+			return Match.TRUE;
+		}
+		//
+		boolean lengthPercentageL = false, lengthPercentageP = false;
+		do {
+			Category cat = syntax.getCategory();
+			if (cat == result) {
+				return Match.TRUE;
+			}
+			// Match length-percentage, also <number> clamps to <integer> in calc().
+			if ((cat == Category.lengthPercentage && (result == Category.length || result == Category.percentage))
+					|| (cat == Category.integer && result == Category.number)) {
+				return Match.TRUE;
+			}
+			// Do we have a <length-percentage> and did we match length or percentage in
+			// previous loops?
+			if (result == Category.lengthPercentage) {
+				if (cat == Category.length) {
+					if (lengthPercentageP) {
+						return Match.TRUE;
+					}
+					lengthPercentageL = true;
+				} else if (cat == Category.percentage) {
+					if (lengthPercentageL) {
+						return Match.TRUE;
+					}
+					lengthPercentageP = true;
+				}
+			}
+		} while (followComponents && (syntax = syntax.getNext()) != null);
+		return Match.FALSE;
 	}
 
 	@Override

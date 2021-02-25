@@ -18,6 +18,8 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
@@ -590,6 +592,41 @@ public class NumberValue extends TypedValue {
 	 */
 	public String getDimensionUnitText() {
 		return dimensionUnitText;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		switch (syntax.getCategory()) {
+		case length:
+			return isLengthCompatible() ? Match.TRUE : Match.FALSE;
+		case lengthPercentage:
+			return (isLengthCompatible() || getUnitType() == CSSUnit.CSS_PERCENTAGE) ? Match.TRUE : Match.FALSE;
+		case percentage:
+			return getUnitType() == CSSUnit.CSS_PERCENTAGE ? Match.TRUE : Match.FALSE;
+		case number:
+			return getUnitType() == CSSUnit.CSS_NUMBER ? Match.TRUE : Match.FALSE;
+		case integer:
+			return (getUnitType() == CSSUnit.CSS_NUMBER && (asInteger || isCalculatedNumber())) ? Match.TRUE
+					: Match.FALSE;
+		case angle:
+			return CSSUnit.isAngleUnitType(getUnitType()) ? Match.TRUE : Match.FALSE;
+		case time:
+			return CSSUnit.isTimeUnitType(getUnitType()) ? Match.TRUE : Match.FALSE;
+		case resolution:
+			return CSSUnit.isResolutionUnitType(getUnitType()) ? Match.TRUE : Match.FALSE;
+		case frequency:
+			return (getUnitType() == CSSUnit.CSS_HZ || getUnitType() == CSSUnit.CSS_KHZ) ? Match.TRUE : Match.FALSE;
+		case flex:
+			return getUnitType() == CSSUnit.CSS_FR ? Match.TRUE : Match.FALSE;
+		case universal:
+			return Match.TRUE;
+		default:
+			return Match.FALSE;
+		}
+	}
+
+	private boolean isLengthCompatible() {
+		return CSSUnit.isLengthUnitType(getUnitType()) || (getUnitType() == CSSUnit.CSS_NUMBER && isNumberZero());
 	}
 
 	@Override

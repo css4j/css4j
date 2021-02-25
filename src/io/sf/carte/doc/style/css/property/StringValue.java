@@ -15,6 +15,8 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -145,6 +147,17 @@ public class StringValue extends AbstractTextValue {
 
 	protected void setStringValue(String stringValue) {
 		this.stringValue = stringValue;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		switch (syntax.getCategory()) {
+		case string:
+		case universal:
+			return Match.TRUE;
+		default:
+			return Match.FALSE;
+		}
 	}
 
 	@Override

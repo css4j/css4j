@@ -364,6 +364,96 @@ public class AttrValueTest {
 		assertNull(style.getPropertyCSSValue("margin-left"));
 	}
 
+	@Test
+	public void testMatch() {
+		SyntaxParser syntaxParser = new SyntaxParser();
+		AttrValue value = new AttrValue((byte) 0);
+		//
+		value.setCssText("attr(title)");
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<string>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <string>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <string>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setCssText("attr(data-pcnt percentage)");
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setCssText("attr(data-width length, 'default')");
+		syn = syntaxParser.parseSyntax("<string> | <length>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setCssText("attr(data-width length, 8%)");
+		syn = syntaxParser.parseSyntax("<percentage> | <length>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setCssText("attr(data-width percentage, 11px)");
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage> | <length>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+	}
+
 	private static BaseCSSStyleDeclaration createStyleDeclaration() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);

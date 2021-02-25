@@ -20,10 +20,13 @@ import org.junit.Test;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.StyleRule;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class NumberValueTest {
 
@@ -199,6 +202,140 @@ public class NumberValueTest {
 		assertEquals("2em", val.getCssText());
 		val.setFloatValuePt(5f);
 		assertEquals("5pt", val.getCssText());
+	}
+
+	@Test
+	public void testMatch() {
+		SyntaxParser syntaxParser = new SyntaxParser();
+		NumberValue value = NumberValue.createCSSNumberValue(CSSUnit.CSS_PX, 15f);
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<flex>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<resolution>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<frequency>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <length>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setFloatValue(CSSUnit.CSS_DEG, 15f);
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<flex>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<resolution>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<frequency>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <angle>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setFloatValue(CSSUnit.CSS_HZ, 50f);
+		syn = syntaxParser.parseSyntax("<frequency>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<frequency>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<frequency>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<flex>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<resolution>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <frequency>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setFloatValue(CSSUnit.CSS_S, 2.1f);
+		syn = syntaxParser.parseSyntax("<time>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<time>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<time>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<flex>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<resolution>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <time>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setFloatValue(CSSUnit.CSS_FR, 2.1f);
+		syn = syntaxParser.parseSyntax("<flex>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<flex>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<flex>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<time>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<resolution>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <flex>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		//
+		value.setIntegerValue(1);
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<frequency>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <integer>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <integer>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test

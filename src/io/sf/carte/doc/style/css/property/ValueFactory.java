@@ -272,7 +272,7 @@ public class ValueFactory {
 		LexicalType type = unit.getLexicalUnitType();
 		short cssunit;
 		if (isFunctionType(type)) {
-			if (isColorFunction(unit)) {
+			if (isColorOrGradientFunction(unit)) {
 				return false;
 			}
 			unit = firstDimensionArgument(unit);
@@ -330,7 +330,7 @@ public class ValueFactory {
 	 *         dimension arguments or is not a function.
 	 */
 	static short functionDimensionArgumentUnit(LexicalUnit lunit) {
-		if (isColorFunction(lunit)) {
+		if (isColorOrGradientFunction(lunit)) {
 			return -1;
 		}
 		LexicalUnit lu = lunit.getParameters();
@@ -379,8 +379,8 @@ public class ValueFactory {
 	 * an explicit dimension.
 	 * 
 	 * @param lunit the lexical value.
-	 * @return the unit type of the first dimension argument, null if the value has
-	 *         no dimension arguments.
+	 * @return the first dimension argument, null if the value has no dimension
+	 *         arguments.
 	 */
 	private static LexicalUnit firstDimensionArgument(LexicalUnit lunit) {
 		LexicalUnit lu = lunit.getParameters();
@@ -394,9 +394,9 @@ public class ValueFactory {
 		return null;
 	}
 
-	private static boolean isColorFunction(LexicalUnit lunit) {
+	private static boolean isColorOrGradientFunction(LexicalUnit lunit) {
 		String name = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-		return "hwb".equals(name) || name.endsWith("-gradient");
+		return "hwb".equals(name) || name.equals("color") || name.endsWith("-gradient");
 	}
 
 	/**

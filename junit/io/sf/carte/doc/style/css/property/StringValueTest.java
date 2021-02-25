@@ -25,9 +25,12 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
 
 public class StringValueTest {
@@ -85,6 +88,14 @@ public class StringValueTest {
 		assertEquals("foo", value.getStringValue());
 		assertEquals("\"foo\"", value.getCssText());
 		assertEquals("\"foo\"", value.getMinifiedCssText(""));
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<string>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test

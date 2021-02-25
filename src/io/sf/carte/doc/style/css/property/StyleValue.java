@@ -14,6 +14,9 @@ package io.sf.carte.doc.style.css.property;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 
 /**
  * Base implementation for CSS values.
@@ -86,6 +89,45 @@ abstract public class StyleValue implements CSSValue, Cloneable, java.io.Seriali
 	 */
 	public boolean isSystemDefault() {
 		return false;
+	}
+
+	/**
+	 * Verify if this value matches the given grammar.
+	 * 
+	 * @param syntax the syntax.
+	 * @return the matching for the syntax.
+	 */
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		if (syntax != null) {
+			if (syntax.getCategory() == Category.universal) {
+				return Match.TRUE;
+			}
+			do {
+				Match result;
+				if ((result = matchesComponent(syntax)) != Match.FALSE) {
+					return result;
+				}
+				syntax = syntax.getNext();
+			} while (syntax != null);
+		}
+		return Match.FALSE;
+	}
+
+	/**
+	 * Match a syntax component.
+	 * <p>
+	 * Although the {@link #matches(CSSValueSyntax)} method should filter calls to
+	 * match the universal syntax {@code *}, implementations of this method must
+	 * deal with that syntax again, because list implementations do call this method
+	 * directly.
+	 * </p>
+	 * 
+	 * @param syntax the syntax component.
+	 * @return the match.
+	 */
+	Match matchesComponent(CSSValueSyntax syntax) {
+		return Match.FALSE;
 	}
 
 	boolean isReadOnly() {

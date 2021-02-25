@@ -27,12 +27,15 @@ import org.junit.Test;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class FunctionValueTest {
 
@@ -50,6 +53,21 @@ public class FunctionValueTest {
 
 	@Test
 	public void testEquals() {
+		style.setCssText("function: foo(0.42, 0, 1, 1); ");
+		FunctionValue value = (FunctionValue) style.getPropertyCSSValue("function");
+		assertTrue(value.equals(value));
+		style.setCssText("function: foo(0.42, 0, 1, 1); ");
+		FunctionValue value2 = (FunctionValue) style.getPropertyCSSValue("function");
+		assertTrue(value.equals(value2));
+		assertEquals(value.hashCode(), value2.hashCode());
+		style.setCssText("function: foo(0.43, 0, 1, 1);");
+		value2 = (FunctionValue) style.getPropertyCSSValue("function");
+		assertFalse(value.equals(value2));
+		assertFalse(value.hashCode() == value2.hashCode());
+	}
+
+	@Test
+	public void testEqualsCubicBezier() {
 		style.setCssText("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ");
 		FunctionValue value = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
 		assertTrue(value.equals(value));
@@ -64,7 +82,7 @@ public class FunctionValueTest {
 	}
 
 	@Test
-	public void testEquals2() {
+	public void testEqualsTransform() {
 		style.setCssText("transform: translateX(0%);");
 		FunctionValue value = (FunctionValue) style.getPropertyCSSValue("transform");
 		assertTrue(value.equals(value));
@@ -76,10 +94,20 @@ public class FunctionValueTest {
 		value2 = (FunctionValue) style.getPropertyCSSValue("transform");
 		assertFalse(value.equals(value2));
 		assertFalse(value.hashCode() == value2.hashCode());
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-function>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test
-	public void testGetCssText() {
+	public void testCubicBezier() {
 		style.setCssText("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
 		assertNotNull(val);
@@ -101,6 +129,16 @@ public class FunctionValueTest {
 			fail("Must throw exception.");
 		} catch (NullPointerException e) {
 		}
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-function>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
 	}
 
 	@Test
@@ -114,6 +152,16 @@ public class FunctionValueTest {
 		assertEquals(4, val.getArguments().size());
 		assertEquals("bar(-0.42, -0.3, -1, -0.01)", val.getCssText());
 		assertEquals("bar(-.42,-.3,-1,-.01)", val.getMinifiedCssText("foo"));
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-function>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
 	}
 
 	@Test

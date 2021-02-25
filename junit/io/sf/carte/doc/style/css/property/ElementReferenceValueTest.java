@@ -23,11 +23,15 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class ElementReferenceValueTest {
 
@@ -59,10 +63,18 @@ public class ElementReferenceValueTest {
 		assertEquals(CSSValue.Type.ELEMENT_REFERENCE, cssval.getPrimitiveType());
 		assertEquals("element(#someId)", cssval.getCssText());
 		assertEquals("someId", ((CSSTypedValue) cssval).getStringValue());
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
 	}
 
 	@Test
-	public void testParse2() {
+	public void testParseError() {
 		BaseCSSStyleDeclaration style = createStyleDeclaration();
 		style.setCssText("background-image: element(someId); ");
 		assertNull(style.getPropertyCSSValue("background-image"));
@@ -104,6 +116,33 @@ public class ElementReferenceValueTest {
 		ElementReferenceValue value = new ElementReferenceValue();
 		try {
 			value.setCssText("element(#foo bar)");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testSetStringValue() {
+		ElementReferenceValue value = new ElementReferenceValue();
+		value.setStringValue(Type.ELEMENT_REFERENCE, "Id");
+		assertEquals("Id", value.getStringValue());
+		assertEquals("element(#Id)", value.getCssText());
+		assertEquals("element(#Id)", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testSetStringValueError() {
+		ElementReferenceValue value = new ElementReferenceValue();
+		try {
+			value.setStringValue(Type.STRING, "foo");
+			fail("Must throw exception");
+		} catch (DOMException e) {
+			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+		}
+		//
+		try {
+			value.setStringValue(Type.ELEMENT_REFERENCE, "");
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);

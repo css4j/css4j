@@ -19,6 +19,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
+
 public class ValueListTest {
 
 	private ValueFactory factory;
@@ -46,6 +50,319 @@ public class ValueListTest {
 		assertEquals("thin,thick", cs.getMinifiedCssText(""));
 		assertEquals("repeat repeat", ws.getCssText());
 		assertEquals("repeat repeat", ws.getMinifiedCssText(""));
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <custom-ident>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <custom-ident>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("repeat+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+	}
+
+	@Test
+	public void testMatchLengths() {
+		ValueList cs = ValueList.createCSValueList();
+		ValueList ws = ValueList.createWSValueList();
+		cs.add(factory.parseProperty("16px"));
+		cs.add(factory.parseProperty("24mm"));
+		ws.add(factory.parseProperty("25px"));
+		ws.add(factory.parseProperty("18pt"));
+		ws.add(factory.parseProperty("2cm"));
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+	}
+
+	@Test
+	public void testMatchAttrsTrue() {
+		ValueList cs = ValueList.createCSValueList();
+		ValueList ws = ValueList.createWSValueList();
+		cs.add(factory.parseProperty("attr(data-length length, 16px)"));
+		cs.add(factory.parseProperty("attr(data-length length)"));
+		ws.add(factory.parseProperty("attr(data-length length, 25px)"));
+		ws.add(factory.parseProperty("attr(data-length length, 18pt)"));
+		ws.add(factory.parseProperty("attr(data-length length, 2cm)"));
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+	}
+
+	@Test
+	public void testMatchAttrsPending() {
+		ValueList cs = ValueList.createCSValueList();
+		ValueList ws = ValueList.createWSValueList();
+		cs.add(factory.parseProperty("attr(data-length length, 8%)"));
+		cs.add(factory.parseProperty("attr(data-length length)"));
+		ws.add(factory.parseProperty("attr(data-length length, 16pt)"));
+		ws.add(factory.parseProperty("attr(data-length length)"));
+		ws.add(factory.parseProperty("attr(data-length length, 15%)"));
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length-percentage>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length-percentage>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.PENDING, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
+		assertEquals(Match.PENDING, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage> | <length>#");
+		assertEquals(Match.PENDING, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.PENDING, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage> | <length>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+	}
+
+	@Test
+	public void testMatchVar() {
+		ValueList cs = ValueList.createCSValueList();
+		ValueList ws = ValueList.createWSValueList();
+		cs.add(factory.parseProperty("thin"));
+		cs.add(factory.parseProperty("var(--thick)"));
+		ws.add(factory.parseProperty("repeat"));
+		ws.add(factory.parseProperty("var(--repeat)"));
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>#");
+		assertEquals(Match.PENDING, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.PENDING, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <custom-ident>#");
+		assertEquals(Match.PENDING, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <custom-ident>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.PENDING, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("repeat+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.PENDING, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>#");
+		assertEquals(Match.PENDING, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.PENDING, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		//
+		ws.add(factory.parseProperty("18px"));
+		syn = syntaxParser.parseSyntax("<custom-ident>+");
+		assertEquals(Match.FALSE, ws.matches(syn));
+	}
+
+	@Test
+	public void testMatchTransformLists() {
+		ValueList cs = ValueList.createCSValueList();
+		ValueList ws = ValueList.createWSValueList();
+		ws.add(factory.parseProperty("translate(-10px, -20px)"));
+		ws.add(factory.parseProperty("scale(2)"));
+		ws.add(factory.parseProperty("rotate(45deg)"));
+		ValueList ws2 = ValueList.createWSValueList();
+		ws2.add(factory.parseProperty("rotate(15deg)"));
+		ws2.add(factory.parseProperty("scale(2)"));
+		ws2.add(factory.parseProperty("translate(20px)"));
+		cs.add(ws);
+		cs.add(ws2);
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-list>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		assertEquals(Match.TRUE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		assertEquals(Match.TRUE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		assertEquals(Match.TRUE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-function>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		assertEquals(Match.TRUE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-function>#");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		assertEquals(Match.FALSE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-function>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		assertEquals(Match.FALSE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>#");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		assertEquals(Match.FALSE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		assertEquals(Match.FALSE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+	}
+
+	@Test
+	public void testMatchUniversal() {
+		ValueList cs = ValueList.createCSValueList();
+		cs.add(factory.parseProperty("1"));
+		cs.add(factory.parseProperty("16px"));
+		cs.add(factory.parseProperty("auto"));
+		cs.add(factory.parseProperty("#00f"));
+		cs.add(factory.parseProperty("calc(2*3)"));
+		cs.add(factory.parseProperty("foo(bar)"));
+		cs.add(factory.parseProperty("U+403"));
+		cs.add(factory.parseProperty("U+2??"));
+		cs.add(factory.parseProperty("U+22-28"));
+		cs.add(factory.parseProperty("'Hi'"));
+		cs.add(factory.parseProperty("linear-gradient(to top right, red, white, blue)"));
+		cs.add(factory.parseProperty("uri('https://www.example.com/file')"));
+		cs.add(factory.parseProperty("counters(ListCounter,'. ')"));
+		cs.add(factory.parseProperty("counter(ListCounter, decimal)"));
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>#");
+		assertEquals(Match.FALSE, cs.matches(syn));
 	}
 
 	@Test

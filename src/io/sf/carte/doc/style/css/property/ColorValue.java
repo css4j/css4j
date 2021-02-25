@@ -20,6 +20,9 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
@@ -149,6 +152,11 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 				((CSSTypedValue) lab2.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				((CSSTypedValue) lab2.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab2.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		return syntax.getCategory() == Category.color ? Match.TRUE : Match.FALSE;
 	}
 
 	/**

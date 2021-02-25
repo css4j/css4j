@@ -20,10 +20,13 @@ import java.io.StringReader;
 
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class UnknownValueTest {
 
@@ -59,6 +62,17 @@ public class UnknownValueTest {
 		value.newLexicalSetter().setLexicalUnit(lu);
 		assertEquals("screen\\0", value.getCssText());
 		assertEquals("screen\\0", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testMatch() {
+		UnknownValue value = new UnknownValue();
+		value.setPlainCssText("*");
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.PENDING, value.matches(syn));
 	}
 
 	@Test

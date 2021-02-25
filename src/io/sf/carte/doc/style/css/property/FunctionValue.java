@@ -19,8 +19,11 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -81,6 +84,22 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 	@Override
 	public String getFunctionName() {
 		return functionName;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		switch (syntax.getCategory()) {
+		case transformFunction:
+		case transformList:
+			return ParseHelper.isTransformFunction(functionName) ? Match.TRUE : Match.FALSE;
+		case image:
+			// Custom gradients
+			return functionName.endsWith("-gradient") ? Match.TRUE : Match.FALSE;
+		case universal:
+			return Match.TRUE;
+		default:
+			return Match.FALSE;
+		}
 	}
 
 	@Override

@@ -17,7 +17,9 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.RGBAColor;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -117,8 +119,20 @@ public class IdentifierValue extends AbstractTextValue {
 	}
 
 	@Override
-	LexicalSetter newLexicalSetter() {
-		return new MyLexicalSetter();
+	Match matchesComponent(CSSValueSyntax syntax) {
+		switch (syntax.getCategory()) {
+		case customIdent:
+			return Match.TRUE;
+		case IDENT:
+			return syntax.getName().equals(getStringValue()) ? Match.TRUE : Match.FALSE;
+		case color:
+			String lc = getStringValue().toLowerCase(Locale.ROOT);
+			return ColorIdentifiers.getInstance().isColorIdentifier(lc) ? Match.TRUE : Match.FALSE;
+		case universal:
+			return Match.TRUE;
+		default:
+			return Match.FALSE;
+		}
 	}
 
 	@Override
@@ -141,6 +155,11 @@ public class IdentifierValue extends AbstractTextValue {
 			}
 		}
 		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not an RGB Color");
+	}
+
+	@Override
+	LexicalSetter newLexicalSetter() {
+		return new MyLexicalSetter();
 	}
 
 	class MyLexicalSetter extends LexicalSetter {

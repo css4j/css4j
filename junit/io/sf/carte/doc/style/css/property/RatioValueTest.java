@@ -21,6 +21,10 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
+
 public class RatioValueTest {
 
 	@Test
@@ -51,6 +55,12 @@ public class RatioValueTest {
 		assertEquals("3", ratio.getComponent(0).getCssText());
 		assertEquals("2", ratio.getComponent(1).getCssText());
 		assertEquals("3/2", ratio.getCssText());
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 		//
 		PrimitiveValue primi = (PrimitiveValue) vf.parseProperty("9");
 		ratio.setAntecedentValue(primi);

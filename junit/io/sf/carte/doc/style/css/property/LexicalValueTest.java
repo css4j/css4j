@@ -17,9 +17,12 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class LexicalValueTest {
 
@@ -102,6 +105,14 @@ public class LexicalValueTest {
 		value.setCssText("url('http://example.com/')");
 		assertEquals("url('http://example.com/')", value.getCssText());
 		assertEquals("url('http://example.com/')", value.getMinifiedCssText(null));
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test

@@ -18,6 +18,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class InheritValueTest {
 
@@ -38,6 +41,18 @@ public class InheritValueTest {
 		InheritValue inherit = InheritValue.getValue();
 		assertEquals("inherit", inherit.getCssText());
 		assertEquals(CSSValue.Type.INHERIT, inherit.getPrimitiveType());
+	}
+
+	@Test
+	public void testMatch() {
+		SyntaxParser syntaxParser = new SyntaxParser();
+		InheritValue value = InheritValue.getValue();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color> | <custom-ident>");
+		assertEquals(Match.PENDING, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test

@@ -30,8 +30,10 @@ import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.LABColor;
@@ -41,6 +43,7 @@ import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.ColorValue.CSSRGBColor;
 
 public class ColorValueTest {
@@ -225,7 +228,7 @@ public class ColorValueTest {
 	}
 
 	@Test
-	public void testSetCssText() {
+	public void testRGBColor() {
 		ColorValue val = new RGBColorValue();
 		val.setCssText("#abc");
 		RGBAColor rgb = val.toRGBColor();
@@ -234,6 +237,19 @@ public class ColorValueTest {
 		assertEquals(170f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_NUMBER), 0.001);
 		assertEquals(187f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_NUMBER), 0.001);
 		assertEquals(204f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_NUMBER), 0.001);
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <color>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+		//
 		val.setCssText("#abc4");
 		rgb = val.toRGBColor();
 		assertNotNull(rgb);
@@ -242,6 +258,7 @@ public class ColorValueTest {
 		assertEquals(170f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_NUMBER), 0.001);
 		assertEquals(187f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_NUMBER), 0.001);
 		assertEquals(204f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_NUMBER), 0.001);
+		//
 		val.setCssText("#aabbb840");
 		rgb = val.toRGBColor();
 		assertNotNull(rgb);
@@ -334,6 +351,16 @@ public class ColorValueTest {
 		rgbColor.setCssText(rgb.toString());
 		assertEquals(0f, rgbColor.deltaE2000(colorValue), 1e-3);
 		assertEquals(0f, colorValue.deltaE2000(rgbColor), 1e-3);
+		// Match
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 		//
 		style.setCssText("color: hsl(120 100% 50%); ");
 		value = style.getPropertyCSSValue("color");
@@ -545,6 +572,16 @@ public class ColorValueTest {
 		assertEquals(58.08334f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
 		assertEquals(86f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
 		assertEquals("rgb(19%, 58.08%, 86%)", rgb.toString());
+		// Match
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 		//
 		style.setCssText("color: hwb(0 0% 0%); ");
 		value = style.getPropertyCSSValue("color");
@@ -1327,6 +1364,16 @@ public class ColorValueTest {
 		assertSame(lab.getA(), labColor.getComponent(2));
 		assertSame(lab.getB(), labColor.getComponent(3));
 		assertNull(labColor.getComponent(4));
+		// Match
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test
@@ -2025,6 +2072,16 @@ public class ColorValueTest {
 		assertSame(lch.getChroma(), lchColor.getComponent(2));
 		assertSame(lch.getHue(), lchColor.getComponent(3));
 		assertNull(lchColor.getComponent(4));
+		// Match
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
 	}
 
 	@Test

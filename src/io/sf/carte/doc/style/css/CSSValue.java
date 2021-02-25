@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -289,5 +290,13 @@ public interface CSSValue extends Cloneable {
 	 * @throws IOException if an error happened while writing.
 	 */
 	void writeCssText(SimpleWriter wri) throws IOException;
+
+	/**
+	 * Verify if this value matches the given grammar.
+	 * 
+	 * @param syntax the syntax.
+	 * @return the matching for the syntax.
+	 */
+	Match matches(CSSValueSyntax syntax);
 
 }
