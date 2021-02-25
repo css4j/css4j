@@ -12,10 +12,15 @@
 package io.sf.carte.doc.style.css.parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.w3c.dom.DOMException;
+
+import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 
 /**
  * ParseHelper tests. Tests for equalSelectorList are in
@@ -271,6 +276,16 @@ public class ParseHelperTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
+	}
+
+	@Test
+	public void testCreatePseudoElementCondition() {
+		PseudoCondition pe = ParseHelper.createPseudoElementCondition("first-letter");
+		assertNotNull(pe);
+		assertEquals(Condition.ConditionType.PSEUDO_ELEMENT, pe.getConditionType());
+		assertEquals("first-letter", pe.getName());
+		assertEquals("::first-letter", pe.toString());
+		assertNull(pe.getArgument());
 	}
 
 }
