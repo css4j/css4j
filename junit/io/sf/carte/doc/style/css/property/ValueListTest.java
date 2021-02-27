@@ -16,11 +16,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class ValueListTest {
@@ -333,6 +338,155 @@ public class ValueListTest {
 		assertEquals(Match.FALSE, cs.matches(syn));
 		assertEquals(Match.FALSE, ws.matches(syn));
 		assertEquals(Match.FALSE, ws2.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+	}
+
+	@Test
+	public void testMatchLexical() throws CSSParseException, IOException {
+		ValueList cs = ValueList.createCSValueList();
+		ValueList ws = ValueList.createWSValueList();
+		//
+		CSSParser parser = new CSSParser();
+		LexicalValue length = new LexicalValue();
+		length.setLexicalUnit(parser.parsePropertyValue(new StringReader("16px")));
+		LexicalValue length2 = new LexicalValue();
+		length2.setLexicalUnit(parser.parsePropertyValue(new StringReader("34pt")));
+		LexicalValue lengthCS = new LexicalValue();
+		lengthCS.setLexicalUnit(parser.parsePropertyValue(new StringReader("2.3mm,22px")));
+		LexicalValue lengthCS2 = new LexicalValue();
+		lengthCS2.setLexicalUnit(parser.parsePropertyValue(new StringReader("0.4cm,2pt,8px")));
+		LexicalValue lengthWS = new LexicalValue();
+		lengthWS.setLexicalUnit(parser.parsePropertyValue(new StringReader("14pt 25px")));
+		LexicalValue lengthWS2 = new LexicalValue();
+		lengthWS2.setLexicalUnit(parser.parsePropertyValue(new StringReader("2pt 2.5px 0.1cm")));
+		//
+		cs.add(length);
+		ws.add(length);
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>+");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		//
+		cs.add(length2);
+		ws.add(length2);
+		//
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		//
+		cs.add(lengthCS);
+		cs.add(lengthCS2);
+		ws.add(lengthWS);
+		ws.add(lengthWS2);
+		//
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>#");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cs.matches(syn));
+		assertEquals(Match.TRUE, ws.matches(syn));
+		//
+		cs.add(lengthWS);
+		cs.add(lengthWS2);
+		ws.add(lengthCS);
+		ws.add(lengthCS2);
+		//
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>#");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<transform-list> | <length>+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("thin+ | thick+");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, cs.matches(syn));
+		assertEquals(Match.FALSE, ws.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cs.matches(syn));
 		assertEquals(Match.TRUE, ws.matches(syn));

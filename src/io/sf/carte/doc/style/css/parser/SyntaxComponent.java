@@ -70,6 +70,16 @@ class SyntaxComponent implements CSSValueSyntax {
 	}
 
 	@Override
+	public CSSValueSyntax shallowClone() {
+		if (next == null) {
+			return this;
+		}
+		SyntaxComponent comp = new SyntaxComponent(name, cat);
+		comp.setMultiplier(getMultiplier());
+		return comp;
+	}
+
+	@Override
 	public String toString() {
 		if (cat == Category.IDENT && next == null && multiplier == Multiplier.NONE) {
 			return ParseHelper.escape(name, true, true);

@@ -262,4 +262,15 @@ public interface CSSValueSyntax {
 	 */
 	CSSValueSyntax getNext();
 
+	/**
+	 * Create a shallow clone of this syntax, <i>i.e.</i> one that does not have a
+	 * {@code next} syntax component.
+	 * <p>
+	 * If this syntax has no next component, returns itself.
+	 * </p>
+	 * 
+	 * @return a shallow clone of this syntax.
+	 */
+	CSSValueSyntax shallowClone();
+
 }
