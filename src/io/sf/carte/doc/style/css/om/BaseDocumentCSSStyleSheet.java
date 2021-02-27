@@ -350,7 +350,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 			while (it.hasNext()) {
 				CSSRule rule = it.next();
 				short type = rule.getType();
-				if (type != CSSRule.STYLE_RULE && type != CSSRule.PAGE_RULE) {
+				if (type != CSSRule.STYLE_RULE) {
 					if (type == CSSRule.MEDIA_RULE) {
 						scanMediaRule(matcher, targetMedium, getCanvas(), (MediaRule) rule);
 					} else if (type == CSSRule.FONT_FACE_RULE) {
