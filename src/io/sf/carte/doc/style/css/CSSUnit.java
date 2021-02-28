@@ -217,6 +217,16 @@ public interface CSSUnit {
 	}
 
 	/**
+	 * Check whether the given unit is a relative length.
+	 * 
+	 * @param unitType the unit type.
+	 * @return true if the unit is a relative length.
+	 */
+	static boolean isRelativeLengthUnitType(short unitType) {
+		return unitType >= 20 && unitType < 60;
+	}
+
+	/**
 	 * Check whether the given unit is an angle.
 	 * 
 	 * @param unitType the unit type.

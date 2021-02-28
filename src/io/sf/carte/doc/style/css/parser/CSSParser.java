@@ -3830,8 +3830,7 @@ public class CSSParser implements Parser, Cloneable {
 					}
 					hasInherits = true;
 				} else if ("initial-value".equalsIgnoreCase(propertyName)) {
-					setCurrentLocation(index);
-					handler.lexicalProperty(propertyName, lunit, priorityImportant);
+					handleLexicalProperty(index, propertyName, lunit, priorityImportant);
 					initialValue = lunit;
 					return;
 				}
@@ -3849,7 +3848,9 @@ public class CSSParser implements Parser, Cloneable {
 							"@property rule lacks mandatory 'inherits' descriptor.");
 					handler.endProperty(true);
 				} else if (!isUniversalSyntax
-						&& (initialValue == null || initialValue.matches(syntax) != CSSValueSyntax.Match.TRUE)) {
+						&& (initialValue == null || initialValue.matches(syntax) != CSSValueSyntax.Match.TRUE
+								|| (initialValue.getLexicalUnitType() == LexicalType.DIMENSION
+										&& CSSUnit.isRelativeLengthUnitType(initialValue.getCssUnit())))) {
 					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
 							"@property rule lacks a valid 'initial-value' descriptor.");
 					handler.endProperty(true);
@@ -6742,6 +6743,12 @@ public class CSSParser implements Parser, Cloneable {
 				boolean priorityImportant) {
 			setCurrentLocation(index);
 			handler.property(propertyName, lunit, priorityImportant);
+		}
+
+		void handleLexicalProperty(int index, String propertyName, LexicalUnitImpl lunit,
+				boolean priorityImportant) {
+			setCurrentLocation(index);
+			handler.lexicalProperty(propertyName, lunit, priorityImportant);
 		}
 
 		@Override
