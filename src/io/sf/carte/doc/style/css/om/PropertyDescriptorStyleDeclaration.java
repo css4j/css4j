@@ -16,15 +16,19 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
+import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
  * Declaration for {@literal @}property rule descriptors.
@@ -85,6 +89,39 @@ class PropertyDescriptorStyleDeclaration extends BaseCSSStyleDeclaration {
 			}
 			hasInherits = true;
 		} else if ("initial-value".equals(propertyName)) {
+			// Verify that it is a typed value
+			ValueFactory factory = getValueFactory();
+			StyleValue cssvalue;
+			try {
+				cssvalue = factory.createCSSValue(lunit, this);
+			} catch (DOMException e) {
+				// Report error
+				StyleDeclarationErrorHandler errHandler = getStyleDeclarationErrorHandler();
+				if (errHandler != null) {
+					CSSPropertyValueException ex = new CSSPropertyValueException("Wrong value for " + propertyName, e);
+					ex.setValueText(lexicalUnitToString(lunit));
+					errHandler.wrongValue(propertyName, ex);
+				}
+				throw e;
+			}
+			//
+			if (cssvalue.getCssValueType() != CssType.TYPED) {
+				// Invalid type error
+				CSSPropertyValueException ex = null;
+				StyleDeclarationErrorHandler errHandler = getStyleDeclarationErrorHandler();
+				if (errHandler != null) {
+					ex = new CSSPropertyValueException("Wrong type for 'initial-value'." + propertyName);
+					ex.setValueText(lexicalUnitToString(lunit));
+					errHandler.wrongValue(propertyName, ex);
+				}
+				DOMException exception = new DOMException(DOMException.TYPE_MISMATCH_ERR,
+						"Wrong type for 'initial-value'.");
+				if (ex != null) {
+					exception.initCause(ex);
+				}
+				throw exception;
+			}
+			//
 			LexicalValue lexicalValue = new LexicalValue();
 			lexicalValue.setLexicalUnit(lunit);
 			setProperty(propertyName, lexicalValue, important);
