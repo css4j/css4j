@@ -699,6 +699,9 @@ public interface LexicalUnit {
 	 * multiplier matches as {@code PENDING} because the custom property could have
 	 * commas and start and end with one.</li>
 	 * </ol>
+	 * <p>
+	 * See also: {@link io.sf.carte.doc.style.css.parser.SyntaxParser SyntaxParser}.
+	 * </p>
 	 * <br/>
 	 * 
 	 * @param syntax the syntax.

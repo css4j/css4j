@@ -16,9 +16,21 @@ package io.sf.carte.doc.style.css;
  * <p>
  * Example: {@code <length>}.
  * </p>
+ * <p>
+ * See also:
+ * </p>
+ * <ul>
+ * <li>{@link CSSValue#matches(CSSValueSyntax)}</li>
+ * <li>{@link io.sf.carte.doc.style.css.nsac.LexicalUnit#matches(CSSValueSyntax)
+ * LexicalUnit.matches(CSSValueSyntax)}</li>
+ * <li>{@link io.sf.carte.doc.style.css.parser.SyntaxParser SyntaxParser}</li>
+ * </ul>
  */
 public interface CSSValueSyntax {
 
+	/**
+	 * The syntax category.
+	 */
 	enum Category {
 		/**
 		 * The universal syntax.
@@ -145,7 +157,7 @@ public interface CSSValueSyntax {
 		unicodeRange,
 
 		/**
-		 * Matches any transform function, like {@code translate()} or {@code scale()}:
+		 * Matches any transform function, like {@code translate()} or {@code scale()}.
 		 * <p>
 		 * <code>&lt;transform-function&gt;</code>
 		 * </p>
@@ -187,6 +199,9 @@ public interface CSSValueSyntax {
 		IDENT
 	}
 
+	/**
+	 * The syntax multiplier.
+	 */
 	enum Multiplier {
 		/**
 		 * A space-separated list.
@@ -256,7 +271,7 @@ public interface CSSValueSyntax {
 	Multiplier getMultiplier();
 
 	/**
-	 * The next component after the {@code |} character, if any.
+	 * The next syntax component after the {@code |} character, if any.
 	 * 
 	 * @return the next component, or {@code null} if there is none.
 	 */

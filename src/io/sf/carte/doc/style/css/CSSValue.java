@@ -293,6 +293,9 @@ public interface CSSValue extends Cloneable {
 
 	/**
 	 * Verify if this value matches the given grammar.
+	 * <p>
+	 * See also: {@link io.sf.carte.doc.style.css.parser.SyntaxParser SyntaxParser}.
+	 * </p>
 	 * 
 	 * @param syntax the syntax.
 	 * @return the matching for the syntax.
