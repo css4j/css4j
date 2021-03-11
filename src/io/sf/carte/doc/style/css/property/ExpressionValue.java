@@ -85,7 +85,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 							expression = new SumExpression();
 							expression.nextOperandInverse = true;
 						} else {
-							throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Missing operand");
+							throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
 						}
 					} else if (expression.getPartType() == AlgebraicPart.OPERAND) {
 						operation = new SumExpression();
@@ -112,7 +112,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 					inverse = true;
 				case OPERATOR_MULTIPLY:
 					if (expression == null) {
-						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Missing factor");
+						throw new DOMException(DOMException.SYNTAX_ERR, "Missing factor");
 					} else if (expression.getPartType() == AlgebraicPart.OPERAND) {
 						operation = new ProductExpression();
 						operation.addExpression(expression);
@@ -147,7 +147,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 							expression = subexpr;
 						}
 					} else {
-						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad subexpression");
+						throw new DOMException(DOMException.SYNTAX_ERR, "Bad subexpression");
 					}
 					break;
 				case OPERATOR_COMMA: // We are probably in function context
@@ -185,8 +185,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 								expression = subexpr;
 							}
 						} else {
-							throw new DOMException(DOMException.INVALID_CHARACTER_ERR,
-									"Bad sub-" + getStringValue() + "()");
+							throw new DOMException(DOMException.SYNTAX_ERR, "Bad sub-" + getStringValue() + "()");
 						}
 						break;
 					}
