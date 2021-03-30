@@ -75,10 +75,12 @@ comment to `if (foo > 1)`.
 - Public and protected methods must have documentation comments.
 - Avoid trailing whitespace except for empty lines in Javadoc comments.
 - Classes and methods should have the minimum visibility that they require.
-There is no reason for a method to have `protected` visibility when being
-package-visible could be enough. For complex package-level or private inner
-classes, it is acceptable to have `protected` methods as a mean to document
-which ones are intended to be overridden by other inner classes.
+A method should not have `protected` visibility when being package-visible could
+be enough, unless subclasses in other packages would naturally extend it. For
+complex package-level or inner classes, it is acceptable to have `protected`
+methods as a mean to document which ones are intended to be overridden by other
+classes. (In that case, protected methods do not appear in the Javadocs and
+therefore are not part of the API)
 
 <br/>
 
