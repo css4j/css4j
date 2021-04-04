@@ -26,7 +26,7 @@ a branch that was named after the issue; for example your branch could be named
 
  A PR should only try to fix a single issue, unless it fixes two or more issues
 that are very related or effectively the same. And if a commit has two or more
-different purposes, it is often better to split it in multiple commits. Tools
+different purposes, it is often better to split it in multiple commits; tools
 like the _Git GUI_ are particularly useful for that.
 
  It is recommended that commit messages (or at least the message for the main
@@ -57,6 +57,11 @@ obviously correct fix. Ideally, tests should provide a full coverage of the new
 code, except for cases like multiple equivalent comparisons, exceptions that are
 very hard to trigger or never thrown (or put as a theoretical safeguard), etc.
 However, even one test is better than nothing.
+
+ It is acceptable to mix tests and main source code in the same commit, as it is
+immediately obvious to the reviewers which are which, and the tests offer an
+insight of what the commit is trying to achieve. You do not need to mention the
+tests in the commit message.
 
 <br/>
 
