@@ -46,7 +46,7 @@ class FontBuilder extends ShorthandBuilder {
 
 	private void addPropertyIfAssigned(String property) {
 		BaseCSSStyleDeclaration style = getParentStyle();
-		if (style.isPropertySet(property)) {
+		if (style.isPropertySet(property) && !isPropertyInAnySet(property)) {
 			addAssignedProperty(property, style.isPropertyImportant(property));
 		}
 	}
