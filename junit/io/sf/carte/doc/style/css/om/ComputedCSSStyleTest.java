@@ -85,10 +85,29 @@ public class ComputedCSSStyleTest {
 		assertNull(((BaseCSSStyleDeclaration) style).getParentRule());
 		//
 		assertEquals("", style.getPropertyPriority("display"));
+		//
+		body.getOverrideStyle(null).setCssText("font: 1.8ex Serif");
+		style = body.getComputedStyle(null);
+		assertEquals("", style.getPropertyPriority("font-size"));
+		assertEquals("", style.getPropertyPriority("font"));
+		assertEquals("1.8ex", style.getPropertyValue("font-size"));
+		assertEquals("Serif", style.getPropertyValue("font-family"));
+		assertEquals("1.8ex Serif", style.getPropertyValue("font"));
+		assertEquals(10.8f, style.getComputedFontSize(), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		//
 		body.getOverrideStyle(null).setCssText("font: 1.8ex Serif!important");
+		assertEquals("font:1.8ex Serif!important;", body.getOverrideStyle(null).getMinifiedCssText());
 		style = body.getComputedStyle(null);
 		assertEquals("important", style.getPropertyPriority("font-size"));
 		assertEquals("important", style.getPropertyPriority("font"));
+		assertEquals("1.8ex", style.getPropertyValue("font-size"));
+		assertEquals("Serif", style.getPropertyValue("font-family"));
+		assertEquals("1.8ex Serif", style.getPropertyValue("font"));
+		assertEquals(10.8f, style.getComputedFontSize(), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 	@Test

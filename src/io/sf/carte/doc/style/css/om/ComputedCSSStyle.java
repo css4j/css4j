@@ -2436,23 +2436,16 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		} else {
 			StyleValue fontFamily = getCSSValue("font-family");
 			if (fontFamily != null) {
-				if (fontFamily.getCssValueType() == CssType.TYPED) {
+				if (fontFamily.getCssValueType() == CssType.LIST) {
+					ValueList list = (ValueList) fontFamily;
+					fontFamily = list.item(0);
+				}
+				if (fontFamily.getPrimitiveType() != Type.UNKNOWN && fontFamily.getCssValueType() == CssType.TYPED) {
 					CSSTypedValue primi = (CSSTypedValue) fontFamily;
 					try {
 						return primi.getStringValue();
 					} catch (DOMException e) {
 						computedStyleError("font-family", primi.getCssText(), "Bad font-family.");
-					}
-				} else {
-					ValueList list = (ValueList) fontFamily;
-					fontFamily = list.item(0);
-					if (fontFamily.getCssValueType() == CssType.TYPED) {
-						CSSTypedValue primi = (CSSTypedValue) fontFamily;
-						try {
-							return primi.getStringValue();
-						} catch (DOMException e) {
-							computedStyleError("font-family", primi.getCssText(), "Bad font-family.");
-						}
 					}
 				}
 			}
