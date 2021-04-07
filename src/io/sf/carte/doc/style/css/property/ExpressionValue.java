@@ -205,6 +205,11 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 				lastlutype = lutype;
 				lu = lu.getNextLexicalUnit();
 			}
+			// Sanity check
+			if (isOperatorType(lastlutype)) {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
+			}
+			//
 			if (expression.getParentExpression() != null) {
 				expression = expression.getParentExpression();
 			}

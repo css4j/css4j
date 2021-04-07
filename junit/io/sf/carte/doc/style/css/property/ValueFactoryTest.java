@@ -128,6 +128,38 @@ public class ValueFactoryTest {
 	}
 
 	@Test
+	public void testCreateCSSValueWrongCalc() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("calc(3*2)");
+		LexicalUnit param = lunit.getParameters();
+		param = param.getNextLexicalUnit();
+		param = param.getNextLexicalUnit();
+		param.remove();
+		// calc(3*)
+		try {
+			factory.createCSSValue(lunit);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.SYNTAX_ERR, e.code);
+		}
+	}
+
+	@Test
+	public void testCreateCSSValueWrongCalc2() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("calc(3*2)");
+		LexicalUnit param = lunit.getParameters();
+		param.remove();
+		// calc(*2)
+		try {
+			factory.createCSSValue(lunit);
+			fail("Must throw exception.");
+		} catch (DOMException e) {
+			assertEquals(DOMException.SYNTAX_ERR, e.code);
+		}
+	}
+
+	@Test
 	public void testCreateCSSValueListMix() throws CSSException, IOException {
 		ValueFactory factory = new ValueFactory();
 		LexicalUnit lunit = parsePropertyValue("bold 14px \"Courier New\", Arial, sans-serif");

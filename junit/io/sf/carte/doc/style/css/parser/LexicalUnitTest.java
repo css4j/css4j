@@ -302,6 +302,20 @@ public class LexicalUnitTest {
 	}
 
 	@Test
+	public void testRemoveCalc() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(3*2)");
+		LexicalUnit param = lu.getParameters();
+		LexicalUnit nextparam = param.getNextLexicalUnit();
+		LexicalUnit replacement = param.remove();
+		assertNotNull(replacement);
+		assertNull(param.getPreviousLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("*2", replacement.toString());
+		assertSame(nextparam, replacement);
+		assertSame(nextparam, lu.getParameters());
+	}
+
+	@Test
 	public void testReplaceByNullParam() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("foo(1 2 3 4)");
 		LexicalUnit param = lu.getParameters();
