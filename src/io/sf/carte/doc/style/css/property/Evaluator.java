@@ -690,15 +690,19 @@ public class Evaluator {
 	 * @param partialValue the value that has to be expressed in absolute units.
 	 * @return the value in absolute units.
 	 */
-	protected TypedValue absoluteValue(CSSPrimitiveValue partialValue) {
+	protected TypedValue absoluteValue(CSSPrimitiveValue partialValue) throws DOMException {
 		CssType type = partialValue.getCssValueType();
+		while (type == CssType.PROXY) {
+			CSSValue value = absoluteProxyValue(partialValue);
+			if (value == null) {
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"Unable to evaluate: " + partialValue.getCssText());
+			}
+			partialValue = (CSSPrimitiveValue) value;
+			type = value.getCssValueType();
+		}
 		if (type == CssType.TYPED) {
 			return absoluteTypedValue((TypedValue) partialValue);
-		} else if (type == CssType.PROXY) {
-			CSSValue value = absoluteProxyValue(partialValue);
-			if (value.getCssValueType() == CssType.TYPED) {
-				return absoluteTypedValue((TypedValue) value);
-			}
 		}
 		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 				"Unexpected value: " + partialValue.getCssText());

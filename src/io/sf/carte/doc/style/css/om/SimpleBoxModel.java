@@ -1184,7 +1184,7 @@ abstract class SimpleBoxModel {
 
 		@Override
 		protected StyleValue absoluteProxyValue(CSSPrimitiveValue partialValue) {
-			return styledecl.absoluteProxyValue(propertyName, partialValue, false);
+			return styledecl.replaceProxyValue(propertyName, partialValue);
 		}
 
 		@Override

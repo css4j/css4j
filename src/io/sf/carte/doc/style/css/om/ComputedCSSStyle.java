@@ -47,7 +47,6 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
-import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.AttrValue;
@@ -240,28 +239,69 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		super.setPropertyCSSValue(propertyName, value, hrefcontext);
 	}
 
+	private LexicalValue getCustomPropertyValue(String property, boolean inherited) {
+		LexicalValue value = (LexicalValue) super.getCSSValue(property);
+		//
+		ComputedCSSStyle ancStyle = this;
+		if (inherited) {
+			while (value == null) {
+				ancStyle = ancStyle.getParentComputedStyle();
+				if (ancStyle == null) {
+					value = null;
+					break;
+				}
+				if (ancStyle.isPropertySet(property)) {
+					value = (LexicalValue) ancStyle.getDeclaredCSSValue(property);
+				}
+			}
+		}
+		//
+		if (value != null) {
+			if (ancStyle.customPropertyStack == null) {
+				ancStyle.customPropertyStack = new LinkedList<String>();
+			}
+			LexicalUnit lunit = value.getLexicalUnit().clone();
+			LexicalUnit replUnit;
+			try {
+				replUnit = ancStyle.replaceLexicalVar(property, lunit);
+			} catch (DOMException e) {
+				ancStyle.computedStyleError(property, lunit.toString(), "Problem evaluating lexical value.", e);
+				return null;
+			}
+			//
+			if (replUnit != null) {
+				value = new LexicalValue();
+				value.setLexicalUnit(replUnit);
+			} else {
+				value = null;
+			}
+		}
+		return value;
+	}
+
 	public StyleValue getCascadedValue(String property) throws StyleDatabaseRequiredException {
 		StyleValue value = super.getCSSValue(property);
 		if (value != null) {
-			if (value.getPrimitiveType() == Type.INTERNAL) {
-				// Pending substitution values.
-				PendingValue pending = (PendingValue) value;
-				value = getSubstitutedValue(property, pending.getShorthandName(), pending.getLexicalUnit().clone(),
-						isPropertyImportant(property));
-			} else if (value.getPrimitiveType() == Type.UNSET) {
-				/*
-				 * The 'unset' keyword acts as either inherit or initial, depending on whether
-				 * the property is inherited or not.
-				 */
-				value = null;
+			CssType category = value.getCssValueType();
+			if (category == CssType.PROXY) {
+				value = replaceProxyValues(property, value);
 			} else if (value.getCssValueType() == CssType.SHORTHAND) {
 				return null;
-			} else {
-				try {
-					value = absoluteValue(property, value, false);
-				} catch (DOMException e) {
-					computedStyleError(property, value.getCssText(), null, e);
+			}
+			if (value != null) {
+				if (value.getPrimitiveType() == Type.UNSET) {
+					/*
+					 * The 'unset' keyword acts as either inherit or initial, depending on whether
+					 * the property is inherited or not.
+					 */
 					value = null;
+				} else {
+					try {
+						value = absoluteValue(property, value, false);
+					} catch (DOMException e) {
+						computedStyleError(property, value.getCssText(), null, e);
+						value = null;
+					}
 				}
 			}
 		}
@@ -286,49 +326,75 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 * <p>
 	 * The rendering context is not taken into account for this method.
 	 * <p>
-	 * See paragraph 6.1.2 of the Document Object Model CSS specification for the definition
-	 * of "computed" values.
+	 * See paragraph 6.1.2 of the Document Object Model CSS specification for the
+	 * definition of "computed" values.
 	 * 
-	 * @param property
-	 *            the property that we want to evaluate.
-	 * @return the primitive value of the property, a CSSShorthandValue if the property is a
-	 *         shorthand, or null if the property is not known.
-	 * @throws StyleDatabaseRequiredException
-	 *             when a computation that requires a style database is attempted, but no
-	 *             style database has been set.
+	 * @param property the property that we want to evaluate.
+	 * @return the primitive value of the property, a CSSShorthandValue if the
+	 *         property is a shorthand, or null if the property is not known.
+	 * @throws StyleDatabaseRequiredException when a computation that requires a
+	 *                                        style database is attempted, but no
+	 *                                        style database has been set.
 	 */
 	@Override
 	public StyleValue getCSSValue(String property) throws StyleDatabaseRequiredException {
-		// Is the property inherited ?
-		CSSPropertyDefinition definition = null;
-		boolean inherited = PropertyDatabase.getInstance().isInherited(property) || (isCustomPropertyName(property)
-				&& ((definition = getOwnerSheet().getPropertyDefinition(property)) == null || definition.inherits()));
+		// Is a regular inherited property ?
+		boolean inherited = PropertyDatabase.getInstance().isInherited(property);
 		// Compute value
-		StyleValue comp = getCSSValue(property, inherited);
-		if (comp == null && definition != null) {
-			LexicalValue initial = (LexicalValue) definition.getInitialValue();
-			comp = customPropertyFallback(property, initial, initial.getLexicalUnit(), false);
+		StyleValue comp;
+		// Is it a custom property ?
+		if (!inherited && isCustomPropertyName(property)) {
+			CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(property);
+			inherited = definition == null || definition.inherits();
+			LexicalValue lexval = getCustomPropertyValue(property, inherited);
+			if (lexval == null) {
+				if (definition != null) {
+					LexicalValue initial = (LexicalValue) definition.getInitialValue();
+					comp = customPropertyFallback(property, initial, initial.getLexicalUnit());
+				} else {
+					comp = null;
+				}
+			} else {
+				comp = evaluateLexicalValue(property, lexval);
+				if (comp != null && comp.getCssValueType() == CssType.TYPED) {
+					try {
+						comp = absoluteValue(property, comp, false);
+					} catch (DOMException e) {
+						computedStyleError(property, comp.getCssText(), null, e);
+						comp = null;
+					}
+				}
+			}
+		} else {
+			comp = getCSSValue(property, inherited);
 		}
 		return comp;
 	}
 
 	StyleValue getCSSValue(String property, boolean inherited) throws StyleDatabaseRequiredException {
 		StyleValue value = getDeclaredCSSValue(property);
-		// Check for unset
 		if (value != null) {
-			if (value.getPrimitiveType() == Type.INTERNAL) {
-				// Pending substitution values.
-				PendingValue pending = (PendingValue) value;
-				value = getSubstitutedValue(property, pending.getShorthandName(), pending.getLexicalUnit().clone(),
-						isPropertyImportant(property));
-			} else if (value.getPrimitiveType() == Type.UNSET) {
-				/*
-				 * The 'unset' keyword acts as either inherit or initial, depending on whether
-				 * the property is inherited or not.
-				 */
-				value = null;
+			CssType category = value.getCssValueType();
+			if (category == CssType.PROXY) {
+				value = replaceProxyValues(property, value);
 			} else if (value.getCssValueType() == CssType.SHORTHAND) {
 				return null;
+			}
+			if (value != null) {
+				// Check for unset
+				if (value.getPrimitiveType() == Type.UNSET) {
+					/*
+					 * The 'unset' keyword acts as either inherit or initial, depending on whether
+					 * the property is inherited or not.
+					 */
+					value = null;
+				} else if (value.getPrimitiveType() == Type.LEXICAL) {
+					/*
+					 * LEXICAL values at this point means something went wrong.
+					 */
+					computedStyleError(property, value.getCssText(), "Unable to replace LEXICAL value.");
+					value = null;
+				}
 			}
 		}
 		/*
@@ -340,6 +406,77 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			value = null;
 		}
 		value = computeValue(property, value, inherited);
+		return value;
+	}
+
+	private StyleValue replaceProxyValues(String property, StyleValue value) {
+		CssType type = value.getCssValueType();
+		if (type == CssType.LIST) {
+			ValueList list = (ValueList) value;
+			int lstlen = list.getLength();
+			for (int i = 0; i < lstlen; i++) {
+				StyleValue item = list.item(i);
+				item = replaceProxyValues(property, item);
+				while (item != null && item.getCssValueType() == CssType.PROXY) {
+					item = replaceProxyValue(property, item);
+				}
+				list.set(i, item);
+			}
+		} else if (type == CssType.PROXY) {
+			do {
+				value = replaceProxyValue(property, value);
+			} while (value != null && value.getCssValueType() == CssType.PROXY
+					&& value.getPrimitiveType() != Type.LEXICAL);
+		}
+		return value;
+	}
+
+	StyleValue replaceProxyValue(String propertyName, CSSValue pri) {
+		StyleValue value;
+		Type pritype = pri.getPrimitiveType();
+		// Check for top-level var()
+		if (pritype == Type.VAR) {
+			VarValue varValue = (VarValue) pri;
+			value = evaluateCustomProperty(propertyName, varValue);
+			if (value != null && (value.getPrimitiveType() == Type.INITIAL || (value.getPrimitiveType() == Type.UNSET
+					&& !PropertyDatabase.getInstance().isInherited(propertyName)))) {
+				value = defaultPropertyValue(propertyName);
+				if (value != null) {
+					// Enforce integer, if expected
+					if (varValue.isExpectingInteger()) {
+						if (value.isPrimitiveValue()) {
+							((CSSPrimitiveValue) value).setExpectInteger();
+						} else if (value.getCssValueType() == CSSValue.CssType.LIST) {
+							throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+									"Expected an integer, found a LIST.");
+						}
+					}
+				}
+			}
+		} else if (pritype == Type.LEXICAL) {
+			value = evaluateLexicalValue(propertyName, (LexicalValue) pri);
+			if (value != null) {
+				if (value.getPrimitiveType() == Type.LEXICAL) {
+					if (!isCustomPropertyName(propertyName)) {
+						// Not a custom property
+						computedStyleError(propertyName, value.getCssText(), "Invalid value for non-custom property.");
+						return null;
+					}
+					return value;
+				}
+			}
+		} else if (pritype == Type.ATTR) {
+			value = computeAttribute(propertyName, (AttrValue) pri);
+		} else if (pritype == Type.ENV) {
+			value = computeEnv(propertyName, (EnvVariableValue) pri);
+		} else if (pritype == Type.INTERNAL) {
+			// Pending substitution values.
+			PendingValue pending = (PendingValue) pri;
+			value = getSubstitutedValue(propertyName, pending.getShorthandName(), pending.getLexicalUnit().clone(),
+					isPropertyImportant(propertyName));
+		} else {
+			return null;
+		}
 		return value;
 	}
 
@@ -376,8 +513,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
 		}
-		lunit = replaceLexicalVar(longhand, lunit, new CSSOMParser());
-		return setShorthandLonghands(shorthand, lunit, prioImportant, null);
+		lunit = replaceLexicalVar(longhand, lunit);
+		return lunit != null ? setShorthandLonghands(shorthand, lunit, prioImportant, null) : false;
 	}
 
 	private StyleValue computeValue(String property, StyleValue value, boolean inherited) {
@@ -406,7 +543,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						ComputedCSSStyle ancStyle = this;
 						do {
 							value = inheritValue(ancStyle, property, value, true);
-							value = ancStyle.computeValue(property, value, inherited);
+							if (value != null) {
+								value = ancStyle.replaceProxyValues(property, value);
+								if (value != null) {
+									value = ancStyle.computeValue(property, value, inherited);
+								}
+							}
 							if (value != null) {
 								break;
 							}
@@ -445,55 +587,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		} else if (type == CssType.TYPED) {
 			value = absoluteTypedValue(property, (TypedValue) value, useParentStyle);
-		} else if (type == CssType.PROXY) {
-			value = absoluteProxyValue(property, value, useParentStyle);
-		}
-		return value;
-	}
-
-	StyleValue absoluteProxyValue(String propertyName, CSSValue pri, boolean useParentStyle) {
-		StyleValue value;
-		Type pritype = pri.getPrimitiveType();
-		// Check for custom properties ('variables')
-		if (pritype == Type.VAR) {
-			VarValue varValue = (VarValue) pri;
-			value = evaluateCustomProperty(propertyName, varValue, useParentStyle);
-			if (value != null && (value.getPrimitiveType() == Type.INITIAL || (value.getPrimitiveType() == Type.UNSET
-					&& !PropertyDatabase.getInstance().isInherited(propertyName)))) {
-				value = defaultPropertyValue(propertyName);
-				if (value != null) {
-					// Enforce integer, if expected
-					if (varValue.isExpectingInteger()) {
-						if (value.isPrimitiveValue()) {
-							((CSSPrimitiveValue) value).setExpectInteger();
-						} else if (value.getCssValueType() == CSSValue.CssType.LIST) {
-							throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-									"Expected an integer, found a LIST.");
-						}
-					}
-				}
-			}
-		} else if (pritype == Type.LEXICAL) {
-			value = evaluateLexicalValue(propertyName, (LexicalValue) pri, useParentStyle);
-			if (value != null) {
-				if (value.getPrimitiveType() == Type.LEXICAL) {
-					if (!isCustomPropertyName(propertyName)) {
-						// Not a custom property
-						computedStyleError(propertyName, value.getCssText(), "Invalid value for non-custom property.");
-						return null;
-					}
-					return value;
-				}
-			}
-		} else if (pritype == Type.ATTR) {
-			value = computeAttribute(propertyName, (AttrValue) pri, useParentStyle);
-		} else if (pritype == Type.ENV) {
-			value = computeEnv(propertyName, (EnvVariableValue) pri, useParentStyle);
-		} else {
-			return null;
-		}
-		if (value != null) {
-			value = absoluteValue(propertyName, value, useParentStyle);
 		}
 		return value;
 	}
@@ -767,23 +860,22 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			break;
 		case OPERAND:
 			CSSOperandExpression operand = (CSSOperandExpression) expr;
-			CSSPrimitiveValue primi = operand.getOperand();
-			if (primi.getCssValueType() == CssType.TYPED) {
-				primi = absoluteTypedValue(propertyName, (TypedValue) primi, useParentStyle);
+			StyleValue value = (StyleValue) operand.getOperand();
+			if (value.getCssValueType() == CssType.PROXY) {
+				value = replaceProxyValues(propertyName, value);
+			}
+			CSSPrimitiveValue primi;
+			if (value.getCssValueType() == CssType.TYPED) {
+				primi = absoluteTypedValue(propertyName, (TypedValue) value, useParentStyle);
 			} else {
-				StyleValue value = absoluteProxyValue(propertyName, primi, useParentStyle);
-				if (value.getCssValueType() == CssType.TYPED) {
-					primi = (CSSPrimitiveValue) value;
-				} else {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-							"Unexpected value in expression: " + value.getCssText());
-				}
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"Unexpected value in expression: " + value.getCssText());
 			}
 			operand.setOperand(primi);
 		}
 	}
 
-	private StyleValue computeAttribute(String propertyName, AttrValue attr, boolean useParentStyle) throws DOMException {
+	private StyleValue computeAttribute(String propertyName, AttrValue attr) throws DOMException {
 		String attrname = attr.getAttributeName();
 		CSSElement owner = getOwnerNode();
 		String attrvalue = owner.getAttribute(attrname);
@@ -816,47 +908,37 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					} catch (DOMException e) {
 						computedStyleError(propertyName, attr.getCssText(),
 								"Error parsing attribute '" + attrname + "', value: " + attrvalue, e);
-						return computeAttrFallback(propertyName, attr, useParentStyle);
+						return computeAttrFallback(propertyName, attr);
 					}
-					if (value.getCssValueType() == CssType.PROXY) {
-						// Prevent circular dependencies.
-						addAttrNameGuard(attrname);
-						try {
-							value = absoluteValue(propertyName, value, useParentStyle);
-						} catch (Exception e) {
-							computedStyleError(propertyName, attr.getCssText(),
-									"Circularity: " + attr.getCssText() + " references " + value.getCssText(), e);
-							StyleValue fallback = computeAttrFallback(propertyName, attr, useParentStyle);
-							removeAttrNameGuard(attrname);
-							return fallback;
-						}
+					// Verify whether we got another PROXY value (or a LIST of them)
+					// Prevent circular dependencies.
+					addAttrNameGuard(attrname);
+					try {
+						value = replaceProxyValues(propertyName, value);
+					} catch (Exception e) {
+						computedStyleError(propertyName, attr.getCssText(),
+								"Circularity: " + attr.getCssText() + " references " + value.getCssText(), e);
+						StyleValue fallback = computeAttrFallback(propertyName, attr);
 						removeAttrNameGuard(attrname);
+						return fallback;
 					}
+					removeAttrNameGuard(attrname);
 					// Attribute value must now be typed
 					if (value != null) {
 						if (value.getCssValueType() == CssType.TYPED) {
-							TypedValue pri;
-							// Prevent circular dependencies.
-							addAttrNameGuard(attrname);
 							try {
-								pri = absoluteTypedValue(propertyName, (TypedValue) value, useParentStyle);
-							} catch (Exception e) {
+								value = attrValueOfType((TypedValue) value, attrtype);
+								if (value != null) {
+									return value;
+								}
+								computedStyleWarning(propertyName, attr,
+										"Attribute value does not match type (" + attrtype + ").");
+							} catch (DOMException e) {
 								computedStyleError(propertyName, attr.getCssText(),
-										"Circularity: " + attr.getCssText() + " references " + value.getCssText(), e);
-								StyleValue fallback = computeAttrFallback(propertyName, attr, useParentStyle);
-								removeAttrNameGuard(attrname);
-								return fallback;
+										"Attribute value does not match type (" + attrtype + ").", e);
 							}
-							removeAttrNameGuard(attrname);
-							TypedValue val = attrValueOfType(pri, attrtype);
-							if (val != null) {
-								val = absoluteTypedValue(propertyName, val, useParentStyle);
-								return val;
-							}
-							computedStyleWarning(propertyName, attr,
-									"Attribute value does not match type (" + attrtype + ").");
 						} else {
-							computedStyleWarning(propertyName, attr, "Invalid attribute value");
+							computedStyleWarning(propertyName, attr, "Invalid attribute value.");
 						}
 					}
 				}
@@ -864,51 +946,34 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				computedStyleWarning(propertyName, attr, "Unsafe attribute value");
 			}
 		}
-		return computeAttrFallback(propertyName, attr, useParentStyle);
+		return computeAttrFallback(propertyName, attr);
 	}
 
-	private StyleValue computeAttrFallback(String propertyName, AttrValue attr, boolean useParentStyle) throws DOMException {
-		String attrname = attr.getAttributeName();
+	private StyleValue computeAttrFallback(String propertyName, AttrValue attr) throws DOMException {
 		String attrtype = attr.getAttributeType();
 		// Fallback
 		StyleValue fallback = attr.getFallback();
+		if (fallback != null && fallback.getCssValueType() != CssType.TYPED) {
+			fallback = replaceProxyValues(propertyName, fallback);
+			if (fallback != null && fallback.getCssValueType() == CssType.PROXY) {
+				fallback = replaceProxyValues(propertyName, fallback);
+			}
+		}
 		if (fallback == null) {
 			if (attrValueStack != null && !attrValueStack.isEmpty()) {
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 						"No explicit fallback and we are in recursive attr(), forbidden by CSS.");
 			}
 			TypedValue defval = AttrValue.defaultFallback(attrtype);
-			if (defval == null) {
-				computedStyleError(propertyName, attr.getCssText(),
-						"Invalid attribute, no default fallback for type " + attrtype + '.');
-			} else if ("color".equalsIgnoreCase(attrtype)) {
+			if (defval != null && "color".equalsIgnoreCase(attrtype)) {
 				defval = colorValue("", defval);
 			}
 			return defval;
 		}
-		// Prevent circular dependencies.
-		addAttrNameGuard(attrname);
-		StyleValue value;
-		try {
-			/*
-			 * We compute inherited value, if appropriate.
-			 */
-			fallback = inheritValue(ComputedCSSStyle.this, propertyName, fallback, false);
-			// Still inheriting ?
-			if (fallback == null || fallback.getPrimitiveType() == Type.INHERIT) {
-				computedStyleError(propertyName, attr.getCssText(), "Invalid fallback.");
-				return null;
-			}
-			value = absoluteValue(propertyName, fallback, useParentStyle);
-		} catch (Exception e) {
-			clearAttrGuardStack();
-			throw e; // No hopes here
+		if (fallback.getCssValueType() != CssType.TYPED) {
+			return fallback;
 		}
-		removeAttrNameGuard(attrname);
-		if (value == null || value.getCssValueType() != CssType.TYPED) {
-			return value;
-		}
-		TypedValue pri = (TypedValue) value;
+		TypedValue pri = (TypedValue) fallback;
 		if (pri.getPrimitiveType() == Type.STRING && "url".equalsIgnoreCase(attrtype)) {
 			try {
 				URL url = getOwnerNode().getOwnerDocument().getURL(pri.getStringValue());
@@ -967,10 +1032,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private void removeAttrNameGuard(String attrname) {
 		attrValueStack.remove(attrname);
-	}
-
-	private void clearAttrGuardStack() {
-		attrValueStack.clear();
 	}
 
 	private TypedValue attrValueOfType(TypedValue value, String type) throws DOMException {
@@ -1036,13 +1097,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						"Unknown attribute type '" + type + "' found in computed style.");
 			} else {
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-						"Invalid attr() value found in computed style.");
+						"Unknown attribute type '" + type + "' found in computed style.");
 			}
 		}
 		return null;
 	}
 
-	private StyleValue evaluateCustomProperty(String property, VarValue value, boolean useParentStyle) {
+	private StyleValue evaluateCustomProperty(String property, VarValue value) {
 		String propertyName = value.getName();
 		if (!isCustomPropertyName(propertyName)) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
@@ -1054,7 +1115,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			LexicalUnit fallback = value.getFallback();
 			if (fallback != null) {
 				computedStyleError(property, value.getCssText(), "var() dependency loop in " + propertyName);
-				StyleValue custom = customPropertyFallback(property, value, fallback, useParentStyle);
+				StyleValue custom;
+				try {
+					custom = customPropertyFallback(property, value, fallback);
+				} catch (Exception e) {
+					custom = null;
+				}
 				return custom;
 			} else {
 				customPropertyStack.clear();
@@ -1067,8 +1133,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		boolean inherited = definition == null || definition.inherits();
 		StyleValue custom;
 		try {
-			custom = getCSSValue(propertyName, inherited);
-			if (custom == null) {
+			LexicalValue cpLexical = getCustomPropertyValue(propertyName, inherited);
+			if (cpLexical == null) {
 				LexicalUnit fallback = value.getFallback();
 				if (fallback == null) {
 					if (definition == null) {
@@ -1079,47 +1145,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						fallback = definition.getInitialValue().getLexicalUnit();
 					}
 				}
-				custom = customPropertyFallback(property, value, fallback, useParentStyle);
+				custom = customPropertyFallback(property, value, fallback);
 			} else {
-				if (custom.getCssValueType() == CssType.KEYWORD) {
-					boolean inheritedDestPty = PropertyDatabase.getInstance().isInherited(property);
-					if (custom.getPrimitiveType() != Type.UNSET) {
-						custom = inheritValue(this, property, custom, inheritedDestPty);
-						// Still inheriting ?
-						if (custom == null || custom.getPrimitiveType() == Type.INHERIT) {
-							if (definition == null) {
-								// Unable to evaluate custom property
-								customPropertyStack.remove(propertyName);
-								return null;
-							} else {
-								LexicalUnit initial = definition.getInitialValue().getLexicalUnit();
-								custom = customPropertyFallback(property, value, initial, useParentStyle);
-							}
-						}
-					} else {
-						customPropertyStack.remove(propertyName);
-						if (inheritedDestPty) {
-							custom = null;
-						}
-						return custom;
-					}
-				}
-				try {
-					custom = absoluteValue(property, custom, useParentStyle);
-				} catch (DOMException e) {
-					LexicalUnit fallback = value.getFallback();
-					if (fallback != null) {
-						computedStyleError(property, custom.getCssText(),
-								"Error evaluating var(), attempting fallback.", e);
-						custom = customPropertyFallback(property, value, fallback, useParentStyle);
-					} else {
-						if (definition == null) {
-							throw e;
-						} else {
-							LexicalUnit initial = definition.getInitialValue().getLexicalUnit();
-							custom = customPropertyFallback(property, value, initial, useParentStyle);
-							custom = absoluteValue(property, custom, useParentStyle);
-						}
+				custom = evaluateLexicalValue(property, cpLexical);
+				if (custom != null && custom.getCssValueType() == CssType.TYPED) {
+					try {
+						custom = absoluteValue(property, custom, false);
+					} catch (DOMException e) {
+						computedStyleError(property, custom.getCssText(), null, e);
+						custom = null;
 					}
 				}
 			}
@@ -1139,16 +1173,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return custom;
 	}
 
-	private StyleValue customPropertyFallback(String property, ProxyValue varValue, LexicalUnit fallback,
-			boolean useParentStyle) {
+	private StyleValue customPropertyFallback(String property, ProxyValue varValue, LexicalUnit fallback)
+			throws DOMException {
 		StyleValue custom = new ValueFactory().createCSSValue(fallback, this);
-		if (custom.getCssValueType() == CssType.KEYWORD) {
-			boolean inherited = PropertyDatabase.getInstance().isInherited(property);
-			if (inherited && custom.getPrimitiveType() == Type.UNSET) {
-				custom = null;
-			}
-			custom = inheritValue(this, property, custom, inherited);
-		}
 		if (custom != null) {
 			// Check fallback for expecting integer.
 			if (varValue.isExpectingInteger()) {
@@ -1159,37 +1186,40 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					return null;
 				}
 			}
-			custom = absoluteValue(property, custom, useParentStyle);
 		}
 		return custom;
 	}
 
-	private StyleValue evaluateLexicalValue(String property, LexicalValue lexval, boolean useParentStyle) {
+	private StyleValue evaluateLexicalValue(String property, LexicalValue lexval) {
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
 		}
 		LexicalUnit lunit = lexval.getLexicalUnit().clone();
 		LexicalUnit replUnit;
 		try {
-			replUnit = replaceLexicalVar(property, lunit, new CSSOMParser());
+			replUnit = replaceLexicalVar(property, lunit);
 		} catch (DOMException e) {
 			computedStyleError(property, lunit.toString(), "Problem evaluating lexical value.", e);
 			return null;
 		}
-		try {
-			return getValueFactory().createCSSValue(replUnit, this);
-		} catch (DOMException e) {
-			LexicalValue repLexval = new LexicalValue();
-			repLexval.setLexicalUnit(replUnit);
-			return repLexval;
+		//
+		if (replUnit != null) {
+			try {
+				return getValueFactory().createCSSValue(replUnit, this);
+			} catch (DOMException e) {
+				LexicalValue repLexval = new LexicalValue();
+				repLexval.setLexicalUnit(replUnit);
+				return repLexval;
+			}
 		}
+		return null;
 	}
 
-	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, Parser parser) throws DOMException {
-		return replaceLexicalVar(property, lexval, parser, 0);
+	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval) throws DOMException {
+		return replaceLexicalVar(property, lexval, 0);
 	}
 
-	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, Parser parser, int counter) throws DOMException {
+	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, int counter) throws DOMException {
 		LexicalUnit lu = lexval;
 		do {
 			if (lu.getLexicalUnitType() == LexicalType.VAR) {
@@ -1203,26 +1233,33 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if (customPropertyStack.contains(propertyName)) {
 					// Fallback
 					if (param != null) {
+						computedStyleError(property, lexval.toString(), "Circularity evaluating lexical value.");
 						// Replace param, just in case
-						newlu = replaceLexicalVar(property, param.clone(), parser, counter);
+						newlu = replaceLexicalVar(property, param.clone(), counter);
 					} else {
 						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 								"Unable to evaluate custom property " + propertyName);
 					}
 				} else {
-					newlu = evaluateCustomPropertyValue(property, propertyName, param, parser);
-					while (newlu.getLexicalUnitType() == LexicalType.VAR) {
+					newlu = evaluateCustomPropertyValue(property, propertyName, param);
+					while (newlu != null && newlu.getLexicalUnitType() == LexicalType.VAR) {
 						LexicalUnit newParam = newlu.getParameters();
 						String replacedPropertyName = newParam.getStringValue();
 						newParam = newParam.getNextLexicalUnit(); // Comma?
 						if (newParam != null) {
 							newParam = newParam.getNextLexicalUnit(); // Fallback
 						}
-						newlu = evaluateCustomPropertyValue(property, replacedPropertyName, newParam, parser);
+						newlu = evaluateCustomPropertyValue(property, replacedPropertyName, newParam);
 					}
 				}
 				boolean isLexval = lu == lexval;
-				if (newlu.getLexicalUnitType() != LexicalType.EMPTY) {
+				if (newlu == null) {
+					lu = lu.remove();
+					if (isLexval) {
+						lexval = lu;
+					}
+					continue;
+				} if (newlu.getLexicalUnitType() != LexicalType.EMPTY) {
 					try {
 						counter += lu.countReplaceBy(newlu);
 					} catch (CSSBudgetException e) {
@@ -1249,9 +1286,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			} else {
 				LexicalUnit param = lu.getParameters();
 				if (param != null) {
-					replaceLexicalVar(property, param, parser, counter);
+					replaceLexicalVar(property, param, counter);
 				} else if (lu.getSubValues() != null) {
-					replaceLexicalVar(property, lu.getSubValues(), parser, counter);
+					replaceLexicalVar(property, lu.getSubValues(), counter);
 				}
 			}
 			lu = lu.getNextLexicalUnit();
@@ -1259,38 +1296,17 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return lexval;
 	}
 
-	private LexicalUnit evaluateCustomPropertyValue(String property, String customProperty, LexicalUnit fallbackLU,
-			Parser parser) throws DOMException {
+	private LexicalUnit evaluateCustomPropertyValue(String property, String customProperty, LexicalUnit fallbackLU)
+			throws DOMException {
 		CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(customProperty);
 		boolean inherited = definition == null || definition.inherits();
 		//
 		Exception exception = null;
 		customPropertyStack.add(customProperty);
 		try {
-			StyleValue custom = getCSSValue(customProperty, inherited);
+			LexicalValue custom = getCustomPropertyValue(customProperty, inherited);
 			if (custom != null) {
-				if (custom.getCssValueType() == CssType.KEYWORD) {
-					boolean inheritedDestPty = PropertyDatabase.getInstance().isInherited(property);
-					if (inheritedDestPty && custom.getPrimitiveType() == Type.UNSET) {
-						custom = null;
-					}
-					custom = inheritValue(this, customProperty, custom, inheritedDestPty);
-					if (custom != null && custom.getPrimitiveType() == Type.LEXICAL) {
-						LexicalUnit lu = ((LexicalValue) custom).getLexicalUnit().clone();
-						lu = replaceLexicalVar(property, lu, parser);
-						customPropertyStack.remove(customProperty);
-						return lu;
-					}
-				}
-			}
-			if (custom != null) {
-				LexicalUnit lu;
-				if (custom.getPrimitiveType() == Type.LEXICAL) {
-					lu = ((LexicalValue) custom).getLexicalUnit().clone();
-				} else {
-					String cssText = custom.getCssText();
-					lu = parser.parsePropertyValue(new StringReader(cssText));
-				}
+				LexicalUnit lu = custom.getLexicalUnit().clone();
 				customPropertyStack.remove(customProperty);
 				return lu;
 			}
@@ -1301,7 +1317,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (fallbackLU != null) {
 			// Replace param, just in case
 			try {
-				fallbackLU = replaceLexicalVar(property, fallbackLU.clone(), parser);
+				fallbackLU = replaceLexicalVar(property, fallbackLU.clone());
 				customPropertyStack.remove(customProperty);
 				return fallbackLU;
 			} catch (DOMException e) {
@@ -1310,23 +1326,24 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		//
 		if (definition != null) {
+			customPropertyStack.remove(customProperty);
 			return definition.getInitialValue().getLexicalUnit();
 		}
 		//
 		customPropertyStack.clear();
-		DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
-				"Unable to evaluate custom property " + customProperty);
 		if (exception != null) {
+			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Unable to evaluate custom property " + customProperty);
 			ex.initCause(exception);
+			throw ex;
 		}
-		throw ex;
+		return null;
 	}
 
-	private StyleValue computeEnv(String propertyName, EnvVariableValue env, boolean useParentStyle) {
+	private StyleValue computeEnv(String propertyName, EnvVariableValue env) {
 		if (getStyleDatabase() != null) {
 			StyleValue envValue = (StyleValue) getStyleDatabase().getEnvValue(env.getName());
 			if (envValue != null) {
-				envValue = absoluteValue(propertyName, envValue, useParentStyle);
 				return envValue;
 			}
 		}
@@ -1335,7 +1352,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 					"Unable to evaluate env() value: " + env.getName());
 		}
-		fallback = absoluteValue(propertyName, fallback, useParentStyle);
 		return fallback;
 	}
 
@@ -1371,36 +1387,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (primi != null) {
 				return primi;
 			}
-		} else if (type == CssType.PROXY) {
-			StyleValue proxy;
-			switch (value.getPrimitiveType()) {
-			case ATTR:
-				proxy = computeAttribute("font-size", (AttrValue) value, true);
-				break;
-			// Check for custom properties ('variables')
-			case VAR:
-				proxy = evaluateFontCustomProperty((VarValue) value);
-				break;
-			case LEXICAL:
-				proxy = evaluateLexicalValue("font-size", (LexicalValue) value, true);
-				if (proxy != null && proxy.getPrimitiveType() == Type.LEXICAL) {
-					computedStyleError("font-size", proxy.getCssText(), "Lexical value is not valid for font-size.");
-					proxy = null;
-				}
-				break;
-			// env() variables
-			case ENV:
-				proxy = computeFontSizeEnv((EnvVariableValue) value);
-				break;
-			default:
-				proxy = null;
-			}
-			if (proxy != null) {
-				return absoluteFontSizeValue(proxy, force);
-			}
 		}
 		// Keyword
-		if (value.getPrimitiveType() != Type.INITIAL) {
+		if (value.getPrimitiveType() != Type.INITIAL && value.getPrimitiveType() != Type.INTERNAL) {
 			TypedValue primi = null;
 			ComputedCSSStyle ancStyle = this;
 			do {
@@ -1708,87 +1697,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return number;
 	}
 
-	private StyleValue evaluateFontCustomProperty(VarValue cssSize) {
-		String propertyName = cssSize.getName();
-		if (customPropertyStack == null) {
-			customPropertyStack = new LinkedList<String>();
-		} else if (customPropertyStack.contains(propertyName)) {
-			LexicalUnit fallback = cssSize.getFallback();
-			if (fallback != null) {
-				StyleValue custom = new ValueFactory().createCSSValue(fallback, this);
-				return absoluteFontSizeValue(custom, true);
-			} else {
-				reportFontSizeError(cssSize, "Dependency loop in " + propertyName);
-				return null;
-			}
-		}
-		customPropertyStack.add(propertyName);
-		//
-		CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(propertyName);
-		boolean inherited = definition == null || definition.inherits();
-		StyleValue custom;
-		try {
-			custom = getCSSValue(propertyName, inherited);
-			if (custom == null) {
-				LexicalUnit fallback = cssSize.getFallback();
-				if (fallback != null) {
-					custom = new ValueFactory().createCSSValue(fallback, this);
-					if (custom.getPrimitiveType() == Type.UNSET) {
-						custom = null;
-					}
-					custom = inheritValue(this, propertyName, custom, inherited);
-					if (custom != null) {
-						custom = absoluteFontSizeValue(custom, true);
-					}
-				} else {
-					if (definition == null) {
-						custom = null;
-					} else {
-						fallback = definition.getInitialValue().getLexicalUnit();
-						custom = new ValueFactory().createCSSValue(fallback, this);
-						if (custom.getPrimitiveType() == Type.UNSET) {
-							custom = null;
-						}
-						custom = inheritValue(this, propertyName, custom, inherited);
-						if (custom != null) {
-							custom = absoluteFontSizeValue(custom, true);
-						}
-					}
-				}
-			} else {
-				if (custom.getPrimitiveType() == Type.UNSET) {
-					custom = null;
-				}
-				custom = inheritValue(this, propertyName, custom, inherited);
-				if (custom != null) {
-					custom = absoluteFontSizeValue(custom, true);
-				}
-			}
-		} catch (Exception e) {
-			customPropertyStack.clear();
-			throw e;
-		}
-		customPropertyStack.remove(propertyName);
-		return custom;
-	}
-
-	private StyleValue computeFontSizeEnv(EnvVariableValue env) {
-		if (getStyleDatabase() != null) {
-			StyleValue envValue = (StyleValue) getStyleDatabase().getEnvValue(env.getName());
-			if (envValue != null) {
-				envValue = absoluteFontSizeValue(envValue, true);
-				return envValue;
-			}
-		}
-		StyleValue fallback = env.getFallback();
-		if (fallback == null) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-					"Unable to evaluate env() value: " + env.getName());
-		}
-		fallback = absoluteFontSizeValue(fallback, true);
-		return fallback;
-	}
-
 	/**
 	 * Get a <code>font-size</code> value based on multiplying the parent font size
 	 * by a factor.
@@ -1859,6 +1767,19 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				 * property is inherited or not.
 				 */
 				value = null;
+			}
+			if (value != null) {
+				CssType category = value.getCssValueType();
+				if (category == CssType.PROXY) {
+					value = replaceProxyValues("font-size", value);
+					if (value != null && value.getPrimitiveType() == Type.LEXICAL) {
+						/*
+						 * LEXICAL values at this point means something went wrong.
+						 */
+						computedStyleError("font-size", value.getCssText(), "Unable to replace LEXICAL value.");
+						value = null;
+					}
+				}
 			}
 		}
 		/*
@@ -2043,7 +1964,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 		@Override
 		protected StyleValue absoluteProxyValue(CSSPrimitiveValue partialValue) {
-			return ComputedCSSStyle.this.absoluteProxyValue(propertyName, partialValue, false);
+			return ComputedCSSStyle.this.replaceProxyValue(propertyName, partialValue);
 		}
 
 	}
@@ -2061,7 +1982,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 		@Override
 		protected StyleValue absoluteProxyValue(CSSPrimitiveValue partialValue) {
-			return ComputedCSSStyle.this.absoluteProxyValue(propertyName, partialValue, true);
+			return ComputedCSSStyle.this.replaceProxyValue(propertyName, partialValue);
 		}
 
 		@Override

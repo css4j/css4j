@@ -53,6 +53,7 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
@@ -1048,10 +1049,11 @@ public class HTMLDocumentTest {
 		assertEquals(2, style.getLength());
 		assertEquals("'Does Not Exist', Neither", style.getPropertyValue("font-family"));
 		DocumentCSSStyleSheet sheet = xhtmlDoc.getStyleSheet();
-		CSSStyleDeclaration styledecl = sheet.getComputedStyle(elm, null);
+		CSSComputedProperties styledecl = sheet.getComputedStyle(elm, null);
 		assertEquals(19, styledecl.getLength());
 		assertEquals("#000080", styledecl.getPropertyValue("color"));
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
+		assertEquals(21.6f, styledecl.getComputedFontSize(), 1e-6);
 		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
 		assertEquals("  foo  bar  ", styledecl.getPropertyValue("content"));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
@@ -1153,7 +1155,7 @@ public class HTMLDocumentTest {
 		 * custom property substitution.
 		 */
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo)");
-		CSSComputedProperties style = elm.getComputedStyle(null);
+		ComputedCSSStyle style = elm.getComputedStyle(null);
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
@@ -1180,7 +1182,8 @@ public class HTMLDocumentTest {
 		assertNotNull(customProperty);
 		assertEquals(15f, customProperty.getFloatValue(CSSUnit.CSS_PT), 1e-6);
 		CSSTypedValue fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(19f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(19f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-6);
+		assertEquals(19f, style.getComputedFontSize(), 1e-6);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		/*
@@ -1672,9 +1675,11 @@ public class HTMLDocumentTest {
 		 * attr() recursive with custom property (I).
 		 */
 		elm.getOverrideStyle(null)
-				.setCssText("margin-left:attr(noattr length,var(--foo));--foo:attr(noattr,var(margin-left))");
+				.setCssText("margin-left:attr(noattr length,var(--foo));--foo:attr(noattr,var(--my-margin-left))");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertNotNull(marginLeft);
+		assertEquals(Type.NUMERIC, marginLeft.getPrimitiveType());
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
@@ -1683,12 +1688,14 @@ public class HTMLDocumentTest {
 		/*
 		 * attr() recursive with custom property (II).
 		 */
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(noattr length,var(--foo));--foo:attr(noattr)");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(noattr length,var(--foo));--foo:attr(noattr length)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertNotNull(marginLeft);
+		assertEquals(Type.NUMERIC, marginLeft.getPrimitiveType());
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 	}
 
