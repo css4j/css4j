@@ -87,6 +87,10 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	@Override
 	public void insertNextLexicalUnit(LexicalUnit nextUnit) throws CSSException {
+		if (nextUnit == null || nextUnit.getLexicalUnitType() == LexicalType.EMPTY) {
+			return;
+		}
+		//
 		LexicalUnitImpl nlu = (LexicalUnitImpl) nextUnit;
 		if (nlu.ownerLexicalUnit != null) {
 			throw new IllegalArgumentException("Argument is a parameter of another unit.");
@@ -111,7 +115,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	@Override
 	public LexicalUnit replaceBy(LexicalUnit replacementUnit) throws CSSBudgetException {
-		if (replacementUnit == null) {
+		if (replacementUnit == null || replacementUnit.getLexicalUnitType() == LexicalType.EMPTY) {
 			return remove();
 		}
 		LexicalUnitImpl rlu = (LexicalUnitImpl) replacementUnit;
@@ -165,6 +169,10 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		if (replacementUnit == null) {
 			remove();
 			return 0;
+		}
+		if (replacementUnit.getLexicalUnitType() == LexicalType.EMPTY) {
+			remove();
+			return 1;
 		}
 		int counter = 0;
 		LexicalUnitImpl rlu = (LexicalUnitImpl) replacementUnit;
