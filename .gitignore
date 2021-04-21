@@ -17,5 +17,6 @@
 *.iml
 *.iws
 
-# Maven
+# Gradle
+/.gradle
 /build/
