@@ -91,7 +91,6 @@ public interface CSSExpression {
 	/**
 	 * Is this an inverse operation ?
 	 * <p>
-	 * <p>
 	 * If there is a containing operation, the inverse is from the point of view of the
 	 * parent operation. In a sum (or a product contained inside a sum), the inverse
 	 * means that the minus sign applies to the whole operation. In a product it is

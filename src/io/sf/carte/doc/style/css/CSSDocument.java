@@ -32,7 +32,6 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	/**
 	 * The style computations operate under a compliance mode. Two modes are supported:
 	 * <code>STRICT</code> and <code>QUIRKS</code>.
-	 * </p>
 	 * <p>
 	 * <code>QUIRKS</code> and <code>STRICT</code> differ in the matching of class and ID
 	 * selectors, and the default user agent sheet is slightly different.

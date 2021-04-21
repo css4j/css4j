@@ -18,6 +18,7 @@ public interface AlgebraicExpression extends CSSExpression {
 	/**
 	 * Retrieve the operand at index <code>index</code>.
 	 *
+	 * @param index the index.
 	 * @return the operand at index <code>index</code>, or <code>null</code> if the
 	 *         index is invalid.
 	 */

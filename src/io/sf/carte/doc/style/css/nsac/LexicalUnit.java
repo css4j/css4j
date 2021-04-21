@@ -647,7 +647,6 @@ public interface LexicalUnit {
 	 * <td style="border:1px solid;padding:4pt"><code>&lt;length&gt;</code></td>
 	 * <td style="border:1px solid;padding:4pt"><code>PENDING</code></td>
 	 * </tr>
-	 * </tr>
 	 * <tr style="text-align:center;">
 	 * <td style="border:1px solid;padding:4pt"><code>&lt;percentage&gt;</code></td>
 	 * <td style="border:1px solid;padding:4pt"><code>PENDING</code></td>

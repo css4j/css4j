@@ -19,7 +19,7 @@ import org.w3c.dom.Node;
  * define a view of a document (or subtree), a logical view. The methods in this
  * interface allow to traverse that view.
  * </p>
- * <h3>Interoperability</h3>
+ * <h2>Interoperability</h2>
  * <p>
  * This interface is based on the <a href=
  * "https://www.w3.org/TR/dom/#interface-treewalker"><code>TreeWalker</code>

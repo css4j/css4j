@@ -21,6 +21,8 @@ public interface CSSValueList<E extends CSSValue> extends CSSValue, Iterable<E> 
 
 	/**
 	 * The number of values in this list.
+	 * 
+	 * @return the number of items in this list.
 	 */
 	int getLength();
 

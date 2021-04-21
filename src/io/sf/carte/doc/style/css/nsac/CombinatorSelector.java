@@ -23,6 +23,7 @@ package io.sf.carte.doc.style.css.nsac;
  * <li>{@link Selector.SelectorType#DESCENDANT}</li>
  * <li>{@link Selector.SelectorType#SUBSEQUENT_SIBLING}</li>
  * <li>{@link Selector.SelectorType#DIRECT_ADJACENT}</li>
+ * </ul>
  */
 public interface CombinatorSelector extends Selector {
 

@@ -1710,7 +1710,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 *                      NAMESPACE_ERR: if the <code>qualifiedName</code> is a
 	 *                      malformed qualified name, if the
 	 *                      <code>qualifiedName</code> has a prefix and the
-	 *                      </code>namespaceURI</code> is <code>null</code>, or if
+	 *                      <code>namespaceURI</code> is <code>null</code>, or if
 	 *                      the <code>qualifiedName</code> has a prefix that is
 	 *                      <code>"xml"</code> and the <code>namespaceURI</code> is
 	 *                      different from
@@ -1934,10 +1934,10 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * <code>whatToShow</code> bitmask, and <code>filter</code> callback.
 	 * <p>
 	 * Example:
+	 * </p>
 	 * <pre>
 	 * NodeIterator it = document.createNodeIterator(document.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null);
 	 * </pre>
-	 * </p>
 	 * <p>
 	 * Based on the <a href=
 	 * "https://www.w3.org/TR/dom/#dom-document-createnodeiterator"><code>createNodeIterator()</code>
@@ -1968,11 +1968,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * <code>whatToShow</code> bitmask, and <code>filter</code> callback.
 	 * <p>
 	 * Example:
+	 * </p>
 	 * 
 	 * <pre>
 	 * TreeWalker tw = document.createTreeWalker(document.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null);
 	 * </pre>
-	 * </p>
 	 * <p>
 	 * Based on the <a href=
 	 * "https://www.w3.org/TR/dom/#dom-document-createtreewalker"><code>createTreeWalker()</code>

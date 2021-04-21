@@ -80,6 +80,7 @@ public interface CSSStyleDeclaration {
 	/**
 	 * The name of the property at index {@code index} in this declaration.
 	 * 
+	 * @param index the index.
 	 * @return the name of the property at the given index, or null if the index is
 	 *         less than zero, or greater or equal to the length of this
 	 *         declaration.

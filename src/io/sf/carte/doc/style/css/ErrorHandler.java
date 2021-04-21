@@ -249,18 +249,20 @@ public interface ErrorHandler {
 	 * While computing a style, an error was found when processing the presentational hints of
 	 * an element.
 	 * 
-	 * @param elm
+	 * @param element
 	 *            the element.
 	 * @param exception
 	 *            the exception describing the error found.
 	 */
-	void presentationalHintError(CSSElement elm, DOMException exception);
+	void presentationalHintError(CSSElement element, DOMException exception);
 
 	/**
 	 * Reset the error state about computed styles and presentational hints for the
 	 * given element.
+	 * 
+	 * @param element the element.
 	 */
-	void resetComputedStyleErrors(CSSElement elm);
+	void resetComputedStyleErrors(CSSElement element);
 
 	/**
 	 * Reset the error state about computed styles and presentational hints.

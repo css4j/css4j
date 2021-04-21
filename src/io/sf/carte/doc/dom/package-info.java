@@ -6,7 +6,7 @@
  * <p>
  * The following behavior is believed to be more user-friendly from the point of
  * view of a developer that is handling an HTML document, but is non-conformant:
- * <p>
+ * </p>
  * <ol>
  * <li>On elements and attributes, <code>Node.getLocalName()</code> returns the
  * tag name instead of <code>null</code>, when the node was created with a DOM
@@ -39,7 +39,7 @@
  * "https://www.w3.org/TR/2008/REC-xml-20081126/#sec-attr-defaults">default
  * value</a> if any.</li>
  * </ol>
- * <h3>Traversing the DOM</h3>
+ * <h2>Traversing the DOM</h2>
  * <p>
  * There are several alternative procedures to retrieve the child nodes of a
  * parent node. The most straightforward is also the fastest: get the first (or
@@ -167,7 +167,7 @@
  * }
  * </pre>
  * 
- * <h3>Serializing the DOM</h3>
+ * <h2>Serializing the DOM</h2>
  * <p>
  * The class {@link io.sf.carte.doc.dom.DOMWriter DOMWriter} can be used to
  * pretty-print a document or a subtree. To do that, it takes into account the

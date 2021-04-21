@@ -14,7 +14,7 @@ import org.w3c.dom.Node;
 
 /**
  * Iterates over the document nodes according to a set of parameters.
- * <h3>Interoperability</h3>
+ * <h2>Interoperability</h2>
  * <p>
  * This interface is based on the <a href=
  * "https://www.w3.org/TR/dom/#interface-nodeiterator"><code>NodeIterator</code>
@@ -32,18 +32,18 @@ import org.w3c.dom.Node;
  * Additionally, beware that this iterator also behaves differently from the
  * Xerces <code>NodeIterator</code> regarding attributes:
  * </p>
- * <nl>
+ * <ol>
  * <li>Attributes do not always follow the specified order in Xerces.</li>
  * <li>Its iterator of attributes only traverses the root node.</li>
- * </nl>
+ * </ol>
  * <p>
  * If the filtering done by the <code>NodeFilter</code> changes during the
  * traversal (that is, nodes that were previously accepted now aren't), the
  * behaviour of this iterator may become inconsistent when going backwards. In
  * that case, you may want to try a <code>TreeWalker</code> instead.
  * </p>
- * <h3><code>ListIterator</code> optional operations: <code>add</code>,
- * <code>set</code>, <code>remove</code></h3>
+ * <h2><code>ListIterator</code> optional operations: <code>add</code>,
+ * <code>set</code>, <code>remove</code></h2>
  * <p>
  * This library's iterator implements {@link ListIterator} and its optional
  * operations, but any attempts to <code>remove</code> the root node, to change

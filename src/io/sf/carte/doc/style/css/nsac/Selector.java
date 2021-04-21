@@ -22,11 +22,9 @@ public interface Selector {
 
 		/**
 		 * The universal selector.
-		 * <p>
 		 * <pre class="example">
 		 *   *
 		 * </pre>
-		 * </p>
 		 * 
 		 * @see ElementSelector
 		 */
@@ -36,6 +34,7 @@ public interface Selector {
 		 * This is a conditional selector.
 		 * <p>
 		 * Example:
+		 * </p>
 		 * 
 		 * <pre class="example">
 		 *   simple[role="private"]
@@ -43,7 +42,6 @@ public interface Selector {
 		 *   H1#myId
 		 *   P:lang(fr).p1
 		 * </pre>
-		 * </p>
 		 *
 		 * @see ConditionalSelector
 		 */
@@ -53,12 +51,12 @@ public interface Selector {
 		 * This selector matches only element node.
 		 * <p>
 		 * Example:
+		 * </p>
 		 * 
 		 * <pre class="example">
 		 *   H1
 		 *   animate
 		 * </pre>
-		 * </p>
 		 * 
 		 * @see ElementSelector
 		 */
@@ -68,11 +66,11 @@ public interface Selector {
 		 * This selector matches an arbitrary descendant of some ancestor element.
 		 * <p>
 		 * Example:
+		 * </p>
 		 * 
 		 * <pre class="example">
 		 *   E F
 		 * </pre>
-		 * </p>
 		 * 
 		 * @see CombinatorSelector
 		 */
@@ -82,11 +80,11 @@ public interface Selector {
 		 * This selector matches a childhood relationship between two elements.
 		 * <p>
 		 * Example:
+		 * </p>
 		 * 
 		 * <pre class="example">
 		 * E &gt; F
 		 * </pre>
-		 * </p>
 		 * 
 		 * @see CombinatorSelector
 		 */
@@ -98,11 +96,11 @@ public interface Selector {
 		 * precedes the element represented by the second one.
 		 * <p>
 		 * Example:
+		 * </p>
 		 * 
 		 * <pre class="example">
 		 * E + F
 		 * </pre>
-		 * </p>
 		 * 
 		 * @see CombinatorSelector
 		 */
@@ -130,9 +128,10 @@ public interface Selector {
 		 * Scope pseudo-selector in selector arguments.
 		 * <p>
 		 * Scope should be applied where this pseudo-selector is found.
+		 * </p>
 		 * <p>
 		 * This selector has no serialization.
-		 * <p>
+		 * </p>
 		 * 
 		 * @see Condition.ConditionType#SELECTOR_ARGUMENT
 		 */

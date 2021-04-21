@@ -39,6 +39,7 @@
  * </p>
  * <p>
  * where <code>Flag</code> is a flag from an enumeration:
+ * </p>
  * <ul>
  * <li><code>STARHACK</code>. When <code>STARHACK</code> is set, the parser will
  * handle asterisk-prefixed property names as accepted names. This hack (that
@@ -58,7 +59,6 @@
  * priority hack, and instead produces <code>LexicalType.COMPAT_PRIO</code>
  * values.</li>
  * </ul>
- * </p>
  * <h3 id="luextensions"><code>LexicalUnit</code> Extensions</h3>
  * <p>
  * Some of the above Internet Explorer compatibility flags require the use of
@@ -72,7 +72,6 @@
  * <code>IEPRIOCHAR</code> flag, representing values that its compatible browser
  * interprets as being of <code>!important</code> priority.</li>
  * </ul>
- * </p>
  * <p>
  * Caution is advised when using these compatibility pseudo-values, as they may
  * conflict with syntax-conformant values.

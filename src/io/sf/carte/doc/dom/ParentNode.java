@@ -111,7 +111,7 @@ public interface ParentNode extends DOMNode {
 	 * <pre>
 	 *      BitSet mask = new BitSet(32);
 	 *      mask.set(Node.ELEMENT_NODE);
-	 *      Iterator<Node> it = node.iterator(mask);
+	 *      Iterator&lt;Node&gt; it = node.iterator(mask);
 	 * </pre>
 	 * @param whatToShow a bit set.
 	 * @return an iterator over the child nodes.
@@ -137,7 +137,7 @@ public interface ParentNode extends DOMNode {
 	 * Example:
 	 * 
 	 * <pre>
-	 * Iterator<Node> it = node.iterator(NodeFilter.SHOW_ELEMENT, null);
+	 * Iterator&lt;Node&gt; it = node.iterator(NodeFilter.SHOW_ELEMENT, null);
 	 * </pre>
 	 * 
 	 * @param whatToShow the bit field mask to apply to the node types, see
