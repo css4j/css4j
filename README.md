@@ -72,7 +72,7 @@ where `css4jVersion` would be defined in a `gradle.properties` file.
 <br/>
 
 ## Usage from a Maven build
-If you build your project (that depends on css4j) with Maven, plase note that some of the css4j dependencies are not in
+If you build your project (that depends on css4j) with Maven, please note that some of the css4j dependencies are not in
 Maven Central:
 - [JCLF](https://sourceforge.net/projects/jclf/).
 - [XMLPull-XPP3](https://github.com/xmlpull-xpp3/xmlpull-xpp3) (v1.2, dependency of the DOM4J module only).
