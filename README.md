@@ -10,7 +10,9 @@ Downloads of a ZIP archive containing all the artifacts are available from the [
 <br/>
 
 ## Build from source
-To build css4j from the code that is currently at the Git repositories, you need a current JDK (the build is tested with version 15) and a copy of the `css4j-dist` repository first, then run the `tree.sh` script. For example:
+To build css4j from the code that is currently at the Git repositories, you need a current JDK (the build is tested with
+version 15) and a copy of the `css4j-dist` repository (**not** this repository), then run the `tree.sh` script
+(which will fetch this repository together with several others). For example:
 ```
     git clone https://github.com/css4j/css4j-dist.git css4j-snapshot
     cd css4j-snapshot
@@ -65,7 +67,7 @@ dependencies {
     api "io.sf.carte:css4j:${css4jVersion}"
 }
 ```
-where `css4jVersion` is defined in a `gradle.properties` file.
+where `css4jVersion` would be defined in a `gradle.properties` file.
 
 <br/>
 
