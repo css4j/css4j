@@ -58,10 +58,22 @@ code, except for cases like multiple equivalent comparisons, exceptions that are
 very hard to trigger or never thrown (or put as a theoretical safeguard), etc.
 However, even one test is better than nothing.
 
+ For consistency, the names of classes that contain tests (i.e. with `@Test`
+annotation(s)) must end with `Test`. This makes easier to tell the actual tests
+apart from their helper classes.
+
  It is acceptable to mix tests and main source code in the same commit, as it is
 immediately obvious to the reviewers which are which, and the tests offer an
 insight of what the commit is trying to achieve. You do not need to mention the
 tests in the commit message.
+
+<br/>
+
+### Benchmarks
+
+ CSS4J uses [JMH](https://github.com/openjdk/jmh) for its [benchmarks](https://github.com/css4j/benchmark).
+The names of all the classes containing benchmarks must end with `Mark` for ease
+of identification (a similar convention to tests ending with `Test`).
 
 <br/>
 
