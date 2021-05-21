@@ -32,11 +32,11 @@ required). You can run a variety of Gradle tasks:
 - `gradle build publishToMavenLocal` (to install in local Maven repository)
 - `gradle copyJars` (to copy jar files into a top-level _jar_ directory)
 - `gradle lineEndingConversion` (to convert line endings of top-level text files to CRLF)
-- `gradle publish` (to deploy to a Maven repository, as described in the `publishing` block of
+- `gradle publish` (to deploy to a Maven repository, as described in the `publishing.repositories.maven` block of
 [css4j.java-conventions.gradle](https://github.com/css4j/css4j-dist/blob/master/buildSrc/src/main/groovy/css4j.java-conventions.gradle))
 
 If you do not have Gradle installed, it is easy to do so using a package manager (for example [`scoop`](https://scoop.sh/)
-in Windows).
+in Windows or [SDKMAN!](https://sdkman.io/) on Linux).
 
 <br/>
 
