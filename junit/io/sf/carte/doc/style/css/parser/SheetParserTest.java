@@ -604,17 +604,18 @@ public class SheetParserTest {
 	}
 
 	@Test
-	public void testParseSheetCommentEnd() throws CSSException, IOException {
+	public void testParseSheetCDORuleCDC() throws CSSException, IOException {
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		// An asterisk before the '*/' may confuse the parser
-		Reader re = new StringReader(".foo {  <!---just a --comment--->margin-left:auto}");
+		//
+		Reader re = new StringReader("<!-- .foo {margin-left:auto} -->");
 		parser.parseStyleSheet(re);
 		//
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(0, handler.comments.size());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -624,24 +625,25 @@ public class SheetParserTest {
 		//
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(50, loc.getColumnNumber());
+		assertEquals(28, loc.getColumnNumber());
 		//
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
 
 	@Test
-	public void testParseSheetCommentEnd2() throws CSSException, IOException {
+	public void testParseSheetCommentCDOCDCRule() throws CSSException, IOException {
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		// An asterisk before the '*/' may confuse the parser
-		Reader re = new StringReader(".foo {  <!---just a --comment---->margin-left:auto}");
+		//
+		Reader re = new StringReader("<!-- --> .foo {margin-left:auto}");
 		parser.parseStyleSheet(re);
 		//
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(0, handler.comments.size());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -651,7 +653,63 @@ public class SheetParserTest {
 		//
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(51, loc.getColumnNumber());
+		assertEquals(32, loc.getColumnNumber());
+		//
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseSheetCommentCDORule() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		//
+		Reader re = new StringReader("<!-- .foo {margin-left:auto}");
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.selectors.size());
+		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(0, handler.comments.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("auto", lu.getStringValue());
+		//
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(28, loc.getColumnNumber());
+		//
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseSheetCommentCDCRule() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		//
+		Reader re = new StringReader("--> .foo {margin-left:auto}");
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.selectors.size());
+		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(0, handler.comments.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("auto", lu.getStringValue());
+		//
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(27, loc.getColumnNumber());
 		//
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
@@ -867,11 +925,13 @@ public class SheetParserTest {
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("tv.css", handler.importURIs.get(0));
 		//
-		assertEquals(5, handler.comments.size());
-		assertEquals(" Comment before li ", handler.comments.get(0));
-		assertEquals(" Comment before frame ", handler.comments.get(1));
-		assertEquals(" Comment before frameset ", handler.comments.get(2));
-		assertEquals(" Comment before noframes ", handler.comments.get(3));
+		assertEquals(7, handler.comments.size());
+		assertEquals(" After CDO ", handler.comments.get(0));
+		assertEquals(" After CDC ", handler.comments.get(1));
+		assertEquals(" Comment before li ", handler.comments.get(2));
+		assertEquals(" Comment before frame ", handler.comments.get(3));
+		assertEquals(" Comment before frameset ", handler.comments.get(4));
+		assertEquals(" Comment before noframes ", handler.comments.get(5));
 		//
 		assertEquals(21, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
@@ -3195,18 +3255,29 @@ public class SheetParserTest {
 		parser.setErrorHandler(errorHandler);
 		Reader re = new StringReader("<!--/*--><![CDATA[/*><!--*/body{padding-top:2px}.foo {color:red}");
 		parser.parseStyleSheet(re);
-		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("color", handler.propertyNames.getFirst());
+
+		assertEquals(2, handler.selectors.size());
+		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(1).toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("padding-top", handler.propertyNames.getFirst());
+		assertEquals("color", handler.propertyNames.get(1));
+
 		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
+		assertEquals(2, lu.getFloatValue(), 1e-5);
+		lu = handler.lexicalValues.get(1);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("red", lu.getStringValue());
+
 		// The comments found do not apply to a valid rule
-		assertEquals(0, handler.comments.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(10, errorHandler.getLastException().getColumnNumber());
+		assertEquals(1, handler.comments.size());
+		assertEquals("--><![CDATA[/*><!--", handler.comments.getFirst());
+
+		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
 
@@ -3218,18 +3289,29 @@ public class SheetParserTest {
 		parser.setErrorHandler(errorHandler);
 		Reader re = new StringReader("<!--/*--><!/*><!--*/body{padding-top:2px}.foo {color:red}");
 		parser.parseStyleSheet(re);
-		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("color", handler.propertyNames.getFirst());
+
+		assertEquals(2, handler.selectors.size());
+		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(1).toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("padding-top", handler.propertyNames.getFirst());
+		assertEquals("color", handler.propertyNames.get(1));
+
 		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
+		assertEquals(2, lu.getFloatValue(), 1e-5);
+		lu = handler.lexicalValues.get(1);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("red", lu.getStringValue());
+
 		// The comments found do not apply to a valid rule
-		assertEquals(0, handler.comments.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(10, errorHandler.getLastException().getColumnNumber());
+		assertEquals(1, handler.comments.size());
+		assertEquals("--><!/*><!--", handler.comments.getFirst());
+
+		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
 

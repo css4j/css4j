@@ -170,16 +170,14 @@ public class CSSParser implements Parser, Cloneable {
 	@Override
 	public void parseStyleSheet(Reader reader) throws CSSParseException, IOException, IllegalStateException {
 		final int[] allowInWords = { 45, 95 }; // -_
-		final String[] opening = {"/*", "<!--"};
-		final String[] closing = {"*/", "-->"};
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		SheetTokenHandler handler = new SheetTokenHandler(null);
+		SheetTokenHandler handler = new SheetTokenHandler(null, true);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
-		tp.parseMultiComment(reader, opening, closing);
+		tp.parse(reader, "/*", "*/");
 	}
 
 	@Override
@@ -195,7 +193,7 @@ public class CSSParser implements Parser, Cloneable {
 		String contentEncoding = ucon.getContentEncoding();
 		String conType = ucon.getContentType();
 		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
-		SheetTokenHandler handler = new SheetTokenHandler(null);
+		SheetTokenHandler handler = new SheetTokenHandler(null, false);
 		int[] allowInWords = { 45, 95 }; // -_
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
@@ -219,6 +217,7 @@ public class CSSParser implements Parser, Cloneable {
 		if (source == null) {
 			throw new NullPointerException("Null source.");
 		}
+
 		Reader re = source.getCharacterStream();
 		if (re == null) {
 			InputStream is = source.getByteStream();
@@ -240,13 +239,11 @@ public class CSSParser implements Parser, Cloneable {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		final int[] allowInWords = { 45, 95 }; // -_
-		final String[] opening = {"/*", "<!--"};
-		final String[] closing = {"*/", "-->"};
-		SheetTokenHandler handler = new SheetTokenHandler(null);
+		SheetTokenHandler handler = new SheetTokenHandler(null, true);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
-		tp.parseMultiComment(re, opening, closing);
+		tp.parse(re, "/*", "*/");
 	}
 
 	@Override
@@ -2667,7 +2664,7 @@ public class CSSParser implements Parser, Cloneable {
 	private class RuleTokenHandler extends SheetTokenHandler {
 
 		RuleTokenHandler(NamespaceMap nsMap) {
-			super(nsMap);
+			super(nsMap, false);
 		}
 
 		@Override
@@ -2832,8 +2829,11 @@ public class CSSParser implements Parser, Cloneable {
 
 		private ConditionWrapper currentCondition = null;
 
-		SheetTokenHandler(NamespaceMap nsMap) {
+		private final boolean topLevel;
+
+		SheetTokenHandler(NamespaceMap nsMap, boolean topLevel) {
 			super();
+			this.topLevel = topLevel;
 			buffer = new StringBuilder(512);
 			declarationHandler = new MyDeclarationTokenHandler();
 			selectorHandler = new MySelectorTokenHandler(nsMap);
@@ -4070,6 +4070,16 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			boolean isTopLevel() {
+				return topLevel;
+			}
+
+			@Override
+			TokenControl getTokenControl() {
+				return SheetTokenHandler.this.getTokenControl();
+			}
+
+			@Override
 			void setCurrentLocation(int index) {
 				SheetTokenHandler.this.setCurrentLocation(index);
 			}
@@ -4236,7 +4246,7 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	class SelectorTokenHandler extends CSSTokenHandler {
+	class SelectorTokenHandler extends ControlTokenHandler {
 
 		NSACSelectorFactory factory;
 		private NamespaceMap nsMap;
@@ -4886,9 +4896,17 @@ public class CSSParser implements Parser, Cloneable {
 							processBuffer(index, codepoint, false);
 							stage = STAGE_EXPECT_PSEUDOCLASS_NAME;
 						}
-					} else if (codepoint == 62) { // >
+					} else if (codepoint == TokenProducer.CHAR_GREATER_THAN) { // >
 						if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
+						} else if (stage == 1 && CharSequence.compare("--", buffer) == 0) {
+							if (isTopLevel() && prevcp == 65 && escapedTokenIndex == -1 && functionToken == false) {
+								buffer.setLength(0);
+								stage = 0;
+								prevcp = 32;
+								return;
+							}
+							unexpectedCharError(index, codepoint);
 						}
 						processBuffer(index, codepoint, false);
 						if (stage < 2) {
@@ -4954,6 +4972,12 @@ public class CSSParser implements Parser, Cloneable {
 								prevcp = 65;
 								return;
 							}
+							if (codepoint == TokenProducer.CHAR_LESS_THAN && isTopLevel()) {
+								processBuffer(index, codepoint, false);
+								handleCDO();
+								prevcp = 32;
+								return;
+							}
 						} else if (!isUnexpectedCharacter(codepoint)) {
 							bufferAppend(codepoint);
 							prevcp = 65;
@@ -5014,6 +5038,11 @@ public class CSSParser implements Parser, Cloneable {
 					|| cp == 0x5e || cp == 0x60;
 			// x21 !, x24 $, x25 %, x26 & x2f /, x3b ;, x3c <,
 			// x3d =, x3e >, x3f ?, x5e ^, x60 `
+		}
+
+		private void handleCDO() {
+			TokenHandler cdoCdcTH = new CDOTokenHandler(getTokenControl());
+			getTokenControl().setTokenHandler(cdoCdcTH);
 		}
 
 		private void readNamespacePrefix(int index, int codepoint) {
@@ -5422,6 +5451,99 @@ public class CSSParser implements Parser, Cloneable {
 					throw createException(index, errCode, message);
 				}
 			}
+		}
+
+	}
+
+	private class CDOTokenHandler extends CSSTokenHandler {
+
+		private final TokenControl parserctl;
+		private final CSSTokenHandler parent;
+
+		CDOTokenHandler(TokenControl parserctl) {
+			super();
+			this.prevcp = TokenProducer.CHAR_LESS_THAN;
+			this.parserctl = parserctl;
+			this.parent = (CSSTokenHandler) parserctl.getTokenHandler();
+		}
+
+		@Override
+		public void word(int index, CharSequence word) {
+			if (CharSequence.compare("--", word) != 0 || this.prevcp != TokenProducer.CHAR_EXCLAMATION) {
+				parent.unexpectedTokenError(index, word);
+			}
+			yieldHandling();
+		}
+
+		@Override
+		public void character(int index, int codePoint) {
+			if (codePoint == TokenProducer.CHAR_EXCLAMATION && this.prevcp == TokenProducer.CHAR_LESS_THAN) {
+				this.prevcp = codePoint;
+				return;
+			}
+			parent.unexpectedCharError(index, codePoint);
+			yieldHandling();
+		}
+
+		void yieldHandling() {
+			parserctl.setTokenHandler(parent);
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			parent.unexpectedTokenError(index, comment);
+			yieldHandling();
+		}
+
+		@Override
+		public void control(int index, int codePoint) {
+			parent.control(index, codePoint);
+			parent.unexpectedCharError(index, codePoint);
+			yieldHandling();
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			parent.handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "EOF while processing CDO/CDC.");
+			parent.endOfStream(len);
+		}
+
+		@Override
+		public void separator(int index, int codePoint) {
+			parent.unexpectedCharError(index, codePoint);
+			yieldHandling();
+		}
+
+		@Override
+		public void quoted(int index, CharSequence quoted, int quote) {
+			char quotec = Character.valueOf((char) quote);
+			StringBuilder buf = new StringBuilder(quoted.length() + 2);
+			buf.append(quotec).append(quoted).append(quotec);
+			parent.unexpectedTokenError(index, buf);
+			yieldHandling();
+		}
+
+		@Override
+		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+			quoted(index, quoted, quoteCp);
+		}
+
+		@Override
+		public void openGroup(int index, int codePoint) {
+			parent.unexpectedCharError(index, codePoint);
+			yieldHandling();
+		}
+
+		@Override
+		public void closeGroup(int index, int codePoint) {
+			parent.unexpectedCharError(index, codePoint);
+			yieldHandling();
+		}
+
+		@Override
+		public void escaped(int index, int codePoint) {
+			parent.unexpectedCharError(index, codePoint);
+			yieldHandling();
 		}
 
 	}
@@ -7514,6 +7636,10 @@ public class CSSParser implements Parser, Cloneable {
 			super();
 			line = currentLine;
 			prevlinelength = prevLineLength;
+		}
+
+		boolean isTopLevel() {
+			return false;
 		}
 
 		@Override

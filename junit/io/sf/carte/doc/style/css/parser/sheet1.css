@@ -1,8 +1,8 @@
 @namespace svg url("http://www.w3.org/2000/svg") ;
 @supports (display: table-cell) and (display: list-item) {td {display: table-cell; } li {display: list-item; }}
 p.boldmargin {font-weight: bold; margin-left: 2%;}
-<!-- CDO-CDC comment here -->
-p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+<!-- /* After CDO */
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;} --> /* After CDC */
 ul, ol {margin-top: 1em; margin-bottom: 2em;}
 /* Comment before li */
 li {margin-top: 1em; margin-bottom: 1em; }
