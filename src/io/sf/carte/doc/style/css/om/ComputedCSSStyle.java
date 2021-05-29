@@ -1349,8 +1349,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		StyleValue fallback = env.getFallback();
 		if (fallback == null) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-					"Unable to evaluate env() value: " + env.getName());
+			computedStyleError(propertyName, env.getCssText(), "Unable to evaluate env() value for: " + env.getName());
 		}
 		return fallback;
 	}
