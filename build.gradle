@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
 	api project(':carte-util')
-	api project(':tokenproducer')
+	api 'io.sf.carte:tokenproducer:${tokenproducerVersion}'
 	implementation project(':xml-dtd')
 	api 'io.sf.jclf:jclf-text:[5.0.0,)'
 	implementation 'org.slf4j:slf4j-api:[1.7.28,)'
