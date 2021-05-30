@@ -15,6 +15,4 @@ public class TestConfig {
 
 	public static final boolean REMOTE_TESTS = false;
 
-	public static final boolean SLOW_TESTS = false;
-
 }

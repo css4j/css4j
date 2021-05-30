@@ -17,7 +17,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.DocumentException;
-import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -34,18 +33,14 @@ public class VarBLATest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		if (TestConfig.SLOW_TESTS) {
-			factoryDef = new TestCSSStyleSheetFactory(false);
-		}
+		factoryDef = new TestCSSStyleSheetFactory(false);
 	}
 
 	@Before
 	public void setUp() throws IOException, DocumentException {
-		if (TestConfig.SLOW_TESTS) {
-			InputStream is = xhtmlClasspathStream("varbla.html");
-			htmlDoc = wrapStreamForFactory(is, "http://www.example.com/varbla.html");
-			// No need to close 'is'.
-		}
+		InputStream is = xhtmlClasspathStream("varbla.html");
+		htmlDoc = wrapStreamForFactory(is, "http://www.example.com/varbla.html");
+		// No need to close 'is'.
 	}
 
 	/*
@@ -53,17 +48,15 @@ public class VarBLATest {
 	 */
 	@Test(timeout = 10000)
 	public void testVarBLA() {
-		if (TestConfig.SLOW_TESTS) {
-			CSSElement elm = htmlDoc.getElementById("div1");
-			/*
-			 * DoS in custom property substitution.
-			 */
-			CSSComputedProperties style = elm.getComputedStyle(null);
-			CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-			assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
-			assertTrue(htmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-			assertTrue(htmlDoc.getErrorHandler().hasComputedStyleErrors());
-		}
+		CSSElement elm = htmlDoc.getElementById("div1");
+		/*
+		 * DoS in custom property substitution.
+		 */
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertTrue(htmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(htmlDoc.getErrorHandler().hasComputedStyleErrors());
 	}
 
 	static CSSDocument wrapStreamForFactory(InputStream is, String documentURI)

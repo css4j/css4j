@@ -239,15 +239,20 @@ public class NumberValue extends TypedValue {
 
 	@Override
 	public void setExpectInteger() {
-		if (getUnitType() != CSSUnit.CSS_NUMBER || !asInteger) {
+		if (getUnitType() != CSSUnit.CSS_NUMBER) {
+			super.setExpectInteger();
+		} else if (calculated) {
+			asInteger = true;
+			realvalue = Math.round(realvalue);
+		} else if (!asInteger) {
 			super.setExpectInteger();
 		}
 	}
 
 	void roundToInteger() throws DOMException {
+		asInteger = true;
 		setExpectInteger();
 		realvalue = Math.round(realvalue);
-		asInteger = true;
 	}
 
 	@Override

@@ -239,11 +239,21 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		super.setPropertyCSSValue(propertyName, value, hrefcontext);
 	}
 
-	private LexicalValue getCustomPropertyValue(String property, boolean inherited) {
+	/**
+	 * Get the (lexical) value of a custom property, replacing lexical {@code VAR} units if needed.
+	 * 
+	 * @param property
+	 * @param inherited
+	 * @param counter
+	 * @return the property's lexical value.
+	 */
+	private LexicalValue getCustomPropertyValue(String property, boolean inherited, CounterRef counter) {
+		// All custom properties come through lexicalProperty() and are handled as a LexicalValue
 		LexicalValue value = (LexicalValue) super.getCSSValue(property);
 		//
 		ComputedCSSStyle ancStyle = this;
 		if (inherited) {
+			// Inherit until declared value is not null
 			while (value == null) {
 				ancStyle = ancStyle.getParentComputedStyle();
 				if (ancStyle == null) {
@@ -263,10 +273,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			LexicalUnit lunit = value.getLexicalUnit().clone();
 			LexicalUnit replUnit;
 			try {
-				replUnit = ancStyle.replaceLexicalVar(property, lunit);
-			} catch (DOMException e) {
-				ancStyle.computedStyleError(property, lunit.toString(), "Problem evaluating lexical value.", e);
-				return null;
+				replUnit = ancStyle.replaceLexicalVar(property, lunit, counter);
+			} catch (CSSResourceLimitException e) {
+				throw e;
+			} catch (Exception e) {
+				ancStyle.computedStyleError(property, value.getCssText(), null, e);
+				replUnit = null;
 			}
 			//
 			if (replUnit != null) {
@@ -346,7 +358,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (!inherited && isCustomPropertyName(property)) {
 			CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(property);
 			inherited = definition == null || definition.inherits();
-			LexicalValue lexval = getCustomPropertyValue(property, inherited);
+			CounterRef counter = new CounterRef();
+			LexicalValue lexval;
+			try {
+				lexval = getCustomPropertyValue(property, inherited, counter);
+			} catch (DOMException e) {
+				computedStyleError(property, null, null, e);
+				return null;
+			}
 			if (lexval == null) {
 				if (definition != null) {
 					LexicalValue initial = (LexicalValue) definition.getInitialValue();
@@ -355,7 +374,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					comp = null;
 				}
 			} else {
-				comp = evaluateLexicalValue(property, lexval);
+				comp = evaluateLexicalValue(property, lexval, counter);
 				if (comp != null && comp.getCssValueType() == CssType.TYPED) {
 					try {
 						comp = absoluteValue(property, comp, false);
@@ -437,24 +456,22 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		// Check for top-level var()
 		if (pritype == Type.VAR) {
 			VarValue varValue = (VarValue) pri;
-			value = evaluateCustomProperty(propertyName, varValue);
+			value = evaluateVarValue(propertyName, varValue);
 			if (value != null && (value.getPrimitiveType() == Type.INITIAL || (value.getPrimitiveType() == Type.UNSET
 					&& !PropertyDatabase.getInstance().isInherited(propertyName)))) {
 				value = defaultPropertyValue(propertyName);
 				if (value != null) {
 					// Enforce integer, if expected
-					if (varValue.isExpectingInteger()) {
-						if (value.isPrimitiveValue()) {
-							((CSSPrimitiveValue) value).setExpectInteger();
-						} else if (value.getCssValueType() == CSSValue.CssType.LIST) {
-							throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-									"Expected an integer, found a LIST.");
-						}
-					}
+					value = enforceExpectIntegerFromProxy(propertyName, varValue, value);
 				}
 			}
 		} else if (pritype == Type.LEXICAL) {
-			value = evaluateLexicalValue(propertyName, (LexicalValue) pri);
+			try {
+				value = evaluateLexicalValue(propertyName, (LexicalValue) pri, new CounterRef());
+			} catch (CSSResourceLimitException e) {
+				computedStyleError(propertyName, pri.getCssText(), null, e);
+				return null;
+			}
 			if (value != null) {
 				if (value.getPrimitiveType() == Type.LEXICAL) {
 					if (!isCustomPropertyName(propertyName)) {
@@ -513,7 +530,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
 		}
-		lunit = replaceLexicalVar(longhand, lunit);
+		lunit = replaceLexicalVar(longhand, lunit, new CounterRef());
 		return lunit != null ? setShorthandLonghands(shorthand, lunit, prioImportant, null) : false;
 	}
 
@@ -1103,18 +1120,29 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return null;
 	}
 
-	private StyleValue evaluateCustomProperty(String property, VarValue value) {
+	/**
+	 * Evaluates a top-level CSSOM {@code var()} value.
+	 * 
+	 * @param property
+	 * @param value
+	 * @return the evaluated CSSOM value.
+	 */
+	private StyleValue evaluateVarValue(String property, VarValue value) {
 		String propertyName = value.getName();
 		if (!isCustomPropertyName(propertyName)) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-					"var() references non-custom property: " + propertyName);
+			computedStyleError(property, value.getCssText(), "var() references non-custom property: " + propertyName);
+			return null;
 		}
+
+		// Circularity checks
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
 		} else if (customPropertyStack.contains(propertyName)) {
+			// Circularity found, report error
+			computedStyleError(property, value.getCssText(), "var() dependency loop in " + propertyName);
+			// Attempt to use the fallback
 			LexicalUnit fallback = value.getFallback();
 			if (fallback != null) {
-				computedStyleError(property, value.getCssText(), "var() dependency loop in " + propertyName);
 				StyleValue custom;
 				try {
 					custom = customPropertyFallback(property, value, fallback);
@@ -1123,17 +1151,24 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 				return custom;
 			} else {
-				customPropertyStack.clear();
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "var() dependency loop in " + propertyName);
+				return null;
 			}
 		}
 		customPropertyStack.add(propertyName);
+
 		//
 		CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(propertyName);
 		boolean inherited = definition == null || definition.inherits();
+		CounterRef counter = new CounterRef();
+		LexicalValue cpLexical;
+		try {
+			cpLexical = getCustomPropertyValue(propertyName, inherited, counter);
+		} catch (Exception e) {
+			computedStyleError(property, value.getCssText(), null, e);
+			cpLexical = null;
+		}
 		StyleValue custom;
 		try {
-			LexicalValue cpLexical = getCustomPropertyValue(propertyName, inherited);
 			if (cpLexical == null) {
 				LexicalUnit fallback = value.getFallback();
 				if (fallback == null) {
@@ -1147,7 +1182,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 				custom = customPropertyFallback(property, value, fallback);
 			} else {
-				custom = evaluateLexicalValue(property, cpLexical);
+				custom = evaluateLexicalValue(property, cpLexical, counter);
 				if (custom != null && custom.getCssValueType() == CssType.TYPED) {
 					try {
 						custom = absoluteValue(property, custom, false);
@@ -1158,68 +1193,136 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 			}
 		} catch (Exception e) {
-			customPropertyStack.clear();
-			throw e;
+			computedStyleError(property, value.getCssText(), null, e);
+			custom = null;
 		}
 		customPropertyStack.remove(propertyName);
-		if (value.isExpectingInteger() && custom != null) {
-			if (custom.isPrimitiveValue()) {
-				((CSSPrimitiveValue) custom).setExpectInteger();
-			} else if (custom.getCssValueType() == CSSValue.CssType.LIST) {
-				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-						"Expected an integer, found a LIST.");
-			} // 'custom' could be <inherit>
-		}
+		//
+		custom = enforceExpectIntegerFromProxy(property, value, custom);
 		return custom;
 	}
 
+	/**
+	 * Enforces the 'expect integer' flag from a {@code PROXY} value on a resolved
+	 * value (obtained from the proxy).
+	 * 
+	 * @param property
+	 * @param proxy
+	 * @param resolved
+	 * @return the resolved value if the enforcement succeeded at this point, {@code null} otherwise.
+	 */
+	private StyleValue enforceExpectIntegerFromProxy(String property, ProxyValue proxy, StyleValue resolved) {
+		if (proxy.isExpectingInteger()) {
+			if (resolved.isPrimitiveValue()) {
+				try {
+					((CSSPrimitiveValue) resolved).setExpectInteger();
+				} catch (DOMException e) {
+					computedStyleError(property, resolved.getCssText(), null, e);
+					resolved = null;
+				}
+			} else if (resolved.getCssValueType() == CSSValue.CssType.LIST) {
+				computedStyleError(property, resolved.getCssText(), "Expected an integer, found a LIST.");
+				resolved = null;
+			} // 'custom' could be <inherit>
+		}
+		return resolved;
+	}
+
+	private static class CounterRef {
+
+		private static final int MAX_RECURSION = 512;
+
+		// Recursion counter
+		private int counter = 0;
+
+		// Counter for replaceBy()
+		private int replaceCounter = 0;
+
+		boolean increment() {
+			counter++;
+			if (isInRange()) {
+				return true;
+			}
+			// Give a small margin for further operations
+			counter -= 8;
+			return false;
+		}
+
+		private boolean isInRange() {
+			return counter < MAX_RECURSION;
+		}
+
+	}
+
+	/**
+	 * Evaluates the fallback of a top-level {@code var()} function.
+	 * 
+	 * @param property
+	 * @param varValue
+	 * @param fallback
+	 * @return the fallback as a {@code CSSValue}.
+	 * @throws DOMException
+	 */
 	private StyleValue customPropertyFallback(String property, ProxyValue varValue, LexicalUnit fallback)
 			throws DOMException {
 		StyleValue custom = new ValueFactory().createCSSValue(fallback, this);
 		if (custom != null) {
 			// Check fallback for expecting integer.
-			if (varValue.isExpectingInteger()) {
-				if (custom.isPrimitiveValue()) {
-					((CSSPrimitiveValue) custom).setExpectInteger();
-				} else if (custom.getCssValueType() == CSSValue.CssType.LIST) {
-					computedStyleError(property, custom.getCssText(), "Expected an integer, found a LIST.");
-					return null;
-				}
-			}
+			custom = enforceExpectIntegerFromProxy(property, varValue, custom);
 		}
 		return custom;
 	}
 
-	private StyleValue evaluateLexicalValue(String property, LexicalValue lexval) {
+	/**
+	 * Create a CSSOM value from a lexical value, substituting any {@code VAR}
+	 * lexical units as necessary.
+	 * 
+	 * @param property
+	 * @param lexval
+	 * @param counter
+	 * @return
+	 */
+	private StyleValue evaluateLexicalValue(String property, LexicalValue lexval, CounterRef counter) {
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
 		}
 		LexicalUnit lunit = lexval.getLexicalUnit().clone();
 		LexicalUnit replUnit;
 		try {
-			replUnit = replaceLexicalVar(property, lunit);
+			replUnit = replaceLexicalVar(property, lunit, counter);
+		} catch (CSSResourceLimitException e) {
+			throw e;
 		} catch (DOMException e) {
 			computedStyleError(property, lunit.toString(), "Problem evaluating lexical value.", e);
 			return null;
 		}
 		//
+		StyleValue result = null;
 		if (replUnit != null) {
 			try {
-				return getValueFactory().createCSSValue(replUnit, this);
+				result = getValueFactory().createCSSValue(replUnit, this);
 			} catch (DOMException e) {
 				LexicalValue repLexval = new LexicalValue();
 				repLexval.setLexicalUnit(replUnit);
-				return repLexval;
+				result = repLexval;
 			}
 		}
-		return null;
+		result = enforceExpectIntegerFromProxy(property, lexval, result);
+		return result;
 	}
 
-	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval) throws DOMException {
-		return replaceLexicalVar(property, lexval, 0);
-	}
-
-	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, int counter) throws DOMException {
+	/**
+	 * Given a lexical value, replace all occurrences of the {@code VAR} lexical
+	 * type with the values of the corresponding custom properties.
+	 * 
+	 * @param property
+	 * @param lexval
+	 * @param counter
+	 * @return
+	 * @throws DOMException
+	 * @throws CSSResourceLimitException
+	 */
+	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, CounterRef counter) throws DOMException {
 		LexicalUnit lu = lexval;
 		do {
 			if (lu.getLexicalUnitType() == LexicalType.VAR) {
@@ -1230,18 +1333,25 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if (param != null) {
 					param = param.getNextLexicalUnit(); // Fallback
 				}
+
+				// Circularity check
 				if (customPropertyStack.contains(propertyName)) {
-					// Fallback
+					// Attempt to use the fallback
 					if (param != null) {
 						computedStyleError(property, lexval.toString(), "Circularity evaluating lexical value.");
 						// Replace param, just in case
+						// But first, check for resource exhaustion...
+						if (!counter.increment()) {
+							throw new CSSResourceLimitException(
+									"Resource limit hit while replacing custom property: " + propertyName);
+						}
 						newlu = replaceLexicalVar(property, param.clone(), counter);
 					} else {
 						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-								"Unable to evaluate custom property " + propertyName);
+								"Circularity evaluating custom property " + propertyName);
 					}
 				} else {
-					newlu = evaluateCustomPropertyValue(property, propertyName, param);
+					newlu = getCustomPropertyValueOrFallback(property, propertyName, param, counter);
 					while (newlu != null && newlu.getLexicalUnitType() == LexicalType.VAR) {
 						LexicalUnit newParam = newlu.getParameters();
 						String replacedPropertyName = newParam.getStringValue();
@@ -1249,9 +1359,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						if (newParam != null) {
 							newParam = newParam.getNextLexicalUnit(); // Fallback
 						}
-						newlu = evaluateCustomPropertyValue(property, replacedPropertyName, newParam);
+						if (!counter.increment()) {
+							throw new CSSResourceLimitException(
+									"Resource limit hit while replacing custom property: " + property);
+						}
+						newlu = getCustomPropertyValueOrFallback(property, replacedPropertyName, newParam, counter);
 					}
 				}
+
 				boolean isLexval = lu == lexval;
 				if (newlu == null) {
 					lu = lu.remove();
@@ -1261,9 +1376,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					continue;
 				} if (newlu.getLexicalUnitType() != LexicalType.EMPTY) {
 					try {
-						counter += lu.countReplaceBy(newlu);
+						counter.replaceCounter += lu.countReplaceBy(newlu);
 					} catch (CSSBudgetException e) {
-						DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
+						DOMException ex = new CSSResourceLimitException(
 								"Resource limit hit while replacing custom property " + propertyName);
 						ex.initCause(e);
 						throw ex;
@@ -1272,8 +1387,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					if (isLexval) {
 						lexval = newlu;
 					}
-					if (counter >= 0x50000) {
-						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					if (counter.replaceCounter >= 0x45000) {
+						throw new CSSResourceLimitException(
 								"Resource limit hit while replacing custom property " + propertyName);
 					}
 				} else {
@@ -1293,22 +1408,39 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			lu = lu.getNextLexicalUnit();
 		} while (lu != null);
+
 		return lexval;
 	}
 
-	private LexicalUnit evaluateCustomPropertyValue(String property, String customProperty, LexicalUnit fallbackLU)
-			throws DOMException {
+	/**
+	 * Obtain the (lexical) value of a custom property and replace any {@code VAR}
+	 * unit in it, applying the fallback if necessary.
+	 * 
+	 * @param property
+	 * @param customProperty
+	 * @param fallbackLU
+	 * @param counter
+	 * @return
+	 * @throws DOMException
+	 */
+	private LexicalUnit getCustomPropertyValueOrFallback(String property, String customProperty, LexicalUnit fallbackLU,
+			CounterRef counter) throws DOMException {
 		CSSPropertyDefinition definition = getOwnerSheet().getPropertyDefinition(customProperty);
 		boolean inherited = definition == null || definition.inherits();
 		//
 		Exception exception = null;
 		customPropertyStack.add(customProperty);
 		try {
-			LexicalValue custom = getCustomPropertyValue(customProperty, inherited);
+			LexicalValue custom = getCustomPropertyValue(customProperty, inherited, counter);
 			if (custom != null) {
-				LexicalUnit lu = custom.getLexicalUnit().clone();
+				LexicalUnit lu = custom.getLexicalUnit();
 				customPropertyStack.remove(customProperty);
-				return lu;
+				if (counter.increment()) {
+					return lu;
+				} else {
+					exception = new CSSResourceLimitException(
+							"Resource limit hit while replacing custom property: " + customProperty);
+				}
 			}
 		} catch (Exception e) {
 			exception = e;
@@ -1317,25 +1449,39 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (fallbackLU != null) {
 			// Replace param, just in case
 			try {
-				fallbackLU = replaceLexicalVar(property, fallbackLU.clone());
-				customPropertyStack.remove(customProperty);
-				return fallbackLU;
+				fallbackLU = replaceLexicalVar(property, fallbackLU.clone(), counter);
+				if (counter.increment()) {
+					if (exception != null) {
+						computedStyleError(property, null,
+								"Circularity error evaluating custom property " + customProperty);
+					}
+					return fallbackLU;
+				} else {
+					throw new CSSResourceLimitException(
+							"Resource limit hit while replacing custom property: " + customProperty);
+				}
+			} catch (CSSResourceLimitException e) {
+				throw e;
 			} catch (DOMException e) {
 				exception = e;
+			} finally {
+				customPropertyStack.remove(customProperty);
 			}
 		}
 		//
-		if (definition != null) {
-			customPropertyStack.remove(customProperty);
-			return definition.getInitialValue().getLexicalUnit();
-		}
+		customPropertyStack.remove(customProperty);
 		//
-		customPropertyStack.clear();
 		if (exception != null) {
-			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
-					"Unable to evaluate custom property " + customProperty);
-			ex.initCause(exception);
-			throw ex;
+			if (exception.getClass() == CSSResourceLimitException.class) {
+				throw (CSSResourceLimitException) exception;
+			} else {
+				DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"Unable to evaluate custom property " + customProperty);
+				ex.initCause(exception);
+				throw ex;
+			}
+		} else if (definition != null) {
+			return definition.getInitialValue().getLexicalUnit();
 		}
 		return null;
 	}
@@ -1770,7 +1916,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (value != null) {
 				CssType category = value.getCssValueType();
 				if (category == CssType.PROXY) {
-					value = replaceProxyValues("font-size", value);
+					try {
+						value = replaceProxyValues("font-size", value);
+					} catch (DOMException e) {
+						computedStyleError("font-size", value.getCssText(), "Unable to replace PROXY value.", e);
+						value = null;
+					}
 					if (value != null && value.getPrimitiveType() == Type.LEXICAL) {
 						/*
 						 * LEXICAL values at this point means something went wrong.
