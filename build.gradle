@@ -13,7 +13,7 @@ java {
 }
 
 dependencies {
-	api project(':carte-util')
+	api "io.sf.carte:carte-util:${carteutilVersion}"
 	api "io.sf.carte:tokenproducer:${tokenproducerVersion}"
 	api 'io.sf.jclf:jclf-text:[5.0.0,)'
 	xmldtdImplementation "io.sf.carte:xml-dtd:${xmldtdVersion}"
