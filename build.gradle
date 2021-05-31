@@ -2,12 +2,22 @@ plugins {
 	id 'css4j.java-conventions'
 }
 
+java {
+	registerFeature('xmldtd') {
+		usingSourceSet(sourceSets.main)
+	}
+	registerFeature('logging') {
+		usingSourceSet(sourceSets.main)
+	}
+	withJavadocJar()
+}
+
 dependencies {
 	api project(':carte-util')
-	api 'io.sf.carte:tokenproducer:${tokenproducerVersion}'
-	implementation project(':xml-dtd')
+	api "io.sf.carte:tokenproducer:${tokenproducerVersion}"
 	api 'io.sf.jclf:jclf-text:[5.0.0,)'
-	implementation 'org.slf4j:slf4j-api:[1.7.28,)'
+	xmldtdImplementation "io.sf.carte:xml-dtd:${xmldtdVersion}"
+	loggingImplementation 'org.slf4j:slf4j-api:[1.7.28,)'
 	testImplementation "nu.validator:htmlparser:${htmlparserVersion}"
 }
 
@@ -31,8 +41,4 @@ publishing.publications.maven {
 		description = "Core module"
 	}
 	artifact(testsJar)
-}
-
-java {
-	withJavadocJar()
 }
