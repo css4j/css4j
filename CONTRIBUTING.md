@@ -101,7 +101,14 @@ therefore are not part of the API)
 
 <br/>
 
-### Attribution
+### Copyright and attribution
+
+ All contributions are submitted under a [Developer Certificate of Origin](DeveloperCertificateOfOrigin.txt).
+Although every author maintains their copyright, in case that code from this
+project —including your contribution(s)— is used in a way that is deemed as a
+license infringement, you are —in principle— not opposed to be represented by
+the maintainer of this project in any legal proceedings intended to protect the
+license of this project.
 
  If you modify a source file that happens to have an `@author` tag with the
 author name, feel free to remove that field and let `git blame` handle the
