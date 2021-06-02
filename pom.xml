@@ -6,7 +6,7 @@
   <parent>
 	<groupId>io.sf.carte</groupId>
 	<artifactId>css4j-dist</artifactId>
-	<version>3.5.0</version>
+	<version>3.5.1</version>
   </parent>
   <groupId>io.sf.carte</groupId>
   <artifactId>css4j</artifactId>
@@ -23,7 +23,7 @@
 	<dependency>
 		<groupId>io.sf.carte</groupId>
 		<artifactId>xml-dtd</artifactId>
-		<version>${project.parent.version}</version>
+		<version>[3.5.1,)</version>
 		<type>jar</type>
 		<scope>compile</scope>
 		<optional>true</optional>
@@ -31,7 +31,7 @@
 	<dependency>
 		<groupId>io.sf.carte</groupId>
 		<artifactId>carte-util</artifactId>
-		<version>${project.parent.version}</version>
+		<version>[3.5.1,)</version>
 		<type>jar</type>
 		<scope>compile</scope>
 		<optional>false</optional>
