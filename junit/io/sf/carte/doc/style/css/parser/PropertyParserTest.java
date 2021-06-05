@@ -603,6 +603,27 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyIntegerPlusSign() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("+1");
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(1, lu.getIntegerValue());
+		assertEquals("1", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<resolution>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
 	public void testParsePropertyMargin() throws CSSException, IOException {
 		LexicalUnit lunit = parsePropertyValue("0.5em auto");
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
@@ -935,6 +956,46 @@ public class PropertyParserTest {
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueUnitEmPlusSign() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("+1.3em");
+		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals("em", lu.getDimensionUnitText());
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<flex>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<resolution>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<frequency>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <length>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueUnitEmMinusSign() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("-1.3em");
+		assertEquals(-1.3, lu.getFloatValue(), 1e-5);
+		assertEquals("em", lu.getDimensionUnitText());
+		assertEquals("-1.3em", lu.getCssText());
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
 	}
 
 	@Test
@@ -1283,6 +1344,23 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyPlusOneFloat() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("+1.0");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(1f, lu.getFloatValue(), 1e-5);
+	}
+
+	@Test
+	public void testParsePropertyPlusOneFloatError() throws CSSException, IOException {
+		try {
+			parsePropertyValue("++1.0");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
+		}
+	}
+
+	@Test
 	public void testParsePropertyMinusOneFloat() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("-1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
@@ -1373,6 +1451,61 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5);
 		assertEquals("%", lu.getDimensionUnitText());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyPercentPlusSign() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("+1%");
+		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals("%", lu.getDimensionUnitText());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyPercentNegativeSign() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("-1%");
+		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(-1f, lu.getFloatValue(), 1e-5);
+		assertEquals("%", lu.getDimensionUnitText());
+		assertEquals("-1%", lu.getCssText());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
 		assertEquals(Match.TRUE, lu.matches(syn));

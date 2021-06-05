@@ -6603,8 +6603,11 @@ public class CSSParser implements Parser, Cloneable {
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
-							} else {
+							} else if (buffer.length() != 0) {
 								unexpectedCharError(index, codepoint);
+							} else {
+								buffer.append('+');
+								codepoint = 65;
 							}
 						} else if (codepoint == 47) { // '/'
 							processBuffer(index);
