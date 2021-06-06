@@ -6603,7 +6603,8 @@ public class CSSParser implements Parser, Cloneable {
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
-							} else if (buffer.length() != 0) {
+							} else if (buffer.length() != 0 && (c = buffer.charAt(buffer.length() - 1)) != 'E'
+									&& c != 'e') {
 								unexpectedCharError(index, codepoint);
 							} else {
 								buffer.append('+');
@@ -6952,6 +6953,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
+		/**
+		 * Parse a value that is not an hex color.
+		 * 
+		 * @param index the parsing index.
+		 */
 		private void parseNonHexcolorValue(int index) {
 			// Unescape and check for unit
 			String raw = buffer.toString();
@@ -7012,6 +7018,7 @@ public class CSSParser implements Parser, Cloneable {
 				int cp = ident.codePointAt(i);
 				if (!Character.isLetter(cp) && cp != 37) { // Not letter nor %
 					if (cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1)) {
+						// Either not ending in [0-9] range or not parsable as a number
 						if (!newIdentifier(raw, ident, cssText)) {
 							checkForIEValue(index, raw);
 						}
@@ -7835,7 +7842,7 @@ public class CSSParser implements Parser, Cloneable {
 		boolean isNotForbiddenIdentStart(String s) {
 			char c = s.charAt(0);
 			if (c != '-') {
-				return !Character.isDigit(c);
+				return !Character.isDigit(c) && c != '+';
 			}
 			return (s.length() > 1 && !Character.isDigit(c = s.charAt(1))) || c == '\\';
 		}

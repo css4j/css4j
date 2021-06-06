@@ -1368,10 +1368,209 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyFloatExp_e() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("2.345678e-05");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(2.345678e-5, lu.getFloatValue(), 1e-11);
+		assertEquals("2.345678E-5", lu.getCssText());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyFloatExp_e_plus() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("2.345678e+8");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(2.345678e+8, lu.getFloatValue(), 10f);
+		assertEquals("234567808", lu.getCssText());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyFloatExp_E() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("-2.345678E-05");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(-2.345678e-5, lu.getFloatValue(), 1e-11);
+		assertEquals("-2.345678E-5", lu.getCssText());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyFloatExp_E_plus() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("+2.345678E+8");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(2.345678e+8, lu.getFloatValue(), 10f);
+		assertEquals("234567808", lu.getCssText());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyFloatExpError() throws CSSException, IOException {
+		try {
+			parsePropertyValue("1.0e+ 02");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyFloatExpError2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("+1.0e+ 02");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyFloatExpError3() throws CSSException, IOException {
+		try {
+			parsePropertyValue("-1.0e+ 02");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
+		}
+	}
+
+	@Test
 	public void testParsePropertyFloatList() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue(".1234 5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-6);
+		//
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalType.INTEGER, nlu.getLexicalUnitType());
+		assertEquals(5, nlu.getIntegerValue());
+		//
+		assertEquals("0.1234 5", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>#");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyFloatList2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue(".1234 +5");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-4);
+		//
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalType.INTEGER, nlu.getLexicalUnitType());
+		assertEquals(5, nlu.getIntegerValue());
+		//
+		assertEquals("0.1234 5", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>#");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string> | <number>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyFloatList3() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue(".1234 -5");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-4);
+		//
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalType.INTEGER, nlu.getLexicalUnitType());
+		assertEquals(-5, nlu.getIntegerValue());
+		//
+		assertEquals("0.1234 -5", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
 		assertEquals(Match.TRUE, lu.matches(syn));
