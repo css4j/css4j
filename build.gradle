@@ -23,6 +23,8 @@ dependencies {
 
 description = 'css4j'
 
+compileJava.dependsOn tasks.jvmVersionAttribute
+
 tasks.register('testsJar', Jar) {
 	archiveClassifier = 'tests'
 	from(sourceSets.test.output)
