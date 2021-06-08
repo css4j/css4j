@@ -1044,6 +1044,7 @@ public class ValueFactory {
 				primi = new UnicodeRangeValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			// The next one is included for completeness, but won't happen in normal workflows
 			case UNICODE_WILDCARD:
 				primi = new UnicodeWildcardValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);

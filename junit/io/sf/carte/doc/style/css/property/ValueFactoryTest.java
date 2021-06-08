@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -24,9 +25,11 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnicodeRangeValue.CSSUnicodeValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -125,6 +128,32 @@ public class ValueFactoryTest {
 		assertEquals(CssType.PROXY, value.getCssValueType());
 		assertEquals(CSSValue.Type.VAR, value.getPrimitiveType());
 		assertEquals("var(--foo, 3px)", value.getCssText());
+	}
+
+	@Test
+	public void testCreateCSSValueUnicodeRange() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("U+22-28");
+		StyleValue value = factory.createCSSValue(lunit);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.UNICODE_RANGE, value.getPrimitiveType());
+		UnicodeRangeValue range = (UnicodeRangeValue) value;
+		TypedValue begin = range.getValue();
+		assertEquals(Type.UNICODE_CHARACTER, begin.getPrimitiveType());
+		assertEquals(0x22, ((CSSUnicodeValue) begin).getCodePoint());
+		TypedValue end = range.getEndValue();
+		assertEquals(Type.UNICODE_CHARACTER, end.getPrimitiveType());
+		assertEquals(0x28, ((CSSUnicodeValue) end).getCodePoint());
+		//
+		lunit = parsePropertyValue("U+2??");
+		value = factory.createCSSValue(lunit);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.UNICODE_RANGE, value.getPrimitiveType());
+		range = (UnicodeRangeValue) value;
+		assertNull(range.getEndValue());
+		begin = range.getValue();
+		assertEquals(Type.UNICODE_WILDCARD, begin.getPrimitiveType());
+		assertEquals("2??", begin.getStringValue());
 	}
 
 	@Test
