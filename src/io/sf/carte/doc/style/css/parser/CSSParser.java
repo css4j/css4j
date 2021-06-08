@@ -6497,26 +6497,26 @@ public class CSSParser implements Parser, Cloneable {
 			// @ 64
 			if (functionToken && currentlu.getLexicalUnitType() == LexicalType.URI) {
 				bufferAppend(codepoint);
-			} else if (codepoint == 59) {
+			} else if (codepoint == TokenProducer.CHAR_SEMICOLON) {
 				handleSemicolon(index);
 			} else if (!parseError) {
 				if (propertyName == null) {
-					if (codepoint == 45) { // -
+					if (codepoint == TokenProducer.CHAR_HYPHEN_MINUS) { // -
 						// TokenProducer is supposed to send only isolated '-'
 						buffer.append('-');
 						codepoint = 65;
-					} else if (codepoint == 95) { // _
+					} else if (codepoint == TokenProducer.CHAR_LOW_LINE) { // _
 						// TokenProducer is supposed to send only isolated '_'
 						buffer.append('_');
 						codepoint = 65;
-					} else if (codepoint == 58) { // :
+					} else if (codepoint == TokenProducer.CHAR_COLON) { // :
 						// Here we should have the property name in buffer
 						if (buffer.length() != 0) {
 							setPropertyName(index);
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
 						}
-					} else if (codepoint == 64) {
+					} else if (codepoint == TokenProducer.CHAR_COMMERCIAL_AT) {
 						handleAtKeyword(index);
 					} else {
 						badPropertyName(index, codepoint);
@@ -6525,8 +6525,9 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (readPriority) {
 					processBuffer(index);
 					String compatText;
-					if (codepoint == 33 && priorityImportant && parserFlags.contains(Flag.IEPRIOCHAR)
-							&& (compatText = setFullIdentCompat()) != null) { // !
+					// !
+					if (codepoint == TokenProducer.CHAR_EXCLAMATION && priorityImportant
+							&& parserFlags.contains(Flag.IEPRIOCHAR) && (compatText = setFullIdentCompat()) != null) {
 						warnIdentCompat(index, compatText);
 						lunit.setUnitType(LexicalType.COMPAT_PRIO);
 						lunit.setCssUnit(CSSUnit.CSS_INVALID);
@@ -6538,7 +6539,7 @@ public class CSSParser implements Parser, Cloneable {
 						processBuffer(index);
 					}
 					newLexicalUnit(LexicalType.OPERATOR_COMMA, false);
-				} else if (codepoint == 33) { // !
+				} else if (codepoint == TokenProducer.CHAR_EXCLAMATION) { // !
 					if (!functionToken) {
 						processBuffer(index);
 						readPriority = true;
@@ -6603,8 +6604,8 @@ public class CSSParser implements Parser, Cloneable {
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
-							} else if (buffer.length() != 0 && (c = buffer.charAt(buffer.length() - 1)) != 'E'
-									&& c != 'e') {
+							} else if (!isPrevCpWhitespace() && (buffer.length() == 0
+									|| (c = buffer.charAt(buffer.length() - 1)) != 'E' && c != 'e')) {
 								unexpectedCharError(index, codepoint);
 							} else {
 								buffer.append('+');
@@ -6618,7 +6619,7 @@ public class CSSParser implements Parser, Cloneable {
 								unexpectedCharError(index, codepoint);
 							}
 						} else if (functionToken) {
-							if (codepoint == 42) { // '*'
+							if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
 								processBuffer(index);
 								if (currentlu.parameters != null && lastParamIsOperand()) {
 									newLexicalUnit(LexicalType.OPERATOR_MULTIPLY, false);
@@ -6632,7 +6633,8 @@ public class CSSParser implements Parser, Cloneable {
 								unexpectedCharError(index, codepoint);
 							}
 						} else if (codepoint != TokenProducer.CHAR_COMMERCIAL_AT
-								&& codepoint != TokenProducer.CHAR_QUESTION_MARK) {
+								&& codepoint != TokenProducer.CHAR_QUESTION_MARK
+								&& codepoint != TokenProducer.CHAR_ASTERISK) {
 							bufferAppend(codepoint);
 						} else {
 							unexpectedCharError(index, codepoint);
