@@ -1075,6 +1075,14 @@ public class ValueFactory {
 			case OPERATOR_COMMA:
 			case OPERATOR_SEMICOLON:
 				throw new DOMException(DOMException.SYNTAX_ERR, "A comma or semicolon is not a valid primitive");
+			case OPERATOR_PLUS:
+			case OPERATOR_MINUS:
+			case OPERATOR_MULTIPLY:
+			case OPERATOR_SLASH:
+				if (!lunit.isParameter()) {
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"A '" + lunit.toString() + "' is not a valid primitive");
+				}
 			default:
 				// Unknown value
 				primi = new UnknownValue();
