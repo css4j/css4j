@@ -143,6 +143,7 @@ be copyrighted.
 and this is something known to deter some contributors, thus being a relevant
 information to cover here.
 
- There is a semi-public Maven repository that you can use, though. If you manage
-an open source project that plans to use this library, you may want to contact
-the maintainer of this project about that.
+ However, this project distributes its artifacts through the css4j Maven
+repository, as explained in the [README](README.md) (see 'Usage from a Gradle
+project'). Please use that repository **only** for the artifact groups that it
+supplies.
