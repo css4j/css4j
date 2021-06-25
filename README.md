@@ -25,19 +25,18 @@ Or download a zip and extract:
     cd css4j-dist-master
     ./tree.sh
 ```
-After running the script you'll have a tree with all the modules, ready to build with Gradle (use either the `gradlew`
-wrapper or your own `gradle` version 7.0 or higher). You can run a variety of Gradle tasks:
+After running the script you'll have a tree with all the modules, ready to build with Gradle (version 7.0 or higher is
+required). You can run a variety of Gradle tasks:
 
-- `gradlew build` (normal build)
-- `gradlew build publishToMavenLocal` (to install in local Maven repository)
-- `gradlew copyJars` (to copy jar files into a top-level _jar_ directory)
-- `gradlew lineEndingConversion` (to convert line endings of top-level text files to CRLF)
-- `gradlew publish` (to deploy to a Maven repository, as described in the `publishing.repositories.maven` block of
+- `gradle build` (normal build)
+- `gradle build publishToMavenLocal` (to install in local Maven repository)
+- `gradle copyJars` (to copy jar files into a top-level _jar_ directory)
+- `gradle lineEndingConversion` (to convert line endings of top-level text files to CRLF)
+- `gradle publish` (to deploy to a Maven repository, as described in the `publishing.repositories.maven` block of
 [css4j.java-conventions.gradle](https://github.com/css4j/css4j-dist/blob/master/buildSrc/src/main/groovy/css4j.java-conventions.gradle))
 
-If you do not have the current working directory in your `PATH`, you may have to run the previous commands with a preceding `./`,
-like `./gradlew build`. If you prefer to use your own Gradle binary instead of the provided wrapper, it is easy to install
-it using a package manager (for example [`scoop`](https://scoop.sh/) in Windows or [SDKMAN!](https://sdkman.io/) on Linux).
+If you do not have Gradle installed, it is easy to do so using a package manager (for example [`scoop`](https://scoop.sh/)
+in Windows or [SDKMAN!](https://sdkman.io/) on Linux).
 
 <br/>
 
