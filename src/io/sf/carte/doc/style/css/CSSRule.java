@@ -91,6 +91,11 @@ public interface CSSRule extends org.w3c.dom.css.CSSRule {
 
 	/**
 	 * Rule is a {@code @viewport} rule.
+	 * <p>
+	 * Note: {@code @viewport} rules were
+	 * <a href="https://github.com/w3c/csswg-drafts/issues/4766">removed by W3C in
+	 * February 2020</a>.
+	 * </p>
 	 */
 	short VIEWPORT_RULE = 15;
 
