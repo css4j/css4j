@@ -71,7 +71,8 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 				&& hslColor.getSaturation().getPrimitiveType() == Type.NUMERIC
 				&& hslColor.getLightness().getPrimitiveType() == Type.NUMERIC) {
 			String rgbCss = ((CSSRGBColor) toRGBColor()).toMinifiedString();
-			if (rgbCss.length() < css.length()) {
+			if (rgbCss.length() < css.length() - 5) {
+				// The RGB serialization is significantly smaller
 				css = rgbCss;
 			}
 		}
