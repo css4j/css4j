@@ -26,10 +26,8 @@ abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializ
 	private static final HashSet<String> rangeFeatureSet;
 
 	static {
-		final String[] rangeFeatures = { "aspect-ratio", "color", "color-index", "height", "monochrome", "resolution",
-				"width" };
-		rangeFeatureSet = new HashSet<String>(rangeFeatures.length);
-		Collections.addAll(rangeFeatureSet, rangeFeatures);
+		rangeFeatureSet = new HashSet<String>(MediaQueryDatabase.rangeFeatures.length);
+		Collections.addAll(rangeFeatureSet, MediaQueryDatabase.rangeFeatures);
 	}
 
 	private String mediaType = null;

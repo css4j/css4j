@@ -19,11 +19,12 @@ import java.util.HashSet;
  */
 class MediaQueryDatabase {
 
+	static final String[] rangeFeatures = { "aspect-ratio", "color", "color-index", "height", "monochrome",
+			"resolution", "width" };
+
 	private static final HashSet<String> mediaFeatureSet;
 
 	static {
-		final String[] rangeFeatures = { "aspect-ratio", "color", "color-index", "height", "monochrome", "resolution",
-				"width" };
 		final String[] discreteFeatures = { "any-hover", "any-pointer", "color-gamut", "grid", "hover", "orientation",
 				"overflow-block", "overflow-inline", "pointer", "scan", "update" };
 		mediaFeatureSet = new HashSet<String>(rangeFeatures.length + discreteFeatures.length);
