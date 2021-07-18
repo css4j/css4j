@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import java.io.IOException;
-
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue;
@@ -21,7 +19,6 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.util.SimpleWriter;
 
 /**
  * HSL color value.
@@ -80,41 +77,18 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public void writeCssText(SimpleWriter wri) throws IOException {
-		String css = hslColor.toString();
-		wri.write(css);
-	}
-
-	@Override
 	public PrimitiveValue getComponent(int index) {
-		switch (index) {
-		case 0:
-			return hslColor.alpha;
-		case 1:
-			return hslColor.getHue();
-		case 2:
-			return hslColor.getSaturation();
-		case 3:
-			return hslColor.getLightness();
-		}
-		return null;
+		return hslColor.item(index);
 	}
 
 	@Override
 	public void setComponent(int index, StyleValue component) {
-		switch (index) {
-		case 0:
-			hslColor.setAlpha((PrimitiveValue) component);
-			break;
-		case 1:
-			hslColor.setHue((PrimitiveValue) component);
-			break;
-		case 2:
-			hslColor.setSaturation((PrimitiveValue) component);
-			break;
-		case 3:
-			hslColor.setLightness((PrimitiveValue) component);
-		}
+		hslColor.setComponent(index, (PrimitiveValue) component);
+	}
+
+	@Override
+	public HSLColorValue toHSLColorValue() throws DOMException {
+		return this;
 	}
 
 	@Override

@@ -4900,7 +4900,7 @@ public class CSSParser implements Parser, Cloneable {
 						if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
 						} else if (stage == 1 && CharSequence.compare("--", buffer) == 0) {
-							if (isTopLevel() && prevcp == 65 && escapedTokenIndex == -1 && functionToken == false) {
+							if (isTopLevel() && prevcp == 65 && escapedTokenIndex == -1 && !functionToken) {
 								buffer.setLength(0);
 								stage = 0;
 								prevcp = 32;
@@ -5904,35 +5904,38 @@ public class CSSParser implements Parser, Cloneable {
 		private void newFunction(int index) {
 			LexicalUnitImpl lu;
 			String name = unescapeBuffer(index);
-			if ("url".equalsIgnoreCase(name)) {
+			String lcName = name.toLowerCase(Locale.ROOT);
+			if ("url".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.URI, true);
-			} else if ("rgb".equalsIgnoreCase(name) || "rgba".equalsIgnoreCase(name)) {
+			} else if ("rgb".equals(lcName) || "rgba".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.RGBCOLOR, true);
-			} else if ("hsl".equalsIgnoreCase(name) || "hsla".equalsIgnoreCase(name)) {
+			} else if ("hsl".equals(lcName) || "hsla".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.HSLCOLOR, true);
-			} else if ("calc".equalsIgnoreCase(name)) {
+			} else if ("calc".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.CALC, true);
-			} else if ("attr".equalsIgnoreCase(name)) {
+			} else if ("attr".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.ATTR, true);
-			} else if ("var".equalsIgnoreCase(name)) {
+			} else if ("var".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.VAR, true);
-			} else if ("lab".equalsIgnoreCase(name)) {
+			} else if ("lab".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.LABCOLOR, true);
-			} else if ("lch".equalsIgnoreCase(name)) {
+			} else if ("lch".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.LCHCOLOR, true);
-			} else if ("element".equalsIgnoreCase(name)) {
+			} else if ("color".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.COLOR_FUNCTION, true);
+			} else if ("element".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.ELEMENT_REFERENCE, true);
 				functionToken = true;
 				return;
-			} else if ("rect".equalsIgnoreCase(name)) {
+			} else if ("rect".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.RECT_FUNCTION, true);
-			} else if ("counter".equalsIgnoreCase(name)) {
+			} else if ("counter".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.COUNTER_FUNCTION, true);
-			} else if ("counters".equalsIgnoreCase(name)) {
+			} else if ("counters".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.COUNTERS_FUNCTION, true);
-			} else if ("cubic-bezier".equalsIgnoreCase(name)) {
+			} else if ("cubic-bezier".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.CUBIC_BEZIER_FUNCTION, true);
-			} else if ("steps".equalsIgnoreCase(name)) {
+			} else if ("steps".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.STEPS_FUNCTION, true);
 			} else {
 				lu = newLexicalUnit(LexicalType.FUNCTION, true);
@@ -6033,7 +6036,8 @@ public class CSSParser implements Parser, Cloneable {
 			if ((type == LexicalType.RGBCOLOR && !isValidRGBColor(index)) ||
 					(type == LexicalType.HSLCOLOR && !isValidHSLColor()) ||
 					(type == LexicalType.LABCOLOR && !isValidLABColor()) ||
-					(type == LexicalType.LCHCOLOR && !isValidLCHColor())) {
+					(type == LexicalType.LCHCOLOR && !isValidLCHColor()) ||
+					(type == LexicalType.COLOR_FUNCTION && !isValidColorFunction())) {
 				String s;
 				try {
 					s = "Wrong color: " + currentlu.toString();
@@ -6435,6 +6439,60 @@ public class CSSParser implements Parser, Cloneable {
 				}
 				return isValidAlpha(lu);
 			}
+			return true;
+		}
+
+		private boolean isValidColorFunction() {
+			LexicalUnit lu = currentlu.parameters;
+			if (lu == null) {
+				return false;
+			}
+
+			boolean hasVar = false;
+
+			// First argument: identifier
+			LexicalType type = lu.getLexicalUnitType();
+			if (type != LexicalType.IDENT) {
+				if (type == LexicalType.VAR) {
+					hasVar = true;
+				} else {
+					return false;
+				}
+			}
+
+			lu = lu.getNextLexicalUnit();
+			if (lu == null) {
+				// Just one value: only OK if it was a var().
+				return hasVar;
+			}
+
+			// Establish a value loop
+			boolean foundNumericValue = false;
+			do {
+				type = lu.getLexicalUnitType();
+				switch (type) {
+				case CALC:
+				case REAL:
+				case PERCENTAGE:
+				case INTEGER:
+				case VAR:
+					foundNumericValue = true;
+					break;
+				case OPERATOR_SLASH:
+					if (!foundNumericValue && !hasVar) {
+						return false;
+					}
+					lu = lu.getNextLexicalUnit();
+					// This must be alpha channel value
+					if (lu == null) {
+						return false;
+					}
+					return isValidAlpha(lu);
+				default:
+					return false;
+				}
+				lu = lu.getNextLexicalUnit();
+			} while (lu != null);
 			return true;
 		}
 

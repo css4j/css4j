@@ -51,10 +51,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	void set(StyleValue value) {
 		super.set(value);
 		LABColorValue setfrom = (LABColorValue) value;
-		this.labColor.setLightness(setfrom.labColor.getLightness());
-		this.labColor.setA(setfrom.labColor.getA());
-		this.labColor.setB(setfrom.labColor.getB());
-		this.labColor.alpha = setfrom.labColor.alpha;
+		this.labColor.set(setfrom.labColor);
 	}
 
 	@Override
@@ -74,34 +71,12 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public PrimitiveValue getComponent(int index) {
-		switch (index) {
-		case 0:
-			return labColor.alpha;
-		case 1:
-			return labColor.getLightness();
-		case 2:
-			return labColor.getA();
-		case 3:
-			return labColor.getB();
-		}
-		return null;
+		return labColor.item(index);
 	}
 
 	@Override
 	public void setComponent(int index, StyleValue component) {
-		switch (index) {
-		case 0:
-			labColor.setAlpha((PrimitiveValue) component);
-			break;
-		case 1:
-			labColor.setLightness((PrimitiveValue) component);
-			break;
-		case 2:
-			labColor.setA((PrimitiveValue) component);
-			break;
-		case 3:
-			labColor.setB((PrimitiveValue) component);
-		}
+		labColor.setComponent(index, (PrimitiveValue) component);
 	}
 
 	@Override
@@ -122,6 +97,11 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		CSSRGBColor color = new CSSRGBColor();
 		ColorUtil.labToRGB(light, a, b, clamp, labColor.getAlpha(), color);
 		return color;
+	}
+
+	@Override
+	public LABColorValue toLABColorValue() {
+		return this;
 	}
 
 	@Override
@@ -155,6 +135,10 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		return labColor;
 	}
 
+	LABColorImpl getLABColorImpl() {
+		return labColor;
+	}
+
 	@Override
 	boolean hasConvertibleComponents() {
 		return labColor.hasConvertibleComponents();
@@ -175,7 +159,16 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			lab = ((LCHColorValue) color).toLABColorValue().getColor();
 			break;
 		case RGB:
-			lab = ((RGBColorValue) color).toLABColorValue().getColor();
+			RGBColor rgbcolor = (RGBColor) color.getColor();
+			LABColorImpl labColor = new LABColorImpl();
+			rgbcolor.toLABColor(labColor);
+			lab = labColor;
+			break;
+		case XYZ:
+			XYZColorImpl xyz = (XYZColorImpl) color.getColor();
+			labColor = new LABColorImpl();
+			xyz.toLABColor(labColor);
+			lab = labColor;
 			break;
 		default:
 			RGBAColor rgb = color.toRGBColor(false);

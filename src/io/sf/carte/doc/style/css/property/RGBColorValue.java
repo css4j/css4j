@@ -23,6 +23,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 /**
  * RGB color value.
  */
+@SuppressWarnings("deprecation")
 public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.css.RGBColorValue {
 
 	private static final long serialVersionUID = 1L;
@@ -42,11 +43,8 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	@Override
 	void set(StyleValue value) {
 		super.set(value);
-		RGBColorValue setfrom = (RGBColorValue) value;
-		this.color.alpha = setfrom.color.alpha;
-		this.color.setRed(setfrom.color.getRed());
-		this.color.setGreen(setfrom.color.getGreen());
-		this.color.setBlue(setfrom.color.getBlue());
+		BaseColor setfrom = (BaseColor) ((ColorValue) value).getColor();
+		this.color.set(setfrom);
 	}
 
 	@Override
@@ -75,15 +73,8 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	 */
 	@Override
 	public LABColorValue toLABColorValue() throws DOMException {
-		if (!color.hasConvertibleComponents()) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
-		}
-		float r = rgbComponentNormalized((TypedValue) color.getRed());
-		float g = rgbComponentNormalized((TypedValue) color.getGreen());
-		float b = rgbComponentNormalized((TypedValue) color.getBlue());
-		//
 		LABColorValue lab = new LABColorValue();
-		ColorUtil.rgbToLab(r, g, b, color.getAlpha(), (LABColorImpl) lab.getColor());
+		color.toLABColor(lab.getLABColorImpl());
 		return lab;
 	}
 
@@ -93,6 +84,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	 * @return the converted {@code HSLColorValue}.
 	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted.
 	 */
+	@Override
 	public HSLColorValue toHSLColorValue() throws DOMException {
 		if (!color.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
@@ -103,46 +95,14 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		return hsl;
 	}
 
-	private static float rgbComponentNormalized(TypedValue number) {
-		float comp;
-		if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			comp = number.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01f;
-		} else {
-			comp = number.getFloatValue(CSSUnit.CSS_NUMBER) / 255f;
-		}
-		return comp;
-	}
-
 	@Override
 	public PrimitiveValue getComponent(int index) {
-		switch (index) {
-		case 0:
-			return color.alpha;
-		case 1:
-			return color.getRed();
-		case 2:
-			return color.getGreen();
-		case 3:
-			return color.getBlue();
-		}
-		return null;
+		return color.item(index);
 	}
 
 	@Override
 	public void setComponent(int index, StyleValue component) {
-		switch (index) {
-		case 0:
-			color.setAlpha((PrimitiveValue) component);
-			break;
-		case 1:
-			color.setRed((PrimitiveValue) component);
-			break;
-		case 2:
-			color.setGreen((PrimitiveValue) component);
-			break;
-		case 3:
-			color.setBlue((PrimitiveValue) component);
-		}
+		color.setComponent(index, (PrimitiveValue) component);
 	}
 
 	@Override
@@ -165,15 +125,25 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			return color.deltaE2000(this);
 		case RGB:
 			lab1 = toLABColorValue().getColor();
-			lab2 = ((RGBColorValue) color).toLABColorValue().getColor();
+			RGBColor rgb = (RGBColor) color.getColor();
+			LABColorImpl labColor = new LABColorImpl();
+			rgb.toLABColor(labColor);
+			lab2 = labColor;
+			break;
+		case XYZ:
+			lab1 = toLABColorValue().getColor();
+			XYZColorImpl xyz = (XYZColorImpl) color.getColor();
+			labColor = new LABColorImpl();
+			xyz.toLABColor(labColor);
+			lab2 = labColor;
 			break;
 		default:
-			RGBAColor rgb = color.toRGBColor(false);
+			RGBAColor rgba = color.toRGBColor(false);
 			RGBColorValue rgbValue = new RGBColorValue();
-			rgbValue.setComponent(0, (StyleValue) rgb.getAlpha());
-			rgbValue.setComponent(1, (StyleValue) rgb.getRed());
-			rgbValue.setComponent(2, (StyleValue) rgb.getGreen());
-			rgbValue.setComponent(3, (StyleValue) rgb.getBlue());
+			rgbValue.setComponent(0, (StyleValue) rgba.getAlpha());
+			rgbValue.setComponent(1, (StyleValue) rgba.getRed());
+			rgbValue.setComponent(2, (StyleValue) rgba.getGreen());
+			rgbValue.setComponent(3, (StyleValue) rgba.getBlue());
 			lab2 = rgbValue.toLABColorValue().getColor();
 			lab1 = toLABColorValue().getColor();
 		}
@@ -261,7 +231,7 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (!(obj instanceof RGBColorValue)) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		RGBColorValue other = (RGBColorValue) obj;

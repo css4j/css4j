@@ -398,6 +398,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case COLOR_FUNCTION:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
 		case CUBIC_BEZIER_FUNCTION:
@@ -636,6 +637,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case COLOR_FUNCTION:
 			return matchBoolean(cat == Category.color);
 		case CALC:
 			return isNumericCategory(cat) ? matchesOperandOfSyntax(lexicalUnit.getParameters(), syntax) : Match.FALSE;
@@ -738,7 +740,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 	private static Match matchFunction(LexicalUnitImpl lexicalUnit, CSSValueSyntax syntax) {
 		Category cat = syntax.getCategory();
 		String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
-		if ("hwb".equals(func) || "color".equals(func)) {
+		if ("hwb".equals(func)) {
 			return matchBoolean(cat == Category.color);
 		} else if (func.endsWith("-gradient")) {
 			return matchBoolean(cat == Category.image);

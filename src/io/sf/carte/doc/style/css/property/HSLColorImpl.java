@@ -11,13 +11,8 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import org.w3c.dom.DOMException;
-
-import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.CSSValue.CssType;
-import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.style.css.HSLColor;
 
 class HSLColorImpl extends BaseColor implements HSLColor {
 
@@ -32,8 +27,40 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	@Override
-	ColorModel getColorModel() {
+	public ColorModel getColorModel() {
 		return ColorModel.HSL;
+	}
+
+	@Override
+	public PrimitiveValue item(int index) {
+		switch (index) {
+		case 0:
+			return alpha;
+		case 1:
+			return getHue();
+		case 2:
+			return getSaturation();
+		case 3:
+			return getLightness();
+		}
+		return null;
+	}
+
+	@Override
+	void setComponent(int index, PrimitiveValue component) {
+		switch (index) {
+		case 0:
+			setAlpha(component);
+			break;
+		case 1:
+			setHue(component);
+			break;
+		case 2:
+			setSaturation(component);
+			break;
+		case 3:
+			setLightness(component);
+		}
 	}
 
 	@Override
@@ -42,13 +69,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	public void setHue(PrimitiveValue hue) {
-		if (hue == null) {
-			throw new NullPointerException();
-		}
-		if (hue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(hue.getUnitType())
-				&& hue.getCssValueType() != CssType.PROXY && hue.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with hue.");
-		}
+		checkHueComponent(hue);
 		this.hue = hue;
 	}
 
@@ -76,6 +97,11 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	boolean hasConvertibleComponents() {
 		return isConvertibleComponent(getSaturation()) && isConvertibleComponent(getHue())
 				&& isConvertibleComponent(getLightness());
+	}
+
+	@Override
+	public String toString() {
+		return toString(true);
 	}
 
 	String toString(boolean commaSyntax) {
@@ -117,6 +143,11 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 		}
 		buf.append(')');
 		return buf.toString();
+	}
+
+	@Override
+	public String toMinifiedString() {
+		return toMinifiedString(true);
 	}
 
 	String toMinifiedString(boolean commaSyntax) {

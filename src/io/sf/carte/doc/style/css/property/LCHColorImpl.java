@@ -13,12 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 
-import org.w3c.dom.DOMException;
-
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
-import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.CSSValue.CssType;
-import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.LCHColor;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -36,8 +31,60 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	@Override
-	ColorModel getColorModel() {
-		return ColorModel.LAB;
+	public ColorModel getColorModel() {
+		return ColorModel.LCH;
+	}
+
+	@Override
+	public String getColorSpace() {
+		return "lch";
+	}
+
+	@Override
+	Space getSpace() {
+		return Space.CIE_LCh;
+	}
+
+	@Override
+	void set(BaseColor color) {
+		super.set(color);
+		//
+		LCHColorImpl setfrom = (LCHColorImpl) color;
+		setLightness(setfrom.getLightness());
+		setChroma(setfrom.getChroma());
+		setHue(setfrom.getHue());
+	}
+
+	@Override
+	public PrimitiveValue item(int index) {
+		switch (index) {
+		case 0:
+			return alpha;
+		case 1:
+			return getLightness();
+		case 2:
+			return getChroma();
+		case 3:
+			return getHue();
+		}
+		return null;
+	}
+
+	@Override
+	void setComponent(int index, PrimitiveValue component) {
+		switch (index) {
+		case 0:
+			setAlpha(component);
+			break;
+		case 1:
+			setLightness(component);
+			break;
+		case 2:
+			setChroma(component);
+			break;
+		case 3:
+			setHue(component);
+		}
 	}
 
 	@Override
@@ -56,13 +103,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	public void setChroma(PrimitiveValue chroma) {
-		if (chroma == null) {
-			throw new NullPointerException();
-		}
-		if (chroma.getUnitType() != CSSUnit.CSS_NUMBER
-				&& chroma.getCssValueType() != CssType.PROXY && chroma.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible.");
-		}
+		checkNumberComponent(chroma);
 		this.chroma = chroma;
 	}
 
@@ -72,13 +113,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	public void setHue(PrimitiveValue hue) {
-		if (hue == null) {
-			throw new NullPointerException();
-		}
-		if (hue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(hue.getUnitType())
-				&& hue.getCssValueType() != CssType.PROXY && hue.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with hue.");
-		}
+		checkHueComponent(hue);
 		this.hue = hue;
 	}
 
@@ -112,6 +147,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 		wri.write(')');
 	}
 
+	@Override
 	public String toMinifiedString() {
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("lch(").append(lightness.getMinifiedCssText("color"));

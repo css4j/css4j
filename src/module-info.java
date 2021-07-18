@@ -25,5 +25,6 @@ module io.sf.carte.css4j {
 	requires transitive java.xml;
 	requires transitive jdk.xml.dom;
 	requires io.sf.jclf.text;
+	requires io.sf.jclf.math.linear3;
 	requires static org.slf4j;
 }

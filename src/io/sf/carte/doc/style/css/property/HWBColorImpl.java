@@ -11,13 +11,8 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import org.w3c.dom.DOMException;
-
-import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.CSSValue.CssType;
-import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.style.css.HWBColor;
 
 class HWBColorImpl extends BaseColor implements HWBColor {
 
@@ -32,8 +27,40 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	@Override
-	ColorModel getColorModel() {
+	public ColorModel getColorModel() {
 		return ColorModel.HWB;
+	}
+
+	@Override
+	public PrimitiveValue item(int index) {
+		switch (index) {
+		case 0:
+			return alpha;
+		case 1:
+			return getHue();
+		case 2:
+			return getWhiteness();
+		case 3:
+			return getBlackness();
+		}
+		return null;
+	}
+
+	@Override
+	void setComponent(int index, PrimitiveValue component) {
+		switch (index) {
+		case 0:
+			setAlpha(component);
+			break;
+		case 1:
+			setHue(component);
+			break;
+		case 2:
+			setWhiteness(component);
+			break;
+		case 3:
+			setBlackness(component);
+		}
 	}
 
 	@Override
@@ -42,13 +69,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	public void setHue(PrimitiveValue hue) {
-		if (hue == null) {
-			throw new NullPointerException();
-		}
-		if (hue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(hue.getUnitType())
-				&& hue.getCssValueType() != CssType.PROXY && hue.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with hue.");
-		}
+		checkHueComponent(hue);
 		this.hue = hue;
 	}
 
@@ -94,13 +115,14 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 		return buf.toString();
 	}
 
-	String toMinifiedString() {
+	@Override
+	public String toMinifiedString() {
 		boolean nonOpaque = isNonOpaque();
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("hwb(");
 		appendMinifiedHue(buf, hue);
-		buf.append(' ').append(whiteness.getCssText())
-				.append(' ').append(blackness.getCssText());
+		buf.append(' ').append(whiteness.getMinifiedCssText("color"))
+				.append(' ').append(blackness.getMinifiedCssText("color"));
 		if (nonOpaque) {
 			buf.append('/');
 			appendAlphaChannelMinified(buf);

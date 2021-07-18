@@ -175,6 +175,14 @@ public interface LexicalUnit {
 		LCHCOLOR,
 
 		/**
+		 * color() function, for example: <code>color(display-p3, 0.328 0.962 0.551 / 0.6)</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		COLOR_FUNCTION,
+
+		/**
 		 * Identifier, both predefined and custom.
 		 * 
 		 * @see #getStringValue

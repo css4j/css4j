@@ -12,19 +12,18 @@
 package io.sf.carte.doc.style.css.property;
 
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.property.ColorValue.CSSRGBColor;
 
 class ColorUtil {
 
-	static void labToRGB(float light, float a, float b, boolean clamp, PrimitiveValue alpha, CSSRGBColor color) {
+	static void labToRGB(float light, float a, float b, boolean clamp, PrimitiveValue alpha, RGBColor color) {
 		float[] rgb = new float[3];
-		labToRGB(light, a, b, rgb);
+		labToSRGB(light, a, b, rgb);
 		// range check
 		if (!rangeRoundCheck(rgb) && clamp) {
 			rgb = clampRGB(light, a, b, rgb);
 		}
 		//
-		color.setAlpha(alpha.clone());
+		color.alpha = alpha.clone();
 		NumberValue red = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[0] * 100f);
 		NumberValue green = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[1] * 100f);
 		NumberValue blue = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[2] * 100f);
@@ -36,34 +35,34 @@ class ColorUtil {
 		color.setBlue(blue);
 	}
 
-	private static void labToRGB(float light, float a, float b, float[] rgb) {
-		float fy = (light + 16f) / 116f;
-		float fx = a / 500f + fy;
-		float fz = fy - b / 200f;
-		final float eps = 216f / 24389f;
-		final float kappa = 24389f / 27f;
-		float xr = fx * fx * fx;
+	private static void labToSRGB(float light, float a, float b, float[] rgb) {
+		double fy = (light + 16d) / 116d;
+		double fx = a / 500d + fy;
+		double fz = fy - b / 200d;
+		final double eps = 216d / 24389d;
+		final double kappa = 24389d / 27d;
+		double xr = fx * fx * fx;
 		if (xr <= eps) {
-			xr = (116f * fx - 16f) / kappa;
+			xr = (116d * fx - 16d) / kappa;
 		}
-		float zr = fz * fz * fz;
+		double zr = fz * fz * fz;
 		if (zr <= eps) {
-			zr = (116f * fz - 16f) / kappa;
+			zr = (116d * fz - 16d) / kappa;
 		}
-		float yr;
+		double yr;
 		if (light > kappa * eps) {
-			yr = (light + 16f) / 116f;
+			yr = (light + 16d) / 116d;
 			yr = yr * yr * yr;
 		} else {
 			yr = light / kappa;
 		}
 		// D50 reference white (from ASTM E308-01 via Lindbloom)
-		float xwhite = 0.96422f;
-		float zwhite = 0.82521f;
+		double xwhite = 0.96422d;
+		double zwhite = 0.82521d;
 		//
-		float x = xr * xwhite;
-		float z = zr * zwhite;
-		xyzToRGB(x, yr, z, rgb);
+		double x = xr * xwhite;
+		double z = zr * zwhite;
+		xyzToSRGB(x, yr, z, rgb);
 	}
 
 	/**
@@ -72,7 +71,7 @@ class ColorUtil {
 	 * @param rgb the RGB to check.
 	 * @return true if the RGB is valid within 0.01
 	 */
-	private static boolean rangeRoundCheck(float[] rgb) {
+	static boolean rangeRoundCheck(float[] rgb) {
 		boolean inRange = true;
 		for (int i = 0; i < rgb.length; i++) {
 			float comp = rgb[i];
@@ -89,7 +88,7 @@ class ColorUtil {
 		return inRange;
 	}
 
-	private static float[] clampRGB(float light, float a, float b, float[] rgb) {
+	static float[] clampRGB(float light, float a, float b, float[] rgb) {
 		// Reduce chromaticity until clipped color is in range within deltaE2000 < 2
 		final double h = Math.atan2(b, a);
 		final float sinh = (float) Math.sin(h);
@@ -100,7 +99,7 @@ class ColorUtil {
 			final float upper_c = 400f;
 			current_a = upper_c * cosh;
 			current_b = upper_c * sinh;
-			labToRGB(light, current_a, current_b, rgb);
+			labToSRGB(light, current_a, current_b, rgb);
 		}
 		// Now look for a clipped color that is close enough according to deltaE2000
 		float[] rgbClamped = new float[3];
@@ -112,7 +111,7 @@ class ColorUtil {
 		float c = (float) Math.sqrt(current_a * current_a + current_b * current_b) - labClamped[0];
 		current_a = c * cosh;
 		current_b = c * sinh;
-		labToRGB(light, current_a, current_b, rgb);
+		labToSRGB(light, current_a, current_b, rgb);
 		//
 		float eps = 0.025f;
 		float factor = 0.97f;
@@ -131,17 +130,17 @@ class ColorUtil {
 					}
 					// Now drive chromaticity up
 					eps *= 0.15f;
-					factor = 1 + eps;
+					factor = 1f + eps;
 				}
 			} else if (factor > 1f) {
 				eps *= 0.15f;
-				factor = 1 - eps;
+				factor = 1f - eps;
 			}
 			// refine chromaticity with a factor, and compute new RGB
 			c = c * factor;
 			current_a = c * cosh;
 			current_b = c * sinh;
-			labToRGB(light, current_a, current_b, rgb);
+			labToSRGB(light, current_a, current_b, rgb);
 		} while (true);
 	}
 
@@ -168,12 +167,13 @@ class ColorUtil {
 		return dE < 2f;
 	}
 
-	private static void xyzToRGB(float x, float y, float z, float[] rgb) {
+	static void xyzToSRGB(double x, double y, double z, float[] rgb) {
 		// Chromatic adjustment: D50 to D65, Bradford
 		// See http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 		double xa = 0.9555766 * x + -0.0230393 * y + 0.0631636 * z;
 		double ya = -0.0282895 * x + 1.0099416 * y + 0.0210077 * z;
 		double za = 0.0122982 * x + -0.0204830 * y + 1.3299098 * z;
+		//
 		// XYZ to RGB
 		// See http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_RGB.html for explanation
 		// but the real figures are from:
@@ -189,38 +189,42 @@ class ColorUtil {
 
 	private static float sRGBCompanding(float linearComponent) {
 		// sRGB Companding
-		// See http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_RGB.html
+		final float abs = Math.abs(linearComponent);
 		float nlComp;
-		if (linearComponent <= 0.0031308f) {
+		if (abs <= 0.0031308f) {
 			nlComp = 12.92f * linearComponent;
 		} else {
-			nlComp = 1.055f * (float) Math.pow(linearComponent, 1d/2.4d) - 0.055f;
+			nlComp = 1.055f * Math.signum(linearComponent) * (float) Math.pow(abs, 1d/2.4d) - 0.055f;
 		}
 		return nlComp;
 	}
 
-	static void rgbToLab(float r, float g, float b, PrimitiveValue alpha, LABColorImpl labColor) {
-		float[] lab = new float[3];
-		rgbToLab(r, g, b, lab);
+	static void rgbToLab(double r, double g, double b, float[] lab) {
+		r = RGBColor.inverseSRGBCompanding(r);
+		g = RGBColor.inverseSRGBCompanding(g);
+		b = RGBColor.inverseSRGBCompanding(b);
 		//
-		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, lab[0]);
-		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[1]);
-		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[2]);
-		primiL.setAbsolutizedUnit();
-		primia.setAbsolutizedUnit();
-		primib.setAbsolutizedUnit();
-		labColor.setLightness(primiL);
-		labColor.setA(primia);
-		labColor.setB(primib);
-		labColor.setAlpha(alpha.clone());
+		double[] xyz = rgbToXYZ(r, g, b);
+		xyzToLab(xyz, lab);
 	}
 
-	private static void rgbToLab(float r, float g, float b, float[] lab) {
-		r = inverseSRGBCompanding(r);
-		g = inverseSRGBCompanding(g);
-		b = inverseSRGBCompanding(b);
+	private static double[] rgbToXYZ(double r, double g, double b) {
+		// RGB to XYZ
+		// https://github.com/w3c/csswg-drafts/issues/5922#issue-800549440
+		double x = 0.41239079926595934 * r + 0.357584339383878 * g + 0.1804807884018343 * b;
+		double y = 0.21263900587151027 * r + 0.715168678767756 * g + 0.07219231536073371 * b;
+		double z = 0.01933081871559182 * r + 0.11919477979462598 * g + 0.9505321522496607 * b;
 		//
-		float[] xyz = rgbToXYZ(r, g, b);
+		// Chromatic adjustment: D65 to D50, Bradford
+		// See http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
+		double[] xyz = new double[3];
+		xyz[0] = 1.0478112 * x + 0.0228866 * y - 0.0501270 * z;
+		xyz[1] = 0.0295424 * x + 0.9904844 * y - 0.0170491 * z;
+		xyz[2] = -0.0092345 * x + 0.0150436 * y + 0.7521316 * z;
+		return xyz;
+	}
+
+	static void xyzToLab(double[] xyz, float[] lab) {
 		// XYZ to Lab
 		// D50 reference white (from ASTM E308-01 via Lindbloom)
 		float xwhite = 0.96422f;
@@ -236,44 +240,16 @@ class ColorUtil {
 		lab[2] = 200f * (fy - fz);
 	}
 
-	private static float inverseSRGBCompanding(float compandedComponent) {
-		// Inverse sRGB Companding
-		// See http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
-		float linearComp;
-		if (compandedComponent <= 0.04045f) {
-			linearComp = compandedComponent / 12.92f;
-		} else {
-			linearComp = (float) Math.pow((compandedComponent + 0.055f) / 1.055f, 2.4d);
-		}
-		return linearComp;
-	}
-
-	private static float[] rgbToXYZ(float r, float g, float b) {
-		// RGB to XYZ
-		// https://github.com/w3c/csswg-drafts/issues/5922#issue-800549440
-		double x = 0.41239079926595934 * r + 0.357584339383878 * g + 0.1804807884018343 * b;
-		double y = 0.21263900587151027 * r + 0.715168678767756 * g + 0.07219231536073371 * b;
-		double z = 0.01933081871559182 * r + 0.11919477979462598 * g + 0.9505321522496607 * b;
-		//
-		// Chromatic adjustment: D65 to D50, Bradford
-		// See http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
-		float[] xyz = new float[3];
-		xyz[0] = (float) (1.0478112 * x + 0.0228866 * y - 0.0501270 * z);
-		xyz[1] = (float) (0.0295424 * x + 0.9904844 * y - 0.0170491 * z);
-		xyz[2] = (float) (-0.0092345 * x + 0.0150436 * y + 0.7521316 * z);
-		return xyz;
-	}
-
-	private static float fxyz(float xyz) {
-		final float eps = 216f / 24389f;
-		final float kappa = 24389f / 27f;
-		float f;
+	private static float fxyz(double xyz) {
+		final double eps = 216d / 24389d;
+		final double kappa = 24389d / 27d;
+		double f;
 		if (xyz > eps) {
-			f = (float) Math.pow(xyz, 1d/3d);
+			f = Math.pow(xyz, 1d/3d);
 		} else {
-			f = (kappa * xyz + 16f) / 116f;
+			f = (kappa * xyz + 16d) / 116d;
 		}
-		return f;
+		return (float) f;
 	}
 
 	static float deltaE2000LCh(float l1, float c1, float h1, float l2, float c2, float h2) {
@@ -310,7 +286,7 @@ class ColorUtil {
 		final double c1prime = Math.sqrt(a1prime * a1prime + b1 * b1);
 		final double c2prime = Math.sqrt(a2prime * a2prime + b2 * b2);
 		final double deltaCprime = c2prime - c1prime;
-		final double cprime_av = (c1prime + c2prime) * 0.5f;
+		final double cprime_av = (c1prime + c2prime) * 0.5d;
 		//
 		final double TWOPI = Math.PI + Math.PI;
 		double h1prime = Math.atan2(b1, a1prime);
@@ -332,7 +308,7 @@ class ColorUtil {
 			}
 			hprime_av = Math.PI;
 		}
-		hprime_av += (h1prime + h2prime) * 0.5f;
+		hprime_av += (h1prime + h2prime) * 0.5d;
 		final double dHprime = 2d * Math.sqrt(c1prime * c2prime) * Math.sin(dhprime * 0.5d);
 		//
 		final double t = 1d - 0.17d * Math.cos(hprime_av - 0.5235988d) + 0.24d * Math.cos(hprime_av + hprime_av)
@@ -368,7 +344,7 @@ class ColorUtil {
 		final double c1prime = Math.sqrt(a1prime * a1prime + b1 * b1);
 		final double c2prime = Math.sqrt(a2prime * a2prime + labClamped[2] * labClamped[2]);
 		final double deltaCprime = c2prime - c1prime;
-		final double cprime_av = (c1prime + c2prime) * 0.5f;
+		final double cprime_av = (c1prime + c2prime) * 0.5d;
 		//
 		final double TWOPI = Math.PI + Math.PI;
 		double h1prime = Math.atan2(b1, a1prime);
@@ -390,7 +366,7 @@ class ColorUtil {
 			}
 			hprime_av = Math.PI;
 		}
-		hprime_av += (h1prime + h2prime) * 0.5f;
+		hprime_av += (h1prime + h2prime) * 0.5d;
 		final double dHprime = 2d * Math.sqrt(c1prime * c2prime) * Math.sin(dhprime * 0.5d);
 		//
 		final double t = 1d - 0.17d * Math.cos(hprime_av - 0.5235988d) + 0.24d * Math.cos(hprime_av + hprime_av)

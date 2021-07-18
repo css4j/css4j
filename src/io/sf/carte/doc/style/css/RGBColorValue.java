@@ -11,13 +11,18 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.DOMException;
-
-import io.sf.carte.doc.style.css.property.LABColorValue;
-
 /**
  * Represents a RGB color value.
+ * <p>
+ * Instead of using this interface, cast the result of
+ * {@link CSSColorValue#getColor()} to the appropriate interface (like
+ * {@link RGBAColor}) according to the given
+ * {@link CSSColorValue#getColorModel()}.
+ * </p>
+ * 
+ * @deprecated
  */
+@Deprecated
 public interface RGBColorValue extends CSSColorValue {
 
 	/**
@@ -38,14 +43,6 @@ public interface RGBColorValue extends CSSColorValue {
 	 * @return the RGB color.
 	 */
 	RGBAColor getColor();
-
-	/**
-	 * Convert this value to a {@link LABColorValue}, if possible.
-	 * 
-	 * @return the converted {@code LABColorValue}.
-	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted.
-	 */
-	LABColorValue toLABColorValue() throws DOMException;
 
 	@Override
 	RGBColorValue clone();

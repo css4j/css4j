@@ -396,7 +396,7 @@ public class ValueFactory {
 
 	private static boolean isColorOrGradientFunction(LexicalUnit lunit) {
 		String name = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-		return "hwb".equals(name) || name.equals("color") || name.endsWith("-gradient");
+		return "hwb".equals(name) || name.endsWith("-gradient");
 	}
 
 	/**
@@ -989,6 +989,10 @@ public class ValueFactory {
 					// Check for ratio
 					return checkForRatio(setter, subp);
 				}
+				break;
+			case COLOR_FUNCTION:
+				primi = new ColorFunction();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);

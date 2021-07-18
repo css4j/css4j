@@ -441,6 +441,37 @@ public class FunctionValueTest {
 	}
 
 	@Test
+	public void testPrefixed() {
+		style.setCssText("color:-prefixed-color(blue w(+ 20%) s(+ 20%))");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
+		assertEquals("-prefixed-color", val.getStringValue());
+		assertEquals("-prefixed-color", val.getFunctionName());
+		assertEquals("-prefixed-color(blue w(+ 20%) s(+ 20%))", style.getPropertyValue("color"));
+		//
+		assertEquals(1, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.LIST, arg.getCssValueType());
+		ValueList list = (ValueList) arg;
+		assertEquals(3, list.getLength());
+		StyleValue item = list.item(0);
+		assertEquals(CssType.TYPED, item.getCssValueType());
+		assertEquals(CSSValue.Type.IDENT, item.getPrimitiveType());
+		assertEquals("blue", ((CSSTypedValue) item).getStringValue());
+		item = list.item(1);
+		assertEquals(CssType.TYPED, item.getCssValueType());
+		assertEquals(CSSValue.Type.FUNCTION, item.getPrimitiveType());
+		assertEquals("w", ((CSSTypedValue) item).getStringValue());
+		assertEquals("w(+ 20%)", item.getCssText());
+		item = list.item(2);
+		assertEquals(CssType.TYPED, item.getCssValueType());
+		assertEquals(CSSValue.Type.FUNCTION, item.getPrimitiveType());
+		assertEquals("s", ((CSSTypedValue) item).getStringValue());
+		assertEquals("s(+ 20%)", item.getCssText());
+	}
+
+	@Test
 	public void testGetCssTextBracketList() {
 		style.setCssText("grid-template-columns: repeat(3, [line1 line2 line3] 200px); ");
 		StyleValue cssval = style.getPropertyCSSValue("grid-template-columns");

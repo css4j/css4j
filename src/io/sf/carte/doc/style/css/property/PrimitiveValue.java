@@ -111,10 +111,11 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 		/**
 		 * Set this value according to the given lexical unit.
 		 * 
-		 * @param lunit
-		 *            the given lexical unit.
-		 * @throws DOMException
-		 *             if an error was encountered setting the value.
+		 * @param lunit the given lexical unit.
+		 * @throws DOMException          if an error was encountered setting the value.
+		 * @throws IllegalStateException if the lexical unit does not match the
+		 *                               primitive (not all values check explicitly for
+		 *                               this).
 		 */
 		void setLexicalUnit(LexicalUnit lunit)
 				throws DOMException {

@@ -19,7 +19,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,18 +32,14 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class PropertyParserColorTest {
 
-	private Parser parser;
+	private static Parser parser;
 
 	private static SyntaxParser syntaxParser;
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		syntaxParser = new SyntaxParser();
-	}
-
-	@Before
-	public void setUp() {
 		parser = new CSSParser();
+		syntaxParser = new SyntaxParser();
 	}
 
 	@Test
@@ -3755,6 +3750,238 @@ public class PropertyParserColorTest {
 		//
 		try {
 			parsePropertyValue("lch(74% a 89.1)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueColor() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Color(rec2020 0.42053 0.97978 0.00579)");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.42053f, param.getFloatValue(), 1e-5);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.97978f, param.getFloatValue(), 1e-5);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.00579f, param.getFloatValue(), 1e-5);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("Color", lu.getFunctionName());
+		assertEquals("color(rec2020 0.42053 0.97978 0.00579)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>#");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueColorAlpha() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("color(rec2020 0.42053 0.97978 0.00579 / 62%)");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.42053f, param.getFloatValue(), 1e-5);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.97978f, param.getFloatValue(), 1e-5);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.00579f, param.getFloatValue(), 1e-5);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(62f, param.getFloatValue(), 1e-5);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("color", lu.getFunctionName());
+		assertEquals("color(rec2020 0.42053 0.97978 0.00579/62%)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>#");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueColorVar() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("color(var(--color-args))");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+
+		LexicalUnit varparam = param.getParameters();
+		assertEquals("--color-args", varparam.getStringValue());
+		assertNull(varparam.getNextLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("color", lu.getFunctionName());
+		assertEquals("color(var(--color-args))", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>#");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueColorVar2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Color(rec2020 var(--color-args))");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+
+		LexicalUnit varparam = param.getParameters();
+		assertEquals("--color-args", varparam.getStringValue());
+		assertNull(varparam.getNextLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("Color", lu.getFunctionName());
+		assertEquals("color(rec2020 var(--color-args))", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>#");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueColorVarAlpha() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("color(var(--color-args)/0.344)");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+
+		LexicalUnit varparam = param.getParameters();
+		assertEquals("--color-args", varparam.getStringValue());
+		assertNull(varparam.getNextLexicalUnit());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.344f, param.getFloatValue(), 1e-5);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("color", lu.getFunctionName());
+		assertEquals("color(var(--color-args)/0.344)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>+");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>#");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueColorBad() throws CSSException, IOException {
+		try {
+			parsePropertyValue("color(rec2020 )");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueColorBad2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("color(rec2020, 0 0 0 )");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueColorBadNoComponents() throws CSSException, IOException {
+		try {
+			parsePropertyValue("color(rec2020/40%)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueColorBadCommasBetweenComponents() throws CSSException, IOException {
+		try {
+			parsePropertyValue("color(rec2020 0.1, 0.2, 0.3)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueColorBadSlashNoAlpha() throws CSSException, IOException {
+		try {
+			parsePropertyValue("color(rec2020 0.1 0.2 0.3 /)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyValueColorBadNumberAfterAlpha() throws CSSException, IOException {
+		try {
+			parsePropertyValue("color(rec2020 0.1 0.2 0.3 / 0.8 1)");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}

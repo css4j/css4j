@@ -13,6 +13,12 @@ package io.sf.carte.doc.style.css;
 
 /**
  * Represents a HWB color value.
+ * <p>
+ * Instead of using this interface, you may want to just cast the result of
+ * {@link CSSColorValue#getColor()} to the appropriate interface (like
+ * {@link HWBColor}) according to the given
+ * {@link CSSColorValue#getColorModel()}.
+ * </p>
  */
 public interface HWBColorValue extends CSSColorValue {
 

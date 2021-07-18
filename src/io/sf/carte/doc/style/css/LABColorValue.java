@@ -11,12 +11,14 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.DOMException;
-
-import io.sf.carte.doc.style.css.property.LCHColorValue;
-
 /**
  * Represents a Lab ({@code lab()}) color value.
+ * <p>
+ * Instead of using this interface, you may want to just cast the result of
+ * {@link CSSColorValue#getColor()} to the appropriate interface (like
+ * {@link LABColor}) according to the given
+ * {@link CSSColorValue#getColorModel()}.
+ * </p>
  */
 public interface LABColorValue extends CSSColorValue {
 
@@ -27,14 +29,6 @@ public interface LABColorValue extends CSSColorValue {
 	 */
 	@Override
 	LABColor getColor();
-
-	/**
-	 * Convert this value to {@code lch()}.
-	 * 
-	 * @return the converted value.
-	 * @throws DOMException INVALID_STATE_ERR if the value cannot be converted.
-	 */
-	LCHColorValue toLCHColorValue() throws DOMException;
 
 	@Override
 	LABColorValue clone();

@@ -13,12 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 
-import org.w3c.dom.DOMException;
-
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
-import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.CSSValue.CssType;
-import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -36,8 +31,60 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	@Override
-	ColorModel getColorModel() {
+	public ColorModel getColorModel() {
 		return ColorModel.LAB;
+	}
+
+	@Override
+	public String getColorSpace() {
+		return "lab";
+	}
+
+	@Override
+	Space getSpace() {
+		return Space.CIE_Lab;
+	}
+
+	@Override
+	void set(BaseColor color) {
+		super.set(color);
+		//
+		LABColorImpl setfrom = (LABColorImpl) color;
+		lightness = setfrom.getLightness();
+		a = setfrom.getA();
+		b = setfrom.getB();
+	}
+
+	@Override
+	public PrimitiveValue item(int index) {
+		switch (index) {
+		case 0:
+			return alpha;
+		case 1:
+			return getLightness();
+		case 2:
+			return getA();
+		case 3:
+			return getB();
+		}
+		return null;
+	}
+
+	@Override
+	void setComponent(int index, PrimitiveValue component) {
+		switch (index) {
+		case 0:
+			setAlpha(component);
+			break;
+		case 1:
+			setLightness(component);
+			break;
+		case 2:
+			setA(component);
+			break;
+		case 3:
+			setB(component);
+		}
 	}
 
 	@Override
@@ -56,7 +103,7 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	public void setA(PrimitiveValue a) {
-		checkAxisComponent(a);
+		checkNumberComponent(a);
 		this.a = a;
 	}
 
@@ -66,18 +113,8 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	public void setB(PrimitiveValue b) {
-		checkAxisComponent(b);
+		checkNumberComponent(b);
 		this.b = b;
-	}
-
-	private void checkAxisComponent(PrimitiveValue axis) {
-		if (axis == null) {
-			throw new NullPointerException();
-		}
-		if (axis.getUnitType() != CSSUnit.CSS_NUMBER
-				&& axis.getCssValueType() != CssType.PROXY && axis.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible.");
-		}
 	}
 
 	@Override
@@ -110,6 +147,7 @@ class LABColorImpl extends BaseColor implements LABColor {
 		wri.write(')');
 	}
 
+	@Override
 	public String toMinifiedString() {
 		StringBuilder buf = new StringBuilder(20);
 		buf.append("lab(");

@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import java.io.IOException;
-
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue;
@@ -21,7 +19,6 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.util.SimpleWriter;
 
 /**
  * HWB color value.
@@ -79,41 +76,13 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	}
 
 	@Override
-	public void writeCssText(SimpleWriter wri) throws IOException {
-		String css = hwbColor.toString();
-		wri.write(css);
-	}
-
-	@Override
 	public PrimitiveValue getComponent(int index) {
-		switch (index) {
-		case 0:
-			return hwbColor.alpha;
-		case 1:
-			return hwbColor.getHue();
-		case 2:
-			return hwbColor.getWhiteness();
-		case 3:
-			return hwbColor.getBlackness();
-		}
-		return null;
+		return hwbColor.item(index);
 	}
 
 	@Override
 	public void setComponent(int index, StyleValue component) {
-		switch (index) {
-		case 0:
-			hwbColor.setAlpha((PrimitiveValue) component);
-			break;
-		case 1:
-			hwbColor.setHue((PrimitiveValue) component);
-			break;
-		case 2:
-			hwbColor.setWhiteness((PrimitiveValue) component);
-			break;
-		case 3:
-			hwbColor.setBlackness((PrimitiveValue) component);
-		}
+		hwbColor.setComponent(index, (PrimitiveValue) component);
 	}
 
 	@Override
@@ -168,15 +137,15 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			ValueFactory factory = new ValueFactory();
 			// hue
 			PrimitiveValue primihue = factory.createCSSPrimitiveValue(lu, true);
-			HSLColorValue.checkHueValidity(primihue, lunit);
+			ColorValue.checkHueValidity(primihue, lunit);
 			// whiteness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primiwhite = factory.createCSSPrimitiveValue(lu, true);
-			HSLColorValue.checkPcntCompValidity(primiwhite, lunit);
+			ColorValue.checkPcntCompValidity(primiwhite, lunit);
 			// blackness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primiblackness = factory.createCSSPrimitiveValue(lu, true);
-			HSLColorValue.checkPcntCompValidity(primiblackness, lunit);
+			ColorValue.checkPcntCompValidity(primiblackness, lunit);
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue alpha = null;

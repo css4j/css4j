@@ -13,15 +13,86 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.property.LABColorValue;
+import io.sf.carte.doc.style.css.property.LCHColorValue;
+
 /**
  * Represents a color value (not including color identifiers).
+ * <p>
+ * When the value is a {@link CSSValue.Type#COLOR COLOR}, cast it to this
+ * interface, obtain the color with {@link #getColor()} and cast it to the
+ * appropriate sub-interface (like {@link RGBAColor} or {@link LABColor})
+ * according to the color model given by {@link #getColorModel()}.
+ * </p>
+ * <p>
+ * For any color model, you can access the color components also through the
+ * base {@link CSSColor} interface, without the need to cast it to any
+ * sub-interface (and there is no sub-interface for {@link ColorModel#PROFILE
+ * PROFILE} colors, so in that case you must use the base interface).
+ * </p>
  */
 public interface CSSColorValue extends CSSTypedValue {
 
 	/**
 	 * Enumeration of color models.
 	 */
-	enum ColorModel {RGB, HSL, HWB, LAB, LCH}
+	enum ColorModel {
+		/**
+		 * RGB color model.
+		 * <p>
+		 * See {@link RGBAColor}.
+		 * </p>
+		 */
+		RGB,
+
+		/**
+		 * HSL color model.
+		 * <p>
+		 * See {@link HSLColor}.
+		 * </p>
+		 */
+		HSL,
+
+		/**
+		 * HWB color model.
+		 * <p>
+		 * See {@link HWBColor}.
+		 * </p>
+		 */
+		HWB,
+
+		/**
+		 * Lab color model.
+		 * <p>
+		 * See {@link LABColor}.
+		 * </p>
+		 */
+		LAB,
+
+		/**
+		 * LCh color model.
+		 * <p>
+		 * See {@link LCHColor}.
+		 * </p>
+		 */
+		LCH,
+
+		/**
+		 * XYZ color model.
+		 * <p>
+		 * See {@link XYZColor}.
+		 * </p>
+		 */
+		XYZ,
+
+		/**
+		 * A profiled color specified through the {@code color()} function.
+		 * <p>
+		 * See {@link CSSColor}.
+		 * </p>
+		 */
+		PROFILE
+	}
 
 	/**
 	 * Get the color represented by this value.
@@ -44,6 +115,22 @@ public interface CSSColorValue extends CSSTypedValue {
 	 * @return the CIE Delta E 2000.
 	 */
 	float deltaE2000(CSSColorValue color);
+
+	/**
+	 * Convert this value to a {@link LABColorValue}, if possible.
+	 * 
+	 * @return the converted {@code LABColorValue}.
+	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted.
+	 */
+	LABColorValue toLABColorValue() throws DOMException;
+
+	/**
+	 * Convert this value to a {@link LCHColorValue}, if possible.
+	 * 
+	 * @return the converted {@code LCHColorValue}.
+	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted.
+	 */
+	LCHColorValue toLCHColorValue() throws DOMException;
 
 	/**
 	 * Get the RGB(A) color representation of this value.

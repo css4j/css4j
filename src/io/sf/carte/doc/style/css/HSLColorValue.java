@@ -13,6 +13,12 @@ package io.sf.carte.doc.style.css;
 
 /**
  * Represents a HSL color value.
+ * <p>
+ * Instead of using this interface, you may want to just cast the result of
+ * {@link CSSColorValue#getColor()} to the appropriate interface (like
+ * {@link HSLColor}) according to the given
+ * {@link CSSColorValue#getColorModel()}.
+ * </p>
  */
 public interface HSLColorValue extends CSSColorValue {
 

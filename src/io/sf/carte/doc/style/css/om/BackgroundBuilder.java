@@ -605,9 +605,6 @@ class BackgroundBuilder extends ShorthandBuilder {
 				if (fallback != null) {
 					return BaseCSSStyleDeclaration.testColor(fallback);
 				}
-			} else if (ptype == Type.FUNCTION) {
-				String fname = primi.getStringValue();
-				return "color".equalsIgnoreCase(fname);
 			}
 		} else {
 			return value.getCssValueType() == CssType.KEYWORD;

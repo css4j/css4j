@@ -574,12 +574,12 @@ public class ShorthandSetterTest {
 		assertEquals("border-top: 1px solid myfunc(#f0f0f0, 25%); ", emptyStyleDecl.getCssText());
 		assertEquals("border-top:1px solid myfunc(#f0f0f0,25%);", emptyStyleDecl.getMinifiedCssText());
 		//
-		emptyStyleDecl.setCssText("border-top: 1px solid color(blue w(+ 20%) s(+ 20%))");
+		emptyStyleDecl.setCssText("border-top: 1px solid color(Prophoto-RGB 20% 20% 80%)");
 		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-top-style"));
 		assertEquals("1px", emptyStyleDecl.getPropertyValue("border-top-width"));
-		assertEquals("color(blue w(+ 20%) s(+ 20%))", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("border-top: 1px solid color(blue w(+ 20%) s(+ 20%)); ", emptyStyleDecl.getCssText());
-		assertEquals("border-top:1px solid color(blue w(+ 20%) s(+ 20%));", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("color(prophoto-rgb 20% 20% 80%)", emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("border-top: 1px solid color(prophoto-rgb 20% 20% 80%); ", emptyStyleDecl.getCssText());
+		assertEquals("border-top:1px solid color(prophoto-rgb 20% 20% 80%);", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
