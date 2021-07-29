@@ -5,38 +5,18 @@ This project provides implementations of APIs similar to W3C/WHATWG's:
 - [Document Object Model (DOM)](https://dom.spec.whatwg.org/).
 - [CSS Object Model (CSSOM)](https://www.w3.org/TR/cssom-1/).
 
-Downloads of a ZIP archive containing all the artifacts are available from the [`css4j-dist` release area](https://github.com/css4j/css4j-dist/releases) and also from a [mirror site](https://sourceforge.net/projects/carte/files/css4j/).
-
 <br/>
 
 ## Build from source
-To build css4j from the code that is currently at the Git repositories, you need a current JDK (the build is tested with
-version 16) and a copy of the `css4j-dist` repository (**not** this repository), then run the `tree.sh` script
-(which will fetch this repository together with several others). For example:
-```
-    git clone https://github.com/css4j/css4j-dist.git css4j-snapshot
-    cd css4j-snapshot
-    ./tree.sh
-```
-Or download a zip and extract:
-```
-    /usr/bin/curl -o css4j-dist-master.zip https://codeload.github.com/css4j/css4j-dist/zip/master
-    /usr/bin/unzip css4j-dist-master.zip
-    cd css4j-dist-master
-    ./tree.sh
-```
-After running the script you'll have a tree with all the modules, ready to build with Gradle (version 7.0 or higher is
-required). You can run a variety of Gradle tasks:
+To build css4j from the code that is currently at the Git repository, you need a current JDK (the build is tested with
+version 16). You can run a variety of Gradle tasks with the Gradle wrapper (on Unix-like systems you may need to type `./gradlew`):
 
-- `gradle build` (normal build)
-- `gradle build publishToMavenLocal` (to install in local Maven repository)
-- `gradle copyJars` (to copy jar files into a top-level _jar_ directory)
-- `gradle lineEndingConversion` (to convert line endings of top-level text files to CRLF)
-- `gradle publish` (to deploy to a Maven repository, as described in the `publishing.repositories.maven` block of
-[css4j.java-conventions.gradle](https://github.com/css4j/css4j-dist/blob/master/buildSrc/src/main/groovy/css4j.java-conventions.gradle))
-
-If you do not have Gradle installed, it is easy to do so using a package manager (for example [`scoop`](https://scoop.sh/)
-in Windows or [SDKMAN!](https://sdkman.io/) on Linux).
+- `gradlew build` (normal build)
+- `gradlew build publishToMavenLocal` (to install in local Maven repository)
+- `gradlew copyJars` (to copy jar files into a top-level _jar_ directory)
+- `gradlew lineEndingConversion` (to convert line endings of top-level text files to CRLF)
+- `gradlew publish` (to deploy to a Maven repository, as described in the `publishing.repositories.maven` block of
+[build.gradle](https://github.com/css4j/css4j/blob/master/build.gradle))
 
 <br/>
 

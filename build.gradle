@@ -1,30 +1,164 @@
 plugins {
-	id 'css4j.java-conventions'
+	id 'java-library'
+	id 'maven-publish'
 }
 
 java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+	withJavadocJar()
+	withSourcesJar()
 	registerFeature('xmldtd') {
 		usingSourceSet(sourceSets.main)
 	}
 	registerFeature('logging') {
 		usingSourceSet(sourceSets.main)
 	}
-	withJavadocJar()
 }
 
 dependencies {
 	api "io.sf.carte:carte-util:${carteutilVersion}"
 	api "io.sf.carte:tokenproducer:${tokenproducerVersion}"
 	api 'io.sf.jclf:jclf-text:[5.0.0,)'
-	api 'io.sf.jclf:jclf-linear3:[5.0.0,)'
+	api 'io.sf.jclf:jclf-linear3:[1.0.0,)'
 	xmldtdImplementation "io.sf.carte:xml-dtd:${xmldtdVersion}"
 	loggingImplementation 'org.slf4j:slf4j-api:[1.7.28,)'
+	testImplementation "junit:junit:${junitVersion}"
 	testImplementation "nu.validator:htmlparser:${htmlparserVersion}"
 }
 
 description = 'css4j'
 
-compileJava.dependsOn tasks.jvmVersionAttribute
+repositories {
+	maven {
+		url = uri('https://repo.maven.apache.org/maven2/')
+	}
+	maven {
+		url "https://css4j.github.io/maven/"
+		mavenContent {
+			releasesOnly()
+		}
+		content {
+			includeGroup 'io.sf.carte'
+			includeGroup 'io.sf.jclf'
+			includeGroup 'xmlpull'
+			includeGroup 'xpp3'
+		}
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src']
+			includes += ["**/*.java"]
+		}
+		resources {
+			srcDirs = ['src']
+			excludes += ["**/*.java"]
+		}
+	}
+	test {
+		java {
+			srcDirs = ['junit']
+			includes += ["**/*.java"]
+		}
+		resources {
+			srcDirs = ['junit']
+			excludes += ["**/*.java"]
+		}
+	}
+}
+
+group = 'io.sf.carte'
+version = '3.6.0'
+
+tasks.compileJava {
+	excludes += ['module-info.java']
+	modularity.inferModulePath = false
+}
+
+tasks.register('compileModuleInfo', JavaCompile) {
+	description = 'Compile module-info to Java 11 bytecode'
+	dependsOn tasks.compileJava
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
+	source = sourceSets.main.java
+	classpath = sourceSets.main.compileClasspath
+	destinationDirectory = sourceSets.main.java.destinationDirectory
+	modularity.inferModulePath = true
+	includes = ['module-info.java']
+}
+
+classes.dependsOn compileModuleInfo
+
+// Check bytecode version, in case some other task screws it
+tasks.register('checkLegacyJava') {
+	description = 'Check that classes are Java 8 bytecode (except module-info)'
+	def classdir = sourceSets.main.output.classesDirs.files.stream().findAny().get()
+	def classfiles = fileTree(classdir).matching({it.exclude('module-info.class')}).files
+	doFirst() {
+		if (!classfiles.isEmpty()) {
+			def classfile = classfiles.stream().findAny().get()
+			if (classfile != null) {
+				def classbytes = classfile.bytes
+				def bcversion = classbytes[6] * 128 + classbytes[7]
+				if (bcversion != 52) {
+					throw new GradleException("Bytecode on " + classfile +
+							" is not valid Java 8. Version should be 52, instead is " + bcversion)
+				}
+			}
+		}
+	}
+}
+
+classes.finalizedBy checkLegacyJava
+
+// Copy jar files to 'jar' directory
+tasks.register('copyJars', Copy) {
+	description = 'Copy jar files to \'jar\' directory'
+	dependsOn tasks.build
+	dependsOn ':css4j:testsJar'
+	include '**/*.jar'
+	excludes = ['dom4j*.jar', 'htmlparser*.jar', 'slf4j*.jar', 'xmlpull*.jar', 'xpp3_min*.jar']
+	from layout.buildDirectory.dir("libs")
+	from configurations.runtimeClasspath
+	into "${rootDir}/jar"
+}
+
+tasks.register('lineEndingConversion', CRLFConvert) {
+	file "$rootDir/LICENSE.txt"
+	file "$rootDir/LICENSES.txt"
+	file "$rootDir/CHANGES.txt"
+	file "$rootDir/RELEASE_NOTES.txt"
+	file "$rootDir/UPGRADING.txt"
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc) {
+	failOnError false
+	options.addStringOption('Xdoclint:none', '-quiet')
+	options.addStringOption('encoding', 'UTF-8')
+	options.addStringOption('charset', 'UTF-8')
+	options.links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
+}
+
+// Reproducible build
+tasks.withType(AbstractArchiveTask).configureEach {
+	preserveFileTimestamps = false
+	reproducibleFileOrder = true
+}
+
+tasks.withType(PublishToMavenRepository) { task ->
+	doFirst {
+		if (repository == publishing.repositories.getByName('mavenRepo')) {
+			logger.lifecycle "Deploying artifacts to \"${it.repository.url}\""
+		}
+	}
+}
 
 tasks.register('testsJar', Jar) {
 	archiveClassifier = 'tests'
@@ -39,9 +173,59 @@ artifacts {
 	tests testsJar
 }
 
-publishing.publications.maven {
-	pom {
-		description = "Core module"
+publishing {
+	publications {
+		maven(MavenPublication) {
+			description = 'css4j core module'
+			from(components.java)
+			suppressAllPomMetadataWarnings()
+			artifact(testsJar)
+			pom {
+				description = 'css4j core module'
+				url = "https://github.com/css4j/css4j/"
+				licenses {
+					license {
+						name = "BSD 3-clause license"
+						url = "https://css4j.github.io/LICENSE.txt"
+					}
+				}
+			}
+		}
 	}
-	artifact(testsJar)
+	repositories {
+		maven {
+			name = 'mavenRepo'
+			/*
+			 * The following section applies to the 'publish' task:
+			 *
+			 * If you plan to deploy to a repository, please configure the
+			 * 'mavenReleaseRepoUrl' and/or 'mavenSnapshotRepoUrl' properties
+			 * (for example in GRADLE_USER_HOME/gradle.properties).
+			 *
+			 * Otherwise, Gradle shall create a 'build/repository' subdirectory
+			 * at ${rootDir} and deploy there.
+			 *
+			 * Properties 'mavenRepoUsername' and 'mavenRepoPassword' can also
+			 * be set (generally from command line).
+			 */
+			def releasesUrl
+			def snapshotsUrl
+			if (project.hasProperty('mavenReleaseRepoUrl') && project.mavenReleaseRepoUrl) {
+				releasesUrl = mavenReleaseRepoUrl
+			} else {
+				releasesUrl = "${buildDir}/repository/releases"
+			}
+			if (project.hasProperty('mavenSnapshotRepoUrl') && project.mavenSnapshotRepoUrl) {
+				snapshotsUrl = mavenSnapshotRepoUrl
+			} else {
+				snapshotsUrl = "${buildDir}/repository/snapshots"
+			}
+			url = version.endsWith('-SNAPSHOT') ? snapshotsUrl : releasesUrl
+			if (project.hasProperty('mavenRepoUsername') &&
+					project.hasProperty('mavenRepoPassword')) {
+				credentials.username = mavenRepoUsername
+				credentials.password = mavenRepoPassword
+			}
+		}
+	}
 }

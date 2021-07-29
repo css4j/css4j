@@ -1,0 +1,194 @@
+UPGRADING FROM PREVIOUS VERSIONS
+================================
+
+Upgrading to 3.6 from 3.5
+-------------------------
+ - Color primitives (the values implementing CSSColorValue) that use the RGB
+   color model should no longer be cast to RGBColorValue to obtain a RGBAColor.
+
+   Instead, retrieve the color via CSSColorValue.getColor() and then cast it to
+   a RGBAColor. The reason: all RGB colors implement the RGBAColor interface,
+   regardless of it being specified via rgb() or the color() function, but only
+   one of the respective parent primitive values do implement the RGBColorValue
+   interface. If you assume that 'RGB' means RGBColorValue, you may experience
+   class cast exceptions.
+
+
+Upgrading to 3.5 from 3.4
+-------------------------
+ - NSAC only: now all custom properties are handled through
+   CSSHandler.lexicalProperty(...).
+
+
+Upgrading to 3.4 from 3.3
+-------------------------
+ - The old rgb(a) color functional serialization with commas is now the default
+   for conversions to RGB (specified RGB values always kept the original syntax)
+   .
+ - In CSSColorValue, ColorSpace was renamed to ColorModel. No deprecation step
+   this time, as 'ColorSpace' is to be used elsewhere.
+ - CSSTypedValue.toRGBColorValue() was deprecated in favor of toRGBColor().
+ - Use new CSSColorValue.getColor() to access all colors.
+ - New StyleFormattingFactory.createComputedStyleFormattingContext() method
+   returns a new DeclarationFormattingContext.
+ - Removed method newLine(SimpleWriter) from DeclarationFormattingContext
+   interface.
+ - NSAC only: new method CSSHandler.lexicalProperty(...). For now, only being
+   called for one descriptor from @property rules.
+
+
+Upgrading to 3.3 from 3.2
+-------------------------
+ - NSAC only: the 'index' parameter was removed from CSSHandler.property().
+
+
+Upgrading to 3.2 from 3.1
+-------------------------
+ - CSSStyleSheet.createStyleRule() now returns a CSSStyleRule.
+ - ErrorHandler.linkedSheetError() now takes a CSSStyleSheet interface from
+   css4j's 'css' package instead of 'org.w3c.dom.css'.
+ - You no longer need to set the ID attribute in the native DOM (although the
+   XMLDocumentBuilder was probably doing that for you).
+ - Native DOM & DOM4J: now only STYLE elements in the same namespace as the
+   document element are used to compute styles.
+ - The matching of ":link" and ":visited" was narrowed down (see the Release
+   Notes).
+
+
+Upgrading to 3.1 from 3.0
+-------------------------
+ - If you process a document that has a remote documentURI (or no documentURI
+   set), and that document includes links to sheets with 'file:' or 'jar:' URLs,
+   you need to call document.setDocumentURI() to set a 'file:' or 'jar:' URI.
+   Otherwise, the sheets won't be processed, and the same applies to BASE href
+   attributes.
+ - The method ErrorHandler.hasErrors() now returns true if there are I/O errors.
+   Those errors were previously considered transient, and therefore weren't
+   appearing there.
+ - On attribute nodes, getTextContent() now returns the attribute value instead
+   of the empty string.
+ - ExtendedNamedNodeMap<T>.removeNamedItem() and removeNamedItemNS() methods now
+   return a value of the parameterized type (T).
+ - DefaultEntityResolver.resolveEntity(DocumentTypeDeclaration) is deprecated
+   (probably nobody is using that method).
+
+
+Upgrading to 3.0 from 2.1
+-------------------------
+ Three modules were split out from the css4j module in 2.x: tokenproducer,
+carte-util and xml-dtd. This should give more flexibility to developers that
+only want one of them (or want to use css4j without xml-dtd).
+
+ Now you can use finer-grained modules, but if you used css4j together with DTD
+classes, in Maven you now need to specify the xml-dtd module separately, like:
+
+    <dependency>
+		<groupId>io.sf.carte</groupId>
+		<artifactId>xml-dtd</artifactId>
+		<version>${css4j.version}</version>
+		<type>jar</type>
+		<scope>compile</scope>
+		<optional>false</optional>
+    </dependency>
+    <dependency>
+		<groupId>io.sf.carte</groupId>
+		<artifactId>css4j</artifactId>
+		<version>${css4j.version}</version>
+		<type>jar</type>
+		<scope>compile</scope>
+		<optional>false</optional>
+    </dependency>
+
+ Then, there are the following API changes that you may need to address:
+
+- CSSOM: moved CSSCanvas, Viewport from 'agent' to 'style.css' package. The old
+  interfaces can still be used (they inherit from the new), but are deprecated.
+- Moved BooleanCondition, BooleanConditionFactory, MediaFeaturePredicate,
+  MediaQueryFactory and MediaQueryHandler from 'parser' to 'style.css' package.
+  The reason: 'parser' is supposed to be mostly an implementation package, and
+  this move would allow other implementations to exist.
+- DOM API: introduced interface 'StringList' and two implementations of it.
+- CSSOM: StringList is now used in comment processing instead of List<String>,
+  and enablePrecedingComments() was added to AbstractCSSRule.
+- CSSOM: removed the clone(AbstractCSSStyleSheet) method from CSSRule interface.
+  Use AbstractCSSRule.clone(AbstractCSSStyleSheet) instead.
+- CSSOM: method SACErrorHandler.mapError() now takes a CSSRule instead of an
+  AbstractCSSRule (to make it more generic and allow other implementations).
+
+
+Upgrading to 2.1 from 2.0
+-------------------------
+ The changes in 2.1 vs. 2.0 are mostly about NSAC: a few new lexical types were
+added (including one for calc() which in 2.0 was considered a generic function).
+New primitive types for the cubic-bezier() and steps() easing functions were
+also added.
+
+ Also thanks to an addition to NSAC, setting a custom property to an empty value
+is now supported, like "--My-property:;".
+
+ Finally, it adds support for env() computed values by means of an addition to
+the StyleDatabase interface.
+
+ Which means that you can handle 2.1 as a drop-in replacement for 2.0 unless you
+were either: a) using NSAC directly, b) checking for cubic-bezier() or steps(),
+or c) are implementing the StyleDatabase interface.
+
+
+Upgrading to 2.0 from 1.0
+-------------------------
+ The 2.0 branch features NSAC 2.0 and a new Object Model Value API; it is not
+backwards-compatible with 1.0, but the new 2.0 APIs are more appropriate to deal
+with modern CSS.
+
+ NSAC 2.0 no longer inherits from stuff in the org.w3c.css.sac package (provided
+by the -not needed anymore- sac.jar file) but is an independent API, with its
+methods and features being sort of an hybrid between the old SAC and newer code.
+Some interfaces have changed significantly, and the usage of the InputSource
+class was reduced and is discouraged (a Reader is being used instead).
+
+ Of course this means that other SAC parsers are not supported, which may seem a
+loss of flexibility. However, the other parsers are stuck with CSS2 (or partial
+support for CSS3) and weren't really usable for real-world sheets. Without the
+need to support other SAC parsers, code can be cleaner and is less error-prone
+(other parser projects would be welcome to implement NSAC 2 if they wanted to).
+
+ The new Value API still uses the interface names CSSValue and CSSPrimitiveValue
+but adds others like CSSTypedValue. In the end, its usage is somewhat different
+to the old (and deprecated) W3C CSSValue API, requiring almost no type casts to
+obtain information to make decisions about value handling (type casts are only
+required when retrieving the actual encapsulated value). The categorization of
+values is different, and the dimension units are shared with NSAC 2.0 from a
+common source interface. But some methods have names similar to the old API to
+ease the transition (for example I keep getCssValueType() to retrieve the value
+category, instead of a more proper getCategory()).
+
+ The extended CSS interfaces in 1.0 ('css' and 'nsac' packages) have now adopted
+the names of the interfaces that they were extending, due to the fact that they
+are no longer an extension but a full fork. This means that if you are using
+interfaces prefixed with 'Extended' or having the '2' suffix from those 'css'
+and 'nsac' packages, you need to remove that prefix/suffix to begin the upgrade,
+and then use the interfaces from css4j instead of the old W3C ones. Note that
+this is only for the CSS interfaces, so the 'Extended'-prefixed interfaces in
+the 'doc.dom' package were not changed.
+
+ SAC/NSAC 1.x users need to look closely at the new CSSHandler interface, and to
+the changes in LexicalUnit; the rest of the API changes should be easy to apply.
+The type identifiers in 2.0 use enumerations instead of integers (CSS unit
+identifiers are now separate from type identifiers and are still integer).
+
+ If you are using the CSSValue API, the upgrade is non-trivial and you should
+look at the new interfaces. In many cases where you were using the
+CSSPrimitiveValue interface, you should be using the new CSSTypedValue, although
+sometimes the renewed CSSValue type may be all that you need.
+
+ For example, calls to CSSPrimitiveValue.getRGBColorValue() should be changed to
+CSSTypedValue.toRGBColorValue(), but be sure that the type is a COLOR value in
+the RGB space before trying to edit the color (and you can use
+RGBColorValue.getRGBColorValue() to access the RGBAColor object).
+
+ DOM4J users should be aware that the document factory no longer automatically
+loads a default User Agent sheet. This backwards-incompatible change may seem
+gratuitous, but the old behaviour has shown to be problematic for users.
+
+ Finally, the source-level compatibility is now for Java SE version 8 instead of
+7: be sure that you are able to use Java 8 or higher.
