@@ -63,6 +63,7 @@ public class FlexShorthandBuilderTest {
 	@Test
 	public void testFlexCalc() {
 		assertShorthandText("flex:0 0 calc(100% - 60px/3);", "flex: 0 0 calc(100.0% - 60.0px / 3); ");
+		assertShorthandText("flex:0 0 calc(100%/3);", "flex: 0 0 calc(100.0%/ 3); ");
 	}
 
 	@Test
