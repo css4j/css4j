@@ -33,8 +33,6 @@ repositories {
         content {
             includeGroup 'io.sf.carte'
             includeGroup 'io.sf.jclf'
-            includeGroup 'xmlpull'
-            includeGroup 'xpp3'
         }
     }
 }

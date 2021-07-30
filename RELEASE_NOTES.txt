@@ -2,7 +2,7 @@
                             CSS4J RELEASE NOTES
                             ===================
 
-Release 3.6.0 - July 31, 2021
+Release 3.6.0 - July 30, 2021
 -----------------------------
 
 Release Highlights
@@ -10,7 +10,7 @@ Release Highlights
 
 * Build improvements.
 
-  The Gradle build was improved, and is now independent from css4j-dist.
+  The Gradle build is now independent from css4j-dist.
 
 * Color() function
 
@@ -46,7 +46,7 @@ different licensing).
 Java(tm) Runtime Environment requirements
 -----------------------------------------
  All the classes in the binary package have been compiled with a Java compiler
-set to 1.8 compiler compliance level, except the module-info files.
+set to 1.8 compiler compliance level, except the module-info file.
 
  Building the library requires JDK 15 or higher, although the resulting jar
 files can be run with a 1.8 JRE.
@@ -102,11 +102,10 @@ declarations and style sheets is also possible.
 Software dependencies
 =====================
 
- To build this library you need:
+ The build script fetches all the required dependencies for you, basically:
 
-- The jclf-text module; version 5.0.0 or higher is required. Go to
-  https://sourceforge.net/projects/jclf for downloads, or install with the
-  release-scripts/install-jclf.sh script.
+- The jclf-text (5.0.0 or higher) and jclf-linear3 (1.0.0 or higher) modules:
+  https://sourceforge.net/projects/jclf
 
 - The carte-util artifact; version 3.5.1 or higher is recommended:
   https://github.com/css4j/carte-util/releases
@@ -119,6 +118,7 @@ Software dependencies
 
 - The SLF4J package, which is a logging package. See http://www.slf4j.org/ 
   for more information.
+
 
  Optional packages:
 

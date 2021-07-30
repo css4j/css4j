@@ -19,6 +19,7 @@
 
 # Gradle
 **/.gradle
-**/build/
+/build/
+/buildSrc/build/
 
 /CHANGES.txt
