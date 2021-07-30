@@ -115,7 +115,7 @@ classes.finalizedBy checkLegacyJava
 tasks.register('copyJars', Copy) {
 	description = 'Copy jar files to \'jar\' directory'
 	dependsOn tasks.build
-	dependsOn ':css4j:testsJar'
+	dependsOn 'testsJar'
 	include '**/*.jar'
 	excludes = ['dom4j*.jar', 'htmlparser*.jar', 'slf4j*.jar', 'xmlpull*.jar', 'xpp3_min*.jar']
 	from layout.buildDirectory.dir("libs")
