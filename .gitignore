@@ -7,7 +7,6 @@
 /javadoc.xml
 *.class
 /*.jardesc
-*.jar
 *.war
 *.ear
 /local.properties
