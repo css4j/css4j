@@ -7448,6 +7448,9 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		protected void highControl(int index, int codepoint) {
+			// High control characters are somehow accepted in identifiers
+			// (accept any 'non-ASCII code point')
+			// https://www.w3.org/TR/css-syntax-3/#non-ascii-code-point
 			if (!parseError) {
 				if (!hexColor && !unicodeRange && !readPriority && propertyName != null) {
 					bufferAppend(codepoint);
@@ -7792,6 +7795,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		protected void highControl(int index, int codepoint) {
+			// High control characters are excluded in XML and HTML for security reasons
 			if (!parseError) {
 				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
 			}

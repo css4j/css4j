@@ -123,6 +123,17 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorElementControlHighCharError() throws CSSException, IOException {
+		// High control characters are excluded in XML and HTML for security reasons
+		try {
+			parseSelectors("\u009e");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
+		}
+	}
+
+	@Test
 	public void testParseSelectorElementSurrogate() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("\ud83c\udf52");
 		assertNotNull(selist);

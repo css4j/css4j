@@ -206,6 +206,15 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyIdentifierHighControl() throws IOException {
+		LexicalUnit lu = parsePropertyValue("foo\u009e");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("foo\u009e", lu.getStringValue());
+		assertEquals("foo\u009e", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
 	public void testParseProperty2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue(" Times New Roman ");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
