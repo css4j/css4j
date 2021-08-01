@@ -1199,15 +1199,30 @@ public class ComputedCSSStyleTest {
 	}
 
 	@Test
+	public void getComputedStyleCustomPropertiesCalcSubexpr() throws CSSMediaException {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		/*
+		 * custom property inside sub-expression in calc().
+		 */
+		elm.getOverrideStyle(null).setCssText("margin-right:calc(1.5*(var(--subexpr)));--subexpr:12pt + 3px");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue marginRight = (CSSTypedValue) style.getPropertyCSSValue("margin-right");
+		assertEquals(21.375f, marginRight.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+	}
+
+	@Test
 	public void getComputedStyleCustomPropertiesCalcError() throws CSSMediaException {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		/*
 		 * Bad custom property inside calc().
 		 */
-		elm.getOverrideStyle(null).setCssText("margin-right:calc(1.5*var(--foo));--foo:bar");
+		elm.getOverrideStyle(null).setCssText("opacity:calc(1.5*var(--foo));--foo:bar");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		CSSTypedValue marginRight = (CSSTypedValue) style.getPropertyCSSValue("margin-right");
-		assertEquals(0f, marginRight.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		CSSTypedValue opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
+		assertEquals(CSSUnit.CSS_NUMBER, opacity.getUnitType());
+		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
 		//
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
@@ -1217,15 +1232,16 @@ public class ComputedCSSStyleTest {
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
 		Iterator<String> errptyIt = errors.keySet().iterator();
-		assertEquals("margin-right", errptyIt.next());
+		assertEquals("opacity", errptyIt.next());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		/*
-		 * Empty custom property inside calc().
+		 * Empty custom property inside calc(). Product
 		 */
-		elm.getOverrideStyle(null).setCssText("margin-right:calc(1.5*var(--foo));--foo:");
+		elm.getOverrideStyle(null).setCssText("opacity:calc(1.5*var(--foo));--foo:");
 		style = elm.getComputedStyle(null);
-		marginRight = (CSSTypedValue) style.getPropertyCSSValue("margin-right");
-		assertEquals(0f, marginRight.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
+		assertEquals(CSSUnit.CSS_NUMBER, opacity.getUnitType());
+		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
 		//
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
@@ -1234,7 +1250,77 @@ public class ComputedCSSStyleTest {
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
 		errptyIt = errors.keySet().iterator();
-		assertEquals("margin-right", errptyIt.next());
+		assertEquals("opacity", errptyIt.next());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * Empty custom property inside calc(). Product (sub-expression)
+		 */
+		elm.getOverrideStyle(null).setCssText("opacity:calc(1.5*(var(--foo)));--foo:");
+		style = elm.getComputedStyle(null);
+		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
+		assertEquals(CSSUnit.CSS_NUMBER, opacity.getUnitType());
+		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		//
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		errptyIt = errors.keySet().iterator();
+		assertEquals("opacity", errptyIt.next());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * Empty custom property inside calc(). Product - Division
+		 */
+		elm.getOverrideStyle(null).setCssText("opacity:calc(1.5*var(--foo)/3);--foo:");
+		style = elm.getComputedStyle(null);
+		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
+		assertEquals(CSSUnit.CSS_NUMBER, opacity.getUnitType());
+		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		//
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		errptyIt = errors.keySet().iterator();
+		assertEquals("opacity", errptyIt.next());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * Empty custom property inside calc(). Product - Sum
+		 */
+		elm.getOverrideStyle(null).setCssText("opacity:calc(1.5*var(--foo) + 6);--foo:");
+		style = elm.getComputedStyle(null);
+		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
+		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		//
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		errptyIt = errors.keySet().iterator();
+		assertEquals("opacity", errptyIt.next());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		/*
+		 * Empty custom property inside calc(). Sum - Product
+		 */
+		elm.getOverrideStyle(null).setCssText("opacity:calc(6 + var(--foo)*1.5);--foo:");
+		style = elm.getComputedStyle(null);
+		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
+		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		//
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		errptyIt = errors.keySet().iterator();
+		assertEquals("opacity", errptyIt.next());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 	}
 

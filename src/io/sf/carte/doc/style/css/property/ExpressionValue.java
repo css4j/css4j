@@ -17,11 +17,11 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
@@ -95,6 +95,11 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 					} else if (expression.getPartType() == AlgebraicPart.SUM) {
 						expression.nextOperandInverse = inverse;
 					} else { // product
+						// Sanity check
+						if (lastlutype != LexicalType.DIMENSION && lastlutype != LexicalType.SUB_EXPRESSION) {
+							throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
+						}
+						//
 						StyleExpression parent = expression.getParentExpression();
 						if (parent == null) {
 							operation = new SumExpression();
@@ -103,7 +108,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 							expression = operation;
 						} else {
 							expression = parent; // Parent can only be sum with
-												// current calc() syntax
+												 // current calc() syntax
 							expression.nextOperandInverse = inverse;
 						}
 					}
@@ -119,6 +124,11 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 						operation.nextOperandInverse = inverse;
 						expression = operation;
 					} else if (expression.getPartType() == AlgebraicPart.SUM) {
+						// Sanity check
+						if (lastlutype != LexicalType.DIMENSION && lastlutype != LexicalType.SUB_EXPRESSION) {
+							throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
+						}
+						//
 						operation = new ProductExpression();
 						if (lastlutype != LexicalType.SUB_EXPRESSION) {
 							expression.replaceLastExpression(operation);
@@ -128,6 +138,11 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 						operation.nextOperandInverse = inverse;
 						expression = operation;
 					} else {
+						// Sanity check
+						if (lastlutype != LexicalType.DIMENSION && lastlutype != LexicalType.SUB_EXPRESSION) {
+							throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
+						}
+						//
 						expression.nextOperandInverse = inverse;
 					}
 					break;
@@ -165,7 +180,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 					OperandExpression operand = new OperandExpression();
 					operand.setOperand(typed);
 					expression = addOperand(expression, operand);
-					lastlutype = lutype;
+					lastlutype = LexicalType.DIMENSION; // Equivalent to "operand"
 					lu = lu.getNextLexicalUnit();
 					continue;
 				case CALC:
@@ -198,7 +213,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 					operand = new OperandExpression();
 					operand.setOperand(primi);
 					expression = addOperand(expression, operand);
-					lastlutype = lutype;
+					lastlutype = LexicalType.DIMENSION; // Equivalent to "operand"
 					lu = item.getNextLexicalUnit();
 					continue;
 				}

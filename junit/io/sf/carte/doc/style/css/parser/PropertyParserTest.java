@@ -2470,6 +2470,61 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueCalcVarSubexpression() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc((var(--subexp)) * 3)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
+		LexicalUnit subvalues = param.getSubValues();
+		// Subexpression
+		assertNotNull(subvalues);
+		assertEquals(LexicalType.VAR, subvalues.getLexicalUnitType());
+		assertNull(subvalues.getNextLexicalUnit());
+		//
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(3, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc((var(--subexp))*3)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
 	public void testParsePropertyValueCalcNegDenom() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("calc(1em + (0.4vw + 0.25vh)/-2)");
 		assertEquals("calc", lu.getFunctionName());

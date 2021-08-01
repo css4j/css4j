@@ -468,6 +468,10 @@ public class NumberValueTest {
 
 	@Test
 	public void testFloatValueConversion() {
+		assertEquals(0f, NumberValue.floatValueConversion(0f, CSSUnit.CSS_NUMBER, CSSUnit.CSS_PX),
+				1e-6);
+		assertEquals(0f, NumberValue.floatValueConversion(0f, CSSUnit.CSS_NUMBER, CSSUnit.CSS_DEG),
+				1e-6);
 		assertEquals(75, NumberValue.floatValueConversion(100f, CSSUnit.CSS_PX, CSSUnit.CSS_PT),
 				1e-6);
 		assertEquals(1, NumberValue.floatValueConversion(16f, CSSUnit.CSS_PX, CSSUnit.CSS_PC),

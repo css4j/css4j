@@ -847,17 +847,6 @@ public class CalcValueTest {
 	}
 
 	@Test
-	public void testSetCssTextError4() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
-		style.setCssText("width: calc(3em * + 5%); ");
-		StyleValue val = style.getPropertyCSSValue("width");
-		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
-	}
-
-	@Test
 	public void testSetCssTextError5() {
 		StyleRule styleRule = new StyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
@@ -885,6 +874,61 @@ public class CalcValueTest {
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((3em - 0.5%) 6);");
+		StyleValue val = style.getPropertyCSSValue("width");
+		assertNull(val);
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testSetCssTextErrorConsecutiveOps() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("width: calc(3em * + 5%); ");
+		StyleValue val = style.getPropertyCSSValue("width");
+		assertNull(val);
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testSetCssTextErrorConsecutiveOps2() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("width: calc(3em + * 5%); ");
+		StyleValue val = style.getPropertyCSSValue("width");
+		assertNull(val);
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testSetCssTextErrorConsecutiveOps3() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("width: calc(3em - / 5%); ");
+		StyleValue val = style.getPropertyCSSValue("width");
+		assertNull(val);
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testSetCssTextErrorConsecutiveOps4() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("width: calc(3em / - 5%); ");
+		StyleValue val = style.getPropertyCSSValue("width");
+		assertNull(val);
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testSetCssTextErrorConsecutiveOps5() {
+		StyleRule styleRule = new StyleRule();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
+		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
+		style.setCssText("width: calc(3em * - 5%); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
 		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
