@@ -49,12 +49,12 @@ public class GradientValueTest {
 	public void testGetCssTextLinear() {
 		style.setCssText("background-image: linear-gradient(to top right, red, white, blue); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("linear-gradient(to top right, red, white, blue)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: linear-gradient(to top right, red, white, blue); ", style.getCssText());
 		assertEquals("background-image:linear-gradient(to top right,red,white,blue)", style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		// Match
@@ -124,6 +124,7 @@ public class GradientValueTest {
 	public void testGetCssTextLinearPcntFirst() {
 		style.setCssText("background-image: linear-gradient(to top right, 0% red, 33% white, 66% blue); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("linear-gradient(to top right, red 0%, white 33%, blue 66%)",
 				style.getPropertyValue("background-image"));
@@ -131,12 +132,42 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:linear-gradient(to top right,red 0%,white 33%,blue 66%)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testGetCssTextLinearHsla() {
+		style.setCssText("background-image: linear-gradient(180deg,hsla(0,0%,100%,0) 0,#000 100%)");
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
+		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
+		assertEquals("linear-gradient(180deg, hsla(0, 0%, 100%, 0) 0, #000 100%)",
+				style.getPropertyValue("background-image"));
+		assertEquals("background-image: linear-gradient(180deg, hsla(0, 0%, 100%, 0) 0, #000 100%); ",
+				style.getCssText());
+		assertEquals("background-image:linear-gradient(180deg,hsla(0,0%,100%,0) 0,#000 100%)",
+				style.getMinifiedCssText());
+		GradientValue val = (GradientValue) cssval;
+		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
+		assertEquals(3, val.getArguments().size());
+		// Match
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<url> | <image>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
 	}
 
 	@Test
@@ -151,8 +182,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:linear-gradient(135deg,var(--foo,#d32c1e),var(--bar,#e13b4a))",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -171,8 +201,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:linear-gradient(to right,var(--foo,#d32c1e),var(--bar,#e13b4a))",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -191,8 +220,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:linear-gradient(var(--foo,#d32c1e),var(--bar,#e13b4a))",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -213,8 +241,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:linear-gradient(to bottom,var(--white) 0%,var(--grey) 66%,var(--black) 100%)",
 				style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -242,8 +269,7 @@ public class GradientValueTest {
 		assertEquals("linear-gradient(to right, #ccc 50%, var(--foo) 60%)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: linear-gradient(to right, #ccc 50%, var(--foo) 60%); ", style.getCssText());
 		assertEquals("background-image:linear-gradient(to right,#ccc 50%,var(--foo) 60%)", style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -254,6 +280,7 @@ public class GradientValueTest {
 		style.setCssText(
 				"background-image: linear-gradient(to top right, 0% var(--foo1,red), 33% var(--foo2,white), 66% var(--foo3,blue)); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals(
 				"linear-gradient(to top right, var(--foo1, red) 0%, var(--foo2, white) 33%, var(--foo3, blue) 66%)",
@@ -264,8 +291,7 @@ public class GradientValueTest {
 		assertEquals(
 				"background-image:linear-gradient(to top right,var(--foo1,red) 0%,var(--foo2,white) 33%,var(--foo3,blue) 66%)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -276,12 +302,12 @@ public class GradientValueTest {
 	public void testGetCssTextLinearWarning() {
 		style.setCssText("background-image: linear-gradient(top right, red, white, blue); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("linear-gradient(top right, red, white, blue)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: linear-gradient(top right, red, white, blue); ", style.getCssText());
 		assertEquals("background-image:linear-gradient(top right,red,white,blue)", style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -518,8 +544,7 @@ public class GradientValueTest {
 		assertEquals("repeating-linear-gradient(45deg, yellow, blue 20%)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: repeating-linear-gradient(45deg, yellow, blue 20%); ", style.getCssText());
 		assertEquals("background-image:repeating-linear-gradient(45deg,yellow,blue 20%)", style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.REPEATING_LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -538,8 +563,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:repeating-linear-gradient(to right,#a02 0%,#2f1 10%,#a02 25%)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.REPEATING_LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -550,14 +574,14 @@ public class GradientValueTest {
 	public void testGetCssTextRadial() {
 		style.setCssText("background-image: radial-gradient(5em circle at top left, yellow, blue); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("radial-gradient(5em circle at top left, yellow, blue)",
 				style.getPropertyValue("background-image"));
 		assertEquals("background-image: radial-gradient(5em circle at top left, yellow, blue); ", style.getCssText());
 		assertEquals("background-image:radial-gradient(5em circle at top left,yellow,blue)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		// Match
@@ -577,12 +601,12 @@ public class GradientValueTest {
 		//
 		style.setCssText("background-image: radial-gradient(yellow, green); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("radial-gradient(yellow, green)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: radial-gradient(yellow, green); ", style.getCssText());
 		assertEquals("background-image:radial-gradient(yellow,green)", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		//
@@ -596,13 +620,13 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:radial-gradient(ellipse at center,yellow 0%,green 100%)",
 				style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		//
 		style.setCssText("background-image: radial-gradient(farthest-corner at 50% 50%, yellow, green); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("radial-gradient(farthest-corner at 50% 50%, yellow, green)",
 				style.getPropertyValue("background-image"));
@@ -610,13 +634,13 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:radial-gradient(farthest-corner at 50% 50%,yellow,green)",
 				style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		//
 		style.setCssText("background-image: radial-gradient(20px 30px at 20px 30px, red, yellow, green); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("radial-gradient(20px 30px at 20px 30px, red, yellow, green)",
 				style.getPropertyValue("background-image"));
@@ -624,8 +648,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:radial-gradient(20px 30px at 20px 30px,red,yellow,green)",
 				style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -738,8 +761,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:radial-gradient(circle,var(--white) 0%,var(--grey) 66%,var(--black) 100%)",
 				style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -876,12 +898,12 @@ public class GradientValueTest {
 	public void testGetCssTextConic() {
 		style.setCssText("background-image: conic-gradient(#f06, gold); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(#f06, gold)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(#f06, gold); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(#f06,gold)", style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		// Match
@@ -901,96 +923,97 @@ public class GradientValueTest {
 		//
 		style.setCssText("background-image: conic-gradient(at 50% 50%, #f06, gold); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(at 50% 50%, #f06, gold)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(at 50% 50%, #f06, gold); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(at 50% 50%,#f06,gold)", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		//
 		style.setCssText("background-image: conic-gradient(from 0deg, #f06, gold); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(from 0deg, #f06, gold)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(from 0deg, #f06, gold); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(from 0deg,#f06,gold)", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		//
 		style.setCssText("background-image: conic-gradient(from 0deg at center, #f06, gold); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(from 0deg at center, #f06, gold)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(from 0deg at center, #f06, gold); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(from 0deg at center,#f06,gold)", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		//
 		style.setCssText("background-image: conic-gradient(#f06 0%, gold 100%); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(#f06 0%, gold 100%)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(#f06 0%, gold 100%); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(#f06 0%,gold 100%)", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		//
 		style.setCssText("background-image: conic-gradient(#f06 0deg, gold 1turn); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(#f06 0deg, gold 1turn)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(#f06 0deg, gold 1turn); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(#f06 0deg,gold 1turn)", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		//
 		style.setCssText("background-image: conic-gradient(white -50%, black 150%); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(white -50%, black 150%)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(white -50%, black 150%); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(white -50%,black 150%)", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		//
 		style.setCssText("background-image: conic-gradient(hsl(0 0% 75%), hsl(0 0% 25%)); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(hsl(0 0% 75%), hsl(0 0% 25%))", style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(hsl(0 0% 75%), hsl(0 0% 25%)); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(hsl(0 0% 75%),hsl(0 0% 25%))", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		//
 		style.setCssText("background-image: conic-gradient(white 45deg, black 225deg, white 405deg); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(white 45deg, black 225deg, white 405deg)",
 				style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(white 45deg, black 225deg, white 405deg); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(white 45deg,black 225deg,white 405deg)",
 				style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		//
 		style.setCssText("background-image: conic-gradient(red, magenta, blue, aqua, lime, yellow, red); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(red, magenta, blue, aqua, lime, yellow, red)",
 				style.getPropertyValue("background-image"));
@@ -998,8 +1021,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:conic-gradient(red,magenta,blue,aqua,lime,yellow,red)",
 				style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(7, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -1026,14 +1048,14 @@ public class GradientValueTest {
 	public void testGetCssTextConicAngleFirst() {
 		style.setCssText("background-image: conic-gradient(45deg white,225deg black,405deg white); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(white 45deg, black 225deg, white 405deg)",
 				style.getPropertyValue("background-image"));
 		assertEquals("background-image: conic-gradient(white 45deg, black 225deg, white 405deg); ", style.getCssText());
 		assertEquals("background-image:conic-gradient(white 45deg,black 225deg,white 405deg)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -1045,6 +1067,7 @@ public class GradientValueTest {
 		style.setCssText(
 				"background-image: conic-gradient(white 45deg, var(--foo,black) 225deg, var(--bar,white) 405deg); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(white 45deg, var(--foo, black) 225deg, var(--bar, white) 405deg)",
 				style.getPropertyValue("background-image"));
@@ -1053,7 +1076,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:conic-gradient(white 45deg,var(--foo,black) 225deg,var(--bar,white) 405deg)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
+		GradientValue val = (GradientValue) cssval;
 		assertNotNull(val);
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
@@ -1074,8 +1097,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:conic-gradient(var(--white) 0deg,var(--grey) 120deg,var(--black) 300deg)",
 				style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -1095,8 +1117,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:conic-gradient(var(--angle1,0deg) #fff,var(--angle2) #555,var(--angle3) #111)",
 				style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -1117,8 +1138,7 @@ public class GradientValueTest {
 		assertEquals(
 				"background-image:conic-gradient(var(--angle1,10%) #fff,var(--angle2,33%) #555,var(--angle3) #111)",
 				style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -1139,8 +1159,7 @@ public class GradientValueTest {
 		assertEquals(
 				"background-image:conic-gradient(#fff var(--angle1,10%),#555 var(--angle2,33%),#111 var(--angle3))",
 				style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -1160,8 +1179,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:conic-gradient(#fff var(--angle1),#555 var(--angle2,33%),#111 var(--angle3))",
 				style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -1181,8 +1199,7 @@ public class GradientValueTest {
 		assertEquals(
 				"background-image:conic-gradient(var(--color45,white) 45deg,var(--foo,black) 225deg,var(--bar,white) 405deg)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -1193,6 +1210,7 @@ public class GradientValueTest {
 	public void testGetCssTextConicVarAngleFirstOmitFirstColor() {
 		style.setCssText("background-image: conic-gradient(45deg,225deg var(--foo,black),405deg var(--bar,white)); ");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("conic-gradient(45deg, var(--foo, black) 225deg, var(--bar, white) 405deg)",
 				style.getPropertyValue("background-image"));
@@ -1200,8 +1218,7 @@ public class GradientValueTest {
 				style.getCssText());
 		assertEquals("background-image:conic-gradient(45deg,var(--foo,black) 225deg,var(--bar,white) 405deg)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -1298,6 +1315,7 @@ public class GradientValueTest {
 		style.setCssText(
 				"background-image: repeating-conic-gradient(hsl(0 0% 100%/.2) 0deg 15deg, hsl(0 33% 100%/.7) 15deg 30deg);");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("repeating-conic-gradient(hsl(0 0% 100% / 0.2) 0deg 15deg, hsl(0 33% 100% / 0.7) 15deg 30deg)",
 				style.getPropertyValue("background-image"));
@@ -1307,8 +1325,7 @@ public class GradientValueTest {
 		assertEquals(
 				"background-image:repeating-conic-gradient(hsl(0 0% 100%/.2) 0deg 15deg,hsl(0 33% 100%/.7) 15deg 30deg)",
 				style.getMinifiedCssText());
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		GradientValue val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.REPEATING_CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		// Match
@@ -1328,12 +1345,12 @@ public class GradientValueTest {
 		//
 		style.setCssText("background-image: repeating-conic-gradient(gold, #f06 20deg); ");
 		cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
 		assertEquals("repeating-conic-gradient(gold, #f06 20deg)", style.getPropertyValue("background-image"));
 		assertEquals("background-image: repeating-conic-gradient(gold, #f06 20deg); ", style.getCssText());
 		assertEquals("background-image:repeating-conic-gradient(gold,#f06 20deg)", style.getMinifiedCssText());
-		val = (GradientValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		val = (GradientValue) cssval;
 		assertEquals(CSSGradientValue.GradientType.REPEATING_CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
@@ -1356,8 +1373,7 @@ public class GradientValueTest {
 		assertEquals(
 				"background-image:repeating-conic-gradient(var(--white) 0deg 30deg,var(--grey) 30deg 120deg,var(--black) 120deg 300deg)",
 				style.getMinifiedCssText());
-		LexicalValue val = (LexicalValue) style.getPropertyCSSValue("background-image");
-		assertNotNull(val);
+		LexicalValue val = (LexicalValue) cssval;
 		assertEquals(CSSValue.Type.GRADIENT, val.getFinalType());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
