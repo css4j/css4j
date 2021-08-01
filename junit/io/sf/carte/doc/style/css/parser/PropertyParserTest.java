@@ -2878,7 +2878,52 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyBadCalc10() throws CSSException, IOException {
 		try {
+			parsePropertyValue("calc(100% - + 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc11() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% + + 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc12() throws CSSException, IOException {
+		try {
 			parsePropertyValue("calc(100% + * 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc13() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% * + 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc14() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% * - 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc15() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% * * 2em)");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}

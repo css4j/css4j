@@ -6606,17 +6606,25 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				} else if (!hexColor) {
 					if (codepoint == 45) { // -
-						if (functionToken && !unicodeRange) {
-							processBuffer(index);
-							if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-								newLexicalUnit(LexicalType.OPERATOR_MINUS, false);
-							} else {
-								unexpectedCharError(index, codepoint);
+						if (!unicodeRange) {
+							if (functionToken) {
+								processBuffer(index);
+								if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
+									newLexicalUnit(LexicalType.OPERATOR_MINUS, false);
+								} else {
+									unexpectedCharError(index, codepoint);
+								}
+								prevcp = codepoint;
+								return;
+							} else if (isCustomProperty()) {
+								processBuffer(index);
+								newCustomPropertyOperator(index, codepoint, LexicalType.OPERATOR_MINUS);
+								prevcp = codepoint;
+								return;
 							}
-						} else {
-							buffer.append('-');
-							codepoint = 65;
 						}
+						buffer.append('-');
+						codepoint = 65;
 					} else if (!unicodeRange) {
 						if (codepoint == 95) { // _
 							buffer.append('_');
@@ -6655,16 +6663,21 @@ public class CSSParser implements Parser, Cloneable {
 							if (buffer.length() == 1 && ((c = buffer.charAt(0)) == 'U' || c == 'u')) {
 								buffer.setLength(0);
 								unicodeRange = true;
-							} else if (functionToken) {
-								processBuffer(index);
-								if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-									newLexicalUnit(LexicalType.OPERATOR_PLUS, false);
+							} else if (!isPrevCpWhitespace() && (buffer.length() == 0
+									|| (c = buffer.charAt(buffer.length() - 1)) != 'E' && c != 'e')) {
+								if (functionToken) {
+									processBuffer(index);
+									if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
+										newLexicalUnit(LexicalType.OPERATOR_PLUS, false);
+									} else {
+										unexpectedCharError(index, codepoint);
+									}
+								} else if (isCustomProperty()) {
+									processBuffer(index);
+									newCustomPropertyOperator(index, codepoint, LexicalType.OPERATOR_PLUS);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
-							} else if (!isPrevCpWhitespace() && (buffer.length() == 0
-									|| (c = buffer.charAt(buffer.length() - 1)) != 'E' && c != 'e')) {
-								unexpectedCharError(index, codepoint);
 							} else {
 								buffer.append('+');
 								codepoint = 65;
@@ -6687,6 +6700,13 @@ public class CSSParser implements Parser, Cloneable {
 							} else if (codepoint == 61 && handleEqualsSignInsideFunction(index)) {
 								prevcp = 65;
 								return;
+							} else {
+								unexpectedCharError(index, codepoint);
+							}
+						} else if (isCustomProperty()) {
+							if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
+								processBuffer(index);
+								newCustomPropertyOperator(index, codepoint, LexicalType.OPERATOR_MULTIPLY);
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
@@ -6728,6 +6748,24 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			handleError(index - buffer.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 					"Invalid property name: '" + raw + '\'');
+		}
+
+		private void newCustomPropertyOperator(int index, int codepoint, LexicalType operator) {
+			if (currentlu == null) {
+				newLexicalUnit(operator, false);
+				return;
+			} else {
+				// This method is not being called if we are in calc()
+				assert(currentlu.parameters == null);
+				//
+				LexicalType type;
+				if (!typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
+						&& type != LexicalType.OPERATOR_COMMA) {
+					newLexicalUnit(operator, false);
+					return;
+				}
+			}
+			unexpectedCharError(index, codepoint);
 		}
 
 		private boolean handleEqualsSignInsideFunction(int index) {
@@ -6783,6 +6821,10 @@ public class CSSParser implements Parser, Cloneable {
 				lu = nextlu;
 			}
 			return lu;
+		}
+
+		private boolean isCustomProperty() {
+			return propertyName.startsWith("--");
 		}
 
 		/**
@@ -6906,7 +6948,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (propertyName != null) {
 				processBuffer(index);
 				if (!parseError) {
-					if (!propertyName.startsWith("--")) {
+					if (!isCustomProperty()) {
 						if (lunit != null) {
 							handleProperty(index, propertyName, lunit, priorityImportant);
 						} else {
@@ -7067,10 +7109,10 @@ public class CSSParser implements Parser, Cloneable {
 				str = buffer.toString();
 				cssText = ParseHelper.escapeCssCharsAndFirstChar(raw).toString();
 			}
-			createIdentifierOrKeyword(index, raw, str, cssText);
+			createIdentifierOrNumberOrKeyword(index, raw, str, cssText);
 		}
 
-		private void createIdentifierOrKeyword(int index, String raw, String ident, String cssText) {
+		private void createIdentifierOrNumberOrKeyword(int index, String raw, String ident, String cssText) {
 			buffer.setLength(0);
 			int len = ident.length();
 			int i = len - 1;
@@ -7080,7 +7122,13 @@ public class CSSParser implements Parser, Cloneable {
 					if (cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1)) {
 						// Either not ending in [0-9] range or not parsable as a number
 						if (!newIdentifier(raw, ident, cssText)) {
-							checkForIEValue(index, raw);
+							// Check for a single '+'
+							if (raw.length() == 1 && raw.charAt(0) == '+') {
+								newOperator(index, '+', LexicalType.OPERATOR_PLUS);
+								return;
+							} else {
+								checkForIEValue(index, raw);
+							}
 						}
 					}
 					break;
@@ -7102,6 +7150,26 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				}
 			}
+		}
+
+		private void newOperator(int index, int codePoint, LexicalType operator) {
+			LexicalType type;
+			if (this.currentlu == null) {
+				if (isCustomProperty()) {
+					newLexicalUnit(operator, false);
+					return;
+				}
+			} else if (currentlu.parameters != null) {
+				if (lastParamIsOperand()) {
+					newLexicalUnit(operator, false);
+					return;
+				}
+			} else if (isCustomProperty() && !typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
+					&& type != LexicalType.OPERATOR_COMMA) {
+				newLexicalUnit(operator, false);
+				return;
+			}
+			unexpectedCharError(index, codePoint);
 		}
 
 		private void parseUnicodeRange(int index, int buflen) {
@@ -7203,7 +7271,16 @@ public class CSSParser implements Parser, Cloneable {
 					try {
 						intval = Integer.parseInt(s);
 					} catch (NumberFormatException e) {
-						return false;
+						// Maybe it is exponent syntax ("1E2")
+						float flval;
+						try {
+							flval = Float.parseFloat(s);
+						} catch (NumberFormatException e1) {
+							return false;
+						}
+						lu = newNumberUnit(LexicalType.REAL);
+						lu.floatValue = flval;
+						return true;
 					}
 					lu = newNumberUnit(LexicalType.INTEGER);
 					lu.intValue = intval;

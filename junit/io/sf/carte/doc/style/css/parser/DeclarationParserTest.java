@@ -1561,6 +1561,36 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationUnitExpNotationPlus() throws CSSException, IOException {
+		parseStyleDeclaration("margin-right: 1.1e+01px;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin-right", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
+		assertEquals(11f, lu.getFloatValue(), 0.01f);
+		assertEquals("px", lu.getDimensionUnitText());
+		assertEquals("11px", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationUnitExpNotationMinus() throws CSSException, IOException {
+		parseStyleDeclaration("margin-right: 11e-01em;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin-right", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
+		assertEquals(1.1f, lu.getFloatValue(), 0.01f);
+		assertEquals("em", lu.getDimensionUnitText());
+		assertEquals("1.1em", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseStyleDeclarationUnitDimension() throws CSSException, IOException {
 		parseStyleDeclaration("margin-right: 1foo;");
 		assertEquals(1, handler.propertyNames.size());
@@ -1637,6 +1667,30 @@ public class DeclarationParserTest {
 		assertEquals(1, lu.getIntegerValue());
 		assertEquals("1", lu.toString());
 		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationPlusError() throws CSSException, IOException {
+		parseStyleDeclaration("z-index:+ 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationMinusError() throws CSSException, IOException {
+		parseStyleDeclaration("z-index:- 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationProductError() throws CSSException, IOException {
+		parseStyleDeclaration("z-index:* 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
 	}
 
 	@Test
@@ -1911,6 +1965,58 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationCalcExpNotationPlus() throws CSSException, IOException {
+		parseStyleDeclaration("width: calc(100% - 1.2e+01mm)");
+		assertEquals("width", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 0.01);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_MM, param.getCssUnit());
+		assertEquals(12f, param.getFloatValue(), 1e-5);
+		assertEquals("mm", param.getDimensionUnitText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100% - 12mm)", lu.toString());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcExpNotation() throws CSSException, IOException {
+		parseStyleDeclaration("width: calc(100% - 3e-01em)");
+		assertEquals("width", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 0.01);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(0.3f, param.getFloatValue(), 1e-5);
+		assertEquals("em", param.getDimensionUnitText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100% - 0.3em)", lu.toString());
+	}
+
+	@Test
 	public void testParseStyleDeclarationCalcEscaped() throws CSSException, IOException {
 		parseStyleDeclaration("width: ca\\4c c(100% - 3em)");
 		assertEquals("width", handler.propertyNames.getFirst());
@@ -1969,6 +2075,45 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationBezierExpNotation() throws CSSException, IOException {
+		parseStyleDeclaration("foo:cubic-bezier(0.033E+01, 1e-1, 5E-1, 1E0)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("foo", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5f, param.getFloatValue(), 0.001);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(1, param.getFloatValue(), 1e-5);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
 		assertFalse(errorHandler.hasError());
@@ -2058,6 +2203,253 @@ public class DeclarationParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("steps(2, start)", lu.toString());
 		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyCalc() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:calc(100% - 3em)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 0.01);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(3f, param.getFloatValue(), 0.01);
+		assertEquals("em", param.getDimensionUnitText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100% - 3em)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyCalc2() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:calc(10deg * 3.2)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals("deg", param.getDimensionUnitText());
+		assertEquals(10f, param.getFloatValue(), 1e-5);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
+		assertEquals(3.2f, param.getFloatValue(), 1e-5);
+		assertEquals(0, param.getDimensionUnitText().length());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(10deg*3.2)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyPlus() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:+ 1deg");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.OPERATOR_PLUS, lu.getLexicalUnitType());
+		assertEquals("+", lu.getCssText());
+		assertEquals("+ 1deg", lu.toString());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
+		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals("1deg", lu.getCssText());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyPlusError() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:+ + 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyMinus() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:- 1deg");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.OPERATOR_MINUS, lu.getLexicalUnitType());
+		assertEquals("-", lu.getCssText());
+		assertEquals("- 1deg", lu.toString());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
+		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals("1deg", lu.getCssText());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyMinusError() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:- - 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyPlusMinusError() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:+ - 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyAsterisk() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:* 1deg");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, lu.getLexicalUnitType());
+		assertEquals("*", lu.getCssText());
+		assertEquals("*1deg", lu.toString());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
+		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals("1deg", lu.getCssText());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyAsterisk2() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:75 * 1deg");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(75, lu.getIntegerValue());
+		assertEquals("75", lu.getCssText());
+		assertEquals("75*1deg", lu.toString());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, lu.getLexicalUnitType());
+		assertEquals("*", lu.getCssText());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
+		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals("1deg", lu.getCssText());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertySlash() throws CSSException, IOException {
+		parseStyleDeclaration("--rot: / 2");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
+		assertEquals("/", lu.getCssText());
+		assertEquals("/2", lu.toString());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(2, lu.getIntegerValue());
+		assertEquals("2", lu.getCssText());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertySlash2() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:90deg / 2");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
+		assertEquals(90f, lu.getFloatValue(), 1e-5);
+		assertEquals("90deg", lu.getCssText());
+		assertEquals("90deg/2", lu.toString());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
+		assertEquals("/", lu.getCssText());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(2, lu.getIntegerValue());
+		assertEquals("2", lu.getCssText());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyExpNotationPlus() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:+ 3.2e+01deg");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--rot", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.OPERATOR_PLUS, lu.getLexicalUnitType());
+		assertEquals("+", lu.getCssText());
+		assertEquals("+ 32deg", lu.toString());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
+		assertEquals(32f, lu.getFloatValue(), 1e-5);
+		assertEquals("32deg", lu.getCssText());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyCommaPlusError() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:, + 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyCommaMinusError() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:, - 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyCommaAsteriskError() throws CSSException, IOException {
+		parseStyleDeclaration("--rot:, * 1deg");
+		assertTrue(errorHandler.hasError());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
 	}
 
 	@Test
@@ -2373,6 +2765,7 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationIEExpression() throws CSSException, IOException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		parseStyleDeclaration("top:expression(iequirk = (document.body.scrollTop) + \"px\" )");
+		assertEquals(1, handler.propertyNames.size());
 		assertEquals("top", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
