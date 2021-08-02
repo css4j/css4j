@@ -1312,6 +1312,25 @@ public class PropertyParserTest {
 		assertEquals(Match.TRUE, lu.matches(syn));
 	}
 
+	/*
+	 * Integers larger than 2147483647 are parsed as floats.
+	 */
+	@Test
+	public void testParsePropertyLongInteger() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("10000000000");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(1e10, lu.getFloatValue(), 1e-5);
+		assertEquals("10000000000", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyLongReal() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("10000000000.0");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(1e10, lu.getFloatValue(), 1e-5);
+		assertEquals("10000000000", lu.toString());
+	}
+
 	@Test
 	public void testParsePropertyZeroFloat() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("0.0");

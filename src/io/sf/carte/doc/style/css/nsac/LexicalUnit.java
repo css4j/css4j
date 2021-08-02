@@ -110,6 +110,10 @@ public interface LexicalUnit {
 
 		/**
 		 * Integers.
+		 * <p>
+		 * Note: integers larger than 2147483647 (or smaller than -2147483648) are
+		 * parsed as {@link #REAL}.
+		 * </p>
 		 * 
 		 * @see #getIntegerValue
 		 */
