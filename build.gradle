@@ -117,7 +117,7 @@ tasks.register('copyJars', Copy) {
 	dependsOn tasks.build
 	dependsOn 'testsJar'
 	include '**/*.jar'
-	excludes = ['dom4j*.jar', 'htmlparser*.jar', 'slf4j*.jar', 'xmlpull*.jar', 'xpp3_min*.jar']
+	excludes = ['slf4j*.jar']
 	from layout.buildDirectory.dir("libs")
 	from configurations.runtimeClasspath
 	into "${rootDir}/jar"
