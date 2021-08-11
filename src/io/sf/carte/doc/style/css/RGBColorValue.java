@@ -20,9 +20,13 @@ package io.sf.carte.doc.style.css;
  * {@link CSSColorValue#getColorModel()}.
  * </p>
  * 
- * @deprecated
+ * @deprecated Top-level color values with the RGB color model are no longer
+ *             guaranteed to implement this interface. Furthermore, this
+ *             interface is not especially useful since the {@code getColor()}
+ *             method became available. This interface is considered unsafe and
+ *             error-prone, it will be removed in the future.
  */
-@Deprecated
+@Deprecated(forRemoval=true)
 public interface RGBColorValue extends CSSColorValue {
 
 	/**
