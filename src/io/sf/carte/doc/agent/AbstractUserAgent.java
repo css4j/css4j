@@ -64,7 +64,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private final Map<String, Set<AuthenticationCredentials>> credentialMap = new HashMap<String, Set<AuthenticationCredentials>>();
 
-	private String userAgentId = "Mozilla/4.0 (compatible; CSS4J)";
+	private String userAgentId = System.getProperty("http.agent", "Mozilla/4.0 (compatible; CSS4J)");
 
 	private int timeout = 100000; // Connection timeout
 
