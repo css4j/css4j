@@ -135,12 +135,6 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 		mediaQueryErrors.put(ownerNode, exception);
 	}
 
-	@Deprecated
-	@Override
-	public void ruleIOError(String uri, IOException exception) {
-		ioError(uri, exception);
-	}
-
 	@Override
 	public void ioError(String uri, IOException exception) {
 		if (ioErrors == null) {

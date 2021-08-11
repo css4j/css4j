@@ -169,8 +169,10 @@ public interface ErrorHandler {
 	 * @deprecated
 	 * @see #ioError(String, IOException)
 	 */
-	@Deprecated
-	void ruleIOError(String uri, IOException exception);
+	@Deprecated(forRemoval=true)
+	default void ruleIOError(String uri, IOException exception) {
+		ioError(uri, exception);
+	}
 
 	/**
 	 * A I/O error was found when retrieving a resource while processing an
