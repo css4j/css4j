@@ -25,8 +25,11 @@ class CRLFConvert extends DefaultTask {
 		files.each { path ->
 			File file = new File(path)
 			String content = file.text
-			content = content.replaceAll(/\r\n/, LF)
-			file.write(content.replaceAll(/\n|\r/, CRLF))
+			String newContent = content.replaceAll(/\r\n/, LF)
+			newContent = newContent.replaceAll(/\n|\r/, CRLF)
+			if (content != newContent) {
+				file.write(newContent)
+			}
 		}
 	}
 
