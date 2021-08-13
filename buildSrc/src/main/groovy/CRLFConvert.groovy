@@ -24,11 +24,15 @@ class CRLFConvert extends DefaultTask {
 	def action() {
 		files.each { path ->
 			File file = new File(path)
-			String content = file.text
-			String newContent = content.replaceAll(/\r\n/, LF)
-			newContent = newContent.replaceAll(/\n|\r/, CRLF)
-			if (content != newContent) {
-				file.write(newContent)
+			if (file.exists()) {
+				String content = file.text
+				String newContent = content.replaceAll(/\r\n/, LF)
+				newContent = newContent.replaceAll(/\n|\r/, CRLF)
+				if (content != newContent) {
+					file.write(newContent)
+				}
+			} else {
+				logger.warn('File ' + path + ' does not exist.')
 			}
 		}
 	}
