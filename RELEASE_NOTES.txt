@@ -2,20 +2,30 @@
                             CSS4J RELEASE NOTES
                             ===================
 
-Release 3.6.0 - July 30, 2021
------------------------------
+Release 3.6.1 - August 29, 2021
+-------------------------------
 
 Release Highlights
 ------------------
 
-* Build improvements.
+* Deprecations
 
-  The Gradle build is now independent from css4j-dist.
+  Interface RGBColorValue is now deprecated for removal (see issue #4 for
+  context).
 
-* Color() function
+  Method ErrorHandler.ruleIOError() is deprecated for removal.
 
-  The color() function from Color Level 4 is now fully supported as a color.
-  Previously, it was handled as a generic function.
+
+* User agent
+
+  The 'http.agent' system property is now used to set the user agent string
+  (issue #8).
+
+
+* Bug fixes
+
+  A couple NSAC fixes (#6), and also stricter sanity checks for missing operands
+  in calc() (#7).
 
 
 Description
@@ -110,7 +120,7 @@ Software dependencies
 - The carte-util artifact; version 3.5.1 or higher is recommended:
   https://github.com/css4j/carte-util/releases
 
-- The xml-dtd artifact; version 3.5.1 or higher is recommended:
+- The xml-dtd artifact; version 3.5.2 or higher is recommended:
   https://github.com/css4j/xml-dtd/releases
 
 - The tokenproducer artifact; version 1.1.1 or higher is recommended:
