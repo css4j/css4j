@@ -21,14 +21,19 @@ java {
 }
 
 dependencies {
-	api "io.sf.carte:carte-util:${carteutilVersion}"
-	api "io.sf.carte:tokenproducer:${tokenproducerVersion}"
+	api 'io.sf.carte:carte-util:[3.4.0,)'
+	api 'io.sf.carte:tokenproducer:1.1.1'
 	api 'io.sf.jclf:jclf-text:[5.0.0,)'
 	api 'io.sf.jclf:jclf-linear3:[1.0.0,)'
-	xmldtdImplementation "io.sf.carte:xml-dtd:${xmldtdVersion}"
+	xmldtdImplementation('io.sf.carte:xml-dtd') {
+		version {
+			require '[3.4.0,)'
+			prefer '3.5.2'
+		}
+	}
 	loggingImplementation 'org.slf4j:slf4j-api:[1.7.28,)'
-	testImplementation "junit:junit:${junitVersion}"
-	testImplementation "nu.validator:htmlparser:${htmlparserVersion}"
+	testImplementation 'junit:junit:4.13.2'
+	testImplementation 'nu.validator:htmlparser:1.4.16'
 }
 
 repositories {
