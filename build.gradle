@@ -1,6 +1,7 @@
 plugins {
 	id 'java-library'
 	id 'maven-publish'
+	id 'jacoco'
 }
 
 group = 'io.sf.carte'
@@ -134,6 +135,10 @@ tasks.register('lineEndingConversion', CRLFConvert) {
 	file "$rootDir/CHANGES.txt"
 	file "$rootDir/RELEASE_NOTES.txt"
 	file "$rootDir/UPGRADING.txt"
+}
+
+jacocoTestReport {
+	dependsOn test
 }
 
 tasks.register('cleanBuildSrc') {
