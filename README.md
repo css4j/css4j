@@ -8,14 +8,14 @@ This project provides implementations of APIs similar to W3C/WHATWG's:
 <br/>
 
 ## Build from source
-To build css4j from the code that is currently at the Git repository, you need a current JDK (the build is tested with
-version 16). You can run a variety of Gradle tasks with the Gradle wrapper (on Unix-like systems you may need to type `./gradlew`):
+To build css4j from the code that is currently at the Git repository, JDK 11 or later is needed.
+You can run a variety of Gradle tasks with the Gradle wrapper (on Windows shells you can omit the `./`):
 
-- `gradlew build` (normal build)
-- `gradlew build publishToMavenLocal` (to install in local Maven repository)
-- `gradlew copyJars` (to copy jar files into a top-level _jar_ directory)
-- `gradlew jacocoTestReport` (produces a test coverage report in the `build/reports/jacoco/test/html` directory)
-- `gradlew publish` (deploys to a Maven repository, as described in the `publishing.repositories.maven` block of
+- `./gradlew build` (normal build)
+- `./gradlew build publishToMavenLocal` (to install in local Maven repository)
+- `./gradlew copyJars` (to copy jar files into a top-level _jar_ directory)
+- `./gradlew jacocoTestReport` (produces a test coverage report in the `build/reports/jacoco/test/html` directory)
+- `./gradlew publish` (deploys to a Maven repository, as described in the `publishing.repositories.maven` block of
 [build.gradle](https://github.com/css4j/css4j/blob/master/build.gradle))
 
 <br/>
