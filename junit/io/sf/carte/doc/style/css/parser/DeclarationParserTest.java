@@ -163,15 +163,15 @@ public class DeclarationParserTest {
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(300.1f, param.getFloatValue(), 1e-6);
+		assertEquals(300.1f, param.getFloatValue(), 1e-6f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(400.2f, param.getFloatValue(), 1e-6);
+		assertEquals(400.2f, param.getFloatValue(), 1e-6f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(500.3f, param.getFloatValue(), 1e-6);
+		assertEquals(500.3f, param.getFloatValue(), 1e-6f);
 		assertNull(param.getNextLexicalUnit());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -464,7 +464,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 0.01);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -472,7 +472,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(3f, param.getFloatValue(), 0.01);
+		assertEquals(3f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 3em)", lu.toString());
@@ -492,7 +492,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
-		assertEquals(14f, lu.getFloatValue(), 1e-7);
+		assertEquals(14f, lu.getFloatValue(), 1e-7f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
@@ -500,7 +500,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
-		assertEquals(32f, lu.getFloatValue(), 1e-7);
+		assertEquals(32f, lu.getFloatValue(), 1e-7f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
@@ -1700,7 +1700,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
-		assertEquals(0.5, lu.getFloatValue(), 0.01);
+		assertEquals(0.5, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -1755,22 +1755,22 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, lu.getCssUnit());
-		assertEquals(25, lu.getFloatValue(), 0.01);
+		assertEquals(25, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, lu.getCssUnit());
-		assertEquals(30, lu.getFloatValue(), 0.01);
+		assertEquals(30, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, lu.getCssUnit());
-		assertEquals(12, lu.getFloatValue(), 0.01);
+		assertEquals(12, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, lu.getCssUnit());
-		assertEquals(20, lu.getFloatValue(), 0.01);
+		assertEquals(20, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -1782,7 +1782,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
-		assertEquals(2, lu.getFloatValue(), 0.01);
+		assertEquals(2, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
@@ -1808,7 +1808,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(35, param.getFloatValue(), 1e-6);
+		assertEquals(35, param.getFloatValue(), 1e-6f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("linear-gradient(35deg)", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -1950,7 +1950,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 0.01);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -1958,7 +1958,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(3f, param.getFloatValue(), 0.01);
+		assertEquals(3f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 3em)", lu.toString());
@@ -1976,7 +1976,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 0.01);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -1984,7 +1984,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_MM, param.getCssUnit());
-		assertEquals(12f, param.getFloatValue(), 1e-5);
+		assertEquals(12f, param.getFloatValue(), 1e-5f);
 		assertEquals("mm", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 12mm)", lu.toString());
@@ -2002,7 +2002,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 0.01);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -2010,7 +2010,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(0.3f, param.getFloatValue(), 1e-5);
+		assertEquals(0.3f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 0.3em)", lu.toString());
@@ -2028,7 +2028,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 0.01);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -2036,7 +2036,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(3f, param.getFloatValue(), 0.01);
+		assertEquals(3f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 3em)", lu.toString());
@@ -2113,7 +2113,7 @@ public class DeclarationParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(1, param.getFloatValue(), 1e-5);
+		assertEquals(1, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
 		assertFalse(errorHandler.hasError());
@@ -2218,7 +2218,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 0.01);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -2226,7 +2226,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(3f, param.getFloatValue(), 0.01);
+		assertEquals(3f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 3em)", lu.toString());
@@ -2247,7 +2247,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
 		assertEquals("deg", param.getDimensionUnitText());
-		assertEquals(10f, param.getFloatValue(), 1e-5);
+		assertEquals(10f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
@@ -2255,7 +2255,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(3.2f, param.getFloatValue(), 1e-5);
+		assertEquals(3.2f, param.getFloatValue(), 1e-5f);
 		assertEquals(0, param.getDimensionUnitText().length());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(10deg*3.2)", lu.toString());
@@ -2275,7 +2275,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("1deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -2302,7 +2302,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("1deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -2337,7 +2337,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("1deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -2361,7 +2361,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("1deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -2393,7 +2393,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
-		assertEquals(90f, lu.getFloatValue(), 1e-5);
+		assertEquals(90f, lu.getFloatValue(), 1e-5f);
 		assertEquals("90deg", lu.getCssText());
 		assertEquals("90deg/2", lu.toString());
 		lu = lu.getNextLexicalUnit();
@@ -2422,7 +2422,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, lu.getCssUnit());
-		assertEquals(32f, lu.getFloatValue(), 1e-5);
+		assertEquals(32f, lu.getFloatValue(), 1e-5f);
 		assertEquals("32deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
@@ -2983,7 +2983,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
-		assertEquals(10f, lu.getFloatValue(), 0.001f);
+		assertEquals(10f, lu.getFloatValue(), 1e-5f);
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
 	}

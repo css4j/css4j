@@ -86,15 +86,15 @@ public class StyleValueTest {
 		assertNotNull(value);
 		assertEquals(Type.NUMERIC, value.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, ((CSSTypedValue) value).getUnitType());
-		assertEquals(50, ((CSSTypedValue) value).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5);
+		assertEquals(50, ((CSSTypedValue) value).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5f);
 		assertEquals("50%", value.getCssText());
 		value = factory.parseProperty("15cm", cssParser);
 		assertNotNull(value);
-		assertEquals(15, ((CSSTypedValue) value).getFloatValue(CSSUnit.CSS_CM), 1e-5);
+		assertEquals(15, ((CSSTypedValue) value).getFloatValue(CSSUnit.CSS_CM), 1e-5f);
 		assertEquals("15cm", value.getCssText());
 		value = factory.parseProperty("12", cssParser);
 		assertNotNull(value);
-		assertEquals(12, ((CSSTypedValue) value).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(12, ((CSSTypedValue) value).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertEquals(Type.NUMERIC, value.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, ((CSSTypedValue) value).getUnitType());
 		assertEquals("12", value.getCssText());

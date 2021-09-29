@@ -637,7 +637,7 @@ public class PropertyParserTest {
 		LexicalUnit lunit = parsePropertyValue("0.5em auto");
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lunit.getCssUnit());
-		assertEquals(0.5, lunit.getFloatValue(), 1e-5);
+		assertEquals(0.5f, lunit.getFloatValue(), 1e-5f);
 		LexicalUnit lu = lunit.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -668,19 +668,19 @@ public class PropertyParserTest {
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(25, lu.getFloatValue(), 1e-5);
+		assertEquals(25f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(30, lu.getFloatValue(), 1e-5);
+		assertEquals(30f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(12, lu.getFloatValue(), 1e-5);
+		assertEquals(12f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(20, lu.getFloatValue(), 1e-5);
+		assertEquals(20f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -692,7 +692,7 @@ public class PropertyParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
-		assertEquals(2, lu.getFloatValue(), 1e-5);
+		assertEquals(2f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
@@ -918,7 +918,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueLengthIdent() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("2.1px auto");
-		assertEquals(2.1f, lu.getFloatValue(), 1e-5);
+		assertEquals(2.1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
@@ -940,7 +940,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitEm() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("1.3em");
-		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
@@ -970,7 +970,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitEmPlusSign() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("+1.3em");
-		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
@@ -1000,7 +1000,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitEmMinusSign() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("-1.3em");
-		assertEquals(-1.3, lu.getFloatValue(), 1e-5);
+		assertEquals(-1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals("-1.3em", lu.getCssText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
@@ -1010,7 +1010,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitsUC() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("1.3EX");
-		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("ex", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EX, lu.getCssUnit());
@@ -1021,10 +1021,10 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("2em .85em");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
-		assertEquals(2f, lu.getFloatValue(), 1e-5);
+		assertEquals(2f, lu.getFloatValue(), 1e-5f);
 		LexicalUnit nlu = lu.getNextLexicalUnit();
 		assertNotNull(nlu);
-		assertEquals(0.85, nlu.getFloatValue(), 1e-5);
+		assertEquals(0.85, nlu.getFloatValue(), 1e-5f);
 		assertEquals("em", nlu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, nlu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, nlu.getCssUnit());
@@ -1060,7 +1060,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitsNegative() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("-0.2em");
-		assertEquals(-0.2, lu.getFloatValue(), 1e-5);
+		assertEquals(-0.2f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
@@ -1069,7 +1069,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitsNegShort() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("-.2em");
-		assertEquals(-0.2, lu.getFloatValue(), 1e-5);
+		assertEquals(-0.2f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
@@ -1078,7 +1078,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitHz() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("1.3Hz");
-		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_HZ, lu.getCssUnit());
 		assertEquals("hz", lu.getDimensionUnitText());
@@ -1102,7 +1102,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitKHz() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("1.3kHz");
-		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_KHZ, lu.getCssUnit());
 		assertEquals("khz", lu.getDimensionUnitText());
@@ -1126,7 +1126,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitSecond() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("1.3s");
-		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("s", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_S, lu.getCssUnit());
@@ -1151,14 +1151,14 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitSecondMilliSecond() throws CSSException, IOException {
 		LexicalUnit lunit = parsePropertyValue("1.3s 20ms");
-		assertEquals(1.3, lunit.getFloatValue(), 1e-5);
+		assertEquals(1.3, lunit.getFloatValue(), 1e-5f);
 		assertEquals("s", lunit.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_S, lunit.getCssUnit());
 		//
 		LexicalUnit lu = lunit.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(20, lu.getFloatValue(), 1e-5);
+		assertEquals(20f, lu.getFloatValue(), 1e-5f);
 		assertEquals("ms", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_MS, lu.getCssUnit());
@@ -1185,7 +1185,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitSecondCommaMilliSecond() throws CSSException, IOException {
 		LexicalUnit lunit = parsePropertyValue("1.3s, 20ms");
-		assertEquals(1.3, lunit.getFloatValue(), 1e-5);
+		assertEquals(1.3, lunit.getFloatValue(), 1e-5f);
 		assertEquals("s", lunit.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_S, lunit.getCssUnit());
@@ -1195,7 +1195,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(20, lu.getFloatValue(), 1e-5);
+		assertEquals(20f, lu.getFloatValue(), 1e-5f);
 		assertEquals("ms", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_MS, lu.getCssUnit());
@@ -1222,7 +1222,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitMillisecond() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("1.3ms");
-		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("ms", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_MS	, lu.getCssUnit());
@@ -1246,7 +1246,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueUnitFlex() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("0.7fr");
-		assertEquals(0.7, lu.getFloatValue(), 1e-5);
+		assertEquals(0.7f, lu.getFloatValue(), 1e-5f);
 		assertEquals("fr", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_FR	, lu.getCssUnit());
@@ -1319,7 +1319,7 @@ public class PropertyParserTest {
 	public void testParsePropertyLongInteger() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("10000000000");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(1e10, lu.getFloatValue(), 1e-5);
+		assertEquals(1e10, lu.getFloatValue(), 1e-5f);
 		assertEquals("10000000000", lu.toString());
 	}
 
@@ -1327,7 +1327,7 @@ public class PropertyParserTest {
 	public void testParsePropertyLongReal() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("10000000000.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(1e10, lu.getFloatValue(), 1e-5);
+		assertEquals(1e10, lu.getFloatValue(), 1e-5f);
 		assertEquals("10000000000", lu.toString());
 	}
 
@@ -1343,7 +1343,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("0.0em");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
-		assertEquals(0, lu.getFloatValue(), 1e-5);
+		assertEquals(0f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
 	}
 
@@ -1351,7 +1351,7 @@ public class PropertyParserTest {
 	public void testParsePropertyOneFloat() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -1375,7 +1375,7 @@ public class PropertyParserTest {
 	public void testParsePropertyPlusOneFloat() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("+1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 	}
 
 	@Test
@@ -1392,7 +1392,7 @@ public class PropertyParserTest {
 	public void testParsePropertyMinusOneFloat() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("-1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(-1f, lu.getFloatValue(), 1e-5);
+		assertEquals(-1f, lu.getFloatValue(), 1e-5f);
 	}
 
 	@Test
@@ -1529,7 +1529,7 @@ public class PropertyParserTest {
 	public void testParsePropertyFloatList() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue(".1234 5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(0.1234f, lu.getFloatValue(), 1e-6);
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-6f);
 		//
 		LexicalUnit nlu = lu.getNextLexicalUnit();
 		assertNotNull(nlu);
@@ -1560,7 +1560,7 @@ public class PropertyParserTest {
 	public void testParsePropertyFloatList2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue(".1234 +5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(0.1234f, lu.getFloatValue(), 1e-4);
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
 		//
 		LexicalUnit nlu = lu.getNextLexicalUnit();
 		assertNotNull(nlu);
@@ -1591,7 +1591,7 @@ public class PropertyParserTest {
 	public void testParsePropertyFloatList3() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue(".1234 -5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(0.1234f, lu.getFloatValue(), 1e-4);
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
 		//
 		LexicalUnit nlu = lu.getNextLexicalUnit();
 		assertNotNull(nlu);
@@ -1622,7 +1622,7 @@ public class PropertyParserTest {
 	public void testParsePropertyFloatCommaList() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue(".1234,5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
-		assertEquals(0.1234f, lu.getFloatValue(), 1e-4);
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>#");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -1676,7 +1676,7 @@ public class PropertyParserTest {
 	public void testParsePropertyPercent() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("1%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
@@ -1703,7 +1703,7 @@ public class PropertyParserTest {
 	public void testParsePropertyPercentPlusSign() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("+1%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
@@ -1730,7 +1730,7 @@ public class PropertyParserTest {
 	public void testParsePropertyPercentNegativeSign() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("-1%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(-1f, lu.getFloatValue(), 1e-5);
+		assertEquals(-1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
 		assertEquals("-1%", lu.getCssText());
 		//
@@ -1758,14 +1758,14 @@ public class PropertyParserTest {
 	public void testParsePropertyLengthPercentage() throws CSSException, IOException {
 		LexicalUnit lunit = parsePropertyValue("2px,1%");
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
-		assertEquals(2f, lunit.getFloatValue(), 1e-5);
+		assertEquals(2f, lunit.getFloatValue(), 1e-5f);
 		assertEquals("px", lunit.getDimensionUnitText());
 		LexicalUnit lu = lunit.getNextLexicalUnit();
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(1f, lu.getFloatValue(), 1e-5);
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>#");
@@ -1786,7 +1786,7 @@ public class PropertyParserTest {
 	public void testParsePropertyPercent2() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("0.01%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(0.01f, lu.getFloatValue(), 1e-5);
+		assertEquals(0.01f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
 	}
 
@@ -2041,7 +2041,7 @@ public class PropertyParserTest {
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(100f, param.getFloatValue(), 1e-5);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -2049,7 +2049,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM	, param.getCssUnit());
-		assertEquals(3f, param.getFloatValue(), 1e-5);
+		assertEquals(3f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 3em)", lu.toString());
@@ -2088,7 +2088,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(-3f, param.getFloatValue(), 1e-5);
+		assertEquals(-3f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		assertEquals("calc(-3em)", lu.toString());
 		assertNull(param.getNextLexicalUnit());
@@ -2132,7 +2132,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(3.4f, param.getFloatValue(), 1e-5);
+		assertEquals(3.4f, param.getFloatValue(), 1e-5f);
 		assertEquals("", param.getDimensionUnitText());
 		assertEquals("calc(-2*3.4)", lu.toString());
 		assertNull(param.getNextLexicalUnit());
@@ -2173,7 +2173,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(10f, param.getFloatValue(), 1e-5);
+		assertEquals(10f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -2181,7 +2181,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(2f, param.getFloatValue(), 1e-5);
+		assertEquals(2f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(10em - 2%)", lu.toString());
 		//
@@ -2219,7 +2219,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 1e-5);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		assertEquals("vh", param.getDimensionUnitText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -2228,7 +2228,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(2f, param.getFloatValue(), 1e-5);
+		assertEquals(2f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100vh - 2em)", lu.toString());
 		//
@@ -2268,7 +2268,7 @@ public class PropertyParserTest {
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, subvalues.getCssUnit());
-		assertEquals(10f, subvalues.getFloatValue(), 1e-5);
+		assertEquals(10f, subvalues.getFloatValue(), 1e-5f);
 		assertEquals("em", subvalues.getDimensionUnitText());
 		subvalues = subvalues.getNextLexicalUnit();
 		assertNotNull(subvalues);
@@ -2276,7 +2276,7 @@ public class PropertyParserTest {
 		subvalues = subvalues.getNextLexicalUnit();
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.PERCENTAGE, subvalues.getLexicalUnitType());
-		assertEquals(2f, subvalues.getFloatValue(), 1e-5);
+		assertEquals(2f, subvalues.getFloatValue(), 1e-5f);
 		assertNull(subvalues.getNextLexicalUnit());
 		// End of subvalue checking
 		param = param.getNextLexicalUnit();
@@ -2322,7 +2322,7 @@ public class PropertyParserTest {
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(100f, param.getFloatValue(), 1e-5);
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
 		assertEquals("%", param.getDimensionUnitText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -2345,7 +2345,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-5);
+		assertEquals(1f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -2360,7 +2360,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-5);
+		assertEquals(1f, param.getFloatValue(), 1e-5f);
 		assertEquals("px", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100%/3 - 2*1em - 2*1px)", lu.toString());
@@ -2381,7 +2381,7 @@ public class PropertyParserTest {
 		assertNotNull(subparams);
 		assertEquals(LexicalType.DIMENSION, subparams.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, subparams.getCssUnit());
-		assertEquals(10f, subparams.getFloatValue(), 1e-5);
+		assertEquals(10f, subparams.getFloatValue(), 1e-5f);
 		assertEquals("em", subparams.getDimensionUnitText());
 		subparams = subparams.getNextLexicalUnit();
 		assertNotNull(subparams);
@@ -2389,7 +2389,7 @@ public class PropertyParserTest {
 		subparams = subparams.getNextLexicalUnit();
 		assertNotNull(subparams);
 		assertEquals(LexicalType.PERCENTAGE, subparams.getLexicalUnitType());
-		assertEquals(2f, subparams.getFloatValue(), 1e-5);
+		assertEquals(2f, subparams.getFloatValue(), 1e-5f);
 		assertNull(subparams.getNextLexicalUnit());
 		// End of subvalue checking
 		param = param.getNextLexicalUnit();
@@ -2434,7 +2434,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-5);
+		assertEquals(1f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -2447,7 +2447,7 @@ public class PropertyParserTest {
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_VW, subvalues.getCssUnit());
-		assertEquals(0.4f, subvalues.getFloatValue(), 1e-5);
+		assertEquals(0.4f, subvalues.getFloatValue(), 1e-5f);
 		subvalues = subvalues.getNextLexicalUnit();
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.OPERATOR_PLUS, subvalues.getLexicalUnitType());
@@ -2455,7 +2455,7 @@ public class PropertyParserTest {
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_VH, subvalues.getCssUnit());
-		assertEquals(0.25f, subvalues.getFloatValue(), 1e-5);
+		assertEquals(0.25f, subvalues.getFloatValue(), 1e-5f);
 		assertNull(subvalues.getNextLexicalUnit());
 		// End of subvalue checking
 		param = param.getNextLexicalUnit();
@@ -2553,7 +2553,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-5);
+		assertEquals(1f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -2566,7 +2566,7 @@ public class PropertyParserTest {
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_VW, subvalues.getCssUnit());
-		assertEquals(0.4f, subvalues.getFloatValue(), 1e-5);
+		assertEquals(0.4f, subvalues.getFloatValue(), 1e-5f);
 		subvalues = subvalues.getNextLexicalUnit();
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.OPERATOR_PLUS, subvalues.getLexicalUnitType());
@@ -2574,7 +2574,7 @@ public class PropertyParserTest {
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_VH, subvalues.getCssUnit());
-		assertEquals(0.25f, subvalues.getFloatValue(), 1e-5);
+		assertEquals(0.25f, subvalues.getFloatValue(), 1e-5f);
 		assertNull(subvalues.getNextLexicalUnit());
 		// End of subvalue checking
 		param = param.getNextLexicalUnit();
@@ -2602,7 +2602,7 @@ public class PropertyParserTest {
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_VW, subvalues.getCssUnit());
-		assertEquals(75f, subvalues.getFloatValue(), 1e-5);
+		assertEquals(75f, subvalues.getFloatValue(), 1e-5f);
 		subvalues = subvalues.getNextLexicalUnit();
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.OPERATOR_MULTIPLY, subvalues.getLexicalUnitType());
@@ -2626,7 +2626,7 @@ public class PropertyParserTest {
 		assertNotNull(subvalues);
 		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_VH, subvalues.getCssUnit());
-		assertEquals(100f, subvalues.getFloatValue(), 1e-5);
+		assertEquals(100f, subvalues.getFloatValue(), 1e-5f);
 		assertNull(subvalues.getNextLexicalUnit());
 		// End of subvalue checking
 		param = param.getNextLexicalUnit();
@@ -2654,7 +2654,7 @@ public class PropertyParserTest {
 		LexicalUnit subparam = param.getParameters();
 		assertNotNull(subparam);
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
-		assertEquals(2.1f, subparam.getFloatValue(), 1e-6);
+		assertEquals(2.1f, subparam.getFloatValue(), 1e-6f);
 		subparam = subparam.getNextLexicalUnit();
 		assertNotNull(subparam);
 		assertEquals(LexicalType.OPERATOR_MULTIPLY, subparam.getLexicalUnitType());
@@ -2662,7 +2662,7 @@ public class PropertyParserTest {
 		assertNotNull(subparam);
 		assertEquals(LexicalType.DIMENSION, subparam.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, subparam.getCssUnit());
-		assertEquals(3, subparam.getFloatValue(), 1e-6);
+		assertEquals(3f, subparam.getFloatValue(), 1e-6f);
 		assertNull(subparam.getNextLexicalUnit());
 		//
 		param = param.getNextLexicalUnit();
@@ -2672,7 +2672,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, param.getCssUnit());
-		assertEquals(1, param.getFloatValue(), 1e-6);
+		assertEquals(1f, param.getFloatValue(), 1e-6f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(calc(2.1*3px) - 1pt)", lu.toString());
 		//
@@ -2751,7 +2751,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
-		assertEquals(1.1f, param.getFloatValue(), 1e-5);
+		assertEquals(1.1f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(attr(start length, 8%) - 1.1px)", lu.toString());
 		//
@@ -2845,7 +2845,7 @@ public class PropertyParserTest {
 		subparams = subparams.getNextLexicalUnit();
 		assertNotNull(subparams);
 		assertEquals(LexicalType.PERCENTAGE, subparams.getLexicalUnitType());
-		assertEquals(1f, subparams.getFloatValue(), 1e-5);
+		assertEquals(1f, subparams.getFloatValue(), 1e-5f);
 		assertNull(subparams.getNextLexicalUnit());
 		// End of subvalue checking
 		param = param.getNextLexicalUnit();
@@ -3040,7 +3040,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(10f, param.getFloatValue(), 1e-5);
+		assertEquals(10f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -3049,7 +3049,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
-		assertEquals(2f, param.getFloatValue(), 1e-5);
+		assertEquals(2f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("max(10em, 2%)", lu.toString());
 		//
@@ -3084,7 +3084,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(30f, param.getFloatValue(), 1e-5);
+		assertEquals(30f, param.getFloatValue(), 1e-5f);
 		assertEquals("deg", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		//
@@ -3100,7 +3100,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(45f, param.getFloatValue(), 1e-5);
+		assertEquals(45f, param.getFloatValue(), 1e-5f);
 		assertEquals("deg", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		//
@@ -3133,7 +3133,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(0.62f, param.getFloatValue(), 1e-5);
+		assertEquals(0.62f, param.getFloatValue(), 1e-5f);
 		assertEquals("", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		//
@@ -3149,7 +3149,7 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(0.965f, param.getFloatValue(), 1e-5);
+		assertEquals(0.965f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		//
 		assertEquals("acos(0.62), atan(0.965)", lunit.toString());
@@ -3380,7 +3380,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(1f, param.getFloatValue(), 1e-5);
+		assertEquals(1f, param.getFloatValue(), 1e-5f);
 		assertEquals("x", param.getDimensionUnitText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -3392,7 +3392,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(2f, param.getFloatValue(), 1e-5);
+		assertEquals(2f, param.getFloatValue(), 1e-5f);
 		assertEquals("x", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		// Next value
@@ -4112,7 +4112,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
-		assertEquals(20f, param.getFloatValue(), 1e-5);
+		assertEquals(20f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("env(safe-area-inset-top, 20px)", lu.toString());

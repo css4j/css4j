@@ -278,8 +278,8 @@ public class AttrValueTest {
 		assertEquals("data-pcnt", value.getAttributeName());
 		assertEquals("percentage", value.getAttributeType());
 		assertNull(value.getFallback());
-		assertEquals(0, AttrValue.defaultFallback(value.getAttributeType()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
-				1e-7);
+		assertEquals(0f, AttrValue.defaultFallback(value.getAttributeType()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				1e-7f);
 		assertEquals("attr(data-pcnt percentage)", value.getCssText());
 	}
 

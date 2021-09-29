@@ -50,7 +50,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		CSSTypedValue number = evaluator.evaluateExpression(val.getExpression(), unit);
-		assertEquals(24f, number.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(24f, number.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertEquals(0, unit.getExponent());
 		assertEquals(CSSUnit.CSS_NUMBER, unit.getUnitType());
 		assertTrue(number.isCalculatedNumber());
@@ -173,7 +173,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(7.8872f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_PX), 1e-5);
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertEquals(1, unit.getExponent());
 		assertEquals(CSSUnit.CSS_PT, unit.getUnitType());
 	}
@@ -383,7 +383,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.33333f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_HZ), 1e-5);
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_HZ), 1e-5f);
 		assertEquals(1, unit.getExponent());
 		assertEquals(CSSUnit.CSS_HZ, unit.getUnitType());
 	}
@@ -395,7 +395,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.39840954f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_HZ), 1e-5);
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_HZ), 1e-5f);
 		assertEquals(1, unit.getExponent());
 		assertEquals(CSSUnit.CSS_HZ, unit.getUnitType());
 	}
@@ -407,7 +407,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(333.33333f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_HZ), 1e-5);
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_HZ), 1e-5f);
 		assertEquals(1, unit.getExponent());
 		assertEquals(CSSUnit.CSS_KHZ, unit.getUnitType());
 	}
@@ -419,7 +419,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.33333f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_S), 1e-5);
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_S), 1e-5f);
 		assertEquals(1, unit.getExponent());
 		assertEquals(CSSUnit.CSS_S, unit.getUnitType());
 	}
@@ -431,7 +431,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(0.39840954f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_S), 1e-5);
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_S), 1e-5f);
 		assertEquals(1, unit.getExponent());
 		assertEquals(CSSUnit.CSS_S, unit.getUnitType());
 	}
@@ -468,7 +468,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		Unit unit = new Unit();
 		assertEquals(3.775712f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_HZ), 1e-5);
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSUnit.CSS_HZ), 1e-5f);
 		assertEquals(1, unit.getExponent());
 		assertEquals(CSSUnit.CSS_HZ, unit.getUnitType());
 	}
@@ -504,7 +504,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: min(1.2 * 3)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -512,7 +512,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: min(1.2 * 3, 3)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(3f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(3f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -520,7 +520,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: min(1.2 * 3, 3, 4/2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(2f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(2f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -528,7 +528,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: min(1.2px * 3, 3pt)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(2.7f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(2.7f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -536,7 +536,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: min(1.2px * 3, 3pt, 6px/2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(2.25f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(2.25f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -544,7 +544,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: max(1.2 * 3)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -552,7 +552,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: max(1.2 * 3, 3)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -560,7 +560,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: max(1.2 * 3, 3, 9/4)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -568,7 +568,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: max(1.2px * 3, 3pt)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(3f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(3f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -576,7 +576,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: max(1.2px * 3, 3pt, 5mm/4)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(3.543308f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(3.543308f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -584,7 +584,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: clamp(1.2 * 3, 8 * sin(45deg), 16/2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(5.656854f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(5.656854f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -592,7 +592,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: clamp(0.4mm * 4, 8pt * sin(45deg), 20px/2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(5.656854f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(5.656854f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -600,7 +600,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: clamp(0.6mm * 4, 8pt * sin(45deg), 20px/2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(6.80315f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(6.80315f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -608,7 +608,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: clamp(0.6mm * 4, 12pt * sin(45deg), 20px/2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(7.5f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(7.5f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -616,7 +616,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sin(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(0.1045285f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(0.1045285f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -624,7 +624,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sin(.5235988)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(0.5f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7);
+		assertEquals(0.5f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
 	}
 
 	@Test
@@ -632,7 +632,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sin(pi*1rad / 2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(1f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(1f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -640,7 +640,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sin(PI*1rad / 2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(1f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(1f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -674,7 +674,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: cos(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(0.994522f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(0.994522f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -682,7 +682,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: cos(.52356)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(0.86604482f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7);
+		assertEquals(0.86604482f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
 	}
 
 	@Test
@@ -716,7 +716,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: tan(1.2 * 5deg)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(0.105104f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(0.105104f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -724,7 +724,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: tan(.866025)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(1.17580979f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7);
+		assertEquals(1.17580979f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
 	}
 
 	@Test
@@ -758,7 +758,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: asin(0.2 * 2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(23.578178f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5);
+		assertEquals(23.578178f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 	}
 
 	@Test
@@ -766,7 +766,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: acos(0.2 * 2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(66.4218216f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5);
+		assertEquals(66.4218216f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 	}
 
 	@Test
@@ -774,7 +774,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: atan(0.2 * 2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(21.80141f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5);
+		assertEquals(21.80141f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 	}
 
 	@Test
@@ -782,7 +782,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: atan(2px/3pt)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(26.565051f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5);
+		assertEquals(26.565051f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 	}
 
 	@Test
@@ -790,7 +790,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: atan2(-1.5, 0.2 * 2)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(-75.06858f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5);
+		assertEquals(-75.06858f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 	}
 
 	@Test
@@ -798,7 +798,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: atan2(0.2 * 2, -1.5)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(165.068588f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5);
+		assertEquals(165.068588f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 	}
 
 	@Test
@@ -806,7 +806,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: pow(1.2 * 3, 3)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(46.656f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(46.656f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -814,7 +814,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sqrt(1.2 * 3)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(1.897367f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+		assertEquals(1.897367f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 	}
 
 	@Test
@@ -822,7 +822,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sqrt(1.2pt * 3px)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(1.643168f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(1.643168f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -830,7 +830,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: sqrt(1.2pt * 3px)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(0.579673f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_MM), 1e-5);
+		assertEquals(0.579673f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_MM), 1e-5f);
 	}
 
 	@Test
@@ -838,7 +838,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: hypot(1.2pt + 3.3px, 1mm + 0.01cm)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(4.819568f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(4.819568f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -846,7 +846,7 @@ public class EvaluatorTest {
 		style.setCssText("foo: hypot(1.2pt + 3.3px, 1mm + 0.01cm, 0.2pc)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(5.384073f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(5.384073f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 	}
 
 	@Test
@@ -981,11 +981,11 @@ public class EvaluatorTest {
 	@Test
 	public void testUnitConversion() {
 		Unit unit = new Unit(CSSUnit.CSS_PT);
-		assertEquals(1f, unit.convert(1f, CSSUnit.CSS_PT), 1e-5);
-		assertEquals(1.333333f, unit.convert(1f, CSSUnit.CSS_PX), 1e-5);
+		assertEquals(1f, unit.convert(1f, CSSUnit.CSS_PT), 1e-5f);
+		assertEquals(1.333333f, unit.convert(1f, CSSUnit.CSS_PX), 1e-5f);
 		unit.setExponent(2);
-		assertEquals(1f, unit.convert(1f, CSSUnit.CSS_PT), 1e-5);
-		assertEquals(1.777777f, unit.convert(1f, CSSUnit.CSS_PX), 1e-5);
+		assertEquals(1f, unit.convert(1f, CSSUnit.CSS_PT), 1e-5f);
+		assertEquals(1.777777f, unit.convert(1f, CSSUnit.CSS_PX), 1e-5f);
 	}
 
 }

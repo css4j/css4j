@@ -54,7 +54,7 @@ public class VarBLATest {
 		 */
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5);
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(htmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(htmlDoc.getErrorHandler().hasComputedStyleErrors());
 	}

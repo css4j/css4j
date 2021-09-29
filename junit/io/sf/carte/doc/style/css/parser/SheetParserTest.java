@@ -3267,7 +3267,7 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
-		assertEquals(2, lu.getFloatValue(), 1e-5);
+		assertEquals(2, lu.getFloatValue(), 1e-5f);
 		lu = handler.lexicalValues.get(1);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -3301,7 +3301,7 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
-		assertEquals(2, lu.getFloatValue(), 1e-5);
+		assertEquals(2, lu.getFloatValue(), 1e-5f);
 		lu = handler.lexicalValues.get(1);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());

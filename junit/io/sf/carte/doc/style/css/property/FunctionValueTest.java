@@ -341,7 +341,7 @@ public class FunctionValueTest {
 		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CssType.TYPED, arg.getCssValueType());
 		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
-		assertEquals(6f, ((CSSTypedValue) arg).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
+		assertEquals(6f, ((CSSTypedValue) arg).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 	}
 
 	@Test

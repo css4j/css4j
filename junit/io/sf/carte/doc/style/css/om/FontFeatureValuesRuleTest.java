@@ -58,7 +58,7 @@ public class FontFeatureValuesRuleTest {
 		assertEquals("Some Font", rule.getFontFamily()[0]);
 		assertEquals("Other Font", rule.getFontFamily()[1]);
 		CSSFontFeatureValuesMap swash = rule.getSwash();
-		assertEquals(1, ((TypedValue) swash.get("swishy")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
+		assertEquals(1, ((TypedValue) swash.get("swishy")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, swash.getPrecedingComments().size());
 		assertEquals(" pre-swash ", swash.getPrecedingComments().get(0));
@@ -84,10 +84,10 @@ public class FontFeatureValuesRuleTest {
 		number.setIntegerValue(4);
 		CSSFontFeatureValuesMap annot = rule.getAnnotation();
 		annot.set("boxed", number);
-		assertEquals(4f, ((TypedValue) annot.get("boxed")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
+		assertEquals(4f, ((TypedValue) annot.get("boxed")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 		number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 4f);
 		annot.set("boxed", number);
-		assertEquals(4f, ((TypedValue) annot.get("boxed")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
+		assertEquals(4f, ((TypedValue) annot.get("boxed")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 		number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 3.5f);
 		try {
 			annot.set("boxed", number);
@@ -108,7 +108,7 @@ public class FontFeatureValuesRuleTest {
 		assertEquals(1, rule.getFontFamily().length);
 		assertEquals("Some Font", rule.getFontFamily()[0]);
 		CSSFontFeatureValuesMap swash = rule.getSwash();
-		assertEquals(1, ((TypedValue) swash.get("swishy")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6);
+		assertEquals(1, ((TypedValue) swash.get("swishy")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 		PrimitiveValue primi = swash.get("flowing")[0];
 		assertEquals(CSSValue.Type.EXPRESSION, primi.getPrimitiveType());
 		//

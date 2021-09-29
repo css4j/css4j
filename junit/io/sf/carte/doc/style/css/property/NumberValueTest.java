@@ -446,7 +446,7 @@ public class NumberValueTest {
 		NumberValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
-		assertEquals(value.getFloatValue(CSSUnit.CSS_PX), clon.getFloatValue(CSSUnit.CSS_PX), 1e-8);
+		assertEquals(value.getFloatValue(CSSUnit.CSS_PX), clon.getFloatValue(CSSUnit.CSS_PX), 1e-8f);
 		assertEquals(value.getCssText(), clon.getCssText());
 		assertFalse(clon.isCalculatedNumber());
 		assertTrue(value.equals(clon));
@@ -460,7 +460,7 @@ public class NumberValueTest {
 		NumberValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
-		assertEquals(value.getFloatValue(CSSUnit.CSS_PX), clon.getFloatValue(CSSUnit.CSS_PX), 1e-8);
+		assertEquals(value.getFloatValue(CSSUnit.CSS_PX), clon.getFloatValue(CSSUnit.CSS_PX), 1e-8f);
 		assertEquals(value.getCssText(), clon.getCssText());
 		assertTrue(clon.isCalculatedNumber());
 		assertTrue(value.equals(clon));
@@ -469,174 +469,174 @@ public class NumberValueTest {
 	@Test
 	public void testFloatValueConversion() {
 		assertEquals(0f, NumberValue.floatValueConversion(0f, CSSUnit.CSS_NUMBER, CSSUnit.CSS_PX),
-				1e-6);
+				1e-6f);
 		assertEquals(0f, NumberValue.floatValueConversion(0f, CSSUnit.CSS_NUMBER, CSSUnit.CSS_DEG),
-				1e-6);
+				1e-6f);
 		assertEquals(75, NumberValue.floatValueConversion(100f, CSSUnit.CSS_PX, CSSUnit.CSS_PT),
-				1e-6);
+				1e-6f);
 		assertEquals(1, NumberValue.floatValueConversion(16f, CSSUnit.CSS_PX, CSSUnit.CSS_PC),
-				1e-6);
+				1e-6f);
 		assertEquals(1, NumberValue.floatValueConversion(96f, CSSUnit.CSS_PX, CSSUnit.CSS_IN),
-				1e-6);
+				1e-6f);
 		assertEquals(1,
 				NumberValue.floatValueConversion(37.7952756f, CSSUnit.CSS_PX, CSSUnit.CSS_CM),
-				1e-6);
+				1e-6f);
 		assertEquals(1,
 				NumberValue.floatValueConversion(3.77952756f, CSSUnit.CSS_PX, CSSUnit.CSS_MM),
-				1e-6);
+				1e-6f);
 		assertEquals(4, NumberValue.floatValueConversion(3.77952756f, CSSUnit.CSS_PX,
-				CSSUnit.CSS_QUARTER_MM), 1e-6);
+				CSSUnit.CSS_QUARTER_MM), 1e-6f);
 		//
 		assertEquals(100, NumberValue.floatValueConversion(75f, CSSUnit.CSS_PT, CSSUnit.CSS_PX),
-				1e-6);
+				1e-6f);
 		assertEquals(1, NumberValue.floatValueConversion(12f, CSSUnit.CSS_PT, CSSUnit.CSS_PC),
-				1e-6);
+				1e-6f);
 		assertEquals(1, NumberValue.floatValueConversion(72f, CSSUnit.CSS_PT, CSSUnit.CSS_IN),
-				1e-6);
+				1e-6f);
 		assertEquals(2.54f, NumberValue.floatValueConversion(72f, CSSUnit.CSS_PT, CSSUnit.CSS_CM),
-				1e-7);
+				1e-7f);
 		assertEquals(25.4f, NumberValue.floatValueConversion(72f, CSSUnit.CSS_PT, CSSUnit.CSS_MM),
-				1e-7);
+				1e-7f);
 		assertEquals(101.6f,
 				NumberValue.floatValueConversion(72f, CSSUnit.CSS_PT, CSSUnit.CSS_QUARTER_MM),
-				1e-6);
+				1e-6f);
 		//
 		assertEquals(72f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_PT),
-				1e-6);
+				1e-6f);
 		assertEquals(6f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_PC),
-				1e-6);
+				1e-6f);
 		assertEquals(96f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_PX),
-				1e-6);
+				1e-6f);
 		assertEquals(2.54f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_CM),
-				1e-6);
+				1e-6f);
 		assertEquals(25.4f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_MM),
-				1e-6);
+				1e-6f);
 		assertEquals(101.6f,
 				NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_QUARTER_MM),
-				1e-5);
+				1e-5f);
 		//
 		assertEquals(72f, NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_PT),
-				1e-5);
+				1e-5f);
 		assertEquals(1f, NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_IN),
-				1e-6);
+				1e-6f);
 		assertEquals(96f, NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_PX),
-				1e-5);
+				1e-5f);
 		assertEquals(2.54f, NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_CM),
-				1e-6);
+				1e-6f);
 		assertEquals(25.4f, NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_MM),
-				1e-5);
+				1e-5f);
 		assertEquals(101.6f,
 				NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_QUARTER_MM),
-				1e-5);
+				1e-5f);
 		//
 		assertEquals(72f, NumberValue.floatValueConversion(2.54f, CSSUnit.CSS_CM, CSSUnit.CSS_PT),
-				1e-5);
+				1e-5f);
 		assertEquals(1f, NumberValue.floatValueConversion(2.54f, CSSUnit.CSS_CM, CSSUnit.CSS_IN),
-				1e-6);
+				1e-6f);
 		assertEquals(96f, NumberValue.floatValueConversion(2.54f, CSSUnit.CSS_CM, CSSUnit.CSS_PX),
-				1e-5);
+				1e-5f);
 		assertEquals(6f, NumberValue.floatValueConversion(2.54f, CSSUnit.CSS_CM, CSSUnit.CSS_PC),
-				1e-6);
+				1e-6f);
 		assertEquals(10f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_CM, CSSUnit.CSS_MM),
-				1e-5);
+				1e-5f);
 		assertEquals(4f,
 				NumberValue.floatValueConversion(0.1f, CSSUnit.CSS_CM, CSSUnit.CSS_QUARTER_MM),
-				1e-6);
+				1e-6f);
 		//
 		assertEquals(72f, NumberValue.floatValueConversion(25.4f, CSSUnit.CSS_MM, CSSUnit.CSS_PT),
-				1e-5);
+				1e-5f);
 		assertEquals(1f, NumberValue.floatValueConversion(25.4f, CSSUnit.CSS_MM, CSSUnit.CSS_IN),
-				1e-6);
+				1e-6f);
 		assertEquals(96f, NumberValue.floatValueConversion(25.4f, CSSUnit.CSS_MM, CSSUnit.CSS_PX),
-				1e-5);
+				1e-5f);
 		assertEquals(6f, NumberValue.floatValueConversion(25.4f, CSSUnit.CSS_MM, CSSUnit.CSS_PC),
-				1e-6);
+				1e-6f);
 		assertEquals(1f, NumberValue.floatValueConversion(10f, CSSUnit.CSS_MM, CSSUnit.CSS_CM),
-				1e-6);
+				1e-6f);
 		assertEquals(4f,
 				NumberValue.floatValueConversion(1f, CSSUnit.CSS_MM, CSSUnit.CSS_QUARTER_MM),
-				1e-6);
+				1e-6f);
 		//
 		assertEquals(72f,
 				NumberValue.floatValueConversion(101.6f, CSSUnit.CSS_QUARTER_MM, CSSUnit.CSS_PT),
-				1e-5);
+				1e-5f);
 		assertEquals(1f,
 				NumberValue.floatValueConversion(101.6f, CSSUnit.CSS_QUARTER_MM, CSSUnit.CSS_IN),
-				1e-6);
+				1e-6f);
 		assertEquals(96f,
 				NumberValue.floatValueConversion(101.6f, CSSUnit.CSS_QUARTER_MM, CSSUnit.CSS_PX),
-				1e-5);
+				1e-5f);
 		assertEquals(6f,
 				NumberValue.floatValueConversion(101.6f, CSSUnit.CSS_QUARTER_MM, CSSUnit.CSS_PC),
-				1e-6);
+				1e-6f);
 		assertEquals(1f,
 				NumberValue.floatValueConversion(40f, CSSUnit.CSS_QUARTER_MM, CSSUnit.CSS_CM),
-				1e-6);
+				1e-6f);
 		assertEquals(1f,
 				NumberValue.floatValueConversion(4f, CSSUnit.CSS_QUARTER_MM, CSSUnit.CSS_MM),
-				1e-6);
+				1e-6f);
 		//
 		assertEquals(1000f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_S, CSSUnit.CSS_MS),
-				1e-5);
+				1e-5f);
 		assertEquals(1f, NumberValue.floatValueConversion(1000f, CSSUnit.CSS_MS, CSSUnit.CSS_S),
-				1e-6);
+				1e-6f);
 		//
 		assertEquals(0.001f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_HZ, CSSUnit.CSS_KHZ),
-				1e-7);
+				1e-7f);
 		assertEquals(1000f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_KHZ, CSSUnit.CSS_HZ),
-				1e-5);
+				1e-5f);
 		//
 		assertEquals(57.2957795f,
-				NumberValue.floatValueConversion(1f, CSSUnit.CSS_RAD, CSSUnit.CSS_DEG), 1e-5);
+				NumberValue.floatValueConversion(1f, CSSUnit.CSS_RAD, CSSUnit.CSS_DEG), 1e-5f);
 		assertEquals(200f,
 				NumberValue.floatValueConversion(3.1415927f, CSSUnit.CSS_RAD, CSSUnit.CSS_GRAD),
-				1e-5);
+				1e-5f);
 		assertEquals(0.5f,
 				NumberValue.floatValueConversion(3.141593f, CSSUnit.CSS_RAD, CSSUnit.CSS_TURN),
-				1e-6);
+				1e-6f);
 		//
 		assertEquals(1f,
 				NumberValue.floatValueConversion(57.2957795f, CSSUnit.CSS_DEG, CSSUnit.CSS_RAD),
-				1e-6);
+				1e-6f);
 		assertEquals(200f,
-				NumberValue.floatValueConversion(180f, CSSUnit.CSS_DEG, CSSUnit.CSS_GRAD), 1e-4);
+				NumberValue.floatValueConversion(180f, CSSUnit.CSS_DEG, CSSUnit.CSS_GRAD), 1e-4f);
 		assertEquals(0.5f,
-				NumberValue.floatValueConversion(180f, CSSUnit.CSS_DEG, CSSUnit.CSS_TURN), 1e-6);
+				NumberValue.floatValueConversion(180f, CSSUnit.CSS_DEG, CSSUnit.CSS_TURN), 1e-6f);
 		//
 		assertEquals(3.14159265f,
-				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_RAD), 1e-6);
+				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_RAD), 1e-6f);
 		assertEquals(180f,
-				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_DEG), 1e-5);
+				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_DEG), 1e-5f);
 		assertEquals(0.5f,
-				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_TURN), 1e-6);
+				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_TURN), 1e-6f);
 		//
 		assertEquals(3.1415927f,
-				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_RAD), 1e-6);
+				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_RAD), 1e-6f);
 		assertEquals(180f,
-				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_DEG), 1e-5);
+				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_DEG), 1e-5f);
 		assertEquals(200f,
-				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_GRAD), 1e-5);
+				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_GRAD), 1e-5f);
 		//
 		assertEquals(37.7952766f,
 				NumberValue.floatValueConversion(96f, CSSUnit.CSS_DPI, CSSUnit.CSS_DPCM),
-				1e-6);
+				1e-6f);
 		assertEquals(1f,
 				NumberValue.floatValueConversion(96f, CSSUnit.CSS_DPI, CSSUnit.CSS_DPPX),
-				1e-6);
+				1e-6f);
 		//
 		assertEquals(76.2f,
 				NumberValue.floatValueConversion(30f, CSSUnit.CSS_DPCM, CSSUnit.CSS_DPI),
-				1e-6);
+				1e-6f);
 		assertEquals(1.00542f,
 				NumberValue.floatValueConversion(38f, CSSUnit.CSS_DPCM, CSSUnit.CSS_DPPX),
-				1e-5);
+				1e-5f);
 		//
 		assertEquals(96f,
 				NumberValue.floatValueConversion(1f, CSSUnit.CSS_DPPX, CSSUnit.CSS_DPI),
-				1e-6);
+				1e-6f);
 		assertEquals(37.795277f,
 				NumberValue.floatValueConversion(1f, CSSUnit.CSS_DPPX, CSSUnit.CSS_DPCM),
-				1e-6);
+				1e-6f);
 	}
 
 }
