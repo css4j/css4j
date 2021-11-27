@@ -67,6 +67,7 @@ public class CSSDOMImplementationTest {
 		assertNull(doctype.getNextSibling());
 		assertNull(doctype.getPreviousSibling());
 		DOMDocument document = domImpl.createDocument(null, "html", doctype);
+		assertEquals("CSS1Compat", document.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.STRICT, document.getComplianceMode());
 		DOMElement docelm = document.getDocumentElement();
 		assertNotNull(docelm);

@@ -59,9 +59,11 @@ public class DOMDocumentTest {
 	@Test
 	public void testCreateDocument() {
 		DOMDocument document = domImpl.createDocument(null, null, null);
+		assertEquals("BackCompat", document.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.QUIRKS, document.getComplianceMode());
 		DocumentType doctype = domImpl.createDocumentType("html", null, null);
 		document = domImpl.createDocument(null, null, doctype);
+		assertEquals("CSS1Compat", document.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.STRICT, document.getComplianceMode());
 		assertFalse(document.hasAttributes());
 	}
