@@ -80,6 +80,7 @@ public class StylableDocumentWrapperTest {
 
 	@Test
 	public void testCreateDocument() throws IOException, DocumentException {
+		assertEquals("CSS1Compat", xhtmlDoc.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.STRICT, xhtmlDoc.getComplianceMode());
 	}
 
@@ -90,11 +91,13 @@ public class StylableDocumentWrapperTest {
 		DOMImplementation domImpl = docb.getDOMImplementation();
 		Document doc = domImpl.createDocument(null, null, null);
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
-		CSSDocument document = factory.createCSSDocument(doc);
+		StylableDocumentWrapper document = factory.createCSSDocument(doc);
+		assertEquals("BackCompat", document.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.QUIRKS, document.getComplianceMode());
 		DocumentType doctype = domImpl.createDocumentType("html", null, null);
 		doc = domImpl.createDocument(null, "html", doctype);
 		document = factory.createCSSDocument(doc);
+		assertEquals("CSS1Compat", document.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.STRICT, document.getComplianceMode());
 	}
 

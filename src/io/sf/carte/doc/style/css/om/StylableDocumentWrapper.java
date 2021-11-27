@@ -119,6 +119,20 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	abstract protected DOMCSSStyleSheetFactory getStyleSheetFactory();
 
+	/**
+	 * Get the compatibility mode ({@code compatMode}) attribute.
+	 * 
+	 * @return the string "BackCompat" if document’s mode is {@code QUIRKS},
+	 *         otherwise "CSS1Compat".
+	 */
+	public String getCompatMode() {
+		DocumentType doctype = document.getDoctype();
+		if (doctype != null) {
+			return "CSS1Compat";
+		}
+		return "BackCompat";
+	}
+
 	@Override
 	public CSSDocument.ComplianceMode getComplianceMode() {
 		DocumentType doctype = document.getDoctype();
