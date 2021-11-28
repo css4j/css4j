@@ -1992,6 +1992,28 @@ public class CSSParser implements Parser, Cloneable {
 				|| cp > 0x80; // non-ASCII code point
 	}
 
+	/**
+	 * Check if two {@code CharSequence} objects contain the same characters.
+	 * 
+	 * @param seq1 the first sequence.
+	 * @param seq2 the second sequence.
+	 * @return {@code true} if contain the same characters.
+	 */
+	private static boolean equalSequences(CharSequence seq1, CharSequence seq2) {
+		int len = seq1.length();
+		if (len != seq2.length()) {
+			return false;
+		}
+
+		for (int i = 0; i < len; i++) {
+			if (seq1.charAt(i) != seq2.charAt(i)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	@Override
 	public CSSParser clone() {
 		CSSParser parser = new CSSParser(this);
@@ -4899,7 +4921,7 @@ public class CSSParser implements Parser, Cloneable {
 					} else if (codepoint == TokenProducer.CHAR_GREATER_THAN) { // >
 						if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
-						} else if (stage == 1 && CharSequence.compare("--", buffer) == 0) {
+						} else if (stage == 1 && equalSequences("--", buffer)) {
 							if (isTopLevel() && prevcp == 65 && escapedTokenIndex == -1 && !functionToken) {
 								buffer.setLength(0);
 								stage = 0;
@@ -5469,7 +5491,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void word(int index, CharSequence word) {
-			if (CharSequence.compare("--", word) != 0 || this.prevcp != TokenProducer.CHAR_EXCLAMATION) {
+			if (!equalSequences("--", word) || this.prevcp != TokenProducer.CHAR_EXCLAMATION) {
 				parent.unexpectedTokenError(index, word);
 			}
 			yieldHandling();
