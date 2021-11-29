@@ -228,7 +228,8 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	@Override
 	public DocumentType getDoctype() {
-		return (DocumentType) getCSSNode(document.getDoctype());
+		DocumentType docType = document.getDoctype();
+		return docType != null ? (DocumentType) getCSSNode(docType) : null;
 	}
 
 	@Override

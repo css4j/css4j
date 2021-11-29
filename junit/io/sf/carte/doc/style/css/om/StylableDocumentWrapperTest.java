@@ -82,6 +82,12 @@ public class StylableDocumentWrapperTest {
 	public void testCreateDocument() throws IOException, DocumentException {
 		assertEquals("CSS1Compat", xhtmlDoc.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.STRICT, xhtmlDoc.getComplianceMode());
+		DocumentType docType = xhtmlDoc.getDoctype();
+		assertNotNull(docType);
+		assertEquals("html", docType.getName());
+		assertNull(docType.getPublicId());
+		assertNull(docType.getSystemId());
+		assertFalse(xhtmlDoc.hasStyleIssues());
 	}
 
 	@Test
@@ -94,9 +100,15 @@ public class StylableDocumentWrapperTest {
 		StylableDocumentWrapper document = factory.createCSSDocument(doc);
 		assertEquals("BackCompat", document.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.QUIRKS, document.getComplianceMode());
+		assertNull(document.getDoctype());
 		DocumentType doctype = domImpl.createDocumentType("html", null, null);
 		doc = domImpl.createDocument(null, "html", doctype);
 		document = factory.createCSSDocument(doc);
+		DocumentType docType = document.getDoctype();
+		assertNotNull(docType);
+		assertEquals("html", docType.getName());
+		assertNull(docType.getPublicId());
+		assertNull(docType.getSystemId());
 		assertEquals("CSS1Compat", document.getCompatMode());
 		assertEquals(CSSDocument.ComplianceMode.STRICT, document.getComplianceMode());
 	}

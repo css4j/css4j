@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMStringList;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -74,6 +75,15 @@ public class XMLDocumentWrapperTest {
 		doc.setDocumentURI("http://www.example.com/xml/xmlsample.xml");
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		xmlDoc = cssFac.createCSSDocument(doc);
+	}
+
+	@Test
+	public void getDoctype() {
+		DocumentType docType = xmlDoc.getDoctype();
+		assertNotNull(docType);
+		assertEquals("html", docType.getName());
+		assertNull(docType.getPublicId());
+		assertEquals("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd", docType.getSystemId());
 	}
 
 	@Test
