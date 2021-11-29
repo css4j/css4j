@@ -21,6 +21,11 @@ java {
 	}
 }
 
+configurations {
+	tests
+	test8Implementation.extendsFrom implementation
+}
+
 dependencies {
 	api 'io.sf.carte:carte-util:[3.4.0,)'
 	api 'io.sf.carte:tokenproducer:1.1.1'
@@ -35,6 +40,9 @@ dependencies {
 	loggingImplementation 'org.slf4j:slf4j-api:[1.7.28,)'
 	testImplementation 'junit:junit:4.13.2'
 	testImplementation 'nu.validator:htmlparser:1.4.16'
+	test8Implementation 'junit:junit:4.13.2'
+	test8Implementation 'nu.validator:htmlparser:1.4.16'
+	test8Implementation 'io.sf.carte:xml-dtd:3.5.2'
 }
 
 repositories {
@@ -73,6 +81,18 @@ sourceSets {
 			srcDirs = ['junit']
 			excludes += ["**/*.java"]
 		}
+	}
+	test8 {
+		java {
+			srcDirs = ['junit']
+			includes += ["**/*.java"]
+		}
+		resources {
+			srcDirs = ['junit']
+			excludes += ["**/*.java"]
+		}
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
 	}
 }
 
@@ -177,6 +197,14 @@ tasks.withType(AbstractArchiveTask).configureEach {
 	}
 }
 
+tasks.withType(AbstractPublishToMaven).configureEach {
+	doFirst {
+		if (JavaVersion.current() < JavaVersion.VERSION_11) {
+			throw new GradleException('This project requires Java 11 or later to build');
+		}
+	}
+}
+
 tasks.withType(PublishToMavenRepository) { task ->
 	doFirst {
 		if (repository == publishing.repositories.getByName('mavenRepo')) {
@@ -185,13 +213,19 @@ tasks.withType(PublishToMavenRepository) { task ->
 	}
 }
 
+tasks.register('testOn8', Test) {
+	description = 'Runs tests on Java 8'
+	dependsOn classes
+	testClassesDirs = sourceSets.test8.output.classesDirs
+	classpath += sourceSets.test8.runtimeClasspath
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(8)
+	}
+}
+
 tasks.register('testsJar', Jar) {
 	archiveClassifier = 'tests'
 	from(sourceSets.test.output)
-}
-
-configurations {
-	tests
 }
 
 artifacts {
