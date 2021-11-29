@@ -19,6 +19,7 @@ import java.net.URLConnection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMStringList;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.stylesheets.DocumentStyle;
 
 /**
@@ -57,6 +58,20 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	 * {@inheritDoc}
 	 */
 	@Override CSSElement createElementNS(String namespaceURI, String qualifiedName) throws DOMException;
+
+	/**
+	 * Get the compatibility mode ({@code compatMode}) attribute.
+	 * 
+	 * @return the string "BackCompat" if document’s mode is {@code QUIRKS},
+	 *         otherwise "CSS1Compat".
+	 */
+	default String getCompatMode() {
+		DocumentType doctype = getDoctype();
+		if (doctype != null) {
+			return "CSS1Compat";
+		}
+		return "BackCompat";
+	}
 
 	/**
 	 * Get the compliance mode of this document.

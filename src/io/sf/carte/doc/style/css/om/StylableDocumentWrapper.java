@@ -125,6 +125,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	 * @return the string "BackCompat" if document’s mode is {@code QUIRKS},
 	 *         otherwise "CSS1Compat".
 	 */
+	@Override
 	public String getCompatMode() {
 		DocumentType doctype = document.getDoctype();
 		if (doctype != null) {

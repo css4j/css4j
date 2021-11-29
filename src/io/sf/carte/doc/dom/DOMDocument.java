@@ -131,6 +131,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 * @return the string "BackCompat" if document’s mode is {@code QUIRKS},
 	 *         otherwise "CSS1Compat".
 	 */
+	@Override
 	public String getCompatMode() {
 		DocumentType doctype = getDoctype();
 		if (doctype != null) {
