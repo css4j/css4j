@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -67,6 +68,7 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("http://www.example.com/", wrapped.getBaseURI());
 		Attr attr = element.getAttributeNode("xml:base");
 		assertNotNull(attr);
+		//
 		attr.setValue("jar:http://www.example.com/evil.jar!/file");
 		assertNull(wrapped.getBaseURI());
 		assertTrue(wrapped.getErrorHandler().hasErrors());
@@ -78,6 +80,7 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("jar:http://www.example.com/evil.jar!/file", attr.getValue());
 		assertTrue(wrapped.getErrorHandler().hasErrors());
 		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
+		//
 		attr.setValue("http://www.example.com/");
 		assertEquals("http://www.example.com/", wrapped.getBaseURI());
 		attr.setValue("jar:http://www.example.com/evil.jar!/file");
@@ -89,6 +92,37 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("file:/dev/zero", attr.getValue());
 		assertTrue(wrapped.getErrorHandler().hasErrors());
 		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test
+	public void testBaseAttribute2() {
+		Document document = docbuilder.newDocument();
+		Element element = document.createElement("foo");
+		document.appendChild(element);
+		// Wrap
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(false);
+		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(document);
+		assertEquals(0, element.getAttribute("xml:base").length());
+		assertNull(wrapped.getBaseURI());
+		assertNull(element.getAttributeNode("xml:base"));
+	}
+
+	@Test
+	public void testBaseAttribute3() {
+		Document document = docbuilder.newDocument();
+		Element element = document.createElement("foo");
+		document.appendChild(element);
+		element.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", "http://www.example.com/");
+		// Wrap
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(false);
+		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(document);
+		CSSElement docElm = wrapped.getDocumentElement();
+		assertNotNull(docElm);
+		assertEquals("foo", docElm.getTagName());
+		assertEquals("http://www.example.com/", docElm.getAttribute("xml:base"));
+		assertNotNull(docElm.getAttributeNode("xml:base"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -105,6 +139,12 @@ public class StylableDocumentWrapperTest2 {
 		element.setAttribute("rel", "stylesheet");
 		element.setAttribute("href", "http://www.example.com/css/common.css");
 		element.setIdAttribute("id", true);
+		//
+		Attr iattr = element.getAttributeNode("href");
+		assertNotNull(iattr);
+		Attr iattr2 = element.getAttributeNodeNS(null, "href");
+		assertSame(iattr, iattr2);
+		//
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
@@ -112,6 +152,11 @@ public class StylableDocumentWrapperTest2 {
 		CSSElement link = wrapped.getElementById("linkId");
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
+		//
+		Attr attr = link.getAttributeNode("href");
+		assertNotNull(attr);
+		Attr attr2 = link.getAttributeNodeNS(null, "href");
+		assertSame(attr, attr2);
 		//
 		CSSStyleSheet<AbstractCSSRule> sheet = ((LinkStyle<AbstractCSSRule>) link).getSheet();
 		assertNotNull(sheet);

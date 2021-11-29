@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
@@ -141,6 +143,15 @@ public class StylableDocumentWrapperTest {
 	}
 
 	@Test
+	public void isSafeOrigin() throws MalformedURLException {
+		URL url = new URL("http://www.example.com/bar");
+		assertTrue(xhtmlDoc.isSafeOrigin(url));
+		//
+		url = new URL("http://www.foo.com/bar");
+		assertFalse(xhtmlDoc.isSafeOrigin(url));
+	}
+
+	@Test
 	public void getDocumentElement() {
 		CSSElement root = xhtmlDoc.getDocumentElement();
 		assertNotNull(root);
@@ -170,6 +181,8 @@ public class StylableDocumentWrapperTest {
 		assertEquals(7, xhtmlDoc.getStyleSheets().getLength());
 		assertEquals("http://www.example.com/css/common.css", xhtmlDoc.getStyleSheets().item(0).getHref());
 		assertEquals(3, xhtmlDoc.getStyleSheetSets().getLength());
+		assertFalse(xhtmlDoc.hasStyleIssues());
+
 		Iterator<LinkStyleDefiner> it = xhtmlDoc.linkedStyle.iterator();
 		assertTrue(it.hasNext());
 		AbstractCSSStyleSheet sheet = it.next().getSheet();
@@ -186,6 +199,7 @@ public class StylableDocumentWrapperTest {
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
 		assertTrue(((CSSFontFeatureValuesRule) sheet.getCssRules().item(2)).getMinifiedCssText()
 				.startsWith("@font-feature-values Foo Sans,Bar"));
+
 		assertTrue(it.hasNext());
 		sheet = it.next().getSheet();
 		assertNotNull(sheet);

@@ -138,6 +138,11 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(elm);
 		assertEquals("ul", elm.getTagName());
 		assertNull(xmlDoc.getElementById("xxxxxx"));
+
+		assertNull(elm.getAttributeNode("foo"));
+		assertNull(elm.getAttributeNodeNS("http://example.com/foo", "bar"));
+		assertEquals(0, elm.getAttribute("foo").length());
+		assertEquals(0, elm.getAttributeNS("http://example.com/foo", "bar").length());
 	}
 
 	@Test
@@ -188,6 +193,8 @@ public class XMLDocumentWrapperTest {
 		assertEquals(null, sheet.getTitle());
 		assertEquals(3, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(xmlDoc.hasStyleIssues());
+
 		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
 		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));

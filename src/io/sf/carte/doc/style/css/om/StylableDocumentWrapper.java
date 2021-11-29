@@ -852,7 +852,11 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public String getAttributeNS(String namespaceURI, String localName) throws DOMException {
-			return element.getAttributeNS(namespaceURI, localName);
+			Attr anode = element.getAttributeNodeNS(namespaceURI, localName);
+			if (anode == null) {
+				return "";
+			}
+			return getCSSNode(anode).getNodeValue();
 		}
 
 		@Override
@@ -867,7 +871,11 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public Attr getAttributeNodeNS(String namespaceURI, String localName) throws DOMException {
-			return element.getAttributeNodeNS(namespaceURI, localName);
+			Attr anode = element.getAttributeNodeNS(namespaceURI, localName);
+			if (anode == null) {
+				return null;
+			}
+			return (Attr) getCSSNode(anode);
 		}
 
 		@Override
