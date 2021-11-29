@@ -153,7 +153,7 @@ tasks.register('lineEndingConversion', CRLFConvert) {
 	file "$rootDir/LICENSE.txt"
 	file "$rootDir/LICENSES.txt"
 	file "$rootDir/CHANGES.txt"
-	file "$rootDir/RELEASE_NOTES.txt"
+	file "$rootDir/RELEASE_NOTES.md"
 	file "$rootDir/UPGRADING.txt"
 }
 
