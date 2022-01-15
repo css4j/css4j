@@ -38,7 +38,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 		setPropertyToDefault("flex-basis");
 		boolean flexGrowUnset = true;
 		boolean flexBasisUnset = true;
-		byte count = 0;
+		int count = 0;
 		while (currentValue != null) {
 			if (count == 2) {
 				return false;
