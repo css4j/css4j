@@ -726,7 +726,7 @@ public class RuleParserTest {
 	@Test
 	public void testParseCounterStyleRule() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(
-				"@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}"));
+				"@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}/*end comment*/"));
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestRuleErrorHandler errorHandler = new TestRuleErrorHandler();
@@ -735,6 +735,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.atRules.size());
 		assertEquals("@counter-style foo {symbols: \\1F44D; suffix: \" \"; }",
 				handler.atRules.get(0));
+		assertEquals(0, handler.comments.size());
 	}
 
 	@Test

@@ -141,7 +141,7 @@ public class ContribSheetTest {
 		assertEquals(1, reparsedcomments.size());
 		assertEquals(comments.get(0), reparsedcomments.get(0));
 		for (int i = 0; i < len; i++) {
-			assertTrue(rules.item(i).equals(reparsedrules.item(i)));
+			assertEquals(rules.item(i), reparsedrules.item(i));
 		}
 	}
 

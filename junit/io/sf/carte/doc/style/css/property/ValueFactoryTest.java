@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -29,6 +30,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
 
+import io.sf.carte.doc.style.css.CSSPrimitiveValue2;
+import io.sf.carte.doc.style.css.CSSUnicodeRangeValue.CSSUnicodeValue;
 import io.sf.carte.doc.style.css.SACParserFactory;
 import io.sf.carte.doc.style.css.nsac.Parser2;
 
@@ -60,6 +63,14 @@ public class ValueFactoryTest {
 		assertEquals(4, list.getLength());
 		assertFalse(list.isCommaSeparated());
 		//
+		lunit = parsePropertyValue("/*0*/1/*1*/2/*2*/3/*3*/4/*4*/");
+		value = factory.createCSSValue(lunit);
+		assertEquals(CSSValue.CSS_VALUE_LIST, value.getCssValueType());
+		list = (ValueList) value;
+		assertEquals(4, list.getLength());
+		assertFalse(list.isCommaSeparated());
+		assertEquals("1 2 3 4", list.getCssText());
+		//
 		source = new InputSource(new StringReader("[first header-start]"));
 		lunit = parser.parsePropertyValue(source);
 		value = factory.createCSSValue(lunit);
@@ -90,6 +101,42 @@ public class ValueFactoryTest {
 		assertFalse(bracketlist.isCommaSeparated());
 		assertEquals("main-start", bracketlist.item(0).getCssText());
 		assertEquals("[main-start]", bracketlist.getCssText());
+	}
+
+	@Test
+	public void testCreateCSSValueVar() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("var(--foo, 3px)");
+		StyleValue value = factory.createCSSValue(lunit);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
+		assertEquals(CSSPrimitiveValue2.CSS_CUSTOM_PROPERTY, ((CSSPrimitiveValue) value).getPrimitiveType());
+		assertEquals("var(--foo, 3px)", value.getCssText());
+	}
+
+	@Test
+	public void testCreateCSSValueUnicodeRange() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("U+22-28");
+		StyleValue value = factory.createCSSValue(lunit);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
+		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_RANGE, ((CSSPrimitiveValue) value).getPrimitiveType());
+		UnicodeRangeValue range = (UnicodeRangeValue) value;
+		PrimitiveValue begin = range.getValue();
+		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_CHARACTER, begin.getPrimitiveType());
+		assertEquals(0x22, ((CSSUnicodeValue) begin).getCodePoint());
+		PrimitiveValue end = range.getEndValue();
+		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_CHARACTER, end.getPrimitiveType());
+		assertEquals(0x28, ((CSSUnicodeValue) end).getCodePoint());
+		//
+		lunit = parsePropertyValue("U+2??");
+		value = factory.createCSSValue(lunit);
+		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
+		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_RANGE, ((CSSPrimitiveValue) value).getPrimitiveType());
+		range = (UnicodeRangeValue) value;
+		assertNull(range.getEndValue());
+		begin = range.getValue();
+		assertEquals(CSSPrimitiveValue2.CSS_UNICODE_WILDCARD, begin.getPrimitiveType());
+		assertEquals("2??", begin.getStringValue());
 	}
 
 	@Test
@@ -454,6 +501,10 @@ public class ValueFactoryTest {
 		assertEquals(CSSValue.CSS_PRIMITIVE_VALUE, value.getCssValueType());
 		assertEquals(CSSPrimitiveValue.CSS_UNKNOWN, ((CSSPrimitiveValue) value).getPrimitiveType());
 		assertEquals("foo 40pt!ie", value.getCssText());
+	}
+
+	private LexicalUnit parsePropertyValue(String string) throws CSSException, IOException {
+		return parser.parsePropertyValue(new InputSource(new StringReader(string)));
 	}
 
 }

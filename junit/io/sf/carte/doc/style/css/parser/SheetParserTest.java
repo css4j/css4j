@@ -624,7 +624,8 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseNSEOF() throws CSSException, IOException {
-		InputSource source = new InputSource(new StringReader("@namespace xhtml url(\"https://www.w3.org/1999/xhtml/\")"));
+		InputSource source = new InputSource(
+				new StringReader("@namespace xhtml url(\"https://www.w3.org/1999/xhtml/\")"));
 		TestDocumentHandler handler = new TestDocumentHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
@@ -1243,11 +1244,11 @@ public class SheetParserTest {
 		assertEquals(5, handler.atRules.size());
 		assertEquals("@viewport { width: device-width; }",
 				handler.atRules.get(0));
-		assertEquals("@keyframes slide-right { " + 
-				"from {margin-left: 0px;} " + 
-				"50% {margin-left: 110px; opacity: 1;} " + 
-				"50% {opacity: 0.9;} " + 
-				"to {margin-left: 200px;} }", handler.atRules.get(1));
+		assertEquals("@keyframes slide-right {" + 
+				" from {margin-left: 0px;}" + 
+				" 50% {margin-left: 110px; opacity: 1;}" + 
+				" 50% {opacity: 0.9;}" + 
+				" to {margin-left: 200px;} }", handler.atRules.get(1));
 		assertEquals("@keyframes important1 { from { margin-top: 50px; }" + 
 				" 50% { margin-top: 150px !important; } /* ignored */" + 
 				"to { margin-top: 100px; } }", handler.atRules.get(2));
@@ -1432,6 +1433,24 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseImportRuleComment() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@import/* comment */url(foo.css);"));
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(source);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		SACMediaList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("all", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseImportRuleMedia() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@import url(foo.css) print;"));
@@ -1448,6 +1467,25 @@ public class SheetParserTest {
 		assertEquals("print", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
+
+	@Test
+	public void testParseImportRuleMediaComment() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@import url(foo.css)/* comment */print;"));
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(source);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		SACMediaList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("print", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
 	@Test
 	public void testParseImportRuleMedia2() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(
@@ -1486,6 +1524,24 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseImportRuleMediaQueryComment() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@import url('foo.css') (orientation:/* comment 1 */landscape/* comment 2 */);"));
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(source);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		SACMediaList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("(orientation: landscape )", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseImportRuleMediaQuery2() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@import url('foo.css') screen and (orientation:landscape);"));
@@ -1500,6 +1556,24 @@ public class SheetParserTest {
 		SACMediaList list = handler.importMedias.get(0);
 		assertEquals(1, list.getLength());
 		assertEquals("screen and (orientation:landscape)", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseImportRuleMediaQueryLevel4() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(
+				"@import url('foo.css') screen and (800px<width<=1200px);"));
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(source);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		SACMediaList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("screen and (800px<width<=1200px)", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 

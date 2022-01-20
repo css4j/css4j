@@ -674,6 +674,8 @@ public class CSSParser implements Parser2 {
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
+			separator(index, 12);
+			prevcp = 12;
 		}
 
 		@Override
@@ -1946,6 +1948,9 @@ public class CSSParser implements Parser2 {
 			if (!parseError && buffer.length() == 0 && curlyBracketDepth == 1 && parendepth == 0
 					&& stage == STAGE_WAIT_SELECTOR) {
 				super.commented(index, commentType, comment);
+			} else {
+				separator(index, 12);
+				prevcp = 12;
 			}
 		}
 
@@ -2798,7 +2803,7 @@ public class CSSParser implements Parser2 {
 			} else if (contextHandler != null) {
 				contextHandler.commented(index, commentType, comment);
 			} else {
-				super.commented(index, commentType, comment);
+				separator(index, 12);
 			}
 		}
 
@@ -4226,6 +4231,12 @@ public class CSSParser implements Parser2 {
 		public void commented(int index, int commentType, String comment) {
 			if (stage == 0) {
 				super.commented(index, commentType, comment);
+			} else {
+				separator(index, 12);
+				if (prevcp != 44) {
+					// If previous cp was a comma, we keep it
+					prevcp = 12;
+				}
 			}
 		}
 
@@ -5827,7 +5838,10 @@ public class CSSParser implements Parser2 {
 			if (!parseError && buffer.length() == 0 && propertyName == null && curlyBracketDepth == 1 && parendepth == 0
 					&& squareBracketDepth == 0) {
 				super.commented(index, commentType, comment);
+			} else {
+				processBuffer(index);
 			}
+			prevcp = 12;
 		}
 
 		@Override
@@ -6035,6 +6049,7 @@ public class CSSParser implements Parser2 {
 			if (commentType == 0) {
 				handler.comment(comment);
 			}
+			prevcp = 12;
 		}
 
 		void setEscapedTokenStart(int index) {

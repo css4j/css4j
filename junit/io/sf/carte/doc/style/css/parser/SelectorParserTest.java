@@ -2388,6 +2388,17 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorClassError25() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("./* */example"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
+		}
+	}
+
+	@Test
 	public void testParseSelectorClassEscaped() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(".foo\\(-\\.3\\)"));
 		SelectorList selist = parser.parseSelectors(source);
@@ -2596,6 +2607,17 @@ public class SelectorParserTest {
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 			assertEquals(9, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorIdError6() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("#/* */example"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
 		}
 	}
 
@@ -2904,6 +2926,26 @@ public class SelectorParserTest {
 	@Test
 	public void testParseSelectorDescendant() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("#exampleid span"));
+		SelectorList selist = parser.parseSelectors(source);
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(Selector.SAC_DESCENDANT_SELECTOR, sel.getSelectorType());
+		Selector ancestor = ((DescendantSelector) sel).getAncestorSelector();
+		assertEquals(Selector.SAC_CONDITIONAL_SELECTOR, ancestor.getSelectorType());
+		Condition cond = ((ConditionalSelector) ancestor).getCondition();
+		assertEquals(Condition.SAC_ID_CONDITION, cond.getConditionType());
+		assertEquals("exampleid", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((DescendantSelector) sel).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(Selector.SAC_ELEMENT_NODE_SELECTOR, simple.getSelectorType());
+		assertEquals("span", ((ElementSelector) simple).getLocalName());
+		assertEquals("#exampleid span", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorDescendantComment() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("#exampleid/* */span"));
 		SelectorList selist = parser.parseSelectors(source);
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3679,6 +3721,7 @@ public class SelectorParserTest {
 			parser.parseSelectors(source);
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(9, e.getColumnNumber());
 		}
 	}
 
@@ -3689,6 +3732,7 @@ public class SelectorParserTest {
 			parser.parseSelectors(source);
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(4, e.getColumnNumber());
 		}
 	}
 
@@ -3698,7 +3742,20 @@ public class SelectorParserTest {
 		try {
 			parser.parseSelectors(source);
 			fail("Must throw an exception");
-		} catch (CSSParseException e) {}
+		} catch (CSSParseException e) {
+			assertEquals(13, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorPseudoElementCommentError() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("::/* */first-line"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
+		}
 	}
 
 	@Test
@@ -3708,6 +3765,7 @@ public class SelectorParserTest {
 			parser.parseSelectors(source);
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(14, e.getColumnNumber());
 		}
 	}
 
@@ -3788,6 +3846,17 @@ public class SelectorParserTest {
 			parser.parseSelectors(source);
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassCommentError() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("div:/* */blank"));
+		try {
+			parser.parseSelectors(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
