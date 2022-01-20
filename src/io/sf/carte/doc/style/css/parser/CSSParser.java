@@ -755,7 +755,7 @@ public class CSSParser implements Parser2 {
 					if (!readingValue) {
 						unexpectedTokenError(index, word);
 						return;
-					} else if (prevcp == 32 || prevcp == 13) {
+					} else if (isPrevCpWhitespace()) {
 						buffer.append(' ');
 					}
 				}
@@ -978,7 +978,7 @@ public class CSSParser implements Parser2 {
 					return;
 				}
 				if (functionToken) {
-					if (buffer.length() != 0) {
+					if (buffer.length() != 0 && isPrevCpWhitespace()) {
 						buffer.append(' ');
 					}
 					buffer.append(word);
@@ -1007,7 +1007,7 @@ public class CSSParser implements Parser2 {
 			private boolean appendWord(int index, CharSequence word, int quote) {
 				if (buffer.length() != 0) {
 					if (escapedTokenIndex == -1) {
-						if (prevcp == 32 || prevcp == 13) {
+						if (isPrevCpWhitespace()) {
 							if (stage == 1) {
 								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found white space between media");
 								return false;
@@ -1085,7 +1085,7 @@ public class CSSParser implements Parser2 {
 			@Override
 			public void openGroup(int index, int codepoint) {
 				if (codepoint == 40) { // '('
-					if (prevcp != 32 && prevcp != 13) {
+					if (!isPrevCpWhitespace()) {
 						// Function token
 						functionToken = true;
 						buffer.append('(');
@@ -1246,7 +1246,7 @@ public class CSSParser implements Parser2 {
 				// : 58
 				// ; 59
 				if (functionToken) {
-					if (prevcp == 32) {
+					if (isPrevCpWhitespace()) {
 						buffer.append(' ');
 					}
 					bufferAppend(codepoint);
@@ -1750,10 +1750,10 @@ public class CSSParser implements Parser2 {
 				declarationHandler.separator(index, codePoint);
 			} else {
 				if (buffer.length() != 0) {
-					if (stage == STAGE_WAIT_NAME && singleName && (escapedTokenIndex == -1 || prevcp == 32)) {
+					if (stage == STAGE_WAIT_NAME && singleName && (escapedTokenIndex == -1 || isPrevCpWhitespace())) {
 						stage = STAGE_WAIT_BLOCK_LIST;
 					}
-					if (prevcp != 32) {
+					if (!isPrevCpWhitespace()) {
 						buffer.append(' ');
 					}
 				}
@@ -2360,8 +2360,8 @@ public class CSSParser implements Parser2 {
 						prevcp = 32;
 					}
 					return;
-				} else if (buffer.length() != 0
-						&& (prevcp != 32 || (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
+				} else if (buffer.length() != 0 && (!isPrevCpWhitespace()
+						|| (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
 					buffer.append(' ');
 				}
 				prevcp = 32;
@@ -2601,7 +2601,7 @@ public class CSSParser implements Parser2 {
 					if (ruleType == PAGE_RULE) {
 						if (codepoint == 44) { // ,
 							processBufferPageRule(index);
-						} else if (codepoint == 58 && (prevcp == 44 || prevcp == 32 || prevcp == 13)) {
+						} else if (codepoint == 58 && (prevcp == 44 || isPrevCpWhitespace())) {
 							buffer.append(':');
 							return; // preserve prevcp
 						} else {
@@ -3183,7 +3183,7 @@ public class CSSParser implements Parser2 {
 
 		@Override
 		public void word(int index, CharSequence word) {
-			if (buffer.length() != 0 && (prevcp == 32 || prevcp == 13)) {
+			if (buffer.length() != 0 && isPrevCpWhitespace()) {
 				buffer.append(' ');
 			}
 			if (stage == STAGE_ATTR_START && prevcp != 65 && prevcp != TokenProducer.CHAR_VERTICAL_LINE) {
@@ -3196,7 +3196,7 @@ public class CSSParser implements Parser2 {
 					buffer.append(word);
 					newDescendantSelector(Selector.SAC_DESCENDANT_SELECTOR);
 					stage = 1;
-				} else if (stage == STAGE_ATTR_POST_SYMBOL && prevcp == 32) {
+				} else if (stage == STAGE_ATTR_POST_SYMBOL && isPrevCpWhitespace()) {
 					if (word.length() == 1) {
 						char c = word.charAt(0);
 						if (c == 'i' || c == 'I') {
@@ -3273,7 +3273,7 @@ public class CSSParser implements Parser2 {
 				setAttributeSelectorValue(index, quoted);
 				stage = STAGE_ATTR_POST_SYMBOL;
 			} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) { // Pseudo-class argument
-				if (buffer.length() != 0 && (prevcp == 32 || prevcp == 13)) {
+				if (buffer.length() != 0 && isPrevCpWhitespace()) {
 					buffer.append(' ');
 				}
 				char c = (char) quoteChar;
@@ -3327,7 +3327,7 @@ public class CSSParser implements Parser2 {
 					} else {
 						StringBuilder buf = new StringBuilder(attrcond.value.length() + value.length() + 1);
 						buf.append(attrcond.value);
-						if (prevcp == 32 || prevcp == 13) {
+						if (isPrevCpWhitespace()) {
 							buf.append(' ');
 						}
 						attrcond.value = buf.append(value).toString();
@@ -3673,7 +3673,7 @@ public class CSSParser implements Parser2 {
 							return;
 						}
 					}
-					if ((prevcp == 32 || prevcp == 13) && buffer.length() != 0) {
+					if (isPrevCpWhitespace() && buffer.length() != 0) {
 						buffer.append(' ');
 					}
 					bufferAppend(codepoint);
@@ -4030,8 +4030,8 @@ public class CSSParser implements Parser2 {
 						((AttributeConditionImpl) condition).namespaceURI = getNamespaceURI(index);
 					}
 				case Condition.SAC_PSEUDO_CLASS_CONDITION:
-					if (isValidIdentifier(name)) {
-						((AttributeConditionImpl) condition).localName = safeUnescapeIdentifier(index, name);
+					if (isNotForbiddenIdentStart(name)) {
+						((AttributeConditionImpl) condition).localName = safeUnescapeIdentifier(index, name).trim();
 					} else {
 						handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 								"Invalid pseudo-class: " + name);
@@ -4916,7 +4916,11 @@ public class CSSParser implements Parser2 {
 						codepoint = 65;
 					} else if (codepoint == 58) { // :
 						// Here we should have the property name in buffer
-						setPropertyName(index);
+						if (buffer.length() != 0) {
+							setPropertyName(index);
+						} else {
+							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
+						}
 					} else if (codepoint == 64) {
 						handleAtKeyword(index);
 					} else {
@@ -4946,17 +4950,25 @@ public class CSSParser implements Parser2 {
 					}
 				} else if (!hexColor) {
 					if (codepoint == 45) { // -
-						if (functionToken && !unicodeRange) {
-							processBuffer(index);
-							if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-								newLexicalUnit(LexicalUnit.SAC_OPERATOR_MINUS);
-							} else {
-								unexpectedCharError(index, codepoint);
+						if (!unicodeRange) {
+							if (functionToken) {
+								processBuffer(index);
+								if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
+									newLexicalUnit(LexicalUnit.SAC_OPERATOR_MINUS);
+								} else {
+									unexpectedCharError(index, codepoint);
+								}
+								prevcp = codepoint;
+								return;
+							} else if (isCustomProperty()) {
+								processBuffer(index);
+								newCustomPropertyOperator(index, codepoint, LexicalUnit.SAC_OPERATOR_MINUS);
+								prevcp = codepoint;
+								return;
 							}
-						} else {
-							buffer.append('-');
-							codepoint = 65;
 						}
+						buffer.append('-');
+						codepoint = 65;
 					} else if (!unicodeRange) {
 						if (codepoint == 95) { // _
 							buffer.append('_');
@@ -4995,15 +5007,24 @@ public class CSSParser implements Parser2 {
 							if (buffer.length() == 1 && ((c = buffer.charAt(0)) == 'U' || c == 'u')) {
 								buffer.setLength(0);
 								unicodeRange = true;
-							} else if (functionToken) {
-								processBuffer(index);
-								if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-									newLexicalUnit(LexicalUnit.SAC_OPERATOR_PLUS);
+							} else if (!isPrevCpWhitespace() && (buffer.length() == 0
+									|| (c = buffer.charAt(buffer.length() - 1)) != 'E' && c != 'e')) {
+								if (functionToken) {
+									processBuffer(index);
+									if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
+										newLexicalUnit(LexicalUnit.SAC_OPERATOR_PLUS);
+									} else {
+										unexpectedCharError(index, codepoint);
+									}
+								} else if (isCustomProperty()) {
+									processBuffer(index);
+									newCustomPropertyOperator(index, codepoint, LexicalUnit.SAC_OPERATOR_PLUS);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
 							} else {
-								unexpectedCharError(index, codepoint);
+								buffer.append('+');
+								codepoint = 65;
 							}
 						} else if (codepoint == 47) { // '/'
 							processBuffer(index);
@@ -5026,8 +5047,16 @@ public class CSSParser implements Parser2 {
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
+						} else if (isCustomProperty()) {
+							if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
+								processBuffer(index);
+								newCustomPropertyOperator(index, codepoint, LexicalUnit.SAC_OPERATOR_MULTIPLY);
+							} else {
+								unexpectedCharError(index, codepoint);
+							}
 						} else if (codepoint != TokenProducer.CHAR_COMMERCIAL_AT
-								&& codepoint != TokenProducer.CHAR_QUESTION_MARK) {
+								&& codepoint != TokenProducer.CHAR_QUESTION_MARK
+								&& codepoint != TokenProducer.CHAR_ASTERISK) {
 							bufferAppend(codepoint);
 						} else {
 							unexpectedCharError(index, codepoint);
@@ -5045,21 +5074,42 @@ public class CSSParser implements Parser2 {
 		}
 
 		private void setPropertyName(int index) {
-			if (buffer.length() != 0) {
-				String s = buffer.toString();
-				if (escapedTokenIndex == -1) {
-					propertyName = s;
+			String raw = buffer.toString();
+			if (escapedTokenIndex == -1) {
+				if (isNotForbiddenIdentStart(raw)
+						|| (raw.charAt(0) == '*' && CSSParser.this.parserFlags.contains(Flag.STARHACK))) {
+					propertyName = raw;
 					buffer.setLength(0);
-					// We do not check for the correctness of names here, to allow possible hacks
-				} else {
-					propertyName = unescapeBuffer(index);
-					if (!parseError && !isValidIdentifier(propertyName)) {
-						handleWarning(index, ParseHelper.WARN_PROPERTY_NAME, "Suspicious property name: " + s);
-					}
+					return;
 				}
-			} else {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
+			} else if (isNotForbiddenIdentStart(raw)) {
+				propertyName = unescapeBuffer(index);
+				if (!parseError && !isValidIdentifier(propertyName)) {
+					handleWarning(index - buffer.length(), ParseHelper.WARN_PROPERTY_NAME,
+							"Suspicious property name: " + raw);
+				}
+				return;
 			}
+			handleError(index - buffer.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
+					"Invalid property name: '" + raw + '\'');
+		}
+
+		private void newCustomPropertyOperator(int index, int codepoint, short operatorUnitType) {
+			if (currentlu == null) {
+				newLexicalUnit(operatorUnitType);
+				return;
+			} else {
+				// This method is not being called if we are in calc()
+				assert(currentlu.parameters == null);
+				//
+				short type;
+				if (!typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
+						&& type != LexicalUnit.SAC_OPERATOR_COMMA) {
+					newLexicalUnit(operatorUnitType);
+					return;
+				}
+			}
+			unexpectedCharError(index, codepoint);
 		}
 
 		private boolean handleEqualsSignInsideFunction(int index) {
@@ -5070,7 +5120,7 @@ public class CSSParser implements Parser2 {
 			 */
 			if (flagIEValues && (this.propertyName.length() == 0 || this.propertyName.endsWith("filter")
 					|| "expression".equalsIgnoreCase(currentlu.getFunctionName()))) {
-				if (prevcp == 65 || prevcp == 32 || prevcp == 13 || prevcp == TokenProducer.CHAR_RIGHT_SQ_BRACKET) {
+				if (prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_RIGHT_SQ_BRACKET) {
 					// Could be a MS gradient or expression
 					LexicalUnitImpl lu;
 					int buflen = buffer.length();
@@ -5115,6 +5165,10 @@ public class CSSParser implements Parser2 {
 				lu = nextlu;
 			}
 			return lu;
+		}
+
+		private boolean isCustomProperty() {
+			return propertyName.startsWith("--");
 		}
 
 		/**
@@ -5264,13 +5318,7 @@ public class CSSParser implements Parser2 {
 			if (buflen != 0) {
 				if (this.propertyName == null) {
 					// Set the property name
-					String raw = buffer.toString();
-					String s = unescapeBuffer(index);
-					if (isValidIdentifier(raw)) {
-						propertyName = s;
-					} else {
-						handleError(index - buflen, ParseHelper.ERR_INVALID_IDENTIFIER, "Invalid identifier: " + raw);
-					}
+					setPropertyName(index);
 				} else if (readPriority) {
 					String prio = rawBuffer();
 					if ("important".equalsIgnoreCase(prio)) {
@@ -5320,6 +5368,11 @@ public class CSSParser implements Parser2 {
 			}
 		}
 
+		/**
+		 * Parse a value that is not an hex color.
+		 * 
+		 * @param index the parsing index.
+		 */
 		private void parseNonHexcolorValue(int index) {
 			// Unescape and check for unit
 			String raw = buffer.toString();
@@ -5369,10 +5422,10 @@ public class CSSParser implements Parser2 {
 				str = buffer.toString();
 				cssText = ParseHelper.escapeCssCharsAndFirstChar(raw).toString();
 			}
-			createIdentifierOrKeyword(index, raw, str, cssText);
+			createIdentifierOrNumberOrKeyword(index, raw, str, cssText);
 		}
 
-		private void createIdentifierOrKeyword(int index, String raw, String ident, String cssText) {
+		private void createIdentifierOrNumberOrKeyword(int index, String raw, String ident, String cssText) {
 			buffer.setLength(0);
 			int len = ident.length();
 			int i = len - 1;
@@ -5380,8 +5433,15 @@ public class CSSParser implements Parser2 {
 				int cp = ident.codePointAt(i);
 				if (!Character.isLetter(cp) && cp != 37) { // Not letter nor %
 					if (cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1)) {
+						// Either not ending in [0-9] range or not parsable as a number
 						if (!newIdentifier(raw, ident, cssText)) {
-							checkForIEValue(index, raw);
+							// Check for a single '+'
+							if (raw.length() == 1 && raw.charAt(0) == '+') {
+								newOperator(index, '+', LexicalUnit.SAC_OPERATOR_PLUS);
+								return;
+							} else {
+								checkForIEValue(index, raw);
+							}
 						}
 					}
 					break;
@@ -5401,6 +5461,26 @@ public class CSSParser implements Parser2 {
 					}
 				}
 			}
+		}
+
+		private void newOperator(int index, int codePoint, short operatorUnitType) {
+			short type;
+			if (this.currentlu == null) {
+				if (isCustomProperty()) {
+					newLexicalUnit(operatorUnitType);
+					return;
+				}
+			} else if (currentlu.parameters != null) {
+				if (lastParamIsOperand()) {
+					newLexicalUnit(operatorUnitType);
+					return;
+				}
+			} else if (isCustomProperty() && !typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
+					&& type != LexicalUnit.SAC_OPERATOR_COMMA) {
+				newLexicalUnit(operatorUnitType);
+				return;
+			}
+			unexpectedCharError(index, codePoint);
 		}
 
 		private void parseUnicodeRange(int index, int buflen) {
@@ -5599,7 +5679,7 @@ public class CSSParser implements Parser2 {
 		}
 
 		private boolean newIdentifier(String raw, String ident, String cssText) {
-			if (isValidIdentifier(raw)) {
+			if (isNotForbiddenIdentStart(raw)) {
 				if (propertyDatabase != null) {
 					String lcident = ident.toLowerCase(Locale.ROOT);
 					if (lcident != ident) {
@@ -5688,7 +5768,7 @@ public class CSSParser implements Parser2 {
 		}
 
 		private boolean isEscapedContext(int prevcp) {
-			return prevcp == 65 || prevcp == 32 || prevcp == 13 || prevcp == TokenProducer.CHAR_COLON
+			return prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_COLON
 					|| prevcp == TokenProducer.CHAR_COMMA || prevcp == TokenProducer.CHAR_SEMICOLON
 					|| prevcp == TokenProducer.CHAR_LEFT_CURLY_BRACKET;
 		}
@@ -5858,11 +5938,14 @@ public class CSSParser implements Parser2 {
 	abstract class CSSTokenHandler implements TokenHandler {
 		int line = 1;
 		int prevlinelength = -1;
+		private boolean foundCp13andNotYet10or12 = false;
+
 		int prevcp = 32;
 		int endcp = -1;
 		short parendepth = 0;
 		StringBuilder buffer;
 		int escapedTokenIndex = -1;
+
 		boolean parseError = false;
 
 		private final InputSource source;
@@ -5885,20 +5968,27 @@ public class CSSParser implements Parser2 {
 			 */
 			if (codepoint == 10) { // LF \n
 				separator(index, codepoint);
-				if (prevcp != 13) {
+				if (!foundCp13andNotYet10or12) {
 					line++;
 					prevlinelength = index;
 				} else {
+					foundCp13andNotYet10or12 = false;
 					prevlinelength++;
 				}
+				prevcp = 10;
 			} else if (codepoint == 12) { // FF
 				separator(index, codepoint);
-				line++;
+				if (!foundCp13andNotYet10or12) {
+					line++;
+				} else {
+					foundCp13andNotYet10or12 = false;
+				}
 				prevlinelength = index;
+				prevcp = 10;
 			} else if (codepoint == 13) { // CR
 				line++;
 				prevlinelength = index;
-				prevcp = codepoint;
+				foundCp13andNotYet10or12 = true;
 			} else if (codepoint == 9) { // TAB
 				separator(index, codepoint);
 			} else if (codepoint < 0x80) {
@@ -5912,6 +6002,15 @@ public class CSSParser implements Parser2 {
 			if (!parseError) {
 				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
 			}
+		}
+
+		/**
+		 * Return true if previous codepoint is whitespace (codepoints 32 and 10).
+		 * 
+		 * @return true if previous codepoint is whitespace.
+		 */
+		boolean isPrevCpWhitespace() {
+			return prevcp == 32 || prevcp == 10;
 		}
 
 		@Override
@@ -5985,6 +6084,24 @@ public class CSSParser implements Parser2 {
 
 		String unescapeIdentifier(int index, String inputString) throws DOMNullCharacterException {
 			return ParseHelper.unescapeStringValue(inputString, true, false);
+		}
+
+		/**
+		 * Verify that the given identifier does not start in a way which is forbidden
+		 * by the specification.
+		 * <p>
+		 * If the processing reached this, the rest of the identifier should be fine.
+		 * </p>
+		 * 
+		 * @param s the identifier to test.
+		 * @return true if it starts as a valid identifier.
+		 */
+		boolean isNotForbiddenIdentStart(String s) {
+			char c = s.charAt(0);
+			if (c != '-') {
+				return !Character.isDigit(c) && c != '+';
+			}
+			return (s.length() > 1 && !Character.isDigit(c = s.charAt(1))) || c == '\\';
 		}
 
 		boolean isValidIdentifier(String s) {

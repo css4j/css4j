@@ -680,6 +680,15 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyIntegerPlusSign() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("+1"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_INTEGER, lu.getLexicalUnitType());
+		assertEquals(1, lu.getIntegerValue());
+		assertEquals("1", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyMargin() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("0.5em auto"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
@@ -1013,10 +1022,28 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnits1() throws CSSException, IOException {
+	public void testParsePropertyValueUnitEm() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("1.3em"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertEquals(1.3, lu.getFloatValue(), 0.01);
+		assertEquals("em", lu.getDimensionUnitText());
+		assertEquals(LexicalUnit.SAC_EM, lu.getLexicalUnitType());
+	}
+
+	@Test
+	public void testParsePropertyValueUnitEmPlusSign() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("+1.3em"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(1.3, lu.getFloatValue(), 1e-5);
+		assertEquals("em", lu.getDimensionUnitText());
+		assertEquals(LexicalUnit.SAC_EM, lu.getLexicalUnitType());
+	}
+
+	@Test
+	public void testParsePropertyValueUnitEmMinusSign() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("-1.3em"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(-1.3, lu.getFloatValue(), 1e-5);
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals(LexicalUnit.SAC_EM, lu.getLexicalUnitType());
 	}
@@ -1160,11 +1187,156 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyPlusOneFloat() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("+1.0"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(1f, lu.getFloatValue(), 1e-5);
+	}
+
+	@Test
+	public void testParsePropertyPlusOneFloatError() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("++1.0"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
+		}
+	}
+
+	@Test
 	public void testParsePropertyMinusOneFloat() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("-1.0"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
 		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
 		assertEquals(-1f, lu.getFloatValue(), 0.01f);
+	}
+
+	@Test
+	public void testParsePropertyFloatExp_e() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("2.345678e-05"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(2.345678e-05, lu.getFloatValue(), 1e-11);
+		assertEquals("2.345678E-5", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyFloatExp_e_plus() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("2.345678e+8"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(2.345678e+8, lu.getFloatValue(), 10f);
+		assertEquals("234567808", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyFloatExp_E() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("2.345678E-05"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(2.345678e-05, lu.getFloatValue(), 1e-11);
+		assertEquals("2.345678E-5", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyFloatExp_E_plus() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("2.345678E+8"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(2.345678e+8, lu.getFloatValue(), 10f);
+		assertEquals("234567808", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyFloatExpError() throws CSSException, IOException {
+		try {
+			parser.parsePropertyValue(new InputSource(new StringReader("1.0e+ 02")));
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyFloatExpError2() throws CSSException, IOException {
+		try {
+			parser.parsePropertyValue(new InputSource(new StringReader("+1.0e+ 02")));
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyFloatExpError3() throws CSSException, IOException {
+		try {
+			parser.parsePropertyValue(new InputSource(new StringReader("-1.0e+ 02")));
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyFloatList() throws CSSException, IOException {
+		LexicalUnit lu = parser.parsePropertyValue(new InputSource(new StringReader(".1234 5")));
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-6f);
+		//
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalUnit.SAC_INTEGER, nlu.getLexicalUnitType());
+		assertEquals(5, nlu.getIntegerValue());
+		//
+		assertEquals("0.1234 5", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyFloatList2() throws CSSException, IOException {
+		LexicalUnit lu = parser.parsePropertyValue(new InputSource(new StringReader(".1234 +5")));
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-6f);
+		//
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalUnit.SAC_INTEGER, nlu.getLexicalUnitType());
+		assertEquals(5, nlu.getIntegerValue());
+		//
+		assertEquals("0.1234 5", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyFloatList3() throws CSSException, IOException {
+		LexicalUnit lu = parser.parsePropertyValue(new InputSource(new StringReader(".1234 -5")));
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-6f);
+		//
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalUnit.SAC_INTEGER, nlu.getLexicalUnitType());
+		assertEquals(-5, nlu.getIntegerValue());
+		//
+		assertEquals("0.1234 -5", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyFloatCommaList() throws CSSException, IOException {
+		LexicalUnit lu = parser.parsePropertyValue(new InputSource(new StringReader(".1234,5")));
+		assertEquals(LexicalUnit.SAC_REAL, lu.getLexicalUnitType());
+		assertEquals(0.1234f, lu.getFloatValue(), 1e-6f);
+		//
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, nlu.getLexicalUnitType());
+		//
+		nlu = nlu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalUnit.SAC_INTEGER, nlu.getLexicalUnitType());
+		assertEquals(5, nlu.getIntegerValue());
+		//
+		assertEquals("0.1234, 5", lu.toString());
 	}
 
 	@Test
@@ -1174,6 +1346,25 @@ public class PropertyParserTest {
 		assertEquals(LexicalUnit.SAC_PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 0.01f);
 		assertEquals("%", lu.getDimensionUnitText());
+	}
+
+	@Test
+	public void testParsePropertyPercentPlusSign() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("+1%"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(1f, lu.getFloatValue(), 0.01f);
+		assertEquals("%", lu.getDimensionUnitText());
+	}
+
+	@Test
+	public void testParsePropertyPercentNegativeSign() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("-1%"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals(LexicalUnit.SAC_PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(-1f, lu.getFloatValue(), 0.01f);
+		assertEquals("%", lu.getDimensionUnitText());
+		assertEquals("-1%", lu.toString());
 	}
 
 	@Test
@@ -1673,6 +1864,82 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyBadCalc10() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("calc(100% + * 2em)"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc11() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% + + 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc12() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% + * 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc13() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% * + 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc14() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% * - 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalc15() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(100% * * 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+
+	@Test
+	public void testParsePropertyBadExpression() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("3em*2"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadExpression2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("calc(1)*2"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadExpression3() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("calc(1)+2"));
 		try {
 			parser.parsePropertyValue(source);
 			fail("Must throw exception");
@@ -3493,6 +3760,10 @@ public class PropertyParserTest {
 		assertFalse(parser.parsePriority(source));
 		source = new InputSource(new StringReader("importantt"));
 		assertFalse(parser.parsePriority(source));
+	}
+
+	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {
+		return parser.parsePropertyValue(new InputSource(new StringReader(value)));
 	}
 
 }
