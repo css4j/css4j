@@ -7,7 +7,6 @@
 /javadoc.xml
 *.class
 /*.jardesc
-*.jar
 *.war
 *.ear
 /local.properties
@@ -17,5 +16,9 @@
 *.iml
 *.iws
 
-# Maven
+# Gradle
+**/.gradle
 /build/
+/buildSrc/build/
+
+/CHANGES.txt
