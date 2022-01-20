@@ -49,7 +49,7 @@ public class ContribSheetTest {
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
 		int len = rules.getLength();
-		assertEquals(1448, len);
+		assertEquals(1499, len);
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		List<String> comments = rules.item(0).getPrecedingComments();
 		assertNotNull(comments);
