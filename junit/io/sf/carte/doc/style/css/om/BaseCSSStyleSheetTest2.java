@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.Buffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
@@ -274,7 +275,7 @@ public class BaseCSSStyleSheetTest2 {
 		CharBuffer target = CharBuffer.allocate(600);
 		assertTrue(re.read(target) != -1);
 		re.close();
-		target.flip();
+		((Buffer) target).flip(); // XXX: The cast can be removed if run with Java 9+
 		String expected = target.toString().replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}", "}");
 		assertEquals(expected, sheet.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
 	}
@@ -302,7 +303,7 @@ public class BaseCSSStyleSheetTest2 {
 		assertTrue(re.read(target) != -1);
 		re.close();
 		target.append("</style >");
-		target.flip();
+		((Buffer) target).flip(); // XXX: The cast can be removed if run with Java 9+
 		String expected = target.toString().replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}", "}");
 		assertEquals(expected, sheet.toStyleString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
 	}
