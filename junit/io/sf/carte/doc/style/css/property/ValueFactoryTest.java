@@ -61,6 +61,15 @@ public class ValueFactoryTest {
 		list = (ValueList) value;
 		assertEquals(4, list.getLength());
 		assertFalse(list.isCommaSeparated());
+		assertEquals("1 2 3 4", list.getCssText());
+		//
+		lunit = parsePropertyValue("/*0*/1/*1*/2/*2*/3/*3*/4/*4*/");
+		value = factory.createCSSValue(lunit);
+		assertEquals(CssType.LIST, value.getCssValueType());
+		list = (ValueList) value;
+		assertEquals(4, list.getLength());
+		assertFalse(list.isCommaSeparated());
+		assertEquals("1 2 3 4", list.getCssText());
 		//
 		lunit = parsePropertyValue("[first header-start]");
 		value = factory.createCSSValue(lunit);

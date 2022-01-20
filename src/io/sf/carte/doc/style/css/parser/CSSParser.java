@@ -875,6 +875,8 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
+			separator(index, 12);
+			prevcp = 12;
 		}
 
 		@Override
@@ -2346,6 +2348,9 @@ public class CSSParser implements Parser, Cloneable {
 			if (!parseError && buffer.length() == 0 && curlyBracketDepth == 1 && parendepth == 0
 					&& stage == STAGE_WAIT_NESTED_SELECTOR) {
 				super.commented(index, commentType, comment);
+			} else {
+				separator(index, 12);
+				prevcp = 12;
 			}
 		}
 
@@ -3304,7 +3309,7 @@ public class CSSParser implements Parser, Cloneable {
 			} else if (contextHandler != null) {
 				contextHandler.commented(index, commentType, comment);
 			} else {
-				super.commented(index, commentType, comment);
+				separator(index, 12);
 			}
 		}
 
@@ -3392,6 +3397,16 @@ public class CSSParser implements Parser, Cloneable {
 					contextHandler.character(index, codePoint);
 				} else {
 					SheetTokenHandler.this.character(index, codePoint);
+				}
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+				startNewRule(index);
+				if (contextHandler != null) {
+					contextHandler.commented(index, commentType, comment);
+				} else {
+					SheetTokenHandler.this.commented(index, commentType, comment);
 				}
 			}
 
@@ -5353,6 +5368,12 @@ public class CSSParser implements Parser, Cloneable {
 		public void commented(int index, int commentType, String comment) {
 			if (stage == 0 && selist.size() == 0) {
 				super.commented(index, commentType, comment);
+			} else {
+				separator(index, 12);
+				if (prevcp != 44) {
+					// If previous cp was a comma, we keep it
+					prevcp = 12;
+				}
 			}
 		}
 
@@ -5693,7 +5714,10 @@ public class CSSParser implements Parser, Cloneable {
 			if (!parseError && buffer.length() == 0 && propertyName == null
 					&& (curlyBracketDepth == 1 || ruleFirstPart == null) && parendepth == 0 && commentType == 0) {
 				handler.comment(comment, isPreviousCpLF());
+			} else {
+				processBuffer(index);
 			}
+			prevcp = 12;
 		}
 
 		@Override
@@ -7564,7 +7588,10 @@ public class CSSParser implements Parser, Cloneable {
 			if (!parseError && buffer.length() == 0 && propertyName == null && curlyBracketDepth == 1 && parendepth == 0
 					&& squareBracketDepth == 0) {
 				super.commented(index, commentType, comment);
+			} else {
+				processBuffer(index);
 			}
+			prevcp = 12;
 		}
 
 		@Override
@@ -7937,6 +7964,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (commentType == 0) {
 				handler.comment(comment, isPreviousCpLF());
 			}
+			prevcp = 12;
 		}
 
 		protected boolean isPreviousCpLF() {

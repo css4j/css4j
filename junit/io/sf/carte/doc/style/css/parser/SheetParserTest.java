@@ -823,7 +823,7 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseNSEOF() throws CSSException, IOException {
-		Reader re = new StringReader("@namespace xhtml url(\"https://www.w3.org/1999/xhtml/\")");
+		Reader re = new StringReader("/* pre */@namespace xhtml url(\"https://www.w3.org/1999/xhtml/\")");
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
@@ -831,6 +831,8 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("https://www.w3.org/1999/xhtml/", handler.namespaceMaps.get("xhtml"));
+		assertEquals(1, handler.comments.size());
+		assertEquals(" pre ", handler.comments.getFirst());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -2279,8 +2281,43 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseImportRuleComment() throws CSSException, IOException {
+		Reader re = new StringReader("@import/* comment */url(foo.css);");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(0, list.getLength());
+		assertTrue(list.isAllMedia());
+		assertEquals("all", list.getMedia());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseImportRuleMedia() throws CSSException, IOException {
 		Reader re = new StringReader("@import url(foo.css) print;");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("print", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseImportRuleMediaComment() throws CSSException, IOException {
+		Reader re = new StringReader("@import url(foo.css)/* comment */print;");
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
@@ -2316,6 +2353,24 @@ public class SheetParserTest {
 	@Test
 	public void testParseImportRuleMediaQuery() throws CSSException, IOException {
 		Reader re = new StringReader("@import url('foo.css') (orientation:landscape);");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("(orientation: landscape)", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseImportRuleMediaQueryComment() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@import url('foo.css') (orientation:/* comment 1 */landscape/* comment 2 */);");
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
@@ -2378,6 +2433,24 @@ public class SheetParserTest {
 		MediaQueryList list = handler.importMedias.get(0);
 		assertEquals(1, list.getLength());
 		assertEquals("screen and (resolution >= 72dpi)", list.item(0));
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseImportRuleMediaQueryLevel4Comment() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@import url('foo.css') screen/* comment1 */and (800px/* comment2 */<width<=1200px);");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.importURIs.size());
+		assertEquals("foo.css", handler.importURIs.get(0));
+		assertEquals(1, handler.importMedias.size());
+		MediaQueryList list = handler.importMedias.get(0);
+		assertEquals(1, list.getLength());
+		assertEquals("screen and (800px < width <= 1200px)", list.item(0));
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -2770,6 +2843,58 @@ public class SheetParserTest {
 	public void testParseKeyframesRule() throws CSSException, IOException {
 		Reader re = new StringReader(
 				"@keyframes slide-right {\nfrom {margin-left: 0px;}\n50% {margin-left: 110px; opacity: 1;}\n"
+				+ "70% {opacity: 0.9;}\nto\n{margin-left: 200px;}}");
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(1, handler.keyframesNames.size());
+		assertEquals("slide-right", handler.keyframesNames.get(0));
+		assertEquals(4, handler.keyframeSelectors.size());
+		assertEquals("from", handler.keyframeSelectors.get(0).toString());
+		assertEquals("50%", handler.keyframeSelectors.get(1).toString());
+		assertEquals("70%", handler.keyframeSelectors.get(2).toString());
+		assertEquals("to", handler.keyframeSelectors.get(3).toString());
+		assertEquals(5, handler.propertyNames.size());
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("margin-left", handler.propertyNames.get(1));
+		assertEquals("opacity", handler.propertyNames.get(2));
+		assertEquals("opacity", handler.propertyNames.get(3));
+		assertEquals("margin-left", handler.propertyNames.get(4));
+		assertEquals(5, handler.lexicalValues.size());
+		assertEquals("0px", handler.lexicalValues.get(0).toString());
+		assertEquals("110px", handler.lexicalValues.get(1).toString());
+		assertEquals("1", handler.lexicalValues.get(2).toString());
+		assertEquals("0.9", handler.lexicalValues.get(3).toString());
+		assertEquals("200px", handler.lexicalValues.get(4).toString());
+		assertEquals(0, handler.atRules.size());
+		//
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(2, loc.getLineNumber());
+		assertEquals(23, loc.getColumnNumber());
+		loc = handler.ptyLocators.get(1);
+		assertEquals(3, loc.getLineNumber());
+		assertEquals(24, loc.getColumnNumber());
+		loc = handler.ptyLocators.get(2);
+		assertEquals(3, loc.getLineNumber());
+		assertEquals(36, loc.getColumnNumber());
+		loc = handler.ptyLocators.get(3);
+		assertEquals(4, loc.getLineNumber());
+		assertEquals(18, loc.getColumnNumber());
+		loc = handler.ptyLocators.get(4);
+		assertEquals(6, loc.getLineNumber());
+		assertEquals(20, loc.getColumnNumber());
+		//
+		handler.checkRuleEndings();
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseKeyframesRuleComment() throws CSSException, IOException {
+		Reader re = new StringReader(
+				"@keyframes/* comment */slide-right {\nfrom {margin-left: 0px;}\n50% {margin-left: 110px; opacity: 1;}\n"
 				+ "70% {opacity: 0.9;}\nto\n{margin-left: 200px;}}");
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
@@ -3363,6 +3488,27 @@ public class SheetParserTest {
 		assertEquals(0, handler.comments.size());
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetCustomRuleComments() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		Reader re = new StringReader(
+				"/* ignored */@-webkit-keyframes/* post-at-ident */foo {from{margin: 50px/* post-value */10px; }"
+						+ " to {margin-top/* post-pty-name */:/* post-pty-colon */ 100px;/* post-semicolon */}}");
+		parser.parseStyleSheet(re);
+		assertEquals(1, handler.atRules.size());
+		assertEquals(
+				"@-webkit-keyframes/* post-at-ident */foo {from{margin: 50px/* post-value */10px; } to "
+						+ "{margin-top/* post-pty-name */:/* post-pty-colon */ 100px;/* post-semicolon */}}",
+				handler.atRules.getFirst());
+		//
+		assertEquals(1, handler.comments.size());
+		assertEquals(" ignored ", handler.comments.get(0));
+		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
