@@ -271,12 +271,14 @@ public interface CSSHandler {
 	 * February 2020</a>.
 	 * </p>
 	 */
-	void startViewport();
+	default void startViewport() {
+	}
 
 	/**
 	 * End of {@literal @}viewport rule.
 	 */
-	void endViewport();
+	default void endViewport() {
+	}
 
 	/**
 	 * Receive notification of a property declaration.
