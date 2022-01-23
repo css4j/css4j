@@ -33,7 +33,7 @@ public class BoxModelHelper {
 	 */
 	public static String contractSpaces(String t) {
 		int tl = t.length();
-		StringBuffer sb = new StringBuffer(tl);
+		StringBuilder sb = new StringBuilder(tl);
 		int ini = 0;
 		int fin = 0;
 		while ((ini = t.indexOf("  ", fin)) != -1) {
