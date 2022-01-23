@@ -271,7 +271,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 	}
 
 	private static String basicToken(AuthenticationCredentials creds) {
-		StringBuffer sb = new StringBuffer(64);
+		StringBuilder sb = new StringBuilder(64);
 		sb.append("Basic ").append(creds.getLoginPrincipal().getName()).append(':');
 		if (creds.getPassword() != null) {
 			sb.append(creds.getPassword());
@@ -406,7 +406,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	static void setCookies(HttpURLConnection hcon, Set<Cookie> matchingCookies) {
 		Iterator<Cookie> it = matchingCookies.iterator();
-		StringBuffer sb = new StringBuffer(256);
+		StringBuilder sb = new StringBuilder(256);
 		if (it.hasNext()) {
 			formatCookie(sb, it.next());
 		}
@@ -417,7 +417,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 		hcon.setRequestProperty(HEADER_COOKIE, sb.toString());
 	}
 
-	private static void formatCookie(StringBuffer sb, Cookie ck) {
+	private static void formatCookie(StringBuilder sb, Cookie ck) {
 		sb.append(ck.getName()).append('=').append(ck.getValue());
 		String s = ck.getPath();
 		if (s != null) {
