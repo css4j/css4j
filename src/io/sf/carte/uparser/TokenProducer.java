@@ -13,6 +13,7 @@ package io.sf.carte.uparser;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 
 /**
  * A simple parser that produces tokens from a String or Reader.
@@ -991,16 +992,12 @@ public class TokenProducer {
 
 			@Override
 			public void enableAllComments() {
-				for (int i = 0; i < disabledComments.length; i++) {
-					disabledComments[i] = false;
-				}
+				Arrays.fill(disabledComments, false);
 			}
 
 			@Override
 			public void disableAllComments() {
-				for (int i = 0; i < disabledComments.length; i++) {
-					disabledComments[i] = true;
-				}
+				Arrays.fill(disabledComments, true);
 			}
 
 			@Override
