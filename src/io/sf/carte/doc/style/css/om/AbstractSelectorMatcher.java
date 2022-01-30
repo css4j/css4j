@@ -580,7 +580,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		return false;
 	}
 
-	private class CombinatorSelectorImpl implements CombinatorSelector {
+	private static class CombinatorSelectorImpl implements CombinatorSelector {
 
 		SimpleSelector simpleSelector;
 		Selector scope;

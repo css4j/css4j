@@ -42,7 +42,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 		return attributes;
 	}
 
-	private class MyLinkedNodeList extends LinkedNodeList {
+	private static class MyLinkedNodeList extends LinkedNodeList {
 
 		private static final long serialVersionUID = 1L;
 

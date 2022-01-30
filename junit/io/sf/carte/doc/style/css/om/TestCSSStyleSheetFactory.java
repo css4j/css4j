@@ -111,7 +111,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		return urlFactory;
 	}
 
-	private class TestDeviceFactory extends DummyDeviceFactory {
+	private static class TestDeviceFactory extends DummyDeviceFactory {
 		private final StyleDatabase styleDb = new TestStyleDatabase();
 
 		@Override

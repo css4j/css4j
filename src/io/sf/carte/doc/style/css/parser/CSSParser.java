@@ -580,7 +580,7 @@ public class CSSParser implements Parser, Cloneable {
 		return mqhandler.getMediaQueryList();
 	}
 
-	abstract private class DelegateHandler implements TokenHandler {
+	abstract private static class DelegateHandler implements TokenHandler {
 
 		public void preBooleanHandling(int index, Type type) {
 		}

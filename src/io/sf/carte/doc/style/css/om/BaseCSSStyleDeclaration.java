@@ -1842,7 +1842,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return value != null ? value.equals(otherValue) : otherValue == null;
 	}
 
-	private class PropertyDiff implements Diff<String> {
+	private static class PropertyDiff implements Diff<String> {
 
 		LinkedList<String> leftSide = new LinkedList<String>();
 		LinkedList<String> rightSide = new LinkedList<String>();
