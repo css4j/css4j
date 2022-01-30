@@ -704,8 +704,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				return 0;
 			}
 			int result = 1;
-			TreeSet<String> set = new TreeSet<String>();
-			set.addAll(featureMap.keySet());
+			TreeSet<String> set = new TreeSet<String>(featureMap.keySet());
 			Iterator<String> it = set.iterator();
 			while (it.hasNext()) {
 				String ffname = it.next();
