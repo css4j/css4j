@@ -5111,7 +5111,7 @@ public class CSSParser implements Parser2 {
 				return;
 			} else {
 				// This method is not being called if we are in calc()
-				assert(currentlu.parameters == null);
+				assert currentlu.parameters == null;
 				//
 				short type;
 				if (!typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
