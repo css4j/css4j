@@ -264,7 +264,7 @@ public interface CSSUnit {
 	 * @throws DOMException INVALID_ACCESS_ERR if the unit is not a {@link CSSUnit}
 	 *                      one.
 	 */
-	public static String dimensionUnitString(short unitType) throws DOMException {
+	static String dimensionUnitString(short unitType) throws DOMException {
 		switch (unitType) {
 		case CSS_EM:
 			return "em";
