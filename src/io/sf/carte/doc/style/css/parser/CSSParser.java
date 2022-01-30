@@ -381,7 +381,7 @@ public class CSSParser implements Parser2 {
 		}
 	}
 
-	abstract private class DelegateHandler implements TokenHandler {
+	abstract private static class DelegateHandler implements TokenHandler {
 
 		public void preBooleanHandling(int index, Type type) {
 		}

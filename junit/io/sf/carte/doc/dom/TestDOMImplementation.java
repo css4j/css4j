@@ -257,7 +257,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		});
 	}
 
-	private class TestDeviceFactory extends DummyDeviceFactory {
+	private static class TestDeviceFactory extends DummyDeviceFactory {
 		private final StyleDatabase styleDb = new TestStyleDatabase();
 
 		@Override

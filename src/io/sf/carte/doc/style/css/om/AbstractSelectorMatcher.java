@@ -646,7 +646,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher {
 		return false;
 	}
 
-	private class DescendantSelectorImpl implements DescendantSelector {
+	private static class DescendantSelectorImpl implements DescendantSelector {
 
 		SimpleSelector simpleSelector;
 		Selector scope;

@@ -1815,7 +1815,7 @@ public class TokenProducer {
 		boolean isAllowedCharacter(int codePoint, SequenceParser parser);
 	}
 
-	class DisallowCharacterCheck implements CharacterCheck {
+	static class DisallowCharacterCheck implements CharacterCheck {
 
 		@Override
 		public boolean isAllowedCharacter(int codePoint, SequenceParser parser) {
@@ -1824,7 +1824,7 @@ public class TokenProducer {
 
 	}
 
-	class WhitelistCharacterCheck implements CharacterCheck {
+	static class WhitelistCharacterCheck implements CharacterCheck {
 
 		private final int[] allowInWords;
 

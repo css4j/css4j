@@ -132,7 +132,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		System.setProperty("org.w3c.css.sac.parser", "io.sf.carte.doc.style.css.parser.CSSParser");
 	}
 
-	private class TestDeviceFactory extends DummyDeviceFactory {
+	private static class TestDeviceFactory extends DummyDeviceFactory {
 		private final StyleDatabase styleDb = new TestStyleDatabase();
 
 		@Override

@@ -199,7 +199,7 @@ public class EntityFinder {
 
 	}
 
-	private class StopParsingException extends RuntimeException {
+	private static class StopParsingException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 
 		StopParsingException() {
