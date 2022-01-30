@@ -6802,7 +6802,7 @@ public class CSSParser implements Parser, Cloneable {
 				return;
 			} else {
 				// This method is not being called if we are in calc()
-				assert(currentlu.parameters == null);
+				assert currentlu.parameters == null;
 				//
 				LexicalType type;
 				if (!typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())

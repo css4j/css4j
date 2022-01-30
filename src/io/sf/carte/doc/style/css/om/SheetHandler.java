@@ -310,7 +310,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void startMargin(String name) {
 		newRule();
 		if (ignoreGroupingRules == 0) {
-			assert(currentRule != null && currentRule.getType() == CSSRule.PAGE_RULE);
+			assert currentRule != null && currentRule.getType() == CSSRule.PAGE_RULE;
 			MarginRule marginRule = parentSheet.createMarginRule(name);
 			marginRule.setParentRule(currentRule);
 			currentRule = marginRule;
@@ -322,7 +322,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void endMargin() {
 		if (ignoreGroupingRules == 0) {
-			assert(currentRule != null && currentRule.getType() == CSSRule.MARGIN_RULE);
+			assert currentRule != null && currentRule.getType() == CSSRule.MARGIN_RULE;
 			lastRule = currentRule;
 			AbstractCSSRule pRule = currentRule.getParentRule();
 			PageRule pageRule = (PageRule) pRule;
@@ -436,7 +436,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void endKeyframe() {
 		if (ignoreGroupingRules == 0) {
-			assert(currentRule != null && currentRule.getType() == CSSRule.KEYFRAME_RULE);
+			assert (currentRule != null && currentRule.getType() == CSSRule.KEYFRAME_RULE);
 			lastRule = currentRule;
 			currentRule = currentRule.getParentRule();
 		}
@@ -553,7 +553,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void endSelector(SelectorList selectors) {
 		if (ignoreGroupingRules == 0) {
-			assert(currentRule != null && currentRule.getType() == CSSRule.STYLE_RULE);
+			assert (currentRule != null && currentRule.getType() == CSSRule.STYLE_RULE);
 			lastRule = currentRule;
 			BaseCSSRule pRule = (BaseCSSRule) currentRule.getParentRule();
 			if (((StyleRule) currentRule).getStyle().getLength() == 0) {
