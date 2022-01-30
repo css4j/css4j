@@ -104,7 +104,7 @@ abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializ
 
 	@Override
 	public boolean isNotAllMedia() {
-		return mediaType != null && "all".equalsIgnoreCase(mediaType) && negativeQuery && predicate == null;
+		return "all".equalsIgnoreCase(mediaType) && negativeQuery && predicate == null;
 	}
 
 	/**

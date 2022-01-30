@@ -779,7 +779,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		void onDOMChange(Node ownerNode) {
-			if (ownerNode != null && ownerNode instanceof LinkStyleDefiner) {
+			if (ownerNode instanceof LinkStyleDefiner) {
 				((LinkStyleDefiner) ownerNode).resetLinkedSheet();
 			}
 		}

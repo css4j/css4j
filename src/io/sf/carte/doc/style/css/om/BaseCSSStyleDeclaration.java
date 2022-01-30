@@ -151,7 +151,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		for (int i = 0; i < sz; i++) {
 			String ptyname = propertyList.get(i);
 			String prio = priorities.get(i);
-			boolean important = prio != null && "important".equals(prio);
+			boolean important = "important".equals(prio);
 			StyleValue cssVal = propValue.get(ptyname);
 			CssType type = cssVal.getCssValueType();
 			// Verify if the property is a subproperty of a previously set
@@ -236,7 +236,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		for (int i = 0; i < sz; i++) {
 			String ptyname = propertyList.get(i);
 			String prio = priorities.get(i);
-			boolean important = prio != null && "important".equals(prio);
+			boolean important = "important".equals(prio);
 			CSSValue cssVal = propValue.get(ptyname);
 			CssType type = cssVal.getCssValueType();
 			// Verify if the property is a subproperty of a previously set
@@ -326,7 +326,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			String ptyname = propertyList.get(i);
 			String shorthand = sdb.getShorthand(ptyname);
 			String prio = priorities.get(i);
-			boolean isimportant = prio != null && "important".equals(prio);
+			boolean isimportant = "important".equals(prio);
 			if (shorthand != null) {
 				// Is a shorthand subproperty
 				// Get topmost shorthand
