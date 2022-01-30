@@ -1014,7 +1014,6 @@ public class CSSParser implements Parser, Cloneable {
 							escapedTokenIndex = -1;
 						} else {
 							bufferAppend(codepoint);
-							return;
 						}
 					} else {
 						unexpectedCharError(index, codepoint);
@@ -1083,7 +1082,6 @@ public class CSSParser implements Parser, Cloneable {
 			public void separator(int index, int cp) {
 				if (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)) {
 					buffer.append(' ');
-					return;
 				}
 			}
 
@@ -1696,7 +1694,6 @@ public class CSSParser implements Parser, Cloneable {
 			public void separator(int index, int cp) {
 				if (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)) {
 					buffer.append(' ');
-					return;
 				}
 			}
 
@@ -4716,7 +4713,6 @@ public class CSSParser implements Parser, Cloneable {
 						} else {
 							handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 									"Invalid identifier: " + raw);
-							return;
 						}
 					}
 				}
@@ -4740,7 +4736,6 @@ public class CSSParser implements Parser, Cloneable {
 					} else {
 						handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 								"Invalid identifier: " + raw);
-						return;
 					}
 				} else if (stage == STAGE_EXPECT_ID_OR_CLASSNAME) {
 					String raw = buffer.toString();
@@ -4751,7 +4746,6 @@ public class CSSParser implements Parser, Cloneable {
 					} else {
 						handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 								"Invalid class name: " + raw);
-						return;
 					}
 				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_NAME) {
 					newConditionalSelector(index, triggerCp, ConditionType.PSEUDO_CLASS);

@@ -241,7 +241,6 @@ class ShorthandSetter extends BaseShorthandSetter {
 				}
 			}
 		}
-		return;
 	}
 
 	void setListSubpropertyValue(String pname, ValueList list) {

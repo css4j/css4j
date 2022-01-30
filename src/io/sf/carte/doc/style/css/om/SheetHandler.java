@@ -216,7 +216,6 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 				} else if ((eh = parentSheet.getErrorHandler()) != null) {
 					eh.sacMalfunction("Unexpected supports rule inside of: " + currentRule.getCssText());
 					ignoreGroupingRules = 1;
-					return;
 				}
 			} else {
 				currentRule = new SupportsRule(parentSheet, condition, sheetOrigin);
@@ -270,7 +269,6 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 				} else if ((eh = parentSheet.getErrorHandler()) != null) {
 					eh.sacMalfunction("Unexpected media rule inside of: " + currentRule.getCssText());
 					ignoreGroupingRules = 1;
-					return;
 				}
 			} else {
 				currentRule = new MediaRule(parentSheet, media, sheetOrigin);
