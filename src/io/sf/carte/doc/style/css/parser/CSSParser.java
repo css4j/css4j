@@ -5559,7 +5559,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void quoted(int index, CharSequence quoted, int quote) {
-			char quotec = Character.valueOf((char) quote);
+			char quotec = (char) quote;
 			StringBuilder buf = new StringBuilder(quoted.length() + 2);
 			buf.append(quotec).append(quoted).append(quotec);
 			parent.unexpectedTokenError(index, buf);
