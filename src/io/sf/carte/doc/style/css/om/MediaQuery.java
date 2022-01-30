@@ -484,7 +484,7 @@ class MediaQuery {
 	}
 
 	boolean isNotAllMedia() {
-		return mediaType != null && "all".equalsIgnoreCase(mediaType) && negativeQuery && predicate == null;
+		return "all".equalsIgnoreCase(mediaType) && negativeQuery && predicate == null;
 	}
 
 	public String getMedia() {

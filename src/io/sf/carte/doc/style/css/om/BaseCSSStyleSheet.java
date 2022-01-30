@@ -1486,14 +1486,16 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 		@Override
 		public void warning(CSSParseException exception) throws CSSException {
-			if (currentRule != null && currentRule instanceof BaseCSSDeclarationRule
-					&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
+			if (currentRule instanceof BaseCSSDeclarationRule
+				&& ((BaseCSSDeclarationRule) currentRule)
+					.getStyleDeclarationErrorHandler() != null) {
 				int previousIndex = -1;
 				CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
 				if (style != null) {
 					previousIndex = style.getLength() - 1;
 				}
-				((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacWarning(exception, previousIndex);
+				((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler()
+					.sacWarning(exception, previousIndex);
 			} else {
 				// Handle as non-specific warning
 				BaseCSSStyleSheet.this.getErrorHandler().handleSacWarning(exception);
@@ -1534,12 +1536,12 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		/*
-		 * Current rule can handle the error if it is set (not null), it is a declaration rule and
-		 * contains a declaration error handler.
+		 * Current rule can handle the error if it is set (not null), it is a
+		 * declaration rule and contains a declaration error handler.
 		 */
 		private boolean currentRuleCanHandleError() {
-			return currentRule != null && currentRule instanceof BaseCSSDeclarationRule
-					&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null;
+			return currentRule instanceof BaseCSSDeclarationRule
+				&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null;
 		}
 
 		private void nonRuleErrorHandling(CSSParseException exception) {
