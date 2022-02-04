@@ -1,6 +1,6 @@
 # css4j version 1.3.0 Release Notes
 
-### January 28, 2022
+### February 4, 2022
 
 <br/>
 
@@ -43,6 +43,9 @@
 - CSSOM: fix a class cast exception when computing styles, related to `@page`
   rules.
 - Use StringBuilder instead of StringBuffer in a couple of classes.
+- Refactor: make several inner classes static.
+- Remove several unnecessary null checks.
+- TokenProducer: use Arrays.fill() in a couple of places.
 - Switch from Maven to a Gradle build.
 - Add a CONTRIBUTING and a Developer Certificate of Origin files.
 - Bump year to 2022 in copyright notices.

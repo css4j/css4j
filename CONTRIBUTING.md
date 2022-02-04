@@ -83,14 +83,20 @@ of identification (a similar convention to tests ending with `Test`).
 
 - Indent by tabs, not spaces. The automated formatting provided by the Eclipse
 IDE is often used.
+
 - `if`-`else` blocks should always use curly braces, even if a single line of
 code is involved.
+
 - Long, descriptive variable names are preferred.
+
 - Add comments to explain what the code is trying to do, but avoiding useless
 prose that just mimics the code, like _"check if foo is larger than 1"_ as a
 comment to `if (foo > 1)`.
+
 - Public and protected methods must have documentation comments.
+
 - Avoid trailing whitespace except for empty lines in Javadoc comments.
+
 - Classes and methods should have the minimum visibility that they require.
 A method should not have `protected` visibility when being package-visible could
 be enough, unless subclasses in other packages would naturally extend it. For
