@@ -1,7 +1,7 @@
 plugins {
 	id 'java-library'
 	id 'maven-publish'
-	id 'de.jjohannes.extra-java-module-info' version '0.10'
+	id 'de.jjohannes.extra-java-module-info' version '0.11'
 	id 'jacoco'
 }
 
