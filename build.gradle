@@ -180,6 +180,7 @@ tasks.withType(Javadoc) {
 	options.addStringOption('Xdoclint:none', '-quiet')
 	options.addStringOption('encoding', 'UTF-8')
 	options.addStringOption('charset', 'UTF-8')
+	options.overview = 'src/overview.html'
 	options.links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
 }
 

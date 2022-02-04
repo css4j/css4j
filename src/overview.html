@@ -16,7 +16,7 @@ There are three implementations of that interface:</p>
 <ul>
 <li><a href="https://css4j.github.io/api/3/io/sf/carte/doc/dom/CSSDOMImplementation.html"><code>CSSDOMImplementation</code></a>, the native DOM implementation.</li>
 <li><a href="https://css4j.github.io/api/3/io/sf/carte/doc/style/css/om/DOMCSSStyleSheetFactory.html"><code>DOMCSSStyleSheetFactory</code></a> for the DOM Wrapper.</li>
-<li>If you use DOM4J, get it through <code>XHTMLDocumentFactory.getStyleSheetFactory()</code>.</li>
+<li>If you use DOM4J (css4j-dom4j module), get it through <code>XHTMLDocumentFactory.getStyleSheetFactory()</code>.</li>
 </ul>
 <p>The document back-end is only important if you plan to use the sheets inside a document.
 The resulting style sheets are empty, but you can load a style sheet with the <code>AbstractCSSStyleSheet.parseStyleSheet(<i>source</i>)</code>
