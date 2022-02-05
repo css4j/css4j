@@ -1963,6 +1963,32 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
+	@Test
+	public void testLinkElementBadMIMEType() {
+		DOMElement link = xhtmlDoc.createElement("link");
+		link.setAttribute("href", "http://www.example.com/css/background.png");
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		link.setAttribute("rel", "stylesheet");
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
+		assertNull(sheet);
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test
+	public void testLinkElementBadExtension() {
+		DOMElement link = xhtmlDoc.createElement("link");
+		link.setAttribute("href", "http://www.example.com/etc/fakepasswd");
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		link.setAttribute("rel", "stylesheet");
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
+		assertNull(sheet);
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
 	@Test (timeout=8000)
 	public void testLinkElementEvil() {
 		DOMElement link = xhtmlDoc.createElement("link");

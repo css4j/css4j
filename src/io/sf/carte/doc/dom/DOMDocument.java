@@ -44,6 +44,7 @@ import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
 import org.xml.sax.SAXException;
 
+import io.sf.carte.doc.DOMPolicyException;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.dom.DOMElement.ClassList;
 import io.sf.carte.doc.style.css.CSSCanvas;
@@ -715,6 +716,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			}
 		} catch (IOException e) {
 			getErrorHandler().ioError(href, e);
+		} catch (DOMPolicyException e) {
+			// Already logged
+			sheet = null;
 		} catch (DOMException e) {
 			// Already logged
 		} catch (Exception e) {

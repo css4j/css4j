@@ -47,6 +47,7 @@ import org.w3c.dom.Text;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.css.CSSStyleSheet;
 
+import io.sf.carte.doc.DOMPolicyException;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -1266,6 +1267,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				}
 			} catch (IOException e) {
 				getErrorHandler().ioError(href, e);
+			} catch (DOMPolicyException e) {
+				// Already logged
+				sheet = null;
 			} catch (DOMException e) {
 				// Already logged
 			} catch (Exception e) {

@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMPolicyException;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
@@ -139,16 +140,16 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	/**
 	 * Load the styles from <code>url</code> into this style sheet.
 	 * 
-	 * @param url
-	 *            the url to load the style sheet from.
-	 * @param referrerPolicy
-	 *            the content of the <code>referrerpolicy</code> content attribute, if any, or
-	 *            the empty string.
-	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, <code>false</code> otherwise.
-	 * @throws DOMException
-	 *             if there is a serious problem parsing the style sheet.
-	 * @throws IOException
-	 *             if a problem appears fetching the url contents.
+	 * @param url            the url to load the style sheet from.
+	 * @param referrerPolicy the content of the <code>referrerpolicy</code> content
+	 *                       attribute, if any, or the empty string.
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal
+	 *         errors, <code>false</code> otherwise.
+	 * @throws DOMPolicyException if the style sheet was served with an invalid
+	 *                            content type.
+	 * @throws DOMException       if there is a serious problem parsing the style
+	 *                            sheet.
+	 * @throws IOException        if a problem appears fetching the url contents.
 	 */
 	abstract public boolean loadStyleSheet(URL url, String referrerPolicy) throws DOMException, IOException;
 

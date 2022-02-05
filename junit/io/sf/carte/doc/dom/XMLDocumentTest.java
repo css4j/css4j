@@ -279,6 +279,26 @@ public class XMLDocumentTest {
 	}
 
 	@Test
+	public void testProcessingInstructionBadMIMEType() {
+		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"http://www.example.com/css/background.png\"");
+		LinkStyleDefiner link = (LinkStyleDefiner) pi;
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test
+	public void testProcessingInstructionWrongExtension() {
+		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"http://www.example.com/etc/fakepasswd\"");
+		LinkStyleDefiner link = (LinkStyleDefiner) pi;
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test
 	public void testBadProcessingInstruction() {
 		try {
 			xmlDoc.createProcessingInstruction("xml", "encoding=UTF-8");
@@ -900,6 +920,18 @@ public class XMLDocumentTest {
 		assertFalse(sheet2.equals(sheet));
 		assertFalse(sheet.getCssRules().item(sheet.getCssRules().getLength() - 1)
 				.equals(sheet2.getCssRules().item(sheet2.getCssRules().getLength() - 1)));
+		//
+		xmlDoc.getErrorHandler().reset();
+		link.setNodeValue("href=\"http://www.example.com/css/background.png\" media=\"all\"");
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		//
+		xmlDoc.getErrorHandler().reset();
+		link.setNodeValue("href=\"http://www.example.com/etc/fakepasswd\" media=\"all\"");
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 	}
 
 	@Test

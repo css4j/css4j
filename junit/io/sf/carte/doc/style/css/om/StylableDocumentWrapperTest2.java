@@ -153,10 +153,8 @@ public class StylableDocumentWrapperTest2 {
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
 		//
-		Attr attr = link.getAttributeNode("href");
-		assertNotNull(attr);
-		Attr attr2 = link.getAttributeNodeNS(null, "href");
-		assertSame(attr, attr2);
+		Attr attr = link.getAttributeNodeNS(null, "href");
+		assertSame(href, attr);
 		//
 		CSSStyleSheet<AbstractCSSRule> sheet = ((LinkStyle<AbstractCSSRule>) link).getSheet();
 		assertNotNull(sheet);
@@ -184,6 +182,13 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals(0, sheet.getMedia().getLength());
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == link);
+		assertTrue(wrapped.getErrorHandler().hasErrors());
+		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
+		//
+		wrapped.getErrorHandler().reset();
+		href.setValue("http://www.example.com/etc/fakepasswd");
+		sheet = ((LinkStyle<AbstractCSSRule>) link).getSheet();
+		assertNull(sheet);
 		assertTrue(wrapped.getErrorHandler().hasErrors());
 		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
 	}

@@ -39,6 +39,8 @@ public class MockURLConnectionFactory {
 	 */
 	public MockURLConnectionFactory() {
 		super();
+
+		// Pre-configure some URLS
 		mockURLMap.put(SAMPLE_URL, "htmlsample.html");
 		mockURLMap.put("http://www.example.com/css/common.css", "common.css");
 		mockURLMap.put("http://www.example.com/css/alter1.css", "alter1.css");
@@ -47,8 +49,22 @@ public class MockURLConnectionFactory {
 		mockURLMap.put("http://www.example.com/css/background.png", "background.png");
 		mockURLMap.put("http://www.example.com/media/print.css", "print.css");
 		mockURLMap.put("http://www.example.com/css/circular.css", "circular.css");
-		mockURLMap.put("http://www.example.com/fonts/OpenSans-Regular.ttf", "contrib/OpenSans-Regular.ttf");
+		mockURLMap.put("http://www.example.com/fonts/OpenSans-Regular.ttf",
+			"contrib/OpenSans-Regular.ttf");
 		mockURLMap.put("http://www.example.com/etc/fakepasswd", "fakepasswd");
+
+		// PNG content-type header
+		List<String> pngMimeType = new ArrayList<>(1);
+		pngMimeType.add("image/png");
+		Map<String, List<String>> pngheaders = new HashMap<>(2);
+		pngheaders.put("content-type", pngMimeType);
+		headerMap.put("png", pngheaders);
+		// TTF content-type header
+		List<String> ttfMimeType = new ArrayList<>(1);
+		ttfMimeType.add("font/ttf");
+		Map<String, List<String>> ttfheaders = new HashMap<>(2);
+		ttfheaders.put("content-type", ttfMimeType);
+		headerMap.put("ttf", ttfheaders);
 	}
 
 	public void setHeader(String ext, String headerName, String value) {

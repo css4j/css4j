@@ -3,6 +3,9 @@ are the affected files and its licenses (each block of files is followed by
 license information):
 
 ================================================================================
+ File: src/io/sf/carte/doc/DOMCharacterException.java
+ File: src/io/sf/carte/doc/DOMNullCharacterException.java
+ File: src/io/sf/carte/doc/DOMPolicyException.java
  File: src/io/sf/carte/doc/DOMTokenList.java
  File: src/io/sf/carte/doc/dom/AttributeNamedNodeMap.java
  File: src/io/sf/carte/doc/dom/DOMNode.java

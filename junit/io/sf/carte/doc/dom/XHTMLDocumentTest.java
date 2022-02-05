@@ -808,6 +808,32 @@ public class XHTMLDocumentTest {
 	}
 
 	@Test
+	public void testLinkElementBadMIMEType() {
+		DOMElement link = xmlDoc.createElement("link");
+		link.setAttribute("href", "http://www.example.com/css/background.png");
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+		link.setAttribute("rel", "stylesheet");
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
+		assertNull(sheet);
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test
+	public void testLinkElementBadExtension() {
+		DOMElement link = xmlDoc.createElement("link");
+		link.setAttribute("href", "http://www.example.com/etc/fakepasswd");
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+		link.setAttribute("rel", "stylesheet");
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
+		assertNull(sheet);
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test
 	public void testBaseElement() {
 		assertEquals("http://www.example.com/xhtml/xmlns.xhtml", xmlDoc.getDocumentURI());
 		assertEquals("http://www.example.com/", xmlDoc.getBaseURI());

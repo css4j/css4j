@@ -20,6 +20,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.css.CSSImportRule;
 
+import io.sf.carte.doc.DOMPolicyException;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -77,6 +78,9 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 			// Load the sheet
 			try {
 				loadStyleSheet();
+			} catch (DOMPolicyException e) {
+				// Already logged
+				importedSheet = null;
 			} catch (DOMException e) {
 				// The exception was already reported, but here we give the rule text.
 				parent.getErrorHandler().badAtRule(e, getCssText());
