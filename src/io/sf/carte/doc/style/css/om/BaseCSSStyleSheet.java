@@ -748,7 +748,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		String contentEncoding = ucon.getContentEncoding();
 		String conType = ucon.getContentType();
 		// Check that the content type is correct
-		if (isInvalidContentType(url, conType)) {
+		if (isInvalidContentType(url, conType) && !isRedirect(ucon)) {
 			// Report security error
 			String msg;
 			if (conType != null) {
@@ -800,6 +800,18 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			return !"text/css".equalsIgnoreCase(conType);
 		}
 		return !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
+	}
+
+	private boolean isRedirect(URLConnection ucon) {
+		if (ucon instanceof HttpURLConnection) {
+			int code;
+			try {
+				code = ((HttpURLConnection) ucon).getResponseCode();
+				return code > 300 && code < 400 && code != 304;
+			} catch (IOException e) {
+			}
+		}
+		return false;
 	}
 
 	/**
