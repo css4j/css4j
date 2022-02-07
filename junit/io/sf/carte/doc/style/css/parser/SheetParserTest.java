@@ -3491,6 +3491,40 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseStyleSheetComments6() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		Reader re = new StringReader(
+			"html{overflow-x:hidden!important}/* comment */[hidden]{display:none!important}");
+		parser.parseStyleSheet(re);
+		//
+		assertEquals(2, handler.selectors.size());
+		assertEquals("html", handler.selectors.getFirst().toString());
+		assertEquals("[hidden]", handler.selectors.get(1).toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("overflow-x", handler.propertyNames.getFirst());
+		assertEquals("display", handler.propertyNames.get(1));
+		//
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("hidden", lu.getStringValue());
+		lu = handler.lexicalValues.get(1);
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("none", lu.getStringValue());
+		//
+		assertEquals("important", handler.priorities.get(0));
+		assertEquals("important", handler.priorities.get(1));
+
+		assertEquals(1, handler.comments.size());
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
 	public void testParseStyleSheetCustomRuleComments() throws CSSException, IOException {
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);

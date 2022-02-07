@@ -4518,7 +4518,7 @@ public class CSSParser implements Parser, Cloneable {
 					}
 					parendepth++;
 				} else if (codepoint == 91) { // '['
-					if (prevcp != 65 && prevcp != 42 && prevcp != 44 && prevcp != 32 && prevcp != 10 && prevcp != 93
+					if (prevcp != 65 && isNotSeparator(prevcp) && prevcp != 42 && prevcp != 44 && prevcp != 93
 							&& prevcp != 41 && prevcp != 43 && prevcp != 62 && prevcp != 125 && prevcp != 126
 							&& prevcp != 124) {
 						// Not letter-or-digit nor *,ws)]+}~|>
