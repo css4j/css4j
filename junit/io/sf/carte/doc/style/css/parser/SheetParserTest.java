@@ -2129,8 +2129,8 @@ public class SheetParserTest {
 		parser.setDocumentHandler(handler);
 		TestErrorHandler errorHandler = new TestErrorHandler();
 		parser.setErrorHandler(errorHandler);
-		InputSource source = new InputSource(new StringReader(
-				"<!--/*--><!/*><!--*/body{padding-top:2px}.foo {color:red}"));
+		InputSource source = new InputSource(
+			new StringReader("<!--/*--><!/*><!--*/body{padding-top:2px}.foo {color:red}"));
 		parser.parseStyleSheet(source);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
@@ -2145,6 +2145,86 @@ public class SheetParserTest {
 		assertTrue(errorHandler.hasError());
 		assertEquals(10, errorHandler.exception.getColumnNumber());
 		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetComments4() throws CSSException, IOException {
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		InputSource source = new InputSource(
+			new StringReader("p /*, article */, div {display:block}"));
+		parser.parseStyleSheet(source);
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p,div", handler.selectors.getFirst().toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("display", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("block", lu.getStringValue());
+		/*
+		 * The comment cannot be related to a specific (N)SAC event, so we ignore it.
+		 */
+		assertEquals(0, handler.comments.size());
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetComments6() throws CSSException, IOException {
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		InputSource source = new InputSource(new StringReader(
+			"html{overflow-x:hidden!important}/* comment */[hidden]{display:none!important}"));
+		parser.parseStyleSheet(source);
+		//
+		assertEquals(2, handler.selectors.size());
+		assertEquals("html", handler.selectors.getFirst().toString());
+		assertEquals("[hidden]", handler.selectors.get(1).toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("overflow-x", handler.propertyNames.getFirst());
+		assertEquals("display", handler.propertyNames.get(1));
+		//
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("hidden", lu.getStringValue());
+		lu = handler.lexicalValues.get(1);
+		assertNotNull(lu);
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("none", lu.getStringValue());
+		//
+		assertEquals("important", handler.priorities.get(0));
+		assertEquals("important", handler.priorities.get(1));
+
+		assertEquals(1, handler.comments.size());
+		assertFalse(errorHandler.hasError());
+		handler.checkRuleEndings();
+	}
+
+	@Test
+	public void testParseStyleSheetCustomRuleComments() throws CSSException, IOException {
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		InputSource source = new InputSource(new StringReader(
+			"/* ignored */@-webkit-keyframes/* post-at-ident */foo {from{margin: 50px/* post-value */10px; }"
+				+ " to {margin-top/* post-pty-name */:/* post-pty-colon */ 100px;/* post-semicolon */}}"));
+		parser.parseStyleSheet(source);
+		assertEquals(1, handler.atRules.size());
+		assertEquals(
+			"@-webkit-keyframes/* post-at-ident */foo {from{margin: 50px/* post-value */10px; } to "
+				+ "{margin-top/* post-pty-name */:/* post-pty-colon */ 100px;/* post-semicolon */}}",
+			handler.atRules.getFirst());
+		//
+		assertEquals(1, handler.comments.size());
+		assertEquals(" ignored ", handler.comments.get(0));
+		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
