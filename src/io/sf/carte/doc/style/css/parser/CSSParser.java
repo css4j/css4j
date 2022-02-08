@@ -1110,7 +1110,7 @@ public class CSSParser implements Parser2 {
 			@Override
 			public void closeGroup(int index, int codepoint) {
 				if (codepoint == 41) { // ')'
-					parendepth--;
+					decrParenDepth(index);
 					if (functionToken) {
 						buffer.append(')');
 						functionToken = false;
@@ -2418,8 +2418,7 @@ public class CSSParser implements Parser2 {
 									medialist = newMediaListAll();
 								}
 								handler.startMedia(medialist.getMediaList());
-								contextHandler = selectorHandler;
-								selectorHandler.prevcp = 32;
+								setSelectorHandler();
 							} else {
 								handleError(index - buffer.length(), ParseHelper.ERR_UNEXPECTED_TOKEN,
 										"Bad media query at @media rule: <" + buffer.toString() + ">");
@@ -2536,7 +2535,7 @@ public class CSSParser implements Parser2 {
 						}
 					}
 				} else if (codepoint == 41) {
-					parendepth--;
+					decrParenDepth(index);
 					if (stage == 36) { // Ignore final ')' for URI
 						processBuffer(index);
 						if (ruleSecondPart != null) {
@@ -2560,6 +2559,12 @@ public class CSSParser implements Parser2 {
 		protected void endRuleBody() {
 			contextHandler = selectorHandler;
 			selectorHandler.prevcp = 32;
+			rulesFound = true;
+		}
+
+		void setSelectorHandler() {
+			selectorHandler.resetHandler();
+			contextHandler = selectorHandler;
 			rulesFound = true;
 		}
 
@@ -2598,7 +2603,7 @@ public class CSSParser implements Parser2 {
 							handleError(index, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parentheses in rule.");
 							resetRuleState();
 						}
-						contextHandler = selectorHandler;
+						setSelectorHandler();
 					} else {
 						buffer.append(';');
 					}
@@ -2670,7 +2675,7 @@ public class CSSParser implements Parser2 {
 		}
 
 		void resetRuleState() {
-			parseError = false;
+			resetHandler();
 			if (medialist != null) {
 				medialist = medialist.getParent();
 				if (medialist == null) {
@@ -2681,7 +2686,6 @@ public class CSSParser implements Parser2 {
 			}
 			ruleFirstPart = null;
 			ruleSecondPart = null;
-			prevcp = 32;
 			buffer.setLength(0);
 		}
 
@@ -2791,6 +2795,14 @@ public class CSSParser implements Parser2 {
 				}
 			}
 			endDocument();
+		}
+
+		private void setSelectorHandler(int prevcp) {
+			contextHandler = selectorHandler;
+			selectorHandler.parseError = false;
+			selectorHandler.prevcp = 32;
+			selectorHandler.stage = 0;
+			this.prevcp = prevcp;
 		}
 
 		@Override
@@ -2963,19 +2975,14 @@ public class CSSParser implements Parser2 {
 
 			@Override
 			protected void handleRightCurlyBracket(int index) {
-				contextHandler = selectorHandler;
-				selectorHandler.parseError = false;
-				selectorHandler.prevcp = 32;
-				selectorHandler.stage = 0;
-				SheetTokenHandler.this.prevcp = 125;
+				setSelectorHandler(125);
 				if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
 					if (SheetTokenHandler.this.stage == 10) {
 						ruleType = MEDIA_RULE;
 						buffer.setLength(0);
 						SheetTokenHandler.this.stage = 2;
-						contextHandler = selectorHandler;
-						selectorHandler.prevcp = 32;
+						setSelectorHandler();
 					} else {
 						ruleType = 0;
 						SheetTokenHandler.this.stage = 0;
@@ -2988,8 +2995,7 @@ public class CSSParser implements Parser2 {
 						ruleType = MEDIA_RULE;
 						buffer.setLength(0);
 						SheetTokenHandler.this.stage = 2;
-						contextHandler = selectorHandler;
-						selectorHandler.prevcp = 32;
+						setSelectorHandler();
 					} else {
 						ruleType = 0;
 						SheetTokenHandler.this.stage = 0;
@@ -3076,11 +3082,7 @@ public class CSSParser implements Parser2 {
 				if (codePoint == 125) { // }
 					curlyBracketDepth--;
 					if (curlyBracketDepth == 0) {
-						contextHandler = selectorHandler;
-						selectorHandler.prevcp = 32;
-						selectorHandler.parseError = false;
-						selectorHandler.stage = 0;
-						SheetTokenHandler.this.prevcp = 125;
+						setSelectorHandler(125);
 					}
 				}
 			}
@@ -3413,7 +3415,7 @@ public class CSSParser implements Parser2 {
 		@Override
 		public void closeGroup(int index, int codepoint) {
 			if (codepoint == 41) { // ')'
-				parendepth--;
+				decrParenDepth(index);
 				if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 					if (parendepth == 0) {
 						Selector sel = getActiveSelector();
@@ -4679,7 +4681,7 @@ public class CSSParser implements Parser2 {
 		public void closeGroup(int index, int codepoint) {
 			if (codepoint == 41) { // ')'
 				processBuffer(index);
-				parendepth--;
+				decrParenDepth(index);
 				if (functionToken) {
 					checkFunction(index);
 					if (currentlu.ownerLexicalUnit != null) {
@@ -6016,6 +6018,13 @@ public class CSSParser implements Parser2 {
 		protected void highControl(int index, int codepoint) {
 			if (!parseError) {
 				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
+			}
+		}
+
+		void decrParenDepth(int index) {
+			parendepth--;
+			if (parendepth < 0 && !parseError) {
+				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected character: ')'");
 			}
 		}
 

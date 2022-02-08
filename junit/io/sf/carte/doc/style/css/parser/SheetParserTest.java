@@ -1684,6 +1684,45 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseImportRuleBad2() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader(
+			"@import url('bar.css'));a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div{display:block}"));
+		TestDocumentHandler handler = new TestDocumentHandler();
+		parser.setDocumentHandler(handler);
+		TestErrorHandler errorHandler = new TestErrorHandler();
+		parser.setErrorHandler(errorHandler);
+		parser.parseStyleSheet(source);
+		assertEquals(0, handler.importURIs.size());
+		assertEquals(0, handler.importMedias.size());
+		//
+		assertEquals(1, handler.selectors.size());
+		SelectorList selist = handler.selectors.getFirst();
+		assertEquals(
+			"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div",
+			selist.toString());
+		assertEquals(5, selist.getLength());
+		assertEquals("a:not([href]):not([tabindex])", selist.item(0).toString());
+		assertEquals("a:not([href]):not([tabindex]):focus", selist.item(1).toString());
+		assertEquals("code", selist.item(2).toString());
+		assertEquals("pre", selist.item(3).toString());
+		assertEquals("div", selist.item(4).toString());
+		//
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("display", handler.propertyNames.getFirst());
+		//
+		assertEquals(1, handler.lexicalValues.size());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
+		assertEquals("block", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+		//
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.exception.getLineNumber());
+		assertEquals(23, errorHandler.exception.getColumnNumber());
+		handler.checkRuleEndings();
+	}
+
+	@Test
 	public void testParseEmptyAtRule() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader(
 				"@;"));
