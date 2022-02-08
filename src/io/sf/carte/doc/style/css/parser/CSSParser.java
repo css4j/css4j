@@ -1353,7 +1353,7 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void closeGroup(int index, int codepoint) {
 				if (codepoint == 41) { // ')'
-					parendepth--;
+					decrParenDepth(index);
 					if (functionToken) {
 						buffer.append(')');
 						functionToken = false;
@@ -2842,6 +2842,7 @@ public class CSSParser implements Parser, Cloneable {
 		private static final byte STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL = 37;
 		private static final byte STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN = 38;
 		private static final byte STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL = 39;
+		private static final byte STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN = 41;
 		private static final byte STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL = 40;
 		private static final byte STAGE_GROUPING_OR_FONTFACE_RULE = 2;
 		private static final byte STAGE_UNKNOWN_RULE = 5;
@@ -2872,6 +2873,9 @@ public class CSSParser implements Parser, Cloneable {
 		public void word(int index, CharSequence word) {
 			if (contextHandler != null) {
 				contextHandler.word(index, word);
+			} else if (stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
+				handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+					"Unexpected token: '" + word + '\'');
 			} else {
 				buffer.append(word);
 			}
@@ -2883,7 +2887,18 @@ public class CSSParser implements Parser, Cloneable {
 			if (contextHandler != null) {
 				contextHandler.separator(index, codepoint);
 			} else {
-				if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
+				if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
+					if (buffer.length() != 0) {
+						stage = STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN;
+					}
+				} else if (stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
+					// Do nothing
+				} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
+					if (buffer.length() != 0) {
+						processFirstPart(index);
+						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
+					}
+				} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
 					if (ruleFirstPart == null) {
 						if (buffer.length() != 0) {
 							ruleFirstPart = buffer.toString();
@@ -2922,13 +2937,20 @@ public class CSSParser implements Parser, Cloneable {
 			if (contextHandler != null) {
 				contextHandler.quoted(index, quoted, quoteCp);
 			} else if (stage == STAGE_UNKNOWN_RULE
-					|| stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
+				|| stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
 				char c = (char) quoteCp;
 				buffer.append(c).append(quoted).append(c);
+			} else if (stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN
+				|| (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL
+					&& prevcp != TokenProducer.CHAR_LEFT_PAREN && !isPrevCpWhitespace())) {
+				handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+					"Expected ')', found '" + quoted + '\'');
 			} else {
 				if (ruleFirstPart == null) {
 					ruleFirstPart = quoted.toString();
-					if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
+					if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
+						stage = STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN;
+					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
 						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
 					}
 				} else if (ruleSecondPart == null) {
@@ -2966,19 +2988,22 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				} else if (codepoint == TokenProducer.CHAR_LEFT_PAREN) {
 					parendepth++;
-					if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN) {
-						if (bufferEquals("url")) { // "uri("
-							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-									"Unexpected '(' after " + buffer);
-						}
-					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
+					if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
 						if (bufferEquals("url")) { // "uri("
 							stage = STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-									"Unexpected '(' after " + buffer);
+								"Unexpected '(' after " + buffer);
+						}
+					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+							"Unexpected '(' after " + buffer);
+					} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN) {
+						if (bufferEquals("url")) { // "uri("
+							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
+						} else {
+							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Unexpected '(' after " + buffer);
 						}
 					} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
 						if (bufferEquals("url")) { // "uri("
@@ -2987,7 +3012,7 @@ public class CSSParser implements Parser, Cloneable {
 							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-									"Unexpected '(' after " + buffer);
+								"Unexpected '(' after " + buffer);
 						}
 					} else {
 						buffer.append('(');
@@ -3033,8 +3058,8 @@ public class CSSParser implements Parser, Cloneable {
 							switchContextToStage2();
 						}
 					}
-				} else if (codepoint == 41) {
-					parendepth--;
+				} else if (codepoint == TokenProducer.CHAR_RIGHT_PAREN) {
+					decrParenDepth(index);
 					if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL) { // Ignore final ')' for URI
 						processBuffer(index);
 						if (ruleSecondPart != null) {
@@ -3042,8 +3067,9 @@ public class CSSParser implements Parser, Cloneable {
 						} else {
 							handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty URI in namespace rule");
 						}
-					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
-						processBuffer(index);
+					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL
+						|| stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
+						processFirstPart(index);
 						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
 					} else {
 						buffer.append(')');
@@ -3060,8 +3086,8 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		void setSelectorHandler() {
+			selectorHandler.resetHandler();
 			contextHandler = selectorHandler;
-			selectorHandler.prevcp = 32;
 			rulesFound = true;
 		}
 
@@ -3090,11 +3116,15 @@ public class CSSParser implements Parser, Cloneable {
 								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty @-rule.");
 								resetRuleState();
 							}
-						} else {
+						} else if (stage != STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
 							handleError(index, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parentheses in rule.");
 							resetRuleState();
+						} else {
+							buffer.append(';');
+							prevcp = codepoint;
+							return;
 						}
-						contextHandler = selectorHandler;
+						setSelectorHandler();
 					} else {
 						buffer.append(';');
 					}
@@ -3160,7 +3190,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		void resetRuleState() {
-			parseError = false;
+			resetHandler();
 			if (currentCondition != null) {
 				currentCondition = currentCondition.getParent();
 				if (currentCondition == null) {
@@ -3175,7 +3205,6 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			ruleFirstPart = null;
 			ruleSecondPart = null;
-			prevcp = 32;
 			buffer.setLength(0);
 		}
 
@@ -3198,6 +3227,22 @@ public class CSSParser implements Parser, Cloneable {
 					TokenProducer.CHAR_FULL_STOP, TokenProducer.CHAR_SLASH, TokenProducer.CHAR_LESS_THAN,
 					TokenProducer.CHAR_EQUALS, TokenProducer.CHAR_GREATER_THAN };
 			return Arrays.binarySearch(allowedChars, codePoint) >= 0;
+		}
+
+		private void processFirstPart(int index) {
+			if (buffer.length() != 0) {
+				// Trim possible trailing space
+				trimBufferTail();
+				if (ruleFirstPart == null) {
+					ruleFirstPart = buffer.toString();
+					buffer.setLength(0);
+				} else {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+						"Unexpected token: " + buffer.toString());
+				}
+			} else if (ruleFirstPart == null) {
+				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty rule.");
+			}
 		}
 
 		private void processBuffer(int index) {
@@ -4175,8 +4220,6 @@ public class CSSParser implements Parser, Cloneable {
 						}
 						buffer.setLength(0);
 						SheetTokenHandler.this.stage = STAGE_GROUPING_OR_FONTFACE_RULE;
-						contextHandler = selectorHandler;
-						selectorHandler.prevcp = 32;
 					} else {
 						ruleType = 0;
 						SheetTokenHandler.this.stage = STAGE_INITIAL;
@@ -4545,7 +4588,7 @@ public class CSSParser implements Parser, Cloneable {
 		@Override
 		public void closeGroup(int index, int codepoint) {
 			if (codepoint == 41) { // ')'
-				parendepth--;
+				decrParenDepth(index);
 				if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 					if (parendepth == 0) {
 						Selector sel = getActiveSelector();
@@ -5947,6 +5990,8 @@ public class CSSParser implements Parser, Cloneable {
 			String lcName = name.toLowerCase(Locale.ROOT);
 			if ("url".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.URI, true);
+				functionToken = true;
+				return;
 			} else if ("rgb".equals(lcName) || "rgba".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.RGBCOLOR, true);
 			} else if ("hsl".equals(lcName) || "hsla".equals(lcName)) {
@@ -6025,7 +6070,7 @@ public class CSSParser implements Parser, Cloneable {
 		public void closeGroup(int index, int codepoint) {
 			if (codepoint == 41) { // ')'
 				processBuffer(index);
-				parendepth--;
+				decrParenDepth(index);
 				if (functionToken) {
 					checkFunction(index);
 					if (currentlu.ownerLexicalUnit != null) {
@@ -7058,7 +7103,12 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (functionToken) {
 					if (currentlu.getLexicalUnitType() == LexicalType.URI) {
 						// uri
-						currentlu.value = rawBuffer();
+						if (currentlu.value == null) {
+							currentlu.value = rawBuffer();
+						} else {
+							handleError(index, ParseHelper.ERR_WRONG_VALUE,
+								"Unexpected token in url: '" + rawBuffer() + '\'');
+						}
 					} else if (currentlu.getLexicalUnitType() == LexicalType.ELEMENT_REFERENCE) {
 						String s = unescapeStringValue(index);
 						if (s.length() > 1 && s.charAt(0) == '#') {
@@ -7474,6 +7524,10 @@ public class CSSParser implements Parser, Cloneable {
 				if (!parseError) {
 					String s = quoted.toString();
 					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING, false);
+					if (lu.value != null) {
+						handleError(index, ParseHelper.ERR_WRONG_VALUE,
+							"Unexpected string: " + quoteChar + quoted + quoteChar);
+					}
 					lu.value = safeUnescapeIdentifier(index, s);
 					char c = (char) quoteChar;
 					StringBuilder buf = new StringBuilder(s.length() + 2);
@@ -7918,6 +7972,13 @@ public class CSSParser implements Parser, Cloneable {
 			// High control characters are excluded in XML and HTML for security reasons
 			if (!parseError) {
 				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
+			}
+		}
+
+		void decrParenDepth(int index) {
+			parendepth--;
+			if (parendepth < 0 && !parseError) {
+				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected character: ')'");
 			}
 		}
 

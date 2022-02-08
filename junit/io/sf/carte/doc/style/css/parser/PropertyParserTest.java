@@ -104,25 +104,6 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadUrl() throws CSSException, IOException {
-		try {
-			parsePropertyValue(" url(http://www.example.com/");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(29, e.getColumnNumber());
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadUrl3() throws CSSException, IOException {
-		try {
-			parsePropertyValue("url(");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
 	public void testParsePropertyBad() throws IOException {
 		try {
 			parsePropertyValue("@");
@@ -3626,13 +3607,133 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueURL2() throws CSSException, IOException {
-		LexicalUnit lu = parsePropertyValue("url(data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/)");
+		LexicalUnit lu = parsePropertyValue(
+			"url(data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/", lu.getStringValue());
-		assertEquals("url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')", lu.toString());
+		assertEquals("url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')",
+			lu.toString());
+
 		lu = parsePropertyValue("url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/", lu.getStringValue());
+	}
+
+	@Test
+	public void testParsePropertyValueURLSQ() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue(
+			"url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals("data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/", lu.getStringValue());
+		assertEquals("url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')",
+			lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueURLDQ() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue(
+			"url(\"data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/\")");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals("data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/", lu.getStringValue());
+		assertEquals("url(\"data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/\")",
+			lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueURLSemicolon() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue(
+			"url(https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap)");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals(
+			"https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap",
+			lu.getStringValue());
+		assertEquals(
+			"url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap')",
+			lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueURLEmpty() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("url()");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertNull(lu.getStringValue());
+		assertEquals("url()", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyBadUrl() throws CSSException, IOException {
+		try {
+			parsePropertyValue(" url(http://www.example.com/");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(29, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadUrl3() throws CSSException, IOException {
+		try {
+			parsePropertyValue("url(");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadUrl4() throws CSSException, IOException {
+		try {
+			parsePropertyValue("url('a' 'b')");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadUrl5() throws CSSException, IOException {
+		try {
+			parsePropertyValue("url(a 'b')");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadUrl6() throws CSSException, IOException {
+		try {
+			parsePropertyValue("url('a' b)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadUrl7() throws CSSException, IOException {
+		try {
+			parsePropertyValue("url(a b)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
 	}
 
 	@Test
