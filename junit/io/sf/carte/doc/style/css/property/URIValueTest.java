@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -23,6 +24,21 @@ import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class URIValueTest {
+
+	/*
+	 * Empty URLs are sometimes used in @supports rules.
+	 */
+	@Test
+	public void testEmptyUrl() {
+		ValueFactory factory = new ValueFactory();
+		StyleValue value = factory.parseProperty("url()");
+		assertEquals(CSSValue.CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.URI, value.getPrimitiveType());
+		URIValue uri = (URIValue) value;
+		assertNull(uri.getStringValue());
+		assertEquals("url()", value.getCssText());
+		assertEquals("url()", value.getMinifiedCssText(""));
+	}
 
 	@Test
 	public void testSetStringValueShortString() {

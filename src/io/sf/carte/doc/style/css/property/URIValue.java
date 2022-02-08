@@ -114,7 +114,17 @@ public class URIValue extends StringValue {
 
 	@Override
 	public String getMinifiedCssText(String propertyName) {
-		return "url(" + ParseHelper.quote(getStringValue(), quote) + ')';
+		String sv = getStringValue();
+		String text;
+		if (sv != null) {
+			String quoted = ParseHelper.quote(sv, quote);
+			StringBuilder buf = new StringBuilder(quoted.length() + 5);
+			buf.append("url(").append(quoted).append(')');
+			text = buf.toString();
+		} else {
+			text = "url()";
+		}
+		return text;
 	}
 
 	/**
