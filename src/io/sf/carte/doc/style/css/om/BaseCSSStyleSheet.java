@@ -1192,7 +1192,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Parse error at ["
+				+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSException e) {
