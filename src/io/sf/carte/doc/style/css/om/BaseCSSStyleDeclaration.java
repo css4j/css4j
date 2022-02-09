@@ -935,14 +935,22 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		try {
 			cssvalue = factory.createCSSValue(value, this);
 		} catch (DOMException e) {
-			// Report error
-			StyleDeclarationErrorHandler errHandler = getStyleDeclarationErrorHandler();
-			if (errHandler != null) {
-				CSSPropertyValueException ex = new CSSPropertyValueException("Wrong value for " + propertyName, e);
-				ex.setValueText(lexicalUnitToString(value));
-				errHandler.wrongValue(propertyName, ex);
+			// Check whether it could be a prefixed property with custom syntax
+			if (propertyName.charAt(0) == '-') {
+				LexicalValue lexval = new LexicalValue();
+				lexval.setLexicalUnit(value);
+				cssvalue = lexval;
+			} else {
+				// Report error
+				StyleDeclarationErrorHandler errHandler = getStyleDeclarationErrorHandler();
+				if (errHandler != null) {
+					CSSPropertyValueException ex = new CSSPropertyValueException(
+						"Wrong value for " + propertyName, e);
+					ex.setValueText(lexicalUnitToString(value));
+					errHandler.wrongValue(propertyName, ex);
+				}
+				throw e;
 			}
-			throw e;
 		}
 		// Handle special cases
 		if (propertyName.equals("font-family") || propertyName.equals("content")) {

@@ -30,10 +30,12 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -861,6 +863,23 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("\"'\"", list.item(3).getCssText());
 		assertEquals("'\"' '\"' \"'\" \"'\"", value.getCssText());
 		assertEquals("'\"' '\"' \"'\" \"'\"", emptyStyleDecl.getPropertyValue("quotes"));
+	}
+
+	@Test
+	public void testPrefixedProperty() {
+		emptyStyleDecl.setCssText(
+			"-webkit-mask: url(https://www.example.com/foo.svg) no-repeat center/1.44ex .8ex");
+		assertEquals("url('https://www.example.com/foo.svg') no-repeat center/1.44ex 0.8ex",
+			emptyStyleDecl.getPropertyValue("-webkit-mask"));
+		CSSValue value = emptyStyleDecl.getPropertyCSSValue("-webkit-mask");
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+		LexicalValue lexval = (LexicalValue) value;
+		LexicalUnit lu = lexval.getLexicalUnit();
+		assertEquals("url('https://www.example.com/foo.svg')", lu.getCssText());
+		assertEquals("url('https://www.example.com/foo.svg') no-repeat center/1.44ex 0.8ex",
+			lu.toString());
+		assertEquals(Type.UNKNOWN, lexval.getFinalType());
 	}
 
 	@Test
