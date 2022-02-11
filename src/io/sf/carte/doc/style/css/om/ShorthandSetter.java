@@ -248,7 +248,6 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 				}
 			}
 		}
-		return;
 	}
 
 	protected void setSubpropertiesToKeyword(StyleValue keyword) {
@@ -263,7 +262,6 @@ class ShorthandSetter implements BaseCSSStyleDeclaration.SubpropertySetter {
 				}
 			}
 		}
-		return;
 	}
 
 	protected String[] getShorthandSubproperties() {

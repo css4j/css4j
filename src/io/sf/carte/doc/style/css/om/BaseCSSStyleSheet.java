@@ -1237,7 +1237,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				} else if ((eh = getErrorHandler()) != null) {
 					eh.sacMalfunction("Unexpected media rule inside of: " + currentRule.getCssText());
 					ignoreRulesForMedia = true;
-					return;
 				}
 			} else {
 				if (mlist.isNotAllMedia() && !getStyleSheetFactory().hasCompatValueFlags()) {
