@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
@@ -517,7 +518,7 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean containsControl(String ident) {
+	static boolean containsControl(String ident) {
 		int len = ident.length();
 		for (int i = 0; i < len; i++) {
 			char c = ident.charAt(i);
@@ -528,7 +529,22 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean isUnknownIdentifier(String propertyName, StyleValue value) {
+	static boolean isIdentOrKeyword(StyleValue value) {
+		if (value.getCssValueType() == CSSValue.CssType.LIST) {
+			ValueList list = (ValueList) value;
+			for (StyleValue item : list) {
+				if (item.getPrimitiveType() != Type.IDENT) {
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return value.getPrimitiveType() == Type.IDENT
+				|| value.getCssValueType() == CSSValue.CssType.KEYWORD;
+		}
+	}
+
+	static boolean isUnknownIdentifier(String propertyName, StyleValue value) {
 		if (value.getCssValueType() == CssType.TYPED) {
 			CSSTypedValue primi = (CSSTypedValue) value;
 			if (primi.getPrimitiveType() == Type.IDENT) {
@@ -549,13 +565,20 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean isImagePrimitiveValue(TypedValue primi) {
+	/**
+	 * Check whether a value is an image or image reference.
+	 * 
+	 * @param primi the value.
+	 * @return false if it is not an image or image reference, or if the value is a
+	 *         proxy that could be an image but not necessarily.
+	 */
+	static boolean isImagePrimitiveValue(TypedValue primi) {
 		Type type = primi.getPrimitiveType();
-		return type == Type.URI || type == Type.GRADIENT || (type == Type.FUNCTION && isImageFunction(primi))
-				|| type == Type.ELEMENT_REFERENCE || type == Type.VAR;
+		return type == Type.URI || type == Type.GRADIENT
+			|| (type == Type.FUNCTION && isImageFunction(primi)) || type == Type.ELEMENT_REFERENCE;
 	}
 
-	private boolean isImageFunction(TypedValue primi) {
+	private static boolean isImageFunction(TypedValue primi) {
 		String name = primi.getStringValue();
 		return "image".equalsIgnoreCase(name) || "image-set".equalsIgnoreCase(name)
 				|| "cross-fade".equalsIgnoreCase(name);

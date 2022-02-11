@@ -148,6 +148,12 @@ public class BackgroundBuilderTest {
 	}
 
 	@Test
+	public void testBackgroundAttrSize() {
+		assertShorthandText("background:url('bkg.png') 40%/attr(width length,10em) round fixed border-box gray;",
+				"background: url('bkg.png') 40% / attr(width length,10em) gray round fixed border-box;");
+	}
+
+	@Test
 	public void testBackgroundIEHack() {
 		assertShorthandText(
 				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat;background-size:auto \\9 ;",
@@ -207,6 +213,13 @@ public class BackgroundBuilderTest {
 		assertShorthandText(
 				"background-attachment:scroll;background-clip:border-box;background-color:var(--my-color);background-image:none;background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
 				"background: #dae;background-color: var(--my-color);");
+	}
+
+	@Test
+	public void testBackgroundNoShorthand3() {
+		assertShorthandText(
+				"background-attachment:scroll;background-clip:attr(foo);background-color:#dae;background-image:none;background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background: #dae;background-clip: attr(foo);");
 	}
 
 	@Test
@@ -309,8 +322,8 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundLayered2() {
 		assertShorthandText(
-				"background:inherit,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,none;",
-				"background:inherit, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, unset;");
+				"background:none,url('../img/foo.png') bottom/cover no-repeat fixed content-box,none;",
+				"background:none, url(../img/foo.png) bottom / cover no-repeat fixed content-box, padding-box border-box;");
 	}
 
 	@Test
