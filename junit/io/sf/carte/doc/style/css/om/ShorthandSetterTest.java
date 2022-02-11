@@ -2047,15 +2047,20 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testBackground5() {
-		emptyStyleDecl.setCssText("background:url(//www.example.com/dir/image.png);");
-		assertEquals("url('//www.example.com/dir/image.png')", emptyStyleDecl.getPropertyValue("background-image"));
+		emptyStyleDecl.setCssText(
+			"background:url(//www.example.com/dir/image.png) content-box center border-box;");
+		assertEquals("url('//www.example.com/dir/image.png')",
+			emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("center", emptyStyleDecl.getPropertyValue("background-position"));
 		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
-		assertEquals("padding-box", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("content-box", emptyStyleDecl.getPropertyValue("background-origin"));
 		assertEquals("border-box", emptyStyleDecl.getPropertyValue("background-clip"));
 		assertEquals("scroll", emptyStyleDecl.getPropertyValue("background-attachment"));
 		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
-		assertEquals("background: url('//www.example.com/dir/image.png'); ", emptyStyleDecl.getCssText());
-		assertEquals("background:url('//www.example.com/dir/image.png');", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("background: url('//www.example.com/dir/image.png') content-box center border-box; ",
+			emptyStyleDecl.getCssText());
+		assertEquals("background:url('//www.example.com/dir/image.png') content-box center border-box;",
+			emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test

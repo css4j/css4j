@@ -132,6 +132,18 @@ public class BackgroundBuilderTest {
 	}
 
 	@Test
+	public void testBackground4() {
+		assertShorthandText("background:center no-repeat;",
+				"background:transparent none no-repeat scroll center center");
+	}
+
+	@Test
+	public void testBackground5() {
+		assertShorthandText("background:center no-repeat content-box border-box;",
+				"background:transparent none content-box no-repeat no-repeat scroll center center border-box");
+	}
+
+	@Test
 	public void testBackgroundIEHack() {
 		assertShorthandText("background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat;background-size:auto \\9 ;",
 				"background: transparent url('image.svg') 15px 10px no-repeat;background-size: auto \\9;");
@@ -238,15 +250,15 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundLayered() {
 		assertShorthandText(
-				"background:inherit,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,olive;",
-				"background:inherit, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, olive;");
+				"background:none,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,olive;",
+				"background:none, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, olive;");
 	}
 
 	@Test
 	public void testBackgroundLayered2() {
 		assertShorthandText(
-				"background:inherit,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,unset;",
-				"background:inherit, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, unset;");
+				"background:none,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,none;",
+				"background:none, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, padding-box border-box;");
 	}
 
 	@Test
@@ -258,12 +270,6 @@ public class BackgroundBuilderTest {
 	public void testBackgroundImagePositionPlusAttachment() {
 		assertShorthandText("background:url('bkg.png') 40%;background-attachment:local!important;",
 				"background: url('bkg.png') 40%; background-attachment: local ! important;");
-	}
-
-	@Test
-	public void testBackgroundImageNone() {
-		assertShorthandText("background:center no-repeat;",
-				"background:transparent none no-repeat scroll center center");
 	}
 
 	@Test

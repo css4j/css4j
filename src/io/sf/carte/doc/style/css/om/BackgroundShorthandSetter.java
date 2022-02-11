@@ -47,6 +47,9 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	private final ValueList lstOrigin = ValueList.createCSValueList();
 	private final ValueList lstAttachment = ValueList.createCSValueList();
 
+	// The first <box> value found
+	private LexicalUnit geometryBox = null;
+
 	BackgroundShorthandSetter(BaseCSSStyleDeclaration style) {
 		super(style, "background");
 	}
@@ -227,7 +230,10 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 				}
 				reportDeclarationError("background", msgbuf.toString());
 				return false;
-			} else if (subp.size() > 0) {
+			}
+			// Now set the remaining properties
+			assignPendingValues(i, subp);
+			if (subp.size() > 0) {
 				// Reset subproperties not set by this shorthand at this layer
 				resetUnsetProperties(subp);
 			}
@@ -343,21 +349,30 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			 * and background-clip to that value. If two values are present, then
 			 * the first sets background-origin and the second background-clip."
 			 */
-			LexicalUnit lastValue = currentValue;
+			geometryBox = currentValue;
 			nextCurrentValue();
 			subp.remove("background-origin");
-			if (currentValue != null && testIdentifierProperty(i, subp, "background-clip", lstClip)) {
-				nextCurrentValue();
-			} else {
-				StyleValue value = createCSSValue("background-clip", lastValue);
-				lstClip.add(value);
-			}
+			retVal = 0;
+		} else if (subp.contains("background-clip")
+			&& testIdentifierProperty(i, subp, "background-clip", lstClip)) {
+			// If we got here, background-origin must have been set already
+			nextCurrentValue();
 			subp.remove("background-clip");
+			geometryBox = null;
 			retVal = 0;
 		} else {
 			retVal = 2;
 		}
 		return retVal;
+	}
+
+	private void assignPendingValues(int i, Set<String> subp) {
+		if (subp.contains("background-clip") && geometryBox != null) {
+			StyleValue value = createCSSValue("background-clip", geometryBox);
+			lstClip.add(value);
+			subp.remove("background-clip");
+		}
+		geometryBox = null;
 	}
 
 	private void handleLayerUnknownValues(Set<String> subp, List<LexicalUnit> unknownValues) {

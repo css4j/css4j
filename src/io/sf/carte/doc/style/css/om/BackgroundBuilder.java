@@ -80,7 +80,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				// Only some values are inherit, no shorthand possible
 				return false;
 			}
-			byte check = checkForUnset(buf);
+			byte check = checkForUnset();
 			if (check == 1) {
 				// All values are unset
 				buf.append("unset");
@@ -163,7 +163,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private byte checkForInherit(StringBuilder buf, int layerIdx, int lastIndex) {
+	private byte checkForInherit(int layerIdx, int lastIndex) {
 		if (layerIdx != lastIndex) {
 			return checkForInherit(((ValueList) bgimage).item(layerIdx),
 					((ValueList) bgposition).item(layerIdx), ((ValueList) bgsize).item(layerIdx),
@@ -178,11 +178,11 @@ class BackgroundBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private byte checkForUnset(StringBuilder buf) {
-		return checkForCssKeyword("unset", buf);
+	private byte checkForUnset() {
+		return checkForCssKeyword("unset");
 	}
 
-	private byte checkForCssKeyword(String keyword, StringBuilder buf) {
+	private byte checkForCssKeyword(String keyword) {
 		byte ucount = 0;
 		if (isCssKeywordValue(keyword, bgposition)) {
 			ucount++;
@@ -215,11 +215,11 @@ class BackgroundBuilder extends ShorthandBuilder {
 		}
 	}
 
-	private byte checkForUnset(StringBuilder buf, int layerIdx, int lastIndex) {
-		return checkForCssKeyword("unset", buf, layerIdx, lastIndex);
+	private byte checkForUnset(int layerIdx, int lastIndex) {
+		return checkForCssKeyword("unset", layerIdx, lastIndex);
 	}
 
-	private byte checkForCssKeyword(String keyword, StringBuilder buf, int layerIdx, int lastIndex) {
+	private byte checkForCssKeyword(String keyword, int layerIdx, int lastIndex) {
 		byte ucount = 0;
 		if (isCssKeywordValue(keyword, ((ValueList) bgposition).item(layerIdx))) {
 			ucount++;
@@ -286,14 +286,14 @@ class BackgroundBuilder extends ShorthandBuilder {
 	}
 
 	private boolean appendLayer(StringBuilder buf, Set<String> declaredSet, int index, int lastIndex) {
-		byte check = checkForInherit(buf, index, lastIndex);
+		byte check = checkForInherit(index, lastIndex);
 		if (check == 1) {
 			appendText(buf, "inherit");
 			return true;
 		} else if (check == 2) {
 			return false;
 		}
-		check = checkForUnset(buf, index, lastIndex);
+		check = checkForUnset(index, lastIndex);
 		if (check == 1) {
 			appendText(buf, "unset");
 			return true;
@@ -538,22 +538,39 @@ class BackgroundBuilder extends ShorthandBuilder {
 		 * and background-clip to that value. If two values are present, then
 		 * the first sets background-origin and the second background-clip."
 		 */
-		boolean clipIsInitial = false;
-		String cliptext = clip.getMinifiedCssText("background-clip").toLowerCase(Locale.ROOT);
-		if ("border-box".equals(cliptext) || "initial".equals(cliptext)) {
+		boolean clipIsInitial;
+		String clipText = null;
+		if (clip == null) {
 			clipIsInitial = true;
-		}
-		if (!isUnsetValue(origin) && !isUnknownIdentifier("background-origin", origin)) {
-			String text = origin.getCssText().toLowerCase(Locale.ROOT);
-			if ((clip != null && !clipIsInitial) || (!"padding-box".equals(text) && !"initial".equals(text))) {
-				appendText(buf, text);
-			}
 		} else {
-			return false;
+			clipText = clip.getMinifiedCssText("background-clip").toLowerCase(Locale.ROOT);
+			if ("border-box".equals(clipText) || "initial".equals(clipText)
+				|| "unset".equals(clipText)) {
+				clipIsInitial = true;
+			} else {
+				clipIsInitial = false;
+			}
 		}
-		if (!isUnsetValue(clip) && !isUnknownIdentifier("background-clip", clip)) {
-			if (!clipIsInitial) {
-				appendText(buf, cliptext);
+		boolean originIsInitial;
+		String originText = "";
+		if (origin == null) {
+			originIsInitial = true;
+		} else {
+			originText = origin.getMinifiedCssText("background-origin").toLowerCase(Locale.ROOT);
+			if ("padding-box".equals(originText) || "initial".equals(originText)
+				|| "unset".equals(originText)) {
+				originIsInitial = true;
+			} else {
+				originIsInitial = false;
+			}
+		}
+		if (!isUnknownIdentifier("background-origin", origin)
+			&& !isUnknownIdentifier("background-clip", clip)) {
+			if (!originIsInitial || !clipIsInitial) {
+				appendText(buf, originText);
+				if (!originText.equalsIgnoreCase(clipText)) {
+					appendText(buf, clipText);
+				}
 			}
 		} else {
 			return false;
