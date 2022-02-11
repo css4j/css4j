@@ -752,7 +752,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
 		if ("hwb".equals(func)) {
 			return matchBoolean(cat == Category.color);
-		} else if (func.endsWith("-gradient")) {
+		} else if (func.endsWith("-gradient") || func.equals("image") || func.equals("image-set")
+			|| func.equals("cross-fade")) {
 			return matchBoolean(cat == Category.image);
 		} else if (func.equals("env")) {
 			return Match.PENDING;
