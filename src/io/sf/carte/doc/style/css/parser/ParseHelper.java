@@ -1139,6 +1139,8 @@ public class ParseHelper {
 			return cat == Category.frequency;
 		} else if ("string".equals(dataType)) {
 			return cat == Category.string;
+		} else if ("url".equals(dataType)) {
+			return cat == Category.url || cat == Category.image;
 		} else if ("flex".equals(dataType)) {
 			return cat == Category.flex;
 		} else {

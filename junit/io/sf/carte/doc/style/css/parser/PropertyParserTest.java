@@ -4119,6 +4119,47 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueAttrURL() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("attr(data-img url)");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		assertEquals("data-img url", lu.getStringValue());
+		assertEquals("attr(data-img url)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueAttrURLFallback() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("attr(data-img url, 'foo.png')");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		assertEquals("data-img url, 'foo.png'", lu.getStringValue());
+		assertEquals("attr(data-img url, 'foo.png')", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueAttrFlex() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("attr(data-flex flex, 2fr)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());

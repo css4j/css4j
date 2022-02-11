@@ -709,7 +709,15 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 					do {
 						Match match = fallback.matches(fallbackComp);
 						if (match == Match.FALSE) {
-							continue;
+							// url is a special case
+							if (attrTypeMatch && "url".equals(dataType)
+								&& fallback.getLexicalUnitType() == LexicalType.STRING
+								&& hasNoSiblings(lexicalUnit)
+								&& fallback.getNextLexicalUnit() == null) {
+								result = Match.TRUE;
+							} else {
+								continue;
+							}
 						} else if (match == Match.PENDING) {
 							result = Match.PENDING;
 							if (attrTypeMatch) {
