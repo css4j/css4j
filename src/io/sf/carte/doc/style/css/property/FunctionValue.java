@@ -93,8 +93,13 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 		case transformList:
 			return ParseHelper.isTransformFunction(functionName) ? Match.TRUE : Match.FALSE;
 		case image:
-			// Custom gradients
-			return functionName.endsWith("-gradient") ? Match.TRUE : Match.FALSE;
+			// Custom gradients and other image functions
+			if (functionName.endsWith("-gradient") || functionName.equalsIgnoreCase("image")
+				|| functionName.equalsIgnoreCase("image-set")
+				|| functionName.equalsIgnoreCase("cross-fade")) {
+				return Match.TRUE;
+			}
+			return Match.FALSE;
 		case universal:
 			return Match.TRUE;
 		default:
