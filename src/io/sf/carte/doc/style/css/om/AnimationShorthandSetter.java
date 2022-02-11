@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -91,7 +91,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		topLoop: while (i < layerCount && currentValue != null) {
 			boolean validLayer = false;
 			Set<String> subp = new HashSet<String>(subparray.length);
-			subp.addAll(Arrays.asList(subparray.clone()));
+			Collections.addAll(subp, subparray);
 			valueLoop: while (currentValue != null) {
 				if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					if (validLayer) {

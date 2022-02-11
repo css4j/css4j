@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.w3c.dom.DOMException;
@@ -53,7 +53,8 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 		this.lexicalUnit = lexicalUnit;
 		this.important = important;
 		priorityCompat = lexicalUnit.getLexicalUnitType() == LexicalUnit.LexicalType.COMPAT_PRIO;
-		this.longhands = new HashSet<String>(Arrays.asList(longhands));
+		this.longhands = new HashSet<String>(longhands.length);
+		Collections.addAll(this.longhands, longhands);
 	}
 
 	private ShorthandValue(ShorthandValue copied) {

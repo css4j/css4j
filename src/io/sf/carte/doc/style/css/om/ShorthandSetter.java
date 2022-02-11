@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -51,9 +51,9 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	private final HashMap<String, StyleValue> mypropValue = new HashMap<String, StyleValue>();
 
-	private final LinkedList<String> mypropertyList = new LinkedList<String>();
+	private final List<String> mypropertyList = new ArrayList<String>();
 
-	private final LinkedList<Boolean> mypriorities = new LinkedList<Boolean>();
+	private final List<Boolean> mypriorities = new ArrayList<Boolean>();
 
 	protected LexicalUnit currentValue = null;
 
@@ -356,7 +356,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 	protected List<String> subpropertyList() {
 		String[] subparray = getShorthandSubproperties();
 		List<String> subp = new ArrayList<String>(subparray.length);
-		subp.addAll(Arrays.asList(subparray.clone()));
+		Collections.addAll(subp, subparray);
 		return subp;
 	}
 
