@@ -22,10 +22,13 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.InitialValue;
 import io.sf.carte.doc.style.css.property.KeywordValue;
@@ -44,6 +47,8 @@ import io.sf.carte.doc.style.css.property.ValueList;
  *
  */
 class ShorthandSetter extends BaseShorthandSetter {
+
+	private static CSSValueSyntax imageSyntax = new SyntaxParser().parseSyntax("<image>");
 
 	private boolean priorityImportant = false;
 
@@ -438,8 +443,10 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	boolean isImage() {
 		LexicalType type = currentValue.getLexicalUnitType();
-		return type == LexicalType.URI || (type == LexicalType.FUNCTION && isImageFunctionOrGradientName())
-				|| type == LexicalType.ELEMENT_REFERENCE;
+		return type == LexicalType.URI
+			|| (type == LexicalType.FUNCTION && isImageFunctionOrGradientName())
+			|| type == LexicalType.ELEMENT_REFERENCE
+			|| currentValue.shallowClone().matches(imageSyntax) == Match.TRUE;
 	}
 
 	private boolean isImageFunctionOrGradientName() {
