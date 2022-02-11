@@ -462,6 +462,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			return new AnimationShorthandBuilder(this);
 		} else if ("transition".equals(shorthand)) {
 			return new TransitionShorthandBuilder(this);
+		} else if ("mask".equals(shorthand)) {
+			return new MaskBuilder(this);
 		} else if ("cue".equals(shorthand) || "pause".equals(shorthand) || "rest".equals(shorthand)) {
 			return new SequenceShorthandBuilder(shorthand, this);
 		} else if ("place-content".equals(shorthand) || "place-items".equals(shorthand)
@@ -1684,6 +1686,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				setter = new ListStyleShorthandSetter(this);
 			} else if ("animation".equals(propertyName)) {
 				setter = new AnimationShorthandSetter(this);
+			} else if ("mask".equals(propertyName)) {
+				setter = new MaskShorthandSetter(this);
 			} else if ("flex".equals(propertyName)) {
 				setter = new FlexShorthandSetter(this);
 			} else if ("grid".equals(propertyName)) {

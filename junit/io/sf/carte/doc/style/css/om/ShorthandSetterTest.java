@@ -3262,6 +3262,742 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testMaskInherit() {
+		emptyStyleDecl.setCssText("mask: inherit;");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: inherit; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:inherit;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("mask: inherit!important;");
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: inherit ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:inherit!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testMaskUnset() {
+		emptyStyleDecl.setCssText("mask: unset;");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: unset; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:unset;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("mask: unset!important;");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: unset ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:unset!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testMaskRevert() {
+		emptyStyleDecl.setCssText("mask: revert;");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: revert; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:revert;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("mask: revert!important;");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: revert ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:revert!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testMaskInitial() {
+		emptyStyleDecl.setCssText("mask: initial;");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: initial; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:initial;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("mask: initial!important;");
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: initial ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:initial!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testMask() {
+		emptyStyleDecl
+			.setCssText("mask:url(https://www.example.com/foo.svg) no-repeat center/1.38ex .8ex");
+		assertEquals("url('https://www.example.com/foo.svg')",
+			emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("center", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("1.38ex 0.8ex", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("no-repeat", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("add", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("match-source", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals(
+			"mask: url('https://www.example.com/foo.svg') no-repeat center / 1.38ex 0.8ex; ",
+			emptyStyleDecl.getCssText());
+		assertEquals("mask:url('https://www.example.com/foo.svg') no-repeat center/1.38ex .8ex;",
+			emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText(
+			"mask:url(https://www.example.com/foo.svg) no-repeat center/1.38ex .8ex!important;");
+		assertEquals("url('https://www.example.com/foo.svg')",
+			emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("center", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("1.38ex 0.8ex", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("no-repeat", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("add", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("match-source", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals(
+			"mask: url('https://www.example.com/foo.svg') no-repeat center / 1.38ex 0.8ex ! important; ",
+			emptyStyleDecl.getCssText());
+		assertEquals(
+			"mask:url('https://www.example.com/foo.svg') no-repeat center/1.38ex .8ex!important;",
+			emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testMaskNone() {
+		emptyStyleDecl.setCssText("mask:none");
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("repeat", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("add", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("match-source", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: none; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:none;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("mask:none!important;");
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("repeat", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("add", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("match-source", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: none ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:none!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * Adapted from WPT css/css-masking/parsing/mask-valid.sub.html
+	 */
+	@Test
+	public void testMaskNoneAlpha() {
+		emptyStyleDecl.setCssText("mask-border-source:none!important;mask:none alpha");
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("repeat", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("add", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("mask-border-source"));
+		assertEquals("mask-border-source: none ! important; mask: none alpha; ",
+			emptyStyleDecl.getCssText());
+		assertEquals("mask-border-source:none!important;mask:none alpha;",
+			emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-valid.sub.html
+	 */
+	@Test
+	public void testMaskNoneRepeatY() {
+		emptyStyleDecl.setCssText("mask:none repeat-y");
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("repeat-y", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("add", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("match-source", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: none repeat-y; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:none repeat-y;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testMaskNoneNoRepeat() {
+		emptyStyleDecl.setCssText("mask:none no-repeat no-repeat");
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("no-repeat no-repeat", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("add", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("match-source", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("mask: none no-repeat no-repeat; ", emptyStyleDecl.getCssText());
+		assertEquals("mask:none no-repeat no-repeat;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-valid.sub.html
+	 */
+	@Test
+	public void testMaskLayered() {
+		emptyStyleDecl.setCssText(
+			"mask:intersect no-clip space round 1px 2px / contain stroke-box linear-gradient(to left bottom, red, blue) luminance, linear-gradient(to left bottom, red, blue) luminance 1px 2px / contain space round stroke-box no-clip intersect");
+		assertEquals(
+			"linear-gradient(to left bottom, red, blue), linear-gradient(to left bottom, red, blue)",
+			emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("1px 2px, 1px 2px", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("contain, contain", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("space round, space round", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("stroke-box, stroke-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("no-clip, no-clip", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("intersect, intersect", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("luminance, luminance", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals(
+			"mask: intersect no-clip space round 1px 2px / contain stroke-box linear-gradient(to left bottom, red, blue) luminance, linear-gradient(to left bottom, red, blue) luminance 1px 2px / contain space round stroke-box no-clip intersect; ",
+			emptyStyleDecl.getCssText());
+		assertEquals(
+			"mask:intersect no-clip space round 1px 2px/contain stroke-box linear-gradient(to left bottom,red,blue) luminance,linear-gradient(to left bottom,red,blue) luminance 1px 2px/contain space round stroke-box no-clip intersect;",
+			emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-valid.sub.html
+	 */
+	@Test
+	public void testMaskLayered2() {
+		emptyStyleDecl.setCssText(
+			"mask:intersect no-clip space round 1px 2px / contain view-box, stroke-box linear-gradient(to left bottom, red, blue) luminance, none 1px 2px / contain space round view-box no-clip intersect, linear-gradient(to left bottom, red, blue) luminance stroke-box");
+		assertEquals(
+			"none, linear-gradient(to left bottom, red, blue), none, linear-gradient(to left bottom, red, blue)",
+			emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("1px 2px, 0% 0%, 1px 2px, 0% 0%",
+			emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("contain, auto auto, contain, auto auto",
+			emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("space round, repeat, space round, repeat",
+			emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("view-box, stroke-box, view-box, stroke-box",
+			emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("no-clip, stroke-box, no-clip, stroke-box",
+			emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("intersect, add, intersect, add",
+			emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("match-source, luminance, match-source, luminance",
+			emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals(
+			"mask: intersect no-clip space round 1px 2px / contain view-box, stroke-box linear-gradient(to left bottom, red, blue) luminance, none 1px 2px / contain space round view-box no-clip intersect, linear-gradient(to left bottom, red, blue) luminance stroke-box; ",
+			emptyStyleDecl.getCssText());
+		assertEquals(
+			"mask:intersect no-clip space round 1px 2px/contain view-box,stroke-box linear-gradient(to left bottom,red,blue) luminance,none 1px 2px/contain space round view-box no-clip intersect,linear-gradient(to left bottom,red,blue) luminance stroke-box;",
+			emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBad() {
+		emptyStyleDecl.setCssText("mask:none alpha luminance");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBadRefAndNone() {
+		emptyStyleDecl
+			.setCssText("mask:none linear-gradient(to 0% 0%, rgb(0, 0, 0), rgb(0, 0, 255))");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBadTwoRefs() {
+		emptyStyleDecl.setCssText(
+			"mask:linear-gradient(to 0% 0%, rgb(0, 0, 0), rgb(0, 0, 255)) url(\"https://example.com/\")");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBad2() {
+		emptyStyleDecl.setCssText("mask:1px 2px 3px");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBad3() {
+		emptyStyleDecl.setCssText("mask:1px 2px 3px 4px");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBad4() {
+		emptyStyleDecl.setCssText("mask:1px 2px / contain / cover");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBad5() {
+		emptyStyleDecl.setCssText("mask:repeat-y repeat-x");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBad6() {
+		emptyStyleDecl.setCssText("mask:stroke-box no-clip view-box");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBad7() {
+		emptyStyleDecl.setCssText("mask:border-box view-box padding-box");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	/*
+	 * WPT css/css-masking/parsing/mask-invalid.html
+	 */
+	@Test
+	public void testMaskBad8() {
+		emptyStyleDecl.setCssText("mask:add intersect");
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		//
+		assertEquals("", emptyStyleDecl.getPropertyPriority("mask-image"));
+		assertEquals("", emptyStyleDecl.getCssText());
+		assertEquals("", emptyStyleDecl.getMinifiedCssText());
+		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testTextDecoration() {
 		emptyStyleDecl.setCssText("text-decoration-line:underline; text-decoration: dotted overline;");
 		assertEquals(3, emptyStyleDecl.getLength());

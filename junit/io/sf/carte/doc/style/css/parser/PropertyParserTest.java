@@ -4623,6 +4623,42 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueMask() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue(
+			"url(https://www.example.com/foo.svg) no-repeat center/1.3128205128ex .8ex");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals("https://www.example.com/foo.svg", lu.getStringValue());
+		//
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("no-repeat", lu.getStringValue());
+		//
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("center", lu.getStringValue());
+		//
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
+		//
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EX, lu.getCssUnit());
+		assertEquals(1.3128205128f, lu.getFloatValue(), 1e-8);
+		//
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EX, lu.getCssUnit());
+		assertEquals(0.8f, lu.getFloatValue(), 1e-8);
+		//
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
 	public void testParsePriorityString() throws CSSException, IOException {
 		assertFalse(parser.parsePriority(new StringReader("")));
 		assertFalse(parser.parsePriority(new StringReader("foo")));

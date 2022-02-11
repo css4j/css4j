@@ -643,6 +643,42 @@ abstract class ShorthandBuilder {
 		return prepend;
 	}
 
+	boolean appendDeclarationIfNotInitial(StringBuilder buf, String propertyName,
+		boolean importantShorthand) {
+		StyleValue cssVal = getCSSValue(propertyName);
+		boolean impPty = "important"
+			.equalsIgnoreCase(parentStyle.getPropertyPriority(propertyName));
+		if (isNotInitialValue(cssVal, propertyName) && impPty == importantShorthand) {
+			buf.append(propertyName).append(':');
+			buf.append(cssVal.getMinifiedCssText(propertyName));
+			// Serialize priority
+			if (impPty) {
+				buf.append('!').append("important");
+			}
+			buf.append(';');
+			return true;
+		}
+		return false;
+	}
+
+	boolean appendDeclarationIfNotKeyword(Type keyword, StringBuilder buf, String propertyName,
+		boolean importantShorthand) {
+		StyleValue cssVal = getCSSValue(propertyName);
+		boolean impPty = "important"
+			.equalsIgnoreCase(parentStyle.getPropertyPriority(propertyName));
+		if (!isCssValueOfType(keyword, cssVal) && impPty == importantShorthand) {
+			buf.append(propertyName).append(':');
+			buf.append(cssVal.getMinifiedCssText(propertyName));
+			// Serialize priority
+			if (impPty) {
+				buf.append('!').append("important");
+			}
+			buf.append(';');
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Append the priority to the buffer, if important. Adds a semicolon in any case.
 	 * 
