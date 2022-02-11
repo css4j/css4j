@@ -2275,6 +2275,37 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testBackgroundNone() {
+		emptyStyleDecl.setCssText("background: none;");
+		assertEquals("none", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("padding-box", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("scroll", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: none; ", emptyStyleDecl.getCssText());
+		assertEquals("background:none;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		//
+		emptyStyleDecl.setCssText("background: none!important;");
+		assertEquals("none", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("padding-box", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("scroll", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("background-image"));
+		assertEquals("background: none ! important; ", emptyStyleDecl.getCssText());
+		assertEquals("background:none!important;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testBackgroundInherit() {
 		emptyStyleDecl.setCssText("background: inherit;");
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-image"));
@@ -2302,26 +2333,6 @@ public class ShorthandSetterTest {
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("background-image"));
 		assertEquals("background: inherit ! important; ", emptyStyleDecl.getCssText());
 		assertEquals("background:inherit!important;", emptyStyleDecl.getMinifiedCssText());
-		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
-	}
-
-	@Test
-	public void testBackgroundInheritLayer() {
-		emptyStyleDecl.setCssText(
-				"background: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url(c.png) inherit;");
-		assertEquals("url('a.png'), url('b.png'), inherit", emptyStyleDecl.getPropertyValue("background-image"));
-		assertEquals("top left, center, inherit", emptyStyleDecl.getPropertyValue("background-position"));
-		assertEquals("no-repeat, no-repeat, inherit", emptyStyleDecl.getPropertyValue("background-repeat"));
-		assertEquals("border-box, border-box, inherit", emptyStyleDecl.getPropertyValue("background-clip"));
-		assertEquals("padding-box, padding-box, inherit", emptyStyleDecl.getPropertyValue("background-origin"));
-		assertEquals("auto auto, 100% 100%, inherit", emptyStyleDecl.getPropertyValue("background-size"));
-		assertEquals("scroll, scroll, inherit", emptyStyleDecl.getPropertyValue("background-attachment"));
-		assertEquals("inherit", emptyStyleDecl.getPropertyValue("background-color"));
-		assertEquals(
-				"background: url('a.png') top left no-repeat, url('b.png') center / 100% 100% no-repeat, inherit; ",
-				emptyStyleDecl.getCssText());
-		assertEquals("background:url('a.png') top left no-repeat,url('b.png') center/100% 100% no-repeat,inherit;",
-				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -2492,15 +2503,66 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testBackground5() {
-		emptyStyleDecl.setCssText("background:url(//www.example.com/dir/image.png);");
-		assertEquals("url('//www.example.com/dir/image.png')", emptyStyleDecl.getPropertyValue("background-image"));
+		emptyStyleDecl
+			.setCssText("background:url(//www.example.com/dir/image.png) padding-box border-box;");
+		assertEquals("url('//www.example.com/dir/image.png')",
+			emptyStyleDecl.getPropertyValue("background-image"));
 		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
 		assertEquals("padding-box", emptyStyleDecl.getPropertyValue("background-origin"));
 		assertEquals("border-box", emptyStyleDecl.getPropertyValue("background-clip"));
 		assertEquals("scroll", emptyStyleDecl.getPropertyValue("background-attachment"));
 		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
-		assertEquals("background: url('//www.example.com/dir/image.png'); ", emptyStyleDecl.getCssText());
-		assertEquals("background:url('//www.example.com/dir/image.png');", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("background: url('//www.example.com/dir/image.png') padding-box border-box; ",
+			emptyStyleDecl.getCssText());
+		assertEquals("background:url('//www.example.com/dir/image.png') padding-box border-box;",
+			emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBackground6() {
+		emptyStyleDecl.setCssText(
+			"background: url('bkg.png') right center gray content-box round fixed border-box;");
+		assertEquals("url('bkg.png')", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("right center", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("gray", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("content-box", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("fixed", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("round", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals(
+			"background: url('bkg.png') right center gray content-box round fixed border-box; ",
+			emptyStyleDecl.getCssText());
+		assertEquals(
+			"background:url('bkg.png') right center gray content-box round fixed border-box;",
+			emptyStyleDecl.getMinifiedCssText());
+	}
+
+	/*
+	 * WPT css-backgrounds/parsing/background-valid.html
+	 */
+	@Test
+	public void testBackgroundWPT() {
+		emptyStyleDecl.setCssText(
+			"background:url(\"https://example.com/\") 1px 2px / 3px 4px space round local padding-box content-box, rgb(5, 6, 7) url(\"https://example.com/foo\") 1px 2px / 3px 4px space round local padding-box content-box");
+		assertEquals("url(\"https://example.com/\"), url(\"https://example.com/foo\")",
+			emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("1px 2px, 1px 2px", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("3px 4px, 3px 4px", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("#050607", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("padding-box, padding-box",
+			emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("content-box, content-box",
+			emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("local, local", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("space round, space round",
+			emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals(
+			"background: url(\"https://example.com/\") 1px 2px / 3px 4px space round local padding-box content-box, #050607 url(\"https://example.com/foo\") 1px 2px / 3px 4px space round local padding-box content-box; ",
+			emptyStyleDecl.getCssText());
+		assertEquals(
+			"background:url(\"https://example.com/\") 1px 2px/3px 4px space round local padding-box content-box,#050607 url(\"https://example.com/foo\") 1px 2px/3px 4px space round local padding-box content-box;",
+			emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -2709,6 +2771,14 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testBackgroundImageAttr() {
+		emptyStyleDecl.setCssText("background:attr(bkg url,'bkg.png');");
+		assertEquals("attr(bkg url, 'bkg.png')", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("background: attr(bkg url, 'bkg.png'); ", emptyStyleDecl.getCssText());
+		assertEquals("background:attr(bkg url,'bkg.png');", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
 	public void testBackgroundLayered() {
 		emptyStyleDecl.setCssText(
 				"background:inherit, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, olive;");
@@ -2731,21 +2801,83 @@ public class ShorthandSetterTest {
 	@Test
 	public void testBackgroundLayered2() {
 		emptyStyleDecl.setCssText(
-				"background:inherit, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, unset;");
-		assertEquals("inherit, url('../img/foo.png'), unset", emptyStyleDecl.getPropertyValue("background-image"));
-		assertEquals("inherit, bottom, unset", emptyStyleDecl.getPropertyValue("background-position"));
-		assertEquals("inherit, cover, unset", emptyStyleDecl.getPropertyValue("background-size"));
-		assertEquals("unset", emptyStyleDecl.getPropertyValue("background-color"));
-		assertEquals("inherit, padding-box, unset", emptyStyleDecl.getPropertyValue("background-origin"));
-		assertEquals("inherit, content-box, unset", emptyStyleDecl.getPropertyValue("background-clip"));
-		assertEquals("inherit, fixed, unset", emptyStyleDecl.getPropertyValue("background-attachment"));
-		assertEquals("inherit, no-repeat, unset", emptyStyleDecl.getPropertyValue("background-repeat"));
+			"background:none, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, padding-box border-box;");
+		assertEquals("none, url('../img/foo.png'), none",
+			emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("0% 0%, bottom, 0% 0%",
+			emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("auto auto, cover, auto auto",
+			emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("padding-box, padding-box, padding-box",
+			emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("border-box, content-box, border-box",
+			emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("scroll, fixed, scroll",
+			emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("repeat, no-repeat, repeat",
+			emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals(
-				"background: inherit, url('../img/foo.png') bottom / cover no-repeat fixed padding-box content-box, unset; ",
-				emptyStyleDecl.getCssText());
+			"background: none, url('../img/foo.png') bottom / cover no-repeat fixed padding-box content-box, padding-box border-box; ",
+			emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:inherit,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,unset;",
-				emptyStyleDecl.getMinifiedCssText());
+			"background:none,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,padding-box border-box;",
+			emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBackgroundLayered3() {
+		emptyStyleDecl.setCssText(
+			"background:none, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, none;");
+		assertEquals("none, url('../img/foo.png'), none",
+			emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("0% 0%, bottom, 0% 0%",
+			emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("auto auto, cover, auto auto",
+			emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("padding-box, padding-box, padding-box",
+			emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("border-box, content-box, border-box",
+			emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("scroll, fixed, scroll",
+			emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("repeat, no-repeat, repeat",
+			emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals(
+			"background: none, url('../img/foo.png') bottom / cover no-repeat fixed padding-box content-box, none; ",
+			emptyStyleDecl.getCssText());
+		assertEquals(
+			"background:none,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,none;",
+			emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBackgroundLayered4() {
+		emptyStyleDecl.setCssText(
+			"background: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url(c.png);");
+		assertEquals("url('a.png'), url('b.png'), url('c.png')",
+			emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("top left, center, 0% 0%",
+			emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("no-repeat, no-repeat, repeat",
+			emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals("border-box, border-box, border-box",
+			emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("padding-box, padding-box, padding-box",
+			emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("auto auto, 100% 100%, auto auto",
+			emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("scroll, scroll, scroll",
+			emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals(
+			"background: url('a.png') top left no-repeat, url('b.png') center / 100% 100% no-repeat, url('c.png'); ",
+			emptyStyleDecl.getCssText());
+		assertEquals(
+			"background:url('a.png') top left no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png');",
+			emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
