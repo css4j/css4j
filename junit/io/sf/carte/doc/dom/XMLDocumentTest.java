@@ -283,7 +283,7 @@ public class XMLDocumentTest {
 		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
 				"type=\"text/css\" href=\"http://www.example.com/css/background.png\"");
 		LinkStyleDefiner link = (LinkStyleDefiner) pi;
-		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertNull(link.getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
 	}
@@ -293,7 +293,7 @@ public class XMLDocumentTest {
 		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
 				"type=\"text/css\" href=\"http://www.example.com/etc/fakepasswd\"");
 		LinkStyleDefiner link = (LinkStyleDefiner) pi;
-		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertNull(link.getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
 	}
@@ -923,13 +923,13 @@ public class XMLDocumentTest {
 		//
 		xmlDoc.getErrorHandler().reset();
 		link.setNodeValue("href=\"http://www.example.com/css/background.png\" media=\"all\"");
-		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertNull(link.getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		//
 		xmlDoc.getErrorHandler().reset();
 		link.setNodeValue("href=\"http://www.example.com/etc/fakepasswd\" media=\"all\"");
-		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertNull(link.getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 	}
