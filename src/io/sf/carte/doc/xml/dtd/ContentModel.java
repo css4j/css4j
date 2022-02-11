@@ -63,8 +63,7 @@ public class ContentModel {
 			throw new IllegalArgumentException("Unable to resolve declaration " + docType.toString());
 		}
 		Set<String> empty = parseDTD(isrc.getCharacterStream());
-		HashSet<String> emptyElementSet = new HashSet<String>(empty.size());
-		emptyElementSet.addAll(empty);
+		HashSet<String> emptyElementSet = new HashSet<String>(empty);
 		empty.clear();
 		return emptyElementSet;
 	}
@@ -87,8 +86,7 @@ public class ContentModel {
 			throw new IllegalArgumentException("Unable to resolve declaration " + dtDecl.toString());
 		}
 		Set<String> empty = parseDTD(isrc.getCharacterStream());
-		HashSet<String> emptyElementSet = new HashSet<String>(empty.size());
-		emptyElementSet.addAll(empty);
+		HashSet<String> emptyElementSet = new HashSet<String>(empty);
 		empty.clear();
 		return emptyElementSet;
 	}

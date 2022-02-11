@@ -333,7 +333,7 @@ public final class PropertyDatabase {
 	 * @return <code>true</code> if it is a known CSS property, <code>false</code> otherwise.
 	 */
 	public boolean isKnownProperty(String name) {
-		return initialValueMap.keySet().contains(name);
+		return initialValueMap.containsKey(name);
 	}
 
 	Set<String> getKnownPropertySet() {
