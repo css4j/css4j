@@ -195,14 +195,46 @@ public class MaskBuilderTest {
 			"mask: url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') 40% / 10em luminance round intersect border-box;");
 	}
 
+	/*
+	 * Only mask-image.
+	 */
 	@Test
 	public void testMaskNoShorthand() {
-		emptyStyleDecl.setCssText("mask-image: url('bkg.png');");
-		assertEquals("mask-image:url('bkg.png');", emptyStyleDecl.getOptimizedCssText());
+		assertShorthandText("mask-image:url('bkg.png');", "mask-image: url('bkg.png');");
+	}
+
+	/*
+	 * All of the mask-border longhands but no mask properties.
+	 */
+	@Test
+	public void testMaskNoShorthand2() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;",
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto");
+	}
+
+	/*
+	 * All of the mask-border longhands, not enough mask properties.
+	 */
+	@Test
+	public void testMaskNoShorthand3() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:none;mask-mode:alpha;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;",
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:none;mask-mode:alpha;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;");
+	}
+
+	/*
+	 * All of the mask longhands, none of the mask-border ones.
+	 */
+	@Test
+	public void testMaskNoShorthand4() {
+		assertShorthandText(
+			"mask-clip:border-box;mask-composite:add;mask-image:none;mask-mode:alpha;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+			"mask-clip:border-box;mask-composite:add;mask-image:none;mask-mode:alpha;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;");
 	}
 
 	@Test
-	public void testMaskNoShorthand2() {
+	public void testMaskNoShorthandVar() {
 		assertShorthandText(
 			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:var(--my-compositing);mask-image:none;mask-mode:alpha;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
 			"mask: alpha;mask-composite: var(--my-compositing);");

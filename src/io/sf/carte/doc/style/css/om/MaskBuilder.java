@@ -50,7 +50,7 @@ class MaskBuilder extends ShorthandBuilder {
 
 	@Override
 	protected int getMinimumSetSize() {
-		return 8;
+		return 14;
 	}
 
 	@Override
