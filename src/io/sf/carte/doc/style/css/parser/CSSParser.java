@@ -875,8 +875,9 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
-			separator(index, 12);
-			prevcp = 12;
+			separator(index, 32);
+			// The above call may have left prevcp as 10
+			prevcp = 32;
 		}
 
 		@Override
@@ -5751,10 +5752,12 @@ public class CSSParser implements Parser, Cloneable {
 			if (!parseError && buffer.length() == 0 && propertyName == null
 					&& (curlyBracketDepth == 1 || ruleFirstPart == null) && parendepth == 0 && commentType == 0) {
 				handler.comment(comment, isPreviousCpLF());
+				prevcp = 12;
 			} else {
-				processBuffer(index);
+				separator(index, 32);
+				// The above call may have left prevcp as 10
+				prevcp = 32;
 			}
-			prevcp = 12;
 		}
 
 		@Override
@@ -5962,6 +5965,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 					} else {
 						newFunction(index);
+						codepoint = 32;
 					}
 				}
 			} else if (codepoint == 123) { // '{'
@@ -5976,6 +5980,7 @@ public class CSSParser implements Parser, Cloneable {
 					if (propertyName != null) {
 						processBuffer(index);
 						newLexicalUnit(LexicalType.LEFT_BRACKET, false);
+						codepoint = 32;
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -6656,6 +6661,7 @@ public class CSSParser implements Parser, Cloneable {
 						// Here we should have the property name in buffer
 						if (buffer.length() != 0) {
 							setPropertyName(index);
+							codepoint = 32;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
 						}
@@ -6701,11 +6707,8 @@ public class CSSParser implements Parser, Cloneable {
 								}
 								prevcp = codepoint;
 								return;
-							} else if (isCustomProperty()) {
+							} else {
 								processBuffer(index);
-								newCustomPropertyOperator(index, codepoint, LexicalType.OPERATOR_MINUS);
-								prevcp = codepoint;
-								return;
 							}
 						}
 						buffer.append('-');
@@ -6752,14 +6755,16 @@ public class CSSParser implements Parser, Cloneable {
 									|| (c = buffer.charAt(buffer.length() - 1)) != 'E' && c != 'e')) {
 								if (functionToken) {
 									processBuffer(index);
-									if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
+									if (currentlu.parameters == null
+										|| !lastParamIsAlgebraicOperator()) {
 										newLexicalUnit(LexicalType.OPERATOR_PLUS, false);
 									} else {
 										unexpectedCharError(index, codepoint);
 									}
 								} else if (isCustomProperty()) {
 									processBuffer(index);
-									newCustomPropertyOperator(index, codepoint, LexicalType.OPERATOR_PLUS);
+									newCustomPropertyOperator(index, codepoint,
+										LexicalType.OPERATOR_PLUS);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
@@ -7212,9 +7217,14 @@ public class CSSParser implements Parser, Cloneable {
 					if (cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1)) {
 						// Either not ending in [0-9] range or not parsable as a number
 						if (!newIdentifier(raw, ident, cssText)) {
-							// Check for a single '+'
-							if (raw.length() == 1 && raw.charAt(0) == '+') {
-								newOperator(index, '+', LexicalType.OPERATOR_PLUS);
+							// Check for a single '+' or '-'
+							if (raw.length() == 1) {
+								char c = raw.charAt(0);
+								if (c == '+') {
+									newOperator(index, '+', LexicalType.OPERATOR_PLUS);
+								} else if (c == '-') {
+									newOperator(index, '-', LexicalType.OPERATOR_MINUS);
+								}
 								return;
 							} else {
 								checkForIEValue(index, raw);
@@ -7636,10 +7646,12 @@ public class CSSParser implements Parser, Cloneable {
 			if (!parseError && buffer.length() == 0 && propertyName == null && curlyBracketDepth == 1 && parendepth == 0
 					&& squareBracketDepth == 0) {
 				super.commented(index, commentType, comment);
+				prevcp = 12;
 			} else {
-				processBuffer(index);
+				separator(index, 32);
+				// The above call may have left prevcp as 10
+				prevcp = 32;
 			}
-			prevcp = 12;
 		}
 
 		@Override

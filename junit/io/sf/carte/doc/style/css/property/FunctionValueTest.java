@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
@@ -442,33 +443,41 @@ public class FunctionValueTest {
 
 	@Test
 	public void testPrefixed() {
-		style.setCssText("color:-prefixed-color(blue w(+ 20%) s(+ 20%))");
+		style.setCssText("color:-prefixed-rgb(from olive +6% g b)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("color");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
-		assertEquals("-prefixed-color", val.getStringValue());
-		assertEquals("-prefixed-color", val.getFunctionName());
-		assertEquals("-prefixed-color(blue w(+ 20%) s(+ 20%))", style.getPropertyValue("color"));
+		assertEquals("-prefixed-rgb", val.getStringValue());
+		assertEquals("-prefixed-rgb", val.getFunctionName());
+		assertEquals("-prefixed-rgb(from olive 6% g b)", style.getPropertyValue("color"));
 		//
 		assertEquals(1, val.getArguments().size());
 		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CssType.LIST, arg.getCssValueType());
 		ValueList list = (ValueList) arg;
-		assertEquals(3, list.getLength());
+		assertEquals(5, list.getLength());
 		StyleValue item = list.item(0);
 		assertEquals(CssType.TYPED, item.getCssValueType());
 		assertEquals(CSSValue.Type.IDENT, item.getPrimitiveType());
-		assertEquals("blue", ((CSSTypedValue) item).getStringValue());
+		assertEquals("from", ((CSSTypedValue) item).getStringValue());
 		item = list.item(1);
 		assertEquals(CssType.TYPED, item.getCssValueType());
-		assertEquals(CSSValue.Type.FUNCTION, item.getPrimitiveType());
-		assertEquals("w", ((CSSTypedValue) item).getStringValue());
-		assertEquals("w(+ 20%)", item.getCssText());
+		assertEquals(CSSValue.Type.IDENT, item.getPrimitiveType());
+		assertEquals("olive", ((CSSTypedValue) item).getStringValue());
 		item = list.item(2);
 		assertEquals(CssType.TYPED, item.getCssValueType());
-		assertEquals(CSSValue.Type.FUNCTION, item.getPrimitiveType());
-		assertEquals("s", ((CSSTypedValue) item).getStringValue());
-		assertEquals("s(+ 20%)", item.getCssText());
+		assertEquals(CSSValue.Type.NUMERIC, item.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, ((CSSPrimitiveValue) item).getUnitType());
+		assertEquals(6, ((CSSTypedValue) item).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-7);
+		assertEquals("6%", item.getCssText());
+		item = list.item(3);
+		assertEquals(CssType.TYPED, item.getCssValueType());
+		assertEquals(CSSValue.Type.IDENT, item.getPrimitiveType());
+		assertEquals("g", ((CSSTypedValue) item).getStringValue());
+		item = list.item(4);
+		assertEquals(CssType.TYPED, item.getCssValueType());
+		assertEquals(CSSValue.Type.IDENT, item.getPrimitiveType());
+		assertEquals("b", ((CSSTypedValue) item).getStringValue());
 	}
 
 	@Test
