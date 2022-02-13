@@ -1584,6 +1584,174 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationCalcZerolessDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("padding-left:calc(.0083ex)"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_EX, param.getLexicalUnitType());
+		assertEquals(0.0083, param.getFloatValue(), 1e-7);
+		assertEquals("ex", param.getDimensionUnitText());
+		assertEquals("0.0083ex", param.toString());
+		assertEquals("calc(0.0083ex)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcPlusDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("padding-left:calc(+.0083ex)"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_EX, param.getLexicalUnitType());
+		assertEquals(0.0083, param.getFloatValue(), 1e-7);
+		assertEquals("ex", param.getDimensionUnitText());
+		assertEquals("0.0083ex", param.toString());
+		assertEquals("calc(0.0083ex)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcMinusDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("padding-left:calc(-.0083ex)"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_EX, param.getLexicalUnitType());
+		assertEquals(-0.0083, param.getFloatValue(), 1e-7);
+		assertEquals("ex", param.getDimensionUnitText());
+		assertEquals("-0.0083ex", param.toString());
+		assertEquals("calc(-0.0083ex)", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyZerolessDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("--foo:.0083ex"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--foo", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_EX, lu.getLexicalUnitType());
+		assertEquals(0.0083, lu.getFloatValue(), 1e-7);
+		assertEquals("ex", lu.getDimensionUnitText());
+		assertEquals("0.0083ex", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyPlusDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("--foo:+0.007ex"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--foo", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_EX, lu.getLexicalUnitType());
+		assertEquals(0.007f, lu.getFloatValue(), 1e-7);
+		assertEquals("ex", lu.getDimensionUnitText());
+		assertEquals("0.007ex", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyPlusZerolessDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("--foo:+.0083ex"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--foo", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_EX, lu.getLexicalUnitType());
+		assertEquals(0.0083, lu.getFloatValue(), 1e-7);
+		assertEquals("ex", lu.getDimensionUnitText());
+		assertEquals("0.0083ex", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyMinusDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("--foo:-0.0083ex"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--foo", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_EX, lu.getLexicalUnitType());
+		assertEquals(-0.0083, lu.getFloatValue(), 1e-7);
+		assertEquals("ex", lu.getDimensionUnitText());
+		assertEquals("-0.0083ex", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyMinusZerolessDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("--foo:-.0083ex"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--foo", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_EX, lu.getLexicalUnitType());
+		assertEquals(-0.0083, lu.getFloatValue(), 1e-7);
+		assertEquals("ex", lu.getDimensionUnitText());
+		assertEquals("-0.0083ex", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCustomPropertyMinusSpaceZerolessDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("--foo:- .0083ex"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--foo", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_OPERATOR_MINUS, lu.getLexicalUnitType());
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalUnit.SAC_EX, nlu.getLexicalUnitType());
+		assertEquals(0.0083, nlu.getFloatValue(), 1e-7);
+		assertEquals("ex", nlu.getDimensionUnitText());
+		assertEquals("- 0.0083ex", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationMinusZerolessDimension() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("padding-left:-.0083ex"));
+		parser.parseStyleDeclaration(source);
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalUnit.SAC_EX, lu.getLexicalUnitType());
+		assertEquals(-0.0083, lu.getFloatValue(), 1e-7);
+		assertEquals("ex", lu.getDimensionUnitText());
+		assertEquals("-0.0083ex", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseStyleDeclarationContentBackslashBad() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("content: '\\';"));
 		parser.parseStyleDeclaration(source);

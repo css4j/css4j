@@ -478,12 +478,19 @@ public class ShorthandSetterTest {
 		assertEquals("myfunc(#f0f0f0, 25%)", emptyStyleDecl.getPropertyValue("border-top-color"));
 		assertEquals("border-top: 1px solid myfunc(#f0f0f0, 25%); ", emptyStyleDecl.getCssText());
 		assertEquals("border-top:1px solid myfunc(#f0f0f0,25%);", emptyStyleDecl.getMinifiedCssText());
-		emptyStyleDecl.setCssText("border-top: 1px solid color(blue w(+ 20%) s(+ 20%))");
+	}
+
+	@Test
+	public void testBorderTopColorFunction2() {
+		emptyStyleDecl.setCssText("border-top: 1px solid -prefixed-rgb(from olive +6% g b)");
 		assertEquals("solid", emptyStyleDecl.getPropertyValue("border-top-style"));
 		assertEquals("1px", emptyStyleDecl.getPropertyValue("border-top-width"));
-		assertEquals("color(blue w(+ 20%) s(+ 20%))", emptyStyleDecl.getPropertyValue("border-top-color"));
-		assertEquals("border-top: 1px solid color(blue w(+ 20%) s(+ 20%)); ", emptyStyleDecl.getCssText());
-		assertEquals("border-top:1px solid color(blue w(+ 20%) s(+ 20%));", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("-prefixed-rgb(from olive 6% g b)",
+			emptyStyleDecl.getPropertyValue("border-top-color"));
+		assertEquals("border-top: 1px solid -prefixed-rgb(from olive 6% g b); ",
+			emptyStyleDecl.getCssText());
+		assertEquals("border-top:1px solid -prefixed-rgb(from olive 6% g b);",
+			emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test

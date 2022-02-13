@@ -674,8 +674,7 @@ public class CSSParser implements Parser2 {
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
-			separator(index, 12);
-			prevcp = 12;
+			separator(index, 32);
 		}
 
 		@Override
@@ -4595,6 +4594,7 @@ public class CSSParser implements Parser2 {
 						}
 					} else {
 						newFunction(index);
+						codepoint = 32;
 					}
 				}
 			} else if (codepoint == 123) { // '{'
@@ -4606,6 +4606,7 @@ public class CSSParser implements Parser2 {
 					if (propertyName != null) {
 						processBuffer(index);
 						newLexicalUnit(LexicalUnit2.SAC_LEFT_BRACKET);
+						codepoint = 32;
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -4926,6 +4927,7 @@ public class CSSParser implements Parser2 {
 						// Here we should have the property name in buffer
 						if (buffer.length() != 0) {
 							setPropertyName(index);
+							codepoint = 32;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
 						}
@@ -4968,11 +4970,8 @@ public class CSSParser implements Parser2 {
 								}
 								prevcp = codepoint;
 								return;
-							} else if (isCustomProperty()) {
+							} else {
 								processBuffer(index);
-								newCustomPropertyOperator(index, codepoint, LexicalUnit.SAC_OPERATOR_MINUS);
-								prevcp = codepoint;
-								return;
 							}
 						}
 						buffer.append('-');
@@ -5443,9 +5442,14 @@ public class CSSParser implements Parser2 {
 					if (cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1)) {
 						// Either not ending in [0-9] range or not parsable as a number
 						if (!newIdentifier(raw, ident, cssText)) {
-							// Check for a single '+'
-							if (raw.length() == 1 && raw.charAt(0) == '+') {
-								newOperator(index, '+', LexicalUnit.SAC_OPERATOR_PLUS);
+							// Check for a single '+' or '-'
+							if (raw.length() == 1) {
+								char c = raw.charAt(0);
+								if (c == '+') {
+									newOperator(index, '+', LexicalUnit.SAC_OPERATOR_PLUS);
+								} else if (c == '-') {
+									newOperator(index, '-', LexicalUnit.SAC_OPERATOR_MINUS);
+								}
 								return;
 							} else {
 								checkForIEValue(index, raw);
@@ -5835,10 +5839,10 @@ public class CSSParser implements Parser2 {
 			if (!parseError && buffer.length() == 0 && propertyName == null && curlyBracketDepth == 1 && parendepth == 0
 					&& squareBracketDepth == 0) {
 				super.commented(index, commentType, comment);
+				prevcp = 12;
 			} else {
-				processBuffer(index);
+				separator(index, 32);
 			}
-			prevcp = 12;
 		}
 
 		@Override

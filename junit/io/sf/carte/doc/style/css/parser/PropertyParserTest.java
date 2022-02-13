@@ -265,13 +265,24 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadIdentifier3() throws IOException {
+	public void testParsePropertyBadIdentifierMinus() throws IOException {
 		InputSource source = new InputSource(new StringReader("-"));
 		try {
 			parser.parsePropertyValue(source);
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
-			assertEquals(1, e.getColumnNumber());
+			assertEquals(2, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadIdentifierPlus() throws IOException {
+		InputSource source = new InputSource(new StringReader("+"));
+		try {
+			parser.parsePropertyValue(source);
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
 		}
 	}
 
