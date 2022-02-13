@@ -7681,6 +7681,30 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testFontUnquotedVersionedFamily() {
+		emptyStyleDecl.setCssText("font:400 14px Font Awesome \\36  Free");
+		assertEquals(17, emptyStyleDecl.getLength());
+		assertEquals("Font Awesome 6 Free", emptyStyleDecl.getPropertyValue("font-family"));
+		assertEquals("400", emptyStyleDecl.getPropertyValue("font-weight"));
+		assertEquals("400", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
+		assertEquals("14px", emptyStyleDecl.getPropertyValue("font-size"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("line-height"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("font-size-adjust"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-stretch"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-caps"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-position"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-numeric"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-alternates"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-east-asian"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("font-size").isSubproperty());
+		assertEquals("font: 400 14px Font Awesome \\36  Free; ", emptyStyleDecl.getCssText());
+		assertEquals("font:400 14px Font Awesome \\36  Free;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testFontNormal() {
 		emptyStyleDecl.setCssText("font-size-adjust: 0.5; font-variant-east-asian: ruby;font: normal");
 		assertEquals(17, emptyStyleDecl.getLength());
