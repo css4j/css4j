@@ -1734,6 +1734,98 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueCalcPlusNegValue() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("calc(100vh + -2em)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit2.SAC_VH, param.getLexicalUnitType());
+		assertEquals(100f, param.getFloatValue(), 1e-5);
+		assertEquals("vh", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_PLUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_EM, param.getLexicalUnitType());
+		assertEquals(-2f, param.getFloatValue(), 1e-5);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100vh + -2em)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueCalcPlusZerolessNegValue() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("calc(100vh + -.2em)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit2.SAC_VH, param.getLexicalUnitType());
+		assertEquals(100f, param.getFloatValue(), 1e-5);
+		assertEquals("vh", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_PLUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_EM, param.getLexicalUnitType());
+		assertEquals(-0.2f, param.getFloatValue(), 1e-5);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100vh + -0.2em)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueCalcMinusPosValue() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("calc(100vh - +2em)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit2.SAC_VH, param.getLexicalUnitType());
+		assertEquals(100f, param.getFloatValue(), 1e-5);
+		assertEquals("vh", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_EM, param.getLexicalUnitType());
+		assertEquals(2f, param.getFloatValue(), 1e-5);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100vh - 2em)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueCalcMinusZerolessPosValue() throws CSSException, IOException {
+		InputSource source = new InputSource(new StringReader("calc(100vh - +.2em)"));
+		LexicalUnit lu = parser.parsePropertyValue(source);
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalUnit.SAC_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalUnit2.SAC_VH, param.getLexicalUnitType());
+		assertEquals(100f, param.getFloatValue(), 1e-5);
+		assertEquals("vh", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalUnit.SAC_EM, param.getLexicalUnitType());
+		assertEquals(0.2f, param.getFloatValue(), 1e-5);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100vh - 0.2em)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueCalcAttr() throws CSSException, IOException {
 		InputSource source = new InputSource(new StringReader("calc(attr(start integer, 1) - 1)"));
 		LexicalUnit lu = parser.parsePropertyValue(source);
@@ -1927,6 +2019,23 @@ public class PropertyParserTest {
 		}
 	}
 
+	@Test
+	public void testParsePropertyBadCalcSignedSubexpression() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(+(2em * 1))");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalcSignedSubexpression2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(-(2em * 1))");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
 
 	@Test
 	public void testParsePropertyBadExpression() throws CSSException, IOException {

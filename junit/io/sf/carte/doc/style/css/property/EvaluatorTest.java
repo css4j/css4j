@@ -138,32 +138,32 @@ public class EvaluatorTest {
 
 	@Test
 	public void testCalc8() {
-		style.setCssText("foo: calc(-(max(1.2 * 3, 4) + 8))");
+		style.setCssText("foo: calc(0px - (max(1.2 * 3px, 4px) + 8px))");
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals("calc( - (max(1.2*3, 4) + 8))", val.getCssText());
-		assertEquals("calc( - (max(1.2*3,4) + 8))", val.getMinifiedCssText(""));
+		assertEquals("calc(0px - (max(1.2*3px, 4px) + 8px))", val.getCssText());
+		assertEquals("calc(0px - (max(1.2*3px,4px) + 8px))", val.getMinifiedCssText(""));
 		Unit unit = new Unit();
 		assertEquals(-12f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_PX),
 				1e-5);
-		assertEquals(0, unit.getExponent());
-		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+		assertEquals(1, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_PX, unit.getUnitType());
 	}
 
 	@Test
 	public void testCalc9() {
-		style.setCssText("foo: calc(-(1.2*8))");
+		style.setCssText("foo: calc(0px - (1.2*8px))");
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals("calc( - 1.2*8)", val.getCssText());
-		assertEquals("calc( - 1.2*8)", val.getMinifiedCssText(""));
+		assertEquals("calc(0px - 1.2*8px)", val.getCssText());
+		assertEquals("calc(0px - 1.2*8px)", val.getMinifiedCssText(""));
 		Unit unit = new Unit();
 		assertEquals(-9.6f,
-				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_NUMBER),
+				evaluator.evaluateExpression(val.getExpression(), unit).getFloatValue(CSSPrimitiveValue.CSS_PX),
 				1e-5);
-		assertEquals(0, unit.getExponent());
-		assertEquals(CSSPrimitiveValue.CSS_NUMBER, unit.getUnitType());
+		assertEquals(1, unit.getExponent());
+		assertEquals(CSSPrimitiveValue.CSS_PX, unit.getUnitType());
 	}
 
 	@Test

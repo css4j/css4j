@@ -4617,6 +4617,7 @@ public class CSSParser implements Parser2 {
 
 		private void newFunction(int index) {
 			LexicalUnitImpl lu;
+			String raw = buffer.toString();
 			String name = unescapeBuffer(index);
 			if ("url".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_URI);
@@ -4634,8 +4635,11 @@ public class CSSParser implements Parser2 {
 				lu = newLexicalUnit(LexicalUnit.SAC_COUNTER_FUNCTION);
 			} else if ("counters".equalsIgnoreCase(name)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_COUNTERS_FUNCTION);
-			} else {
+			} else if (isNotForbiddenIdentStart(raw)) {
 				lu = newLexicalUnit(LexicalUnit.SAC_FUNCTION);
+			} else {
+				handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected: " + raw);
+				return;
 			}
 			lu.value = name;
 			functionToken = true;
@@ -4961,18 +4965,7 @@ public class CSSParser implements Parser2 {
 				} else if (!hexColor) {
 					if (codepoint == 45) { // -
 						if (!unicodeRange) {
-							if (functionToken) {
-								processBuffer(index);
-								if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-									newLexicalUnit(LexicalUnit.SAC_OPERATOR_MINUS);
-								} else {
-									unexpectedCharError(index, codepoint);
-								}
-								prevcp = codepoint;
-								return;
-							} else {
-								processBuffer(index);
-							}
+							processBuffer(index);
 						}
 						buffer.append('-');
 						codepoint = 65;

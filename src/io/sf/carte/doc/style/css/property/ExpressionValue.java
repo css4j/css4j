@@ -175,7 +175,7 @@ public class ExpressionValue extends PrimitiveValue implements CSSExpressionValu
 					}
 				default:
 					PrimitiveValue primi;
-					LexicalSetter item = factory.createCSSPrimitiveValueItem(lu, false);
+					LexicalSetter item = factory.createCSSPrimitiveValueItem(lu, true);
 					if (item == null || isInvalidOperand(primi = item.getCSSValue(), lutype, lastlutype)) {
 						throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
 					}

@@ -144,9 +144,8 @@ public class NumberValue extends PrimitiveValue {
 	}
 
 	private String getMinifiedCssText(String propertyName, float realvalue) {
-		boolean notaNumber = getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER;
-		if (realvalue == 0f && notaNumber && getPrimitiveType() != CSSPrimitiveValue.CSS_PERCENTAGE
-				&& isLengthUnitType()) {
+		if (realvalue == 0f && getPrimitiveType() != CSSPrimitiveValue.CSS_PERCENTAGE
+			&& isLengthUnitType() && !isSubproperty() && specified) {
 			return "0";
 		}
 		if (Float.isInfinite(realvalue)) {
@@ -157,6 +156,7 @@ public class NumberValue extends PrimitiveValue {
 			return Integer.toString((int) rintValue);
 		} else if (realvalue == rintValue) {
 			String s = Integer.toString((int) rintValue);
+			boolean notaNumber = getPrimitiveType() != CSSPrimitiveValue.CSS_NUMBER;
 			if (notaNumber) {
 				return s + dimensionUnitText;
 			} else {
