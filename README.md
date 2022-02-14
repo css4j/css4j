@@ -52,7 +52,6 @@ also supported):
  | [Selectors](https://www.w3.org/TR/selectors-4/) | Yes |
  | [Transitions](https://www.w3.org/TR/css-transitions-1/) | Yes |
  | [Values](https://www.w3.org/TR/css-values-4/) | Yes |
- | [Properties and Values API](https://www.w3.org/TR/css-properties-values-api-1/) | Partial |
  | [Grid / Template / Alignment](https://www.w3.org/TR/css-grid-2/) | Partial (3) |
 
 Notes:
@@ -124,8 +123,8 @@ and optional library packages are the following:
 ### Compile-time dependencies
 
 - The [jclf-text](https://jclf.sourceforge.io/api/io.sf.jclf.text/module-summary.html)
-  (5.0.0 or higher) and [jclf-linear3](https://jclf.sourceforge.io/api/io.sf.jclf.math.linear3/module-summary.html)
-  (1.0.0 or higher) modules. See: https://sourceforge.net/projects/jclf
+  (5.0.0) and [jclf-linear3](https://jclf.sourceforge.io/api/io.sf.jclf.math.linear3/module-summary.html)
+  (1.0.0) modules. See: https://sourceforge.net/projects/jclf
 
 - The [commons-codec](https://commons.apache.org/proper/commons-codec/) library;
   a recent version is recommended.

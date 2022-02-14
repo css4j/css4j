@@ -1,59 +1,22 @@
-# css4j version 1.3.0 Release Notes
+# css4j version 1.3.1 Release Notes
 
-### February 4, 2022
+### February 15, 2022
 
 <br/>
 
 ## Highlights
 
-### Build
+This release fixes several bugs, including two regressions introduced in 1.3.0.
 
-- New Gradle build.
-
-### JPMS
-
-- The library now depends on `io.sf.jclf.text` module.
-
-### CSSOM
-
-- Support the `:dir()` pseudo-class in computed styles.
-
-### Bug fixes and smaller improvements
-
-- Several NSAC parser fixes.
-
-- A few DOM improvements.
-
-- A couple of CSSOM fixes.
 
 ## Detail of changes
 
-- module-info: depend on `io.sf.jclf.text` module.
-- NSAC impl.: fix a bug parsing numbers with an explicit plus sign.
-- NSAC impl.: correctly handle comments splitting values and selectors.
-- NSAC impl.: use a faster way to append codepoints to a StringBuilder.
-- Fix a couple bugs in ParseHelper escape/unescape.
-- DOM: DOMWriter: use a faster way to append codepoints to a StringBuilder.
-- DOM: serialize elements with the EmptyElemTag production of XML when 
-  appropriate.
-- DOM: initialize text nodes to the empty string to avoid risk of NPE.
-- CSSOM: support the `:dir()` pseudo-class in computed styles.
-- CSSOM: `turn` is not to be considered a length unit, when decomposing 
-  shorthands.
-- CSSOM: fix a class cast exception when computing styles, related to `@page`
-  rules.
-- Use StringBuilder instead of StringBuffer in a couple of classes.
-- Refactor: make several inner classes static.
-- Remove several unnecessary null checks.
-- TokenProducer: use Arrays.fill() in a couple of places.
-- Switch from Maven to a Gradle build.
-- Add a CONTRIBUTING and a Developer Certificate of Origin files.
-- Bump year to 2022 in copyright notices.
-- Add a release helper script that creates a CHANGES draft.
-- Upgrade to JCLF 5.0.0.
-- Upgrade to commons-codec 1.15 or higher.
-- Tests: add facility to load arbitrary documents from classpath.
-- Tests: add a counter-style test that broke master branch (1.x not affected).
-- Tests: fix a Java 8/9 compatibility issue in BaseCSSStyleSheetTest2.
-- Tests: update Font Awesome CSS file.
-- Tests: update metro-all.css.
+- NSAC impl.: fix a regression in signed value parsing, introduced in 1.3.0.
+- NSAC impl.: fix a regression in attribute selector parsing when preceded by a
+  comment, introduced in 1.3.0.
+- NSAC impl.: improve detection of unbalanced parentheses.
+- CSSOM: fix a bug decomposing and serializing the `background` shorthand.
+- CSSOM: fix a bug in the minified serialization of `calc()` values.
+- More efficient use of a few collections.
+- Remove several unnecessary `return` statements.
+- Gradle: upgrade wrapper to 7.4.
