@@ -176,7 +176,6 @@ tasks.withType(JavaCompile) {
 }
 
 tasks.withType(Javadoc) {
-	failOnError false
 	options.addStringOption('Xdoclint:none', '-quiet')
 	options.addStringOption('encoding', 'UTF-8')
 	options.addStringOption('charset', 'UTF-8')
