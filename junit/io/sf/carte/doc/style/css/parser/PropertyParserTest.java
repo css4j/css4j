@@ -2359,11 +2359,19 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueCalc6() throws CSSException, IOException {
-		LexicalUnit lu = parsePropertyValue("calc(max(10em, 2%) * 3)");
+		LexicalUnit lu = parsePropertyValue("calc(0ex + max(10em, 2%) * 3)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EX, param.getCssUnit());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
 		assertEquals("max", param.getFunctionName());
@@ -2391,7 +2399,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(3, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(max(10em, 2%)*3)", lu.toString());
+		assertEquals("calc(0ex + max(10em, 2%)*3)", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -2630,6 +2638,165 @@ public class PropertyParserTest {
 		assertEquals(-2, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc((75vw*9/16 - 100vh)/-2)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueCalcPlusNegValue() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(100vh + -2em)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		assertEquals("vh", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(-2f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100vh + -2em)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueCalcPlusZerolessNegValue() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(100vh + -.2em)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		assertEquals("vh", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(-0.2f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100vh + -0.2em)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueCalcMinusPosValue() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(100vh - +2em)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		assertEquals("vh", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(2f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100vh - 2em)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueCalcMinusZerolessPosValue() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("calc(100vh - +.2em)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		assertEquals("vh", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(0.2f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(100vh - 0.2em)", lu.toString());
 	}
 
 	@Test
@@ -2989,6 +3156,24 @@ public class PropertyParserTest {
 	public void testParsePropertyBadCalc15() throws CSSException, IOException {
 		try {
 			parsePropertyValue("calc(100% * * 2em)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalcSignedSubexpression() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(+(2em * 1))");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+		}
+	}
+
+	@Test
+	public void testParsePropertyBadCalcSignedSubexpression2() throws CSSException, IOException {
+		try {
+			parsePropertyValue("calc(-(2em * 1))");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}

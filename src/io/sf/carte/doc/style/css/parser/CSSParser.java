@@ -5991,6 +5991,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		private void newFunction(int index) {
 			LexicalUnitImpl lu;
+			String raw = buffer.toString();
 			String name = unescapeBuffer(index);
 			String lcName = name.toLowerCase(Locale.ROOT);
 			if ("url".equals(lcName)) {
@@ -6027,8 +6028,11 @@ public class CSSParser implements Parser, Cloneable {
 				lu = newLexicalUnit(LexicalType.CUBIC_BEZIER_FUNCTION, true);
 			} else if ("steps".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.STEPS_FUNCTION, true);
-			} else {
+			} else if (isNotForbiddenIdentStart(raw)) {
 				lu = newLexicalUnit(LexicalType.FUNCTION, true);
+			} else {
+				handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected: " + raw);
+				return;
 			}
 			lu.value = name;
 			functionToken = true;
@@ -6698,18 +6702,7 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (!hexColor) {
 					if (codepoint == 45) { // -
 						if (!unicodeRange) {
-							if (functionToken) {
-								processBuffer(index);
-								if (currentlu.parameters == null || !lastParamIsAlgebraicOperator()) {
-									newLexicalUnit(LexicalType.OPERATOR_MINUS, false);
-								} else {
-									unexpectedCharError(index, codepoint);
-								}
-								prevcp = codepoint;
-								return;
-							} else {
-								processBuffer(index);
-							}
+							processBuffer(index);
 						}
 						buffer.append('-');
 						codepoint = 65;
