@@ -34,7 +34,7 @@ and serialization are handled.
 ### String-less URLs with a semicolon
 
 String-less URLs are long-supported by this library, but finding a semicolon
-inside the URL parenthesis would trigger an error despite being a specially
+inside the URL parentheses would trigger an error despite being a specially
 allowed case. Now semicolons are accepted there, and one can have URLs like
 
 ```css
@@ -74,10 +74,10 @@ errors when converted to CSSOM (for example in `-webkit-mask`). Now the library
 is more tolerant to custom syntaxes for prefixed properties.
 
 
-### Advanced color functions in shorthands
+### Advanced image functions in shorthands
 
-The `image()`, `image-set()` and `cross-fade()` color functions are now
-processed as valid color values when decomposing shorthands. Beware that
+The `image()`, `image-set()` and `cross-fade()` image functions are now
+processed as valid image values when decomposing shorthands. Beware that
 although the library is able to decompose such shorthands, most browsers won't.
 
 
@@ -115,6 +115,7 @@ standard part of the CI process.
 - CSSOM: fix a bug in the minified serialization of the `background` shorthand 
   in computed styles.
 - CSSOM: fix a bug decomposing the `background` shorthand.
+- CSSOM: fix a bug in the minified serialization of calc() values.
 - CSSOM: now `image()`, `image-set()` and `cross-fade()` functions match
   `<image>`.
 - CSSOM: support `attr()` length-percentage values when decomposing the 
