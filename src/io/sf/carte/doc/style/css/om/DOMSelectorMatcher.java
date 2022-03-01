@@ -82,11 +82,11 @@ public class DOMSelectorMatcher extends AbstractSelectorMatcher {
 			if (node.getNodeType() == Node.ELEMENT_NODE && matchSelectors(selectors, (CSSElement)node)) {
 				idx++;
 				if (node == element) {
-					break;
+					return idx;
 				}
 			}
 		}
-		return idx == sz ? -1 : idx;
+		return -1;
 	}
 
 	@Override
