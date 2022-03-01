@@ -1376,13 +1376,16 @@ public class SelectorMatcherTest {
 		//
 		CSSElement lastp = doc.createElement("p");
 		parent.appendChild(lastp);
-		assertTrue(matcher.matches(selist) < 0);
+		assertEquals(-1, matcher.matches(selist));
+		SelectorMatcher lastpMatcher = selectorMatcher(lastp);
+		assertEquals(0, lastpMatcher.matches(selist));
 		css = parseStyle("p:nth-last-child(2 of p) {color: blue;}");
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("p:nth-last-child(2 of p)", selectorListToString(selist, rule));
 		selidx = matcher.matches(selist);
-		assertTrue(selidx >= 0);
+		assertEquals(0, selidx);
+		assertEquals(-1, lastpMatcher.matches(selist));
 		// Specificity
 		sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
