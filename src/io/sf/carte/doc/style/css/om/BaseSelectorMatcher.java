@@ -90,11 +90,11 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 			if (node.getNodeType() == Node.ELEMENT_NODE && matchSelectors(selectors, (E) node)) {
 				idx++;
 				if (node == element) {
-					break;
+					return idx;
 				}
 			}
 		}
-		return idx == sz ? -1 : idx;
+		return -1;
 	}
 
 	@SuppressWarnings("unchecked")
