@@ -17,13 +17,6 @@
  * handle HTML and XHTML in the same way,
  * {@link io.sf.carte.doc.dom.DOMElement#getTagName() DOMElement.getTagName()}
  * does not return an upper-cased name.</li>
- * <li>The methods <code>Element.setIdAttribute</code>,
- * <code>Element.setIdAttributeNS</code> and
- * <code>Element.setIdAttributeNode</code> are now deprecated by W3C, but they
- * do work in this implementation. In HTML documents, only case changes to the
- * 'id' attribute (like 'ID' or 'Id') are allowed, and any change has
- * Document-wide effects (according to the HTML specification, there is only one
- * ID attribute in HTML).</li>
  * <li>Entity references are allowed as a last-resort solution in case that an
  * entity is unknown. No known current parser uses that, though. This limited
  * support for entity references may be dropped in future versions.</li>
