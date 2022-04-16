@@ -16,8 +16,8 @@ jobs:
       packages: write
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 16
+    - uses: actions/checkout@v3
+    - name: Set up JDK
       uses: actions/setup-java@v3
       with:
         java-version: '17'
@@ -29,4 +29,6 @@ jobs:
       run: ./gradlew build -x test
 
     - name: Publish to GitHub Packages
-      run: ./gradlew publish -PmavenReleaseRepoUrl="https://maven.pkg.github.com/css4j/css4j" -PmavenRepoUsername=${{ github.actor }} -PmavenRepoPassword=${{ secrets.GITHUB_TOKEN }}
+      run: >-
+        ./gradlew publish -PmavenReleaseRepoUrl="https://maven.pkg.github.com/css4j/css4j"
+        -PmavenRepoUsername=${{ github.actor }} -PmavenRepoPassword=${{ secrets.GITHUB_TOKEN }}
