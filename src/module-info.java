@@ -8,6 +8,11 @@
  * https://css4j.github.io/LICENSE.txt
  *
  */
+
+/**
+ * CSS parser with Event and Object Model APIs, a DOM wrapper and a CSS-aware
+ * DOM implementation.
+ */
 module io.sf.carte.css4j {
 	exports io.sf.carte.doc;
 	exports io.sf.carte.doc.agent;
