@@ -1065,7 +1065,7 @@ public class ParseHelper {
 		return true;
 	}
 
-	public static boolean equalsIgnoreCase(CharSequence seq, String lcString) {
+	public static boolean equalsIgnoreCase(CharSequence seq, CharSequence lcString) {
 		int len = seq.length();
 		if (lcString.length() != len) {
 			return false;
