@@ -82,36 +82,15 @@ public class ValueFactory {
 		} else {
 			cssUnit = unit.getCssUnit();
 		}
-		switch (cssUnit) {
-		case CSSUnit.CSS_PERCENTAGE:
-		case CSSUnit.CSS_PX:
-		case CSSUnit.CSS_PT:
-		case CSSUnit.CSS_EM:
-		case CSSUnit.CSS_EX:
-		case CSSUnit.CSS_PC:
-		case CSSUnit.CSS_CM:
-		case CSSUnit.CSS_IN:
-		case CSSUnit.CSS_MM:
-		case CSSUnit.CSS_CAP:
-		case CSSUnit.CSS_CH:
-		case CSSUnit.CSS_IC:
-		case CSSUnit.CSS_LH:
-		case CSSUnit.CSS_QUARTER_MM:
-		case CSSUnit.CSS_REM:
-		case CSSUnit.CSS_RLH:
-		case CSSUnit.CSS_VB:
-		case CSSUnit.CSS_VH:
-		case CSSUnit.CSS_VI:
-		case CSSUnit.CSS_VMAX:
-		case CSSUnit.CSS_VMIN:
-		case CSSUnit.CSS_VW:
+
+		if (CSSUnit.isLengthUnitType(cssUnit) || cssUnit == CSSUnit.CSS_PERCENTAGE) {
 			return cssUnit;
-		default:
-			if (type == LexicalType.INTEGER && unit.getIntegerValue() == 0) {
-				return CSSUnit.CSS_NUMBER;
-			}
-			return CSSUnit.CSS_INVALID;
 		}
+		if (type == LexicalType.INTEGER && unit.getIntegerValue() == 0) {
+			return CSSUnit.CSS_NUMBER;
+		}
+
+		return CSSUnit.CSS_INVALID;
 	}
 
 	private static boolean isFunctionType(LexicalType type) {
@@ -135,24 +114,17 @@ public class ValueFactory {
 		} else {
 			cssUnit = unit.getCssUnit();
 		}
-		switch (cssUnit) {
-		case CSSUnit.CSS_DPCM:
-		case CSSUnit.CSS_DPI:
-		case CSSUnit.CSS_DPPX:
-			return true;
-		default:
-			return false;
-		}
+
+		return CSSUnit.isResolutionUnitType(cssUnit);
 	}
 
 	/**
-	 * Tests whether the given NSAC value could represent a size greater than zero (e.g. font
-	 * size).
+	 * Tests whether the given NSAC value could represent a size greater than zero
+	 * (e.g. font size).
 	 * 
-	 * @param unit
-	 *            the lexical value.
-	 * @return <code>true</code> if it is a size type (including percentage and unknown dimension), false
-	 *         otherwise.
+	 * @param unit the lexical value.
+	 * @return <code>true</code> if it is a size type (including percentage and
+	 *         unknown dimension), false otherwise.
 	 */
 	public static boolean isPositiveSizeSACUnit(LexicalUnit unit) {
 		final LexicalType utype = unit.getLexicalUnitType();
@@ -165,38 +137,14 @@ public class ValueFactory {
 			cssUnit = unit.getCssUnit();
 			function = false;
 		}
-		switch (cssUnit) {
-		case CSSUnit.CSS_PERCENTAGE:
-		case CSSUnit.CSS_PX:
-		case CSSUnit.CSS_PT:
-		case CSSUnit.CSS_EM:
-		case CSSUnit.CSS_EX:
-		case CSSUnit.CSS_PC:
-		case CSSUnit.CSS_CM:
-		case CSSUnit.CSS_OTHER:
-		case CSSUnit.CSS_IN:
-		case CSSUnit.CSS_MM:
-		case CSSUnit.CSS_CAP:
-		case CSSUnit.CSS_CH:
-		case CSSUnit.CSS_IC:
-		case CSSUnit.CSS_LH:
-		case CSSUnit.CSS_QUARTER_MM:
-		case CSSUnit.CSS_REM:
-		case CSSUnit.CSS_RLH:
-		case CSSUnit.CSS_VB:
-		case CSSUnit.CSS_VH:
-		case CSSUnit.CSS_VI:
-		case CSSUnit.CSS_VMAX:
-		case CSSUnit.CSS_VMIN:
-		case CSSUnit.CSS_VW:
-			return function || unit.getFloatValue() > 0f;
-		default:
-			return false;
-		}
+
+		return (CSSUnit.isLengthUnitType(cssUnit) || cssUnit == CSSUnit.CSS_PERCENTAGE
+			|| cssUnit == CSSUnit.CSS_OTHER) && (function || unit.getFloatValue() > 0f);
 	}
 
 	/**
-	 * Tests whether the given NSAC unit type is a size or numeric unit.
+	 * Tests whether the given NSAC unit type is a size or numeric unit (or a
+	 * unknown unit).
 	 * 
 	 * @param unit the lexical value.
 	 * @return <code>true</code> if it is a size or numeric type (including
@@ -212,34 +160,9 @@ public class ValueFactory {
 		} else {
 			cssUnit = unit.getCssUnit();
 		}
-		switch (cssUnit) {
-		case CSSUnit.CSS_PERCENTAGE:
-		case CSSUnit.CSS_PX:
-		case CSSUnit.CSS_PT:
-		case CSSUnit.CSS_EM:
-		case CSSUnit.CSS_EX:
-		case CSSUnit.CSS_PC:
-		case CSSUnit.CSS_CM:
-		case CSSUnit.CSS_OTHER:
-		case CSSUnit.CSS_IN:
-		case CSSUnit.CSS_MM:
-		case CSSUnit.CSS_CAP:
-		case CSSUnit.CSS_CH:
-		case CSSUnit.CSS_IC:
-		case CSSUnit.CSS_LH:
-		case CSSUnit.CSS_QUARTER_MM:
-		case CSSUnit.CSS_REM:
-		case CSSUnit.CSS_RLH:
-		case CSSUnit.CSS_VB:
-		case CSSUnit.CSS_VH:
-		case CSSUnit.CSS_VI:
-		case CSSUnit.CSS_VMAX:
-		case CSSUnit.CSS_VMIN:
-		case CSSUnit.CSS_VW:
-			return true;
-		default:
-			return false;
-		}
+
+		return CSSUnit.isLengthUnitType(cssUnit) || cssUnit == CSSUnit.CSS_PERCENTAGE
+			|| cssUnit == CSSUnit.CSS_OTHER;
 	}
 
 	/**
@@ -282,15 +205,8 @@ public class ValueFactory {
 		} else {
 			cssunit = unit.getCssUnit();
 		}
-		switch (cssunit) {
-		case CSSUnit.CSS_DEG:
-		case CSSUnit.CSS_RAD:
-		case CSSUnit.CSS_GRAD:
-		case CSSUnit.CSS_TURN:
-			return true;
-		default:
-			return false;
-		}
+
+		return CSSUnit.isAngleUnitType(cssunit);
 	}
 
 	/**
@@ -311,13 +227,8 @@ public class ValueFactory {
 		} else {
 			cssunit = unit.getCssUnit();
 		}
-		switch (cssunit) {
-		case CSSUnit.CSS_MS:
-		case CSSUnit.CSS_S:
-			return true;
-		default:
-			return false;
-		}
+
+		return CSSUnit.isTimeUnitType(cssunit);
 	}
 
 	/**
@@ -917,37 +828,12 @@ public class ValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case DIMENSION:
-				switch (lunit.getCssUnit()) {
-				case CSSUnit.CSS_CM:
-				case CSSUnit.CSS_EM:
-				case CSSUnit.CSS_EX:
-				case CSSUnit.CSS_IN:
-				case CSSUnit.CSS_MM:
-				case CSSUnit.CSS_PC:
-				case CSSUnit.CSS_PX:
-				case CSSUnit.CSS_PT:
-				case CSSUnit.CSS_CAP:
-				case CSSUnit.CSS_CH:
-				case CSSUnit.CSS_IC:
-				case CSSUnit.CSS_LH:
-				case CSSUnit.CSS_QUARTER_MM:
-				case CSSUnit.CSS_REM:
-				case CSSUnit.CSS_RLH:
-				case CSSUnit.CSS_VB:
-				case CSSUnit.CSS_VH:
-				case CSSUnit.CSS_VI:
-				case CSSUnit.CSS_VMAX:
-				case CSSUnit.CSS_VMIN:
-				case CSSUnit.CSS_VW:
-					primi = new NumberValue();
-					(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				primi = new NumberValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				if (CSSUnit.isLengthUnitType(lunit.getCssUnit())) {
 					((NumberValue) primi).lengthUnitType = true;
-					break typeLoop;
-				default:
-					primi = new NumberValue();
-					(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-					break typeLoop;
 				}
+				break typeLoop;
 			case REAL:
 				primi = new NumberValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
