@@ -476,9 +476,76 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	}
 
 	private boolean matchesLang(LangCondition cond, SimpleSelector simple) {
-		String attrName = cond.getLang();
+		if (!matches(simple)) {
+			return false;
+		}
+
 		String lang = getLanguage();
-		return lang.startsWith(attrName) && matches(simple);
+		String value = cond.getLang();
+		if (value.indexOf(',') == -1) {
+			return matchesLangSpec(value, lang);
+		}
+
+		// Match any spec
+		String[] specArray = value.split(",");
+		for (String spec : specArray) {
+			spec = spec.trim();
+			if (spec.length() != 0 && matchesLangSpec(spec, lang)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Match a lang spec with the given language.
+	 * <p>
+	 * Bugs: it should apply implicit wildcard matching, example from the spec:
+	 * </p>
+	 * 
+	 * <pre>
+	 * :lang(de-DE) should match all of de-DE, de-DE-1996, de-Latn-DE, de-Latf-DE, de-Latn-DE-1996
+	 * </pre>
+	 * <p>
+	 * but currently does not.
+	 * </p>
+	 * 
+	 * @param spec the lang spec, for example {@code es-ES} or {@code es-*-1990}.
+	 * @param lang the document language.
+	 * @return {@code true} if matches.
+	 */
+	private boolean matchesLangSpec(String spec, String lang) {
+		// Remove string delimiters, if any
+		char c0 = spec.charAt(0);
+		int specLen;
+		if (c0 == '\'') {
+			if (spec.charAt((specLen = spec.length()) - 1) == '\'') {
+				spec = spec.substring(1, specLen - 1);
+			}
+		} else if (c0 == '"') {
+			if (spec.charAt((specLen = spec.length()) - 1) == '"') {
+				spec = spec.substring(1, specLen - 1);
+			}
+		}
+
+		// If this is not a range match, use simplified path
+		if (spec.indexOf('*') == -1) {
+			return lang.startsWith(spec);
+		}
+
+		return matchesLangRange(spec, lang);
+	}
+
+	private boolean matchesLangRange(String spec, String lang) {
+		// Convert into a Java regexp
+		spec = spec.replaceAll("\\*", ".*");
+
+		// Make sure that it matches language variants
+		if (spec.charAt(spec.length() - 1) != '*') {
+			spec += ".*";
+		}
+
+		return lang.matches(spec);
 	}
 
 	protected boolean isDir(String argument) {

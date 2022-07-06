@@ -1929,6 +1929,22 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorLang_Variant() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p:lang(fr-be)");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.LANG, cond.getConditionType());
+		assertEquals("fr-be", ((LangCondition) cond).getLang());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p:lang(fr-be)", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorLangError() throws CSSException, IOException {
 		try {
 			parseSelectors(":lang(zh, )");
@@ -1945,6 +1961,16 @@ public class SelectorParserTest {
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 			assertEquals(8, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorLangErrorString() throws CSSException, IOException {
+		try {
+			parseSelectors(":lang(fr, '*-hant)");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(11, e.getColumnNumber());
 		}
 	}
 

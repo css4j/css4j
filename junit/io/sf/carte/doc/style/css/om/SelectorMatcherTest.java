@@ -580,19 +580,67 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelector1Lang() throws Exception {
+	public void testMatchSelectorLang() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p:lang(en) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(en)", selectorListToString(selist, rule));
 		Element elm = createElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) < 0);
+		assertEquals(-1, matcher.matches(selist));
+		//
+		elm.setAttribute("lang", "en-US");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
 	}
 
 	@Test
-	public void testMatchSelector2Lang() throws Exception {
-		BaseCSSStyleSheet css = parseStyle("p:lang(en) {color: blue;}");
+	public void testMatchSelectorLangString() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang(de,'en-US') {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:lang(de,en-US)", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		//
+		elm.setAttribute("lang", "en-US");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorLangStringDQ() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang(de, \"en-US\") {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:lang(de,en-US)", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		//
+		elm.setAttribute("lang", "en-US");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+	}
+
+	/*
+	 * Verify that a wrong selector serializes correctly
+	 */
+	@Test
+	public void testMatchSelectorLangStringBadLang() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang(de,'1-US') {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:lang(de,'1-US')", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorLang2() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang(en-US) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		Element elm = createElement("p");
@@ -610,6 +658,116 @@ public class SelectorMatcherTest {
 		elm.setAttribute("lang", "en-US");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorLangRange() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang(\\*) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:lang(\\*)", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "en-GB");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn-DE-1996");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorLangRangeString() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang('*') {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:lang('*')", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "en-GB");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn-DE-1996");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorLangRangeStringDQ() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang(\"*\") {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:lang(\"*\")", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "en-GB");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn-DE-1996");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorLangRange2() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang(fr,\\*-Latn) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:lang(fr,\\*-Latn)", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "de-DE");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn-DE-1996");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorLangRange3() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:lang(fr-FR,de-\\*-DE) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:lang(fr-FR,de-\\*-DE)", selectorListToString(selist, rule));
+		Element elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn-DE");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "de-DE");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+		//
+		elm = createElement("p");
+		elm.setAttribute("lang", "de-Latn-DE-1996");
+		matcher = selectorMatcher(elm);
+		assertEquals(0, matcher.matches(selist));
 	}
 
 	@Test
