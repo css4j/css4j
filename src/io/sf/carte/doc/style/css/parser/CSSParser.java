@@ -6012,6 +6012,8 @@ public class CSSParser implements Parser, Cloneable {
 				lu = newLexicalUnit(LexicalType.LABCOLOR, true);
 			} else if ("lch".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.LCHCOLOR, true);
+			} else if ("hwb".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.HWBCOLOR, true);
 			} else if ("color".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.COLOR_FUNCTION, true);
 			} else if ("element".equals(lcName)) {
@@ -6131,6 +6133,7 @@ public class CSSParser implements Parser, Cloneable {
 					(type == LexicalType.HSLCOLOR && !isValidHSLColor()) ||
 					(type == LexicalType.LABCOLOR && !isValidLABColor()) ||
 					(type == LexicalType.LCHCOLOR && !isValidLCHColor()) ||
+					(type == LexicalType.HWBCOLOR && !isValidHWBColor()) ||
 					(type == LexicalType.COLOR_FUNCTION && !isValidColorFunction())) {
 				String s;
 				try {
@@ -6354,6 +6357,66 @@ public class CSSParser implements Parser, Cloneable {
 							// last type was integer, angle or var().
 							hasNoCommas = true;
 						}
+						pcntCount++;
+						type = LexicalType.PERCENTAGE;
+					}
+				} else if (type == LexicalType.VAR) {
+					hasVar = true;
+				} else {
+					return false;
+				}
+				lastType = type;
+				lu = lu.nextLexicalUnit;
+			} while (lu != null);
+			return pcntCount >= 2 || (hasVar && pcntCount <= 1);
+		}
+
+		private boolean isValidHWBColor() {
+			LexicalUnitImpl lu = currentlu.parameters;
+			short pcntCount = 0;
+			LexicalType lastType = LexicalType.UNKNOWN; // EXT1 means angle type
+			boolean hasVar = false;
+			do {
+				LexicalType type = lu.getLexicalUnitType();
+				if (type == LexicalType.PERCENTAGE) {
+					if (lastType == LexicalType.UNKNOWN) {
+						// First type must be integer, real, angle or VAR
+						return false;
+					}
+					pcntCount++;
+				} else if (type == LexicalType.INTEGER) {
+					if (lastType != LexicalType.UNKNOWN) {
+						int value;
+						if ((lastType != LexicalType.OPERATOR_SLASH)
+								|| (pcntCount < 2 && !hasVar) || (value = lu.getIntegerValue()) < 0 || value > 1) {
+							return false;
+						}
+					}
+				} else if (isAngleType(lu.getCssUnit())) {
+					if (lastType != LexicalType.UNKNOWN) {
+						return false;
+					}
+					type = LexicalType.EXT1;
+				} else if (type == LexicalType.OPERATOR_SLASH) {
+					if (((pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)
+							|| (lastType != LexicalType.PERCENTAGE && lastType != LexicalType.VAR))) {
+						return false;
+					}
+				} else if (type == LexicalType.REAL) {
+					if (lastType != LexicalType.UNKNOWN) {
+						if ((lastType != LexicalType.OPERATOR_SLASH)
+								|| (pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)) {
+							return false;
+						}
+						pcntCount = 3;
+					}
+				} else if (type == LexicalType.CALC) {
+					if (lastType == LexicalType.UNKNOWN) {
+						type = LexicalType.INTEGER;
+					} else if (lastType == LexicalType.OPERATOR_SLASH) {
+						type = LexicalType.REAL;
+						pcntCount = 3;
+					} else {
 						pcntCount++;
 						type = LexicalType.PERCENTAGE;
 					}

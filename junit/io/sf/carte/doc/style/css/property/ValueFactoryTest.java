@@ -261,10 +261,10 @@ public class ValueFactoryTest {
 		lunit = parsePropertyValue("hsla(0, 0%, 0%, 0)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
 		//
-		lunit = parsePropertyValue("hwb(205, 19%, 14%)");
+		lunit = parsePropertyValue("hwb(205 19% 14%)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
 		//
-		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
+		lunit = parsePropertyValue("hwb(0 0% 0%)");
 		assertFalse(ValueFactory.isSizeSACUnit(lunit));
 		//
 		lunit = parsePropertyValue("hwb(0 0% 0% / 0)");
@@ -330,9 +330,9 @@ public class ValueFactoryTest {
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
 		lunit = parsePropertyValue("hsla(0, 0%, 0%, 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		lunit = parsePropertyValue("hwb(205, 19%, 14%)");
+		lunit = parsePropertyValue("hwb(205 19% 14%)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
-		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
+		lunit = parsePropertyValue("hwb(0 0% 0%)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
 		lunit = parsePropertyValue("hwb(0 0% 0% / 0)");
 		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
@@ -370,9 +370,9 @@ public class ValueFactoryTest {
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
 		lunit = parsePropertyValue("hsla(0, 0%, 0%, 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		lunit = parsePropertyValue("hwb(205, 19%, 14%)");
+		lunit = parsePropertyValue("hwb(205 19% 14%)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
-		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
+		lunit = parsePropertyValue("hwb(0 0% 0%)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
 		lunit = parsePropertyValue("hwb(0 0% 0% / 0)");
 		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
@@ -454,7 +454,7 @@ public class ValueFactoryTest {
 		assertEquals(CSSUnit.CSS_PX, ValueFactory.functionDimensionArgumentUnit(lunit));
 		lunit = parsePropertyValue("foo(3.2,4)");
 		assertEquals(-1, ValueFactory.functionDimensionArgumentUnit(lunit));
-		lunit = parsePropertyValue("hwb(0, 0%, 0%)");
+		lunit = parsePropertyValue("radial-gradient(5em circle at top left, yellow, blue)");
 		assertEquals(-1, ValueFactory.functionDimensionArgumentUnit(lunit));
 	}
 

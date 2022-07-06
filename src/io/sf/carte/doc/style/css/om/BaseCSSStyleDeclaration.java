@@ -1972,6 +1972,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case HWBCOLOR:
 		case COLOR_FUNCTION:
 			return true;
 		case IDENT:
@@ -1984,7 +1985,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			return colorids.isColorIdentifier(sv) || "transparent".equals(sv) || "currentcolor".equals(sv);
 		case FUNCTION:
 			String func = lunit.getFunctionName();
-			return "hwb".equalsIgnoreCase(func);
+			return "oklab".equalsIgnoreCase(func) || "oklch".equalsIgnoreCase(func);
 		default:
 			break;
 		}

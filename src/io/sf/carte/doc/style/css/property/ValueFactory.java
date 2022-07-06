@@ -195,7 +195,7 @@ public class ValueFactory {
 		LexicalType type = unit.getLexicalUnitType();
 		short cssunit;
 		if (isFunctionType(type)) {
-			if (isColorOrGradientFunction(unit)) {
+			if (isGradientFunction(unit)) {
 				return false;
 			}
 			unit = firstDimensionArgument(unit);
@@ -232,16 +232,15 @@ public class ValueFactory {
 	}
 
 	/**
-	 * If the supplied value represents a function and not a color, get the unit type of the
-	 * first dimension argument found.
+	 * If the supplied value represents a function and not a gradient, get the unit
+	 * type of the first dimension argument found.
 	 * 
-	 * @param lunit
-	 *            the lexical value.
-	 * @return the unit type of the first dimension argument found, or -1 if the value has no
-	 *         dimension arguments or is not a function.
+	 * @param lunit the lexical value.
+	 * @return the unit type of the first dimension argument found, or -1 if the
+	 *         value has no dimension arguments or is not a function.
 	 */
 	static short functionDimensionArgumentUnit(LexicalUnit lunit) {
-		if (isColorOrGradientFunction(lunit)) {
+		if (isGradientFunction(lunit)) {
 			return -1;
 		}
 		LexicalUnit lu = lunit.getParameters();
@@ -305,9 +304,9 @@ public class ValueFactory {
 		return null;
 	}
 
-	private static boolean isColorOrGradientFunction(LexicalUnit lunit) {
+	private static boolean isGradientFunction(LexicalUnit lunit) {
 		String name = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-		return "hwb".equals(name) || name.endsWith("-gradient");
+		return name.endsWith("-gradient");
 	}
 
 	/**
@@ -867,6 +866,10 @@ public class ValueFactory {
 				primi = new LCHColorValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case HWBCOLOR:
+				primi = new HWBColorValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case CALC:
 				primi = new CalcValue();
 				setter = primi.newLexicalSetter();
@@ -882,9 +885,7 @@ public class ValueFactory {
 				break;
 			case FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-				if ("hwb".equals(func)) {
-					primi = new HWBColorValue();
-				} else if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
+				if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
 						|| func.endsWith("conic-gradient")) {
 					primi = new GradientValue();
 					setter = primi.newLexicalSetter();

@@ -22,6 +22,13 @@ import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
  */
 public interface LexicalUnit {
 
+	/**
+	 * The lexical type.
+	 * <p>
+	 * The <code>ordinal</code> position is not guaranteed to be kept among
+	 * releases.
+	 * </p>
+	 */
 	enum LexicalType {
 		/**
 		 * ,
@@ -160,6 +167,15 @@ public interface LexicalUnit {
 		 * @see #getParameters
 		 */
 		HSLCOLOR,
+
+		/**
+		 * HWB colors, for example: <code>hwb(0 0% 0% / 0)</code> or
+		 * <code>hwb(120 0% 49.8%)</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		HWBCOLOR,
 
 		/**
 		 * lab() colors, for example: <code>lab(53.2% 42.4 57.76 / 0.6)</code>

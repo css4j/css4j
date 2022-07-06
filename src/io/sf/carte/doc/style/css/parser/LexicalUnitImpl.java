@@ -398,6 +398,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case HWBCOLOR:
 		case COLOR_FUNCTION:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
@@ -639,6 +640,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case HWBCOLOR:
 		case COLOR_FUNCTION:
 			return matchBoolean(cat == Category.color);
 		case CALC:
@@ -750,9 +752,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 	private static Match matchFunction(LexicalUnitImpl lexicalUnit, CSSValueSyntax syntax) {
 		Category cat = syntax.getCategory();
 		String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
-		if ("hwb".equals(func)) {
-			return matchBoolean(cat == Category.color);
-		} else if (func.endsWith("-gradient") || func.equals("image") || func.equals("image-set")
+		if (func.endsWith("-gradient") || func.equals("image") || func.equals("image-set")
 			|| func.equals("cross-fade")) {
 			return matchBoolean(cat == Category.image);
 		} else if (func.equals("env")) {

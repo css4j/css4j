@@ -117,9 +117,8 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			String func = lunit.getFunctionName();
 			try {
-				if ("hwb".equalsIgnoreCase(func)) {
+				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.HWBCOLOR) {
 					setLexicalHWB(lunit);
 				} else {
 					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "No hwb() value: " + lunit.toString());

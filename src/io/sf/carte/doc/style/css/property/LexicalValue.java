@@ -89,6 +89,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case HWBCOLOR:
 		case COLOR_FUNCTION:
 			type = Type.COLOR;
 			break;
@@ -97,9 +98,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			break;
 		case FUNCTION:
 			String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
-			if ("hwb".equals(func)) {
-				type = Type.COLOR;
-			} else if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
+			if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
 					|| func.endsWith("conic-gradient")) {
 				type = Type.GRADIENT;
 			} else if ("env".equals(func)) {
@@ -226,6 +225,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case HWBCOLOR:
 		case COLOR_FUNCTION:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:

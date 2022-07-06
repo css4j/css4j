@@ -67,6 +67,21 @@ public class LexicalValueTest {
 		//
 		value.setCssText("foo / 9");
 		assertEquals(Type.UNKNOWN, value.getFinalType());
+		//
+		value.setCssText("rgb(var(--foo) 0 0.3)");
+		assertEquals(Type.COLOR, value.getFinalType());
+		//
+		value.setCssText("hsl(var(--foo) 0% 0.3%)");
+		assertEquals(Type.COLOR, value.getFinalType());
+		//
+		value.setCssText("hwb(var(--foo) 0% 0.3%)");
+		assertEquals(Type.COLOR, value.getFinalType());
+		//
+		value.setCssText("color(display-p3 0.584 var(--foo))");
+		assertEquals(Type.COLOR, value.getFinalType());
+		//
+		value.setCssText("color(display-p3 var(--foo))");
+		assertEquals(Type.COLOR, value.getFinalType());
 	}
 
 	@Test
