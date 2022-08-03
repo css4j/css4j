@@ -180,6 +180,29 @@ public class CSSParser implements Parser, Cloneable {
 		tp.parse(reader, "/*", "*/");
 	}
 
+	/**
+	 * Parse a CSS sheet from a URI.
+	 * <p>
+	 * The sheet is parsed as a rule list, that is, XML's {@code CDO}-{@code CDC}
+	 * comments are not expected.
+	 * </p>
+	 * <p>
+	 * The timeout to establish a connection is of 30 seconds.
+	 * </p>
+	 * <p>
+	 * Usage of this method may have security implications. Please make sure that
+	 * the URI being passed is safe to use.
+	 * </p>
+	 *
+	 * @param uri The URI locating the sheet.
+	 * @throws CSSParseException     if an error was found and no error handler was
+	 *                               set.
+	 * @throws IOException           if {@code uri} is an invalid URL or a I/O error
+	 *                               was found while retrieving the sheet.
+	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
+	 * @see #setDocumentHandler
+	 * @see #setErrorHandler
+	 */
 	@Override
 	public void parseStyleSheet(String uri) throws CSSParseException, IOException, IllegalStateException {
 		if (this.handler == null) {
@@ -187,6 +210,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 		URL url = new URL(uri);
 		URLConnection ucon = url.openConnection();
+		ucon.setConnectTimeout(30000);
 		ucon.connect();
 		InputStream is = ucon.getInputStream();
 		is = new BufferedInputStream(is);
