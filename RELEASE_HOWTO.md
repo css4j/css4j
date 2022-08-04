@@ -145,3 +145,8 @@ changes to that repo look correct, commit them.
 triggered by the commit to the `css4j.github.io` repository (in the previous
 step) completed successfully. A failure could mean that the artifacts are not
 usable with Java 8, for example.
+
+18) Clone the [css4j-dist](https://github.com/css4j/css4j-dist) repository, and
+update the css4j version number in the
+[install-css4j.sh](https://github.com/css4j/css4j-dist/blob/master/maven/install-css4j.sh)
+script. Commit the change and look for the completion of that project's CI.
