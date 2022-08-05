@@ -84,6 +84,9 @@ cd /path/to/css4j.github.io/maven/io/sf/carte
 generate_directory_index_caddystyle.py -r css4j
 ```
 
+If the changes to the `css4j.github.io` repo look correct, commit them as
+"Maven: deploy css4j 3.9.1 artifacts" or similar but do not push yet.
+
 10) Create a `v<version>` tag in the css4j Git repository. For example:
 
 ```shell
@@ -121,6 +124,9 @@ cd /path/to/css4j.github.io/digest
 You should now have the `css4j-3.9.1.sha1`, `css4j-3.9.1.sha256`,
 `css4j-3.9.1.b2` and `css4j-3.9.1.md5` files under the `digest` directory.
 
+If the changes to the `css4j.github.io` repo look correct, commit them as
+"Digests for css4j 3.9.1 zip distribution" or similar but do not push yet.
+
 13) Upload the newly created digest files and the Zip release to the appropriate
 folders in https://sourceforge.net/projects/carte/files/css4j/
 
@@ -138,15 +144,54 @@ were created successfully by the [Gradle Package](https://github.com/css4j/css4j
 task.
 
 16) Edit the `index.html` file in the `css4j.github.io` repository to reflect
-the new version number and the new download URLs, Release Notes included. If the
-changes to that repo look correct, commit them.
+the new version number and the new download URLs, Release Notes included.
 
-17) Check whether the ["Examples" CI](https://github.com/css4j/css4j.github.io/actions/workflows/examples.yml)
+If the changes to the `css4j.github.io` repo look correct, commit them with an
+appropriate description but do not push yet.
+
+17) For legacy URL compatibility, produce a non-modular Javadoc and put it into
+the relevant subdirectory of `css4j.github.io/api`. To generate the javadocs,
+apply the following patch to the `build.gradle` file in your copy of the
+release code:
+
+```patch
+@@ -178,11 +178,14 @@ tasks.withType(JavaCompile) {
+ tasks.withType(Javadoc) {
+ 	options.addStringOption('Xdoclint:none', '-quiet')
+ 	options.addStringOption('encoding', 'UTF-8')
+ 	options.addStringOption('charset', 'UTF-8')
+ 	options.overview = 'src/overview.html'
+-	options.links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
++	options.links 'https://docs.oracle.com/javase/8/docs/api/'
++	options.source = '8'
++	excludes += '**/module-info.java'
++	modularity.inferModulePath = false
+ }
+ 
+ tasks.withType(AbstractArchiveTask).configureEach {
+ 	// Reproducible build
+ 	preserveFileTimestamps = false
+```
+
+Once the new javadocs are generated, move them to the website repo. For example:
+
+```shell
+rm -fr /path/to/css4j.github.io/api/3
+mkdir /path/to/css4j.github.io/api/3
+mv /path/to/css4j-3.9.1/build/docs/javadoc/* /path/to/css4j.github.io/api/3
+```
+
+If the changes to the `css4j.github.io` repo look correct, commit them with a
+description like "Non-modular Javadocs for 3.9.1" and then push.
+
+Now you can remove your local copy of the release code if you want.
+
+18) Check whether the ["Examples" CI](https://github.com/css4j/css4j.github.io/actions/workflows/examples.yml)
 triggered by the commit to the `css4j.github.io` repository (in the previous
 step) completed successfully. A failure could mean that the artifacts are not
 usable with Java 8, for example.
 
-18) Clone the [css4j-dist](https://github.com/css4j/css4j-dist) repository, and
+19) Clone the [css4j-dist](https://github.com/css4j/css4j-dist) repository, and
 update the css4j version number in the
 [install-css4j.sh](https://github.com/css4j/css4j-dist/blob/master/maven/install-css4j.sh)
 script. Commit the change and look for the completion of that project's CI.
