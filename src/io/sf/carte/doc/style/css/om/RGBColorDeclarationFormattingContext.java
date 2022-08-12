@@ -15,7 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.RGBAColor;
@@ -32,7 +32,7 @@ public class RGBColorDeclarationFormattingContext extends DefaultDeclarationForm
 	public void writeValue(SimpleWriter wri, String propertyName, CSSValue value) throws IOException {
 		if (value.getPrimitiveType() == Type.COLOR) {
 			try {
-				RGBAColor rgb = ((CSSColorValue) value).toRGBColor();
+				RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
 				wri.write(rgb.toString());
 				return;
 			} catch (DOMException e) {
