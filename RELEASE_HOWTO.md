@@ -182,16 +182,25 @@ mv /path/to/css4j-3.9.1/build/docs/javadoc/* /path/to/css4j.github.io/api/3
 ```
 
 If the changes to the `css4j.github.io` repo look correct, commit them with a
-description like "Non-modular Javadocs for 3.9.1" and then push.
+description like "Non-modular Javadocs for 3.9.1" but do not push yet.
 
 Now you can remove your local copy of the release code if you want.
 
-18) Check whether the ["Examples" CI](https://github.com/css4j/css4j.github.io/actions/workflows/examples.yml)
-triggered by the commit to the `css4j.github.io` repository (in the previous
-step) completed successfully. A failure could mean that the artifacts are not
-usable with Java 8, for example.
+18) If this css4j release is coming from the `master` branch and is therefore
+the most current one, clone the [css4j-dist](https://github.com/css4j/css4j-dist)
+repository and execute `./gradlew mergedJavadoc`. Move the javadocs from
+`build/docs/javadoc` to `/path/to/css4j.github.io/api/latest`.
 
-19) Clone the [css4j-dist](https://github.com/css4j/css4j-dist) repository, and
-update the css4j version number in the
+If the changes to the `css4j.github.io` repo look correct, commit them with a
+description like "Latest modular Javadocs after css4j 3.9.1".
+
+19) Push the commits to the `css4j.github.io` repository, and check whether the
+subsequent ["Examples" CI](https://github.com/css4j/css4j.github.io/actions/workflows/examples.yml)
+completed successfully. A failure could mean that the artifacts are not usable
+with Java 8, for example.
+
+20) If this css4j release is coming from the `master` branch and is therefore
+the latest one, in your local copy of the [css4j-dist](https://github.com/css4j/css4j-dist)
+repository update the css4j version number in the
 [install-css4j.sh](https://github.com/css4j/css4j-dist/blob/master/maven/install-css4j.sh)
 script. Commit the change and look for the completion of that project's CI.
