@@ -316,6 +316,7 @@ public class CSSParser implements Parser, Cloneable {
 				if (uri != null) {
 					URL url = new URL(uri);
 					URLConnection con = url.openConnection();
+					con.setConnectTimeout(30000);
 					con.connect();
 					is = con.getInputStream();
 					is = new BufferedInputStream(is);
