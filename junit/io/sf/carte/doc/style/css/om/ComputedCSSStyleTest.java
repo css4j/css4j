@@ -170,18 +170,23 @@ public class ComputedCSSStyleTest {
 		CSSElement elm = xhtmlDoc.getElementById("span1");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertNotNull(style);
-		assertEquals(12f, style.getComputedFontSize(), 0.001);
+		assertEquals(15f, style.getComputedFontSize(), 1e-5);
+		assertEquals("#fd8eab", style.getPropertyValue("color"));
+
 		CSSElement para = xhtmlDoc.getElementById("para2");
-		CSSComputedProperties stylePara = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
+		CSSComputedProperties stylePara = xhtmlDoc.getStyleSheet().getComputedStyle(para, null);
 		assertNotNull(stylePara);
-		assertEquals(12f, stylePara.getComputedFontSize(), 0.001);
+		assertEquals(12f, stylePara.getComputedFontSize(), 1e-5);
+
 		xhtmlDoc.setTargetMedium("screen");
 		assertEquals("screen", xhtmlDoc.getStyleSheet().getTargetMedium());
 		style = elm.getComputedStyle(null);
 		assertNotNull(style);
-		assertEquals(20f, style.getComputedFontSize(), 0.001);
+		assertEquals(20f, style.getComputedFontSize(), 1e-5);
+		assertEquals("#fd8eab", style.getPropertyValue("color"));
+
 		stylePara = xhtmlDoc.getStyleSheet().getComputedStyle(para, null);
-		assertEquals(16f, stylePara.getComputedFontSize(), 0.001);
+		assertEquals(16f, stylePara.getComputedFontSize(), 1e-5);
 		xhtmlDoc.setTargetMedium("all");
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());

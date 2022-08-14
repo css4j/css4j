@@ -374,11 +374,12 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 			}
 		}
 
-		private void scanMediaRule(SelectorMatcher matcher, String targetMedium, CSSCanvas canvas, MediaRule mediaRule) {
+		private void scanMediaRule(SelectorMatcher matcher, String targetMedium, CSSCanvas canvas,
+			MediaRule mediaRule) {
 			MediaQueryList mediaList = mediaRule.getMedia();
-			// If we target a specific media, account for matching @media rules,
-			// otherwise ignore them.
-			if (targetMedium != null && mediaList.matches(targetMedium, canvas)) {
+			// If we target a specific media, account for matching @media rules
+			if (targetMedium != null ? mediaList.matches(targetMedium, canvas)
+				: mediaList.isAllMedia()) {
 				CSSRuleArrayList ruleList = mediaRule.getCssRules();
 				cascade(matcher, targetMedium, ruleList);
 			}

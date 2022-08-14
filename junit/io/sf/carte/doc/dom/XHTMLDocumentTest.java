@@ -39,6 +39,8 @@ import org.w3c.dom.Text;
 
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
@@ -437,19 +439,19 @@ public class XHTMLDocumentTest {
 		assertNotNull(elm);
 		String text = elm.getTextContent();
 		assertNotNull(text);
-		assertEquals(1106, text.trim().length());
+		assertEquals(1204, text.trim().length());
 		//
 		xmlDoc.normalizeDocument();
 		text = elm.getTextContent();
 		assertNotNull(text);
-		assertEquals(1106, text.trim().length());
+		assertEquals(1204, text.trim().length());
 		//
 		xmlDoc.getDomConfig().setParameter("use-computed-styles", true);
 		xmlDoc.getStyleSheets();
 		xmlDoc.normalizeDocument();
 		text = elm.getTextContent();
 		assertNotNull(text);
-		assertEquals(1052, text.trim().length());
+		assertEquals(1144, text.trim().length());
 	}
 
 	@Test
@@ -604,7 +606,7 @@ public class XHTMLDocumentTest {
 		assertNotNull(sheet);
 		assertEquals("Alter 1", sheet.getTitle());
 		assertEquals(2, sheet.getCssRules().getLength());
-		assertEquals(defSz + 20, css.getCssRules().getLength());
+		assertEquals(defSz + 22, css.getCssRules().getLength());
 		assertFalse(xmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
 	}
 
@@ -698,6 +700,33 @@ public class XHTMLDocumentTest {
 		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xmlDoc.getErrorHandler().hasIOErrors());
+	}
+
+	@Test
+	public void getFontSizeMedia() throws CSSMediaException {
+		CSSElement elm = xmlDoc.getElementById("span1");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals(15f, style.getComputedFontSize(), 1e-5);
+		assertEquals("#fd8eab", style.getPropertyValue("color"));
+
+		CSSElement para = xmlDoc.getElementById("para2");
+		CSSComputedProperties stylePara = xmlDoc.getStyleSheet().getComputedStyle(para, null);
+		assertNotNull(stylePara);
+		assertEquals(12f, stylePara.getComputedFontSize(), 1e-5);
+
+		xmlDoc.setTargetMedium("screen");
+		assertEquals("screen", xmlDoc.getStyleSheet().getTargetMedium());
+		style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals(20f, style.getComputedFontSize(), 1e-5);
+		assertEquals("#fd8eab", style.getPropertyValue("color"));
+
+		stylePara = xmlDoc.getStyleSheet().getComputedStyle(para, null);
+		assertEquals(16f, stylePara.getComputedFontSize(), 1e-5);
+		xmlDoc.setTargetMedium("all");
+		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 	@Test

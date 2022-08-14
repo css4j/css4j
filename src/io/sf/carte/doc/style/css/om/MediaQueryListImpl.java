@@ -54,9 +54,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	 */
 	MediaQueryListImpl(String medium) {
 		super();
-		MediaQueryImpl query = new MediaQueryImpl();
-		query.setMediaType(medium);
-		queryList.add(query);
+		if (medium != null && !"all".equalsIgnoreCase(medium)) {
+			MediaQueryImpl query = new MediaQueryImpl();
+			query.setMediaType(medium);
+			queryList.add(query);
+		}
 	}
 
 	/**
@@ -177,6 +179,10 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	 */
 	@Override
 	public boolean matches(String medium, CSSCanvas canvas) {
+		if (isAllMedia()) {
+			return true;
+		}
+
 		Iterator<MediaQueryImpl> it = queryList.iterator();
 		while (it.hasNext()) {
 			if (it.next().matches(medium, canvas)) {

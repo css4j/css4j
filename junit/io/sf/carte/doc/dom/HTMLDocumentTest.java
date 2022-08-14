@@ -831,18 +831,18 @@ public class HTMLDocumentTest {
 		assertNotNull(elm);
 		String text = elm.getTextContent();
 		assertNotNull(text);
-		assertEquals(1106, text.trim().length());
+		assertEquals(1204, text.trim().length());
 		//
 		xhtmlDoc.normalizeDocument();
 		text = elm.getTextContent();
 		assertNotNull(text);
-		assertEquals(1106, text.trim().length());
+		assertEquals(1204, text.trim().length());
 		//
 		xhtmlDoc.getDomConfig().setParameter("use-computed-styles", true);
 		xhtmlDoc.normalizeDocument();
 		text = elm.getTextContent();
 		assertNotNull(text);
-		assertEquals(1052, text.trim().length());
+		assertEquals(1144, text.trim().length());
 	}
 
 	@Test
@@ -1009,7 +1009,7 @@ public class HTMLDocumentTest {
 		assertNotNull(sheet);
 		assertEquals("Alter 1", sheet.getTitle());
 		assertEquals(2, sheet.getCssRules().getLength());
-		assertEquals(defSz + 20, css.getCssRules().getLength());
+		assertEquals(defSz + 22, css.getCssRules().getLength());
 		assertFalse(xhtmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
 	}
 

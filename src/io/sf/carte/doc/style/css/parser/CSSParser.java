@@ -547,7 +547,6 @@ public class CSSParser implements Parser, Cloneable {
 			mqhandler.invalidQuery(ex);
 			throw new CSSBudgetException("Nested queries exceed limit", e);
 		}
-		mqhandler.endQueryList();
 	}
 
 	/**
@@ -577,7 +576,7 @@ public class CSSParser implements Parser, Cloneable {
 			mqhandler.invalidQuery(ex);
 			throw new CSSBudgetException("Nested queries exceed limit", e);
 		}
-		mqhandler.endQueryList();
+
 		return mqhandler.getMediaQueryList();
 	}
 
@@ -601,7 +600,7 @@ public class CSSParser implements Parser, Cloneable {
 				errorHandler.error(ex);
 			}
 		}
-		mqhandler.endQueryList();
+
 		return mqhandler.getMediaQueryList();
 	}
 
@@ -1754,6 +1753,7 @@ public class CSSParser implements Parser, Cloneable {
 				} else {
 					endQuery(len);
 				}
+				handler.endQueryList();
 			}
 
 		}

@@ -168,7 +168,7 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(elm);
 		String text = elm.getTextContent();
 		assertNotNull(text);
-		assertEquals(1106, text.trim().length());
+		assertEquals(1204, text.trim().length());
 	}
 
 	@Test
@@ -208,7 +208,7 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(sheet);
 		assertEquals("Alter 1", sheet.getTitle());
 		assertEquals(2, sheet.getCssRules().getLength());
-		assertEquals(defSz + 20, css.getCssRules().getLength());
+		assertEquals(defSz + 22, css.getCssRules().getLength());
 		assertFalse(xmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
 	}
 
@@ -234,6 +234,33 @@ public class XMLDocumentWrapperTest {
 		assertNull(xmlDoc.getSelectedStyleSheetSet());
 		xmlDoc.setSelectedStyleSheetSet("Default");
 		assertEquals("Default", xmlDoc.getSelectedStyleSheetSet());
+	}
+
+	@Test
+	public void getFontSizeMedia() throws CSSMediaException {
+		CSSElement elm = xmlDoc.getElementById("span1");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals(15f, style.getComputedFontSize(), 1e-5);
+		assertEquals("#fd8eab", style.getPropertyValue("color"));
+
+		CSSElement para = xmlDoc.getElementById("para2");
+		CSSComputedProperties stylePara = xmlDoc.getStyleSheet().getComputedStyle(para, null);
+		assertNotNull(stylePara);
+		assertEquals(12f, stylePara.getComputedFontSize(), 1e-5);
+
+		xmlDoc.setTargetMedium("screen");
+		assertEquals("screen", xmlDoc.getStyleSheet().getTargetMedium());
+		style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		assertEquals(20f, style.getComputedFontSize(), 1e-5);
+		assertEquals("#fd8eab", style.getPropertyValue("color"));
+
+		stylePara = xmlDoc.getStyleSheet().getComputedStyle(para, null);
+		assertEquals(16f, stylePara.getComputedFontSize(), 1e-5);
+		xmlDoc.setTargetMedium("all");
+		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 	@Test
