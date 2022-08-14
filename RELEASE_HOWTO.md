@@ -91,7 +91,7 @@ If the changes to the `css4j.github.io` repo look correct, commit them as
 
 ```shell
 cd /path/to/css4j
-git tag -s v3.9.1 -m "Milestone Release 3.9.1"
+git tag -s v3.9.1 -m "Release 3.9.1"
 git push origin v3.9.1
 ```
 
@@ -202,5 +202,5 @@ with Java 8, for example.
 20) If this css4j release is coming from the `master` branch and is therefore
 the latest one, in your local copy of the [css4j-dist](https://github.com/css4j/css4j-dist)
 repository update the css4j version number in the
-[install-css4j.sh](https://github.com/css4j/css4j-dist/blob/master/maven/install-css4j.sh)
+[maven/install-css4j.sh](https://github.com/css4j/css4j-dist/blob/master/maven/install-css4j.sh)
 script. Commit the change and look for the completion of that project's CI.
