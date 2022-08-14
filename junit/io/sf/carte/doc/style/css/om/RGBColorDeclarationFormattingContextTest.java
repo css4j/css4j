@@ -49,7 +49,7 @@ public class RGBColorDeclarationFormattingContextTest {
 				"margin-top: 24pt; margin-bottom: 36pt; background-position: 20% 0%; padding-left: calc(10% - 36pt - 12pt); color: rgb(68.74%, 77.3%, 100%); ",
 				style.getCssText());
 		assertEquals(
-				"margin-bottom:36pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);color:lch(80% 67 278);",
+				"margin-bottom:36pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);color:rgb(68.74%,77.3%,100%);",
 				style.getMinifiedCssText());
 	}
 

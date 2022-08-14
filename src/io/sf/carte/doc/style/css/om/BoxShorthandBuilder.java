@@ -18,7 +18,9 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Build a margin/padding shorthand from individual properties.
@@ -137,25 +139,31 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		if (!appendPropertyBoxText(buf, declaredSet, important, best_state)) {
 			return false;
 		}
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		// Lexicographic order, to mimic what other builders do
 		if (declaredSet.contains(bottomProperty) && keyword_state_bottom != best_state) {
-			appendIndividualProperty(buf, bottomProperty, important);
+			appendIndividualProperty(wri, context, bottomProperty, important);
 		}
 		if (declaredSet.contains(leftProperty) && keyword_state_left != best_state) {
-			appendIndividualProperty(buf, leftProperty, important);
+			appendIndividualProperty(wri, context, leftProperty, important);
 		}
 		if (declaredSet.contains(rightProperty) && keyword_state_right != best_state) {
-			appendIndividualProperty(buf, rightProperty, important);
+			appendIndividualProperty(wri, context, rightProperty, important);
 		}
 		if (declaredSet.contains(topProperty) && keyword_state_top != best_state) {
-			appendIndividualProperty(buf, topProperty, important);
+			appendIndividualProperty(wri, context, topProperty, important);
 		}
 		return true;
 	}
 
-	private void appendIndividualProperty(StringBuilder buf, String propertyName, boolean important) {
+	private void appendIndividualProperty(BufferSimpleWriter wri,
+		DeclarationFormattingContext context, String propertyName, boolean important) {
+		StringBuilder buf = wri.getBuffer();
 		buf.append(propertyName).append(':');
-		BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(propertyName), propertyName);
+		BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, getCSSValue(propertyName),
+			propertyName);
 		appendPriority(buf, important);
 	}
 

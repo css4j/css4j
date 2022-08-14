@@ -14,6 +14,8 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Build a font-variant shorthand from individual properties.
@@ -76,25 +78,27 @@ class FontVariantBuilder extends ShorthandBuilder {
 		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
 			return false;
 		}
-		//
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		boolean appended = false;
 		if (declaredSet.contains("font-variant-ligatures")) {
-			appended = appendValueIfNotInitial(buf, "font-variant-ligatures", false);
+			appended = appendValueIfNotInitial(wri, context, "font-variant-ligatures", false);
 		}
 		if (declaredSet.contains("font-variant-position")) {
-			appended = appendValueIfNotInitial(buf, "font-variant-position", appended);
+			appended = appendValueIfNotInitial(wri, context, "font-variant-position", appended);
 		}
 		if (declaredSet.contains("font-variant-caps")) {
-			appended = appendValueIfNotInitial(buf, "font-variant-caps", appended);
+			appended = appendValueIfNotInitial(wri, context, "font-variant-caps", appended);
 		}
 		if (declaredSet.contains("font-variant-numeric")) {
-			appended = appendValueIfNotInitial(buf, "font-variant-numeric", appended);
+			appended = appendValueIfNotInitial(wri, context, "font-variant-numeric", appended);
 		}
 		if (declaredSet.contains("font-variant-alternates")) {
-			appended = appendValueIfNotInitial(buf, "font-variant-alternates", appended);
+			appended = appendValueIfNotInitial(wri, context, "font-variant-alternates", appended);
 		}
 		if (declaredSet.contains("font-variant-east-asian")) {
-			appended = appendValueIfNotInitial(buf, "font-variant-east-asian", appended);
+			appended = appendValueIfNotInitial(wri, context, "font-variant-east-asian", appended);
 		}
 		if (!appended) {
 			buf.append("normal");

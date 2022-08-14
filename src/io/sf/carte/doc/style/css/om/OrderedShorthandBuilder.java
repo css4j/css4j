@@ -11,14 +11,17 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Build a shorthand from individual properties when specific order matters, and the
@@ -54,14 +57,18 @@ class OrderedShorthandBuilder extends GenericShorthandBuilder {
 	}
 
 	@Override
-	boolean appendValueText(StringBuilder buf, String property, boolean appended) {
+	boolean appendValueText(BufferSimpleWriter wri, DeclarationFormattingContext context,
+		String property, boolean appended) {
 		StyleValue cssVal = getCSSValue(property);
-		if (isNotInitialValue(cssVal, property) ||
-				(!freeProperty.equals(property) && validValueClash(property))) {
+		if (isNotInitialValue(cssVal, property)
+			|| (!freeProperty.equals(property) && validValueClash(property))) {
 			if (appended) {
-				buf.append(' ');
+				wri.getBuffer().append(' ');
 			}
-			buf.append(cssVal.getMinifiedCssText(property));
+			try {
+				context.writeMinifiedValue(wri, property, cssVal);
+			} catch (IOException e) {
+			}
 			return true;
 		}
 		return appended;

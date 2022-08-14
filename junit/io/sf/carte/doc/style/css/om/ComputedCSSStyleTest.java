@@ -3540,7 +3540,7 @@ public class ComputedCSSStyleTest {
 		//
 		elm.getOverrideStyle(null).setCssText("flex:2 2 0.1pt");
 		style = elm.getComputedStyle(null);
-		assertEquals("2 2 0.1pt", style.getPropertyValue("flex"));
+		assertEquals("2 2 .1pt", style.getPropertyValue("flex"));
 		//
 		elm.getOverrideStyle(null).setCssText("grid:auto 1fr/auto 1fr auto;");
 		style = elm.getComputedStyle(null);

@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
@@ -18,8 +19,10 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Build an 'animation' shorthand from individual properties.
@@ -138,14 +141,17 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 				return true;
 			}
 		}
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		boolean appended = false;
 		boolean shrinkNotInitial = isNotInitialValue(cssFlexShrink, FLEX_SHRINK);
 		if (shrinkNotInitial || isNotInitialValue(cssFlexGrow, FLEX_GROW)) {
-			appendValueText(buf, cssFlexGrow, false);
+			appendValueText(wri, context, cssFlexGrow, false);
 			appended = true;
 		}
 		if (shrinkNotInitial) {
-			appendValueText(buf, cssFlexShrink, appended);
+			appendValueText(wri, context, cssFlexShrink, appended);
 			appended = true;
 		}
 		if (isNotInitialValue(cssFlexBasis, FLEX_BASIS)) {
@@ -156,7 +162,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 				}
 				buf.append("0px");
 			} else {
-				appendValueText(buf, cssFlexBasis, appended);
+				appendValueText(wri, context, cssFlexBasis, appended);
 			}
 			appended = true;
 		}
@@ -193,11 +199,15 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 				&& !valueEquals(getInitialPropertyValue(propertyName), cssVal);
 	}
 
-	private void appendValueText(StringBuilder buf, StyleValue cssVal, boolean prepend) {
+	private void appendValueText(BufferSimpleWriter wri, DeclarationFormattingContext context,
+		StyleValue cssVal, boolean prepend) {
 		if (prepend) {
-			buf.append(' ');
+			wri.getBuffer().append(' ');
 		}
-		buf.append(cssVal.getCssText());
+		try {
+			context.writeMinifiedValue(wri, "flex", cssVal);
+		} catch (IOException e) {
+		}
 	}
 
 }

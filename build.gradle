@@ -27,7 +27,7 @@ configurations {
 }
 
 dependencies {
-	api 'io.sf.carte:carte-util:[3.4.0,)'
+	api 'io.sf.carte:carte-util:[3.6.0,)'
 	api 'io.sf.carte:tokenproducer:1.1.1'
 	api 'io.sf.jclf:jclf-text:[5.0.0,)'
 	api 'io.sf.jclf:jclf-linear3:[1.0.0,)'

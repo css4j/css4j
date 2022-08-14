@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,6 +30,7 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
@@ -39,6 +41,7 @@ import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Base class for shorthand builders, that try to build shorthands from a set of
@@ -159,12 +162,15 @@ abstract class ShorthandBuilder {
 	}
 
 	void appendImportantProperties(StringBuilder buf) {
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+
 		int iniLen = buf.length();
 		for (String property : impPtySet) {
 			StyleValue value = getCSSValue(property);
 			if (value.getPrimitiveType() != Type.INTERNAL) {
 				buf.append(property).append(':');
-				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, value, property);
+				BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, value, property);
 				buf.append("!important;");
 			} else {
 				buf.setLength(iniLen);
@@ -190,9 +196,13 @@ abstract class ShorthandBuilder {
 				nonPendingSet.add(property);
 			}
 		}
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		for (String property : nonPendingSet) {
 			buf.append(property).append(':');
-			BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(property), property);
+			BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, getCSSValue(property),
+				property);
 			buf.append("!important;");
 		}
 	}
@@ -202,12 +212,15 @@ abstract class ShorthandBuilder {
 	}
 
 	void appendNonImportantProperties(StringBuilder buf) {
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+
 		int iniLen = buf.length();
 		for (String property : ptySet) {
 			StyleValue value = getCSSValue(property);
 			if (value.getPrimitiveType() != Type.INTERNAL) {
 				buf.append(property).append(':');
-				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, value, property);
+				BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, value, property);
 				buf.append(';');
 			} else {
 				buf.setLength(iniLen);
@@ -233,9 +246,13 @@ abstract class ShorthandBuilder {
 				nonPendingSet.add(property);
 			}
 		}
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		for (String property : nonPendingSet) {
 			buf.append(property).append(':');
-			BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue(property), property);
+			BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, getCSSValue(property),
+				property);
 			buf.append(';');
 		}
 	}
@@ -631,26 +648,35 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean appendValueIfNotInitial(StringBuilder buf, String propertyName, boolean prepend) {
+	boolean appendValueIfNotInitial(BufferSimpleWriter wri, DeclarationFormattingContext context,
+		String propertyName, boolean prepend) {
+		StringBuilder buf = wri.getBuffer();
 		StyleValue cssVal = getCSSValue(propertyName);
 		if (isNotInitialValue(cssVal, propertyName)) {
 			if (prepend) {
 				buf.append(' ');
 			}
-			buf.append(cssVal.getMinifiedCssText(propertyName));
+			try {
+				context.writeMinifiedValue(wri, propertyName, cssVal);
+			} catch (IOException e) {
+			}
 			return true;
 		}
 		return prepend;
 	}
 
-	boolean appendDeclarationIfNotInitial(StringBuilder buf, String propertyName,
-		boolean importantShorthand) {
+	boolean appendDeclarationIfNotInitial(BufferSimpleWriter wri,
+		DeclarationFormattingContext context, String propertyName, boolean importantShorthand) {
 		StyleValue cssVal = getCSSValue(propertyName);
 		boolean impPty = "important"
 			.equalsIgnoreCase(parentStyle.getPropertyPriority(propertyName));
 		if (isNotInitialValue(cssVal, propertyName) && impPty == importantShorthand) {
+			StringBuilder buf = wri.getBuffer();
 			buf.append(propertyName).append(':');
-			buf.append(cssVal.getMinifiedCssText(propertyName));
+			try {
+				context.writeMinifiedValue(wri, propertyName, cssVal);
+			} catch (IOException e) {
+			}
 			// Serialize priority
 			if (impPty) {
 				buf.append('!').append("important");
@@ -661,14 +687,18 @@ abstract class ShorthandBuilder {
 		return false;
 	}
 
-	boolean appendDeclarationIfNotKeyword(Type keyword, StringBuilder buf, String propertyName,
-		boolean importantShorthand) {
+	boolean appendDeclarationIfNotKeyword(Type keyword, BufferSimpleWriter wri,
+		DeclarationFormattingContext context, String propertyName, boolean importantShorthand) {
 		StyleValue cssVal = getCSSValue(propertyName);
 		boolean impPty = "important"
 			.equalsIgnoreCase(parentStyle.getPropertyPriority(propertyName));
 		if (!isCssValueOfType(keyword, cssVal) && impPty == importantShorthand) {
+			StringBuilder buf = wri.getBuffer();
 			buf.append(propertyName).append(':');
-			buf.append(cssVal.getMinifiedCssText(propertyName));
+			try {
+				context.writeMinifiedValue(wri, propertyName, cssVal);
+			} catch (IOException e) {
+			}
 			// Serialize priority
 			if (impPty) {
 				buf.append('!').append("important");

@@ -293,8 +293,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		if (!propertyList.isEmpty()) {
 			int sz = propertyList.size();
 			BufferSimpleWriter wri = new BufferSimpleWriter(50 + sz * 18);
-			DeclarationFormattingContext formatter = getStyleSheetFactory().getStyleFormattingFactory()
-					.createComputedStyleFormattingContext();
+			DeclarationFormattingContext formatter = getFormattingContext();
 			try {
 				writeComputedCssText(wri, formatter);
 			} catch (IOException e) {
@@ -385,6 +384,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			ptyList.remove("&grid-column");
 			builders.remove("&grid-column");
 		}
+
+		DeclarationFormattingContext formatter = getFormattingContext();
+		BufferSimpleWriter wri = new BufferSimpleWriter(sb);
 		// Iterate for all the properties
 		sz = ptyList.size();
 		for (int i = 0; i < sz; i++) {
@@ -394,7 +396,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			} else {
 				StyleValue value = getCSSValue(ptyname);
 				sb.append(ptyname).append(':');
-				appendMinifiedCssText(sb, value, ptyname);
+				appendMinifiedCssText(wri, formatter, value, ptyname);
 				if (prioSet.contains(ptyname)) {
 					sb.append("!important");
 				}
@@ -402,6 +404,17 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 		}
 		return sb.toString();
+	}
+
+	DeclarationFormattingContext getFormattingContext() {
+		DeclarationFormattingContext context;
+		AbstractCSSStyleSheetFactory factory = getStyleSheetFactory();
+		if (factory != null) {
+			context = factory.getStyleFormattingFactory().createComputedStyleFormattingContext();
+		} else {
+			context = new DefaultStyleFormattingContext();
+		}
+		return context;
 	}
 
 	static void appendCssText(StringBuilder buf, StyleValue value) {
@@ -414,14 +427,16 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		buf.append(text);
 	}
 
-	static void appendMinifiedCssText(StringBuilder buf, StyleValue value, String ptyname) {
-		String text;
+	static void appendMinifiedCssText(BufferSimpleWriter wri, DeclarationFormattingContext context,
+		StyleValue value, String ptyname) {
 		if (!value.isSystemDefault()) {
-			text = value.getMinifiedCssText(ptyname);
+			try {
+				context.writeMinifiedValue(wri, ptyname, value);
+			} catch (IOException e) {
+			}
 		} else {
-			text = "initial";
+			wri.write("initial");
 		}
-		buf.append(text);
 	}
 
 	ShorthandBuilder createBuilder(String shorthand) {

@@ -70,4 +70,10 @@ public class DefaultDeclarationFormattingContext implements DeclarationFormattin
 		value.writeCssText(wri);
 	}
 
+	@Override
+	public void writeMinifiedValue(SimpleWriter wri, String propertyName, CSSValue value)
+		throws IOException {
+		wri.write(value.getMinifiedCssText(propertyName));
+	}
+
 }

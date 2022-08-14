@@ -3508,6 +3508,28 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testMask2() {
+		emptyStyleDecl.setCssText("mask: url('#mask')");
+		assertEquals("url('#mask')", emptyStyleDecl.getPropertyValue("mask-image"));
+		assertEquals("0% 0%", emptyStyleDecl.getPropertyValue("mask-position"));
+		assertEquals("auto auto", emptyStyleDecl.getPropertyValue("mask-size"));
+		assertEquals("repeat", emptyStyleDecl.getPropertyValue("mask-repeat"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-origin"));
+		assertEquals("border-box", emptyStyleDecl.getPropertyValue("mask-clip"));
+		assertEquals("add", emptyStyleDecl.getPropertyValue("mask-composite"));
+		assertEquals("match-source", emptyStyleDecl.getPropertyValue("mask-mode"));
+		//
+		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-border-source"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-slice"));
+		assertEquals("0", emptyStyleDecl.getPropertyValue("mask-border-outset"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("mask-border-width"));
+		assertEquals("stretch", emptyStyleDecl.getPropertyValue("mask-border-repeat"));
+		assertEquals("alpha", emptyStyleDecl.getPropertyValue("mask-border-mode"));
+		assertEquals("mask: url('#mask'); ", emptyStyleDecl.getCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testMaskNone() {
 		emptyStyleDecl.setCssText("mask:none");
 		assertEquals("none", emptyStyleDecl.getPropertyValue("mask-image"));

@@ -17,10 +17,12 @@ import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Build a simple shorthand from individual properties.
@@ -78,6 +80,9 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
 			return false;
 		}
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		boolean appended = false;
 		String[] subp = getLonghandProperties();
 		for (int i = 0; i < subp.length; i++) {
@@ -90,7 +95,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 						invalidValueClash(declaredSet, property, cssVal)) {
 					return false;
 				}
-				appended = appendValueText(buf, property, appended);
+				appended = appendValueText(wri, context, property, appended);
 			}
 		}
 		if (!appended) {
@@ -156,8 +161,9 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 		return getShorthandDatabase().hasKnownIdentifierValues(propertyName);
 	}
 
-	boolean appendValueText(StringBuilder buf, String property, boolean appended) {
-		return appendValueIfNotInitial(buf, property, appended);
+	boolean appendValueText(BufferSimpleWriter wri, DeclarationFormattingContext context,
+		String property, boolean appended) {
+		return appendValueIfNotInitial(wri, context, property, appended);
 	}
 
 	@Override

@@ -22,7 +22,7 @@ import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * DeclarationFormattingContext that serializes colors as RGB.
+ * DeclarationFormattingContext that serializes colors as RGB (sRGB).
  */
 public class RGBColorDeclarationFormattingContext extends DefaultDeclarationFormattingContext {
 
@@ -39,6 +39,20 @@ public class RGBColorDeclarationFormattingContext extends DefaultDeclarationForm
 			}
 		}
 		super.writeValue(wri, propertyName, value);
+	}
+
+	@Override
+	public void writeMinifiedValue(SimpleWriter wri, String propertyName, CSSValue value)
+		throws IOException {
+		if (value.getPrimitiveType() == Type.COLOR) {
+			try {
+				RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
+				wri.write(rgb.toMinifiedString());
+				return;
+			} catch (DOMException e) {
+			}
+		}
+		super.writeMinifiedValue(wri, propertyName, value);
 	}
 
 }

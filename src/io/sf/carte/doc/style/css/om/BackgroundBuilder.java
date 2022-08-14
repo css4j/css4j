@@ -21,6 +21,7 @@ import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.CSSVarValue;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
@@ -28,6 +29,7 @@ import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Build a background shorthand from individual properties.
@@ -604,7 +606,17 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private boolean appendBackgroundColor(StringBuilder buf, StyleValue value) {
 		if (!isRevertValue(value) && isValidColor(value)) {
-			String text = value.getMinifiedCssText("background-color").toLowerCase(Locale.ROOT);
+			// Serialize value as per the formatting context
+			StringBuilder sb = new StringBuilder();
+			BufferSimpleWriter wri = new BufferSimpleWriter(sb);
+			DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+			String text;
+			try {
+				context.writeMinifiedValue(wri, "background-color", value);
+				text = sb.toString().toLowerCase(Locale.ROOT);
+			} catch (Exception e) {
+				text = value.getMinifiedCssText("background-color").toLowerCase(Locale.ROOT);
+			}
 			if (!"transparent".equals(text) && !"rgba(0,0,0,0)".equals(text)
 				&& !"rgb(0 0 0/0)".equals(text) && !"initial".equals(text)
 				&& !"unset".equals(text)) {

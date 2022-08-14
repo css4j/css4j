@@ -16,7 +16,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.util.BufferSimpleWriter;
 
 class BorderBuilder extends BaseBoxShorthandBuilder {
 
@@ -1083,6 +1085,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				return false;
 			}
 		}
+
 		// Perhaps we could omit some values that shall be printed later in border-side shorthands
 		if (counter != null) {
 			if (sameScore == 16) { // right = left
@@ -1224,7 +1227,10 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				}
 			}
 		}
-		// Append
+
+		// Append to buffer
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		boolean appended = false;
 		buf.append(pnameStr);
 		switch (sameScore) {
@@ -1248,7 +1254,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 					property = borderRightPty;
 				}
 			}
-			appended = appendValueIfNotInitial(buf, property, false);
+			appended = appendValueIfNotInitial(wri, context, property, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
@@ -1259,7 +1265,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			} else {
 				property = borderBottomPty;
 			}
-			appended = appendValueIfNotInitial(buf, property, false);
+			appended = appendValueIfNotInitial(wri, context, property, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
@@ -1270,7 +1276,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			} else {
 				property2 = borderRightPty;
 			}
-			appended = appendValueIfNotInitial(buf, property2, false);
+			appended = appendValueIfNotInitial(wri, context, property2, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
@@ -1283,7 +1289,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			break;
 		case 17: // 3 values
 		case 16: // 3 values
-			appended = appendValueIfNotInitial(buf, borderTopPty, false);
+			appended = appendValueIfNotInitial(wri, context, borderTopPty, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
@@ -1293,12 +1299,12 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			} else {
 				property = borderRightPty;
 			}
-			appended = appendValueIfNotInitial(buf, property, false);
+			appended = appendValueIfNotInitial(wri, context, property, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
 			buf.append(' ');
-			appended = appendValueIfNotInitial(buf, borderBottomPty, false);
+			appended = appendValueIfNotInitial(wri, context, borderBottomPty, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
@@ -1309,22 +1315,22 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			}
 			break;
 		default:
-			appended = appendValueIfNotInitial(buf, borderTopPty, false);
+			appended = appendValueIfNotInitial(wri, context, borderTopPty, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
 			buf.append(' ');
-			appended = appendValueIfNotInitial(buf, borderRightPty, false);
+			appended = appendValueIfNotInitial(wri, context, borderRightPty, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
 			buf.append(' ');
-			appended = appendValueIfNotInitial(buf, borderBottomPty, false);
+			appended = appendValueIfNotInitial(wri, context, borderBottomPty, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
 			buf.append(' ');
-			appended = appendValueIfNotInitial(buf, borderLeftPty, false);
+			appended = appendValueIfNotInitial(wri, context, borderLeftPty, false);
 			if (!appended) {
 				buf.append(initialString);
 			}
@@ -1423,15 +1429,17 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				&& (unusedSet.contains(bWidthPty) || unusedSet.contains(bStylePty) || unusedSet.contains(bColorPty))) {
 			buf.append(bSidePtyStr);
 			if (state == 0) {
+				BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+				DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 				boolean appended = false;
 				if (!appendOnlyUnused || unusedSet.contains(bWidthPty)) {
-					appended = appendValueIfNotInitial(buf, bWidthPty, false);
+					appended = appendValueIfNotInitial(wri, context, bWidthPty, false);
 				}
 				if (!appendOnlyUnused || unusedSet.contains(bStylePty)) {
-					appended = appendValueIfNotInitial(buf, bStylePty, appended);
+					appended = appendValueIfNotInitial(wri, context, bStylePty, appended);
 				}
 				if (!appendOnlyUnused || unusedSet.contains(bColorPty)) {
-					appended = appendValueIfNotInitial(buf, bColorPty, appended);
+					appended = appendValueIfNotInitial(wri, context, bColorPty, appended);
 				}
 				if (!appended) {
 					buf.append("none");

@@ -16,6 +16,7 @@ import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
@@ -24,6 +25,7 @@ import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Build a mask shorthand from individual properties.
@@ -80,7 +82,9 @@ class MaskBuilder extends ShorthandBuilder {
 				// All values are inherit
 				buf.append("inherit");
 				appendPriority(buf, important);
-				serializeMaskBorderIfNot(Type.INHERIT, buf, important);
+				BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+				DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+				serializeMaskBorderIfNot(Type.INHERIT, wri, context, important);
 				return true;
 			} else if (inheritcheck == 2) {
 				// Only some values are inherit, no shorthand possible
@@ -91,7 +95,9 @@ class MaskBuilder extends ShorthandBuilder {
 				// All values are revert
 				buf.append("revert");
 				appendPriority(buf, important);
-				serializeMaskBorderIfNot(Type.REVERT, buf, important);
+				BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+				DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+				serializeMaskBorderIfNot(Type.REVERT, wri, context, important);
 				return true;
 			} else if (check == 2) {
 				return false;
@@ -109,7 +115,9 @@ class MaskBuilder extends ShorthandBuilder {
 		appendPriority(buf, important);
 
 		// Now mask-border
-		serializeMaskBorderIfNotInitial(buf, important);
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+		serializeMaskBorderIfNotInitial(wri, context, important);
 
 		return true;
 	}
@@ -477,22 +485,24 @@ class MaskBuilder extends ShorthandBuilder {
 		return isCssValueOfType(CSSValue.Type.REVERT, cssValue);
 	}
 
-	private void serializeMaskBorderIfNot(Type keyword, StringBuilder buf, boolean important) {
-		appendDeclarationIfNotKeyword(keyword, buf, "mask-border-source", important);
-		appendDeclarationIfNotKeyword(keyword, buf, "mask-border-slice", important);
-		appendDeclarationIfNotKeyword(keyword, buf, "mask-border-width", important);
-		appendDeclarationIfNotKeyword(keyword, buf, "mask-border-outset", important);
-		appendDeclarationIfNotKeyword(keyword, buf, "mask-border-repeat", important);
-		appendDeclarationIfNotKeyword(keyword, buf, "mask-border-mode", important);
+	private void serializeMaskBorderIfNot(Type keyword, BufferSimpleWriter wri,
+		DeclarationFormattingContext context, boolean important) {
+		appendDeclarationIfNotKeyword(keyword, wri, context, "mask-border-source", important);
+		appendDeclarationIfNotKeyword(keyword, wri, context, "mask-border-slice", important);
+		appendDeclarationIfNotKeyword(keyword, wri, context, "mask-border-width", important);
+		appendDeclarationIfNotKeyword(keyword, wri, context, "mask-border-outset", important);
+		appendDeclarationIfNotKeyword(keyword, wri, context, "mask-border-repeat", important);
+		appendDeclarationIfNotKeyword(keyword, wri, context, "mask-border-mode", important);
 	}
 
-	private void serializeMaskBorderIfNotInitial(StringBuilder buf, boolean important) {
-		appendDeclarationIfNotInitial(buf, "mask-border-source", important);
-		appendDeclarationIfNotInitial(buf, "mask-border-slice", important);
-		appendDeclarationIfNotInitial(buf, "mask-border-width", important);
-		appendDeclarationIfNotInitial(buf, "mask-border-outset", important);
-		appendDeclarationIfNotInitial(buf, "mask-border-repeat", important);
-		appendDeclarationIfNotInitial(buf, "mask-border-mode", important);
+	private void serializeMaskBorderIfNotInitial(BufferSimpleWriter wri,
+		DeclarationFormattingContext context, boolean important) {
+		appendDeclarationIfNotInitial(wri, context, "mask-border-source", important);
+		appendDeclarationIfNotInitial(wri, context, "mask-border-slice", important);
+		appendDeclarationIfNotInitial(wri, context, "mask-border-width", important);
+		appendDeclarationIfNotInitial(wri, context, "mask-border-outset", important);
+		appendDeclarationIfNotInitial(wri, context, "mask-border-repeat", important);
+		appendDeclarationIfNotInitial(wri, context, "mask-border-mode", important);
 	}
 
 }

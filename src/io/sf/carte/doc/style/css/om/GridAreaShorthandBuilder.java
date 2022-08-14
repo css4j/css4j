@@ -13,6 +13,9 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Set;
 
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
+import io.sf.carte.util.BufferSimpleWriter;
+
 /**
  * Build a grid placement shorthand from individual properties.
  */
@@ -61,39 +64,47 @@ class GridAreaShorthandBuilder extends GridPlacementShorthandBuilder {
 		if (hasPropertiesToExclude(declaredSet)) {
 			return false;
 		}
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		if (declaredSet.contains("grid-row-start") && declaredSet.contains("grid-row-end")) {
-			if (declaredSet.contains("grid-column-start") && declaredSet.contains("grid-column-end")) {
+			if (declaredSet.contains("grid-column-start")
+				&& declaredSet.contains("grid-column-end")) {
 				// grid-row-start/grid-column-start/grid-row-end/grid-column-end
 				return super.appendShorthandSet(buf, declaredSet, important);
 			}
 			if (declaredSet.contains("grid-column-start")) {
 				buf.append("grid-column-start:");
-				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue("grid-column-start"),
-						"grid-column-start");
+				BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context,
+					getCSSValue("grid-column-start"), "grid-column-start");
 				appendPriority(buf, important);
 			}
 			if (declaredSet.contains("grid-column-end")) {
 				buf.append("grid-column-end:");
-				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue("grid-column-end"), "grid-column-end");
+				BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context,
+					getCSSValue("grid-column-end"), "grid-column-end");
 				appendPriority(buf, important);
 			}
 			// grid-row
-			return new GridPlacementShorthandBuilder("grid-row", getParentStyle()).appendShorthandSet(buf, declaredSet,
-					important);
-		} else if (declaredSet.contains("grid-column-start") && declaredSet.contains("grid-column-end")) {
+			return new GridPlacementShorthandBuilder("grid-row", getParentStyle())
+				.appendShorthandSet(buf, declaredSet, important);
+		} else if (declaredSet.contains("grid-column-start")
+			&& declaredSet.contains("grid-column-end")) {
 			if (declaredSet.contains("grid-row-start")) {
 				buf.append("grid-row-start:");
-				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue("grid-row-start"), "grid-row-start");
+				BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context,
+					getCSSValue("grid-row-start"), "grid-row-start");
 				appendPriority(buf, important);
 			}
 			if (declaredSet.contains("grid-row-end")) {
 				buf.append("grid-row-end:");
-				BaseCSSStyleDeclaration.appendMinifiedCssText(buf, getCSSValue("grid-row-end"), "grid-row-end");
+				BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context,
+					getCSSValue("grid-row-end"), "grid-row-end");
 				appendPriority(buf, important);
 			}
 			// grid-column
-			return new GridPlacementShorthandBuilder("grid-column", getParentStyle()).appendShorthandSet(buf,
-					declaredSet, important);
+			return new GridPlacementShorthandBuilder("grid-column", getParentStyle())
+				.appendShorthandSet(buf, declaredSet, important);
 		}
 		return false;
 	}

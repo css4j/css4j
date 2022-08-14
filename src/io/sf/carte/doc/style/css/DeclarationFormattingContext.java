@@ -84,4 +84,19 @@ public interface DeclarationFormattingContext {
 	 */
 	void writeValue(SimpleWriter wri, String propertyName, CSSValue value) throws IOException;
 
+	/**
+	 * Write a minified css value to the given writer.
+	 * <p>
+	 * Note that in order to guarantee some consistency, shorthands may not use this
+	 * method to minify values.
+	 * </p>
+	 * 
+	 * @param wri          the writer.
+	 * @param propertyName the name of the property whose value is being printed.
+	 * @param value        the value to write.
+	 * @throws IOException if an error happened while writing.
+	 */
+	void writeMinifiedValue(SimpleWriter wri, String propertyName, CSSValue value)
+		throws IOException;
+
 }
