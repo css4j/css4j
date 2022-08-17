@@ -176,7 +176,7 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 		xyz[0] = ((TypedValue) this.x).getFloatValue(CSSUnit.CSS_NUMBER);
 		xyz[1] = ((TypedValue) this.y).getFloatValue(CSSUnit.CSS_NUMBER);
 		xyz[2] = ((TypedValue) this.z).getFloatValue(CSSUnit.CSS_NUMBER);
-		ColorUtil.xyzToSRGB(xyz[0], xyz[1], xyz[2], rgb);
+		ColorUtil.d50xyzToSRGB(xyz[0], xyz[1], xyz[2], rgb);
 		// range check
 		if (!ColorUtil.rangeRoundCheck(rgb) && clamp) {
 			float[] lab = new float[3];

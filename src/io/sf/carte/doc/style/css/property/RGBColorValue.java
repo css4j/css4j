@@ -16,9 +16,11 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.property.BaseColor.Space;
 
 /**
  * RGB color value.
@@ -126,14 +128,14 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		case RGB:
 			lab1 = toLABColorValue().getColor();
 			RGBColor rgb = (RGBColor) color.getColor();
-			LABColorImpl labColor = new LABColorImpl();
+			LABColorImpl labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 			rgb.toLABColor(labColor);
 			lab2 = labColor;
 			break;
 		case XYZ:
 			lab1 = toLABColorValue().getColor();
 			XYZColorImpl xyz = (XYZColorImpl) color.getColor();
-			labColor = new LABColorImpl();
+			labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 			xyz.toLABColor(labColor);
 			lab2 = labColor;
 			break;

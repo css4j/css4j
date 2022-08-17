@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css;
 
 /**
- * Represents a LAB ({@code lab()}) color.
+ * Represents a color in the LAB color model ({@code lab()} or {@code oklab()}).
  */
 public interface LABColor extends CSSColor {
 

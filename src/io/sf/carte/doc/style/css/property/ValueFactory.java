@@ -866,6 +866,14 @@ public class ValueFactory {
 				primi = new LCHColorValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case OKLABCOLOR:
+				primi = new OKLABColorValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case OKLCHCOLOR:
+				primi = new OKLCHColorValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case HWBCOLOR:
 				primi = new HWBColorValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);

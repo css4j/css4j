@@ -26,21 +26,21 @@ import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Lab color value.
+ * OKLab color value.
  */
 @SuppressWarnings("deprecation")
-public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LABColorValue {
+class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LABColorValue {
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 1L;
 
 	private final LABColorImpl labColor;
 
-	public LABColorValue() {
+	public OKLABColorValue() {
 		super();
-		labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
+		labColor = new LABColorImpl(Space.OK_Lab, ColorSpace.ok_lab);
 	}
 
-	LABColorValue(LABColorValue copied) {
+	OKLABColorValue(OKLABColorValue copied) {
 		super(copied);
 		this.labColor = copied.labColor.clone();
 	}
@@ -53,7 +53,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	@Override
 	void set(StyleValue value) {
 		super.set(value);
-		LABColorValue setfrom = (LABColorValue) value;
+		OKLABColorValue setfrom = (OKLABColorValue) value;
 		this.labColor.set(setfrom.labColor);
 	}
 
@@ -93,18 +93,41 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (!labColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		float light = ((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE);
+		float light = ((CSSTypedValue) labColor.getLightness())
+			.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
 		CSSRGBColor color = new CSSRGBColor();
-		ColorUtil.labToRGB(light, a, b, clamp, labColor.getAlpha(), color);
+		ColorUtil.oklabToRGB(light, a, b, clamp, labColor.getAlpha(), color);
 		return color;
 	}
 
 	@Override
 	public LABColorValue toLABColorValue() {
-		return this;
+		if (!labColor.hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+		float light = ((CSSTypedValue) labColor.getLightness())
+			.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
+		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
+		//
+		float[] lab = new float[3];
+		ColorUtil.oklabToLab(light, a, b, lab);
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, lab[0]);
+		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[1]);
+		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[2]);
+		primiL.setAbsolutizedUnit();
+		primia.setAbsolutizedUnit();
+		primib.setAbsolutizedUnit();
+		//
+		LABColorValue primiLab = new LABColorValue();
+		primiLab.setComponent(0, labColor.getAlpha().clone());
+		primiLab.setComponent(1, primiL);
+		primiLab.setComponent(2, primia);
+		primiLab.setComponent(3, primib);
+		return primiLab;
 	}
 
 	@Override
@@ -112,22 +135,31 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (!labColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
+		float light = ((CSSTypedValue) labColor.getLightness())
+			.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
+		float[] lab = new float[3];
+		ColorUtil.oklabToLab(light, a, b, lab);
+		//
+		a = lab[1];
+		b = lab[2];
 		float c = (float) Math.sqrt(a * a + b * b);
 		float h = (float) (Math.atan2(b, a) * 180f / Math.PI);
 		if (h < 0f) {
 			h += 360f;
 		}
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, lab[0]);
 		NumberValue chroma = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, c);
 		NumberValue hue = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, h);
+		primiL.setAbsolutizedUnit();
 		chroma.setAbsolutizedUnit();
 		hue.setAbsolutizedUnit();
 		//
 		LCHColorValue lch = new LCHColorValue();
 		lch.setComponent(0, labColor.getAlpha().clone());
-		lch.setComponent(1, labColor.getLightness().clone());
+		lch.setComponent(1, primiL);
 		lch.setComponent(2, chroma);
 		lch.setComponent(3, hue);
 		return lch;
@@ -149,7 +181,8 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public float deltaE2000(CSSColorValue color) {
-		if (!labColor.hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
+		if (!labColor.hasConvertibleComponents()
+			|| !((ColorValue) color).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
 		//
@@ -185,12 +218,15 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			rgbValue.setComponent(3, (StyleValue) rgb.getBlue());
 			lab = rgbValue.toLABColorValue().getColor();
 		}
-		return ColorUtil.deltaE2000Lab(((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
-				((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
-				((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER),
-				((CSSTypedValue) lab.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
-				((CSSTypedValue) lab.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
-				((CSSTypedValue) lab.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
+
+		LABColor thislab = toLABColorValue().getColor();
+		return ColorUtil.deltaE2000Lab(
+			((CSSTypedValue) thislab.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+			((CSSTypedValue) thislab.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
+			((CSSTypedValue) thislab.getB()).getFloatValue(CSSUnit.CSS_NUMBER),
+			((CSSTypedValue) lab.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+			((CSSTypedValue) lab.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
+			((CSSTypedValue) lab.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
 
 	@Override
@@ -203,10 +239,11 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			try {
-				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.LABCOLOR) {
+				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.OKLABCOLOR) {
 					setLexicalLAB(lunit);
 				} else {
-					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "No lab() value: " + lunit.toString());
+					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+						"No oklab() value: " + lunit.toString());
 				}
 			} catch (DOMException e) {
 				throw e;
@@ -235,14 +272,16 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			PrimitiveValue alpha = null;
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Expected slash in: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+						"Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha
 				alpha = factory.createCSSPrimitiveValue(lu, true);
 				labColor.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+						"Bad value: " + lunit.toString());
 				}
 			}
 			labColor.setLightness(primilight);
@@ -271,13 +310,13 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		LABColorValue other = (LABColorValue) obj;
+		OKLABColorValue other = (OKLABColorValue) obj;
 		return labColor.equals(other.labColor);
 	}
 
 	@Override
-	public LABColorValue clone() {
-		return new LABColorValue(this);
+	public OKLABColorValue clone() {
+		return new OKLABColorValue(this);
 	}
 
 }

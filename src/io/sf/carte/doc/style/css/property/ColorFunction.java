@@ -26,6 +26,7 @@ import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -141,20 +142,20 @@ class ColorFunction extends ColorValue {
 		LABColor lab;
 		switch (otherColor.getColorModel()) {
 		case LAB:
-			lab = ((LABColorValue) otherColor).getColor();
+			lab = (LABColor) otherColor.getColor();
 			break;
 		case LCH:
 			lab = otherColor.toLABColorValue().getColor();
 			break;
 		case RGB:
 			RGBColor rgbcolor = (RGBColor) otherColor.getColor();
-			LABColorImpl labColor = new LABColorImpl();
+			LABColorImpl labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 			rgbcolor.toLABColor(labColor);
 			lab = labColor;
 			break;
 		case XYZ:
 			XYZColorImpl xyz = (XYZColorImpl) otherColor.getColor();
-			labColor = new LABColorImpl();
+			labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 			xyz.toLABColor(labColor);
 			lab = labColor;
 			break;
@@ -168,7 +169,7 @@ class ColorFunction extends ColorValue {
 			lab = rgbValue.toLABColorValue().getColor();
 		}
 		//
-		LABColorImpl labColor = new LABColorImpl();
+		LABColorImpl labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 		switch (this.color.getColorModel()) {
 		case RGB:
 			((ProfiledRGBColor) this.color).toLABColor(labColor);

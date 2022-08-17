@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.LCHColor;
@@ -20,14 +21,19 @@ import io.sf.carte.util.SimpleWriter;
 
 class LCHColorImpl extends BaseColor implements LCHColor {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
+
+	private final Space colorSpace;
+	private final String strSpace;
 
 	private PrimitiveValue lightness = null;
 	private PrimitiveValue chroma = null;
 	private PrimitiveValue hue = null;
 
-	LCHColorImpl() {
+	LCHColorImpl(Space colorSpace, String strSpace) {
 		super();
+		this.colorSpace = colorSpace;
+		this.strSpace = strSpace;
 	}
 
 	@Override
@@ -37,12 +43,12 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 
 	@Override
 	public String getColorSpace() {
-		return "lch";
+		return strSpace;
 	}
 
 	@Override
 	Space getSpace() {
-		return Space.CIE_LCh;
+		return colorSpace;
 	}
 
 	@Override
@@ -134,7 +140,11 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	void writeCssText(SimpleWriter wri) throws IOException {
-		wri.write("lch(");
+		if (colorSpace == Space.OK_LCh) {
+			wri.write("oklch(");
+		} else {
+			wri.write("lch(");
+		}
 		lightness.writeCssText(wri);
 		wri.write(' ');
 		chroma.writeCssText(wri);
@@ -150,7 +160,12 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	@Override
 	public String toMinifiedString() {
 		StringBuilder buf = new StringBuilder(20);
-		buf.append("lch(").append(lightness.getMinifiedCssText("color"));
+		if (colorSpace == Space.OK_LCh) {
+			buf.append("oklch(");
+		} else {
+			buf.append("lch(");
+		}
+		buf.append(lightness.getMinifiedCssText("color"));
 		buf.append(' ').append(chroma.getMinifiedCssText("color")).append(' ');
 		appendMinifiedHue(buf, hue);
 		if (isNonOpaque()) {
@@ -164,7 +179,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = Objects.hash(getSpace());
 		result = prime * result + ((lightness == null) ? 0 : lightness.hashCode());
 		result = prime * result + ((chroma == null) ? 0 : chroma.hashCode());
 		result = prime * result + ((hue == null) ? 0 : hue.hashCode());
@@ -184,6 +199,9 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 			return false;
 		}
 		LCHColorImpl other = (LCHColorImpl) obj;
+		if (colorSpace != other.colorSpace) {
+			return false;
+		}
 		if (lightness == null) {
 			if (other.lightness != null) {
 				return false;
@@ -210,7 +228,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 
 	@Override
 	public LCHColorImpl clone() {
-		LCHColorImpl clon = new LCHColorImpl();
+		LCHColorImpl clon = new LCHColorImpl(colorSpace, strSpace);
 		clon.alpha = alpha.clone();
 		if (lightness != null) {
 			clon.lightness = lightness.clone();

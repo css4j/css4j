@@ -11,9 +11,41 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.jclf.math.linear3.Matrices;
 
+/**
+ * Utility methods for color conversions.
+ */
 class ColorUtil {
+
+	/**
+	 * Given a Hue primitive value, return the hue in radians.
+	 * 
+	 * @param primihue the Hue primitive.
+	 * @return the hue in radians.
+	 */
+	static float hueRadians(CSSTypedValue primihue) {
+		float h;
+		short unit = primihue.getUnitType();
+		if (unit == CSSUnit.CSS_NUMBER) {
+			h = primihue.getFloatValue(CSSUnit.CSS_NUMBER);
+			h = NumberValue.floatValueConversion(h, CSSUnit.CSS_DEG, CSSUnit.CSS_RAD);
+		} else {
+			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
+		}
+
+		double dh = h;
+		final double TWOPI = Math.PI + Math.PI;
+		if (Math.abs(dh) > TWOPI) {
+			dh = Math.IEEEremainder(dh, TWOPI);
+		}
+		if (dh < 0) {
+			dh += TWOPI;
+		}
+		return (float) dh;
+	}
 
 	static void labToRGB(float light, float a, float b, boolean clamp, PrimitiveValue alpha, RGBColor color) {
 		float[] rgb = new float[3];
@@ -62,7 +94,68 @@ class ColorUtil {
 		//
 		double x = xr * xwhite;
 		double z = zr * zwhite;
-		xyzToSRGB(x, yr, z, rgb);
+		d50xyzToSRGB(x, yr, z, rgb);
+	}
+
+	static void oklabToRGB(float light, float a, float b, boolean clamp, PrimitiveValue alpha, RGBColor color) {
+		float[] rgb = new float[3];
+		oklabToSRGB(light, a, b, rgb);
+		// range check
+		if (!rangeRoundCheck(rgb) && clamp) {
+			rgb = okClampRGB(light, a, b, rgb);
+		}
+		//
+		color.alpha = alpha.clone();
+		NumberValue red = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[0] * 100f);
+		NumberValue green = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[1] * 100f);
+		NumberValue blue = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[2] * 100f);
+		red.setAbsolutizedUnit();
+		green.setAbsolutizedUnit();
+		blue.setAbsolutizedUnit();
+		color.setRed(red);
+		color.setGreen(green);
+		color.setBlue(blue);
+	}
+
+	private static void oklabToSRGB(float light, float a, float b, float[] rgb) {
+		double[] xyz = new double[3];
+		oklabToXyz65(light, a, b, xyz);
+		d65xyzToSRGB(xyz[0], xyz[1], xyz[2], rgb);
+	}
+
+	static void oklabToLab(float light, float a, float b, float[] lab) {
+		double[] xyz65 = new double[3];
+		oklabToXyz65(light, a, b, xyz65);
+
+		// Chromatic adjustment: D65 to D50
+		double[] xyz = chromaticAdjustXYZ(xyz65);
+		xyzToLab(xyz, lab);
+	}
+
+	private static void oklabToXyz65(float light, float a, float b, double[] xyz65) {
+		light *= 0.01f;
+
+		double l_p = light + 0.3963377774f * a + 0.2158037573f * b;
+		double m_p = light - 0.1055613458f * a - 0.0638541728f * b;
+		double s_p = light - 0.0894841775f * a - 1.2914855480f * b;
+		double xr = l_p * l_p * l_p;
+		double yr = m_p * m_p * m_p;
+		double zr = s_p * s_p * s_p;
+
+		double[][] m1inv = { { 1.2270138511035211d, -0.5577999806518222d, 0.28125614896646783d },
+				{ -0.04058017842328059d, 1.11225686961683d, -0.07167667866560119d },
+				{ -0.0763812845057069d, -0.4214819784180127d, 1.586163220440795d } };
+		Matrices.multiplyByVector3(m1inv, xr, yr, zr, xyz65);
+	}
+
+	private static double[] chromaticAdjustXYZ(double[] xyz) {
+		// Chromatic adjustment: D65 to D50, Bradford
+		// See http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
+		double[] xyzadj = new double[3];
+		xyzadj[0] = 1.0478112d * xyz[0] + 0.0228866d * xyz[1] - 0.0501270d * xyz[2];
+		xyzadj[1] = 0.0295424d * xyz[0] + 0.9904844d * xyz[1] - 0.0170491d * xyz[2];
+		xyzadj[2] = -0.0092345d * xyz[0] + 0.0150436d * xyz[1] + 0.7521316d * xyz[2];
+		return xyzadj;
 	}
 
 	/**
@@ -144,6 +237,66 @@ class ColorUtil {
 		} while (true);
 	}
 
+	private static float[] okClampRGB(float light, float a, float b, float[] rgb) {
+		// Reduce chromaticity until clipped color is in range within deltaE2000 < 2
+		//
+		oklabToLab(light, a, b, rgb);
+		light = rgb[0];
+		float current_a = rgb[1];
+		float current_b = rgb[2];
+		final double h = Math.atan2(current_b, current_a);
+		final float sinh = (float) Math.sin(h);
+		final float cosh = (float) Math.cos(h);
+		// Sanity check (for very out-of-range values)
+		if (Math.sqrt(current_a * current_a + current_b * current_b) > 400d) {
+			final float upper_c = 400f;
+			current_a = upper_c * cosh;
+			current_b = upper_c * sinh;
+			oklabToSRGB(light, current_a, current_b, rgb);
+		}
+		// Now look for a clipped color that is close enough according to deltaE2000
+		float[] rgbClamped = new float[3];
+		float[] labClamped = new float[3];
+		if (isInGamut(light, current_a, current_b, rgb, rgbClamped, labClamped)) {
+			return rgbClamped;
+		}
+		// Initial guesstimate
+		float c = (float) Math.sqrt(current_a * current_a + current_b * current_b) - labClamped[0];
+		current_a = c * cosh;
+		current_b = c * sinh;
+		oklabToSRGB(light, current_a, current_b, rgb);
+		//
+		float eps = 0.025f;
+		float factor = 0.97f;
+		// Refine the value, starting with a progressive reduction.
+		// A classical bisection is avoided, as the gamut shape may lead to wrong results.
+		do {
+			rangeClamp(rgb, rgbClamped);
+			rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], labClamped);
+			// Check deltaE2000
+			c = (float) Math.sqrt(current_a * current_a + current_b * current_b);
+			float dE = deltaE2000ChromaReduction(light, c, current_a, current_b, labClamped);
+			if (dE < 2f) {
+				if (factor < 1f) {
+					if (eps < 9e-5) {
+						return rgbClamped;
+					}
+					// Now drive chromaticity up
+					eps *= 0.15f;
+					factor = 1f + eps;
+				}
+			} else if (factor > 1f) {
+				eps *= 0.15f;
+				factor = 1f - eps;
+			}
+			// refine chromaticity with a factor, and compute new RGB
+			c = c * factor;
+			current_a = c * cosh;
+			current_b = c * sinh;
+			labToSRGB(light, current_a, current_b, rgb);
+		} while (true);
+	}
+
 	private static void rangeClamp(float[] rgb, float[] rgbClamped) {
 		for (int i = 0; i < rgb.length; i++) {
 			float comp = rgb[i];
@@ -167,7 +320,7 @@ class ColorUtil {
 		return dE < 2f;
 	}
 
-	static void xyzToSRGB(double x, double y, double z, float[] rgb) {
+	static void d50xyzToSRGB(double x, double y, double z, float[] rgb) {
 		// Chromatic adjustment: D50 to D65, Bradford
 		// See http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 		double xa = 0.9555766 * x + -0.0230393 * y + 0.0631636 * z;
@@ -181,6 +334,20 @@ class ColorUtil {
 		float r = (float) (3.24096994190452 * xa - 1.53738317757 * ya - 0.498610760293 * za);
 		float g = (float) (-0.96924363628088 * xa + 1.8759675015077 * ya + 0.04155505740718 * za);
 		float b = (float) (0.055630079697 * xa - 0.20397695888898 * ya + 1.05697151424288 * za);
+		//
+		rgb[0] = sRGBCompanding(r);
+		rgb[1] = sRGBCompanding(g);
+		rgb[2] = sRGBCompanding(b);
+	}
+
+	private static void d65xyzToSRGB(double x, double y, double z, float[] rgb) {
+		// XYZ to RGB
+		// See http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_RGB.html for explanation
+		// but the real figures are from:
+		// https://github.com/w3c/csswg-drafts/issues/5922#issue-800549440
+		float r = (float) (3.24096994190452 * x - 1.53738317757 * y - 0.498610760293 * z);
+		float g = (float) (-0.96924363628088 * x + 1.8759675015077 * y + 0.04155505740718 * z);
+		float b = (float) (0.055630079697 * x - 0.20397695888898 * y + 1.05697151424288 * z);
 		//
 		rgb[0] = sRGBCompanding(r);
 		rgb[1] = sRGBCompanding(g);
@@ -218,9 +385,9 @@ class ColorUtil {
 		// Chromatic adjustment: D65 to D50, Bradford
 		// See http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
 		double[] xyz = new double[3];
-		xyz[0] = 1.0478112 * x + 0.0228866 * y - 0.0501270 * z;
-		xyz[1] = 0.0295424 * x + 0.9904844 * y - 0.0170491 * z;
-		xyz[2] = -0.0092345 * x + 0.0150436 * y + 0.7521316 * z;
+		xyz[0] = 1.0478112d * x + 0.0228866d * y - 0.0501270d * z;
+		xyz[1] = 0.0295424d * x + 0.9904844d * y - 0.0170491d * z;
+		xyz[2] = -0.0092345d * x + 0.0150436d * y + 0.7521316d * z;
 		return xyz;
 	}
 

@@ -2316,7 +2316,7 @@ public class ColorValueTest {
 		assertNotNull(alpha);
 		assertEquals(77.5325f, ((CSSTypedValue) lightness).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.001f);
 		assertEquals(-29.3512f, ((CSSTypedValue) a).getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
-		assertEquals(75.0654f, ((CSSTypedValue) b).getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
+		assertEquals(75.0654f, ((CSSTypedValue) b).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertEquals(Type.EXPRESSION, alpha.getPrimitiveType());
 		assertEquals("calc(2*0.34)", alpha.getCssText());
 		assertEquals("lab(77.5325% -29.3512 75.0654 / calc(2*0.34))", value.getCssText());
@@ -2451,6 +2451,12 @@ public class ColorValueTest {
 		assertFalse(value.equals(other));
 		assertFalse(other.equals(value));
 		assertFalse(value.hashCode() == other.hashCode());
+
+		ValueFactory factory = new ValueFactory();
+		StyleValue val = factory.parseProperty("oklab(81.7395% -45.2202 65.5283)");
+		assertFalse(value.equals(val));
+		assertFalse(val.equals(value));
+		assertFalse(value.hashCode() == val.hashCode());
 	}
 
 	@Test
@@ -2462,6 +2468,7 @@ public class ColorValueTest {
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getCssText(), clon.getCssText());
+		assertTrue(value.getColor().equals(clon.getColor()));
 		assertTrue(value.toRGBColor().equals(clon.toRGBColor()));
 		assertTrue(value.toRGBColor().hashCode() == clon.toRGBColor().hashCode());
 	}
@@ -3407,6 +3414,12 @@ public class ColorValueTest {
 		assertFalse(value.equals(other));
 		assertFalse(other.equals(value));
 		assertFalse(value.hashCode() == other.hashCode());
+
+		ValueFactory factory = new ValueFactory();
+		StyleValue val = factory.parseProperty("oklch(29.186% 122.2075 300.3188)");
+		assertFalse(value.equals(val));
+		assertFalse(val.equals(value));
+		assertFalse(value.hashCode() == val.hashCode());
 	}
 
 	@Test
@@ -3418,6 +3431,7 @@ public class ColorValueTest {
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getCssText(), clon.getCssText());
+		assertTrue(value.getColor().equals(clon.getColor()));
 		assertTrue(value.toRGBColor().equals(clon.toRGBColor()));
 		assertTrue(value.toRGBColor().hashCode() == clon.toRGBColor().hashCode());
 	}

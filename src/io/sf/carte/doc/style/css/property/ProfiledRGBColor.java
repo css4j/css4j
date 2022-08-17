@@ -179,11 +179,11 @@ class ProfiledRGBColor extends RGBColor {
 		}
 	}
 
-	private double inverseGammaCompanding(double c, double gamma) {
+	private static double inverseGammaCompanding(double c, double gamma) {
 		return Math.pow(c, gamma);
 	}
 
-	private double toLinearComponentProphoto(double c) {
+	private static double toLinearComponentProphoto(double c) {
 		final double eps = 16d/512d;
 		final double abs = Math.abs(c);
 
@@ -196,7 +196,7 @@ class ProfiledRGBColor extends RGBColor {
 		return cl;
 	}
 
-	private double toLinearComponentRec2020(double c) {
+	private static double toLinearComponentRec2020(double c) {
 		final double alpha = 1.09929682680944d ;
 		final double beta = 0.018053968510807d;
 
@@ -214,8 +214,8 @@ class ProfiledRGBColor extends RGBColor {
 	/*
 	 * See http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 	 */
-	private double[][] rgb2XYZmatrix(float xr, float yr, float xg, float yg, float xb, float yb,
-			double[] white) {
+	private static double[][] rgb2XYZmatrix(float xr, float yr, float xg, float yg, float xb,
+		float yb, double[] white) {
 		double[][] a = new double[3][3];
 		a[0][0] = xr / yr;
 		a[1][0] = 1d;
@@ -245,14 +245,14 @@ class ProfiledRGBColor extends RGBColor {
 		return a;
 	}
 
-	private void rgb2XYZ(double[][] m, double r, double g, double b, double[] xyz) {
+	private static void rgb2XYZ(double[][] m, double r, double g, double b, double[] xyz) {
 		// RGB to XYZ
 		xyz[0] = m[0][0] * r + m[0][1] * g + m[0][2] * b;
 		xyz[1] = m[1][0] * r + m[1][1] * g + m[1][2] * b;
 		xyz[2] = m[2][0] * r + m[2][1] * g + m[2][2] * b;
 	}
 
-	private double[] chromaticAdjustXYZ(double[] xyz) {
+	private static double[] chromaticAdjustXYZ(double[] xyz) {
 		// Chromatic adjustment: D65 to D50, Bradford
 		// See http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
 		double[] xyzadj = new double[3];
@@ -311,7 +311,7 @@ class ProfiledRGBColor extends RGBColor {
 		}
 		//
 		float[] rgb = new float[3];
-		ColorUtil.xyzToSRGB(xyz[0], xyz[1], xyz[2], rgb);
+		ColorUtil.d50xyzToSRGB(xyz[0], xyz[1], xyz[2], rgb);
 		// range check
 		if (!ColorUtil.rangeRoundCheck(rgb) && clamp) {
 			float[] lab = new float[3];

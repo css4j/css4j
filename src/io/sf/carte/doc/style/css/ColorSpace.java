@@ -52,4 +52,24 @@ public interface ColorSpace {
 	 */
 	String xyz = "xyz";
 
+	/**
+	 * CIE Lab
+	 */
+	String cie_lab = "lab";
+
+	/**
+	 * CIE LCh
+	 */
+	String cie_lch = "lch";
+
+	/**
+	 * OKLab
+	 */
+	String ok_lab = "oklab";
+
+	/**
+	 * OK LCh
+	 */
+	String ok_lch = "oklch";
+
 }

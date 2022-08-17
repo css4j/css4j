@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css;
 
 /**
- * Represents a {@code lch()} color.
+ * Represents a color in the LCh color model ({@code lch()} or {@code oklch()}).
  */
 public interface LCHColor extends CSSColor {
 

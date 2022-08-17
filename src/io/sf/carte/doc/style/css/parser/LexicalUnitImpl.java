@@ -398,6 +398,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case OKLABCOLOR:
+		case OKLCHCOLOR:
 		case HWBCOLOR:
 		case COLOR_FUNCTION:
 		case COUNTER_FUNCTION:
@@ -640,6 +642,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case OKLABCOLOR:
+		case OKLCHCOLOR:
 		case HWBCOLOR:
 		case COLOR_FUNCTION:
 			return matchBoolean(cat == Category.color);

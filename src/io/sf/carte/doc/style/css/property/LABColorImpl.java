@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.LABColor;
@@ -20,14 +21,19 @@ import io.sf.carte.util.SimpleWriter;
 
 class LABColorImpl extends BaseColor implements LABColor {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
+
+	private final Space colorSpace;
+	private final String strSpace;
 
 	private PrimitiveValue lightness = null;
 	private PrimitiveValue a = null;
 	private PrimitiveValue b = null;
 
-	LABColorImpl() {
+	LABColorImpl(Space colorSpace, String strSpace) {
 		super();
+		this.colorSpace = colorSpace;
+		this.strSpace = strSpace;
 	}
 
 	@Override
@@ -37,12 +43,12 @@ class LABColorImpl extends BaseColor implements LABColor {
 
 	@Override
 	public String getColorSpace() {
-		return "lab";
+		return strSpace;
 	}
 
 	@Override
 	Space getSpace() {
-		return Space.CIE_Lab;
+		return colorSpace;
 	}
 
 	@Override
@@ -134,7 +140,11 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	void writeCssText(SimpleWriter wri) throws IOException {
-		wri.write("lab(");
+		if (colorSpace == Space.OK_Lab) {
+			wri.write("oklab(");
+		} else {
+			wri.write("lab(");
+		}
 		lightness.writeCssText(wri);
 		wri.write(' ');
 		a.writeCssText(wri);
@@ -150,9 +160,14 @@ class LABColorImpl extends BaseColor implements LABColor {
 	@Override
 	public String toMinifiedString() {
 		StringBuilder buf = new StringBuilder(20);
-		buf.append("lab(");
-		buf.append(lightness.getMinifiedCssText("color")).append(' ').append(a.getMinifiedCssText("color")).append(' ')
-				.append(b.getMinifiedCssText("color"));
+		if (colorSpace == Space.OK_Lab) {
+			buf.append("oklab(");
+		} else {
+			buf.append("lab(");
+		}
+		buf.append(lightness.getMinifiedCssText("color")).append(' ')
+			.append(a.getMinifiedCssText("color")).append(' ')
+			.append(b.getMinifiedCssText("color"));
 		if (isNonOpaque()) {
 			buf.append('/');
 			appendAlphaChannelMinified(buf);
@@ -164,7 +179,7 @@ class LABColorImpl extends BaseColor implements LABColor {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = Objects.hash(getSpace());
 		result = prime * result + ((lightness == null) ? 0 : lightness.hashCode());
 		result = prime * result + ((a == null) ? 0 : a.hashCode());
 		result = prime * result + ((b == null) ? 0 : b.hashCode());
@@ -184,6 +199,9 @@ class LABColorImpl extends BaseColor implements LABColor {
 			return false;
 		}
 		LABColorImpl other = (LABColorImpl) obj;
+		if (colorSpace != other.colorSpace) {
+			return false;
+		}
 		if (lightness == null) {
 			if (other.lightness != null) {
 				return false;
@@ -210,7 +228,7 @@ class LABColorImpl extends BaseColor implements LABColor {
 
 	@Override
 	public LABColorImpl clone() {
-		LABColorImpl clon = new LABColorImpl();
+		LABColorImpl clon = new LABColorImpl(colorSpace, strSpace);
 		clon.alpha = alpha.clone();
 		if (lightness != null) {
 			clon.lightness = lightness.clone();

@@ -26,21 +26,21 @@ import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * LCh color value.
+ * OKLCh color value.
  */
 @SuppressWarnings("deprecation")
-public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LCHColorValue {
+class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LCHColorValue {
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 1L;
 
 	private final LCHColorImpl lchColor;
 
-	public LCHColorValue() {
+	public OKLCHColorValue() {
 		super();
-		lchColor = new LCHColorImpl(Space.CIE_LCh, "lch");
+		lchColor = new LCHColorImpl(Space.OK_LCh, ColorSpace.ok_lch);
 	}
 
-	LCHColorValue(LCHColorValue copied) {
+	OKLCHColorValue(OKLCHColorValue copied) {
 		super(copied);
 		this.lchColor = copied.lchColor.clone();
 	}
@@ -53,7 +53,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	@Override
 	void set(StyleValue value) {
 		super.set(value);
-		LCHColorValue setfrom = (LCHColorValue) value;
+		OKLCHColorValue setfrom = (OKLCHColorValue) value;
 		this.lchColor.set(setfrom.lchColor);
 	}
 
@@ -99,10 +99,11 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		//
 		float a = (float) (c * Math.cos(h));
 		float b = (float) (c * Math.sin(h));
-		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE);
+		float light = ((CSSTypedValue) lchColor.getLightness())
+			.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 		//
 		CSSRGBColor color = new CSSRGBColor();
-		ColorUtil.labToRGB(light, a, b, clamp, lchColor.getAlpha(), color);
+		ColorUtil.oklabToRGB(light, a, b, clamp, lchColor.getAlpha(), color);
 		return color;
 	}
 
@@ -112,8 +113,10 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		//
-		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
+		float light = ((CSSTypedValue) lchColor.getLightness())
+			.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
+		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
 		float h;
 		short unit = primihue.getUnitType();
 		if (unit == CSSUnit.CSS_NUMBER) {
@@ -125,22 +128,67 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		//
 		float a = (float) (c * Math.cos(h));
 		float b = (float) (c * Math.sin(h));
-		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, a);
-		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, b);
+		//
+		float[] lab = new float[3];
+		ColorUtil.oklabToLab(light, a, b, lab);
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, lab[0]);
+		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[1]);
+		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[2]);
+		primiL.setAbsolutizedUnit();
 		primia.setAbsolutizedUnit();
 		primib.setAbsolutizedUnit();
 		//
-		LABColorValue lab = new LABColorValue();
-		lab.setComponent(0, lchColor.getAlpha().clone());
-		lab.setComponent(1, lchColor.getLightness().clone());
-		lab.setComponent(2, primia);
-		lab.setComponent(3, primib);
-		return lab;
+		LABColorValue primiLab = new LABColorValue();
+		primiLab.setComponent(0, lchColor.getAlpha().clone());
+		primiLab.setComponent(1, primiL);
+		primiLab.setComponent(2, primia);
+		primiLab.setComponent(3, primib);
+		return primiLab;
 	}
 
 	@Override
 	public LCHColorValue toLCHColorValue() throws DOMException {
-		return this;
+		if (!lchColor.hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+		//
+		float light = ((CSSTypedValue) lchColor.getLightness())
+			.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
+		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
+		float h;
+		short unit = primihue.getUnitType();
+		if (unit == CSSUnit.CSS_NUMBER) {
+			h = primihue.getFloatValue(CSSUnit.CSS_NUMBER);
+			h = NumberValue.floatValueConversion(h, CSSUnit.CSS_DEG, CSSUnit.CSS_RAD);
+		} else {
+			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
+		}
+		//
+		float a = (float) (c * Math.cos(h));
+		float b = (float) (c * Math.sin(h));
+		//
+		float[] lab = new float[3];
+		ColorUtil.oklabToLab(light, a, b, lab);
+		c = (float) Math.sqrt(lab[1] * lab[1] + lab[2] * lab[2]);
+		h = (float) (Math.atan2(lab[2], lab[1]) * 180f / Math.PI);
+		if (h < 0f) {
+			h += 360f;
+		}
+		//
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, lab[0]);
+		NumberValue primiC = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, c);
+		NumberValue primih = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, h);
+		primiL.setAbsolutizedUnit();
+		primiC.setAbsolutizedUnit();
+		primih.setAbsolutizedUnit();
+		//
+		LCHColorValue primiLch = new LCHColorValue();
+		primiLch.setComponent(0, lchColor.getAlpha().clone());
+		primiLch.setComponent(1, primiL);
+		primiLch.setComponent(2, primiC);
+		primiLch.setComponent(3, primih);
+		return primiLch;
 	}
 
 	@Override
@@ -155,7 +203,8 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public float deltaE2000(CSSColorValue color) {
-		if (!lchColor.hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
+		if (!lchColor.hasConvertibleComponents()
+			|| !((ColorValue) color).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
 		//
@@ -164,11 +213,11 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		case LCH:
 			lch = (LCHColor) color.getColor();
 			if (ColorSpace.ok_lch.equals(lch.getColorSpace())) {
-				lch = ((CSSColorValue) color).toLCHColorValue().getColor();
+				lch = color.toLCHColorValue().getColor();
 			}
 			break;
 		case LAB:
-			lch = ((CSSColorValue) color).toLCHColorValue().getColor();
+			lch = color.toLCHColorValue().getColor();
 			break;
 		case RGB:
 			RGBColor rgbcolor = (RGBColor) color.getColor();
@@ -191,12 +240,15 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			rgbValue.setComponent(3, (StyleValue) rgb.getBlue());
 			lch = rgbValue.toLABColorValue().toLCHColorValue().getColor();
 		}
-		return ColorUtil.deltaE2000LCh(((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
-				((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
-				ColorUtil.hueRadians((CSSTypedValue) lchColor.getHue()),
-				((CSSTypedValue) lch.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
-				((CSSTypedValue) lch.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
-				ColorUtil.hueRadians((CSSTypedValue) lch.getHue()));
+
+		LCHColor thislch = toLCHColorValue().getColor();
+		return ColorUtil.deltaE2000LCh(
+			((CSSTypedValue) thislch.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+			((CSSTypedValue) thislch.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
+			ColorUtil.hueRadians((CSSTypedValue) thislch.getHue()),
+			((CSSTypedValue) lch.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+			((CSSTypedValue) lch.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
+			ColorUtil.hueRadians((CSSTypedValue) lch.getHue()));
 	}
 
 	@Override
@@ -209,10 +261,11 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			try {
-				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.LCHCOLOR) {
+				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.OKLCHCOLOR) {
 					setLexicalLCH(lunit);
 				} else {
-					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "No lch() value: " + lunit.toString());
+					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+						"No oklch() value: " + lunit.toString());
 				}
 			} catch (DOMException e) {
 				throw e;
@@ -241,14 +294,16 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			PrimitiveValue alpha = null;
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Expected slash in: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+						"Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha
 				alpha = factory.createCSSPrimitiveValue(lu, true);
 				lchColor.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+						"Bad value: " + lunit.toString());
 				}
 			}
 			lchColor.setLightness(primilight);
@@ -277,13 +332,13 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		LCHColorValue other = (LCHColorValue) obj;
+		OKLCHColorValue other = (OKLCHColorValue) obj;
 		return lchColor.equals(other.lchColor);
 	}
 
 	@Override
-	public LCHColorValue clone() {
-		return new LCHColorValue(this);
+	public OKLCHColorValue clone() {
+		return new OKLCHColorValue(this);
 	}
 
 }

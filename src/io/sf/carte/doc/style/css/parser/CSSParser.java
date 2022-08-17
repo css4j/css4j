@@ -6037,6 +6037,10 @@ public class CSSParser implements Parser, Cloneable {
 				lu = newLexicalUnit(LexicalType.LABCOLOR, true);
 			} else if ("lch".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.LCHCOLOR, true);
+			} else if ("oklab".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.OKLABCOLOR, true);
+			} else if ("oklch".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.OKLCHCOLOR, true);
 			} else if ("hwb".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.HWBCOLOR, true);
 			} else if ("color".equals(lcName)) {
@@ -6154,12 +6158,14 @@ public class CSSParser implements Parser, Cloneable {
 				unexpectedCharError(index, ')');
 				return;
 			}
-			if ((type == LexicalType.RGBCOLOR && !isValidRGBColor(index)) ||
-					(type == LexicalType.HSLCOLOR && !isValidHSLColor()) ||
-					(type == LexicalType.LABCOLOR && !isValidLABColor()) ||
-					(type == LexicalType.LCHCOLOR && !isValidLCHColor()) ||
-					(type == LexicalType.HWBCOLOR && !isValidHWBColor()) ||
-					(type == LexicalType.COLOR_FUNCTION && !isValidColorFunction())) {
+			if ((type == LexicalType.RGBCOLOR && !isValidRGBColor(index))
+				|| (type == LexicalType.HSLCOLOR && !isValidHSLColor())
+				|| ((type == LexicalType.LABCOLOR || type == LexicalType.OKLABCOLOR)
+					&& !isValidLABColor())
+				|| ((type == LexicalType.LCHCOLOR || type == LexicalType.OKLCHCOLOR)
+					&& !isValidLCHColor())
+				|| (type == LexicalType.HWBCOLOR && !isValidHWBColor())
+				|| (type == LexicalType.COLOR_FUNCTION && !isValidColorFunction())) {
 				String s;
 				try {
 					s = "Wrong color: " + currentlu.toString();

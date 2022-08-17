@@ -1987,6 +1987,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case OKLABCOLOR:
+		case OKLCHCOLOR:
 		case HWBCOLOR:
 		case COLOR_FUNCTION:
 			return true;

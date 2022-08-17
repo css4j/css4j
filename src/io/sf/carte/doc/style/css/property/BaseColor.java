@@ -23,15 +23,18 @@ import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.util.SimpleWriter;
 
 abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
 
-	enum Space {sRGB, p3, A98_RGB, ProPhoto_RGB, Rec2020, CIE_XYZ, CIE_Lab, CIE_LCh, OTHER}
+	enum Space {
+		sRGB, p3, A98_RGB, ProPhoto_RGB, Rec2020, CIE_XYZ, CIE_Lab, CIE_LCh, OK_Lab, OK_LCh, OTHER
+	}
 
 	PrimitiveValue alpha = ColorValue.opaqueAlpha;
 
@@ -41,7 +44,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 	@Override
 	public String getColorSpace() {
-		return "srgb";
+		return ColorSpace.srgb;
 	}
 
 	Space getSpace() {

@@ -12,20 +12,26 @@
 package io.sf.carte.doc.style.css;
 
 /**
- * Represents a Lab ({@code lab()}) color value.
+ * Represents a color value with the Lab color model, like ({@code lab()}) or
+ * {@code oklab()}.
  * <p>
- * Instead of using this interface, you may want to just cast the result of
- * {@link CSSColorValue#getColor()} to the appropriate interface (like
- * {@link LABColor}) according to the given
- * {@link CSSColorValue#getColorModel()}.
+ * It is not guaranteed that all colors with a LCh model shall implement this
+ * interface, therefore its usage is not recommended.
  * </p>
+ * 
+ * @deprecated Instead of using this interface, just cast the result of
+ *             {@link CSSColorValue#getColor()} to the appropriate interface
+ *             (like {@link LABColor}) according to the given
+ *             {@link CSSColorValue#getColorModel()}.
+ *
  */
+@Deprecated
 public interface LABColorValue extends CSSColorValue {
 
 	/**
-	 * Get the {@code lab()} color represented by this value.
+	 * Get the {@code lab()} or {@code oklab()} color represented by this value.
 	 *
-	 * @return the {@code lab()} color.
+	 * @return the {@code lab()} or {@code oklab()} color.
 	 */
 	@Override
 	LABColor getColor();

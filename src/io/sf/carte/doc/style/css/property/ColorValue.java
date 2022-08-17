@@ -22,9 +22,11 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -140,7 +142,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			return color.deltaE2000(this);
 		case RGB:
 			RGBColor rgbcolor = (RGBColor) color.getColor();
-			LABColorImpl labColor = new LABColorImpl();
+			LABColorImpl labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 			rgbcolor.toLABColor(labColor);
 			lab2 = labColor;
 			//

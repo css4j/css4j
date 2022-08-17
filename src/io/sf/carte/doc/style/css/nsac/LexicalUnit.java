@@ -195,6 +195,23 @@ public interface LexicalUnit {
 		LCHCOLOR,
 
 		/**
+		 * oklab() colors, for example: <code>oklab(53.2% 42.4 57.76 / 0.6)</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		OKLABCOLOR,
+
+		/**
+		 * oklch() colors, for example: <code>oklch(58.9% 44.4 97.21 / 0.6)</code> or
+		 * <code>oklch(58.9% 44.4 97.21deg / 0.6)</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		OKLCHCOLOR,
+
+		/**
 		 * color() function, for example: <code>color(display-p3, 0.328 0.962 0.551 / 0.6)</code>
 		 * 
 		 * @see #getFunctionName
