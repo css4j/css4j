@@ -29,6 +29,11 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 
 	private CSSDocument document;
 
+	/**
+	 * Construct a canvas to display the given document.
+	 * 
+	 * @param doc the document to display.
+	 */
 	protected AbstractCSSCanvas(CSSDocument doc) {
 		super();
 		this.document = doc;
@@ -203,9 +208,18 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 	 * @return the number of entries in the color lookup table of the device, or
 	 *         {@code 0} if the device does not use a color lookup table.
 	 */
-	protected abstract float getColorIndex();
+	protected float getColorIndex() {
+		return 16777216f;
+	}
 
-	protected abstract boolean isGridDevice();
+	/**
+	 * Is this device a grid device?
+	 * 
+	 * @return {@code true} if a grid device, {@code false} if bitmap.
+	 */
+	protected boolean isGridDevice() {
+		return false;
+	}
 
 	/**
 	 * Get the number of bits per pixel in a monochrome frame buffer.
@@ -213,31 +227,104 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 	 * @return the number of bits per pixel in a monochrome frame buffer, or
 	 *         {@code 0} if the device is not a monochrome device.
 	 */
-	protected abstract int getMonoBitsPerPixel();
+	protected int getMonoBitsPerPixel() {
+		return 0;
+	}
 
-	protected abstract String getOrientation();
+	/**
+	 * The orientation.
+	 * 
+	 * @return the orientation ({@code portrait} or {@code landscape}).
+	 */
+	protected String getOrientation() {
+		float width = getWidth().getFloatValue(CSSUnit.CSS_PX);
+		float height = getHeight().getFloatValue(CSSUnit.CSS_PX);
 
+		if (width >= height) {
+			return "landscape";
+		}
+		return "portrait";
+	}
+
+	/**
+	 * Describes the behavior of the device when content overflows the initial
+	 * containing block in the block axis
+	 * 
+	 * @return the {@code overflow-block} feature.
+	 */
 	protected abstract String getOverflowBlock();
 
+	/**
+	 * Describes the behavior of the device when content overflows the initial
+	 * containing block in the inline axis.
+	 * 
+	 * @return the {@code overflow-inline} feature.
+	 */
 	protected abstract String getOverflowInline();
 
-	protected abstract String getPointerAccuracy();
+	/**
+	 * The pointing device quality.
+	 * 
+	 * @return the {@code pointer} feature
+	 */
+	protected String getPointerAccuracy() {
+		return "none";
+	}
 
-	protected abstract String getPrefersColorScheme();
+	/**
+	 * The desire for light or dark color schemes.
+	 * 
+	 * @return the {@code prefers-color-scheme} feature
+	 */
+	protected String getPrefersColorScheme() {
+		return "light";
+	}
 
-	protected abstract String getPrefersReducedMotion();
+	/**
+	 * The desire for less motion on the page.
+	 * 
+	 * @return the {@code prefers-reduced-motion} feature
+	 */
+	protected String getPrefersReducedMotion() {
+		return "no-preference";
+	}
 
 	/**
 	 * Get the device resolution.
 	 * 
 	 * @return the device resolution, in {@code dpi}.
 	 */
-	protected abstract float getResolution();
+	protected float getResolution() {
+		return 96f;
+	}
 
-	protected abstract String getScanType();
+	/**
+	 * The display scan type.
+	 * 
+	 * @return the {@code scan} feature.
+	 */
+	protected String getScanType() {
+		return "progressive";
+	}
 
-	protected abstract String getUpdateFrequency();
+	/**
+	 * The display update frequency.
+	 * 
+	 * @return the update feature.
+	 */
+	protected String getUpdateFrequency() {
+		return "none";
+	}
 
-	protected abstract boolean supportsGamut(String gamut);
+	/**
+	 * Check whether a color gamut is supported.
+	 * 
+	 * @param gamut the color-gamut to check, like {@code srgb}, {@code p3} or
+	 *              {@code rec2020}.
+	 * @return {@code true} if the gamut is supported.
+	 */
+	protected boolean supportsGamut(String gamut) {
+		return "srgb".equalsIgnoreCase(gamut);
+	}
 
 }

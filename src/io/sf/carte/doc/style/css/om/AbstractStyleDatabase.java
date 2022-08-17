@@ -70,11 +70,6 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 	}
 
 	@Override
-	public float getExSizeInPt(String familyName, float size) {
-		return Math.round(0.5f * size);
-	}
-
-	@Override
 	public CSSTypedValue getInitialColor() {
 		return initialColor;
 	}
@@ -88,11 +83,6 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 	@Override
 	public String getDefaultGenericFontFamily() {
 		return getDefaultGenericFontFamily(DEFAULT_GENERIC_FONT_FAMILY);
-	}
-
-	@Override
-	public String getSystemFontDeclaration(String systemFontName) {
-		return null;
 	}
 
 	@Override
@@ -357,16 +347,6 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 
 	protected boolean loadFontFace(String familyName, FontFormat fontFormat, InputStream is,
 			CSSFontFaceRule rule) throws IOException {
-		return false;
-	}
-
-	@Override
-	public CSSValue getEnvValue(String envVarName) {
-		return null;
-	}
-
-	@Override
-	public boolean supports(String featureName, CSSValue value) {
 		return false;
 	}
 

@@ -32,7 +32,9 @@ public interface CSSCanvas {
 	 *            the pseudo-class name.
 	 * @return <code>true</code> id the pseudo-class is active, <code>false</code> otherwise.
 	 */
-	boolean isActivePseudoClass(CSSElement element, String pseudoclassName);
+	default boolean isActivePseudoClass(CSSElement element, String pseudoclassName) {
+		return false;
+	}
 
 	/**
 	 * Provide the value of the requested media feature.
@@ -59,14 +61,17 @@ public interface CSSCanvas {
 	/**
 	 * Reload any possible style state/caching that this canvas may have.
 	 */
-	void reloadStyleState();
+	default void reloadStyleState() {
+	}
 
 	/**
 	 * Gets the viewport of this canvas.
 	 *
 	 * @return the viewport, or null if this canvas does not have a viewport.
 	 */
-	Viewport getViewport();
+	default Viewport getViewport() {
+		return null;
+	}
 
 	/**
 	 * Gives the width, in typographic points, for showing the given text with
@@ -78,7 +83,9 @@ public interface CSSCanvas {
 	 *            the style that applies.
 	 * @return the advance width for showing the text with the given font.
 	 */
-	int stringWidth(String text, CSSComputedProperties style);
+	default int stringWidth(String text, CSSComputedProperties style) {
+		return Math.round(text.length() * style.getComputedFontSize() / 2f);
+	}
 
 	/**
 	 * Get the cap-height of the first available font, in typographic points.
@@ -89,7 +96,9 @@ public interface CSSCanvas {
 	 *            the style that applies.
 	 * @return the cap-height of the first available font.
 	 */
-	float getCapHeight(CSSComputedProperties style);
+	default float getCapHeight(CSSComputedProperties style) {
+		return style.getComputedFontSize() * 0.75f;
+	}
 
 	/**
 	 * Gets the document to which this canvas applies.

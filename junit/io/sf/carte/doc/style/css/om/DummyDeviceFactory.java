@@ -20,13 +20,10 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.agent.AbstractDeviceFactory;
 import io.sf.carte.doc.style.css.CSSCanvas;
-import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFontFaceRule;
-import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.StyleDatabase;
-import io.sf.carte.doc.style.css.Viewport;
 
 /**
  * Dummy device factory, useful for testing.
@@ -122,11 +119,6 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		public short getNaturalUnit() {
-			return CSSUnit.CSS_PX;
-		}
-
-		@Override
 		public float getWidthSize(String widthIdentifier, float fontSize) throws DOMException {
 			if ("thin".equals(widthIdentifier)) {
 				return 0.5f;
@@ -182,21 +174,6 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		protected float getColorIndex() {
-			return 0;
-		}
-
-		@Override
-		protected boolean isGridDevice() {
-			return false;
-		}
-
-		@Override
-		protected int getMonoBitsPerPixel() {
-			return 0;
-		}
-
-		@Override
 		protected String getOrientation() {
 			return "landscape";
 		}
@@ -217,26 +194,6 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		protected String getPrefersColorScheme() {
-			return "no-preference";
-		}
-
-		@Override
-		protected String getPrefersReducedMotion() {
-			return "no-preference";
-		}
-
-		@Override
-		protected float getResolution() {
-			return 96f;
-		}
-
-		@Override
-		protected String getScanType() {
-			return "progressive";
-		}
-
-		@Override
 		protected String getUpdateFrequency() {
 			return "fast";
 		}
@@ -244,36 +201,6 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		@Override
 		protected boolean supportsGamut(String gamut) {
 			return "p3".equalsIgnoreCase(gamut) || "srgb".equalsIgnoreCase(gamut);
-		}
-
-		/**
-		 * Reload any possible style state/caching that this canvas may have.
-		 */
-		@Override
-		public void reloadStyleState() {
-		}
-
-		@Override
-		public Viewport getViewport() {
-			return null;
-		}
-
-		/**
-		 * Gives the width, in typographic points, for showing the given text with the
-		 * given style.
-		 * 
-		 * @param text  the text to measure.
-		 * @param style the style that applies.
-		 * @return the advance width for showing the text with the given font.
-		 */
-		@Override
-		public int stringWidth(String text, CSSComputedProperties style) {
-			return Math.round(text.length() * style.getComputedFontSize() / 2f);
-		}
-
-		@Override
-		public float getCapHeight(CSSComputedProperties style) {
-			return style.getComputedFontSize() * 0.75f;
 		}
 
 	}
