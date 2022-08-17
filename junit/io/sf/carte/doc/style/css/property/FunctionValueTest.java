@@ -19,6 +19,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Before;
@@ -28,8 +29,8 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
@@ -37,6 +38,7 @@ import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
+import io.sf.carte.util.BufferSimpleWriter;
 
 public class FunctionValueTest {
 
@@ -235,6 +237,16 @@ public class FunctionValueTest {
 		assertEquals("100% - 24px*2", val.getArguments().get(0).getCssText());
 		assertEquals("-webkit-calc(100% - 24px*2)", val.getCssText());
 		assertTrue(val.equals(val.clone()));
+	}
+
+	@Test
+	public void testWriteCssText() throws IOException {
+		style.setCssText("foo: bar(0.3, 0, calc(3% -  1.4em)); ");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		BufferSimpleWriter wri = new BufferSimpleWriter(32);
+		val.writeCssText(wri);
+		assertEquals("bar(0.3, 0, calc(3% - 1.4em))", wri.toString());
 	}
 
 	@Test

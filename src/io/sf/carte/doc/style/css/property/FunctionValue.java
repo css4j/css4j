@@ -299,7 +299,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 			StyleValue first = arguments.get(0);
 			if (first.getPrimitiveType() == Type.EXPRESSION
 					&& ((CSSExpressionValue) first).getStringValue().length() == 0) {
-				wri.write(((CSSExpressionValue) first).getExpression().getCssText());
+				((CSSExpressionValue) first).getExpression().writeCssText(wri);
 			} else {
 				first.writeCssText(wri);
 			}

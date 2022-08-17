@@ -422,7 +422,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private boolean appendBackgroundImage(StringBuilder buf, StyleValue value) {
 		if (!isRevertValue(value) && possibleBackgroundImage(value)) {
-			appended = appendRelativeURI(buf, appended, value);
+			appended = appendImage(buf, appended, value);
 			return true;
 		}
 		return false;

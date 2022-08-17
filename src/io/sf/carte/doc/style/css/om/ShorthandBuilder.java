@@ -725,7 +725,11 @@ abstract class ShorthandBuilder {
 		}
 	}
 
-	boolean appendRelativeURI(StringBuilder buf, boolean prepend, StyleValue value) {
+	boolean appendImage(StringBuilder buf, boolean prepend, StyleValue value) {
+		// Serialize value as per the formatting context
+		StringBuilder sb = new StringBuilder(64);
+		BufferSimpleWriter wri = new BufferSimpleWriter(sb);
+		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		String text;
 		CssType category = value.getCssValueType();
 		if (category == CssType.TYPED) {
@@ -742,7 +746,11 @@ abstract class ShorthandBuilder {
 					}
 					text = "url('" + text + "')";
 				} else {
-					text = pvalue.getCssText();
+					try {
+						context.writeMinifiedValue(wri, "background-image", value);
+					} catch (IOException e) {
+					}
+					text = sb.toString();
 				}
 			} else if (type == Type.IDENT) {
 				text = pvalue.getStringValue();
@@ -750,13 +758,21 @@ abstract class ShorthandBuilder {
 					return false;
 				}
 			} else {
-				text = value.getMinifiedCssText("background-image");
+				try {
+					context.writeMinifiedValue(wri, "background-image", value);
+				} catch (IOException e) {
+				}
+				text = sb.toString();
 			}
 		} else if (category == CssType.KEYWORD) {
 			// assume 'initial' or 'unset' with no inheritance
 			return false;
 		} else {
-			text = value.getMinifiedCssText("background-image");
+			try {
+				context.writeMinifiedValue(wri, "background-image", value);
+			} catch (IOException e) {
+			}
+			text = sb.toString();
 		}
 		if (prepend) {
 			buf.append(' ');

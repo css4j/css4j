@@ -222,7 +222,7 @@ class BorderImageBuilder extends ShorthandBuilder {
 
 	private void appendBorderImageSource(StyleValue biSource) {
 		if (isNotInitialValue(biSource, "border-image-source")) {
-			appendRelativeURI(bibuf, false, biSource);
+			appendImage(bibuf, false, biSource);
 		}
 	}
 

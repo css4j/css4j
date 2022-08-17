@@ -302,7 +302,7 @@ class MaskBuilder extends ShorthandBuilder {
 
 	private boolean appendImage(StringBuilder buf, StyleValue value) {
 		if (!isRevertValue(value) && shorthandMaskImage(value)) {
-			appended = appendRelativeURI(buf, appended, value);
+			appended = appendImage(buf, appended, value);
 			return true;
 		}
 		return false;
