@@ -2665,15 +2665,7 @@ public class MediaQueryTest {
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = createMediaQueryList("screen and (prefers-color-scheme)");
-		assertFalse(mql.hasErrors());
-		assertFalse(mql.matches("screen", canvas));
-		//
 		mql = createMediaQueryList("screen and (prefers-color-scheme: light)");
-		assertFalse(mql.hasErrors());
-		assertFalse(mql.matches("screen", canvas));
-		//
-		mql = createMediaQueryList("screen and (prefers-color-scheme: no-preference)");
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		/*

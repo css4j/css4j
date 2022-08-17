@@ -111,8 +111,6 @@ abstract public class AbstractCSSCanvas implements CSSCanvas {
 			String pcs = getPrefersColorScheme();
 			if (value != null) {
 				return value.getPrimitiveType() == Type.IDENT && pcs.equalsIgnoreCase(value.getStringValue());
-			} else {
-				return !"no-preference".equals(pcs);
 			}
 		} else if ("prefers-reduced-motion".equals(feature)) {
 			String pcs = getPrefersReducedMotion();
