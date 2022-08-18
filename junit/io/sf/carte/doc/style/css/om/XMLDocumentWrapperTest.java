@@ -62,6 +62,7 @@ public class XMLDocumentWrapperTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws ParserConfigurationException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
+		dbFac.setNamespaceAware(true);
 		docb = dbFac.newDocumentBuilder();
 		docb.setEntityResolver(new DefaultEntityResolver());
 	}
@@ -91,7 +92,7 @@ public class XMLDocumentWrapperTest {
 		CSSElement elm = xmlDoc.getDocumentElement();
 		assertNotNull(elm);
 		assertEquals("html", elm.getTagName());
-		assertNull(elm.getNamespaceURI());
+		assertEquals("http://www.w3.org/1999/xhtml", elm.getNamespaceURI());
 	}
 
 	@Test
