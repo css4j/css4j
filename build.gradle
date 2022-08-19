@@ -34,7 +34,7 @@ dependencies {
 	xmldtdImplementation('io.sf.carte:xml-dtd') {
 		version {
 			require '[3.4.0,)'
-			prefer '4.0.0'
+			prefer '4.1.0'
 		}
 	}
 	loggingImplementation 'org.slf4j:slf4j-api:[1.7.28,)'
@@ -42,7 +42,7 @@ dependencies {
 	testImplementation 'nu.validator:htmlparser:1.4.16'
 	test8Implementation 'junit:junit:4.13.2'
 	test8Implementation 'nu.validator:htmlparser:1.4.16'
-	test8Implementation 'io.sf.carte:xml-dtd:4.0.0'
+	test8Implementation 'io.sf.carte:xml-dtd:4.1.0'
 }
 
 repositories {
