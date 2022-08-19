@@ -136,6 +136,26 @@ public interface BoxValues {
 	float getWidth();
 
 	/**
+	 * The length unit for which the values were computed.
+	 * 
+	 * @return the length unit. If negative, it is the natural unit as given by the
+	 *         style database.
+	 */
+	short getUnitType();
+
+	/**
+	 * Fill the style declaration with the box values.
+	 * 
+	 * <p>
+	 * The style declaration should correspond to an element that displays as
+	 * {@code block}.
+	 * </p>
+	 * 
+	 * @param style the style declaration.
+	 */
+	void fillBoxValues(CSSStyleDeclaration style);
+
+	/**
 	 * Sub-interface for tables in the simple box model.
 	 */
 	public interface TableBoxValues extends BoxValues {

@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.w3c.dom.DOMException;
@@ -24,6 +25,7 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
@@ -61,6 +63,8 @@ abstract class SimpleBoxModel {
 
 	static class MyBoxValues implements BoxValues {
 
+		final short unitType;
+
 		float marginTop = 0f;
 		float marginRight = 0f;
 		float marginBottom = 0f;
@@ -74,6 +78,19 @@ abstract class SimpleBoxModel {
 		float borderRightWidth = 0f;
 		float borderLeftWidth = 0f;
 		float width = Float.MIN_VALUE;
+
+		/**
+		 * Construct a new box.
+		 * 
+		 * @param unitType the desired result unit type. If less than zero and a style
+		 *                 database is available, it will be attempted to use it to
+		 *                 convert to the unit given by the
+		 *                 <code>StyleDatabase.getNaturalUnit()</code> method.
+		 */
+		MyBoxValues(short unitType) {
+			super();
+			this.unitType = unitType;
+		}
 
 		@Override
 		public float getMarginTop() {
@@ -139,9 +156,49 @@ abstract class SimpleBoxModel {
 		public float getWidth() {
 			return width;
 		}
+
+		@Override
+		public short getUnitType() {
+			return unitType;
+		}
+
+		@Override
+		public void fillBoxValues(CSSStyleDeclaration style) {
+			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+			format.setMinimumFractionDigits(0);
+			format.setMaximumFractionDigits(4);
+
+			style.setProperty("margin-top", serializeLength(getMarginTop(), format), null);
+			style.setProperty("margin-right", serializeLength(getMarginRight(), format), null);
+			style.setProperty("margin-bottom", serializeLength(getMarginBottom(), format), null);
+			style.setProperty("margin-left", serializeLength(getMarginLeft(), format), null);
+			style.setProperty("padding-top", serializeLength(getPaddingTop(), format), null);
+			style.setProperty("padding-right", serializeLength(getPaddingRight(), format), null);
+			style.setProperty("padding-bottom", serializeLength(getPaddingBottom(), format), null);
+			style.setProperty("padding-left", serializeLength(getPaddingLeft(), format), null);
+			style.setProperty("border-top-width", serializeLength(getBorderTopWidth(), format),
+				null);
+			style.setProperty("border-right-width", serializeLength(getBorderRightWidth(), format),
+				null);
+			style.setProperty("border-bottom-width",
+				serializeLength(getBorderBottomWidth(), format), null);
+			style.setProperty("border-left-width", serializeLength(getBorderLeftWidth(), format),
+				null);
+			style.setProperty("width", serializeLength(getWidth(), format), null);
+		}
+
+		private String serializeLength(float length, NumberFormat format) {
+			return format.format(length) + CSSUnit.dimensionUnitString(unitType);
+		}
+
 	}
 
 	static class MyTableItemBoxValues extends MyBoxValues {
+
+		MyTableItemBoxValues(short unitType) {
+			super(unitType);
+		}
+
 		@Override
 		public float getWidth() {
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
@@ -150,12 +207,18 @@ abstract class SimpleBoxModel {
 	}
 
 	static class MyTableBoxValues extends MyBoxValues implements BoxValues.TableBoxValues {
+
 		float[] colwidth;
+
+		MyTableBoxValues(short unitType) {
+			super(unitType);
+		}
 
 		@Override
 		public float[] getColumnsContentWidth() {
 			return colwidth;
 		}
+
 	}
 
 	abstract protected ComputedCSSStyle getComputedStyle();
@@ -166,23 +229,23 @@ abstract class SimpleBoxModel {
 		return getComputedStyle().getStyleDatabase();
 	}
 
-	private void computeSharedBoxValues(MyBoxValues box, short unitType) {
-		box.marginTop = computeMarginTop(unitType);
-		box.marginBottom = computeMarginBottom(unitType);
+	private void computeSharedBoxValues(MyBoxValues box) {
+		box.marginTop = computeMarginTop(box.unitType);
+		box.marginBottom = computeMarginBottom(box.unitType);
 		ComputedCSSStyle styledecl = getComputedStyle();
 		// Padding (no 'auto' applies to padding)
-		box.paddingTop = computePaddingSubproperty(styledecl, PADDING.TOP, unitType);
-		box.paddingRight = computePaddingSubproperty(styledecl, PADDING.RIGHT, unitType);
-		box.paddingBottom = computePaddingSubproperty(styledecl, PADDING.BOTTOM, unitType);
-		box.paddingLeft = computePaddingSubproperty(styledecl, PADDING.LEFT, unitType);
-		box.borderTopWidth = findBorderWidthProperty(styledecl, "border-top-width", unitType, "border-top-style");
-		box.borderBottomWidth = findBorderWidthProperty(styledecl, "border-bottom-width", unitType,
+		box.paddingTop = computePaddingSubproperty(styledecl, PADDING.TOP, box.unitType);
+		box.paddingRight = computePaddingSubproperty(styledecl, PADDING.RIGHT, box.unitType);
+		box.paddingBottom = computePaddingSubproperty(styledecl, PADDING.BOTTOM, box.unitType);
+		box.paddingLeft = computePaddingSubproperty(styledecl, PADDING.LEFT, box.unitType);
+		box.borderTopWidth = findBorderWidthProperty(styledecl, "border-top-width", box.unitType, "border-top-style");
+		box.borderBottomWidth = findBorderWidthProperty(styledecl, "border-bottom-width", box.unitType,
 				"border-bottom-style");
 		// Border left & right width
 		// If the element is block-level, these values can be later modified when
 		// computing width
-		box.borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width", unitType, "border-left-style");
-		box.borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width", unitType, "border-right-style");
+		box.borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width", box.unitType, "border-left-style");
+		box.borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width", box.unitType, "border-right-style");
 	}
 
 	private float computeMarginTop(short unitType) {
@@ -253,16 +316,12 @@ abstract class SimpleBoxModel {
 	 * Gets the computed values of the box model properties for a non-replaced inline box,
 	 * expressed in the given unit.
 	 * 
-	 * @param unitType
-	 *            the desired result unit type. If less than zero and a style database is
-	 *            available, it will be attempted to use it to convert to the unit given by
-	 *            the <code>StyleDatabase.getNaturalUnit()</code> method.
 	 * @return the computed values of the box model properties.
 	 * @throws StyleDatabaseRequiredException
 	 *             when a computation that requires a style database is attempted, but no
 	 *             style database has been set.
 	 */
-	void computeInlineBox(MyBoxValues box, short unitType) throws StyleDatabaseRequiredException {
+	void computeInlineBox(MyBoxValues box) throws StyleDatabaseRequiredException {
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCascadedValue("margin-right");
 		while (cssval.getPrimitiveType() == CSSValue.Type.INHERIT) {
@@ -279,7 +338,7 @@ abstract class SimpleBoxModel {
 			if (cssval.getCssValueType() == CssType.TYPED) {
 				CSSTypedValue typed = (CSSTypedValue) cssval;
 				if (!isTypedAutoOrInvalidLength(typed)) {
-					box.marginRight = computeMarginNumberValue(styledecl, "margin-right", typed, unitType);
+					box.marginRight = computeMarginNumberValue(styledecl, "margin-right", typed, box.unitType);
 				}
 			} else {
 				CSSPropertyValueException e = new CSSPropertyValueException(
@@ -304,7 +363,7 @@ abstract class SimpleBoxModel {
 			if (cssval.getCssValueType() == CssType.TYPED) {
 				CSSTypedValue typed = (CSSTypedValue) cssval;
 				if (!isTypedAutoOrInvalidLength(typed)) {
-					box.marginLeft = computeMarginNumberValue(styledecl, "margin-left", typed, unitType);
+					box.marginLeft = computeMarginNumberValue(styledecl, "margin-left", typed, box.unitType);
 				}
 			} else {
 				CSSPropertyValueException e = new CSSPropertyValueException(
@@ -327,8 +386,8 @@ abstract class SimpleBoxModel {
 					ex.setValueText(strWidth);
 					elm.getOwnerDocument().getErrorHandler().computedStyleError(elm, "width", ex);
 				}
-				if (unitType != CSSUnit.CSS_PX) {
-					box.width = NumberValue.floatValueConversion(box.width, CSSUnit.CSS_PX, unitType);
+				if (box.unitType != CSSUnit.CSS_PX) {
+					box.width = NumberValue.floatValueConversion(box.width, CSSUnit.CSS_PX, box.unitType);
 				}
 			}
 		}
@@ -353,33 +412,33 @@ abstract class SimpleBoxModel {
 		MyBoxValues box;
 		String display = getComputedStyle().getDisplay();
 		if ("block".equalsIgnoreCase(display) || "list-item".equalsIgnoreCase(display)) {
-			box = new MyBoxValues();
-			computeSharedBoxValues(box, unitType);
-			computeBlockBox(box, unitType);
+			box = new MyBoxValues(unitType);
+			computeSharedBoxValues(box);
+			computeBlockBox(box);
 			return box;
 		} else if ("table".equalsIgnoreCase(display)) {
-			box = new MyTableBoxValues();
-			computeSharedBoxValues(box, unitType);
+			box = new MyTableBoxValues(unitType);
+			computeSharedBoxValues(box);
 			String tableLayout = getComputedStyle().getPropertyValue("table-layout");
 			if ("auto".equalsIgnoreCase(tableLayout)) {
-				computeTableBox((MyTableBoxValues) box, unitType);
+				computeTableBox((MyTableBoxValues) box);
 				return box;
 			} else {
-				computeBlockBox(box, unitType);
+				computeBlockBox(box);
 				return box;
 			}
 		} else if ("table-cell".equalsIgnoreCase(display) || "table-row".equalsIgnoreCase(display)) {
-			box = new MyTableItemBoxValues();
-			computeTableCellBox(box, unitType);
+			box = new MyTableItemBoxValues(unitType);
+			computeTableCellBox(box);
 			return box;
 		}
-		box = new MyBoxValues();
-		computeSharedBoxValues(box, unitType);
-		computeInlineBox(box, unitType);
+		box = new MyBoxValues(unitType);
+		computeSharedBoxValues(box);
+		computeInlineBox(box);
 		return box;
 	}
 
-	void computeBlockBox(MyBoxValues box, short unitType) throws StyleDatabaseRequiredException {
+	void computeBlockBox(MyBoxValues box) throws StyleDatabaseRequiredException {
 		boolean margin_right_auto = false;
 		ComputedCSSStyle styledecl = getComputedStyle();
 		CSSValue cssval = styledecl.getCascadedValue("margin-right");
@@ -395,11 +454,12 @@ abstract class SimpleBoxModel {
 			CSSTypedValue typed = (CSSTypedValue) cssval;
 			margin_right_auto = isTypedAutoOrInvalidLength(typed);
 			if (!margin_right_auto) {
-				box.marginRight = computeMarginNumberValue(styledecl, "margin-right", typed, unitType);
+				box.marginRight = computeMarginNumberValue(styledecl, "margin-right", typed,
+					box.unitType);
 			}
 		} else {
 			CSSPropertyValueException e = new CSSPropertyValueException(
-					"Expected primitive value for margin-right, found " + cssval.getCssText());
+				"Expected primitive value for margin-right, found " + cssval.getCssText());
 			styledecl.getStyleDeclarationErrorHandler().wrongValue("margin-right", e);
 			box.marginRight = 0f;
 		}
@@ -418,11 +478,12 @@ abstract class SimpleBoxModel {
 			CSSTypedValue typed = (CSSTypedValue) cssval;
 			margin_left_auto = isTypedAutoOrInvalidLength(typed);
 			if (!margin_left_auto) {
-				box.marginLeft = computeMarginNumberValue(styledecl, "margin-left", typed, unitType);
+				box.marginLeft = computeMarginNumberValue(styledecl, "margin-left", typed,
+					box.unitType);
 			}
 		} else {
 			CSSPropertyValueException e = new CSSPropertyValueException(
-					"Expected primitive value for margin-left, found " + cssval.getCssText());
+				"Expected primitive value for margin-left, found " + cssval.getCssText());
 			styledecl.getStyleDeclarationErrorHandler().wrongValue("margin-left", e);
 			box.marginLeft = 0f;
 		}
@@ -432,7 +493,7 @@ abstract class SimpleBoxModel {
 		cssval = styledecl.getCascadedValue("width");
 		CSSTypedValue typed;
 		if (cssval == null || cssval.getCssValueType() != CssType.TYPED
-				|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
+			|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
 			// width: auto
 			if (margin_right_auto) {
 				box.marginRight = 0f;
@@ -443,24 +504,27 @@ abstract class SimpleBoxModel {
 			float contBlockWidth;
 			ComputedCSSStyle contblockStyledecl = findContainingBlockStyle(styledecl);
 			if (contblockStyledecl == null) {
-				contBlockWidth = deviceDocumentWidth("width is auto, and cannot find top block width.", "auto");
+				contBlockWidth = deviceDocumentWidth(
+					"width is auto, and cannot find top block width.", "auto", box.unitType);
 			} else {
-				contBlockWidth = computeWidth(contblockStyledecl, unitType);
+				contBlockWidth = computeWidth(contblockStyledecl, box.unitType);
 			}
-			box.width = contBlockWidth - (box.marginLeft + box.marginRight + box.borderLeftWidth + box.borderRightWidth
-					+ box.paddingLeft + box.paddingRight);
+			box.width = contBlockWidth - (box.marginLeft + box.marginRight + box.borderLeftWidth
+				+ box.borderRightWidth + box.paddingLeft + box.paddingRight);
 		} else {
 			// Non-auto width
-			box.width = computeNonAutoWidth(styledecl, typed, unitType);
+			box.width = computeNonAutoWidth(styledecl, typed, box.unitType);
 			float contBlockWidth;
 			ComputedCSSStyle contblockStyledecl = findContainingBlockStyle(styledecl);
 			if (contblockStyledecl == null) {
-				contBlockWidth = deviceDocumentWidth("width is auto, and cannot find top block width.", "auto");
+				contBlockWidth = deviceDocumentWidth(
+					"width is auto, and cannot find top block width.", "auto", box.unitType);
 			} else {
-				contBlockWidth = computeWidth(styledecl, unitType);
+				contBlockWidth = computeWidth(styledecl, box.unitType);
 			}
 			float remMargin = contBlockWidth - box.width;
-			remMargin -= box.borderLeftWidth + box.borderRightWidth + box.paddingLeft + box.paddingRight;
+			remMargin -= box.borderLeftWidth + box.borderRightWidth + box.paddingLeft
+				+ box.paddingRight;
 			if (margin_right_auto) {
 				if (remMargin < 0f) {
 					box.marginRight = 0f;
@@ -518,11 +582,11 @@ abstract class SimpleBoxModel {
 	/*
 	 * Document should be normalized for this to work
 	 */
-	private void computeTableBox(MyTableBoxValues box, short unitType) {
-		computeBlockBox(box, unitType);
+	private void computeTableBox(MyTableBoxValues box) {
+		computeBlockBox(box);
 		// width
 		// compute caption width minimum
-		float capmin = computeCapmin(unitType);
+		float capmin = computeCapmin(box.unitType);
 		// compute minimum width required by all the columns plus cell spacing or
 		// borders
 		ComputedCSSStyle style = getComputedStyle();
@@ -559,7 +623,7 @@ abstract class SimpleBoxModel {
 				CSSElement elm = (CSSElement) node;
 				if ("tr".equalsIgnoreCase(elm.getTagName())) {
 					style = (ComputedCSSStyle) elm.getOwnerDocument().getStyleSheet().getComputedStyle(elm, null);
-					BoxValues colbox = style.getBoxValues(unitType);
+					BoxValues colbox = style.getBoxValues(box.unitType);
 					float rowSpacing = colbox.getBorderLeftWidth() + colbox.getBorderRightWidth()
 							+ colbox.getMarginLeft() + colbox.getMarginRight() + colbox.getPaddingLeft()
 							+ colbox.getPaddingRight();
@@ -580,7 +644,7 @@ abstract class SimpleBoxModel {
 								if (colspanStr.length() != 0) {
 									colspan = Integer.parseInt(colspanStr);
 								}
-								float[] contw = computeChildContentWidth(col, colspan, style, unitType);
+								float[] contw = computeChildContentWidth(col, colspan, style, box.unitType);
 								if (contw[0] > maxrcw[k]) {
 									maxrcw[k] = contw[0];
 								}
@@ -779,15 +843,16 @@ abstract class SimpleBoxModel {
 		return contw;
 	}
 
-	private void computeTableCellBox(MyBoxValues colbox, short unitType) {
-		computeSharedBoxValues(colbox, unitType);
-		computeInlineBox(colbox, unitType);
+	private void computeTableCellBox(MyBoxValues colbox) {
+		computeSharedBoxValues(colbox);
+		computeInlineBox(colbox);
 	}
 
 	/*
 	 * Obtain a width from the viewport or the style database, if available.
 	 */
-	private float deviceDocumentWidth(String failureReason, String value) throws StyleDatabaseRequiredException {
+	private float deviceDocumentWidth(String failureReason, String value, short unitType)
+		throws StyleDatabaseRequiredException {
 		StyleDatabase sdb = getStyleDatabase();
 		CSSDocument doc = getComputedStyle().getOwnerNode().getOwnerDocument();
 		if (doc != null) {
@@ -795,8 +860,7 @@ abstract class SimpleBoxModel {
 			Viewport viewport;
 			if (canvas != null && (viewport = canvas.getViewport()) != null) {
 				float fv = viewport.getViewportWidth();
-				return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(),
-						CSSUnit.CSS_PT);
+				return NumberValue.floatValueConversion(fv, sdb.getNaturalUnit(), unitType);
 			}
 		}
 		if (sdb == null) {
@@ -811,11 +875,12 @@ abstract class SimpleBoxModel {
 				}
 			}
 			StyleDatabaseRequiredException pve = new StyleDatabaseRequiredException(
-					"No style database, " + failureReason);
+				"No style database, " + failureReason);
 			pve.setValueText(value);
 			throw pve;
 		}
-		return NumberValue.floatValueConversion(sdb.getDeviceWidth(), sdb.getNaturalUnit(), CSSUnit.CSS_PT);
+		return NumberValue.floatValueConversion(sdb.getDeviceWidth(), sdb.getNaturalUnit(),
+			unitType);
 	}
 
 	private float computeMarginNumberValue(ComputedCSSStyle styledecl, String propertyName, CSSTypedValue cssval,
@@ -865,21 +930,23 @@ abstract class SimpleBoxModel {
 	}
 
 	private float percentageValue(ComputedCSSStyle styledecl, CSSTypedValue cssval, short unitType,
-			boolean useDeviceDocumentWidth) {
+		boolean useDeviceDocumentWidth) {
 		// Get the width of the containing block.
 		styledecl = findContainingBlockStyle(styledecl);
 		if (styledecl == null) {
 			if (useDeviceDocumentWidth) {
-				return deviceDocumentWidth("no enclosing block, and value is percentage.", cssval.getCssText())
-						* cssval.getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
+				return deviceDocumentWidth("no enclosing block, and value is percentage.",
+					cssval.getCssText(), unitType) * cssval.getFloatValue(CSSUnit.CSS_PERCENTAGE)
+					/ 100f;
 			} else {
-				getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock(getComputedStyle().getDisplay(),
-						getComputedStyle().getOwnerNode());
+				getComputedStyle().getStyleDeclarationErrorHandler().noContainingBlock(
+					getComputedStyle().getDisplay(), getComputedStyle().getOwnerNode());
 				return 0f;
 			}
 		}
 		// We got the enclosing block: let's figure out the width
-		return computeWidth(styledecl, unitType) * cssval.getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
+		return computeWidth(styledecl, unitType) * cssval.getFloatValue(CSSUnit.CSS_PERCENTAGE)
+			/ 100f;
 	}
 
 	private static ComputedCSSStyle findContainingBlockStyle(ComputedCSSStyle styledecl) {
@@ -931,44 +998,52 @@ abstract class SimpleBoxModel {
 		return ev.evaluateFunction(function).getFloatValue(unitType);
 	}
 
-	private float computeWidth(ComputedCSSStyle styledecl, short unitType) throws StyleDatabaseRequiredException {
+	private float computeWidth(ComputedCSSStyle styledecl, short unitType)
+		throws StyleDatabaseRequiredException {
 		CSSValue cssval = styledecl.getCascadedValue("width");
+
 		CSSTypedValue typed;
 		if (cssval == null || cssval.getCssValueType() != CssType.TYPED
-				|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
+			|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)) {
 			// width: auto
 			CSSValue cssMarginLeft = styledecl.getCascadedValue("margin-left");
 			CSSValue cssMarginRight = styledecl.getCascadedValue("margin-right");
-			float marginLeft = findWidthautoBoxProperty(styledecl, "margin-left", cssMarginLeft, unitType);
-			float borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width", unitType,
-					"border-left-style");
+			float marginLeft = findWidthautoBoxProperty(styledecl, "margin-left", cssMarginLeft,
+				unitType);
+			float borderLeftWidth = findBorderWidthProperty(styledecl, "border-left-width",
+				unitType, "border-left-style");
 			float paddingLeft = computePaddingSubproperty(styledecl, PADDING.LEFT, unitType);
 			float paddingRight = computePaddingSubproperty(styledecl, PADDING.RIGHT, unitType);
-			float borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width", unitType,
-					"border-right-style");
-			float marginRight = findWidthautoBoxProperty(styledecl, "margin-right", cssMarginRight, unitType);
+			float borderRightWidth = findBorderWidthProperty(styledecl, "border-right-width",
+				unitType, "border-right-style");
+			float marginRight = findWidthautoBoxProperty(styledecl, "margin-right", cssMarginRight,
+				unitType);
+
 			float contBlockWidth;
 			ComputedCSSStyle contblockStyledecl = findContainingBlockStyle(styledecl);
 			if (contblockStyledecl == null) {
-				contBlockWidth = deviceDocumentWidth("width is auto, and cannot find top block width.", "auto");
+				contBlockWidth = deviceDocumentWidth(
+					"width is auto, and cannot find top block width.", "auto", unitType);
 			} else {
-				String display = contblockStyledecl.getPropertyValue("display").toLowerCase(Locale.ROOT);
+				String display = contblockStyledecl.getPropertyValue("display")
+					.toLowerCase(Locale.ROOT);
 				if ("table".equals(display) || display.startsWith("table-")) {
 					cssval = contblockStyledecl.getCascadedValue("width");
 					if (cssval == null || cssval.getCssValueType() != CssType.TYPED
-							|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)
-							|| typed.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+						|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)
+						|| typed.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
 						throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
-								"Automatic tables not supported by this box model");
+							"Automatic tables not supported by this box model");
 					}
 					contBlockWidth = computeNonAutoWidth(contblockStyledecl, typed, unitType);
 				} else {
 					contBlockWidth = computeWidth(contblockStyledecl, unitType);
 				}
 			}
-			return contBlockWidth
-					- (marginLeft + marginRight + borderLeftWidth + borderRightWidth + paddingLeft + paddingRight);
+			return contBlockWidth - (marginLeft + marginRight + borderLeftWidth + borderRightWidth
+				+ paddingLeft + paddingRight);
 		}
+
 		return computeNonAutoWidth(styledecl, typed, unitType);
 	}
 

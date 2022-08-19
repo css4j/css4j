@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.om.SimpleBoxModel.MyTableBoxValues;
 
 public class BoxModelHelperTest {
@@ -41,7 +42,8 @@ public class BoxModelHelperTest {
 	@Test
 	public void testShrinkTo() {
 		float[] initial = { 8f, 16f, 21f, 5f, 38f };
-		MyTableBoxValues box = new MyTableBoxValues();
+
+		MyTableBoxValues box = new MyTableBoxValues(CSSUnit.CSS_PX);
 		box.colwidth = initial;
 		float[] minrcw = { 8f, 12f, 10f, 5f, 9f };
 		float curwidth = 0f;
@@ -52,11 +54,13 @@ public class BoxModelHelperTest {
 		for (int i = 0; i < minrcw.length; i++) {
 			minwidth += minrcw[i];
 		}
+
 		BoxModelHelper.shrinkTo(box, minrcw, minwidth, curwidth, 46f);
 		float finalwidth = 0f;
 		for (int i = 0; i < minrcw.length; i++) {
 			finalwidth += box.colwidth[i];
 		}
+
 		assertEquals(46f, finalwidth, 0.1f);
 	}
 

@@ -269,6 +269,41 @@ public class ComputedCSSStyleTest {
 	}
 
 	@Test
+	public void testBoxModel() throws CSSPropertyValueException {
+		CSSElement elm = xhtmlDoc.getElementById("firstH3");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertNotNull(style);
+		BoxValues box = style.getBoxValues(CSSUnit.CSS_PX);
+		assertNotNull(box);
+
+		assertEquals(CSSUnit.CSS_PX, box.getUnitType());
+
+		assertEquals(900f, box.getWidth(), 0.01f);
+
+		assertEquals(28.8f, box.getMarginTop(), 0.01f);
+		assertEquals(0f, box.getMarginRight(), 0.01f);
+		assertEquals(28.8f, box.getMarginBottom(), 0.01f);
+		assertEquals(0f, box.getMarginLeft(), 0.01f);
+
+		assertEquals(0f, box.getPaddingTop(), 0.01f);
+		assertEquals(0f, box.getPaddingRight(), 0.01f);
+		assertEquals(0f, box.getPaddingBottom(), 0.01f);
+		assertEquals(0f, box.getPaddingLeft(), 0.01f);
+
+		assertEquals(0f, box.getBorderTopWidth(), 0.01f);
+		assertEquals(0f, box.getBorderRightWidth(), 0.01f);
+		assertEquals(0f, box.getBorderBottomWidth(), 0.01f);
+		assertEquals(0f, box.getBorderLeftWidth(), 0.01f);
+
+		box.fillBoxValues(style);
+		assertEquals(
+			"display:block;font-family:'Does Not Exist',Neither;font-size:21.6pt;font-weight:bold;"
+				+ "unicode-bidi:embed;border-style:none;border-width:0;content:\"  foo  bar  \";"
+				+ "color:#000080;margin:28.8px 0;padding:0;width:900px;",
+			style.getMinifiedCssText());
+	}
+
+	@Test
 	public void nonexistentTag() {
 		CSSElement elm = xhtmlDoc.getElementById("listpara");
 		elm = (CSSElement) elm.getElementsByTagName("nonexistenttag").item(0);
