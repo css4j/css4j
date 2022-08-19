@@ -23,6 +23,7 @@ import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -118,7 +119,7 @@ public class RuleParserTest {
 	@Test
 	public void testParseRuleNS() throws CSSException, IOException {
 		TestNamespaceMap nsmap = new TestNamespaceMap();
-		nsmap.put("svg", "http://www.w3.org/2000/svg");
+		nsmap.put("svg", TestConfig.SVG_NAMESPACE_URI);
 		parseRule("svg|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}", nsmap);
 		assertEquals(1, handler.selectors.size());
 		assertEquals("svg|p", handler.selectors.getFirst().toString());
@@ -283,7 +284,7 @@ public class RuleParserTest {
 	public void testParseSimpleNS() throws CSSException, IOException {
 		parseRule("@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
 		assertEquals(1, handler.namespaceMaps.size());
-		assertEquals("http://www.w3.org/2000/svg", handler.namespaceMaps.get("svg"));
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
 		assertEquals(2, handler.selectors.size());
 		assertEquals("p", handler.selectors.getFirst().toString());
 		assertEquals("svg|svg", handler.selectors.get(1).toString());

@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRuleList;
 
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
 
 public class NamespaceRuleTest {
@@ -36,7 +37,8 @@ public class NamespaceRuleTest {
 
 	@Test
 	public void testInsertDeleteRuleStringInt() {
-		NamespaceRule nsrule = (NamespaceRule) sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		NamespaceRule nsrule = (NamespaceRule) sheet.createNamespaceRule("svg",
+			TestConfig.SVG_NAMESPACE_URI);
 		sheet.addRule(nsrule);
 		CSSRuleList rules = sheet.getCssRules();
 		assertEquals(1, rules.getLength());
@@ -63,14 +65,14 @@ public class NamespaceRuleTest {
 
 	@Test
 	public void testGetCssText() {
-		CSSNamespaceRule nsrule = sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		CSSNamespaceRule nsrule = sheet.createNamespaceRule("svg", TestConfig.SVG_NAMESPACE_URI);
 		assertEquals("@namespace svg url('http://www.w3.org/2000/svg');", nsrule.getCssText());
 		assertEquals("@namespace svg url('http://www.w3.org/2000/svg');", nsrule.getMinifiedCssText());
 	}
 
 	@Test
 	public void testSetPrefix() {
-		NamespaceRule nsrule = (NamespaceRule) sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		NamespaceRule nsrule = (NamespaceRule) sheet.createNamespaceRule("svg", TestConfig.SVG_NAMESPACE_URI);
 		sheet.addRule(nsrule);
 		CSSRuleList rules = sheet.getCssRules();
 		assertEquals(1, rules.getLength());
@@ -86,14 +88,14 @@ public class NamespaceRuleTest {
 
 	@Test
 	public void testEquals() {
-		CSSNamespaceRule nsrule = sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		CSSNamespaceRule nsrule = sheet.createNamespaceRule("svg", TestConfig.SVG_NAMESPACE_URI);
 		CSSNamespaceRule nsrule2 = sheet.createNamespaceRule("foo", "http://www.example.com/examplens");
 		assertFalse(nsrule.equals(nsrule2));
 	}
 
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
-		NamespaceRule rule = (NamespaceRule) sheet.createNamespaceRule("svg", "http://www.w3.org/2000/svg");
+		NamespaceRule rule = (NamespaceRule) sheet.createNamespaceRule("svg", TestConfig.SVG_NAMESPACE_URI);
 		AbstractCSSStyleSheet newSheet = sheet.getStyleSheetFactory().createStyleSheet(null, null);
 		CSSNamespaceRule cloned = rule.clone(newSheet);
 		assertFalse(rule == cloned);

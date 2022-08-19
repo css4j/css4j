@@ -33,6 +33,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
+import io.sf.carte.doc.TestConfig;
+
 public class FilteredIteratorTest {
 	private static TestDOMImplementation domImpl;
 	private DOMDocument document;
@@ -643,16 +645,16 @@ public class FilteredIteratorTest {
 	@Test
 	public void testElementNameIteratorNS3() throws DOMException {
 		DOMElement body = document.getDocumentElement().getFirstElementChild();
-		DOMElement svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+		DOMElement svg = document.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
 		body.insertAfter(svg, body.getFirstElementChild());
 		// body has these children: div, svg, text, p, text, text, span, ul, text, comment
 		NodeList list = body.getChildNodes();
-		Iterator<DOMElement> it = body.elementIteratorNS("http://www.w3.org/2000/svg", "svg");
+		Iterator<DOMElement> it = body.elementIteratorNS(TestConfig.SVG_NAMESPACE_URI, "svg");
 		assertTrue(it.hasNext());
 		DOMElement node = it.next();
 		assertEquals(Node.ELEMENT_NODE, node.getNodeType());
 		assertEquals("svg", node.getNodeName());
-		assertEquals("http://www.w3.org/2000/svg", node.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, node.getNamespaceURI());
 		assertTrue(list.item(1) == node);
 		assertFalse(it.hasNext());
 		try {
@@ -667,7 +669,7 @@ public class FilteredIteratorTest {
 		} catch (IllegalStateException e) {
 		}
 		assertEquals(9, list.getLength());
-		it = body.elementIteratorNS("http://www.w3.org/2000/svg", "svg");
+		it = body.elementIteratorNS(TestConfig.SVG_NAMESPACE_URI, "svg");
 		assertFalse(it.hasNext());
 		try {
 			it.next();

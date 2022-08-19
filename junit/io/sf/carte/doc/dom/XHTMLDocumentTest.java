@@ -37,6 +37,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -335,7 +336,7 @@ public class XHTMLDocumentTest {
 	public void getElementsByTagName() {
 		NodeList stylelist = xmlDoc.getElementsByTagName("style");
 		assertNotNull(stylelist);
-		assertEquals(1, stylelist.getLength());
+		assertEquals(2, stylelist.getLength());
 		assertEquals("style", stylelist.item(0).getNodeName());
 		NodeList list = xmlDoc.getElementsByTagName("li");
 		assertNotNull(list);
@@ -348,9 +349,9 @@ public class XHTMLDocumentTest {
 		assertEquals(0, list.getLength());
 		Element html = xmlDoc.getDocumentElement();
 		list = xmlDoc.getElementsByTagName("div");
-		assertEquals(1, list.getLength());
+		assertEquals(3, list.getLength());
 		html.appendChild(xmlDoc.createElement("div"));
-		assertEquals(2, list.getLength());
+		assertEquals(4, list.getLength());
 		NodeList stylelist2 = xmlDoc.getElementsByTagName("style");
 		assertEquals(stylelist.toString(), stylelist2.toString());
 		//
@@ -395,31 +396,33 @@ public class XHTMLDocumentTest {
 
 	@Test
 	public void getElementsByTagNameNS() {
-		ElementList list = xmlDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "*");
+		ElementList list = xmlDoc.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "*");
 		assertNotNull(list);
-		assertEquals(2, list.getLength());
+		assertEquals(6, list.getLength());
 		DOMElement svg = list.item(0);
 		assertEquals("s:svg", svg.getNodeName());
 		assertEquals(
-				"<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" s:version=\"1.1\" s:viewBox=\"0 0 100 100\" id=\"svg1\" style=\"width: 100%; height: 100%; \">",
+				"<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" s:version=\"1.1\" s:viewBox=\"0 0 100 100\" id=\"svg1\" style=\"width: 90%; height: 90%; \">",
 				svg.getStartTag());
-		Attr version = svg.getAttributeNodeNS("http://www.w3.org/2000/svg", "version");
-		assertEquals("http://www.w3.org/2000/svg", version.getNamespaceURI());
+		Attr version = svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "version");
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, version.getNamespaceURI());
 		assertEquals("s", svg.getPrefix());
 		assertEquals("s:rect", list.item(1).getNodeName());
-		list.item(0).appendChild(xmlDoc.createElementNS("http://www.w3.org/2000/svg", "circle"));
-		assertEquals(3, list.getLength());
-		ElementList svglist = xmlDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "svg");
+		list.item(0).appendChild(xmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "circle"));
+		assertEquals(7, list.getLength());
+		ElementList svglist = xmlDoc.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "svg");
 		assertNotNull(svglist);
 		assertEquals(1, svglist.getLength());
 		assertEquals("s:svg", svglist.item(0).getNodeName());
-		list = xmlDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "rect");
+
+		list = xmlDoc.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "rect");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		Node oldrect = list.item(0);
 		assertEquals("s:rect", oldrect.getNodeName());
+
 		// Create a <rect> element with a missing prefix
-		DOMElement newrect = xmlDoc.createElementNS("http://www.w3.org/2000/svg", "rect");
+		DOMElement newrect = xmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "rect");
 		assertEquals("<s:rect/>", newrect.toString());
 		oldrect.getParentNode().appendChild(newrect);
 		assertEquals(Node.DOCUMENT_POSITION_PRECEDING, oldrect.compareDocumentPosition(newrect));
@@ -428,7 +431,8 @@ public class XHTMLDocumentTest {
 		assertEquals("s:svg", node.getNodeName());
 		node.getParentNode().removeChild(node);
 		assertEquals(0, svglist.getLength());
-		list = xmlDoc.getElementsByTagNameNS("http://www.w3.org/2000/svg", "xxxxxx");
+
+		list = xmlDoc.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "xxxxxx");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 	}
@@ -582,8 +586,8 @@ public class XHTMLDocumentTest {
 		assertNotNull(css);
 		assertNotNull(css.getCssRules());
 		int countInternalSheets = xmlDoc.embeddedStyle.size() + xmlDoc.linkedStyle.size();
-		assertEquals(6, countInternalSheets);
-		assertEquals(6, xmlDoc.getStyleSheets().getLength());
+		assertEquals(7, countInternalSheets);
+		assertEquals(7, xmlDoc.getStyleSheets().getLength());
 		assertEquals("http://www.example.com/css/common.css", xmlDoc.getStyleSheets().item(0).getHref());
 		assertEquals(3, xmlDoc.getStyleSheetSets().getLength());
 		Iterator<LinkStyleDefiner> it = xmlDoc.linkedStyle.iterator();
@@ -606,7 +610,7 @@ public class XHTMLDocumentTest {
 		assertNotNull(sheet);
 		assertEquals("Alter 1", sheet.getTitle());
 		assertEquals(2, sheet.getCssRules().getLength());
-		assertEquals(defSz + 22, css.getCssRules().getLength());
+		assertEquals(defSz + 25, css.getCssRules().getLength());
 		assertFalse(xmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
 	}
 
@@ -895,6 +899,74 @@ public class XHTMLDocumentTest {
 		assertNotNull(errHandler);
 		assertTrue(errHandler.hasIOErrors());
 		assertTrue(errHandler.hasErrors());
+	}
+
+	@Test
+	public void testSVG() {
+		ElementList list = xmlDoc.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		assertNotNull(list);
+		DOMElement svg = list.item(0);
+		assertNotNull(svg);
+		assertEquals("s", svg.getPrefix());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, svg.getNamespaceURI());
+		Attr version = svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "version");
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, version.getNamespaceURI());
+
+		ElementList childe = svg.getChildren();
+		Iterator<DOMElement> it = childe.iterator();
+		assertTrue(it.hasNext());
+		DOMElement style = it.next();
+		assertEquals("style", style.getLocalName());
+		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, style.getNamespaceURI());
+
+		assertTrue(it.hasNext());
+		DOMElement rect = it.next();
+		assertEquals("rect", rect.getLocalName());
+		assertEquals("s", rect.getPrefix());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, rect.getNamespaceURI());
+
+		assertTrue(it.hasNext());
+		DOMElement g1 = it.next();
+		assertEquals("g", g1.getLocalName());
+		assertEquals("s", g1.getPrefix());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, g1.getNamespaceURI());
+
+		DOMElement fo1 = g1.getFirstElementChild();
+		assertNotNull(fo1);
+		assertEquals("foreignObject", fo1.getLocalName());
+		assertEquals("s", fo1.getPrefix());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, fo1.getNamespaceURI());
+
+		DOMElement div1 = fo1.getFirstElementChild();
+		assertNotNull(div1);
+		assertEquals("div", div1.getLocalName());
+		assertNull(div1.getPrefix());
+		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, div1.getNamespaceURI());
+
+		assertTrue(it.hasNext());
+		DOMElement g2 = it.next();
+		assertEquals("g", g2.getLocalName());
+		assertEquals("s", g2.getPrefix());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, g2.getNamespaceURI());
+		assertFalse(it.hasNext());
+
+		DOMElement fo2 = g2.getFirstElementChild();
+		assertNotNull(fo2);
+		assertEquals("foreignObject", fo2.getLocalName());
+		assertEquals("s", fo2.getPrefix());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, fo2.getNamespaceURI());
+
+		DOMElement div2 = fo2.getFirstElementChild();
+		assertNotNull(div2);
+		assertEquals("div", div2.getLocalName());
+		assertNull(div2.getPrefix());
+		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, div2.getNamespaceURI());
+
+		DOMElement span = div2.getFirstElementChild();
+		assertNotNull(span);
+		assertEquals("span", span.getLocalName());
+		assertNull(span.getPrefix());
+		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, span.getNamespaceURI());
 	}
 
 	@Test

@@ -26,6 +26,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentType;
 
 import io.sf.carte.doc.DOMTokenList;
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 
@@ -121,7 +122,7 @@ public class HTMLElementTest {
 
 	@Test
 	public void testCreateAttributeNS2() {
-		Attr attr = xhtmlDoc.createAttributeNS("http://www.w3.org/2000/svg", "version");
+		Attr attr = xhtmlDoc.createAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version");
 		assertNotNull(attr);
 		attr.setValue("1.1");
 		assertNull(attr.getAttributes());
@@ -130,7 +131,7 @@ public class HTMLElementTest {
 		assertNull(attr.getLastChild());
 		assertNull(attr.getParentNode());
 		assertTrue(attr.getSpecified());
-		assertEquals("http://www.w3.org/2000/svg", attr.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, attr.getNamespaceURI());
 		assertEquals("version", attr.getName());
 		assertEquals("version", attr.getNodeName());
 		assertEquals("1.1", attr.getValue());
@@ -558,9 +559,9 @@ public class HTMLElementTest {
 		CSSElement body = xhtmlDoc.createElement("body");
 		html.appendChild(body);
 		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, body.getNamespaceURI());
-		CSSElement svg = xhtmlDoc.createElementNS("http://www.w3.org/2000/svg", "svg");
+		CSSElement svg = xhtmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
 		body.appendChild(svg);
-		assertEquals("http://www.w3.org/2000/svg", svg.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, svg.getNamespaceURI());
 		CSSElement p = xhtmlDoc.createElementNS(null, "p");
 		body.appendChild(p);
 		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, p.getNamespaceURI());
@@ -665,13 +666,13 @@ public class HTMLElementTest {
 		assertFalse(body.hasAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "foo"));
 		assertEquals("", body.getAttribute("foo"));
 		assertNull(body.getAttributeNode("foo"));
-		assertEquals("", body.getAttributeNS("http://www.w3.org/2000/svg", "id"));
-		assertNull(body.getAttributeNodeNS("http://www.w3.org/2000/svg", "id"));
+		assertEquals("", body.getAttributeNS(TestConfig.SVG_NAMESPACE_URI, "id"));
+		assertNull(body.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "id"));
 		assertNotNull(idattr.getOwnerElement());
 		html.appendChild(body);
 		body.removeAttribute("foo");
 		assertTrue(body.hasAttributes());
-		body.removeAttributeNS("http://www.w3.org/2000/svg", "id");
+		body.removeAttributeNS(TestConfig.SVG_NAMESPACE_URI, "id");
 		assertTrue(body.hasAttribute("id"));
 		idattr = body.removeAttributeNode(idattr);
 		assertNull(idattr.getOwnerElement());
@@ -683,23 +684,23 @@ public class HTMLElementTest {
 		assertFalse(body.hasAttribute("id"));
 		assertFalse(body.hasAttributes());
 		assertNull(idattr.getOwnerElement());
-		CSSElement svg = xhtmlDoc.createElementNS("http://www.w3.org/2000/svg", "svg");
-		Attr version = xhtmlDoc.createAttributeNS("http://www.w3.org/2000/svg", "version");
+		CSSElement svg = xhtmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr version = xhtmlDoc.createAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version");
 		version.setValue("1.1");
-		assertEquals("http://www.w3.org/2000/svg", version.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, version.getNamespaceURI());
 		svg.setAttributeNodeNS(version);
 		assertNotNull(version.getOwnerElement());
 		assertEquals("1.1", svg.getAttribute("version"));
 		assertEquals("1.1", svg.getAttributeNode("version").getValue());
-		assertEquals("1.1", svg.getAttributeNodeNS("http://www.w3.org/2000/svg", "version").getValue());
+		assertEquals("1.1", svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "version").getValue());
 		assertEquals("", svg.getAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "version"));
 		assertNull(svg.getAttributeNodeNS(HTMLDocument.HTML_NAMESPACE_URI, "version"));
 		assertFalse(svg.hasAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "version"));
-		assertTrue(svg.hasAttributeNS("http://www.w3.org/2000/svg", "version"));
+		assertTrue(svg.hasAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version"));
 		svg.removeAttributeNS(HTMLDocument.HTML_NAMESPACE_URI, "version");
-		assertTrue(svg.hasAttributeNS("http://www.w3.org/2000/svg", "version"));
-		svg.removeAttributeNS("http://www.w3.org/2000/svg", "version");
-		assertFalse(svg.hasAttributeNS("http://www.w3.org/2000/svg", "version"));
+		assertTrue(svg.hasAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version"));
+		svg.removeAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version");
+		assertFalse(svg.hasAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version"));
 		assertNull(version.getOwnerElement());
 		body.appendChild(svg);
 	}

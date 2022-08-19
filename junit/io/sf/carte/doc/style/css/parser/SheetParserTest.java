@@ -847,7 +847,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		//
 		assertEquals(1, handler.namespaceMaps.size());
-		assertEquals("http://www.w3.org/2000/svg", handler.namespaceMaps.get("svg"));
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
 		assertEquals(2, handler.selectors.size());
 		assertEquals("p", handler.selectors.getFirst().toString());
 		assertEquals("svg|svg", handler.selectors.get(1).toString());
@@ -918,7 +918,7 @@ public class SheetParserTest {
 				handler.supportsRuleLists.get(0).toString());
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("svg", handler.namespaceMaps.keySet().iterator().next());
-		assertEquals("http://www.w3.org/2000/svg", handler.namespaceMaps.get("svg"));
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("print", handler.mediaRuleLists.get(0).toString());
 		assertEquals("screen", handler.mediaRuleLists.get(1).toString());
@@ -991,7 +991,7 @@ public class SheetParserTest {
 		//
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("svg", handler.namespaceMaps.keySet().iterator().next());
-		assertEquals("http://www.w3.org/2000/svg", handler.namespaceMaps.get("svg"));
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
 		//
 		assertEquals(3, handler.mediaRuleLists.size());
 		MediaQueryList mql = handler.mediaRuleLists.get(1);
@@ -3419,7 +3419,7 @@ public class SheetParserTest {
 		assertEquals("list-item", handler.lexicalValues.get(1).toString());
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("svg", handler.namespaceMaps.keySet().iterator().next());
-		assertEquals("http://www.w3.org/2000/svg", handler.namespaceMaps.get("svg"));
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}

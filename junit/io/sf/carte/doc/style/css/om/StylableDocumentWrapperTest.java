@@ -205,7 +205,7 @@ public class StylableDocumentWrapperTest {
 		assertNotNull(sheet);
 		assertEquals("Alter 1", sheet.getTitle());
 		assertEquals(2, sheet.getCssRules().getLength());
-		assertEquals(defSz + 23, css.getCssRules().getLength());
+		assertEquals(defSz + 25, css.getCssRules().getLength());
 		assertFalse(xhtmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
 	}
 

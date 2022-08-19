@@ -41,6 +41,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.agent.TestEntityResolver;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
@@ -108,12 +109,12 @@ public class XMLDocumentBuilderTest {
 		// SVG
 		DOMElement svg = document.getElementById("svg1");
 		assertNotNull(svg);
-		assertEquals("http://www.w3.org/2000/svg", svg.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, svg.getNamespaceURI());
 		assertEquals("s", svg.getPrefix());
-		assertEquals("1.1", svg.getAttributeNS("http://www.w3.org/2000/svg", "version"));
+		assertEquals("1.1", svg.getAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version"));
 		DOMElement rect = svg.getFirstElementChild();
 		assertNotNull(rect);
-		assertEquals("http://www.w3.org/2000/svg", rect.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, rect.getNamespaceURI());
 		assertEquals("s", rect.getPrefix());
 	}
 
@@ -851,7 +852,7 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(docElement);
 		assertEquals("svg", docElement.getNodeName());
 		assertEquals("svg", docElement.getLocalName());
-		assertEquals("http://www.w3.org/2000/svg", docElement.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
 		assertNull(docElement.getPrefix());
 		assertTrue(docElement.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
 		//
@@ -860,11 +861,47 @@ public class XMLDocumentBuilderTest {
 		assertFalse(element.hasChildNodes());
 		assertEquals("rect", element.getNodeName());
 		assertEquals("rect", element.getLocalName());
-		assertEquals("http://www.w3.org/2000/svg", element.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, element.getNamespaceURI());
 		assertNull(element.getPrefix());
 		assertFalse(element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
 		// Convention: unprefixed attributes have an empty namespace, related to the owner element
-		Attr nsattr = element.getAttributeNodeNS("http://www.w3.org/2000/svg", "x");
+		Attr nsattr = element.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "x");
+		assertNull(nsattr);
+		nsattr = element.getAttributeNode("x");
+		assertNotNull(nsattr);
+		assertNull(nsattr.getNamespaceURI());
+		assertNull(nsattr.getPrefix());
+		//
+		Attr attr = element.getAttributeNode("x");
+		assertSame(nsattr, attr);
+		//
+		assertNull(element.getAttributeNodeNS("http://www.w3.org/1999/xhtml", "x"));
+	}
+
+	@Test
+	public void testParseInputSourceSVG_NoNS() throws SAXException, IOException {
+		DOMDocument document = parseDocument(new StringReader(
+				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\"><svg width=\"320\" height=\"320\"><rect width=\"120\" height=\"80\" x=\"12\" y=\"64\" fill=\"yellow\" stroke=\"grey\"></rect></svg>"),
+				"svg.xhtml");
+		assertNotNull(document);
+		DOMElement docElement = document.getDocumentElement();
+		assertNotNull(docElement);
+		assertEquals("svg", docElement.getNodeName());
+		assertEquals("svg", docElement.getLocalName());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
+		assertNull(docElement.getPrefix());
+		assertFalse(docElement.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		//
+		DOMElement element = docElement.getFirstElementChild();
+		assertNotNull(element);
+		assertFalse(element.hasChildNodes());
+		assertEquals("rect", element.getNodeName());
+		assertEquals("rect", element.getLocalName());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, element.getNamespaceURI());
+		assertNull(element.getPrefix());
+		assertFalse(element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		// Convention: unprefixed attributes have an empty namespace, related to the owner element
+		Attr nsattr = element.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "x");
 		assertNull(nsattr);
 		nsattr = element.getAttributeNode("x");
 		assertNotNull(nsattr);

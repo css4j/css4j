@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
@@ -644,7 +645,7 @@ public class DOMDocumentTest {
 	@Test
 	public void testCreateAttributeNS2() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
-		Attr attr = document.createAttributeNS("http://www.w3.org/2000/svg", "version");
+		Attr attr = document.createAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version");
 		assertNotNull(attr);
 		attr.setValue("1.1");
 		assertNull(attr.getAttributes());
@@ -653,7 +654,7 @@ public class DOMDocumentTest {
 		assertNull(attr.getLastChild());
 		assertNull(attr.getParentNode());
 		assertTrue(attr.getSpecified());
-		assertEquals("http://www.w3.org/2000/svg", attr.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, attr.getNamespaceURI());
 		assertEquals("version", attr.getName());
 		assertEquals("version", attr.getNodeName());
 		assertEquals("1.1", attr.getValue());

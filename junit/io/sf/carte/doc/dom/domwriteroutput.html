@@ -105,7 +105,28 @@ window.addEventListener("load", foo);
         <button type="submit">Login</button>
       </form>
       <!-- An xml-friendly svg element -->
-      <s:svg xmlns:s="http://www.w3.org/2000/svg" s:version="1.1" s:viewBox="0 0 100 100" id="svg1" style="width: 100%; height: 100%; "><s:rect x="0" y="0" width="100" height="100" fill="yellow"/></s:svg>
+      <s:svg xmlns:s="http://www.w3.org/2000/svg" s:version="1.1" s:viewBox="0 0 100 100" id="svg1" style="width: 90%; height: 90%; ">
+        <style>
+text.foo, svg div {
+  font-size: 9pt;
+}
+svg .label {
+  text-align:center;
+}
+svg span {
+  color:#3aa;
+}
+  </style>
+        <s:rect x="0" y="0" width="100" height="100" fill="yellow"/>
+        <s:g transform="translate(0,20)" class="label"><s:foreignObject height="24" width="90">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap; ">
+        Foreign Object
+      </div>
+          </s:foreignObject></s:g>
+          <s:g transform="translate(4,50)" class="label"><s:foreignObject height="20" width="80">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap; "><span>A Span</span></div>
+          </s:foreignObject></s:g>
+      </s:svg>
     </div>
   </body>
 </html>

@@ -150,7 +150,7 @@ public class XMLDocumentWrapperTest {
 	public void getElementsByTagName() {
 		NodeList stylelist = xmlDoc.getElementsByTagName("style");
 		assertNotNull(stylelist);
-		assertEquals(1, stylelist.getLength());
+		assertEquals(2, stylelist.getLength());
 		assertEquals("style", stylelist.item(0).getNodeName());
 		NodeList list = xmlDoc.getElementsByTagName("li");
 		assertNotNull(list);
@@ -160,7 +160,7 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		list = xmlDoc.getElementsByTagName("div");
-		assertEquals(1, list.getLength());
+		assertEquals(3, list.getLength());
 	}
 
 	@Test
@@ -183,8 +183,8 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(css);
 		assertNotNull(css.getCssRules());
 		int countInternalSheets = xmlDoc.embeddedStyle.size() + xmlDoc.linkedStyle.size();
-		assertEquals(6, countInternalSheets);
-		assertEquals(6, xmlDoc.getStyleSheets().getLength());
+		assertEquals(7, countInternalSheets);
+		assertEquals(7, xmlDoc.getStyleSheets().getLength());
 		assertEquals("http://www.example.com/css/common.css", xmlDoc.getStyleSheets().item(0).getHref());
 		assertEquals(3, xmlDoc.getStyleSheetSets().getLength());
 		Iterator<LinkStyleDefiner> it = xmlDoc.linkedStyle.iterator();
@@ -209,7 +209,7 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(sheet);
 		assertEquals("Alter 1", sheet.getTitle());
 		assertEquals(2, sheet.getCssRules().getLength());
-		assertEquals(defSz + 22, css.getCssRules().getLength());
+		assertEquals(defSz + 25, css.getCssRules().getLength());
 		assertFalse(xmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
 	}
 

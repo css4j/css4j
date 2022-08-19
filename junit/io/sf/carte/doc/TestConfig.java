@@ -15,4 +15,6 @@ public class TestConfig {
 
 	public static final boolean REMOTE_TESTS = false;
 
+	public static final String SVG_NAMESPACE_URI = "http://www.w3.org/2000/svg";
+
 }

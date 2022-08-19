@@ -45,6 +45,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.agent.TestEntityResolver;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
@@ -576,7 +577,7 @@ public class XMLDocumentBuilderJdkTest {
 		assertNotNull(docElement);
 		assertEquals("svg", docElement.getNodeName());
 		assertEquals("svg", docElement.getLocalName());
-		assertEquals("http://www.w3.org/2000/svg", docElement.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
 		assertNull(docElement.getPrefix());
 		assertTrue(docElement.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
 		//
@@ -585,11 +586,11 @@ public class XMLDocumentBuilderJdkTest {
 		assertFalse(element.hasChildNodes());
 		assertEquals("rect", element.getNodeName());
 		assertEquals("rect", element.getLocalName());
-		assertEquals("http://www.w3.org/2000/svg", element.getNamespaceURI());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, element.getNamespaceURI());
 		assertNull(element.getPrefix());
 		assertFalse(element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
 		// Convention: unprefixed attributes belong to a namespace partition in the owner element
-		Attr nsattr = element.getAttributeNodeNS("http://www.w3.org/2000/svg", "x");
+		Attr nsattr = element.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "x");
 		assertNull(nsattr);
 		nsattr = element.getAttributeNode("x");
 		assertNotNull(nsattr);

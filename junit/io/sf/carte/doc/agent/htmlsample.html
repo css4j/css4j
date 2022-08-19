@@ -97,13 +97,33 @@ div.test1 {margin-top: 2em; margin-bottom: 3em; background-position: 20% 0%; pad
 <button type="submit">Login</button>
 </form>
 <!-- An html-friendly svg element -->
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 100 100" id="svg1" style="width:100%; height:100%;">
-  <rect x="0" y="0" width="100" height="100" fill="yellow" />
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 100 100" id="svg1" style="width:90%; height:90%;">
   <style>
-text.foo {
+text.foo, svg div {
   font-size: 9pt;
 }
+svg .label {
+  text-align:center;
+}
+svg span {
+  color:#3aa;
+}
   </style>
+  <rect x="0" y="0" width="100" height="100" fill="yellow" />
+  <g transform="translate(0,20)" class="label">
+    <foreignObject height="24" width="90">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">
+        Foreign Object
+      </div>
+    </foreignObject>
+  </g>
+  <g transform="translate(4,50)" class="label">
+    <foreignObject height="20" width="80">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">
+        <span>A Span</span>
+      </div>
+    </foreignObject>
+  </g>
 </svg>
 </div>
 </body>

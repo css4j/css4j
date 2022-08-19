@@ -26,6 +26,7 @@ import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
@@ -107,7 +108,7 @@ public class WrapperSelectorMatcherTest {
 				"@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
 		SelectorList selist = ((StyleRule) css.getCssRules().item(1)).getSelectorList();
 		SelectorList svgselist = ((StyleRule) css.getCssRules().item(2)).getSelectorList();
-		Element svg = plaindoc.createElementNS("http://www.w3.org/2000/svg", "svg");
+		Element svg = plaindoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
 		Element elm = createElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		SelectorMatcher svgmatcher = selectorMatcher(svg);

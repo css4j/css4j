@@ -32,6 +32,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.om.DefaultStyleFormattingFactory;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
@@ -103,8 +104,8 @@ public class DOMWriterTest {
 		DocumentType doctype = domImpl.createDocumentType("svg", "-//W3C//DTD SVG 1.1//EN",
 				"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd");
 		DOMDocument document = domImpl.createDocument(null, null, doctype);
-		DOMElement docElm = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-		docElm.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", "http://www.w3.org/2000/svg");
+		DOMElement docElm = document.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		docElm.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", TestConfig.SVG_NAMESPACE_URI);
 		document.appendChild(docElm);
 		docElm.setAttribute("version", "1.1");
 		docElm.setAttribute("width", "320");
@@ -131,22 +132,22 @@ public class DOMWriterTest {
 		TestDOMImplementation domImpl = new TestDOMImplementation();
 		DOMDocument document = domImpl.createDocument(HTMLDocument.HTML_NAMESPACE_URI, "html", null);
 		DOMElement html = document.getDocumentElement();
-		DOMElement svg = document.createElementNS("http://www.w3.org/2000/svg", "s:svg");
+		DOMElement svg = document.createElementNS(TestConfig.SVG_NAMESPACE_URI, "s:svg");
 		html.appendChild(svg);
 		DOMWriter domWriter = new DOMWriter();
 		domWriter.setIndentingUnit(1);
 		String expected = "<html><s:svg xmlns:s=\"http://www.w3.org/2000/svg\"/></html>\n";
 		assertEquals(expected, domWriter.serializeToString(document));
 		//
-		svg.setAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:s", "http://www.w3.org/2000/svg");
+		svg.setAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:s", TestConfig.SVG_NAMESPACE_URI);
 		assertEquals(expected, domWriter.serializeToString(document));
 		//
-		DOMElement rect = document.createElementNS("http://www.w3.org/2000/svg", "svg:rect");
+		DOMElement rect = document.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg:rect");
 		svg.appendChild(rect);
 		expected = "<html><s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><svg:rect xmlns:svg=\"http://www.w3.org/2000/svg\"/></s:svg></html>\n";
 		assertEquals(expected, domWriter.serializeToString(document));
 		//
-		rect.setAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:svg", "http://www.w3.org/2000/svg");
+		rect.setAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:svg", TestConfig.SVG_NAMESPACE_URI);
 		assertEquals(expected, domWriter.serializeToString(document));
 	}
 
