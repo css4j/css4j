@@ -35,8 +35,8 @@ For reference, let your copy of the css4j release code be at `/path/to/css4j`.
 the `version` in the [`build.gradle`](build.gradle) file or remove the
 `-SNAPSHOT` suffix as necessary. Commit the change to the Git repository.
 
-3) If there is an issue tracking the release, close it (could be done adding a
-'closes...' to the message in the previously described commit).
+3) If there is an issue tracking the release, close it (you could do it later as
+well).
 
 4) To check that everything is fine, build the code:
 
@@ -204,3 +204,6 @@ the latest one, in your local copy of the [css4j-dist](https://github.com/css4j/
 repository update the css4j version number in the
 [maven/install-css4j.sh](https://github.com/css4j/css4j-dist/blob/master/maven/install-css4j.sh)
 script. Commit the change and look for the completion of that project's CI.
+
+21) If there is a [Github milestone](https://github.com/css4j/css4j/milestones)
+about this release, close it.
