@@ -982,7 +982,7 @@ public class HTMLDocumentTest {
 	@Test
 	public void getStyleSheet() {
 		DocumentCSSStyleSheet defsheet = xhtmlDoc.getStyleSheetFactory()
-				.getDefaultStyleSheet(xhtmlDoc.getComplianceMode());
+			.getDefaultStyleSheet(xhtmlDoc.getComplianceMode());
 		assertNotNull(defsheet);
 		// Obtain the number of rules in the default style sheet, to use it
 		// as a baseline.
@@ -991,10 +991,12 @@ public class HTMLDocumentTest {
 		assertNotNull(css);
 		assertNotNull(css.getCssRules());
 		int countInternalSheets = xhtmlDoc.embeddedStyle.size() + xhtmlDoc.linkedStyle.size();
-		assertEquals(6, countInternalSheets);
-		assertEquals(6, xhtmlDoc.getStyleSheets().getLength());
-		assertEquals("http://www.example.com/css/common.css", xhtmlDoc.getStyleSheets().item(0).getHref());
+		assertEquals(7, countInternalSheets);
+		assertEquals(7, xhtmlDoc.getStyleSheets().getLength());
+		assertEquals("http://www.example.com/css/common.css",
+			xhtmlDoc.getStyleSheets().item(0).getHref());
 		assertEquals(3, xhtmlDoc.getStyleSheetSets().getLength());
+
 		Iterator<LinkStyleDefiner> it = xhtmlDoc.linkedStyle.iterator();
 		assertTrue(it.hasNext());
 		AbstractCSSStyleSheet sheet = it.next().getSheet();
@@ -1002,20 +1004,44 @@ public class HTMLDocumentTest {
 		assertEquals(null, sheet.getTitle());
 		assertEquals(3, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
-		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
-		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
-		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
+		assertEquals("background-color: red; ",
+			((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
+		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules()
+			.item(1)).getStyle();
+		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')",
+			fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
 		assertTrue(((FontFeatureValuesRule) sheet.getCssRules().item(2)).getMinifiedCssText()
-				.startsWith("@font-feature-values Foo Sans,Bar"));
+			.startsWith("@font-feature-values Foo Sans,Bar"));
+
 		assertTrue(it.hasNext());
 		sheet = it.next().getSheet();
 		assertNotNull(sheet);
 		assertEquals("Alter 1", sheet.getTitle());
 		assertEquals(2, sheet.getCssRules().getLength());
-		assertEquals(defSz + 22, css.getCssRules().getLength());
+
+		assertTrue(it.hasNext());
+		sheet = it.next().getSheet();
+		assertNotNull(sheet);
+		assertEquals("Alter 2", sheet.getTitle());
+		assertEquals(1, sheet.getCssRules().getLength());
+
+		assertTrue(it.hasNext());
+		sheet = it.next().getSheet();
+		assertNotNull(sheet);
+		assertEquals("Default", sheet.getTitle());
+		assertEquals(1, sheet.getCssRules().getLength());
+
+		assertTrue(it.hasNext());
+		sheet = it.next().getSheet();
+		assertNotNull(sheet);
+		assertNull(sheet.getTitle());
+		assertEquals("print", sheet.getMedia().getMediaText());
+		assertEquals(1, sheet.getCssRules().getLength());
+
+		assertEquals(defSz + 25, css.getCssRules().getLength());
 		assertFalse(xhtmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
 	}
 

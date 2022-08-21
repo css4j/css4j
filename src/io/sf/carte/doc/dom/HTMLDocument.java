@@ -955,7 +955,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		ElementList list;
 		HTMLElement docElm = getDocumentElement();
 		if (docElm != null) {
-			list = docElm.getElementsByTagNameNS(HTML_NAMESPACE_URI, "style");
+			list = docElm.getElementsByTagNameNS("*", "style");
 		} else {
 			list = EmptyElementList.getInstance();
 		}
