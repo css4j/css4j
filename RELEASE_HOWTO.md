@@ -62,7 +62,8 @@ changes from the latest tag. For example if you are releasing `3.9.1`:
 ```
 
 Edit the resulting `CHANGES.txt` as convenient, to use it as the basis for the
-detailed list of changes when you create the new release in Github.
+detailed list of changes when you create the Release Notes and the new release
+in Github.
 
 7) Clone the `git@github.com:css4j/css4j.github.io.git` repository (which
 contains a bare-bones Maven repository) and let `/path/to/css4j.github.io` be
@@ -108,7 +109,7 @@ example we create the 3.9.1 release Zip with the `7z` compressor:
 ```shell
 cd /path/to/css4j
 ./gradlew clean
-rm -fr .git .gradle buildSrc/.gradle
+rm -fr .git .gitattributes .gitignore .gradle buildSrc/.gradle
 cd ..
 mv css4j css4j-3.9.1
 7z a css4j-3.9.1.zip css4j-3.9.1
@@ -132,9 +133,8 @@ folders in https://sourceforge.net/projects/carte/files/css4j/
 
 14) Draft a new Github release at https://github.com/css4j/css4j/releases
 
-Summarize the most important changes in the release description, then create a
-`## Detail of changes` section and paste the contents of the `CHANGES.txt` file
-under it.
+Summarize the most important changes in the release description, using the
+Release Notes as a source.
 
 Add to the Github release the _jar_ files from the `jar` directory in your copy
 of the css4j release.
