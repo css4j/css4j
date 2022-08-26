@@ -446,7 +446,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 		@Override
 		public void setData(String data) throws DOMException {
-			if (data.indexOf('>') != -1) {
+			if (data == null) {
+				data = "";
+			} else if (data.indexOf('>') != -1) {
 				throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "PI is not allowed to contain '>'");
 			}
 			this.data = data;
@@ -785,6 +787,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 		@Override
 		public void setData(String data) throws DOMException {
+			if (data == null) {
+				data = "";
+			}
 			this.data = data;
 		}
 
