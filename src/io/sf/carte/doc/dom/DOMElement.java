@@ -674,6 +674,19 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		return child.createListIterator();
 	}
 
+	@Override
+	public String getTextContent() throws DOMException {
+		String text;
+		if (getNodeList().isEmpty()) {
+			text = "";
+		} else {
+			StringBuilder buf = new StringBuilder(64);
+			appendTextContent(buf);
+			text = buf.toString();
+		}
+		return text;
+	}
+
 	/**
 	 * Gives a representation of the text content of an element, approximately as if
 	 * it was rendered according to the styling and the document language.

@@ -621,37 +621,22 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 	public String getTextContent() throws DOMException {
 		String text;
 		switch (getNodeType()) {
-		case Node.ELEMENT_NODE:
 		case Node.ENTITY_NODE:
 		case Node.ENTITY_REFERENCE_NODE:
 		case Node.DOCUMENT_FRAGMENT_NODE:
-			int sz = getNodeList().getLength();
-			if (sz == 0) {
+		case Node.ELEMENT_NODE: // This will never match
+			if (getNodeList().isEmpty()) {
 				text = "";
-			} else if (sz == 1) {
-				text = getNodeList().getFirst().getTextContent();
 			} else {
-				StringBuilder buf = new StringBuilder(32 + sz * 20);
-				Node node = getFirstChild();
-				while (node != null) {
-					short type = node.getNodeType();
-					if (type == Node.COMMENT_NODE || type == Node.PROCESSING_INSTRUCTION_NODE) {
-						node = node.getNextSibling();
-						continue;
-					}
-					String tc = node.getTextContent();
-					if (tc != null) {
-						buf.append(tc);
-					}
-					node = node.getNextSibling();
-				}
+				StringBuilder buf = new StringBuilder(64);
+				appendTextContent(buf);
 				text = buf.toString();
 			}
 			break;
-		case Node.TEXT_NODE:
+		case Node.TEXT_NODE: // This will never match
 			text = getNodeValue();
 			break;
-		case Node.CDATA_SECTION_NODE:
+		case Node.CDATA_SECTION_NODE: // This will never match
 		case Node.COMMENT_NODE:
 		case Node.PROCESSING_INSTRUCTION_NODE:
 		case Node.ATTRIBUTE_NODE:
@@ -661,6 +646,38 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 			text = null;
 		}
 		return text;
+	}
+
+	void appendTextContent(StringBuilder buf) {
+		switch (getNodeType()) {
+		case Node.ENTITY_NODE:
+		case Node.ENTITY_REFERENCE_NODE:
+		case Node.DOCUMENT_FRAGMENT_NODE:
+		case Node.ELEMENT_NODE:
+			AbstractDOMNode node = getNodeList().getFirst();
+			while (node != null) {
+				short type = node.getNodeType();
+				if (type == Node.COMMENT_NODE || type == Node.PROCESSING_INSTRUCTION_NODE) {
+					node = node.nextSibling;
+					continue;
+				}
+				node.appendTextContent(buf);
+				node = node.nextSibling;
+			}
+			break;
+		case Node.TEXT_NODE:
+			String text = getNodeValue();
+			buf.append(text);
+			break;
+		case Node.CDATA_SECTION_NODE:
+		case Node.COMMENT_NODE:
+		case Node.PROCESSING_INSTRUCTION_NODE:
+		case Node.ATTRIBUTE_NODE:
+			text = getNodeValue();
+			buf.append(text);
+			break;
+		default:
+		}
 	}
 
 	@Override

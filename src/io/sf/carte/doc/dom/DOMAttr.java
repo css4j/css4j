@@ -142,6 +142,11 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 	}
 
 	@Override
+	public String getTextContent() throws DOMException {
+		return getValue();
+	}
+
+	@Override
 	public String lookupNamespaceURI(String prefix) {
 		String namespaceURI = super.lookupNamespaceURI(prefix);
 		if (namespaceURI == null) {
