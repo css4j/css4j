@@ -470,6 +470,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
+		public void setTextContent(String textContent) throws DOMException {
+			setData(textContent);
+		}
+
+		@Override
 		public ProcessingInstruction cloneNode(boolean deep) {
 			ProcessingInstruction my = new MyProcessingInstruction(getTarget(), getData());
 			callUserHandlers(UserDataHandler.NODE_CLONED, this, my);
@@ -883,6 +888,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		@Override
 		public String getTextContent() throws DOMException {
 			return getData();
+		}
+
+		@Override
+		public void setTextContent(String textContent) throws DOMException {
+			setData(textContent);
 		}
 
 	}
