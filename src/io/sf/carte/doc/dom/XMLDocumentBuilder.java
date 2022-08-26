@@ -136,17 +136,21 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private Document parse(InputSource is, XMLReader xmlReader) throws SAXException, IOException {
 		boolean errorHandlerSet = true;
+
 		XMLContentHandler handler;
 		if (htmlProcessing) {
 			handler = new XHTMLContentHandler(xmlReader);
 		} else {
 			handler = new XMLContentHandler(xmlReader);
 		}
+		handler.setSystemId(is.getSystemId());
+
 		xmlReader.setContentHandler(handler);
 		try {
 			xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
 		} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
 		}
+
 		if (errorHandler != null) {
 			xmlReader.setErrorHandler(errorHandler);
 		} else if (xmlReader.getErrorHandler() == null) {
@@ -154,9 +158,11 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		} else {
 			errorHandlerSet = false;
 		}
+
 		xmlReader.parse(is);
+
 		Document document = handler.getDocument();
-		document.setDocumentURI(is.getSystemId());
+
 		// Help memory management
 		xmlReader.setContentHandler(null);
 		try {
@@ -215,19 +221,24 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 */
 	@Override
 	public Document newDocument() {
-		return createDocument(null, null, null);
+		return createDocument(null, null, null, null);
 	}
 
-	private Document createDocument(String namespaceURI, String qualifiedName, DocumentType doctype)
-			throws DOMException {
-		if (doctype != null && "html".equals(doctype.getName()) && namespaceURI != null && namespaceURI.length() == 0) {
+	private Document createDocument(String namespaceURI, String qualifiedName, DocumentType doctype,
+		String systemId) throws DOMException {
+		if (doctype != null && "html".equals(doctype.getName()) && namespaceURI != null
+			&& namespaceURI.length() == 0) {
 			// This is HTML and we do not want to obtain a plain DOMDocument
 			namespaceURI = null;
 		}
 		Document document = domImpl.createDocument(namespaceURI, qualifiedName, doctype);
+
 		if (!strictErrorChecking) {
 			document.setStrictErrorChecking(false);
 		}
+
+		document.setDocumentURI(systemId);
+
 		return document;
 	}
 
@@ -336,6 +347,8 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private class XMLContentHandler implements ContentHandler, LexicalHandler, ErrorHandler {
 
+		String systemId = null;
+
 		Document document = null;
 
 		DocumentType documentType = null;
@@ -370,6 +383,10 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			} else {
 				attrProcessor = new NotSpecifiedAttributeProcessor();
 			}
+		}
+
+		void setSystemId(String systemId) {
+			this.systemId = systemId;
 		}
 
 		private boolean hasAttributes2Feature(XMLReader xmlReader) {
@@ -421,7 +438,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		}
 
 		void documentElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-			document = createDocument(uri, qName, documentType);
+			document = createDocument(uri, qName, documentType, systemId);
 			Element element = document.getDocumentElement();
 			currentNode = element;
 			setAttributes(element, atts);
@@ -735,11 +752,11 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 						error("Bad qName: " + qName);
 					}
 				}
-				document = createDocument(uri, deQname, documentType);
+				document = createDocument(uri, deQname, documentType, systemId);
 				currentNode = document.getDocumentElement();
 				newElement(uri, localName, qName, atts);
 			} else {
-				document = createDocument(uri, qName, documentType);
+				document = createDocument(uri, qName, documentType, systemId);
 				Element element = document.getDocumentElement();
 				currentNode = element;
 				setAttributes(element, atts);
