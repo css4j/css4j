@@ -1,7 +1,7 @@
 plugins {
 	id 'java-library'
 	id 'maven-publish'
-	id 'de.jjohannes.extra-java-module-info' version '0.11'
+	id 'org.gradlex.extra-java-module-info' version '1.0'
 	id 'jacoco'
 }
 
@@ -46,7 +46,7 @@ dependencies {
 
 extraJavaModuleInfo {
 	failOnMissingModuleInfo.set(false)
-	automaticModule('sac-1.3.jar', 'sac')
+	automaticModule('org.w3c.css:sac', 'sac')
 }
 
 repositories {
