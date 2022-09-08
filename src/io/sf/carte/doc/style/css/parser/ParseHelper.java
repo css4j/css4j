@@ -1051,8 +1051,24 @@ public class ParseHelper {
 		return false;
 	}
 
+	/**
+	 * Tests if the given {@code CharSequence} starts with the specified lower case
+	 * string, but ignoring the case of the first argument.
+	 * 
+	 * @param seq      the non-{@code null} sequence to check.
+	 * @param lcString the non-{@code null} lower case prefix that should be
+	 *                 matched.
+	 * @return {@code true} if the character sequence represented by the second
+	 *         argument is a prefix of the character sequence in the first argument;
+	 */
 	public static boolean startsWithIgnoreCase(CharSequence seq, String lcString) {
+		int seqLen = seq.length();
 		int len = lcString.length();
+
+		if (len > seqLen) {
+			return false;
+		}
+
 		for (int i = 0; i < len; i++) {
 			char c = seq.charAt(i);
 			char lc = lcString.charAt(i);
@@ -1065,6 +1081,18 @@ public class ParseHelper {
 		return true;
 	}
 
+	/**
+	 * Tests if the two given character sequences are the same, ignoring the case
+	 * considerations except for the fact that the second argument <em>must</em> be
+	 * lower case.
+	 * 
+	 * @param seq      the non-{@code null} sequence to compare to the second
+	 *                 argument.
+	 * @param lcString the non-{@code null} lower case sequence to compare to the
+	 *                 first argument.
+	 * @return {@code true} if the two arguments represent an equivalent
+	 *         {@code CharSequence} ignoring case.
+	 */
 	public static boolean equalsIgnoreCase(CharSequence seq, CharSequence lcString) {
 		int len = seq.length();
 		if (lcString.length() != len) {

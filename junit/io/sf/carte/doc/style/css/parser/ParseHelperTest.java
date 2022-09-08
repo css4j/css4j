@@ -12,8 +12,10 @@
 package io.sf.carte.doc.style.css.parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -27,6 +29,30 @@ import io.sf.carte.doc.style.css.nsac.PseudoCondition;
  * NSACSelectorFactoryTest.
  */
 public class ParseHelperTest {
+
+	@Test
+	public void testStartsWithIgnoreCase() {
+		assertTrue(ParseHelper.startsWithIgnoreCase("", ""));
+		assertTrue(ParseHelper.startsWithIgnoreCase("foo", ""));
+		assertFalse(ParseHelper.startsWithIgnoreCase("", "bar"));
+		assertFalse(ParseHelper.startsWithIgnoreCase("foo", "bar"));
+		assertFalse(ParseHelper.startsWithIgnoreCase("foo", "foobar"));
+		assertTrue(ParseHelper.startsWithIgnoreCase("foo", "fo"));
+		assertTrue(ParseHelper.startsWithIgnoreCase("foo", "foo"));
+	}
+
+	@Test
+	public void testEqualsIgnoreCase() {
+		assertTrue(ParseHelper.equalsIgnoreCase("", ""));
+		assertTrue(ParseHelper.equalsIgnoreCase("a", "a"));
+		assertTrue(ParseHelper.equalsIgnoreCase("A", "a"));
+		assertTrue(ParseHelper.equalsIgnoreCase("AA", "aa"));
+		assertTrue(ParseHelper.equalsIgnoreCase("aA", "aa"));
+		assertFalse(ParseHelper.equalsIgnoreCase("", "a"));
+		assertFalse(ParseHelper.equalsIgnoreCase("aa", "a"));
+		assertFalse(ParseHelper.equalsIgnoreCase("a", "aaa"));
+		assertFalse(ParseHelper.equalsIgnoreCase("AAAA", "aaa"));
+	}
 
 	@Test
 	public void testUnescapeStringValue() {
