@@ -71,6 +71,8 @@ import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
+import io.sf.carte.doc.style.css.om.PropertyCountVisitor;
+import io.sf.carte.doc.style.css.om.StyleCountVisitor;
 import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.LexicalValue;
@@ -2358,6 +2360,21 @@ public class HTMLDocumentTest {
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
+	}
+
+	@Test
+	public void testVisitors() throws IOException {
+		StyleCountVisitor visitor = new StyleCountVisitor();
+		xhtmlDoc.getStyleSheets().acceptStyleRuleVisitor(visitor);
+		assertEquals(29, visitor.getCount());
+		//
+		PropertyCountVisitor visitorP = new PropertyCountVisitor();
+		xhtmlDoc.getStyleSheets().acceptDeclarationRuleVisitor(visitorP);
+		assertEquals(111, visitorP.getCount());
+		//
+		visitorP.reset();
+		xhtmlDoc.getStyleSheets().acceptDescriptorRuleVisitor(visitorP);
+		assertEquals(2, visitorP.getCount());
 	}
 
 	@Test

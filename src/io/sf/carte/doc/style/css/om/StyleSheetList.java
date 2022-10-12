@@ -20,7 +20,10 @@ import org.w3c.dom.DOMStringList;
 import org.w3c.dom.css.CSSStyleSheet;
 import org.w3c.dom.stylesheets.StyleSheet;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetList;
+import io.sf.carte.util.Visitor;
 
 /**
  * Abstract base implementation class for style sheet lists.
@@ -64,6 +67,36 @@ abstract public class StyleSheetList implements CSSStyleSheetList<AbstractCSSRul
 
 	public DOMStringList getStyleSheetSets() {
 		return styleSheetSets;
+	}
+
+	@Override
+	public void acceptStyleRuleVisitor(Visitor<CSSStyleRule> visitor) {
+		if (needsUpdate) {
+			update();
+		}
+		for (AbstractCSSStyleSheet sheet : list) {
+			sheet.acceptStyleRuleVisitor(visitor);
+		}
+	}
+
+	@Override
+	public void acceptDeclarationRuleVisitor(Visitor<CSSDeclarationRule> visitor) {
+		if (needsUpdate) {
+			update();
+		}
+		for (AbstractCSSStyleSheet sheet : list) {
+			sheet.acceptDeclarationRuleVisitor(visitor);
+		}
+	}
+
+	@Override
+	public void acceptDescriptorRuleVisitor(Visitor<CSSDeclarationRule> visitor) {
+		if (needsUpdate) {
+			update();
+		}
+		for (AbstractCSSStyleSheet sheet : list) {
+			sheet.acceptDescriptorRuleVisitor(visitor);
+		}
 	}
 
 	/**
@@ -212,4 +245,5 @@ abstract public class StyleSheetList implements CSSStyleSheetList<AbstractCSSRul
 		}
 
 	}
+
 }

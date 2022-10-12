@@ -14,14 +14,22 @@ package io.sf.carte.doc.style.css.om;
 import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.util.Visitor;
 
-class StyleCountVisitor implements Visitor<CSSStyleRule> {
+/**
+ * A Visitor that counts style rules.
+ */
+public class StyleCountVisitor implements Visitor<CSSStyleRule> {
 
 	private int count = 0;
 
-	StyleCountVisitor() {
+	public StyleCountVisitor() {
 		super();
 	}
 
+	/**
+	 * The number of rules counted.
+	 * 
+	 * @return the number of rules counted.
+	 */
 	public int getCount() {
 		return count;
 	}

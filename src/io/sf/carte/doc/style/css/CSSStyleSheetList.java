@@ -9,6 +9,8 @@
 
 package io.sf.carte.doc.style.css;
 
+import io.sf.carte.util.Visitor;
+
 /**
  * List of extended style sheets.
  * 
@@ -27,5 +29,38 @@ public interface CSSStyleSheetList<T extends CSSRule> extends org.w3c.dom.styles
 	 */
 	@Override
 	CSSStyleSheet<T> item(int index);
+
+	/**
+	 * Accept a style rule visitor.
+	 * <p>
+	 * This method scans all the sheets in this list for style rules and visits
+	 * them.
+	 * </p>
+	 * 
+	 * @param visitor the visitor.
+	 */
+	void acceptStyleRuleVisitor(Visitor<CSSStyleRule> visitor);
+
+	/**
+	 * Accept a declaration rule visitor.
+	 * <p>
+	 * This method scans all the sheets in this list for declaration rules and
+	 * visits them.
+	 * </p>
+	 * 
+	 * @param visitor the visitor.
+	 */
+	void acceptDeclarationRuleVisitor(Visitor<CSSDeclarationRule> visitor);
+
+	/**
+	 * Accept a descriptor rule visitor.
+	 * <p>
+	 * This method scans all the sheets in this list for declaration rules that
+	 * declare descriptors, and visits them.
+	 * </p>
+	 * 
+	 * @param visitor the visitor.
+	 */
+	void acceptDescriptorRuleVisitor(Visitor<CSSDeclarationRule> visitor);
 
 }

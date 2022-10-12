@@ -14,14 +14,22 @@ package io.sf.carte.doc.style.css.om;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.util.Visitor;
 
-class PropertyCountVisitor implements Visitor<CSSDeclarationRule> {
+/**
+ * A Visitor that counts properties.
+ */
+public class PropertyCountVisitor implements Visitor<CSSDeclarationRule> {
 
 	private int count = 0;
 
-	PropertyCountVisitor() {
+	public PropertyCountVisitor() {
 		super();
 	}
 
+	/**
+	 * The number of properties counted.
+	 * 
+	 * @return the number of properties counted.
+	 */
 	public int getCount() {
 		return count;
 	}
@@ -31,6 +39,9 @@ class PropertyCountVisitor implements Visitor<CSSDeclarationRule> {
 		count += rule.getStyle().getLength();
 	}
 
+	/**
+	 * Reset the counter.
+	 */
 	public void reset() {
 		count = 0;
 	}

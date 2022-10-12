@@ -470,6 +470,21 @@ public class StylableDocumentWrapperTest {
 	}
 
 	@Test
+	public void testVisitors() throws IOException {
+		StyleCountVisitor visitor = new StyleCountVisitor();
+		xhtmlDoc.getStyleSheets().acceptStyleRuleVisitor(visitor);
+		assertEquals(29, visitor.getCount());
+		//
+		PropertyCountVisitor visitorP = new PropertyCountVisitor();
+		xhtmlDoc.getStyleSheets().acceptDeclarationRuleVisitor(visitorP);
+		assertEquals(111, visitorP.getCount());
+		//
+		visitorP.reset();
+		xhtmlDoc.getStyleSheets().acceptDescriptorRuleVisitor(visitorP);
+		assertEquals(2, visitorP.getCount());
+	}
+
+	@Test
 	public void testMetaElementReferrerPolicy() {
 		assertEquals("same-origin", xhtmlDoc.getReferrerPolicy());
 	}
