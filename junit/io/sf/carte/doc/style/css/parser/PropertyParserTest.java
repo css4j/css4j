@@ -3344,6 +3344,7 @@ public class PropertyParserTest {
 		assertEquals(Match.FALSE, lunit.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
 		assertEquals(Match.FALSE, lunit.matches(syn));
+		assertMatch(Match.FALSE, lu, "<transform-list>");
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, lunit.matches(syn));
 	}
@@ -3424,6 +3425,8 @@ public class PropertyParserTest {
 		assertEquals(1f, param.getFloatValue(), 0.001);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("bar foo(0.1, calc((0.5% - 2em)*2.2), 1)", pre.toString());
+
+		assertMatch(Match.FALSE, lu, "<transform-list>");
 	}
 
 	@Test
@@ -3539,6 +3542,8 @@ public class PropertyParserTest {
 		assertEquals(-1.02f, param.getFloatValue(), 0.001);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("cubic-bezier(-0.33, -0.1, -1, -1.02)", lu.toString());
+
+		assertMatch(Match.FALSE, lu, "<transform-list>");
 	}
 
 	@Test
@@ -3585,6 +3590,8 @@ public class PropertyParserTest {
 		assertEquals(
 				"-webkit-image-set(url('//www.example.com/path/to/img.png') 1x, url('//www2.example.com/path2/to2/img2.png') 2x) foo(bar)",
 				lu.toString());
+
+		assertMatch(Match.FALSE, lu, "<transform-list>");
 	}
 
 	@Test
@@ -3664,6 +3671,8 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(255, param.getIntegerValue());
 		assertEquals("-webkit-linear-gradient(transparent, #fff)", lu.toString());
+
+		assertMatch(Match.FALSE, lu, "<transform-list>");
 	}
 
 	@Test
@@ -4877,6 +4886,11 @@ public class PropertyParserTest {
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {
 		return parser.parsePropertyValue(new StringReader(value));
+	}
+
+	private void assertMatch(Match match, LexicalUnit lu, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, lu.matches(syn));
 	}
 
 }
