@@ -2837,10 +2837,12 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 */
 	@Override
 	public void setTargetMedium(String medium) throws CSSMediaException {
-		medium = medium.intern();
 		if ("all".equals(medium)) {
 			targetMedium = null;
 		} else {
+			if (medium != null) {
+				medium = medium.intern();
+			}
 			targetMedium = medium;
 		}
 		onSheetModify();

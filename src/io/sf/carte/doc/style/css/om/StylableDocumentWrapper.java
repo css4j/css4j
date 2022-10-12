@@ -1839,10 +1839,12 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	 */
 	@Override
 	public void setTargetMedium(String medium) throws CSSMediaException {
-		medium = medium.intern();
 		if ("all".equals(medium)) {
 			targetMedium = null;
 		} else {
+			if (medium != null) {
+				medium = medium.intern();
+			}
 			targetMedium = medium;
 		}
 		onStyleModify();
