@@ -78,6 +78,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 	 * @param index the index.
 	 * @param component the component value.
 	 */
+	@Override
 	void setComponent(int index, PrimitiveValue component) {
 		switch (index) {
 		case 0:

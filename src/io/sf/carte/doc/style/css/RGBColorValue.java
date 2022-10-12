@@ -46,6 +46,7 @@ public interface RGBColorValue extends CSSColorValue {
 	 *
 	 * @return the RGB color.
 	 */
+	@Override
 	RGBAColor getColor();
 
 	@Override

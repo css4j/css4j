@@ -39,6 +39,7 @@ public interface HWBColorValue extends CSSColorValue {
 	 *
 	 * @return the HWB color.
 	 */
+	@Override
 	HWBColor getColor();
 
 	@Override

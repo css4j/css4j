@@ -50,7 +50,7 @@ public class StyleRuleTest2 {
 			return;
 		}
 		myfactory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
-		styleRule = (StyleRule) sheet.createStyleRule();
+		styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		frameRule = styleRuleFor("frame", "display");
