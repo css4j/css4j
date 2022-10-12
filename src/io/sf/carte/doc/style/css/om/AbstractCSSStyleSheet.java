@@ -180,10 +180,27 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	@Override
 	abstract public AbstractCSSStyleDeclaration createStyleDeclaration();
 
-	abstract protected AbstractCSSStyleDeclaration createStyleDeclaration(BaseCSSDeclarationRule rule);
+	/**
+	 * Create a style declaration from the given declaration rule.
+	 * 
+	 * @param rule the declaration rule.
+	 * @return the style declaration.
+	 */
+	abstract protected AbstractCSSStyleDeclaration createStyleDeclaration(
+		BaseCSSDeclarationRule rule);
 
+	/**
+	 * Register the namespace from the given namespace rule.
+	 * 
+	 * @param nsrule the namespace rule.
+	 */
 	abstract protected void registerNamespace(CSSNamespaceRule nsrule);
 
+	/**
+	 * Unregister the namespace corresponding to the given namespace URI.
+	 * 
+	 * @param namespaceURI the namespace URI.
+	 */
 	abstract protected void unregisterNamespace(String namespaceURI);
 
 	/**
@@ -383,6 +400,11 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 */
 	abstract public void acceptDescriptorRuleVisitor(Visitor<CSSDeclarationRule> visitor);
 
+	/**
+	 * Sets the parent style sheet.
+	 * 
+	 * @param parent the parent style sheet. Cannot be {@code null}.
+	 */
 	abstract protected void setParentStyleSheet(AbstractCSSStyleSheet parent);
 
 	/**
