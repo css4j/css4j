@@ -38,9 +38,11 @@ dependencies {
 		}
 	}
 	loggingImplementation 'org.slf4j:slf4j-api:[1.7.28,)'
+	testImplementation 'org.slf4j:slf4j-simple:[1.7.28,)'
 	testImplementation 'junit:junit:4.13.2'
 	testImplementation 'nu.validator:htmlparser:1.4.16'
 	test8Implementation 'junit:junit:4.13.2'
+	test8Implementation 'org.slf4j:slf4j-simple:[1.7.28,)'
 	test8Implementation 'nu.validator:htmlparser:1.4.16'
 	test8Implementation 'io.sf.carte:xml-dtd:4.1.0'
 }
