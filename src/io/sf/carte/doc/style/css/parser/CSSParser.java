@@ -1787,7 +1787,7 @@ public class CSSParser implements Parser, Cloneable {
 		SelectorTokenHandler handler = new SelectorTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
-		return handler.getSelectorList();
+		return handler.getTrimmedSelectorList();
 	}
 
 	@Override
@@ -1797,7 +1797,7 @@ public class CSSParser implements Parser, Cloneable {
 		SelectorTokenHandler handler = new SelectorTokenHandler(nsmap);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(selectorText);
-		return handler.getSelectorList();
+		return handler.getTrimmedSelectorList();
 	}
 
 	public SelectorList parseSelectors(InputSource source) throws CSSParseException, IOException {
@@ -1806,7 +1806,7 @@ public class CSSParser implements Parser, Cloneable {
 		SelectorTokenHandler handler = new SelectorTokenHandler(null);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.parse(re, "/*", "*/");
-		return handler.getSelectorList();
+		return handler.getTrimmedSelectorList();
 	}
 
 	public SelectorList parseSelectors(String seltext) throws CSSException {
@@ -1814,7 +1814,7 @@ public class CSSParser implements Parser, Cloneable {
 		SelectorTokenHandler handler = new SelectorTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(seltext, "/*", "*/");
-		return handler.getSelectorList();
+		return handler.getTrimmedSelectorList();
 	}
 
 	private SelectorList parseSelectors(String seltext, NSACSelectorFactory factory) throws CSSParseException {
@@ -1822,7 +1822,7 @@ public class CSSParser implements Parser, Cloneable {
 		SelectorTokenHandler handler = new SelectorTokenHandler(factory);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(seltext);
-		return handler.getSelectorList();
+		return handler.getTrimmedSelectorList();
 	}
 
 	private SelectorList parseSelectorArgument(String seltext, NSACSelectorFactory factory) throws CSSParseException {
@@ -1830,7 +1830,7 @@ public class CSSParser implements Parser, Cloneable {
 		SelectorTokenHandler handler = new SelectorArgumentTokenHandler(factory);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		tp.parse(seltext);
-		return handler.getSelectorList();
+		return handler.getTrimmedSelectorList();
 	}
 
 	public Condition parsePseudoElement(String pseudoElement) throws CSSException {
@@ -4073,6 +4073,7 @@ public class CSSParser implements Parser, Cloneable {
 					selectorHandler.processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET, true);
 					if (!parseError) {
 						if (addCurrentSelector(index)) {
+							selist.trimToSize();
 							handler.startSelector(selist);
 						} else {
 							unexpectedCharError(index, 123);
@@ -4393,7 +4394,12 @@ public class CSSParser implements Parser, Cloneable {
 			buffer = new StringBuilder(64);
 		}
 
-		SelectorList getSelectorList() {
+		SelectorListImpl getSelectorList() {
+			return selist;
+		}
+
+		SelectorListImpl getTrimmedSelectorList() {
+			selist.trimToSize();
 			return selist;
 		}
 
