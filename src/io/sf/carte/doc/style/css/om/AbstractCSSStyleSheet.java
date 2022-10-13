@@ -41,7 +41,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 
 	private static final long serialVersionUID = 1L;
 
-	static final int CONNECT_TIMEOUT = 60000;
+	static final int CONNECT_TIMEOUT = 10000;
 
 	/*
 	 * The title is in the constructor because it being intern is part of the
