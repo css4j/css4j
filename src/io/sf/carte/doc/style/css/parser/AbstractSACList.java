@@ -19,14 +19,29 @@ class AbstractSACList<E> extends ArrayList<E> {
 
 	private static final long serialVersionUID = 2L;
 
+	/**
+	 * Constructs an empty list with an initial capacity of 10.
+	 */
 	protected AbstractSACList() {
 		super();
 	}
 
+	/**
+	 * Constructs a list containing the elements of the given collection.
+	 *
+	 * @param c the collection
+	 * @throws NullPointerException if the collection is {@code null}
+	 */
 	protected AbstractSACList(Collection<? extends E> c) {
 		super(c);
 	}
 
+	/**
+	 * Constructs an empty list with the given initial capacity.
+	 *
+	 * @param initialCapacity the initial capacity.
+	 * @throws IllegalArgumentException if the initial capacity is negative
+	 */
 	protected AbstractSACList(int initialCapacity) {
 		super(initialCapacity);
 	}

@@ -16,6 +16,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -24,6 +25,7 @@ import java.io.StringReader;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
@@ -244,12 +246,23 @@ public class SelectorParserTest {
 		sel = selist.item(1);
 		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("span", ((ElementSelector) sel).getLocalName());
-		// Replace
+
 		SelectorList selist2 = parseSelectors("div");
+		// List operations
+		assertFalse(selist.contains(selist2.item(0)));
+		assertFalse(selist.containsAll(selist2));
+		// Replace
 		assertEquals("span", selist.replace(1, selist2.item(0)).toString());
 		assertEquals("p,div", selist.toString());
 		sel = selist.item(1);
 		assertSame(sel, selist2.item(0));
+		// Replace error
+		assertThrows(DOMException.class, () -> {selist.replace(-1, selist2.item(0));});
+		assertThrows(DOMException.class, () -> {selist.replace(4, selist2.item(0));});
+		assertThrows(NullPointerException.class, () -> {selist.replace(1, null);});
+		// List operations
+		assertTrue(selist.contains(selist2.item(0)));
+		assertTrue(selist.containsAll(selist2));
 	}
 
 	@Test

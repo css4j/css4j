@@ -16,10 +16,30 @@ import org.w3c.dom.DOMException;
 /**
  * List of selectors.
  * <p>
- * SAC's {@code SelectorList} interface by Philippe Le Hegaret.
+ * Based on SAC's {@code SelectorList} interface by Philippe Le Hegaret.
  * </p>
  */
 public interface SelectorList extends Iterable<Selector> {
+
+	/**
+	 * Check id this list contains the given selector.
+	 * <p>
+	 * Comparisons are made according to the {@code equals()} method.
+	 * </p>
+	 * 
+	 * @param selector the selector.
+	 * @return {@code true} if this list contains the selector.
+	 */
+	boolean contains(Selector selector);
+
+	/**
+	 * Returns {@code true} if this list contains all of the selectors in the given
+	 * list.
+	 * 
+	 * @param list the list to check.
+	 * @return {@code true} if this list contains all of the selectors in the list.
+	 */
+	boolean containsAll(SelectorList list);
 
 	/**
 	 * Get the length of this selector list.
