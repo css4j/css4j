@@ -51,13 +51,17 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class StylableDocumentWrapperTest {
@@ -467,6 +471,45 @@ public class StylableDocumentWrapperTest {
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
+	}
+
+	@Test
+	public void testCascade2() throws IOException {
+		BaseCSSStyleSheet sheet = (BaseCSSStyleSheet) xhtmlDoc.getStyleSheets().item(5);
+
+		// Obtain the rule where a value is declared
+		CSSParser parser = new CSSParser();
+		SelectorList selist = parser.parseSelectors("p.boldmargin");
+		StyleRule rule = sheet.getFirstStyleRule(selist);
+		assertNotNull(rule);
+
+		AbstractCSSStyleDeclaration declStyle = rule.getStyle();
+		TypedValue declMarginLeft = (TypedValue) declStyle.getPropertyCSSValue("margin-left");
+		assertEquals("2%", declMarginLeft.getCssText());
+
+		/*
+		 * Get an element that obtains the above value as computed style
+		 */
+		CSSElement elm = xhtmlDoc.getElementById("para1");
+		assertNotNull(elm);
+		CSSStyleDeclaration style = elm.getComputedStyle(null);
+		assertEquals("2%", style.getPropertyValue("margin-left"));
+
+		// Change the value itself
+		declMarginLeft.setFloatValue(CSSUnit.CSS_PX, 6f);
+		style = elm.getComputedStyle(null);
+		assertEquals("6px", style.getPropertyValue("margin-left"));
+
+		// Overwrite the property's value
+		declStyle.setProperty("margin-left", "4px", null);
+		style = elm.getComputedStyle(null);
+		// The new value is not there yet
+		assertEquals("6px", style.getPropertyValue("margin-left"));
+
+		// Rebuild the cascade
+		xhtmlDoc.rebuildCascade();
+		style = elm.getComputedStyle(null);
+		assertEquals("4px", style.getPropertyValue("margin-left"));
 	}
 
 	@Test

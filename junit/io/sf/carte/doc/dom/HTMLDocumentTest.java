@@ -62,9 +62,11 @@ import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
+import io.sf.carte.doc.style.css.om.BaseCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.om.CSSRuleArrayList;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
@@ -74,8 +76,10 @@ import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
 import io.sf.carte.doc.style.css.om.PropertyCountVisitor;
 import io.sf.carte.doc.style.css.om.StyleCountVisitor;
 import io.sf.carte.doc.style.css.om.StyleRule;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.LexicalValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 
 public class HTMLDocumentTest {
 
@@ -2360,6 +2364,45 @@ public class HTMLDocumentTest {
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
+	}
+
+	@Test
+	public void testCascade2() throws IOException {
+		BaseCSSStyleSheet sheet = (BaseCSSStyleSheet) xhtmlDoc.getStyleSheets().item(5);
+
+		// Obtain the rule where a value is declared
+		CSSParser parser = new CSSParser();
+		SelectorList selist = parser.parseSelectors("p.boldmargin");
+		StyleRule rule = (StyleRule) sheet.getFirstStyleRule(selist);
+		assertNotNull(rule);
+
+		AbstractCSSStyleDeclaration declStyle = rule.getStyle();
+		TypedValue declMarginLeft = (TypedValue) declStyle.getPropertyCSSValue("margin-left");
+		assertEquals("2%", declMarginLeft.getCssText());
+
+		/*
+		 * Get an element that obtains the above value as computed style
+		 */
+		DOMElement elm = xhtmlDoc.getElementById("para1");
+		assertNotNull(elm);
+		CSSStyleDeclaration style = elm.getComputedStyle(null);
+		assertEquals("2%", style.getPropertyValue("margin-left"));
+
+		// Change the value itself
+		declMarginLeft.setFloatValue(CSSUnit.CSS_PX, 6f);
+		style = elm.getComputedStyle(null);
+		assertEquals("6px", style.getPropertyValue("margin-left"));
+
+		// Overwrite the property's value
+		declStyle.setProperty("margin-left", "4px", null);
+		style = elm.getComputedStyle(null);
+		// The new value is not there yet
+		assertEquals("6px", style.getPropertyValue("margin-left"));
+
+		// Rebuild the cascade
+		xhtmlDoc.rebuildCascade();
+		style = elm.getComputedStyle(null);
+		assertEquals("4px", style.getPropertyValue("margin-left"));
 	}
 
 	@Test

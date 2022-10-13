@@ -2873,6 +2873,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		return canvas;
 	}
 
+	@Override
+	public void rebuildCascade() {
+		onSheetModify();
+	}
+
 	ErrorHandler createErrorHandler() {
 		return new MyDefaultErrorHandler();
 	}

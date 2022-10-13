@@ -1875,6 +1875,11 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		return canvas;
 	}
 
+	@Override
+	public void rebuildCascade() {
+		onStyleModify();
+	}
+
 	ErrorHandler createErrorHandler() {
 		return new MyDefaultErrorHandler();
 	}

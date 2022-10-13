@@ -203,6 +203,25 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	CSSCanvas getCanvas();
 
 	/**
+	 * Forces the cascade to be rebuilt the next time that a computed style is
+	 * obtained.
+	 * <p>
+	 * This method should be called after you modify the styles in a way that is not
+	 * detected by the library (like modifying a value).
+	 * </p>
+	 */
+	default void rebuildCascade() {
+		String medium = getTargetMedium();
+		if (medium == null) {
+			medium = "all";
+		}
+		try {
+			setTargetMedium(medium);
+		} catch (CSSMediaException e) {
+		}
+	}
+
+	/**
 	 * Get the referrer policy obtained through the 'Referrer-Policy' header or a meta
 	 * element.
 	 *
