@@ -948,6 +948,84 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
+	 * Get the first style rule that exactly matches the given selector list, if
+	 * any.
+	 * <p>
+	 * Rules inside grouping rules are also searched.
+	 * </p>
+	 * 
+	 * @param selectorList the selector list.
+	 * @return the first style rule that matches, or {@code null} if none.
+	 */
+	@Override
+	public StyleRule getFirstStyleRule(SelectorList selectorList) {
+		return scanRulesForSelector(cssRules, selectorList);
+	}
+
+	private static StyleRule scanRulesForSelector(CSSRuleArrayList rules,
+		SelectorList selectorList) {
+		for (CSSRule rule : rules) {
+			switch (rule.getType()) {
+			case CSSRule.STYLE_RULE:
+				StyleRule stylerule = (StyleRule) rule;
+				SelectorList list = stylerule.getSelectorList();
+				if (list.equals(selectorList)) {
+					return stylerule;
+				}
+				break;
+			case CSSRule.MEDIA_RULE:
+			case CSSRule.SUPPORTS_RULE:
+				GroupingRule grouping = (GroupingRule) rule;
+				stylerule = scanRulesForSelector(grouping.getCssRules(), selectorList);
+				if (stylerule != null) {
+					return stylerule;
+				}
+				break;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get the list of style rules that match the given selector.
+	 * <p>
+	 * Rules inside grouping rules are also searched.
+	 * </p>
+	 * 
+	 * @param selector the selector.
+	 * @return the list of style rule that match, or {@code null} if none.
+	 */
+	@Override
+	public CSSRuleArrayList getStyleRules(Selector selector) {
+		CSSRuleArrayList list = new CSSRuleArrayList();
+		scanRulesForSelector(cssRules, selector, list);
+		if (list.isEmpty()) {
+			return null;
+		}
+		return list;
+	}
+
+	private static void scanRulesForSelector(CSSRuleArrayList rules, Selector selector,
+		CSSRuleArrayList styleRules) {
+		for (CSSRule rule : rules) {
+			switch (rule.getType()) {
+			case CSSRule.STYLE_RULE:
+				StyleRule stylerule = (StyleRule) rule;
+				SelectorList list = stylerule.getSelectorList();
+				if (list.contains(selector)) {
+					styleRules.add(stylerule);
+				}
+				break;
+			case CSSRule.MEDIA_RULE:
+			case CSSRule.SUPPORTS_RULE:
+				GroupingRule grouping = (GroupingRule) rule;
+				scanRulesForSelector(grouping.getCssRules(), selector, styleRules);
+				break;
+			}
+		}
+	}
+
+	/**
 	 * Accept a style rule visitor.
 	 * 
 	 * @param visitor the visitor.

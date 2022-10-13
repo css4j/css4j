@@ -27,6 +27,8 @@ import io.sf.carte.doc.style.css.CSSNamespaceRule;
 import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.util.Visitor;
 
 /**
@@ -375,6 +377,29 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 		}
 		return port;
 	}
+
+	/**
+	 * Get the first style rule that exactly matches the given selector list, if
+	 * any.
+	 * <p>
+	 * Rules inside grouping rules are also searched.
+	 * </p>
+	 * 
+	 * @param selectorList the selector list.
+	 * @return the first style rule that matches, or {@code null} if none.
+	 */
+	abstract public StyleRule getFirstStyleRule(SelectorList selectorList);
+
+	/**
+	 * Get the list of style rules that match the given selector.
+	 * <p>
+	 * Rules inside grouping rules are also searched.
+	 * </p>
+	 * 
+	 * @param selector the selector.
+	 * @return the list of style rule that match, or {@code null} if none.
+	 */
+	abstract public CSSRuleArrayList getStyleRules(Selector selector);
 
 	/**
 	 * Accept a style rule visitor.

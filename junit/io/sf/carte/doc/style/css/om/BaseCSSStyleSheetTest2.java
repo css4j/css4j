@@ -39,6 +39,8 @@ import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class BaseCSSStyleSheetTest2 {
 
@@ -162,6 +164,14 @@ public class BaseCSSStyleSheetTest2 {
 	}
 
 	@Test
+	public void testGetRulesForProperty() {
+		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		CSSRuleArrayList list = sheet.getRulesForProperty("content");
+		assertNotNull(list);
+		assertEquals(3, list.getLength());
+	}
+
+	@Test
 	public void testGetSelectorsForPropertyValue() {
 		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
 		Selector[] selectors = sheet.getSelectorsForPropertyValue("display", "table-caption");
@@ -188,6 +198,47 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals(Selector.SelectorType.CONDITIONAL, selectors[0].getSelectorType());
 		assertEquals(Condition.ConditionType.PSEUDO_CLASS,
 				((ConditionalSelector) selectors[0]).getCondition().getConditionType());
+	}
+
+	@Test
+	public void testGetFirstStyleRule() {
+		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		CSSParser parser = new CSSParser();
+		SelectorList selist = parser.parseSelectors("s, strike, del");
+		StyleRule rule = sheet.getFirstStyleRule(selist);
+		assertNotNull(rule);
+		assertTrue(rule.getSelectorList().equals(selist));
+		assertEquals("s,strike,del", rule.getSelectorList().toString());
+	}
+
+	@Test
+	public void testGetFirstStyleRuleNoRule() {
+		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		CSSParser parser = new CSSParser();
+		SelectorList selist = parser.parseSelectors("foo");
+		StyleRule rule = sheet.getFirstStyleRule(selist);
+		assertNull(rule);
+	}
+
+	@Test
+	public void testGetStyleRulesSelector() {
+		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		CSSParser parser = new CSSParser();
+		Selector sele = parser.parseSelectors("h5").item(0);
+		CSSRuleArrayList list = sheet.getStyleRules(sele);
+		assertNotNull(list);
+		assertEquals(6, list.getLength());
+		StyleRule rule = (StyleRule) list.item(1);
+		assertEquals("h5", rule.getSelectorText());
+	}
+
+	@Test
+	public void testGetStyleRulesSelectorNoSelector() {
+		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		CSSParser parser = new CSSParser();
+		Selector sele = parser.parseSelectors("foo").item(0);
+		CSSRuleArrayList list = sheet.getStyleRules(sele);
+		assertNull(list);
 	}
 
 	@Test
