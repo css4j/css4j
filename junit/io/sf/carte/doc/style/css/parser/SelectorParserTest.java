@@ -60,6 +60,7 @@ public class SelectorParserTest {
 			parseSelectors("?foo");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
 		}
 	}
 
@@ -69,6 +70,7 @@ public class SelectorParserTest {
 			parseSelectors("&foo");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
 		}
 	}
 
@@ -78,6 +80,7 @@ public class SelectorParserTest {
 			parseSelectors("%foo");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
 		}
 	}
 
@@ -87,6 +90,7 @@ public class SelectorParserTest {
 			parseSelectors("!foo");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
 		}
 	}
 
@@ -213,6 +217,7 @@ public class SelectorParserTest {
 			parseSelectors("9p");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
 		}
 	}
 
@@ -222,6 +227,7 @@ public class SelectorParserTest {
 			parseSelectors("body*");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -231,6 +237,7 @@ public class SelectorParserTest {
 			parseSelectors("body\\ ");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -313,6 +320,7 @@ public class SelectorParserTest {
 			parseSelectors("p,");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
 		}
 	}
 
@@ -362,6 +370,7 @@ public class SelectorParserTest {
 			parseSelectors("!,p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
 		}
 	}
 
@@ -371,6 +380,7 @@ public class SelectorParserTest {
 			parseSelectors(",p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
 		}
 	}
 
@@ -389,6 +399,7 @@ public class SelectorParserTest {
 			parseSelectors("⁑p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(1, e.getColumnNumber());
 		}
 	}
 
@@ -398,6 +409,7 @@ public class SelectorParserTest {
 			parseSelectors("p*");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
 		}
 	}
 
@@ -407,6 +419,7 @@ public class SelectorParserTest {
 			parseSelectors("p* .foo");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
 		}
 	}
 
@@ -416,6 +429,7 @@ public class SelectorParserTest {
 			parseSelectors("\\\\&p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
 		}
 	}
 
@@ -650,6 +664,7 @@ public class SelectorParserTest {
 			parseSelectors("p[ti!tle]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -659,6 +674,7 @@ public class SelectorParserTest {
 			parseSelectors("p[ti$tle]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 
@@ -668,6 +684,7 @@ public class SelectorParserTest {
 			parseSelectors("p[ ti$tle]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(7, e.getColumnNumber());
 		}
 	}
 
@@ -677,6 +694,7 @@ public class SelectorParserTest {
 			parseSelectors("p[ti^tle]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 
@@ -686,6 +704,7 @@ public class SelectorParserTest {
 			parseSelectors("p[ti*tle]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 
@@ -695,6 +714,7 @@ public class SelectorParserTest {
 			parseSelectors("p[ti~tle]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 
@@ -704,6 +724,7 @@ public class SelectorParserTest {
 			parseSelectors("p[ti@tle]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -713,6 +734,7 @@ public class SelectorParserTest {
 			parseSelectors("p[9title]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
 		}
 	}
 
@@ -722,6 +744,7 @@ public class SelectorParserTest {
 			parseSelectors("p[.title]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
 		}
 	}
 
@@ -731,6 +754,7 @@ public class SelectorParserTest {
 			parseSelectors("p[#title]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
 		}
 	}
 
@@ -740,6 +764,7 @@ public class SelectorParserTest {
 			parseSelectors("p[\u26a1]"); // ⚡ high voltage sign
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
 		}
 	}
 
@@ -948,6 +973,45 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttributeValueCS() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[title=hi s]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("title", ((AttributeCondition) cond).getLocalName());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		if (cond instanceof AttributeCondition) {
+			assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_S));
+		}
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[title=\"hi\" s]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueCSuc() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[title=hi S]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("title", ((AttributeCondition) cond).getLocalName());
+		assertEquals("hi", ((AttributeCondition) cond).getValue());
+		if (cond instanceof AttributeCondition) {
+			assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_S));
+		}
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[title=\"hi\" s]", sel.toString());
+	}
+	@Test
 	public void testParseSelectorAttributeValueHighChar() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("p[\u208c=\"hi\"]");
 		assertNotNull(selist);
@@ -981,6 +1045,24 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[_\u208c=\"hi\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueEscaped() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p[title=\\208c \\68]");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
+		assertEquals("title", ((AttributeCondition) cond).getLocalName());
+		assertNull(((AttributeCondition) cond).getNamespaceURI());
+		assertEquals("\u208ch", ((AttributeCondition) cond).getValue());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p[title=\"\u208ch\"]", sel.toString());
 	}
 
 	@Test
@@ -1020,7 +1102,48 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueError() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueFlag_Esc_Error() throws IOException {
+		try {
+			parseSelectors("p[title=hi \\73]");
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {
+			assertEquals(12, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueFlagUnknownError() throws IOException {
+		try {
+			parseSelectors("p[title=hi h]");
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {
+			assertEquals(12, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueFlagUnknownError2() throws IOException {
+		try {
+			parseSelectors("p[title=hi foo]");
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {
+			assertEquals(12, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParseSelectorAttributeValueBadFlagAsteriskError() throws IOException {
+		try {
+			parseSelectors("p[title=hi *]");
+			fail("Must throw an exception");
+		} catch (CSSParseException e) {
+			assertEquals(12, e.getColumnNumber());
+		}
+	}
+
+
+	@Test
+	public void testParseSelectorAttributeValueStrFlagUnknownError() throws IOException {
 		try {
 			parseSelectors("p[title=\"hi\" a]");
 			fail("Must throw an exception");
@@ -1030,56 +1153,62 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueError2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueBadFlagDotError() throws IOException {
 		try {
 			parseSelectors("p[title=\"hi\" .]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(14, e.getColumnNumber());
 		}
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueError3() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueBadFlagEqualsError() throws IOException {
 		try {
 			parseSelectors("p[title=\"hi\" =]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(14, e.getColumnNumber());
 		}
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueError4() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueBadFlagSemicolonError() throws IOException {
 		try {
 			parseSelectors("p[title=\"hi\" ;]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(14, e.getColumnNumber());
 		}
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueError5() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueStrFlagUnknownError2() throws IOException {
 		try {
 			parseSelectors("p[title=\"hi\" ii]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(14, e.getColumnNumber());
 		}
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueError6() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueStrNextSelectorError() throws IOException {
 		try {
 			parseSelectors("p[title=\"hi\"]()");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(14, e.getColumnNumber());
 		}
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueError7() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCharError() throws IOException {
 		try {
 			parseSelectors("p[foo~class]");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(7, e.getColumnNumber());
 		}
 	}
 
@@ -1559,6 +1688,7 @@ public class SelectorParserTest {
 			parseSelectors("p[lang | =\"en\"]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(10, e.getColumnNumber());
 		}
 	}
 
@@ -1568,6 +1698,7 @@ public class SelectorParserTest {
 			parseSelectors("p[ lang | =\"en\" ]");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(11, e.getColumnNumber());
 		}
 	}
 
@@ -3660,6 +3791,7 @@ public class SelectorParserTest {
 			parseSelectors("col||");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 
@@ -3669,6 +3801,7 @@ public class SelectorParserTest {
 			parseSelectors("col||,p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 
@@ -3786,6 +3919,7 @@ public class SelectorParserTest {
 			parseSelectors("p::\\.first-line");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(4, e.getColumnNumber());
 		}
 	}
 
@@ -3937,11 +4071,13 @@ public class SelectorParserTest {
 			parseSelectors(":--css4j-blank");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(2, e.getColumnNumber());
 		}
 		try {
 			parseSelectors("::--css4j-blank");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
 		}
 	}
 
@@ -3951,6 +4087,7 @@ public class SelectorParserTest {
 			parseSelectors("div:blank&");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(10, e.getColumnNumber());
 		}
 	}
 
@@ -3960,6 +4097,7 @@ public class SelectorParserTest {
 			parseSelectors("div:9blank");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -3969,6 +4107,7 @@ public class SelectorParserTest {
 			parseSelectors("div:-");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -4006,6 +4145,7 @@ public class SelectorParserTest {
 			parseSelectors(":dir()");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -4079,6 +4219,7 @@ public class SelectorParserTest {
 			parseSelectors(":first-child()");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(13, e.getColumnNumber());
 		}
 	}
 
@@ -4088,6 +4229,7 @@ public class SelectorParserTest {
 			parseSelectors(":first-child(even)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(13, e.getColumnNumber());
 		}
 	}
 
@@ -4163,6 +4305,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child()");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(12, e.getColumnNumber());
 		}
 	}
 
@@ -4175,6 +4318,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n - 1 2)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(19, e.getColumnNumber());
 		}
 	}
 
@@ -4184,6 +4328,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n - b1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(18, e.getColumnNumber());
 		}
 	}
 
@@ -4193,6 +4338,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n-+1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(16, e.getColumnNumber());
 		}
 	}
 
@@ -4202,6 +4348,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n+-1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(16, e.getColumnNumber());
 		}
 	}
 
@@ -4211,6 +4358,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n +-1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(17, e.getColumnNumber());
 		}
 	}
 
@@ -4220,6 +4368,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n +- 1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(18, e.getColumnNumber());
 		}
 	}
 
@@ -4229,6 +4378,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n -+ 1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(18, e.getColumnNumber());
 		}
 	}
 
@@ -4238,6 +4388,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n + - 1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(19, e.getColumnNumber());
 		}
 	}
 
@@ -4247,6 +4398,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n - + 1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(19, e.getColumnNumber());
 		}
 	}
 
@@ -4256,6 +4408,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n -1n)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(17, e.getColumnNumber());
 		}
 	}
 
@@ -4265,6 +4418,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n - +b1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(19, e.getColumnNumber());
 		}
 	}
 
@@ -4274,6 +4428,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n -b1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(17, e.getColumnNumber());
 		}
 	}
 
@@ -4283,6 +4438,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n b1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(16, e.getColumnNumber());
 		}
 	}
 
@@ -4292,6 +4448,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(n 1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(15, e.getColumnNumber());
 		}
 	}
 
@@ -4301,6 +4458,7 @@ public class SelectorParserTest {
 			parseSelectors(":nth-child(- - 1)");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(17, e.getColumnNumber());
 		}
 	}
 
@@ -5327,6 +5485,7 @@ public class SelectorParserTest {
 			parseSelectors(":not()");
 			fail("Should throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 
@@ -5336,6 +5495,7 @@ public class SelectorParserTest {
 			parseSelectors("foo:not()");
 			fail("Should throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(9, e.getColumnNumber());
 		}
 	}
 
@@ -5345,6 +5505,7 @@ public class SelectorParserTest {
 			parseSelectors(":not");
 			fail("Should throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -5354,6 +5515,7 @@ public class SelectorParserTest {
 			parseSelectors(":not:only-child");
 			fail("Should throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -5373,6 +5535,7 @@ public class SelectorParserTest {
 			parseSelectors(":not p");
 			fail("Should throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -5382,6 +5545,7 @@ public class SelectorParserTest {
 			parseSelectors(":not::first-letter");
 			fail("Should throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -5391,6 +5555,7 @@ public class SelectorParserTest {
 			parseSelectors(":not.class");
 			fail("Should throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 
@@ -5400,6 +5565,7 @@ public class SelectorParserTest {
 			parseSelectors(":not (.class)");
 			fail("Should throw an exception");
 		} catch (CSSParseException e) {
+			assertEquals(5, e.getColumnNumber());
 		}
 	}
 

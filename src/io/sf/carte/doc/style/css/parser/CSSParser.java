@@ -4430,7 +4430,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 						if (buffer.length() != 0) {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-									"Expected 'i', found: '" + buffer.toString() + '\'');
+									"Expected 'i' or 's', found: '" + buffer.toString() + '\'');
 							buffer.setLength(0);
 						}
 					} else {
@@ -5405,7 +5405,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void escaped(int index, int codepoint) {
-			if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_POST_SYMBOL || stage == STAGE_EXPECT_ID_OR_CLASSNAME
+			if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_SYMBOL || stage == STAGE_EXPECT_ID_OR_CLASSNAME
 					|| stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT || stage == 0 || stage == STAGE_COMBINATOR_OR_END) {
 				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
 					setEscapedTokenStart(index);
@@ -5425,9 +5425,6 @@ public class CSSParser implements Parser, Cloneable {
 					stage = 1;
 				}
 				prevcp = 65;
-			} else if (stage == STAGE_ATTR_SYMBOL) {
-				bufferAppend(codepoint);
-				stage = STAGE_ATTR_POST_SYMBOL;
 			} else {
 				unexpectedCharError(index - 1, 92);
 			}
