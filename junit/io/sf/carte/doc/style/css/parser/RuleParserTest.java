@@ -574,7 +574,7 @@ public class RuleParserTest {
 		assertEquals("symbols", handler.propertyNames.get(0));
 		assertEquals("suffix", handler.propertyNames.get(1));
 		assertEquals(2, handler.lexicalValues.size());
-		assertEquals("\\1F44D", handler.lexicalValues.get(0).toString());
+		assertEquals("\\1f44d ", handler.lexicalValues.get(0).toString());
 		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
 		assertEquals(0, handler.atRules.size());
 		assertEquals(0, handler.comments.size());
@@ -592,7 +592,7 @@ public class RuleParserTest {
 		assertEquals("symbols", handler.propertyNames.get(0));
 		assertEquals("suffix", handler.propertyNames.get(1));
 		assertEquals(2, handler.lexicalValues.size());
-		assertEquals("\\1F44D", handler.lexicalValues.get(0).toString());
+		assertEquals("\\1f44d ", handler.lexicalValues.get(0).toString());
 		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
 		assertEquals(0, handler.atRules.size());
 		assertEquals(1, handler.endCounterStyleCount);

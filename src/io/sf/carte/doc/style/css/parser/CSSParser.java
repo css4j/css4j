@@ -6798,7 +6798,7 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				} else if (!hexColor) {
 					if (codepoint == 45) { // -
-						if (!unicodeRange) {
+						if (!unicodeRange && prevcp != 65) {
 							processBuffer(index);
 						}
 						buffer.append('-');
@@ -7193,8 +7193,6 @@ public class CSSParser implements Parser, Cloneable {
 					} else {
 						checkIEPrioHack(index - buflen, prio);
 					}
-				} else if (unicodeRange) {
-					parseUnicodeRange(index, buflen);
 				} else if (functionToken) {
 					if (currentlu.getLexicalUnitType() == LexicalType.URI) {
 						// uri
@@ -7230,6 +7228,8 @@ public class CSSParser implements Parser, Cloneable {
 					}
 					buffer.setLength(0);
 					hexColor = false;
+				} else if (unicodeRange) {
+					parseUnicodeRange(index, buflen);
 				} else {
 					parseNonHexcolorValue(index);
 				}
@@ -7251,12 +7251,15 @@ public class CSSParser implements Parser, Cloneable {
 			int buflen = raw.length();
 			String cssText;
 			String str;
+
 			if (escapedTokenIndex != -1) {
+				// We are in escaped context
 				int escsz = index - escapedTokenIndex;
 				int nonescLen = buflen - escsz;
 				if (nonescLen <= 0) {
 					try {
 						str = unescapeIdentifier(index, raw);
+						cssText = ParseHelper.safeEscape(str, true, true);
 					} catch (DOMNullCharacterException e) {
 						// NULL characters are valid, but if we find them with IEVALUES set...
 						if (flagIEValues) {
@@ -7266,15 +7269,15 @@ public class CSSParser implements Parser, Cloneable {
 							return;
 						} else {
 							str = safeUnescapeIdentifier(index, raw);
+							cssText = safeNullEscape(raw);
 						}
 					}
-					cssText = ParseHelper.escapeCssChars(ParseHelper.escapeBackslash(raw)).toString();
 				} else {
 					CharSequence rawPart = buffer.subSequence(0, nonescLen);
 					cssText = buffer.substring(nonescLen);
 					try {
 						str = unescapeIdentifier(index, cssText);
-						str = rawPart + str;
+						cssText = ParseHelper.safeEscape(str, true, true);
 					} catch (DOMNullCharacterException e) {
 						if (flagIEValues) {
 							setIdentCompat(index - buflen, raw);
@@ -7283,63 +7286,133 @@ public class CSSParser implements Parser, Cloneable {
 							return;
 						} else {
 							str = safeUnescapeIdentifier(index, cssText);
-							str = rawPart + str;
+							cssText = safeNullEscape(cssText);
 						}
 					}
+					str = rawPart + str;
 					rawPart = ParseHelper.escapeAllBackslash(rawPart);
 					cssText = ParseHelper.escapeCssCharsAndFirstChar(rawPart) + cssText;
 				}
 				escapedTokenIndex = -1;
+				if (!createIdentifierOrKeyword(index, raw, str, cssText)) {
+					checkForIEValue(index, raw);
+				}
 			} else {
 				str = buffer.toString();
 				cssText = ParseHelper.escapeCssCharsAndFirstChar(raw).toString();
+				createIdentifierOrNumberOrKeyword(index, raw, str, cssText);
 			}
-			createIdentifierOrNumberOrKeyword(index, raw, str, cssText);
+			buffer.setLength(0);
 		}
 
-		private void createIdentifierOrNumberOrKeyword(int index, String raw, String ident, String cssText) {
-			buffer.setLength(0);
-			int len = ident.length();
-			int i = len - 1;
-			for (; i >= 0; i--) {
-				int cp = ident.codePointAt(i);
-				if (!Character.isLetter(cp) && cp != 37) { // Not letter nor %
-					if (cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1)) {
-						// Either not ending in [0-9] range or not parsable as a number
-						if (!newIdentifier(raw, ident, cssText)) {
-							// Check for a single '+' or '-'
-							if (raw.length() == 1) {
-								char c = raw.charAt(0);
-								if (c == '+') {
-									newOperator(index, '+', LexicalType.OPERATOR_PLUS);
-								} else if (c == '-') {
-									newOperator(index, '-', LexicalType.OPERATOR_MINUS);
+		private void createIdentifierOrNumberOrKeyword(int index, String raw, String ident,
+			String cssText) {
+			// Unless the first character is whitespace, try parsing a numeric value
+			int cp = ident.codePointAt(0);
+			if (cp != 32) {
+				int len = ident.length();
+				int i = len - 1;
+				for (; i >= 0; i--) {
+					cp = ident.codePointAt(i);
+					if (!Character.isLetter(cp) && cp != 37) { // Not letter nor %
+						if (cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1)) {
+							// Either not ending in [0-9] range or not parsable as a number
+							if (!newIdentifier(raw, ident, cssText)) {
+								// Check for a single '+' or '-'
+								if (raw.length() == 1) {
+									char c = raw.charAt(0);
+									if (c == '+') {
+										newOperator(index, '+', LexicalType.OPERATOR_PLUS);
+										return;
+									} else if (c == '-') {
+										newOperator(index, '-', LexicalType.OPERATOR_MINUS);
+										return;
+									}
+								} else {
+									checkForIEValue(index, raw);
 								}
-								return;
-							} else {
-								checkForIEValue(index, raw);
 							}
 						}
+						break;
 					}
-					break;
+				}
+				if (i != -1) {
+					// We are done
+					return;
 				}
 			}
-			if (i == -1) {
-				if (ident.equalsIgnoreCase("inherit")) {
-					newLexicalUnit(LexicalType.INHERIT, false);
-				} else if (ident.equalsIgnoreCase("initial")) {
-					newLexicalUnit(LexicalType.INITIAL, false);
-				} else if (ident.equalsIgnoreCase("unset")) {
-					newLexicalUnit(LexicalType.UNSET, false);
-				} else if (ident.equalsIgnoreCase("revert")) {
-					newLexicalUnit(LexicalType.REVERT, false);
+
+			if (!createIdentifierOrKeyword(index, raw, ident, cssText)) {
+				handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
+					"Invalid identifier: " + raw);
+			}
+		}
+
+		private boolean parseNumber(int index, String s, int i) {
+			String unit = null;
+			LexicalUnitImpl lu;
+			if (i != s.length()) {
+				// Parse number
+				String strnum = s.substring(0, i);
+				float flval;
+				try {
+					flval = Float.parseFloat(strnum);
+				} catch (NumberFormatException e) {
+					return false;
+				}
+
+				// Unit
+				unit = s.substring(i);
+				unit = unit.trim().toLowerCase(Locale.ROOT).intern();
+				short cssUnit = ParseHelper.unitFromString(unit);
+				final LexicalType unitType;
+				if (cssUnit == CSSUnit.CSS_PERCENTAGE) {
+					unitType = LexicalType.PERCENTAGE;
 				} else {
-					if (!newIdentifier(raw, ident, cssText)) {
-						handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
-								"Invalid identifier: " + raw);
+					unitType = LexicalType.DIMENSION;
+				}
+
+				// Create a new dimension/percentage lexical unit
+				lu = newLexicalUnit(unitType, false);
+				lu.floatValue = flval;
+				lu.dimensionUnitText = unit;
+				lu.setCssUnit(cssUnit);
+			} else { // No unit
+				if (s.lastIndexOf('.', i) == -1) {
+					int intval;
+					try {
+						intval = Integer.parseInt(s);
+					} catch (NumberFormatException e) {
+						// Maybe it is exponent syntax ("1E2")
+						float flval;
+						try {
+							flval = Float.parseFloat(s);
+						} catch (NumberFormatException e1) {
+							return false;
+						}
+						lu = newNumberUnit(LexicalType.REAL);
+						lu.floatValue = flval;
+						return true;
+					}
+					lu = newNumberUnit(LexicalType.INTEGER);
+					lu.intValue = intval;
+				} else {
+					float flval;
+					try {
+						flval = Float.parseFloat(s);
+					} catch (NumberFormatException e) {
+						return false;
+					}
+					if (flval == 0f) {
+						lu = newNumberUnit(LexicalType.INTEGER);
+						lu.intValue = (int) flval;
+					} else {
+						lu = newNumberUnit(LexicalType.REAL);
+						lu.floatValue = flval;
 					}
 				}
 			}
+			return true;
 		}
 
 		private void newOperator(int index, int codePoint, LexicalType operator) {
@@ -7360,6 +7433,166 @@ public class CSSParser implements Parser, Cloneable {
 				return;
 			}
 			unexpectedCharError(index, codePoint);
+		}
+
+		private boolean createIdentifierOrKeyword(int index, String raw, String ident,
+			String cssText) {
+			if (ident.equalsIgnoreCase("inherit")) {
+				newLexicalUnit(LexicalType.INHERIT, false);
+			} else if (ident.equalsIgnoreCase("initial")) {
+				newLexicalUnit(LexicalType.INITIAL, false);
+			} else if (ident.equalsIgnoreCase("unset")) {
+				newLexicalUnit(LexicalType.UNSET, false);
+			} else if (ident.equalsIgnoreCase("revert")) {
+				newLexicalUnit(LexicalType.REVERT, false);
+			} else {
+				return newIdentifier(raw, ident, cssText);
+			}
+			return true;
+		}
+
+		private boolean newIdentifier(String raw, String ident, String cssText) {
+			if (isNotForbiddenIdentStart(raw)) {
+				if (propertyDatabase != null) {
+					String lcident = ident.toLowerCase(Locale.ROOT);
+					if (lcident != ident) {
+						if (propertyDatabase.isShorthand(propertyName)) {
+							// Only if no Custom Ident was previously found.
+							if (!isPreviousValueCustomIdent()) {
+								String[] longhands = propertyDatabase
+									.getLonghandProperties(propertyName);
+								for (int i = 0; i < longhands.length; i++) {
+									if (isIdentifierValueOf(longhands[i], lcident)) {
+										ident = lcident;
+									}
+								}
+							}
+						} else if (isIdentifierValueOf(propertyName, lcident)) {
+							ident = lcident;
+						}
+					}
+				}
+				LexicalUnitImpl lu = newLexicalUnit(LexicalType.IDENT, false);
+				lu.value = ident;
+				lu.identCssText = cssText;
+				return true;
+			}
+			return false;
+		}
+
+		private boolean isIdentifierValueOf(String propertyName, String lcident) {
+			return propertyDatabase.isIdentifierValue(propertyName, lcident)
+				|| "none".equals(lcident);
+		}
+
+		private boolean isPreviousValueCustomIdent() {
+			String s;
+			return currentlu != null && currentlu.getLexicalUnitType() == LexicalType.IDENT
+				&& (s = currentlu.getStringValue()) != s.toLowerCase(Locale.ROOT);
+		}
+
+		private String safeNullEscape(String raw) {
+			CharSequence seq = ParseHelper.escapeCssChars(ParseHelper.escapeBackslash(raw));
+			// Add a whitespace to \0 if there isn't
+			String cssText;
+			int seqlen = seq.length();
+			if (seq.charAt(seqlen - 1) == '0') {
+				StringBuilder sb = new StringBuilder(seqlen + 1);
+				sb.append(seq).append(' ');
+				cssText = sb.toString();
+			} else {
+				cssText = seq.toString();
+			}
+			return cssText;
+		}
+
+		private void checkForIEValue(int index, String raw) {
+			int rawlen = raw.length();
+			if (!flagIEValues || rawlen <= 2 || raw.charAt(rawlen - 2) != '\\'
+				|| !isIEHackSuffix(raw.codePointAt(rawlen - 1))
+				|| !setIdentCompat(index - rawlen, raw)) {
+				handleError(index - rawlen, ParseHelper.ERR_INVALID_IDENTIFIER,
+					"Invalid identifier: " + raw);
+			}
+		}
+
+		private boolean isIEHackSuffix(int codepoint) {
+			return codepoint == '9' || codepoint == '0';
+		}
+
+		private void checkIEPrioHack(int index, String prio) {
+			String compatText;
+			buffer.append('!').append(prio);
+			if (parserFlags.contains(Flag.IEPRIO) && "ie".equals(prio)
+				&& (compatText = setFullIdentCompat()) != null) {
+				warnIdentCompat(index, compatText);
+			} else {
+				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid priority: " + prio);
+			}
+		}
+
+		/**
+		 * Attempts to set a compat identifier as the current working value.
+		 * 
+		 * @param index     the index at which the value was found.
+		 * @param lastvalue the contents of the buffer.
+		 * @return <code>true</code> if the compat ident unit was set,
+		 *         <code>false</code> if an error was encountered in the process and the
+		 *         unit was not set. An error must be flagged in that case.
+		 */
+		private boolean setIdentCompat(int index, String lastvalue) {
+			if (currentlu != null) {
+				String prev;
+				try {
+					prev = currentlu.toString();
+				} catch (RuntimeException e) {
+					lunit.reset();
+					return false;
+				}
+				currentlu.reset();
+				currentlu.value = prev + ' ' + lastvalue;
+				currentlu.setUnitType(LexicalType.COMPAT_IDENT);
+				currentlu.setCssUnit(CSSUnit.CSS_INVALID);
+			} else {
+				newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = lastvalue;
+			}
+			warnIdentCompat(index, lastvalue);
+			return true;
+		}
+
+		/**
+		 * Attempts to set a compat identifier as the root working value.
+		 * 
+		 * @return the compat ident string, or null if an error was encountered when
+		 *         setting it. An error must be flagged in that case.
+		 */
+		private String setFullIdentCompat() {
+			String newval;
+			if (!hexColor) {
+				newval = rawBuffer();
+			} else {
+				hexColor = false;
+				newval = '#' + rawBuffer();
+			}
+			if (lunit != null) {
+				try {
+					newval = lunit.toString() + newval;
+				} catch (RuntimeException e) {
+					return null;
+				} finally {
+					lunit.reset();
+				}
+				lunit.value = newval;
+				lunit.setUnitType(LexicalType.COMPAT_IDENT);
+				lunit.setCssUnit(CSSUnit.CSS_INVALID);
+			} else {
+				newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = newval;
+			}
+			return newval;
+		}
+
+		private void warnIdentCompat(int index, String ident) {
+			handleWarning(index, ParseHelper.WARN_IDENT_COMPAT, "Found compat ident: " + ident);
 		}
 
 		private void parseUnicodeRange(int index, int buflen) {
@@ -7429,68 +7662,6 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			}
 			return 0;
-		}
-
-		private boolean parseNumber(int index, String s, int i) {
-			String unit = null;
-			LexicalUnitImpl lu;
-			if (i != s.length()) {
-				unit = s.substring(i);
-				unit = unit.trim().toLowerCase(Locale.ROOT).intern();
-				short cssUnit = ParseHelper.unitFromString(unit);
-				final LexicalType unitType;
-				if (cssUnit == CSSUnit.CSS_PERCENTAGE) {
-					unitType = LexicalType.PERCENTAGE;
-				} else {
-					unitType = LexicalType.DIMENSION;
-				}
-				String strnum = s.substring(0, i);
-				float flval;
-				try {
-					flval = Float.parseFloat(strnum);
-				} catch (NumberFormatException e) {
-					return false;
-				}
-				lu = newLexicalUnit(unitType, false);
-				lu.floatValue = flval;
-				lu.dimensionUnitText = unit;
-				lu.setCssUnit(cssUnit);
-			} else { // No unit
-				if (s.lastIndexOf('.', i) == -1) {
-					int intval;
-					try {
-						intval = Integer.parseInt(s);
-					} catch (NumberFormatException e) {
-						// Maybe it is exponent syntax ("1E2")
-						float flval;
-						try {
-							flval = Float.parseFloat(s);
-						} catch (NumberFormatException e1) {
-							return false;
-						}
-						lu = newNumberUnit(LexicalType.REAL);
-						lu.floatValue = flval;
-						return true;
-					}
-					lu = newNumberUnit(LexicalType.INTEGER);
-					lu.intValue = intval;
-				} else {
-					float flval;
-					try {
-						flval = Float.parseFloat(s);
-					} catch (NumberFormatException e) {
-						return false;
-					}
-					if (flval == 0f) {
-						lu = newNumberUnit(LexicalType.INTEGER);
-						lu.intValue = (int) flval;
-					} else {
-						lu = newNumberUnit(LexicalType.REAL);
-						lu.floatValue = flval;
-					}
-				}
-			}
-			return true;
 		}
 
 		private boolean parseHexColor(int buflen) {
@@ -7579,44 +7750,6 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		private boolean newIdentifier(String raw, String ident, String cssText) {
-			if (isNotForbiddenIdentStart(raw)) {
-				if (propertyDatabase != null) {
-					String lcident = ident.toLowerCase(Locale.ROOT);
-					if (lcident != ident) {
-						if (propertyDatabase.isShorthand(propertyName)) {
-							// Only if no Custom Ident was previously found.
-							if (!isPreviousValueCustomIdent()) {
-								String[] longhands = propertyDatabase.getLonghandProperties(propertyName);
-								for (int i = 0; i < longhands.length; i++) {
-									if (isIdentifierValueOf(longhands[i], lcident)) {
-										ident = lcident;
-									}
-								}
-							}
-						} else if (isIdentifierValueOf(propertyName, lcident)) {
-							ident = lcident;
-						}
-					}
-				}
-				LexicalUnitImpl lu = newLexicalUnit(LexicalType.IDENT, false);
-				lu.value = ident;
-				lu.identCssText = cssText;
-				return true;
-			}
-			return false;
-		}
-
-		private boolean isIdentifierValueOf(String propertyName, String lcident) {
-			return propertyDatabase.isIdentifierValue(propertyName, lcident) || "none".equals(lcident);
-		}
-
-		private boolean isPreviousValueCustomIdent() {
-			String s;
-			return currentlu != null && currentlu.getLexicalUnitType() == LexicalType.IDENT
-					&& (s = currentlu.getStringValue()) != s.toLowerCase(Locale.ROOT);
-		}
-
 		@Override
 		public void quoted(int index, CharSequence quoted, int quoteChar) {
 			if (!hexColor && !unicodeRange && !readPriority && propertyName != null) {
@@ -7672,16 +7805,13 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		private boolean isEscapedContext(int prevcp) {
-			return prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_COLON
-					|| prevcp == TokenProducer.CHAR_COMMA || prevcp == TokenProducer.CHAR_SEMICOLON
-					|| prevcp == TokenProducer.CHAR_LEFT_CURLY_BRACKET
-					|| (readPriority && prevcp == TokenProducer.CHAR_EXCLAMATION);
-		}
-
 		private boolean isEscapedContentError(int index, int codepoint) {
 			if (isEscapedContext(prevcp) && !hexColor) {
-				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
+				// We add a backslash if is an hex, \ (0x5c), + (0x2b) , - (0x2d)
+				// or whitespace (0x20) to avoid confusions with numbers and
+				// operators
+				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 0x5c || codepoint == 0x2b
+						|| codepoint == 0x2d || codepoint == 0x20) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				}
@@ -7705,10 +7835,17 @@ public class CSSParser implements Parser, Cloneable {
 			return false;
 		}
 
+		private boolean isEscapedContext(int prevcp) {
+			return prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_COLON
+					|| prevcp == TokenProducer.CHAR_COMMA || prevcp == TokenProducer.CHAR_SEMICOLON
+					|| prevcp == TokenProducer.CHAR_LEFT_CURLY_BRACKET
+					|| (readPriority && prevcp == TokenProducer.CHAR_EXCLAMATION);
+		}
+
 		@Override
 		public void separator(int index, int codepoint) {
 			if (!parseError) {
-				if (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)) {
+				if (escapedTokenIndex != -1 && bufferEndsWithEscapedChar(buffer)) {
 					buffer.append(' ');
 					return;
 				}
@@ -7765,93 +7902,6 @@ public class CSSParser implements Parser, Cloneable {
 		public void error(int index, byte errCode, CharSequence context) {
 			super.error(index, errCode, context);
 			lunit = null;
-		}
-
-		private void checkIEPrioHack(int index, String prio) {
-			String compatText;
-			buffer.append('!').append(prio);
-			if (parserFlags.contains(Flag.IEPRIO) && "ie".equals(prio) && (compatText = setFullIdentCompat()) != null) {
-				warnIdentCompat(index, compatText);
-			} else {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid priority: " + prio);
-			}
-		}
-
-		private void checkForIEValue(int index, String raw) {
-			int rawlen = raw.length();
-			if (!flagIEValues || rawlen <= 2 || raw.charAt(rawlen - 2) != '\\'
-					|| !isIEHackSuffix(raw.codePointAt(rawlen - 1)) || !setIdentCompat(index - rawlen, raw)) {
-				handleError(index - rawlen, ParseHelper.ERR_INVALID_IDENTIFIER, "Invalid identifier: " + raw);
-			}
-		}
-
-		private boolean isIEHackSuffix(int codepoint) {
-			return codepoint == '9' || codepoint == '0';
-		}
-
-		/**
-		 * Attempts to set a compat identifier as the current working value.
-		 * 
-		 * @param index
-		 *            the index at which the value was found.
-		 * @param lastvalue
-		 *            the contents of the buffer.
-		 * @return <code>true</code> if the compat ident unit was set, <code>false</code> if an error was encountered in the
-		 *         process and the unit was not set. An error must be flagged in that case.
-		 */
-		private boolean setIdentCompat(int index, String lastvalue) {
-			if (currentlu != null) {
-				String prev;
-				try {
-					prev = currentlu.toString();
-				} catch (RuntimeException e) {
-					lunit.reset();
-					return false;
-				}
-				currentlu.reset();
-				currentlu.value = prev + ' ' + lastvalue;
-				currentlu.setUnitType(LexicalType.COMPAT_IDENT);
-				currentlu.setCssUnit(CSSUnit.CSS_INVALID);
-			} else {
-				newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = lastvalue;
-			}
-			warnIdentCompat(index, lastvalue);
-			return true;
-		}
-
-		/**
-		 * Attempts to set a compat identifier as the root working value.
-		 * 
-		 * @return the compat ident string, or null if an error was encountered when setting it.
-		 *         An error must be flagged in that case.
-		 */
-		private String setFullIdentCompat() {
-			String newval;
-			if (!hexColor) {
-				newval = rawBuffer();
-			} else {
-				hexColor = false;
-				newval = '#' + rawBuffer();
-			}
-			if (lunit != null) {
-				try {
-					newval = lunit.toString() + newval;
-				} catch (RuntimeException e) {
-					return null;
-				} finally {
-					lunit.reset();
-				}
-				lunit.value = newval;
-				lunit.setUnitType(LexicalType.COMPAT_IDENT);
-				lunit.setCssUnit(CSSUnit.CSS_INVALID);
-			} else {
-				newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = newval;
-			}
-			return newval;
-		}
-
-		private void warnIdentCompat(int index, String ident) {
-			handleWarning(index, ParseHelper.WARN_IDENT_COMPAT, "Found compat ident: " + ident);
 		}
 
 	}

@@ -560,7 +560,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
-		assertEquals("\\1F44D", lu.toString());
+		assertEquals("\\1f44d ", lu.toString());
 		assertEquals(1, handler.priorities.size());
 		assertEquals("important", handler.priorities.getFirst());
 		assertFalse(errorHandler.hasError());
@@ -574,7 +574,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
-		assertEquals("\\1F44D", lu.toString());
+		assertEquals("\\1f44d ", lu.toString());
 		assertEquals(1, handler.priorities.size());
 		assertEquals("important", handler.priorities.getFirst());
 		assertFalse(errorHandler.hasError());
@@ -588,7 +588,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
-		assertEquals("\\1F44D", lu.toString());
+		assertEquals("\\1f44d ", lu.toString());
 		assertEquals(1, handler.priorities.size());
 		assertEquals("important", handler.priorities.getFirst());
 		assertFalse(errorHandler.hasError());
@@ -811,7 +811,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("5px\t", lu.getStringValue());
-		assertEquals("\\35 px\\9", lu.toString());
+		assertEquals("\\35 px\\9 ", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
 	}
@@ -852,7 +852,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("-1zzz:_", lu.getStringValue());
-		assertEquals("-\\31zzz\\:_", lu.toString());
+		assertEquals("\\-1zzz\\:_", lu.toString());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -864,7 +864,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
-		assertEquals("\\1F44D", lu.toString());
+		assertEquals("\\1f44d ", lu.toString());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -888,7 +888,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block\t", lu.getStringValue());
-		assertEquals("block\\9", lu.toString());
+		assertEquals("block\\9 ", lu.toString());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -918,13 +918,15 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue6() throws CSSException {
-		parseStyleDeclaration("font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
+		parseStyleDeclaration(
+			"font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("微软雅黑", lu.getStringValue());
-		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, Arial, \\5b8b\\4f53, sans-serif", lu.toString());
+		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , Arial, \\5b8b\\4f53 , sans-serif",
+			lu.toString());
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
@@ -952,7 +954,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\\5FAE软雅黑", lu.getStringValue());
-		assertEquals("\\\\5FAE\\8F6F\\96C5\\9ED1, Arial", lu.toString());
+		assertEquals("\\\\5FAE\\8f6f\\96c5\\9ed1 , Arial", lu.toString());
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
@@ -1120,7 +1122,7 @@ public class DeclarationParserTest {
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals("Times New Roman\\9", lu.toString());
+		assertEquals("Times New Roman\\9 ", lu.toString());
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Times", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
@@ -1129,7 +1131,7 @@ public class DeclarationParserTest {
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals("Roman\t", lu.getStringValue());
-		assertEquals("Roman\\9", lu.toString());
+		assertEquals("Roman\\9 ", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
@@ -1142,7 +1144,7 @@ public class DeclarationParserTest {
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
-		assertEquals("Times New Roman\\0/", lu.toString());
+		assertEquals("Times New Roman\\0 /", lu.toString());
 		assertEquals("Times", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -1151,7 +1153,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Roman\ufffd", lu.getStringValue());
-		assertEquals("Roman\\0/", lu.toString());
+		assertEquals("Roman\\0 /", lu.toString());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
@@ -1540,7 +1542,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\t", lu.getStringValue());
-		assertEquals("\\9", lu.toString());
+		assertEquals("\\9 ", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
 	}

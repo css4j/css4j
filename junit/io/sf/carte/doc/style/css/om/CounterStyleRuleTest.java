@@ -49,7 +49,7 @@ public class CounterStyleRuleTest {
 		assertEquals(CSSRule.COUNTER_STYLE_RULE, rule.getType());
 		assertEquals("@counter-style thumbs {system:cyclic;symbols:\uD83D\uDC4D;suffix:\" \"}",
 				rule.getMinifiedCssText());
-		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1F44D;\n    suffix: \" \";\n}\n",
+		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1f44d ;\n    suffix: \" \";\n}\n",
 				rule.getCssText());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		// Visitor
@@ -123,7 +123,7 @@ public class CounterStyleRuleTest {
 		assertEquals(3, rule.getStyle().getLength());
 		assertEquals("@counter-style thumbs {system:cyclic;symbols:\uD83D\uDC4D;suffix:\" \"}",
 				rule.getMinifiedCssText());
-		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1F44D;\n    suffix: \" \";\n}\n",
+		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1f44d ;\n    suffix: \" \";\n}\n",
 				rule.getCssText());
 	}
 
@@ -139,7 +139,7 @@ public class CounterStyleRuleTest {
 		assertEquals("@counter-style thumbs {system:cyclic;symbols:\uD83D\uDC4D;suffix:\" \"}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"/* pre-rule */\n@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1F44D;\n    suffix: \" \";\n} /* post-rule */\n",
+				"/* pre-rule */\n@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1f44d ;\n    suffix: \" \";\n} /* post-rule */\n",
 				rule.getCssText());
 	}
 

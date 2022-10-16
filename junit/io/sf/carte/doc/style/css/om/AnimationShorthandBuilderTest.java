@@ -31,7 +31,7 @@ public class AnimationShorthandBuilderTest {
 		assertShorthandText("animation-name:foo;", "animation-name: foo;");
 		// With IE Hack
 		assertShorthandText(
-				"animation-delay:1s;animation-duration:3200ms;animation-fill-mode:none;animation-name:foo\\9 ;",
+				"animation-delay:1s;animation-duration:3200ms;animation-fill-mode:none;animation-name:foo\\9;",
 				"animation-duration: 3200ms;animation-delay:1s;animation-fill-mode:none;animation-name:foo\\9;");
 	}
 

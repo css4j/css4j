@@ -144,9 +144,9 @@ public class BaseCSSStyleDeclarationTest {
 	public void setCssTextEscaped() {
 		emptyStyleDecl.setCssText("font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
-		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, Arial, \\5b8b\\4f53, sans-serif", value.getCssText());
+		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , Arial, \\5b8b\\4f53 , sans-serif", value.getCssText());
 		assertEquals("微软雅黑,Arial,宋体,sans-serif", value.getMinifiedCssText("font-family"));
-		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, Arial, \\5b8b\\4f53, sans-serif",
+		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , Arial, \\5b8b\\4f53 , sans-serif",
 				emptyStyleDecl.getPropertyValue("font-family"));
 	}
 
@@ -154,9 +154,9 @@ public class BaseCSSStyleDeclarationTest {
 	public void setCssTextEscaped2() {
 		emptyStyleDecl.setCssText("font-family: \\5FAE\\8F6F\\96C5\\9ED1,\"Times New Roman\",\\5b8b\\4f53");
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
-		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, \"Times New Roman\", \\5b8b\\4f53", value.getCssText());
+		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , \"Times New Roman\", \\5b8b\\4f53 ", value.getCssText());
 		assertEquals("微软雅黑,\"Times New Roman\",宋体", value.getMinifiedCssText("font-family"));
-		assertEquals("\\5FAE\\8F6F\\96C5\\9ED1, \"Times New Roman\", \\5b8b\\4f53",
+		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , \"Times New Roman\", \\5b8b\\4f53 ",
 				emptyStyleDecl.getPropertyValue("font-family"));
 	}
 
@@ -164,7 +164,7 @@ public class BaseCSSStyleDeclarationTest {
 	public void setCssTextEscaped3() {
 		emptyStyleDecl.setCssText("font-family: \\\\5FAE\\8F6F");
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
-		assertEquals("\\\\5FAE\\8F6F", value.getCssText());
+		assertEquals("\\\\5FAE\\8f6f ", value.getCssText());
 		assertEquals("\\\\5FAE\u8F6F", value.getMinifiedCssText("font-family"));
 		assertEquals("\\5FAE软", emptyStyleDecl.getPropertyValue("font-family"));
 	}
@@ -688,9 +688,9 @@ public class BaseCSSStyleDeclarationTest {
 	public void setCssTextEscapes2() {
 		BaseCSSStyleDeclaration sd = new BaseCSSStyleDeclaration();
 		sd.setCssText("symbols: \\1F44D");
-		assertEquals("\\1F44D", sd.getPropertyCSSValue("symbols").getCssText());
+		assertEquals("\\1f44d ", sd.getPropertyCSSValue("symbols").getCssText());
 		assertEquals("\uD83D\uDC4D", sd.getPropertyValue("symbols"));
-		assertEquals("symbols: \\1F44D;\n", sd.getCssText());
+		assertEquals("symbols: \\1f44d ;\n", sd.getCssText());
 	}
 
 	@Test

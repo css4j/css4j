@@ -434,6 +434,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				context.writeMinifiedValue(wri, ptyname, value);
 			} catch (IOException e) {
 			}
+			StringBuilder buf = wri.getBuffer();
+			try {
+				if (buf.charAt(buf.length() - 1) == ' ') {
+					buf.setLength(buf.length() - 1);
+				}
+			} catch (IndexOutOfBoundsException e) {
+			}
 		} else {
 			wri.write("initial");
 		}

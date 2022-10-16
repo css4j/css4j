@@ -39,7 +39,7 @@ public class PaddingBuilderTest {
 
 	@Test
 	public void testPaddingNoShorthandIEHack() {
-		assertShorthandText("padding-bottom:\\35 px\\9 ;padding-left:2px;padding-right:2px;padding-top:2px;",
+		assertShorthandText("padding-bottom:\\35 px\\9;padding-left:2px;padding-right:2px;padding-top:2px;",
 				"padding: 2px; padding-bottom: \\35 px\\9;");
 		assertShorthandText("padding-bottom:20px iehack;padding-left:2px;padding-right:2px;padding-top:2px;",
 				"padding: 2px; padding-bottom: 20px iehack;");

@@ -30,7 +30,7 @@ public class TransitionShorthandBuilderTest {
 	public void testBuilderNoShorthand() {
 		assertShorthandText("transition-property:foo;", "transition-property: foo;");
 		// Nobody uses IE hacks for transitions, but the detection code is shared
-		assertShorthandText("transition-delay:1s;transition-duration:3200ms;transition-property:foo\\9 ;",
+		assertShorthandText("transition-delay:1s;transition-duration:3200ms;transition-property:foo\\9;",
 				"transition-duration: 3200ms;transition-delay:1s;transition-property:foo\\9;");
 	}
 

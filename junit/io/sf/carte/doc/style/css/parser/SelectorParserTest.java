@@ -2568,7 +2568,7 @@ public class SelectorParserTest {
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("-123\\a", ((AttributeCondition) cond).getValue());
-		assertEquals(".-\\31 23\\\\a", sel.toString());
+		assertEquals(".\\-123\\\\a", sel.toString());
 	}
 
 	@Test
@@ -2581,7 +2581,7 @@ public class SelectorParserTest {
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.CLASS, cond.getConditionType());
 		assertEquals("-123\\a", ((AttributeCondition) cond).getValue());
-		assertEquals(".-\\31 23\\\\a", sel.toString());
+		assertEquals(".\\-123\\\\a", sel.toString());
 	}
 
 	@Test

@@ -58,10 +58,8 @@ public class MaskBuilderTest {
 
 	@Test
 	public void testMaskLayersBad() {
-		emptyStyleDecl.setCssText(
+		assertShorthandText("mask:url('bkg.png') 0 0/150px no-repeat;",
 			"mask: url('bkg.png') no-repeat; mask-size: 150px, 150px; mask-position: 0 0;");
-		assertEquals("mask:url('bkg.png') 0 0/150px no-repeat;",
-			emptyStyleDecl.getOptimizedCssText());
 	}
 
 	@Test
@@ -177,14 +175,13 @@ public class MaskBuilderTest {
 	@Test
 	public void testMaskIEHack() {
 		assertShorthandText(
-			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-mode:match-source;mask-origin:border-box;mask-position:15px 10px;mask-repeat:no-repeat;mask-size:auto \\9 ;",
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-mode:match-source;mask-origin:border-box;mask-position:15px 10px;mask-repeat:no-repeat;mask-size:auto \\9;",
 			"mask: intersect url('image.svg') 15px 10px no-repeat;mask-size: auto \\9;");
-		emptyStyleDecl.setCssText(
+		assertShorthandText(
+			"mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-mode:alpha;mask-origin:padding-box;mask-position:15px 10px;mask-repeat:no-repeat \\9;mask-size:auto;",
 			"mask-mode:alpha;mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-origin:padding-box;mask-position:15px 10px;mask-repeat:no-repeat \\9 ;mask-size:auto;");
-		assertEquals(
-			"mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-mode:alpha;mask-origin:padding-box;mask-position:15px 10px;mask-repeat:no-repeat \\9 ;mask-size:auto;",
-			emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText(
+		assertShorthandText(
+			"mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-mode:alpha;mask-origin:padding-box;mask-position:15px \\9;mask-repeat:no-repeat;mask-size:auto;",
 			"mask-mode:alpha;mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-origin:padding-box;mask-position:15px \\9;mask-repeat:no-repeat;mask-size:auto;");
 	}
 

@@ -2056,7 +2056,7 @@ public class SheetParserTest {
 		assertEquals("200px", handler.lexicalValues.get(5).toString());
 		assertEquals("50px", handler.lexicalValues.get(6).toString());
 		assertEquals("100px", handler.lexicalValues.get(7).toString());
-		assertEquals("\\1F44D", handler.lexicalValues.get(8).toString());
+		assertEquals("\\1f44d ", handler.lexicalValues.get(8).toString());
 		assertEquals("\" \"", handler.lexicalValues.get(9).toString());
 		assertEquals("1", handler.lexicalValues.get(10).toString());
 		assertEquals("2", handler.lexicalValues.get(11).toString());
@@ -2760,7 +2760,7 @@ public class SheetParserTest {
 		assertEquals("symbols", handler.propertyNames.get(0));
 		assertEquals("suffix", handler.propertyNames.get(1));
 		assertEquals(2, handler.lexicalValues.size());
-		assertEquals("\\1F44D", handler.lexicalValues.get(0).toString());
+		assertEquals("\\1f44d ", handler.lexicalValues.get(0).toString());
 		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
 		assertEquals(0, handler.atRules.size());
 		//

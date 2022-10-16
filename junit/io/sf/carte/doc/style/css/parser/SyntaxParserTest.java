@@ -123,7 +123,31 @@ public class SyntaxParserTest {
 	}
 
 	@Test
-	public void testParseSyntaxIdent3() {
+	public void testParseSyntaxCustomIdent() {
+		CSSValueSyntax syn = parser.parseSyntax("--foo");
+		assertEquals("--foo", syn.getName());
+		assertEquals(Category.IDENT, syn.getCategory());
+		assertEquals(Multiplier.NONE, syn.getMultiplier());
+		assertNull(syn.getNext());
+		assertEquals("--foo", syn.toString());
+	}
+
+	@Test
+	public void testParseSyntaxCustomIdent2() {
+		CSSValueSyntax syn = parser.parseSyntax("--foo-ident   |   --bar");
+		assertEquals("--foo-ident", syn.getName());
+		assertEquals(Category.IDENT, syn.getCategory());
+		assertEquals(Multiplier.NONE, syn.getMultiplier());
+		assertEquals("--foo-ident | --bar", syn.toString());
+		syn = syn.getNext();
+		assertEquals("--bar", syn.getName());
+		assertEquals(Category.IDENT, syn.getCategory());
+		assertEquals(Multiplier.NONE, syn.getMultiplier());
+		assertNull(syn.getNext());
+	}
+
+	@Test
+	public void testParseSyntaxIdentAuto() {
 		CSSValueSyntax syn = parser.parseSyntax("auto");
 		assertEquals("auto", syn.getName());
 		assertEquals(Category.IDENT, syn.getCategory());

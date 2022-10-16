@@ -60,10 +60,10 @@ public class GenericShorthandBuilderTest {
 	@Test
 	public void testBuilderNoShorthandIEHack() {
 		assertShorthandText(
-				"text-decoration-color:navy\\9 ;text-decoration-line:line-through;text-decoration-style:double;",
+				"text-decoration-color:navy\\9;text-decoration-line:line-through;text-decoration-style:double;",
 				"text-decoration-color:navy\\9;text-decoration-line:line-through;text-decoration-style:double;");
 		assertShorthandText(
-				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:double \\9 ;",
+				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:double \\9;",
 				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:double \\9;");
 	}
 

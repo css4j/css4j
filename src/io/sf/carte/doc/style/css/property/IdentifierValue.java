@@ -115,7 +115,7 @@ public class IdentifierValue extends AbstractTextValue {
 	}
 
 	private String escape(String css) throws DOMException {
-		return ParseHelper.escape(css);
+		return ParseHelper.safeEscape(css);
 	}
 
 	@Override

@@ -158,7 +158,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("\\35 px\\9");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("5px\t", lu.getStringValue());
-		assertEquals("\\35 px\\9", lu.toString());
+		assertEquals("\\35 px\\9 ", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>#");
@@ -477,7 +477,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("\\1F44D");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
-		assertEquals("\\1F44D", lu.toString());
+		assertEquals("\\1f44d ", lu.toString());
 	}
 
 	@Test
@@ -493,7 +493,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("block\\9");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block\t", lu.getStringValue());
-		assertEquals("block\\9", lu.toString());
+		assertEquals("block\\9 ", lu.toString());
 	}
 
 	@Test
@@ -530,10 +530,195 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyEscaped8() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("-a\\14c");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("-aŌ", lu.getStringValue());
+		assertEquals("-a\\14c ", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscaped9() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("-a\\14c  u");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("-aŌ", lu.getStringValue());
+		assertEquals("u", lu.getNextLexicalUnit().getStringValue());
+		assertEquals("-a\\14c ", lu.getCssText());
+		assertEquals("-a\\14c  u", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscaped10() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("a\\3d b");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("a=b", lu.getStringValue());
-		assertEquals("a\\3d b", lu.toString());
+		assertEquals("a\\=b", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedNull() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\0");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("\ufffd", lu.getStringValue());
+		assertEquals("\\0 ", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedIdentNull() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("a\\0");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("a\ufffd", lu.getStringValue());
+		assertEquals("a\\0 ", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedIdentNull2() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("a\\0 b");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("a\ufffdb", lu.getStringValue());
+		assertEquals("a\\0 b", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedNullIdent() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\0 a");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("\ufffda", lu.getStringValue());
+		assertEquals("\\0 a", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedIdentNullIdent() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("a\\0  b");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("a\ufffd", lu.getStringValue());
+		assertEquals("b", lu.getNextLexicalUnit().getStringValue());
+		assertEquals("a\\0  b", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedTwoIdents() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("a\\3d  b");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("a=", lu.getStringValue());
+		assertEquals("a\\=", lu.getCssText());
+
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(LexicalType.IDENT, nlu.getLexicalUnitType());
+		assertEquals("b", nlu.getStringValue());
+		assertEquals("b", nlu.getCssText());
+
+		assertEquals("a\\= b", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedBackslash() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\\\");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("\\", lu.getStringValue());
+		assertEquals("\\\\", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedWS_FirstChar() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\ 5");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals(" 5", lu.getStringValue());
+		assertEquals("\\ 5", lu.toString());
+		assertEquals("\\ 5", lu.getCssText());
+	}
+
+	@Test
+	public void testParsePropertyEscapedWS_Minus() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\ -");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals(" -", lu.getStringValue());
+		assertEquals("\\ -", lu.getCssText());
+	}
+
+	@Test
+	public void testParsePropertyEscapedWS_MinusDigit() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\ -2");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals(" -2", lu.getStringValue());
+		assertEquals("\\ -2", lu.toString());
+		assertEquals("\\ -2", lu.getCssText());
+	}
+
+	@Test
+	public void testParsePropertyEscapedMinus() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\-");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("-", lu.getStringValue());
+		assertEquals("\\-", lu.getCssText());
+	}
+
+	@Test
+	public void testParsePropertyEscapedSeveral() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\31\\ a\\;\\-\\\\");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("1 a;-\\", lu.getStringValue());
+		assertEquals("\\31 \\ a\\;-\\\\", lu.getCssText());
+	}
+
+	@Test
+	public void testParsePropertyEscapedSeveral_WithPlus() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\+\\ a\\;\\-\\\\");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("+ a;-\\", lu.getStringValue());
+		assertEquals("\\+\\ a\\;-\\\\", lu.getCssText());
+	}
+
+	@Test
+	public void testParsePropertyEscapedWS_PlusError() throws IOException {
+		try {
+			parsePropertyValue("\\ +");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyEscapedBackslash_PlusError() throws IOException {
+		try {
+			parsePropertyValue("\\\\+");
+			fail("Must throw exception");
+		} catch (CSSParseException e) {
+			assertEquals(3, e.getColumnNumber());
+		}
+	}
+
+	@Test
+	public void testParsePropertyEscapedPlus() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\+");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("+", lu.getStringValue());
+		assertEquals("\\+", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedPlusDigit() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\+2");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("+2", lu.getStringValue());
+		assertEquals("\\+2", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedColon() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("\\:");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals(":", lu.getStringValue());
+		assertEquals("\\:", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyEscapedWS() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("Awesome\\ 5");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("Awesome 5", lu.getStringValue());
+		assertEquals("Awesome\\ 5", lu.toString());
 	}
 
 	@Test
@@ -578,7 +763,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("\\9");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\t", lu.getStringValue());
-		assertEquals("\\9", lu.toString());
+		assertEquals("\\9 ", lu.toString());
 	}
 
 	@Test

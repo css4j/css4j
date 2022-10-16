@@ -28,6 +28,10 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
  * Methods that are useful for CSS parsing.
+ * <p>
+ * Note: this is an implementation helper, most methods are not intended for
+ * usage outside of this library.
+ * </p>
  */
 public class ParseHelper {
 
@@ -233,34 +237,63 @@ public class ParseHelper {
 		if (len == 0) {
 			return text;
 		}
+
 		int i = 0;
 		StringBuilder buf = null;
+		boolean noesc = true;
 		char c = text.charAt(0);
 		if (c == '-') {
 			if (len == 1) {
-				return text;
+				return "\\-";
 			}
-			i = 1;
-			c = text.charAt(1);
+
+			int cp = text.codePointAt(1);
+			if (cp != 0x2d && !isNameStartCharOrEsc((char) cp)) {
+				buf = createStringBuilder(len);
+				i = text.offsetByCodePoints(1, 1);
+				if ((escapeSurrogates && i > 2) || Character.isISOControl(cp)) {
+					buf.append('-').append('\\').append(Integer.toHexString(cp));
+					if (cp < 0xfffff && needsSpace(text, i, len)) {
+						buf.append(' ');
+					}
+				} else {
+					buf.append("\\-").appendCodePoint(cp);
+				}
+				// Check whether we are at end of string
+				if (i == len) {
+					return buf.toString();
+				}
+				noesc = false;
+			} else {
+				i = 1;
+			}
+
+			c = text.charAt(i);
 		}
-		//
-		boolean noesc = c < 0x30 || c > 0x39; // First char is not digit ?
-		if (!noesc) {
+
+		if (c >= 0x30 && c <= 0x39) { // First char is digit ?
 			// First char is digit
-			buf = new StringBuilder(len + 24);
-			if (i == 1) {
-				buf.append(text.charAt(0));
+			if (noesc) {
+				buf = createStringBuilder(len);
+				noesc = false;
+				if (i == 1) {
+					buf.append("\\-").append(c);
+				} else {
+					buf.append("\\3").append(c).append(' ');
+				}
+			} else { // i == 1
+				buf.append(c);
 			}
-			buf.append("\\3").append(c).append(' ');
 			i++;
 		}
-		//
+
 		boolean preservingHex = false;
+
 		while (i < len) {
 			int cp = text.codePointAt(i);
-			if ((cp >= 0x30 && cp <= 0x39) || (cp >= 0x41 && cp <= 0x5a) || (cp >= 0x61 && cp <= 0x7a) || cp == 0x2d
-					|| cp == 0x5f) {
-				if (preservingHex && !ParseHelper.isHexCodePoint(cp)) {
+			if ((cp >= 0x30 && cp <= 0x39) || (cp >= 0x41 && cp <= 0x5a)
+				|| (cp >= 0x61 && cp <= 0x7a) || cp == 0x2d || cp == 0x5f) {
+				if (preservingHex && !isHexCodePoint(cp)) {
 					preservingHex = false;
 				}
 				if (!noesc) {
@@ -275,11 +308,11 @@ public class ParseHelper {
 						buf.append(text.subSequence(0, i));
 					}
 					buf.append('\\').append((char) cp);
-				// Escape (high) controls and non-breaking spaces, soft hyphens and replacement char
-				} else if (cp <= 0x9f || cp == 0xa0 || cp == 0xad|| cp == 0xfffd) {
+					// Escape (high) controls and non-breaking spaces, soft hyphens and replacement char
+				} else if (cp <= 0x9f || cp == 0xa0 || cp == 0xad || cp == 0xfffd) {
 					if (noesc) {
 						noesc = false;
-						buf = new StringBuilder(len + 24);
+						buf = createStringBuilder(len);
 						buf.append(text.subSequence(0, i));
 					}
 					buf.append('\\').append(Integer.toHexString(cp));
@@ -300,7 +333,7 @@ public class ParseHelper {
 						} else {
 							if (noesc) {
 								noesc = false;
-								buf = new StringBuilder(len + 24);
+								buf = createStringBuilder(len);
 								buf.append(text.subSequence(0, i));
 							}
 							buf.append('\\').append(Integer.toHexString(cp));
@@ -316,7 +349,7 @@ public class ParseHelper {
 				// Low control characters and whitespace
 				if (noesc) {
 					noesc = false;
-					buf = new StringBuilder(len + 24);
+					buf = createStringBuilder(len);
 					buf.append(text.subSequence(0, i));
 				}
 				if (cp == 0x20) {
@@ -331,7 +364,8 @@ public class ParseHelper {
 					}
 				}
 				preservingHex = false;
-			} else if (preserveHexEscapes && cp == 0x5c && i != len - 1 && isHexCodePoint(text.codePointAt(i + 1))) {
+			} else if (preserveHexEscapes && cp == 0x5c && i != len - 1
+				&& isHexCodePoint(text.codePointAt(i + 1))) {
 				preservingHex = true;
 				if (!noesc) {
 					buf.append('\\');
@@ -353,62 +387,151 @@ public class ParseHelper {
 		return buf.toString();
 	}
 
-	private static boolean needsSpace(String text, int i, int len) {
+	private static StringBuilder createStringBuilder(int len) {
+		return new StringBuilder(len + 24);
+	}
+
+	private static boolean needsSpace(CharSequence text, int i, int len) {
+		// For safety, we put spaces if the next letter is any ASCII letter
+		// or number, instead of just Hex characters.
 		char c;
-		return i < len && ((c = text.charAt(i)) == '\u0020' || Character.isLetter(c));
+		return i >= len || ((c = text.charAt(i)) == '\u0020' || isASCIILetterOrDigitCodePoint(c));
 	}
 
 	/**
-	 * Escape the given text, but when escaping the backslashes, only do those that
-	 * do not escape a private or unassigned character.
+	 * Escape the given string according to CSS syntax.
+	 * <p>
+	 * For convenience, if the string contains an escape sequence escaping a private
+	 * or unassigned character, the corresponding backslash is not escaped.
+	 * </p>
+	 * <p>
+	 * For additional safety, when hex-escaping a code point it will put a
+	 * whitespace separator if the next character is an ASCII one, even if that
+	 * character is not a valid hexadecimal digit.
+	 * </p>
+	 * 
+	 * @param text the text to escape.
+	 * @return the escaped text.
+	 */
+	public static String safeEscape(String text) {
+		return safeEscape(text, false);
+	}
+
+	/**
+	 * Escape the given string according to CSS syntax.
+	 * <p>
+	 * For convenience, if the string contains an escape sequence escaping a private
+	 * or unassigned character, the corresponding backslash is not escaped.
+	 * </p>
+	 * <p>
+	 * For additional safety, when hex-escaping a code point it will put a
+	 * whitespace separator if the next character is an ASCII one, even if that
+	 * character is not a valid hexadecimal digit.
+	 * </p>
 	 * 
 	 * @param text             the text to escape.
 	 * @param escapeSurrogates <code>true</code> if surrogates have to be escaped.
 	 * @return the escaped text.
 	 */
 	public static String safeEscape(String text, boolean escapeSurrogates) {
+		return safeEscape(text, escapeSurrogates, false);
+	}
+
+	/**
+	 * Escape the given string according to CSS syntax.
+	 * <p>
+	 * For convenience, if the string contains an escape sequence escaping a private
+	 * or unassigned character, the corresponding backslash is not escaped.
+	 * </p>
+	 * <p>
+	 * For additional safety, when hex-escaping a code point it will put a
+	 * whitespace separator if the next character is an ASCII one, even if that
+	 * character is not a valid hexadecimal digit.
+	 * </p>
+	 * 
+	 * @param text             the text to escape.
+	 * @param escapeSurrogates <code>true</code> if surrogates have to be escaped.
+	 * @param escapeHighChars  <code>true</code> if high chars (&ge; {@code 0x80})
+	 *                         have to be escaped.
+	 * @return the escaped text.
+	 */
+	static String safeEscape(String text, boolean escapeSurrogates, boolean escapeHighChars) {
 		final int len = text.length();
 		if (len == 0) {
 			return text;
 		}
+
 		int i = 0;
 		StringBuilder buf = null;
+		boolean noesc = true;
 		char c = text.charAt(0);
 		if (c == '-') {
 			if (len == 1) {
-				return text;
+				return "\\-";
 			}
-			i = 1;
-			c = text.charAt(1);
+			int cp = text.codePointAt(1);
+			if (cp != 0x2d && !isNameStartCharOrEsc((char) cp)) {
+				i = text.offsetByCodePoints(1, 1);
+				buf = createStringBuilder(len);
+				if ((escapeHighChars && cp >= 0x80) || Character.isISOControl(cp)
+					|| (escapeSurrogates && i > 2)) {
+					buf.append('-').append('\\').append(Integer.toHexString(cp));
+					if (cp < 0xfffff && needsSpace(text, i, len)) {
+						buf.append(' ');
+					}
+				} else {
+					buf.append("\\-").appendCodePoint(cp);
+				}
+				// Check whether we are at end of string
+				if (i == len) {
+					return buf.toString();
+				}
+				noesc = false;
+			} else {
+				i = 1;
+			}
+			c = text.charAt(i);
 		}
-		boolean noesc = c < 0x30 || c > 0x39; // First char is not digit ?
-		if (!noesc) {
+
+		if (c >= 0x30 && c <= 0x39) { // First char is digit ?
 			// First char is digit
-			buf = new StringBuilder(len + 24);
-			if (i == 1) {
-				buf.append(text.charAt(0));
+			if (noesc) {
+				buf = createStringBuilder(len);
+				noesc = false;
+				if (i == 1) {
+					buf.append("\\-").append(c);
+				} else {
+					buf.append("\\3").append(c).append(' ');
+				}
+			} else { // i == 1
+				buf.append(c);
 			}
-			buf.append("\\3").append(c).append(' ');
 			i++;
 		}
+
 		while (i < len) {
 			int cp = text.codePointAt(i);
-			if ((cp >= 0x30 && cp <= 0x39) || (cp >= 0x41 && cp <= 0x5a) || (cp >= 0x61 && cp <= 0x7a) || cp == 0x2d
-					|| cp == 0x5f) {
+			if ((cp >= 0x30 && cp <= 0x39) || (cp >= 0x41 && cp <= 0x5a)
+				|| (cp >= 0x61 && cp <= 0x7a) || cp == 0x2d || cp == 0x5f) {
 				if (!noesc) {
 					buf.append((char) cp);
 				}
-			} else if (cp > 0x79) {
+			} else if (cp >= 0x7f) {
+				int newIdx = text.offsetByCodePoints(i, 1);
 				// Escape (high) controls and non-breaking spaces, soft hyphens and replacement char
-				if ((cp >= 0x7f && cp <= 0x9f) || cp == 0xa0 || cp == 0xad|| cp == 0xfffd) {
+				if ((cp >= 0x7f && cp <= 0x9f) || cp == 0xa0 || cp == 0xad || cp == 0xfffd
+					|| escapeHighChars) {
 					if (noesc) {
 						noesc = false;
 						buf = new StringBuilder(len + 24);
 						buf.append(text.subSequence(0, i));
 					}
-					buf.append('\\').append(Integer.toHexString(cp)).append(' ');
+					buf.append('\\').append(Integer.toHexString(cp));
+					if (cp < 0xfffff && needsSpace(text, newIdx, len)) {
+						buf.append(' ');
+					}
+					i = newIdx;
 				} else {
-					int newIdx = text.offsetByCodePoints(i, 1);
 					i++;
 					if (newIdx == i) {
 						if (!noesc) {
@@ -423,28 +546,28 @@ public class ParseHelper {
 							if (noesc) {
 								noesc = false;
 								buf = new StringBuilder(len + 24);
-								buf.append(text.subSequence(0, i));
+								buf.append(text.subSequence(0, i - 1));
 							}
 							buf.append('\\').append(Integer.toHexString(cp));
-							if (cp <= 0xfffff) {
+							if (cp < 0xfffff && needsSpace(text, newIdx, len)) {
 								buf.append(' ');
 							}
 						}
 						i = newIdx;
 					}
-					continue;
 				}
+				continue;
 			} else if (cp <= 0x1f || cp == 0x20) {
 				// Low control characters and whitespace
+				if (noesc) {
+					noesc = false;
+					buf = new StringBuilder(len + 24);
+					buf.append(text.subSequence(0, i));
+				}
 				if (cp != 0x20) {
-					if (noesc) {
-						noesc = false;
-						buf = new StringBuilder(len + 24);
-						buf.append(text.subSequence(0, i));
-					}
 					buf.append('\\').append(Integer.toHexString(cp)).append(' ');
-				} else if (!noesc) {
-					buf.append(' ');
+				} else {
+					buf.append('\\').append(' ');
 				}
 			} else if (cp == 0x5c && i != len - 1 && isPrivateOrUnassignedEscape(text, i + 1)) {
 				if (!noesc) {
@@ -653,10 +776,14 @@ public class ParseHelper {
 	}
 
 	/**
-	 * Escapes characters that have a special meaning for CSS, excluding backslash (x5c).
+	 * Escapes characters that have a special meaning for CSS, excluding whitespace
+	 * (0x20) and backslash (x5c).
+	 * <p>
+	 * Note: this is an implementation helper method, not intended for usage outside
+	 * of this library. May be removed at any time without previous notice.
+	 * </p>
 	 * 
-	 * @param strval
-	 *            the sequence to escape.
+	 * @param strval the sequence to escape.
 	 * @return the escaped string.
 	 */
 	public static CharSequence escapeCssChars(CharSequence strval) {
@@ -668,12 +795,17 @@ public class ParseHelper {
 	}
 
 	/**
-	 * Escapes characters that have a special meaning for CSS, excluding backslash (x5c).
+	 * Escapes characters that have a special meaning for CSS, excluding whitespace
+	 * (0x20) and backslash (x5c).
 	 * <p>
 	 * If the first character is a number, also escapes it.
+	 * </p>
+	 * <p>
+	 * Note: this is an implementation helper method, not intended for usage outside
+	 * of this library. May be removed at any time without previous notice.
+	 * </p>
 	 * 
-	 * @param strval
-	 *            the sequence to escape.
+	 * @param strval the sequence to escape.
 	 * @return the escaped string.
 	 */
 	public static CharSequence escapeCssCharsAndFirstChar(CharSequence strval) {
@@ -681,16 +813,10 @@ public class ParseHelper {
 		if (len == 0) {
 			return strval;
 		}
+
 		int i = 0;
 		StringBuilder buf;
 		char cp = strval.charAt(0);
-		if (cp == '-') {
-			if (len == 1) {
-				return strval;
-			}
-			i = 1;
-			cp = strval.charAt(1);
-		}
 		boolean noesc = cp < 0x30 || cp > 0x39;
 		if (noesc) {
 			buf = null;
@@ -702,33 +828,55 @@ public class ParseHelper {
 			buf.append("\\3").append(cp).append(' ');
 			i++;
 		}
+
 		return escapeCssChars(strval, i, buf);
 	}
 
 	/**
-	 * Escapes characters that have a special meaning for CSS, excluding backslash (x5c).
+	 * Escapes characters that have a special meaning for CSS, excluding whitespace
+	 * (0x20) and backslash (x5c).
 	 * <p>
 	 * If the first character is a number, also escapes it.
 	 * 
-	 * @param strval
-	 *            the sequence to escape.
-	 * @param startIndex
-	 *            the index where to start escaping.
-	 * @param buf
-	 *            if not <code>null</code>, the result has to be appended to its contents
-	 *            before returning the result.
+	 * @param strval     the sequence to escape.
+	 * @param startIndex the index where to start escaping.
+	 * @param buf        if not <code>null</code>, the result has to be appended to
+	 *                   its contents before returning the result.
 	 * @return the escaped string.
 	 */
-	private static CharSequence escapeCssChars(CharSequence strval, int startIndex, StringBuilder buf) {
+	private static CharSequence escapeCssChars(CharSequence strval, int startIndex,
+		StringBuilder buf) {
 		final int len = strval.length();
 		boolean noesc = buf == null;
+
+		if (startIndex == 0) {
+			// Check first character
+			char c = strval.charAt(0);
+			if (c == '-') {
+				if (len == 1) {
+					return "-";
+				}
+				c = strval.charAt(1);
+				if (c >= 0x30 && c <= 0x39) { // digit
+					if (noesc) {
+						noesc = false;
+						buf = new StringBuilder(len + 20);
+					}
+					buf.append("\\-").append(c);
+					startIndex = 2;
+				} else {
+					startIndex = 1;
+				}
+			}
+		}
+
 		for (int i = startIndex; i < len; i++) {
 			char cp = strval.charAt(i);
-			if ((cp >= 0x21 && cp <= 0x29) || cp == 0x2a || cp == 0x2b || cp == 0x2c || cp == 0x2e || cp == 0x2f
-					|| (cp >= 0x3a && cp <= 0x3f) || cp == 0x40 || cp == 0x5b || cp == 0x5d || cp == 0x5e || cp == 0x60
-					|| (cp >= 0x7b && cp <= 0x7e)) {
-				// x21 !, x22 ", x23 #, x24 $, x25 %, x26 &, x27 ', x28 (, x29 ), x2a *
-				// x2b +, x2c comma, x2e ., x2f /, x3a :, x3b ;, x3c <, x3d =, x3e >, x3f ?
+			if ((cp >= 0x21 && cp <= 0x29) || cp == 0x2a || cp == 0x2b || cp == 0x2c || cp == 0x2e
+				|| cp == 0x2f || (cp >= 0x3a && cp <= 0x3f) || cp == 0x40 || cp == 0x5b
+				|| cp == 0x5d || cp == 0x5e || cp == 0x60 || (cp >= 0x7b && cp <= 0x7e)) {
+				// x21 !, x22 ", x23 #, x24 $, x25 %, x26 &, x27 ', x28 (, x29 ), x2a *,
+				// x2b +, x2c comma, x2e ., x2f /, x3a :, x3b ;, x3c <, x3d =, x3e >, x3f ?,
 				// x40 @, x5b [, x5d ], x5e ^, x60 `, x7b {, x7c |, x7d }, x7e ~
 				if (noesc) {
 					noesc = false;
@@ -778,14 +926,14 @@ public class ParseHelper {
 	}
 
 	/**
-	 * Escapes the backslash characters found in the given string, except those that escape
-	 * hex-encoded codepoints.
+	 * Escapes the backslash characters found in the given string, except those that
+	 * escape hex-encoded codepoints.
 	 * <p>
-	 * If you have to call it together with {@link #escapeCssCharsAndFirstChar(CharSequence)}, make sure to
-	 * execute this method first.
+	 * If you have to call it together with
+	 * {@link #escapeCssCharsAndFirstChar(CharSequence)}, make sure to execute this
+	 * method first.
 	 * 
-	 * @param strval
-	 *            the character sequence to be escaped.
+	 * @param strval the character sequence to be escaped.
 	 * @return the escaped string.
 	 */
 	public static CharSequence escapeBackslash(CharSequence strval) {
@@ -991,6 +1139,10 @@ public class ParseHelper {
 
 	private static boolean isDigitCodepoint(char cp) {
 		return cp >= 0x30 && cp <= 0x39;
+	}
+
+	private static boolean isASCIILetterOrDigitCodePoint(char c) {
+		return (c >= 0x30 && c <= 0x39) || (c >= 0x41 && c <= 0x5a) || (c >= 0x61 && c <= 0x7a);
 	}
 
 	static boolean isHexCodePoint(int codePoint) {

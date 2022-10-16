@@ -568,12 +568,45 @@ public class ValueListTest {
 	}
 
 	@Test
-	public void testGetCssText() {
+	public void testGetCssTextCSEscaped() {
+		ValueList cs = ValueList.createCSValueList();
+		cs.add(factory.parseProperty("\\100"));
+		cs.add(factory.parseProperty("\\112"));
+		cs.add(factory.parseProperty("\\12a"));
+		cs.add(factory.parseProperty("\\14c"));
+		assertEquals("\\100 , \\112 , \\12a , \\14c ", cs.getCssText());
+		assertEquals("\u0100,\u0112,\u012a,\u014c", cs.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testGetCssTextWS() {
 		ValueList ws = ValueList.createWSValueList();
 		ws.add(factory.parseProperty("rgba(120, 47, 253, 0.9)"));
 		ws.add(factory.parseProperty("rgb(10, 4, 2)"));
 		assertEquals("rgba(120, 47, 253, 0.9) #0a0402", ws.getCssText());
 		assertEquals("rgba(120,47,253,.9) #0a0402", ws.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testGetCssTextWSEscaped() {
+		ValueList ws = ValueList.createWSValueList();
+		ws.add(factory.parseProperty("\\100"));
+		ws.add(factory.parseProperty("\\112"));
+		ws.add(factory.parseProperty("\\12a"));
+		ws.add(factory.parseProperty("\\14c"));
+		assertEquals("\\100  \\112  \\12a  \\14c ", ws.getCssText());
+		assertEquals("Ā Ē Ī Ō", ws.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testGetCssTextBracket() {
+		ValueList br = ValueList.createBracketValueList();
+		br.add(factory.parseProperty("header-\\100"));
+		br.add(factory.parseProperty("header-\\112"));
+		br.add(factory.parseProperty("main-\\12a"));
+		br.add(factory.parseProperty("main-\\14c"));
+		assertEquals("[header-\\100  header-\\112  main-\\12a  main-\\14c ]", br.getCssText());
+		assertEquals("[header-Ā header-Ē main-Ī main-Ō]", br.getMinifiedCssText(""));
 	}
 
 }

@@ -50,11 +50,28 @@ public class IdentifierValueTest {
 		value.setStringValue(CSSValue.Type.IDENT, "scroll");
 		assertEquals("scroll", value.getStringValue());
 		assertEquals("scroll", value.getCssText());
-		//
+	}
+
+	@Test
+	public void testSetStringValueShortStringEscape() {
+		IdentifierValue value = new IdentifierValue();
 		value.setStringValue(CSSValue.Type.IDENT, "\uD83D\uDC4D");
 		assertEquals("\uD83D\uDC4D", value.getStringValue());
 		assertEquals("\uD83D\uDC4D", value.getCssText());
-		//
+		assertEquals("\uD83D\uDC4D", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testSetStringValueShortStringEscapeWS() {
+		IdentifierValue value = new IdentifierValue();
+		value.setStringValue(CSSValue.Type.IDENT, " ");
+		assertEquals(" ", value.getStringValue());
+		assertEquals("\\ ", value.getCssText());
+	}
+
+	@Test
+	public void testSetStringValueShortStringError() {
+		IdentifierValue value = new IdentifierValue();
 		try {
 			value.setStringValue(CSSValue.Type.STRING, null);
 			fail("Must throw exception.");
@@ -80,10 +97,28 @@ public class IdentifierValueTest {
 	@Test
 	public void testSetCssText() {
 		IdentifierValue value = new IdentifierValue();
+		value.setCssText("foo");
+		assertEquals("foo", value.getStringValue());
+		assertEquals("foo", value.getCssText());
+		assertEquals("foo", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testSetCssTextEscape() {
+		IdentifierValue value = new IdentifierValue();
 		value.setCssText("\\\\5b8b\\4f53");
 		assertEquals("\\5b8b\u4f53", value.getStringValue());
-		assertEquals("\\\\5b8b\\4f53", value.getCssText());
+		assertEquals("\\\\5b8b\\4f53 ", value.getCssText());
 		assertEquals("\\\\5b8b\u4f53", value.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testSetCssTextEscapeWS() {
+		IdentifierValue value = new IdentifierValue();
+		value.setCssText("\\ ");
+		assertEquals(" ", value.getStringValue());
+		assertEquals("\\ ", value.getCssText());
+		assertEquals("\\ ", value.getMinifiedCssText(""));
 	}
 
 	@Test
@@ -109,7 +144,7 @@ public class IdentifierValueTest {
 		IdentifierValue value = new IdentifierValue();
 		value.setCssText("foo\\4f53");
 		assertEquals("foo\u4f53", value.getStringValue());
-		assertEquals("foo\\4f53", value.getCssText());
+		assertEquals("foo\\4f53 ", value.getCssText());
 		assertEquals("foo\u4f53", value.getMinifiedCssText(""));
 	}
 
@@ -137,7 +172,7 @@ public class IdentifierValueTest {
 		IdentifierValue value = new IdentifierValue();
 		value.setStringValue(CSSValue.Type.IDENT, "\t");
 		assertEquals("\t", value.getStringValue());
-		assertEquals("\\9", value.getCssText());
+		assertEquals("\\9 ", value.getCssText());
 	}
 
 	@Test
@@ -149,7 +184,7 @@ public class IdentifierValueTest {
 		IdentifierValue value = new IdentifierValue();
 		assertEquals(CSSValue.Type.IDENT, value.getPrimitiveType());
 		value.newLexicalSetter().setLexicalUnit(lu);
-		assertEquals("\\1F44D", value.getCssText());
+		assertEquals("\\1f44d ", value.getCssText());
 		assertEquals("\uD83D\uDC4D", value.getMinifiedCssText(""));
 		assertEquals("\uD83D\uDC4D", value.getStringValue());
 	}
@@ -162,7 +197,7 @@ public class IdentifierValueTest {
 		assertEquals("a=b", lu.getStringValue());
 		IdentifierValue value = new IdentifierValue();
 		value.newLexicalSetter().setLexicalUnit(lu);
-		assertEquals("a\\3d b", value.getCssText());
+		assertEquals("a\\=b", value.getCssText());
 		assertEquals("a\\=b", value.getMinifiedCssText(""));
 		assertEquals("a=b", value.getStringValue());
 	}
@@ -181,6 +216,19 @@ public class IdentifierValueTest {
 	}
 
 	@Test
+	public void testSetLexicalUnit4() throws CSSException, IOException {
+		CSSParser parser = new CSSParser();
+		StringReader re = new StringReader("a\\f1 b");
+		LexicalUnit lu = parser.parsePropertyValue(re);
+		assertEquals("añb", lu.getStringValue());
+		IdentifierValue value = new IdentifierValue();
+		value.newLexicalSetter().setLexicalUnit(lu);
+		assertEquals("a\\f1 b", value.getCssText());
+		assertEquals("añb", value.getMinifiedCssText(""));
+		assertEquals("añb", value.getStringValue());
+	}
+
+	@Test
 	public void testSetLexicalUnitIEHack() throws CSSException, IOException {
 		CSSParser parser = new CSSParser();
 		StringReader re = new StringReader("screen\\0");
@@ -188,7 +236,7 @@ public class IdentifierValueTest {
 		assertEquals("screen\ufffd", lu.getStringValue());
 		IdentifierValue value = new IdentifierValue();
 		value.newLexicalSetter().setLexicalUnit(lu);
-		assertEquals("screen\\0", value.getCssText());
+		assertEquals("screen\\0 ", value.getCssText());
 		assertEquals("screen\\fffd ", value.getMinifiedCssText(""));
 		assertEquals("screen\ufffd", value.getStringValue());
 	}

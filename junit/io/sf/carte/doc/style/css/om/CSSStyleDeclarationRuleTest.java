@@ -342,10 +342,10 @@ public class CSSStyleDeclarationRuleTest {
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("-123\\a", ((AttributeCondition) cond).getValue());
-		assertEquals("#-\\31 23\\\\a", rule.getSelectorText());
+		assertEquals("#\\-123\\\\a", rule.getSelectorText());
 		//
 		rule.setCssText(".-\\31 23\\\\a {border-top-width: 1px; }");
-		assertEquals(".-\\31 23\\\\a", rule.getSelectorText());
+		assertEquals(".\\-123\\\\a", rule.getSelectorText());
 	}
 
 	@Test

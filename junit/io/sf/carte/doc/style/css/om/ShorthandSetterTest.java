@@ -7564,7 +7564,10 @@ public class ShorthandSetterTest {
 		assertEquals("font: 14px / 1.4 Helvetica Neue, Helvetica, sans-serif; ", emptyStyleDecl.getCssText());
 		assertEquals("font:14px/1.4 Helvetica Neue,Helvetica,sans-serif;", emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
-		//
+	}
+
+	@Test
+	public void testFont4() {
 		emptyStyleDecl.setCssText("font:normal 1.2rem/1.4 \"Helvetica Neue\",Helvetica,sans-serif;");
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("\"Helvetica Neue\", Helvetica, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
@@ -7587,7 +7590,7 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
-	public void testFont4() {
+	public void testFont5() {
 		emptyStyleDecl.setCssText("font: normal 14.0px / 1 FontAwesome;");
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("FontAwesome", emptyStyleDecl.getPropertyValue("font-family"));
@@ -7610,7 +7613,29 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
-	public void testFont5() {
+	public void testFontNumericWeightMultiIdentFF() {
+		emptyStyleDecl.setCssText("font: 400 14px Font Awesome\\ 5 Free;");
+		assertEquals(17, emptyStyleDecl.getLength());
+		assertEquals("Font Awesome 5 Free", emptyStyleDecl.getPropertyValue("font-family"));
+		assertEquals("400", emptyStyleDecl.getPropertyValue("font-weight"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
+		assertEquals("14px", emptyStyleDecl.getPropertyValue("font-size"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("line-height"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("font-size-adjust"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-stretch"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-caps"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-ligatures"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-position"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-numeric"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-alternates"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-east-asian"));
+		assertEquals("font: 400 14px Font Awesome\\ 5 Free; ", emptyStyleDecl.getCssText());
+		assertEquals("font:400 14px Font Awesome\\ 5 Free;", emptyStyleDecl.getMinifiedCssText());
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testFontNormalNormalNormal() {
 		emptyStyleDecl.setCssText("font: normal normal normal 14pt / 1 FontAwesome;");
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("FontAwesome", emptyStyleDecl.getPropertyValue("font-family"));
@@ -7656,7 +7681,7 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
-	public void testFont7() {
+	public void testFontNameIsNormal() {
 		emptyStyleDecl.setCssText("font: 14pt Font Normal;");
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Font Normal", emptyStyleDecl.getPropertyValue("font-family"));
@@ -7679,7 +7704,7 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
-	public void testFont8() {
+	public void testFontPlusFontSizeInherit() {
 		emptyStyleDecl.setCssText("font: 14pt Font Normal; font-size: inherit;");
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Font Normal", emptyStyleDecl.getPropertyValue("font-family"));
