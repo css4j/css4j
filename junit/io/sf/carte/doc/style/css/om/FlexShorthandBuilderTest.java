@@ -42,6 +42,12 @@ public class FlexShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderFlexFlow() {
+		assertShorthandText("flex-flow:wrap-reverse;",
+			"flex-direction: row; flex-wrap: wrap-reverse;");
+	}
+
+	@Test
 	public void testBuilder() {
 		assertShorthandText("flex:auto;", "flex: auto; ");
 		assertShorthandText("flex:0;", "flex: 0; ");
