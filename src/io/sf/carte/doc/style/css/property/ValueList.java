@@ -357,12 +357,14 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 			if (valueList.isEmpty()) {
 				return "";
 			}
+
 			StringBuilder buf = new StringBuilder(valueList.size() * 24 + 16);
 			buf.append(item(0).getMinifiedCssText(propertyName));
 			int sz = valueList.size();
 			for (int i = 1; i < sz; i++) {
 				buf.append(',').append(item(i).getMinifiedCssText(propertyName));
 			}
+
 			return buf.toString();
 		}
 
@@ -463,12 +465,14 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 			if (valueList.isEmpty()) {
 				return "";
 			}
+
 			StringBuilder buf = new StringBuilder(valueList.size() * 24 + 16);
 			buf.append(item(0).getMinifiedCssText(propertyName));
 			int sz = valueList.size();
 			for (int i = 1; i < sz; i++) {
 				buf.append(' ').append(item(i).getMinifiedCssText(propertyName));
 			}
+
 			return buf.toString();
 		}
 
@@ -569,12 +573,14 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 			if (valueList.isEmpty()) {
 				return "[]";
 			}
+
 			StringBuilder buf = new StringBuilder(valueList.size() * 24 + 16);
-			buf.append('[').append(item(0).getCssText());
+			buf.append('[').append(item(0).getMinifiedCssText(propertyName));
 			int sz = valueList.size();
 			for (int i = 1; i < sz; i++) {
 				buf.append(' ').append(item(i).getMinifiedCssText(propertyName));
 			}
+
 			buf.append(']');
 			return buf.toString();
 		}
