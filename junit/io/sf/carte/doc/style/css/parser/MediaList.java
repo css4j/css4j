@@ -21,6 +21,7 @@ import java.util.StringTokenizer;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSCanvas;
+import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
@@ -155,6 +156,11 @@ public class MediaList implements MediaQueryList, Serializable {
 			}
 		}
 		return newlist;
+	}
+
+	@Override
+	public MediaQuery getMediaQuery(int index) {
+		return null;
 	}
 
 	@Override

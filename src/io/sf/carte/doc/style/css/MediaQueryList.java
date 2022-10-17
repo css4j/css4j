@@ -22,6 +22,16 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 public interface MediaQueryList extends MediaList {
 
 	/**
+	 * Get the media query at {@code index}.
+	 * 
+	 * @param index the index.
+	 * @return the media query at the {@code index}-th position in this list, or
+	 *         {@code null} if that is not a valid index or the query list is
+	 *         invalid.
+	 */
+	MediaQuery getMediaQuery(int index);
+
+	/**
 	 * Get the serialized form of this media query list.
 	 * 
 	 * @return the serialized form of this media query list.

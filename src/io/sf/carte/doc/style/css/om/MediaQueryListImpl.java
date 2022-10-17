@@ -138,6 +138,15 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 		return queryList.get(index).getMedia();
 	}
 
+	/**
+	 * Get the media query at {@code index}.
+	 * 
+	 * @param index the index.
+	 * @return the media query at the {@code index}-th position in this list, or
+	 *         {@code null} if that is not a valid index or the query list is
+	 *         invalid.
+	 */
+	@Override
 	public MediaQuery getMediaQuery(int index) {
 		int sz = queryList.size();
 		if ((index < 0 || index >= sz) || invalidQueryList) {
@@ -354,6 +363,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 
 		UnmodifiableMediaQueryList() {
 			super();
+		}
+
+		@Override
+		public MediaQuery getMediaQuery(int index) {
+			return MediaQueryListImpl.this.getMediaQuery(index);
 		}
 
 		@Override

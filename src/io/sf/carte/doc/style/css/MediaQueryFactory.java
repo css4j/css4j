@@ -30,13 +30,13 @@ public interface MediaQueryFactory extends BooleanConditionFactory {
 	MediaFeaturePredicate createPredicate(String featureName);
 
 	/**
-	 * Create a predicate that contains a medium type.
+	 * Create a predicate that contains a media type.
 	 * 
 	 * @param medium
-	 *            the medium type.
+	 *            the media type.
 	 * @return the predicate.
 	 */
-	BooleanCondition createMediaTypePredicate(String medium);
+	MediaQueryPredicate createMediaTypePredicate(String medium);
 
 	/**
 	 * Create a handler attached to a new media query list.

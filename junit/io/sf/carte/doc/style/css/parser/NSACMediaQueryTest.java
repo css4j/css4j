@@ -14,10 +14,12 @@ package io.sf.carte.doc.style.css.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -27,10 +29,14 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.MediaQueryPredicate;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 
@@ -106,6 +112,29 @@ public class NSACMediaQueryTest {
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (min-color: 4)", mql.getMedia());
 		assertEquals("all and (min-color:4)", mql.getMinifiedMedia());
+
+		MediaQuery query = mql.getMediaQuery(0);
+		assertNotNull(query);
+		assertEquals("all", query.getMediaType());
+		BooleanCondition cond = query.getCondition();
+		assertNull(cond.getParentCondition());
+		assertEquals(BooleanCondition.Type.AND, cond.getType());
+		List<BooleanCondition> andConds = cond.getSubConditions();
+		assertEquals(2, andConds.size());
+
+		BooleanCondition cond1 = andConds.get(0);
+		assertEquals(BooleanCondition.Type.PREDICATE, cond1.getType());
+		assertEquals("all", ((MediaQueryPredicate) cond1).getName());
+		assertEquals(0, ((MediaQueryPredicate) cond1).getPredicateType());
+
+		BooleanCondition cond2 = andConds.get(1);
+		assertEquals(BooleanCondition.Type.PREDICATE, cond2.getType());
+		assertEquals("min-color", ((MediaQueryPredicate) cond2).getName());
+		assertEquals(1, ((MediaQueryPredicate) cond2).getPredicateType());
+
+		MediaFeaturePredicate feature = (MediaFeaturePredicate) cond2;
+		assertEquals(MediaFeaturePredicate.FEATURE_PLAIN, feature.getRangeType());
+
 		//
 		mql = createMediaQueryList("all and (min-color: calc(2*2))");
 		assertFalse(mql.hasErrors());

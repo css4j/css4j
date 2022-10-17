@@ -20,7 +20,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
  * <code>(400px &lt;= width &lt; 1000px)</code>.
  * </p>
  */
-public interface MediaFeaturePredicate extends BooleanCondition {
+public interface MediaFeaturePredicate extends MediaQueryPredicate {
 
 	byte FEATURE_PLAIN = 0;
 	byte FEATURE_EQ = 1; // =
@@ -44,6 +44,7 @@ public interface MediaFeaturePredicate extends BooleanCondition {
 	 *
 	 * @return the name of the feature.
 	 */
+	@Override
 	String getName();
 
 	/**

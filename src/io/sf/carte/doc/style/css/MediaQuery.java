@@ -17,16 +17,20 @@ package io.sf.carte.doc.style.css;
 public interface MediaQuery {
 
 	/**
-	 * Get the media type.
+	 * Get the media type, like {@code screen} or {@code print}.
 	 * 
-	 * @return the media type, null means all media.
+	 * @return the media type, {@code null} means all media.
 	 */
 	String getMediaType();
 
 	/**
 	 * The media feature conditions, if any.
+	 * <p>
+	 * In this implementation, condition predicates implement
+	 * {@link MediaQueryPredicate} and sub-interfaces.
+	 * </p>
 	 * 
-	 * @return the media feature conditions, null otherwise.
+	 * @return the media feature conditions, {@code null} otherwise.
 	 */
 	BooleanCondition getCondition();
 

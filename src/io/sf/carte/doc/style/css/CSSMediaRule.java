@@ -17,6 +17,9 @@ package io.sf.carte.doc.style.css;
  */
 public interface CSSMediaRule extends CSSGroupingRule, org.w3c.dom.css.CSSMediaRule {
 
+	/**
+	 * A list of media queries that apply to this rule.
+	 */
 	@Override
 	MediaQueryList getMedia();
 

@@ -11,18 +11,19 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import io.sf.carte.doc.style.css.MediaQueryPredicate;
+
 /**
  * Media predicate.
  * <p>
  * Represents a predicate (any condition excluding booleans AND, OR, NOT)
  * present in a media query.
+ * </p>
  */
-abstract class MediaPredicate extends BooleanConditionImpl.Predicate {
+abstract class MediaPredicate extends BooleanConditionImpl.Predicate
+		implements MediaQueryPredicate {
 
-	private static final long serialVersionUID = 1L;
-
-	static final short MEDIA_TYPE = 0;
-	static final short MEDIA_FEATURE = 1;
+	private static final long serialVersionUID = 2L;
 
 	protected MediaPredicate(String name) {
 		super(name);

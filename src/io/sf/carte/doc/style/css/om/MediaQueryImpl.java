@@ -20,6 +20,7 @@ import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.MediaQueryPredicate;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.parser.AbstractMediaQuery;
 import io.sf.carte.doc.style.css.property.CalcValue;
@@ -65,7 +66,8 @@ class MediaQueryImpl extends AbstractMediaQuery {
 
 	@Override
 	protected boolean matchesPredicate(BooleanCondition condition, CSSCanvas canvas) {
-		if (((BooleanConditionImpl.Predicate) condition).getPredicateType() == MediaPredicate.MEDIA_FEATURE) {
+		if (((BooleanConditionImpl.Predicate) condition)
+			.getPredicateType() == MediaQueryPredicate.MEDIA_FEATURE) {
 			return matchesFeaturePredicate((MediaFeature) condition, canvas);
 		}
 		return true;
@@ -300,14 +302,14 @@ class MediaQueryImpl extends AbstractMediaQuery {
 			break;
 		case PREDICATE:
 			MediaPredicate predicate = (MediaPredicate) condition;
-			if (predicate.getPredicateType() == MediaPredicate.MEDIA_TYPE) {
+			if (predicate.getPredicateType() == MediaQueryPredicate.MEDIA_TYPE) {
 				// Ignore. We already checked this with the mediaType field.
 				return 2;
 			}
 			switch (otherCondition.getType()) {
 			case PREDICATE:
 				MediaPredicate otherPredicate = (MediaPredicate) otherCondition;
-				if (otherPredicate.getPredicateType() == MediaPredicate.MEDIA_TYPE) {
+				if (otherPredicate.getPredicateType() == MediaQueryPredicate.MEDIA_TYPE) {
 					// Ignore. We already checked this with the mediaType field.
 					return 2;
 				}

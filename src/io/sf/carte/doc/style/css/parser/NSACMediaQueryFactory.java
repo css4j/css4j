@@ -18,6 +18,7 @@ import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.MediaQueryPredicate;
 
 /**
  * Contains methods related to media query conditions.
@@ -69,8 +70,8 @@ class NSACMediaQueryFactory implements MediaQueryFactory {
 	}
 
 	@Override
-	public BooleanCondition createMediaTypePredicate(String medium) {
-		return new BooleanConditionUnit.Predicate(medium);
+	public MediaQueryPredicate createMediaTypePredicate(String medium) {
+		return new MediaPredicateUnit(medium);
 	}
 
 	@Override

@@ -13,19 +13,17 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.Objects;
 
-import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.MediaQueryPredicate;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
  * Media feature predicate lexical unit.
- * <p>
- * Can be cast to a {@link BooleanCondition}.
- * </p>
  */
-class MediaFeaturePredicateUnit extends BooleanConditionUnit.Predicate implements MediaFeaturePredicate {
+class MediaFeaturePredicateUnit extends BooleanConditionUnit.Predicate
+		implements MediaFeaturePredicate {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private LexicalUnit value1;
 	private LexicalUnit value2 = null;
@@ -36,8 +34,8 @@ class MediaFeaturePredicateUnit extends BooleanConditionUnit.Predicate implement
 	}
 
 	@Override
-	public short getPredicateType() {
-		return 1;
+	public int getPredicateType() {
+		return MediaQueryPredicate.MEDIA_FEATURE;
 	}
 
 	@Override

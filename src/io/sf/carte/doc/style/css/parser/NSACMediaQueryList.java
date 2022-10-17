@@ -109,6 +109,7 @@ class NSACMediaQueryList implements MediaQueryList {
 		return queryList.get(index).getMedia();
 	}
 
+	@Override
 	public MediaQuery getMediaQuery(int index) {
 		int sz = queryList.size();
 		if ((index < 0 || index >= sz) || invalidQueryList) {

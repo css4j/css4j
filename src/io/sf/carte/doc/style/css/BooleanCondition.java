@@ -29,7 +29,34 @@ public interface BooleanCondition {
 	 * <code>OR</code>, <code>NOT</code>).
 	 */
 	public enum Type {
-		PREDICATE, OR, AND, NOT
+		/**
+		 * An implementation-dependent predicate.
+		 */
+		PREDICATE,
+
+		/**
+		 * An {@code OR} condition.
+		 * <p>
+		 * Use {@link BooleanCondition#getSubConditions()}.
+		 * </p>
+		 */
+		OR,
+
+		/**
+		 * An {@code AND} condition.
+		 * <p>
+		 * Use {@link BooleanCondition#getSubConditions()}.
+		 * </p>
+		 */
+		AND,
+
+		/**
+		 * A {@code NOT} condition.
+		 * <p>
+		 * Use {@link BooleanCondition#getNestedCondition()}.
+		 * </p>
+		 */
+		NOT
 	}
 
 	/**

@@ -20,6 +20,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.MediaFeaturePredicate;
+import io.sf.carte.doc.style.css.MediaQueryPredicate;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
@@ -44,8 +45,8 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 	}
 
 	@Override
-	public short getPredicateType() {
-		return MediaPredicate.MEDIA_FEATURE;
+	public int getPredicateType() {
+		return MediaQueryPredicate.MEDIA_FEATURE;
 	}
 
 	@Override

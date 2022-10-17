@@ -321,7 +321,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 
 	static class Predicate extends BooleanConditionUnit {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2L;
 
 		private final String name;
 
@@ -345,7 +345,15 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 			return Type.PREDICATE;
 		}
 
-		public short getPredicateType() {
+		/**
+		 * An implementation-dependent number indicative of the predicate type.
+		 * <p>
+		 * The default implementation returns {@code 0}.
+		 * </p>
+		 * 
+		 * @return the predicate type.
+		 */
+		public int getPredicateType() {
 			return 0;
 		}
 
