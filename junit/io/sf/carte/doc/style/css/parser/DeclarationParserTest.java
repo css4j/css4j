@@ -1872,6 +1872,101 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationBackgroundImageGradient2() throws CSSException {
+		parseStyleDeclaration(
+			"background-image: linear-gradient(180deg,transparent,99%,rgba(0,0,0,.5));");
+		assertEquals("background-image", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals("linear-gradient", lu.getFunctionName());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals(180f, param.getFloatValue(), 1e-6f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("transparent", param.getStringValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(99f, param.getFloatValue(), 1e-6f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.RGBCOLOR, param.getLexicalUnitType());
+
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("linear-gradient(180deg, transparent, 99%, rgba(0, 0, 0, 0.5))",
+			lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
+	public void testParseStyleDeclarationPrefixedGradient() throws CSSException {
+		parseStyleDeclaration(
+			"background-image: -o-linear-gradient(top,transparent,99%,rgba(0,0,0,0.5));");
+		assertEquals("background-image", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals("-o-linear-gradient", lu.getFunctionName());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("top", param.getStringValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("transparent", param.getStringValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(99f, param.getFloatValue(), 1e-6f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.RGBCOLOR, param.getLexicalUnitType());
+
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("-o-linear-gradient(top, transparent, 99%, rgba(0, 0, 0, 0.5))",
+			lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+	}
+
+	@Test
 	public void testParseStyleDeclarationBackgroundClipIdent() throws CSSException {
 		parseStyleDeclaration("background-clip: Content-Box;");
 		assertEquals("background-clip", handler.propertyNames.getFirst());

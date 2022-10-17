@@ -61,6 +61,7 @@ A few bugs were fixed.
 - CSSOM: make `MediaQueryList.getMediaQuery(int)` publicly visible (#19)
 - CSSOM: add accept-visitor methods to `CSSStyleSheetList`.
 - CSSOM: add `getFirstStyleRule()` and `getStyleRules()` utility methods to `AbstractCSSStyleSheet`.
+- CSSOM: support linear color hints in gradients.
 - CSSOM: the first item of bracket list was not being minified in `getMinifiedCssText`.
 - CSSOM: reduce the connection timeout from 60 to 10 seconds when retrieving style sheets or fonts (security).
 - Implement CSS Object Model's `CSS.escape()` method (#18).
