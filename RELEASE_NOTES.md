@@ -1,6 +1,6 @@
 # css4j version 3.9 Release Notes
 
-### October 17, 2022
+### October 18, 2022
 
 <br/>
 
@@ -57,7 +57,7 @@ A few bugs were fixed.
 - DOM: prevent NPEs setting null values to PIs and Text/CDATA/Comment nodes.
 - DOM: set the documentURI earlier in XMLDocumentBuilder. This allows potential DOM document policies to be enforced at parse time.
 - DOM: more efficient implementation of getTextContent().
-- Avoid NPE in CSSDocument.setTargetMedium(String) implementations.
+- DOM: avoid NPE in CSSDocument.setTargetMedium(String) implementations.
 - CSSOM: make `MediaQueryList.getMediaQuery(int)` publicly visible (#19)
 - CSSOM: add accept-visitor methods to `CSSStyleSheetList`.
 - CSSOM: add `getFirstStyleRule()` and `getStyleRules()` utility methods to `AbstractCSSStyleSheet`.
@@ -65,6 +65,7 @@ A few bugs were fixed.
 - CSSOM: the first item of bracket list was not being minified in `getMinifiedCssText`.
 - CSSOM: reduce the connection timeout from 60 to 10 seconds when retrieving style sheets or fonts (security).
 - Implement CSS Object Model's `CSS.escape()` method (#18).
+- Add `createSimpleSyntax(String)` convenience method to `SyntaxParser`.
 - More compliant serialization of escaped identifiers (#17).
 - Fix an index out of bounds error in `ParseHelper.startsWithIgnoreCase()`.
 - Small code cleanup.

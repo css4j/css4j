@@ -57,6 +57,19 @@ public class SyntaxParser {
 	}
 
 	/**
+	 * Create a single-component syntax without multipliers.
+	 * 
+	 * @param category the category name ({@code url}, {@code string},
+	 *                 {@code image}, etc).
+	 * @return the single-component syntax, or {@code null} if the category name was
+	 *         not recognized.
+	 */
+	public static CSSValueSyntax createSimpleSyntax(String category) {
+		category = category.toLowerCase(Locale.ROOT);
+		return new SyntaxComponent(category, category(category));
+	}
+
+	/**
 	 * Parse a syntax definition.
 	 * 
 	 * @param def the syntax definition.

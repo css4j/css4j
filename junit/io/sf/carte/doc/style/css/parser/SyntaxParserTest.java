@@ -33,6 +33,16 @@ public class SyntaxParserTest {
 	}
 
 	@Test
+	public void testCreateSimpleSyntax() {
+		CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("length-percentage");
+		assertEquals("length-percentage", syn.getName());
+		assertEquals(Category.lengthPercentage, syn.getCategory());
+		assertEquals(Multiplier.NONE, syn.getMultiplier());
+		assertNull(syn.getNext());
+		assertEquals("<length-percentage>", syn.toString());
+	}
+
+	@Test
 	public void testParseSyntaxUniversal() {
 		CSSValueSyntax syn = parser.parseSyntax("*");
 		assertEquals("*", syn.getName());
