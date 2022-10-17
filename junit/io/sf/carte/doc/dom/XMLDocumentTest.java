@@ -756,18 +756,26 @@ public class XMLDocumentTest {
 		DocumentCSSStyleSheet css = xmlDoc.getStyleSheet();
 		assertNotNull(css);
 		assertNotNull(css.getCssRules());
-		int countInternalSheets = xmlDoc.embeddedStyle.size() + xmlDoc.linkedStyle.size();
-		assertEquals(6, countInternalSheets);
+		int countSheets = xmlDoc.embeddedStyle.size() + xmlDoc.linkedStyle.size();
+		assertEquals(6, countSheets);
 		assertEquals(6, xmlDoc.getStyleSheets().getLength());
 		assertEquals("http://www.example.com/css/common.css", xmlDoc.getStyleSheets().item(0).getHref());
 		assertEquals(3, xmlDoc.getStyleSheetSets().getLength());
+
 		Iterator<LinkStyleDefiner> it = xmlDoc.linkedStyle.iterator();
 		assertTrue(it.hasNext());
 		AbstractCSSStyleSheet sheet = it.next().getSheet();
 		assertNotNull(sheet);
+
+		Node ownerNode = sheet.getOwnerNode();
+		assertNotNull(ownerNode);
+		assertEquals(Node.PROCESSING_INSTRUCTION_NODE, ownerNode.getNodeType());
+		assertEquals("xml-stylesheet", ownerNode.getNodeName());
+
 		assertEquals(null, sheet.getTitle());
 		assertEquals(3, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
 		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
 		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
 		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
@@ -776,6 +784,7 @@ public class XMLDocumentTest {
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
 		assertTrue(((FontFeatureValuesRule) sheet.getCssRules().item(2)).getMinifiedCssText()
 				.startsWith("@font-feature-values Foo Sans,Bar"));
+
 		assertTrue(it.hasNext());
 		sheet = it.next().getSheet();
 		assertNotNull(sheet);
@@ -783,6 +792,13 @@ public class XMLDocumentTest {
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertEquals(defSz + 22, css.getCssRules().getLength());
 		assertFalse(xmlDoc.getStyleSheet().getErrorHandler().hasSacErrors());
+
+		// Internal sheet
+		sheet = xmlDoc.getStyleSheets().item(5);
+		ownerNode = sheet.getOwnerNode();
+		assertNotNull(ownerNode);
+		assertEquals(Node.PROCESSING_INSTRUCTION_NODE, ownerNode.getNodeType());
+		assertEquals("xml-stylesheet", ownerNode.getNodeName());
 	}
 
 	@Test
