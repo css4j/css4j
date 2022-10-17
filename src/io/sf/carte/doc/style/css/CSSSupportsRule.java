@@ -18,8 +18,14 @@ public interface CSSSupportsRule extends CSSConditionRule {
 
 	/**
 	 * Get the object model representation of the condition associated to this rule.
+	 * <p>
+	 * In this implementation, {@code @supports} predicates implement the
+	 * {@link io.sf.carte.doc.style.css.parser.DeclarationCondition
+	 * DeclarationCondition} interface.
+	 * </p>
 	 * 
-	 * @return the object model representation of the condition associated to this rule.
+	 * @return the object model representation of the condition associated to this
+	 *         rule.
 	 */
 	BooleanCondition getCondition();
 
