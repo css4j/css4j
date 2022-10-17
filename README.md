@@ -157,8 +157,8 @@ and optional library packages are the following:
   (5.0.0 or higher) and [jclf-linear3](https://jclf.sourceforge.io/api/io.sf.jclf.math.linear3/module-summary.html)
   (1.0.0 or higher) modules. See: https://sourceforge.net/projects/jclf
 
-- The [carte-util](https://github.com/css4j/carte-util) library; version 3.5.1
-  or higher is recommended.
+- The [carte-util](https://github.com/css4j/carte-util) library; version 3.6.0
+  or higher.
 
 - The [tokenproducer](https://github.com/css4j/tokenproducer) library; version
   1.1.1 or higher is recommended.
