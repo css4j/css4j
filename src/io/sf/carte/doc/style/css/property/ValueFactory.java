@@ -21,6 +21,8 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -29,6 +31,7 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
 
 /**
@@ -975,10 +978,16 @@ public class ValueFactory {
 			case OPERATOR_COMMA:
 			case OPERATOR_SEMICOLON:
 				throw new DOMException(DOMException.SYNTAX_ERR, "A comma or semicolon is not a valid primitive");
+			case OPERATOR_SLASH:
+				if (isContentContext(lunit)) {
+					primi = new LexicalValue();
+					(setter = primi.newLexicalSetter()).setLexicalUnit(lunit.shallowClone());
+					setter.nextLexicalUnit = lunit.getNextLexicalUnit();
+					break;
+				}
 			case OPERATOR_PLUS:
 			case OPERATOR_MINUS:
 			case OPERATOR_MULTIPLY:
-			case OPERATOR_SLASH:
 				if (!lunit.isParameter()) {
 					throw new DOMException(DOMException.SYNTAX_ERR,
 							"A '" + lunit.toString() + "' is not a valid primitive");
@@ -1032,6 +1041,19 @@ public class ValueFactory {
 			}
 		}
 		return setter;
+	}
+
+	private boolean isContentContext(LexicalUnit lunit) {
+		LexicalUnit prevu = lunit.getPreviousLexicalUnit();
+		LexicalUnit nextu = lunit.getNextLexicalUnit();
+		if (prevu != null && nextu != null && !lunit.isParameter()) {
+			CSSValueSyntax synpre = (new SyntaxParser())
+				.parseSyntax("<string> | <counter> | <image> | <custom-ident>");
+			CSSValueSyntax synafter = (new SyntaxParser()).parseSyntax("<string> | <counter>");
+			return prevu.shallowClone().matches(synpre) != Match.FALSE
+				&& nextu.matches(synafter) != Match.FALSE;
+		}
+		return false;
 	}
 
 	public LexicalUnit appendValueString(StringBuilder buf, LexicalUnit lunit) {

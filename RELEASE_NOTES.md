@@ -33,6 +33,18 @@ pattern, you now can execute the 'accept' method directly on the list.
 New ways to obtain style rules from a sheet, alternative to the tedious process
 of scanning the entire sheet with `item()`, or the Visitor pattern methods.
 
+### CSSOM: accept a slash (/) in values that follow the `content` syntax
+
+Until now, a CSS value which contained a slash (`/`) produced an error, unless
+it was a shorthand or a prefixed property (ratios in media queries are already
+supported, but technically those are media features and not actual properties).
+
+Now, such a value would be accepted if it follows the syntax of the `content`
+property.
+
+Note: the full [`content` syntax from the current specification](https://www.w3.org/TR/css-content-3/#content-property)
+is not supported, but neither do the web browsers.
+
 ### DOM: add `rebuildCascade()` to `CSSDocument`
 
 In some cases, the library did not detect that a property value had changed,
@@ -72,6 +84,7 @@ A few bugs were fixed.
 - CSSOM: add accept-visitor methods to `CSSStyleSheetList`.
 - CSSOM: add `getFirstStyleRule()` and `getStyleRules()` utility methods to `AbstractCSSStyleSheet`.
 - CSSOM: support linear color hints in gradients.
+- CSSOM: accept a slash (/) in values that follow the `content` syntax.
 - CSSOM: the first item of bracket list was not being minified in `getMinifiedCssText`.
 - CSSOM: reduce the connection timeout from 60 to 10 seconds when retrieving style sheets or fonts (security).
 - Implement CSS Object Model's `CSS.escape()` method (#18).

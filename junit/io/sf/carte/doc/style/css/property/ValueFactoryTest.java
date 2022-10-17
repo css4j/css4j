@@ -70,11 +70,27 @@ public class ValueFactoryTest {
 		assertEquals(4, list.getLength());
 		assertFalse(list.isCommaSeparated());
 		assertEquals("1 2 3 4", list.getCssText());
-		//
-		lunit = parsePropertyValue("[first header-start]");
-		value = factory.createCSSValue(lunit);
+	}
+
+	@Test
+	public void testCreateCSSValueContentSlash() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("url(img.png) / \"New!\"");
+		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CssType.LIST, value.getCssValueType());
-		list = (ValueList) value;
+		ValueList list = (ValueList) value;
+		assertEquals(3, list.getLength());
+		assertFalse(list.isCommaSeparated());
+		assertEquals("url('img.png') / \"New!\"", list.getCssText());
+	}
+
+	@Test
+	public void testCreateCSSValueBracketList() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+		LexicalUnit lunit = parsePropertyValue("[first header-start]");
+		StyleValue value = factory.createCSSValue(lunit);
+		assertEquals(CssType.LIST, value.getCssValueType());
+		ValueList list = (ValueList) value;
 		assertEquals(2, list.getLength());
 		assertFalse(list.isCommaSeparated());
 		assertEquals("first", list.item(0).getCssText());
