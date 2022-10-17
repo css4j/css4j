@@ -79,7 +79,9 @@ public class CountersValueTest {
 		assertEquals("|", counter.getSeparator());
 		//
 		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.FALSE, cssval.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cssval.matches(syn));
@@ -94,8 +96,10 @@ public class CountersValueTest {
 		assertEquals("counters(ListCounter, '. ', none)", style.getPropertyValue("content"));
 		assertEquals("content: counters(ListCounter, '. ', none); ", style.getCssText());
 		assertEquals("content:counters(ListCounter,'. ',none)", style.getMinifiedCssText());
+
 		CountersValue counter = (CountersValue) cssval;
 		assertEquals("ListCounter", counter.getName());
+
 		PrimitiveValue counterstyle = counter.getCounterStyle();
 		assertEquals(CSSValue.Type.IDENT, counterstyle.getPrimitiveType());
 		assertEquals("none", ((TypedValue) counterstyle).getStringValue());
@@ -111,6 +115,7 @@ public class CountersValueTest {
 		assertEquals("counters(ListCounter, '|')", style.getPropertyValue("content"));
 		assertEquals("content: counters(ListCounter, '|'); ", style.getCssText());
 		assertEquals("content:counters(ListCounter,'|')", style.getMinifiedCssText());
+
 		CountersValue counter = (CountersValue) cssval;
 		assertEquals("ListCounter", counter.getName());
 		PrimitiveValue counterstyle = counter.getCounterStyle();

@@ -15,6 +15,9 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
@@ -39,6 +42,15 @@ class CounterValue extends AbstractCounterValue {
 	@Override
 	public CounterValue clone() {
 		return new CounterValue(this);
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		Category cat = syntax.getCategory();
+		if (cat == Category.universal || cat == Category.counter) {
+			return Match.TRUE;
+		}
+		return Match.FALSE;
 	}
 
 	@Override

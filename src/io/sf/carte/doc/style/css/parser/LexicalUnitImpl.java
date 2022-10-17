@@ -655,6 +655,9 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			return matchBoolean(cat == Category.image);
 		case VAR:
 			return Match.PENDING;
+		case COUNTER_FUNCTION:
+		case COUNTERS_FUNCTION:
+			return matchBoolean(cat == Category.counter);
 		case UNICODE_RANGE:
 		case UNICODE_WILDCARD:
 			return matchBoolean(cat == Category.unicodeRange);

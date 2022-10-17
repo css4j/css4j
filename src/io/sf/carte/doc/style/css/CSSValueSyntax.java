@@ -186,6 +186,14 @@ public interface CSSValueSyntax {
 		string,
 
 		/**
+		 * Matches any counter ({@code <counter()> | <counters()>} ).
+		 * <p>
+		 * <code>&lt;counter&gt;</code>
+		 * </p>
+		 */
+		counter,
+
+		/**
 		 * Matches any valid custom identifier.
 		 * <p>
 		 * <code>&lt;custom-ident&gt;</code>

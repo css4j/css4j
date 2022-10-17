@@ -10,6 +10,15 @@
 
 See issue #17.
 
+### NSAC & CSSOM: support `<counter>` syntax in `matches(CSSValueSyntax)`
+
+Now you can do, for example:
+
+```java
+CSSValueSyntax syntax = (new SyntaxParser()).parseSyntax("<string> | <counter>");
+Match match = value.matches(syntax);
+```
+
 ### CSSOM: make `MediaQueryList.getMediaQuery(int)` publicly visible
 
 See issue #19.
@@ -52,6 +61,7 @@ A few bugs were fixed.
 - NSAC: add `contains()` and `containsAll()` to `SelectorList`.
 - NSAC: trim selector lists, for memory efficiency.
 - NSAC: accept escaped attribute selector values.
+- NSAC & CSSOM: support `<counter>` syntax in `matches(CSSValueSyntax)`.
 - DOM: add `rebuildCascade()` to `CSSDocument`.
 - DOM: implement setTextContent() for attributes, PIs and Text/CDATA/Comments.
 - DOM: prevent NPEs setting null values to PIs and Text/CDATA/Comment nodes.

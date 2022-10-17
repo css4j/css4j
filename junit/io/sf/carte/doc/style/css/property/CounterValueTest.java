@@ -79,7 +79,9 @@ public class CounterValueTest {
 		assertNull(counter.getCounterStyle());
 		//
 		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.FALSE, cssval.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cssval.matches(syn));

@@ -16,6 +16,9 @@ import java.io.IOException;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSCountersValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
@@ -47,17 +50,26 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 	}
 
 	@Override
-	LexicalSetter newLexicalSetter() {
-		return new MyLexicalSetter();
-	}
-
-	@Override
 	public String getSeparator() {
 		return separator;
 	}
 
 	public void setSeparator(String separator) {
 		this.separator = separator;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		Category cat = syntax.getCategory();
+		if (cat == Category.universal || cat == Category.counter) {
+			return Match.TRUE;
+		}
+		return Match.FALSE;
+	}
+
+	@Override
+	LexicalSetter newLexicalSetter() {
+		return new MyLexicalSetter();
 	}
 
 	class MyLexicalSetter extends LexicalSetter {
