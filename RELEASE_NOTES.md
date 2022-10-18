@@ -10,6 +10,8 @@
 
 See issue #17.
 
+<br/>
+
 ### NSAC & CSSOM: support `<counter>` syntax in `matches(CSSValueSyntax)`
 
 Now you can do, for example:
@@ -19,19 +21,27 @@ CSSValueSyntax syntax = (new SyntaxParser()).parseSyntax("<string> | <counter>")
 Match match = value.matches(syntax);
 ```
 
+<br/>
+
 ### CSSOM: make `MediaQueryList.getMediaQuery(int)` publicly visible
 
 See issue #19.
+
+<br/>
 
 ### CSSOM: add accept-visitor methods to `CSSStyleSheetList`
 
 If you have a list of style sheets that you want to process using the Visitor
 pattern, you now can execute the 'accept' method directly on the list.
 
+<br/>
+
 ### CSSOM: add `getFirstStyleRule()` and `getStyleRules()` utility methods to `AbstractCSSStyleSheet`
 
 New ways to obtain style rules from a sheet, alternative to the tedious process
 of scanning the entire sheet with `item()`, or the Visitor pattern methods.
+
+<br/>
 
 ### CSSOM: accept a slash (/) in values that follow the `content` syntax
 
@@ -45,6 +55,8 @@ property.
 Note: the full [`content` syntax from the current specification](https://www.w3.org/TR/css-content-3/#content-property)
 is not supported, but neither do the web browsers.
 
+<br/>
+
 ### DOM: add `rebuildCascade()` to `CSSDocument`
 
 In some cases, the library did not detect that a property value had changed,
@@ -55,36 +67,45 @@ modifying the properties.
 The interface provides a default implementation so it can be used with older
 versions of css4j-dom4j.
 
+<br/>
+
 ### NSAC: add `contains()` and `containsAll()` to `SelectorList`
 
 This should make it easier to verify whether a given style rule contains a
 selector or a set of them.
 
+<br/>
+
 ### Implement CSS Object Model's `CSS.escape()` method
 
 See issue #18.
+
+<br/>
 
 ### Bug fixes
 
 A few bugs were fixed.
 
+<br/>
+
 ## Detail of changes
 
 - NSAC: add `contains()` and `containsAll()` to `SelectorList`.
-- NSAC: trim selector lists, for memory efficiency.
+- NSAC: trim array-backed selector lists, for memory efficiency.
 - NSAC: accept escaped attribute selector values.
 - NSAC & CSSOM: support `<counter>` syntax in `matches(CSSValueSyntax)`.
 - DOM: add `rebuildCascade()` to `CSSDocument`.
-- DOM: implement setTextContent() for attributes, PIs and Text/CDATA/Comments.
+- DOM: implement `setTextContent()` for attributes, PIs and Text/CDATA/Comments.
 - DOM: prevent NPEs setting null values to PIs and Text/CDATA/Comment nodes.
-- DOM: set the documentURI earlier in XMLDocumentBuilder. This allows potential DOM document policies to be enforced at parse time.
-- DOM: more efficient implementation of getTextContent().
-- DOM: avoid NPE in CSSDocument.setTargetMedium(String) implementations.
+- DOM: set the `documentURI` earlier in `XMLDocumentBuilder`. This allows potential DOM document policies to be enforced at parse time.
+- DOM: more efficient implementation of `getTextContent()`.
+- DOM: avoid NPE in `CSSDocument.setTargetMedium(String)` implementations.
 - CSSOM: make `MediaQueryList.getMediaQuery(int)` publicly visible (#19)
 - CSSOM: add accept-visitor methods to `CSSStyleSheetList`.
 - CSSOM: add `getFirstStyleRule()` and `getStyleRules()` utility methods to `AbstractCSSStyleSheet`.
 - CSSOM: support linear color hints in gradients.
-- CSSOM: accept a slash (/) in values that follow the `content` syntax.
+- CSSOM: accept a slash (`/`) in values that follow the `content` syntax.
+- CSSOM: add default implementations for value serializations in `DeclarationFormattingContext` and `StyleFormattingContext`.
 - CSSOM: the first item of bracket list was not being minified in `getMinifiedCssText`.
 - CSSOM: reduce the connection timeout from 60 to 10 seconds when retrieving style sheets or fonts (security).
 - Implement CSS Object Model's `CSS.escape()` method (#18).

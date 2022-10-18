@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 
-import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
@@ -21,9 +20,10 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Default implementation of a DeclarationFormattingContext.
  */
-public class DefaultDeclarationFormattingContext implements DeclarationFormattingContext, java.io.Serializable {
+public class DefaultDeclarationFormattingContext
+		implements DeclarationFormattingContext, java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	@Override
 	public void endPropertyDeclaration(SimpleWriter wri) throws IOException {
@@ -63,17 +63,6 @@ public class DefaultDeclarationFormattingContext implements DeclarationFormattin
 		String quoted = ParseHelper.quote(href, quote);
 		wri.write(quoted);
 		wri.write(')');
-	}
-
-	@Override
-	public void writeValue(SimpleWriter wri, String propertyName, CSSValue value) throws IOException {
-		value.writeCssText(wri);
-	}
-
-	@Override
-	public void writeMinifiedValue(SimpleWriter wri, String propertyName, CSSValue value)
-		throws IOException {
-		wri.write(value.getMinifiedCssText(propertyName));
 	}
 
 }

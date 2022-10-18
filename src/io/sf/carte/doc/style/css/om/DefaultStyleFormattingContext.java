@@ -168,10 +168,4 @@ public class DefaultStyleFormattingContext extends DefaultDeclarationFormattingC
 		wri.write(')');
 	}
 
-	@Override
-	public void writeShorthandValue(SimpleWriter wri, String shorthandName,
-			io.sf.carte.doc.style.css.CSSShorthandValue value) throws IOException {
-		wri.write(value.getCssText());
-	}
-
 }
