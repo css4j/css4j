@@ -192,6 +192,37 @@ public class GradientValueTest {
 	}
 
 	@Test
+	public void testLinearHsla2() {
+		style.setCssText("background-image: linear-gradient(180deg,hsla(0,0%,100%,0) 0,#000,100%)");
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
+		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
+		assertEquals("linear-gradient(180deg, hsla(0, 0%, 100%, 0) 0, #000, 100%)",
+				style.getPropertyValue("background-image"));
+		assertEquals("background-image: linear-gradient(180deg, hsla(0, 0%, 100%, 0) 0, #000, 100%); ",
+				style.getCssText());
+		assertEquals("background-image:linear-gradient(180deg,hsla(0,0%,100%,0) 0,#000,100%)",
+				style.getMinifiedCssText());
+		GradientValue val = (GradientValue) cssval;
+		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
+		assertEquals(4, val.getArguments().size());
+		// Match
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<url> | <image>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
 	public void testLinearVar() {
 		style.setCssText("background-image: linear-gradient(135deg,var(--foo,#d32c1e),var(--bar,#e13b4a));");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");

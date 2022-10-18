@@ -87,6 +87,8 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals("wbr{content:'\\200b'}", stylerule.getMinifiedCssText());
 		assertNotNull(stylerule.getTrailingComments());
 		assertEquals(" this also has bidi implications ", stylerule.getTrailingComments().get(0));
+
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
@@ -116,6 +118,9 @@ public class BaseCSSStyleSheetTest2 {
 		pagerule = (PageRule) sheet.getCssRules().item(3);
 		assertEquals("@page bar:right,:blank {margin-right: 2em; }", pagerule.getCssText());
 		assertEquals("@page bar:right,:blank{margin-right:2em}", pagerule.getMinifiedCssText());
+
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
 		// Visitor
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		sheet.acceptStyleRuleVisitor(visitor);
@@ -239,6 +244,24 @@ public class BaseCSSStyleSheetTest2 {
 		Selector sele = parser.parseSelectors("foo").item(0);
 		CSSRuleArrayList list = sheet.getStyleRules(sele);
 		assertNull(list);
+	}
+
+	@Test
+	public void testParseCSSStyleSheetUnexpectedTokensRecovery() throws IOException {
+		String css = "div{color:red;color{;color:maroon};color:green}";
+		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		Reader re = new StringReader(css);
+		sheet.parseStyleSheet(re);
+
+		CSSRuleArrayList rules = sheet.getCssRules();
+		assertEquals(1, rules.getLength());
+		StyleRule rule = (StyleRule) rules.item(0);
+
+		assertEquals(1, rule.getStyle().getLength());
+		assertEquals("green", rule.getStyle().getPropertyValue("color"));
+
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
