@@ -789,14 +789,19 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		while (lunit != null) {
 			LexicalType sacType = lunit.getLexicalUnitType();
 			if (sacType == LexicalType.DIMENSION) {
-				if (ParseHelper.matchesDimension(lunit.getCssUnit(), cat) || cat == Category.number) {
+				if (ParseHelper.matchesDimension(lunit.getCssUnit(), cat)) {
 					if (expected != Match.PENDING) {
 						expected = Match.TRUE;
 					}
 				} else if (cat == Category.percentage) {
-					return Match.FALSE;
-				} else { // Probably FALSE, but...
+					expected = Match.FALSE;
+					break;
+				} else if (lunit.getNextLexicalUnit() != null) {
+					// Probably FALSE, but next parameter could fit
 					expected = Match.PENDING;
+				} else {
+					expected = Match.FALSE;
+					break;
 				}
 			} else if (sacType == LexicalType.REAL) {
 				if (cat == Category.number && expected != Match.PENDING) {
@@ -812,7 +817,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 						expected = Match.TRUE;
 					}
 				} else {
-					return Match.FALSE;
+					expected = Match.FALSE;
+					break;
 				}
 			} else if (sacType == LexicalType.CALC) {
 				Match match = matchesOperandOfSyntax(lunit.getParameters(), syntax);
@@ -821,11 +827,13 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 						expected = match;
 					}
 				} else {
-					return Match.FALSE;
+					expected = Match.FALSE;
+					break;
 				}
 			} else if (sacType == LexicalType.VAR) {
-				expected = Match.PENDING;
-				break;
+				if (expected != Match.TRUE) {
+					expected = Match.PENDING;
+				}
 			} else if (sacType == LexicalType.SUB_EXPRESSION) {
 				Match match = matchesOperandOfSyntax(lunit.getSubValues(), syntax);
 				if (match != Match.FALSE) {
@@ -833,7 +841,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 						expected = match;
 					}
 				} else {
-					return Match.FALSE;
+					expected = Match.FALSE;
+					break;
 				}
 			} else if (sacType == LexicalType.ATTR || sacType == LexicalType.FUNCTION) {
 				LexicalUnit attr = lunit;

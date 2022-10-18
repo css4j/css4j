@@ -217,6 +217,12 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 	private static String serializeMinified(LexicalUnit lexicalUnit) {
 		StringBuilder buf;
 		switch (lexicalUnit.getLexicalUnitType()) {
+		case RGBCOLOR:
+			String cssText = lexicalUnit.getCssText();
+			if (cssText.length() < 10) {
+				// Hex notation
+				return cssText;
+			}
 		case FUNCTION:
 		case CALC:
 		case RECT_FUNCTION:
@@ -225,6 +231,8 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
+		case OKLABCOLOR:
+		case OKLCHCOLOR:
 		case HWBCOLOR:
 		case COLOR_FUNCTION:
 		case COUNTER_FUNCTION:

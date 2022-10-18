@@ -13,14 +13,17 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
@@ -154,6 +157,529 @@ public class LexicalValueTest {
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 		assertEquals("--foo: ;\n", style.getCssText());
 		assertEquals("--foo:", style.getMinifiedCssText());
+	}
+
+	@Test
+	public void testRGBColorVarCalc() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: rgb(calc(var(--r)*2) calc(var(--g) + 15) calc(var(--b) - var(--b)/2));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals("rgb(calc(var(--r)*2) calc(var(--g) + 15) calc(var(--b) - var(--b)/2))",
+			value.getCssText());
+		assertEquals("rgb(calc(var(--r)*2) calc(var(--g) + 15) calc(var(--b) - var(--b)/2))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testRGBColorVarClamp() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: rgb(var(--color-r) clamp(10%, calc(var(--color-g) - 82%), 90%) clamp(20%, calc(var(--color-b) - 17%) / 100%));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals(
+			"rgb(var(--color-r) clamp(10%, calc(var(--color-g) - 82%), 90%) clamp(20%, calc(var(--color-b) - 17%)/100%))",
+			value.getCssText());
+		assertEquals(
+			"rgb(var(--color-r) clamp(10%,calc(var(--color-g) - 82%),90%) clamp(20%,calc(var(--color-b) - 17%)/100%))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testRGBColorVarClampMax() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: rgb(max(var(--color-r),50%) clamp(10%, calc(var(--color-g) - 82%), 90%) clamp(20%, calc(var(--color-b) - 17%) / 100%));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals(
+			"rgb(max(var(--color-r), 50%) clamp(10%, calc(var(--color-g) - 82%), 90%) clamp(20%, calc(var(--color-b) - 17%)/100%))",
+			value.getCssText());
+		assertEquals(
+			"rgb(max(var(--color-r),50%) clamp(10%,calc(var(--color-g) - 82%),90%) clamp(20%,calc(var(--color-b) - 17%)/100%))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testHSLColorVarCalc() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: hsl(calc(var(--h)*2) calc(var(--sat) + 15%) calc(var(--l) - var(--l)/2));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals("hsl(calc(var(--h)*2) calc(var(--sat) + 15%) calc(var(--l) - var(--l)/2))",
+			value.getCssText());
+		assertEquals("hsl(calc(var(--h)*2) calc(var(--sat) + 15%) calc(var(--l) - var(--l)/2))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testHSLColorVarClamp() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: hsl(clamp(100deg, var(--color-h), 120deg), clamp(10%, calc(var(--color-s) - 82%), 90%), clamp(20%, calc(var(--color-l) - 17%), 100%));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals(
+			"hsl(clamp(100deg, var(--color-h), 120deg), clamp(10%, calc(var(--color-s) - 82%), 90%), clamp(20%, calc(var(--color-l) - 17%), 100%))",
+			value.getCssText());
+		assertEquals(
+			"hsl(clamp(100deg,var(--color-h),120deg),clamp(10%,calc(var(--color-s) - 82%),90%),clamp(20%,calc(var(--color-l) - 17%),100%))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testHWBColorVarCalc() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: hwb(calc(var(--h)*2) calc(var(--w) + 15%) calc(var(--b) - var(--b)/2));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals("hwb(calc(var(--h)*2) calc(var(--w) + 15%) calc(var(--b) - var(--b)/2))",
+			value.getCssText());
+		assertEquals("hwb(calc(var(--h)*2) calc(var(--w) + 15%) calc(var(--b) - var(--b)/2))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testHWBColorVarClamp() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: hwb(clamp(100deg, var(--color-h), 120deg) clamp(10%, calc(var(--color-w) - 82%), 90%) clamp(20%, calc(var(--color-b) - 17%), 100%));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals(
+			"hwb(clamp(100deg, var(--color-h), 120deg) clamp(10%, calc(var(--color-w) - 82%), 90%) clamp(20%, calc(var(--color-b) - 17%), 100%))",
+			value.getCssText());
+		assertEquals(
+			"hwb(clamp(100deg,var(--color-h),120deg) clamp(10%,calc(var(--color-w) - 82%),90%) clamp(20%,calc(var(--color-b) - 17%),100%))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testLabColorVarCalc() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: lab(calc(var(--l)*2) calc(var(--a) + 0.05) calc(var(--b) - var(--b)/2));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals("lab(calc(var(--l)*2) calc(var(--a) + 0.05) calc(var(--b) - var(--b)/2))",
+			value.getCssText());
+		assertEquals("lab(calc(var(--l)*2) calc(var(--a) + 0.05) calc(var(--b) - var(--b)/2))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testLabColorVarClamp() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: lab(clamp(2%, calc(var(--color-l) - 17%), 30%) clamp(0.1, calc(var(--color-a) - 0.3), 1.1) clamp(-1, var(--color-b), 1));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals(
+			"lab(clamp(2%, calc(var(--color-l) - 17%), 30%) clamp(0.1, calc(var(--color-a) - 0.3), 1.1) clamp(-1, var(--color-b), 1))",
+			value.getCssText());
+		assertEquals(
+			"lab(clamp(2%,calc(var(--color-l) - 17%),30%) clamp(0.1,calc(var(--color-a) - 0.3),1.1) clamp(-1,var(--color-b),1))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testLChColorVarCalc() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: lch(calc(var(--l) + 15%) calc(var(--c)*2) calc(var(--h) - var(--h)/2));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals("lch(calc(var(--l) + 15%) calc(var(--c)*2) calc(var(--h) - var(--h)/2))",
+			value.getCssText());
+		assertEquals("lch(calc(var(--l) + 15%) calc(var(--c)*2) calc(var(--h) - var(--h)/2))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testLChColorVarClamp() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: lch(clamp(2%, calc(var(--color-l) - 17%), 30%) clamp(0.1, calc(var(--color-c) - 0.3), 1.1) clamp(100deg, var(--color-h), 120deg));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals(
+			"lch(clamp(2%, calc(var(--color-l) - 17%), 30%) clamp(0.1, calc(var(--color-c) - 0.3), 1.1) clamp(100deg, var(--color-h), 120deg))",
+			value.getCssText());
+		assertEquals(
+			"lch(clamp(2%,calc(var(--color-l) - 17%),30%) clamp(0.1,calc(var(--color-c) - 0.3),1.1) clamp(100deg,var(--color-h),120deg))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testColorVarCalc() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: color(a98rgb calc(var(--r)*2) calc(var(--g) + 15) calc(var(--b) - var(--b)/2));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals(
+			"color(a98rgb calc(var(--r)*2) calc(var(--g) + 15) calc(var(--b) - var(--b)/2))",
+			value.getCssText());
+		assertEquals(
+			"color(a98rgb calc(var(--r)*2) calc(var(--g) + 15) calc(var(--b) - var(--b)/2))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
+	}
+
+	@Test
+	public void testColorVarClamp() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+			"color: color(a98rgb max(var(--color-r), 70%) clamp(10%, calc(var(--color-g) - 82%), 90%) clamp(20%, calc(var(--color-b) - 17%) / 100%));");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+
+		assertEquals(CssType.PROXY, value.getCssValueType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
+
+		assertEquals(
+			"color(a98rgb max(var(--color-r), 70%) clamp(10%, calc(var(--color-g) - 82%), 90%) clamp(20%, calc(var(--color-b) - 17%)/100%))",
+			value.getCssText());
+		assertEquals(
+			"color(a98rgb max(var(--color-r),70%) clamp(10%,calc(var(--color-g) - 82%),90%) clamp(20%,calc(var(--color-b) - 17%)/100%))",
+			value.getMinifiedCssText("color"));
+
+		SyntaxParser synParser = new SyntaxParser();
+		CSSValueSyntax synColor = synParser.parseSyntax("<color>");
+		CSSValueSyntax synColorP = synParser.parseSyntax("<color>+");
+		CSSValueSyntax synUniv = synParser.parseSyntax("*");
+		CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
+
+		assertEquals(Match.TRUE, value.matches(synColor));
+		assertEquals(Match.TRUE, value.matches(synColorP));
+		assertEquals(Match.TRUE, value.matches(synUniv));
+		assertEquals(Match.FALSE, value.matches(synPcnt));
+
+		LexicalValue lexval = (LexicalValue) value;
+		assertEquals(Type.COLOR, lexval.getFinalType());
+
+		LexicalUnit lunit = lexval.getLexicalUnit();
+		assertNotNull(lunit);
+
+		assertEquals(Match.TRUE, lunit.matches(synColor));
+		assertEquals(Match.TRUE, lunit.matches(synColorP));
+		assertEquals(Match.TRUE, lunit.matches(synUniv));
+		assertEquals(Match.FALSE, lunit.matches(synPcnt));
 	}
 
 	@Test

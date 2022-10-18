@@ -3437,6 +3437,114 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueClamp() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("clamp(10deg, 0.2rad, 25deg)");
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals("clamp", lu.getFunctionName());
+
+		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals(10f, param.getFloatValue(), 1e-5f);
+		assertEquals("deg", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_RAD, param.getCssUnit());
+		assertEquals(0.2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("clamp(10deg, 0.2rad, 25deg)", lu.toString());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage> | <angle>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueClampVar() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("clamp(10deg, var(--angle), 25deg)");
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals("clamp", lu.getFunctionName());
+
+		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals(10f, param.getFloatValue(), 1e-5f);
+		assertEquals("deg", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("clamp(10deg, var(--angle), 25deg)", lu.toString());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage> | <angle>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
 	public void testParsePropertyValueFunctionTrigonometric() throws CSSException, IOException {
 		LexicalUnit lunit = parsePropertyValue("cos(30deg), tan(45deg)");
 		assertEquals(LexicalType.FUNCTION, lunit.getLexicalUnitType());

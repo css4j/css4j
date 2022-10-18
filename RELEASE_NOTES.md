@@ -93,6 +93,7 @@ A few bugs were fixed.
 - NSAC: add `contains()` and `containsAll()` to `SelectorList`.
 - NSAC: trim array-backed selector lists, for memory efficiency.
 - NSAC: accept escaped attribute selector values.
+- NSAC: accept the `clamp()` function as a valid color component.
 - NSAC & CSSOM: support `<counter>` syntax in `matches(CSSValueSyntax)`.
 - DOM: add `rebuildCascade()` to `CSSDocument`.
 - DOM: implement `setTextContent()` for attributes, PIs and Text/CDATA/Comments.
