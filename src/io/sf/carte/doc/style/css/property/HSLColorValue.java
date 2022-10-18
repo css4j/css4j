@@ -202,13 +202,13 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			m2 = light + sat - light * sat;
 		}
 		float m1 = light * 2f - m2;
-		NumberValue red = new NumberValue();
+		PercentageValue red = new PercentageValue();
 		red.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue + 1f / 3f));
 		red.setAbsolutizedUnit();
-		NumberValue green = new NumberValue();
+		PercentageValue green = new PercentageValue();
 		green.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue));
 		green.setAbsolutizedUnit();
-		NumberValue blue = new NumberValue();
+		PercentageValue blue = new PercentageValue();
 		blue.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue - 1f / 3f));
 		blue.setAbsolutizedUnit();
 		color.setRed(red);

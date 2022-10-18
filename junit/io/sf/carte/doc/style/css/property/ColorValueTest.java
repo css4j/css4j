@@ -35,8 +35,8 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.LABColor;
@@ -1152,6 +1152,31 @@ public class ColorValueTest {
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getCssText(), clon.getCssText());
+		assertEquals(value.getMinifiedCssText("color"), clon.getMinifiedCssText("color"));
+		assertTrue(value.toRGBColor().equals(clon.toRGBColor()));
+		assertTrue(value.toRGBColor().hashCode() == clon.toRGBColor().hashCode());
+	}
+
+	@Test
+	public void testCloneRGBAPcnt() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("color: rgba(0, 0, 0, 5%)");
+		ColorValue value = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
+		assertEquals("rgba(0, 0, 0, 5%)", rgb.toString());
+		assertEquals("rgba(0,0,0,5%)", rgb.toMinifiedString());
+
+		rgb = (RGBAColor) rgb.clone();
+		assertEquals("rgba(0, 0, 0, 5%)", rgb.toString());
+		assertEquals("rgba(0,0,0,5%)", rgb.toMinifiedString());
+
+		ColorValue clon = value.clone();
+		assertEquals(value.getCssValueType(), clon.getCssValueType());
+		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
+		assertEquals(value.getCssText(), clon.getCssText());
+		assertEquals(value.getMinifiedCssText("color"), clon.getMinifiedCssText("color"));
 		assertTrue(value.toRGBColor().equals(clon.toRGBColor()));
 		assertTrue(value.toRGBColor().hashCode() == clon.toRGBColor().hashCode());
 	}

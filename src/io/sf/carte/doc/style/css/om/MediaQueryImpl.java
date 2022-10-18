@@ -258,8 +258,7 @@ class MediaQueryImpl extends AbstractMediaQuery {
 		protected TypedValue absoluteTypedValue(TypedValue partialValue) {
 			if (partialValue.getUnitType() != CSSUnit.CSS_NUMBER) {
 				float fval = valueInUnit(partialValue, canvas, expectedUnit);
-				NumberValue number = new NumberValue();
-				number.setFloatValue(expectedUnit, fval);
+				NumberValue number = NumberValue.createCSSNumberValue(expectedUnit, fval);
 				return number;
 			}
 			return partialValue;

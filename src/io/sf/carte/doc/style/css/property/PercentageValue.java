@@ -29,6 +29,10 @@ public class PercentageValue extends NumberValue {
 		super();
 	}
 
+	private PercentageValue(PercentageValue copied) {
+		super(copied);
+	}
+
 	/**
 	 * Gets a float value in a specified unit. If this CSS value doesn't contain
 	 * a float value or can't be converted into the specified unit, a
@@ -52,6 +56,11 @@ public class PercentageValue extends NumberValue {
 		} else {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Cannot convert a percentage at this level");
 		}
+	}
+
+	@Override
+	public PercentageValue clone() {
+		return new PercentageValue(this);
 	}
 
 }

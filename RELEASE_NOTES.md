@@ -1,6 +1,6 @@
 # css4j version 3.9 Release Notes
 
-### October 18, 2022
+### October 19, 2022
 
 <br/>
 
@@ -107,6 +107,7 @@ A few bugs were fixed.
 - CSSOM: support linear color hints in gradients.
 - CSSOM: accept a slash (`/`) in values that follow the `content` syntax.
 - CSSOM: add default implementations for value serializations in `DeclarationFormattingContext` and `StyleFormattingContext`.
+- CSSOM: fix a bug when processing color values with a % opacity.
 - CSSOM: the first item of bracket list was not being minified in `getMinifiedCssText`.
 - CSSOM: reduce the connection timeout from 60 to 10 seconds when retrieving style sheets or fonts (security).
 - Implement CSS Object Model's `CSS.escape()` method (#18).

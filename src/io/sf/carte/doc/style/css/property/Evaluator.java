@@ -159,8 +159,7 @@ public class Evaluator {
 				maxUnit = resultUnit.getUnitType();
 			}
 		}
-		NumberValue value = new NumberValue();
-		value.setFloatValue(maxUnit, maxInSpecifiedUnit);
+		NumberValue value = NumberValue.createCSSNumberValue(maxUnit, maxInSpecifiedUnit);
 		return value;
 	}
 
@@ -193,8 +192,7 @@ public class Evaluator {
 				minUnit = resultUnit.getUnitType();
 			}
 		}
-		NumberValue value = new NumberValue();
-		value.setFloatValue(minUnit, minInSpecifiedUnit);
+		NumberValue value = NumberValue.createCSSNumberValue(minUnit, minInSpecifiedUnit);
 		return value;
 	}
 
@@ -218,8 +216,7 @@ public class Evaluator {
 		if (result < min) {
 			result = min;
 		}
-		NumberValue value = new NumberValue();
-		value.setFloatValue(centralUnit, result);
+		NumberValue value = NumberValue.createCSSNumberValue(centralUnit, result);
 		return value;
 	}
 
@@ -373,8 +370,7 @@ public class Evaluator {
 		}
 		float result = (float) Math.pow(base, exponent);
 		resultUnit.setExponent(resultUnit.getExponent() * Math.round(exponent));
-		NumberValue value = new NumberValue();
-		value.setFloatValue(resultUnit.getUnitType(), result);
+		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
 		return value;
 	}
 
@@ -385,14 +381,14 @@ public class Evaluator {
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float result = (float) Math.sqrt(floatValue(arg, resultUnit));
-		NumberValue value = new NumberValue();
 		int exp = resultUnit.getExponent();
 		if (exp % 2 != 0) {
 			// Odd number
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "invalid CSS unit in sqrt() function");
 		}
 		resultUnit.setExponent(exp / 2);
-		value.setFloatValue(resultUnit.getUnitType(), result);
+
+		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
 		return value;
 	}
 
@@ -417,8 +413,7 @@ public class Evaluator {
 			result += partial * partial;
 		}
 		result = Math.sqrt(result);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(firstUnit, (float) result);
+		NumberValue value = NumberValue.createCSSNumberValue(firstUnit, (float) result);
 		return value;
 	}
 
@@ -433,8 +428,7 @@ public class Evaluator {
 			f2 = NumberValue.floatValueConversion(f2, arg2Type.getUnitType(), resultUnit.getUnitType());
 		}
 		float result = (float) Math.hypot(f1, f2);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(resultUnit.getUnitType(), result);
+		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
 		return value;
 	}
 
@@ -446,8 +440,7 @@ public class Evaluator {
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
 		float result = Math.abs(fval);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(resultUnit.getUnitType(), result);
+		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
 		return value;
 	}
 
@@ -536,8 +529,7 @@ public class Evaluator {
 		default:
 			return evaluate(((CSSOperandExpression) expression).getOperand(), resultUnit);
 		}
-		NumberValue value = new NumberValue();
-		value.setFloatValue(resultUnit.getUnitType(), result);
+		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
 		value.setCalculatedNumber(true);
 		value.setAbsolutizedUnit();
 		return value;

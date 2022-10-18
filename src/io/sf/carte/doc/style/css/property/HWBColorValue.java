@@ -214,13 +214,13 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			g = wv;
 			b = whiteness;
 		}
-		NumberValue red = new NumberValue();
+		PercentageValue red = new PercentageValue();
 		red.setFloatValue(CSSUnit.CSS_PERCENTAGE, r * 100f);
 		red.setAbsolutizedUnit();
-		NumberValue green = new NumberValue();
+		PercentageValue green = new PercentageValue();
 		green.setFloatValue(CSSUnit.CSS_PERCENTAGE, g * 100f);
 		green.setAbsolutizedUnit();
-		NumberValue blue = new NumberValue();
+		PercentageValue blue = new PercentageValue();
 		blue.setFloatValue(CSSUnit.CSS_PERCENTAGE, b * 100f);
 		blue.setAbsolutizedUnit();
 		color.setRed(red);
