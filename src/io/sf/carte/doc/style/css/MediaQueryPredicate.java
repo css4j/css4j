@@ -23,6 +23,10 @@ public interface MediaQueryPredicate extends BooleanCondition {
 
 	/**
 	 * Constant for media feature predicates.
+	 * <p>
+	 * You can cast predicates of this type to
+	 * {@link io.sf.carte.doc.style.css.om.MediaFeature MediaFeature}.
+	 * </p>
 	 */
 	int MEDIA_FEATURE = 1;
 
