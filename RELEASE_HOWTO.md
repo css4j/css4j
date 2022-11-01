@@ -155,17 +155,17 @@ apply the following patch to the `build.gradle` file in your copy of the
 release code:
 
 ```patch
-@@ -178,11 +178,14 @@ tasks.withType(JavaCompile) {
+@@ -180,11 +180,14 @@ tasks.withType(JavaCompile) {
  tasks.withType(Javadoc) {
- 	options.addStringOption('Xdoclint:none', '-quiet')
- 	options.addStringOption('encoding', 'UTF-8')
- 	options.addStringOption('charset', 'UTF-8')
- 	options.overview = 'src/overview.html'
--	options.links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
-+	options.links 'https://docs.oracle.com/javase/8/docs/api/'
-+	options.source = '8'
-+	excludes += '**/module-info.java'
-+	modularity.inferModulePath = false
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charset', 'UTF-8')
+    options.overview = 'src/overview.html'
+-   options.links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
++   options.links 'https://docs.oracle.com/javase/8/docs/api/'
++   options.source = '8'
++   excludes += '**/module-info.java'
++   modularity.inferModulePath = false
  }
  
  tasks.withType(AbstractArchiveTask).configureEach {
