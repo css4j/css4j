@@ -76,7 +76,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("*", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
@@ -93,7 +93,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p", selectorListToString(selist, rule));
-		CSSElement elm = createElement("p");
+		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
@@ -102,7 +102,7 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		assertFalse(elm.matches(selist, null));
 	}
 
@@ -113,7 +113,7 @@ public class SelectorMatcherTest {
 		SelectorList selist = ((StyleRule) css.getCssRules().item(1)).getSelectorList();
 		SelectorList svgselist = ((StyleRule) css.getCssRules().item(2)).getSelectorList();
 		CSSElement svg = doc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		SelectorMatcher svgmatcher = selectorMatcher(svg);
 		int selidx = matcher.matches(selist);
@@ -179,7 +179,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("[title]", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "hi");
@@ -198,7 +198,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("[title]", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "hi");
@@ -217,7 +217,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title]", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "hi");
@@ -229,7 +229,7 @@ public class SelectorMatcherTest {
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -241,7 +241,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title='hi']", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "hi");
@@ -253,7 +253,7 @@ public class SelectorMatcherTest {
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -264,7 +264,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title='hi' i] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "HI");
@@ -280,7 +280,7 @@ public class SelectorMatcherTest {
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -292,7 +292,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title~='hi']", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "ho hi");
@@ -304,7 +304,7 @@ public class SelectorMatcherTest {
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -315,7 +315,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title~='hi' i] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "HO HI");
@@ -335,7 +335,7 @@ public class SelectorMatcherTest {
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "ho hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -347,7 +347,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[lang|='en']", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("lang", "en-US");
@@ -365,7 +365,7 @@ public class SelectorMatcherTest {
 		elm.setAttribute("lang", "en_US");
 		assertTrue(matcher.matches(selist) < 0);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("lang", "en");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -377,7 +377,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[lang|='en' i]", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("lang", "EN-US");
@@ -395,7 +395,7 @@ public class SelectorMatcherTest {
 		elm.setAttribute("lang", "en_US");
 		assertTrue(matcher.matches(selist) < 0);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("lang", "en");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -407,7 +407,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title^='hi']", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "hi ho");
@@ -423,7 +423,7 @@ public class SelectorMatcherTest {
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -435,7 +435,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title^='hi' i]", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "HI HO");
@@ -455,7 +455,7 @@ public class SelectorMatcherTest {
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -467,7 +467,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title$='hi']", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "ho hi");
@@ -479,7 +479,7 @@ public class SelectorMatcherTest {
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -491,7 +491,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title$='hi' i]", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "HO HI");
@@ -511,7 +511,7 @@ public class SelectorMatcherTest {
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -523,7 +523,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title*='hi']", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "ho hi ho");
@@ -535,7 +535,7 @@ public class SelectorMatcherTest {
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -547,7 +547,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p[title*='hi' i]", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 		elm.setAttribute("title", "HO HI HO");
@@ -574,7 +574,7 @@ public class SelectorMatcherTest {
 		elm.setAttribute("title", "H");
 		assertEquals(-1, matcher.matches(selist));
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -586,7 +586,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(en)", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
@@ -601,7 +601,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(de,en-US)", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
@@ -616,7 +616,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(de,en-US)", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
@@ -634,7 +634,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(de,'1-US')", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -644,7 +644,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p:lang(en-US) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "en-US");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -655,7 +655,7 @@ public class SelectorMatcherTest {
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("lang", "en-US");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -667,17 +667,17 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(\\*)", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "en-GB");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
@@ -689,17 +689,17 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang('*')", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "en-GB");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
@@ -711,17 +711,17 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(\"*\")", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "en-GB");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
@@ -733,17 +733,17 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(fr,\\*-Latn)", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-DE");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
@@ -755,17 +755,17 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:lang(fr-FR,de-\\*-DE)", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-DE");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		//
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
@@ -777,7 +777,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals(".exampleclass", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -796,7 +796,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals(".exampleclass", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleClass");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -812,11 +812,11 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals(".exampleclass", selectorListToString(selist, rule));
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleClass");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		matcher = selectorMatcher(elm);
 		selidx = matcher.matches(selist);
@@ -835,11 +835,11 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals(".exampleclass", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "fooclass exampleClass barclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) >= 0);
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("class", "fooclass exampleclass barclass");
 		matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -855,11 +855,11 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals(".exampleclass", selectorListToString(selist, rule));
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("class", "fooclass exampleClass barclass");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("class", "fooclass exampleclass barclass");
 		matcher = selectorMatcher(elm);
 		selidx = matcher.matches(selist);
@@ -877,7 +877,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("z.exampleclass", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
@@ -888,7 +888,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p.exampleclass {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -906,7 +906,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals(".exampleclass span", selectorListToString(selist, rule));
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -927,7 +927,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle(".exampleclass span {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -945,7 +945,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle(".exampleclass span {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -972,7 +972,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p.firstclass {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "firstclass secondclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -989,7 +989,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p.secondclass {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "firstclass secondclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -1006,7 +1006,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p.firstclass {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", " firstclass");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -1023,7 +1023,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p.firstclass {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "firstclass ");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -1041,7 +1041,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p:first-child", selectorListToString(selist, rule));
-		Element parent = createElement("div");
+		Element parent = createTopLevelElement("div");
 		parent.setAttribute("id", "parentid");
 		Element firstChild = parent.getOwnerDocument().createElement("p");
 		firstChild.setAttribute("id", "pid1");
@@ -1070,7 +1070,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("#exampleid", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		elm.setAttribute("id", "exampleid");
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1090,12 +1090,12 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("#exampleID", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		elm.setAttribute("id", "exampleid");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) >= 0);
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		elm.setAttribute("ID", "exampleid");
 		matcher = selectorMatcher(elm);
@@ -1106,12 +1106,12 @@ public class SelectorMatcherTest {
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
 		assertEquals("#exampleID", selectorListToString(selist, rule));
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		elm.setAttribute("id", "exampleid");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		elm = createElement("p");
+		elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		elm.setAttribute("id", "exampleID");
 		matcher = selectorMatcher(elm);
@@ -1130,7 +1130,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("#exampleid span", selectorListToString(selist, rule));
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -1151,7 +1151,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("#exampleid span {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -1169,7 +1169,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("#exampleid span {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -1197,7 +1197,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("#exampleid>span", selectorListToString(selist, rule));
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -1218,7 +1218,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("#exampleid > span {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -1236,7 +1236,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p#exampleid", selectorListToString(selist, rule));
-		Element elm = createElement("p");
+		Element elm = createTopLevelElement("p");
 		elm.setAttribute("class", "exampleclass");
 		elm.setAttribute("id", "exampleid");
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1248,7 +1248,7 @@ public class SelectorMatcherTest {
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 		//
-		elm = createElement("div");
+		elm = createTopLevelElement("div");
 		elm.setAttribute("id", "exampleid");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
@@ -1260,7 +1260,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p.exampleclass+p", selectorListToString(selist, rule));
-		Element parent = createElement("div");
+		Element parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
 		Element elm = parent.getOwnerDocument().createElement("p");
 		elm.setAttribute("id", "childid1");
@@ -1280,14 +1280,41 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
+	public void testMatchSelectorAdjacentNoMatch() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p+.exampleclass {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p+.exampleclass", selectorListToString(selist, rule));
+
+		Element parent = createTopLevelElement("div");
+		Element elm = parent.getOwnerDocument().createElement("p");
+		parent.appendChild(elm);
+		elm = parent.getOwnerDocument().createElement("div");
+		parent.appendChild(elm);
+		SelectorMatcher matcher = selectorMatcher(elm);
+		int selidx = matcher.matches(selist);
+		assertEquals(-1, selidx);
+		elm = parent.getOwnerDocument().createElement("div");
+		elm.setAttribute("class", "exampleclass");
+		parent.appendChild(elm);
+		matcher = selectorMatcher(elm);
+		selidx = matcher.matches(selist);
+		assertEquals(-1, selidx);
+	}
+
+	@Test
 	public void testMatchSelectorSubsequentSibling() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p.exampleclass ~ p {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p.exampleclass~p", selectorListToString(selist, rule));
-		CSSElement parent = createElement("div");
+
+		rule = (StyleRule) parseStyle("p#childidp1.exampleclass ~ pre#idpre {color: blue;}")
+			.getCssRules().item(0);
+		SelectorList selist2 = rule.getSelectorList();
+
+		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(doc.createElement("pre"));
 		CSSElement elm = parent.getOwnerDocument().createElement("p");
 		elm.setAttribute("id", "childidp1");
@@ -1295,16 +1322,21 @@ public class SelectorMatcherTest {
 		parent.appendChild(elm);
 		parent.appendChild(doc.createElement("pre"));
 		CSSElement pre = doc.createElement("pre");
+		pre.setAttribute("id", "idpre");
 		parent.appendChild(pre);
 		elm = parent.getOwnerDocument().createElement("p");
 		elm.setAttribute("id", "childidp2");
 		parent.appendChild(elm);
+
 		assertTrue(elm.matches(selist, null));
 		assertFalse(pre.matches(selist, null));
-		//
+		assertFalse(elm.matches(selist2, null));
+		assertTrue(pre.matches(selist2, null));
+
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
+
 		// Specificity
 		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
@@ -1318,9 +1350,8 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("ul li a", selectorListToString(selist, rule));
-		CSSElement parent = createElement("div");
+		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		doc.getDocumentElement().appendChild(parent);
 		CSSElement ul = parent.getOwnerDocument().createElement("ul");
 		ul.setAttribute("id", "ul1");
 		parent.appendChild(ul);
@@ -1366,9 +1397,8 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("*>ul>li>a", selectorListToString(selist, rule));
-		CSSElement parent = createElement("div");
+		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		doc.getDocumentElement().appendChild(parent);
 		CSSElement ul = parent.getOwnerDocument().createElement("ul");
 		ul.setAttribute("id", "ul1");
 		parent.appendChild(ul);
@@ -1407,9 +1437,8 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoClass1() throws Exception {
-		Element parent = doc.createElement("div");
+		Element parent = createTopLevelElement("div");
 		Element elm = doc.createElement("p");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(doc.createTextNode("foo"));
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1437,9 +1466,8 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoClass2() throws Exception {
-		Element parent = doc.createElement("div");
+		Element parent = createTopLevelElement("div");
 		Element elm = doc.createElement("p");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(doc.createTextNode("foo"));
 		parent.appendChild(elm);
 		parent.appendChild(doc.createElement("div"));
@@ -1467,9 +1495,8 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoClassNth() throws Exception {
-		Element parent = doc.createElement("div");
+		Element parent = createTopLevelElement("div");
 		Element elm = doc.createElement("p");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(doc.createTextNode("foo"));
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1502,9 +1529,8 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoNthSelector() throws Exception {
-		Element parent = doc.createElement("div");
+		Element parent = createTopLevelElement("div");
 		Element elm = doc.createElement("p");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(doc.createTextNode("foo"));
 		parent.appendChild(doc.createElement("div"));
 		parent.appendChild(elm);
@@ -1557,9 +1583,8 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoOfType() throws Exception {
-		Element parent = doc.createElement("div");
+		Element parent = createTopLevelElement("div");
 		Element elm = doc.createElement("p");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(doc.createTextNode("foo"));
 		parent.appendChild(doc.createElement("div"));
 		parent.appendChild(elm);
@@ -1595,9 +1620,8 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoNthOfType() throws Exception {
-		Element parent = doc.createElement("div");
+		Element parent = createTopLevelElement("div");
 		Element elm = doc.createElement("p");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(doc.createTextNode("foo"));
 		parent.appendChild(doc.createElement("div"));
 		parent.appendChild(elm);
@@ -1841,7 +1865,7 @@ public class SelectorMatcherTest {
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p.exampleclass:has(>img)", selectorListToString(selist, rule));
 		//
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("id", "p1");
 		Element elm = parent.getOwnerDocument().createElement("span");
 		elm.setAttribute("id", "childid1");
@@ -1871,7 +1895,7 @@ public class SelectorMatcherTest {
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p.exampleclass:has(+p)", selectorListToString(selist, rule));
 		//
-		Element parent = createElement("div");
+		Element parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
 		Element elm = parent.getOwnerDocument().createElement("p");
 		elm.setAttribute("id", "childid1");
@@ -1901,7 +1925,7 @@ public class SelectorMatcherTest {
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("div.exampleclass:has(p>span)", selectorListToString(selist, rule));
 		//
-		Element parent = createElement("div");
+		Element parent = createTopLevelElement("div");
 		Element elm = parent.getOwnerDocument().createElement("p");
 		parent.appendChild(elm);
 		Element span = parent.getOwnerDocument().createElement("span");
@@ -1928,7 +1952,7 @@ public class SelectorMatcherTest {
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("div.exampleclass:has(span+p)", selectorListToString(selist, rule));
 		//
-		Element parent = createElement("div");
+		Element parent = createTopLevelElement("div");
 		Element elm = parent.getOwnerDocument().createElement("span");
 		parent.appendChild(elm);
 		Element elm2 = parent.getOwnerDocument().createElement("p");
@@ -1956,7 +1980,7 @@ public class SelectorMatcherTest {
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("body>div.exampleclass:has(span+p)", selectorListToString(selist, rule));
 		//
-		Element body = createElement("body");
+		Element body = createTopLevelElement("body");
 		Element parent = doc.createElement("div");
 		body.appendChild(parent);
 		Element elm = doc.createElement("span");
@@ -1985,7 +2009,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals(":is(.exampleclass span,div>span)", selectorListToString(selist, rule));
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -2010,7 +2034,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals(":where(.exampleclass span,div>span)", selectorListToString(selist, rule));
-		Element parent = createElement("p");
+		Element parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
 		Element elm = parent.getOwnerDocument().createElement("span");
@@ -2038,7 +2062,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("span:where(.foo .bar,div>.bar)", selectorListToString(selist, rule));
-		Element parent = createElement("div");
+		Element parent = createTopLevelElement("div");
 		parent.setAttribute("class", "foo");
 		Element elm = parent.getOwnerDocument().createElement("span");
 		elm.setAttribute("class", "bar");
@@ -2063,7 +2087,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p.exampleclass:not(:last-child)", selectorListToString(selist, rule));
-		Element parent = createElement("div");
+		Element parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
 		Element elm = parent.getOwnerDocument().createElement("p");
 		elm.setAttribute("id", "p1");
@@ -2085,10 +2109,9 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoClassEnabledDisabled() throws Exception {
-		Element parent = doc.createElement("form");
+		Element parent = createTopLevelElement("form");
 		Element elm = doc.createElement("input");
 		elm.setAttribute("type", "checkbox");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		BaseCSSStyleSheet css = parseStyle("input:disabled {color: blue;}");
@@ -2117,10 +2140,9 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoClassReadWriteReadOnly() throws Exception {
-		Element parent = doc.createElement("form");
+		Element parent = createTopLevelElement("form");
 		Element elm = doc.createElement("input");
 		elm.setAttribute("type", "checkbox");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		BaseCSSStyleSheet css = parseStyle("input:read-only {color: blue;}");
@@ -2164,10 +2186,9 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoClassPlaceholderShown() throws Exception {
-		Element parent = doc.createElement("form");
+		Element parent = createTopLevelElement("form");
 		Element elm = doc.createElement("input");
 		elm.setAttribute("type", "text");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		BaseCSSStyleSheet css = parseStyle("input:placeholder-shown {color: blue;}");
@@ -2184,10 +2205,9 @@ public class SelectorMatcherTest {
 		Element button = doc.createElement("button");
 		button.setAttribute("type", "submit");
 		button.setAttribute("disabled", "disabled");
-		Element parent = doc.createElement("form");
+		Element parent = createTopLevelElement("form");
 		Element elm = doc.createElement("input");
 		elm.setAttribute("type", "submit");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(button);
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -2209,11 +2229,10 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoClassChecked() throws Exception {
-		Element parent = doc.createElement("form");
+		Element parent = createTopLevelElement("form");
 		Element elm = doc.createElement("input");
 		elm.setAttribute("type", "checkbox");
 		elm.setAttribute("checked", "checked");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		BaseCSSStyleSheet css = parseStyle("input:checked {color: blue;}");
@@ -2234,11 +2253,10 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorPseudoClassIndeterminate() throws Exception {
-		Element parent = doc.createElement("form");
+		Element parent = createTopLevelElement("form");
 		Element elm = doc.createElement("input");
 		elm.setAttribute("type", "checkbox");
 		elm.setAttribute("indeterminate", "true");
-		doc.getDocumentElement().appendChild(parent);
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		BaseCSSStyleSheet css = parseStyle("input:indeterminate {color: blue;}");
@@ -2330,7 +2348,13 @@ public class SelectorMatcherTest {
 		assertTrue(statePseudoClasses.isEmpty());
 	}
 
-	static CSSElement createElement(String name) {
+	/**
+	 * Create an element and append to document element.
+	 * 
+	 * @param name the element name.
+	 * @return the element.
+	 */
+	static CSSElement createTopLevelElement(String name) {
 		CSSElement elm = doc.createElement(name);
 		doc.getDocumentElement().appendChild(elm);
 		return elm;
