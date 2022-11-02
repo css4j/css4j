@@ -11,7 +11,6 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.w3c.dom.DOMException;
@@ -25,7 +24,6 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
-import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
@@ -160,35 +158,6 @@ abstract class SimpleBoxModel {
 		@Override
 		public short getUnitType() {
 			return unitType;
-		}
-
-		@Override
-		public void fillBoxValues(CSSStyleDeclaration style) {
-			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
-			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(4);
-
-			style.setProperty("margin-top", serializeLength(getMarginTop(), format), null);
-			style.setProperty("margin-right", serializeLength(getMarginRight(), format), null);
-			style.setProperty("margin-bottom", serializeLength(getMarginBottom(), format), null);
-			style.setProperty("margin-left", serializeLength(getMarginLeft(), format), null);
-			style.setProperty("padding-top", serializeLength(getPaddingTop(), format), null);
-			style.setProperty("padding-right", serializeLength(getPaddingRight(), format), null);
-			style.setProperty("padding-bottom", serializeLength(getPaddingBottom(), format), null);
-			style.setProperty("padding-left", serializeLength(getPaddingLeft(), format), null);
-			style.setProperty("border-top-width", serializeLength(getBorderTopWidth(), format),
-				null);
-			style.setProperty("border-right-width", serializeLength(getBorderRightWidth(), format),
-				null);
-			style.setProperty("border-bottom-width",
-				serializeLength(getBorderBottomWidth(), format), null);
-			style.setProperty("border-left-width", serializeLength(getBorderLeftWidth(), format),
-				null);
-			style.setProperty("width", serializeLength(getWidth(), format), null);
-		}
-
-		private String serializeLength(float length, NumberFormat format) {
-			return format.format(length) + CSSUnit.dimensionUnitString(unitType);
 		}
 
 	}

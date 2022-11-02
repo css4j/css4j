@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 /**
  * Interface giving access to the computed box values.
  */
@@ -153,7 +156,29 @@ public interface BoxValues {
 	 * 
 	 * @param style the style declaration.
 	 */
-	void fillBoxValues(CSSStyleDeclaration style);
+	default void fillBoxValues(CSSStyleDeclaration style) {
+		NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
+		format.setMinimumFractionDigits(0);
+		format.setMaximumFractionDigits(4);
+
+		String unitStr = CSSUnit.dimensionUnitString(getUnitType());
+
+		style.setProperty("margin-top", format.format(getMarginTop()) + unitStr, null);
+		style.setProperty("margin-right", format.format(getMarginRight()) + unitStr, null);
+		style.setProperty("margin-bottom", format.format(getMarginBottom()) + unitStr, null);
+		style.setProperty("margin-left", format.format(getMarginLeft()) + unitStr, null);
+		style.setProperty("padding-top", format.format(getPaddingTop()) + unitStr, null);
+		style.setProperty("padding-right", format.format(getPaddingRight()) + unitStr, null);
+		style.setProperty("padding-bottom", format.format(getPaddingBottom()) + unitStr, null);
+		style.setProperty("padding-left", format.format(getPaddingLeft()) + unitStr, null);
+		style.setProperty("border-top-width", format.format(getBorderTopWidth()) + unitStr, null);
+		style.setProperty("border-right-width", format.format(getBorderRightWidth()) + unitStr,
+			null);
+		style.setProperty("border-bottom-width", format.format(getBorderBottomWidth()) + unitStr,
+			null);
+		style.setProperty("border-left-width", format.format(getBorderLeftWidth()) + unitStr, null);
+		style.setProperty("width", format.format(getWidth()) + unitStr, null);
+	}
 
 	/**
 	 * Sub-interface for tables in the simple box model.
