@@ -1,3 +1,5 @@
+![CI workflow](https://github.com/css4j/css4j/actions/workflows/build.yml/badge.svg)
+
 # css4j
 
 This project provides implementations of APIs similar to W3C/WHATWG's:
