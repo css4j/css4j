@@ -1,6 +1,6 @@
-Some of the files include content that has a license different from BSD. These 
-are the affected files and its licenses (each block of files is followed by 
-license information):
+The use and distribution of this software is legally governed by the license
+found in the LICENSE.txt file, with the exception of the following files (each
+block of files is followed by license information):
 
 ================================================================================
  File: src/io/sf/carte/doc/DOMCharacterException.java
