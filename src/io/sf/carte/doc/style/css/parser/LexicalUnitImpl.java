@@ -426,6 +426,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				quri = identCssText;
 			} else if (value != null) {
 				quri = ParseHelper.quote(value, '\'');
+			} else if (parameters != null) {
+				quri = parameters.getCssText();
 			} else {
 				quri = "";
 			}

@@ -823,7 +823,15 @@ public class ValueFactory {
 				break;
 			case URI:
 				primi = new URIValue(flags);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				setter = primi.newLexicalSetter();
+				try {
+					setter.setLexicalUnit(lunit);
+				} catch (CSSLexicalProcessingException e) {
+					// Contains a var() that should be processed as a lexical value.
+					primi = new LexicalValue();
+					setter = primi.newLexicalSetter();
+					setter.setLexicalUnit(lunit);
+				}
 				break;
 			case PERCENTAGE:
 				primi = new PercentageValue();
@@ -907,9 +915,9 @@ public class ValueFactory {
 						if (!isNotListLexicalUnit(lunit)) {
 							throw e;
 						}
-						LexicalSetter item = new LexicalValue().newLexicalSetter();
-						item.setLexicalUnit(lunit);
-						return item;
+						primi = new LexicalValue();
+						setter = primi.newLexicalSetter();
+						setter.setLexicalUnit(lunit);
 					} catch (RuntimeException e) {
 						if (func.charAt(0) == '-') {
 							primi = new FunctionValue();
@@ -977,7 +985,8 @@ public class ValueFactory {
 				break;
 			case OPERATOR_COMMA:
 			case OPERATOR_SEMICOLON:
-				throw new DOMException(DOMException.SYNTAX_ERR, "A comma or semicolon is not a valid primitive");
+				throw new DOMException(DOMException.SYNTAX_ERR,
+					"A comma or semicolon is not a valid primitive");
 			case OPERATOR_SLASH:
 				if (isContentContext(lunit)) {
 					primi = new LexicalValue();

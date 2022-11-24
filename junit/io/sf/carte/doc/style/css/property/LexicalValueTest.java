@@ -85,6 +85,9 @@ public class LexicalValueTest {
 		//
 		value.setCssText("color(display-p3 var(--foo))");
 		assertEquals(Type.COLOR, value.getFinalType());
+		//
+		value.setCssText("url(var(--myURI))");
+		assertEquals(Type.URI, value.getFinalType());
 	}
 
 	@Test
@@ -123,6 +126,7 @@ public class LexicalValueTest {
 		value.setCssText("url('http://example.com/')");
 		assertEquals("url('http://example.com/')", value.getCssText());
 		assertEquals("url('http://example.com/')", value.getMinifiedCssText(null));
+
 		// Syntax matching
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
@@ -131,6 +135,22 @@ public class LexicalValueTest {
 		assertEquals(Match.FALSE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
+	}
+
+	@Test
+	public void testBracketList() {
+		LexicalValue value = new LexicalValue();
+
+		value.setCssText("[var(--foo) var(--bar)]");
+		assertEquals("[var(--foo) var(--bar)]", value.getCssText());
+		assertEquals("[var(--foo) var(--bar)]", value.getMinifiedCssText(null));
+
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, value.matches(syn));
 	}
 
 	@Test
@@ -157,6 +177,18 @@ public class LexicalValueTest {
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 		assertEquals("--foo: ;\n", style.getCssText());
 		assertEquals("--foo:", style.getMinifiedCssText());
+	}
+
+	@Test
+	public void testURI_Var() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("background-image:url(var(--myURI));");
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertEquals("url(var(--myURI))", cssval.getCssText());
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals("url(var(--myURI))", cssval.getMinifiedCssText("background-image"));
 	}
 
 	@Test

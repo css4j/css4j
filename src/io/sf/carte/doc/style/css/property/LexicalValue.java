@@ -65,6 +65,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			}
 			return Type.UNKNOWN;
 		}
+
 		Type type;
 		switch (lexicalUnit.getLexicalUnitType()) {
 		case IDENT:
@@ -128,6 +129,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		default:
 			type = Type.UNKNOWN;
 		}
+
 		return type;
 	}
 
@@ -256,6 +258,11 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			}
 			buf.append(')');
 			return buf.toString();
+		case URI:
+			LexicalUnit param = lexicalUnit.getParameters();
+			if (param != null) {
+				return "url(" + serializeMinified(param) + ")";
+			}
 		default:
 		}
 		return lexicalUnit.getCssText();

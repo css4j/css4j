@@ -6086,7 +6086,8 @@ public class CSSParser implements Parser, Cloneable {
 		private LexicalUnitImpl newLexicalUnit(LexicalType unitType, boolean functionOrSubexpression) {
 			LexicalUnitImpl lu;
 			if (functionToken) {
-				if (currentlu.getLexicalUnitType() == LexicalType.URI) {
+				if (currentlu.getLexicalUnitType() == LexicalType.URI
+						&& unitType != LexicalType.VAR) {
 					// Special case
 					lu = currentlu;
 				} else {

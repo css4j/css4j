@@ -732,25 +732,6 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedBackslahHack() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		LexicalUnit lu = parsePropertyValue("600px\\9");
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
-		assertEquals("600px\\9", lu.getStringValue());
-	}
-
-	@Test
-	public void testParsePropertyEscapedBackslahHack2() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		LexicalUnit lu = parsePropertyValue("2px 3px\\9");
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
-		assertEquals("2px 3px\\9", lu.getStringValue());
-		assertEquals("2px 3px\\9", lu.toString());
-	}
-
-	@Test
 	public void testParsePropertyTab() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("larger\t");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -924,6 +905,10 @@ public class PropertyParserTest {
 		}
 	}
 
+	/*
+	 * Common constructs related to IE
+	 */
+
 	@Test
 	public void testParsePropertyCustomFunctionError() throws CSSException, IOException {
 		try {
@@ -931,20 +916,6 @@ public class PropertyParserTest {
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}
-	}
-
-	@Test
-	public void testParsePropertyCustomFunction() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		LexicalUnit lu = parsePropertyValue("--my-function(foo=bar)");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		assertEquals("--my-function", lu.getFunctionName());
-		assertNull(lu.getNextLexicalUnit());
-		lu = lu.getParameters();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("foo=bar", lu.getStringValue());
-		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test
@@ -958,35 +929,6 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyProgid() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		LexicalUnit lu = parsePropertyValue(
-				"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		assertEquals("progid:DXImageTransform.Microsoft.gradient", lu.getFunctionName());
-		assertNull(lu.getNextLexicalUnit());
-		lu = lu.getParameters();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("startColorstr=", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
-		assertEquals("#bd0afa", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("endColorstr=", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
-		assertEquals("#d0df9f", lu.getStringValue());
-	}
-
-	@Test
 	public void testParsePropertyProgid2Error() throws CSSException, IOException {
 		try {
 			parsePropertyValue(
@@ -997,56 +939,12 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyProgid2() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		LexicalUnit lu = parsePropertyValue(
-				"progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#bd0afa,EndColorStr=#d0df9f)");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		assertEquals("progid:DXImageTransform.Microsoft.Gradient", lu.getFunctionName());
-		assertNull(lu.getNextLexicalUnit());
-		lu = lu.getParameters();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("GradientType=0", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("StartColorStr=#bd0afa", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("EndColorStr=#d0df9f", lu.getStringValue());
-		assertNull(lu.getNextLexicalUnit());
-	}
-
-	@Test
 	public void testParsePropertyProgid3Error() throws CSSException, IOException {
 		try {
 			parsePropertyValue("progid:DXImageTransform.Microsoft.Blur(pixelradius=5)");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 		}
-	}
-
-	@Test
-	public void testParsePropertyProgid3() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		LexicalUnit lu = parsePropertyValue("progid:DXImageTransform.Microsoft.Blur(pixelradius=5)");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		assertEquals("progid:DXImageTransform.Microsoft.Blur", lu.getFunctionName());
-		assertNull(lu.getNextLexicalUnit());
-		lu = lu.getParameters();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
-		assertEquals("pixelradius=5", lu.getStringValue());
-		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test
@@ -4160,6 +4058,39 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueURL_Var() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("url(var(--image))");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertNull(lu.getStringValue());
+		assertEquals("url(var(--image))", lu.toString());
+
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var", param.getFunctionName());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
 	public void testParsePropertyValueURLEmpty() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("url()");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -4912,93 +4843,12 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueProgid() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		LexicalUnit lu = parsePropertyValue(
-				"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		assertEquals("progid:DXImageTransform.Microsoft.gradient", lu.getFunctionName());
-		assertNull(lu.getNextLexicalUnit());
-		lu = lu.getParameters();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("startColorstr=", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
-		assertEquals("#bd0afa", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("endColorstr=", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
-		assertEquals("#d0df9f", lu.getStringValue());
-	}
-
-	@Test
 	public void testParsePropertyValueIEExpressionError() throws CSSException, IOException {
 		try {
 			parsePropertyValue("expression(iequirk = (document.body.scrollTop) + \"px\" )");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 			assertEquals(20, e.getColumnNumber());
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueIEExpression() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		LexicalUnit lu = parsePropertyValue("expression(iequirk = (document.body.scrollTop) + \"px\" )");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		assertEquals("expression", lu.getFunctionName());
-		assertNull(lu.getNextLexicalUnit());
-		lu = lu.getParameters();
-		assertNotNull(lu);
-		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
-		assertEquals("iequirk=", lu.getStringValue());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.SUB_EXPRESSION, lu.getLexicalUnitType());
-		LexicalUnit subv = lu.getSubValues();
-		assertNotNull(subv);
-		assertEquals(LexicalType.IDENT, subv.getLexicalUnitType());
-		assertEquals("document.body.scrollTop", subv.getStringValue());
-		assertNull(subv.getNextLexicalUnit());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.OPERATOR_PLUS, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
-		assertEquals("px", lu.getStringValue());
-		assertNull(lu.getNextLexicalUnit());
-	}
-
-	@Test
-	public void testParsePropertyValueIEExpressionBackslashError() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		try {
-			parsePropertyValue("expression(iequirk = (document.body.scrollTop) + 5px\\9 )");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(50, e.getColumnNumber());
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueIEExpressionCompatError() throws CSSException, IOException {
-		parser.setFlag(Parser.Flag.IEVALUES);
-		try {
-			parsePropertyValue("expression(= (document.body.scrollTop) + \"px\" )");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(12, e.getColumnNumber());
 		}
 	}
 

@@ -52,6 +52,24 @@ public class URIValue extends StringValue {
 	}
 
 	@Override
+	LexicalSetter newLexicalSetter() {
+		return new URILexicalSetter();
+	}
+
+	class URILexicalSetter extends MyLexicalSetter {
+
+		@Override
+		void setLexicalUnit(LexicalUnit lunit) {
+			if (lunit.getParameters() == null) {
+				super.setLexicalUnit(lunit);
+			} else {
+				throw new CSSLexicalProcessingException("var() found.");
+			}
+		}
+
+	}
+
+	@Override
 	public void setCssText(String cssText) throws DOMException {
 		checkModifiableProperty();
 		if (cssText.indexOf('(') == -1 && cssText.indexOf(')') == -1) {
