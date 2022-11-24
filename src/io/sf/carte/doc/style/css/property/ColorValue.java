@@ -185,6 +185,30 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	}
 
 	/**
+	 * Set the color component at {@code index}.
+	 * <p>
+	 * This method allows to access the components regardless of them being formally
+	 * indexed or not. It is convenient to perform common tasks at the components
+	 * (like when computing values).
+	 * </p>
+	 * 
+	 * @param index     the index. For colors, index {@code 0} is always the alpha
+	 *                  channel. Setting a component at an index that does not exist
+	 *                  has no effect.
+	 * @param component the new color component. Must be a primitive value (that is,
+	 *                  either
+	 *                  {@link io.sf.carte.doc.style.css.CSSValue.CssType#TYPED
+	 *                  TYPED} or a
+	 *                  {@link io.sf.carte.doc.style.css.CSSValue.CssType#PROXY
+	 *                  PROXY}).
+	 * @throws NullPointerException if the index is valid but the {@code component}
+	 *                              is {@code null}.
+	 */
+	@Override
+	public void setComponent(int index, StyleValue component) {
+	}
+
+	/**
 	 * Get the color component at {@code index}.
 	 * <p>
 	 * This method allows to access the color components like if they were indexed.

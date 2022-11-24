@@ -225,7 +225,13 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 	 * @param index     the index. For colors, index {@code 0} is always the alpha
 	 *                  channel. Setting a component at an index that does not exist
 	 *                  has no effect.
-	 * @param component the new color component.
+	 * @param component the new component. Cannot be a {@code KEYWORD} nor a
+	 *                  {@code SHORTHAND}. For colors, must be a primitive value
+	 *                  (that is, either
+	 *                  {@link io.sf.carte.doc.style.css.CSSValue.CssType#TYPED
+	 *                  TYPED} or a
+	 *                  {@link io.sf.carte.doc.style.css.CSSValue.CssType#PROXY
+	 *                  PROXY}).
 	 * @throws NullPointerException if the index is valid but the {@code component}
 	 *                              is {@code null}.
 	 */
