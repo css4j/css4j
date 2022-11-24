@@ -234,9 +234,11 @@ public interface LexicalUnit {
 		STRING,
 
 		/**
-		 * URI: <code>uri(...)</code>.
+		 * URI: <code>url(...)</code>.
 		 * 
-		 * @see #getStringValue
+		 * Use {@link LexicalUnit#getStringValue() getStringValue()} to retrieve the
+		 * URL, or {@link LexicalUnit#getParameters() getParameters()} if the argument
+		 * is a {@code var()}.
 		 */
 		URI,
 
