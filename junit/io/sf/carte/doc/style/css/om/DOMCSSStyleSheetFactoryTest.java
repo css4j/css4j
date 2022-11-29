@@ -118,7 +118,8 @@ public class DOMCSSStyleSheetFactoryTest {
 	}
 
 	public static Reader loadAnimateReader() {
-		return loadCSSfromClasspath("/io/sf/carte/doc/style/css/contrib/animate.css");
+		// Do not update animate.css to newer versions due to licensing
+		return loadCSSfromClasspath("/io/sf/carte/doc/style/css/contrib/animate-do_not_update.css");
 	}
 
 	public static Reader loadMetroReader() {
