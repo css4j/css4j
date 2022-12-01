@@ -51,11 +51,21 @@ public interface CSSValue extends Cloneable {
 
 		/**
 		 * A typed primitive value, includes numbers and identifiers.
+		 * <p>
+		 * You can cast to {@link CSSTypedValue} (interface) or
+		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} (base
+		 * implementation class).
+		 * </p>
 		 */
 		TYPED,
 
 		/**
 		 * A list of values.
+		 * <p>
+		 * You can always cast to {@link CSSValueList} but, unless you are dealing with
+		 * the argument list of a {@link Type#FUNCTION FUNCTION}, it is better to cast
+		 * directly to a {@link io.sf.carte.doc.style.css.property.ValueList ValueList}.
+		 * </p>
 		 */
 		LIST,
 
@@ -63,6 +73,11 @@ public interface CSSValue extends Cloneable {
 		 * A shorthand property.
 		 * <p>
 		 * Declared shorthands can be retrieved from style declarations.
+		 * </p>
+		 * <p>
+		 * You can cast it to {@link CSSShorthandValue} (interface) or
+		 * {@link io.sf.carte.doc.style.css.property.ShorthandValue ShorthandValue}
+		 * (implementation class).
 		 * </p>
 		 */
 		SHORTHAND
@@ -99,33 +114,84 @@ public interface CSSValue extends Cloneable {
 
 		/**
 		 * Numeric type.
+		 * <p>
+		 * Casting to {@link CSSTypedValue} or
+		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} should give
+		 * you what you need (like the numeric value via
+		 * {@link CSSTypedValue#getFloatValue(short) getFloatValue}). If it does not,
+		 * please look at {@link io.sf.carte.doc.style.css.property.NumberValue
+		 * NumberValue}.
+		 * </p>
 		 */
 		NUMERIC,
 
 		/**
 		 * String.
+		 * <p>
+		 * Casting to {@link CSSTypedValue} or
+		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} will give
+		 * you access to the string value via {@link CSSTypedValue#getStringValue()
+		 * getStringValue()}.
+		 * </p>
 		 */
 		STRING,
 
 		/**
 		 * Identifier.
+		 * <p>
+		 * Casting to {@link CSSTypedValue} or
+		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} will give
+		 * you access to the identifier value via {@link CSSTypedValue#getStringValue()
+		 * getStringValue()}.
+		 * </p>
 		 */
 		IDENT,
 
 		/**
 		 * Color.
+		 * <p>
+		 * Casting to {@link CSSColorValue} or
+		 * {@link io.sf.carte.doc.style.css.property.ColorValue ColorValue} provides
+		 * methods like {@link CSSColorValue#getColorModel() getColorModel()} or
+		 * {@link CSSColorValue#getColor() getColor()} (the latter provides the actual
+		 * color as a {@link CSSColor}).
+		 * </p>
+		 * <p>
+		 * Once you retrieve the color, you can then use the indexed component access in
+		 * {@link CSSColor#item(int)}, or cast it to a model sub-interface (like
+		 * {@link RGBAColor}) according to the result of
+		 * {@link CSSColorValue#getColorModel() getColorModel()}. See
+		 * {@link CSSColorValue.ColorModel} for details.
+		 * </p>
 		 */
 		COLOR,
 
 		/**
-		 * URI.
+		 * URI ({@code url()}).
+		 * <p>
+		 * Casting to {@link CSSTypedValue} or
+		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} will give
+		 * you access to the URL value as a string, via
+		 * {@link CSSTypedValue#getStringValue() getStringValue()} and is probably all
+		 * that you need.
+		 * </p>
+		 * <p>
+		 * You could also cast to {@link io.sf.carte.doc.style.css.property.URIValue
+		 * URIValue}, which gives you a couple of convenience methods like
+		 * {@link io.sf.carte.doc.style.css.property.URIValue#isEquivalent(io.sf.carte.doc.style.css.property.URIValue)
+		 * isEquivalent} or
+		 * {@link io.sf.carte.doc.style.css.property.URIValue#getURLValue()
+		 * getURLValue()}.
+		 * </p>
 		 */
 		URI,
 
 		/**
 		 * {@code rect()} function.
 		 * <p>
-		 * See {@link CSSRectValue}.
+		 * Cast to {@link CSSRectValue} or
+		 * {@link io.sf.carte.doc.style.css.property.RectValue RectValue}.
+		 * </p>
 		 */
 		RECT,
 
@@ -133,11 +199,15 @@ public interface CSSValue extends Cloneable {
 		 * An expression with algebraic syntax (i.e. <code>calc()</code>).
 		 * <p>
 		 * See {@link CSSExpressionValue}.
+		 * </p>
 		 */
 		EXPRESSION,
 
 		/**
 		 * Gradient function.
+		 * <p>
+		 * Cast to {@link CSSGradientValue}.
+		 * </p>
 		 */
 		GRADIENT,
 
@@ -145,6 +215,7 @@ public interface CSSValue extends Cloneable {
 		 * CSS <code>counter()</code> function.
 		 * <p>
 		 * See {@link CSSCounterValue}.
+		 * </p>
 		 */
 		COUNTER,
 
@@ -152,23 +223,36 @@ public interface CSSValue extends Cloneable {
 		 * CSS <code>counters()</code> function.
 		 * <p>
 		 * See {@link CSSCountersValue}.
+		 * </p>
 		 */
 		COUNTERS,
 
 		/**
 		 * <code>cubic-bezier()</code> easing function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
 		 */
 		CUBIC_BEZIER,
 
 		/**
 		 * <code>steps()</code> easing function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
 		 */
 		STEPS,
 
 		/**
-		 * Function. See {@link CSSFunctionValue}.
+		 * Function.
 		 * <p>
-		 * On functions, {@link CSSTypedValue#getStringValue()} must return the function name.
+		 * Cast to {@link CSSFunctionValue} or
+		 * {@link io.sf.carte.doc.style.css.property.FunctionValue FunctionValue}.
+		 * </p>
+		 * <p>
+		 * Note: on functions, {@link CSSTypedValue#getStringValue()} must return the
+		 * function name.
+		 * </p>
 		 */
 		FUNCTION,
 
@@ -189,21 +273,38 @@ public interface CSSValue extends Cloneable {
 
 		/**
 		 * Element reference.
+		 * <p>
+		 * Casting to {@link CSSTypedValue} or
+		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} will give
+		 * you access to the reference value via {@link CSSTypedValue#getStringValue()}.
+		 * </p>
 		 */
 		ELEMENT_REFERENCE,
 
 		/**
 		 * Ratio value.
+		 * <p>
+		 * Cast to {@link CSSRatioValue} or
+		 * {@link io.sf.carte.doc.style.css.property.RatioValue RatioValue}.
+		 * </p>
 		 */
 		RATIO,
 
 		/**
 		 * {@code attr()} function.
+		 * <p>
+		 * Cast to {@link CSSAttrValue} or
+		 * {@link io.sf.carte.doc.style.css.property.AttrValue AttrValue}.
+		 * </p>
 		 */
 		ATTR,
 
 		/**
-		 * Custom property reference. See {@link CSSVarValue}.
+		 * Custom property reference.
+		 * <p>
+		 * Cast to {@link CSSVarValue} or
+		 * {@link io.sf.carte.doc.style.css.property.VarValue VarValue}.
+		 * </p>
 		 */
 		VAR,
 
@@ -213,7 +314,11 @@ public interface CSSValue extends Cloneable {
 		ENV,
 
 		/**
-		 * Lexical value. See {@link CSSLexicalValue}.
+		 * Lexical value.
+		 * <p>
+		 * Cast to {@link CSSLexicalValue} or
+		 * {@link io.sf.carte.doc.style.css.property.LexicalValue LexicalValue}.
+		 * </p>
 		 */
 		LEXICAL,
 
