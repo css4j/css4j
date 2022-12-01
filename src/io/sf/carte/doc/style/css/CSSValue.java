@@ -75,9 +75,8 @@ public interface CSSValue extends Cloneable {
 		 * Declared shorthands can be retrieved from style declarations.
 		 * </p>
 		 * <p>
-		 * You can cast it to {@link CSSShorthandValue} (interface) or
-		 * {@link io.sf.carte.doc.style.css.property.ShorthandValue ShorthandValue}
-		 * (implementation class).
+		 * Cast it to {@link CSSShorthandValue} to have access to the set of longhand
+		 * property names set by the shorthand.
 		 * </p>
 		 */
 		SHORTHAND
