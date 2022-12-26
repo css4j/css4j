@@ -8,7 +8,7 @@ This project provides implementations of APIs similar to W3C/WHATWG's:
 - [CSS Object Model (CSSOM)](https://www.w3.org/TR/cssom-1/).
 
 Unless otherwise noted, this software is provided under a [BSD-style license](LICENSE.txt)
-(see also [LICENSES.txt](LICENSES.txt) for included files that have a different licensing).
+(see also [NOTICE.txt](NOTICE.txt) for included files that have a different licensing).
 
 <br/>
 

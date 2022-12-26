@@ -141,7 +141,7 @@ contribution to this project's web site, [a PR would be welcome](https://github.
  Your contributions are to be submitted according to the license of this
 project, see the LICENSE.txt file for more information. There is an exception
 though: as a courtesy to W3C, interface definitions that are based on W3C APIs
-are published under a W3C license and its copyright, see the LICENSES.txt file.
+are published under a W3C license and its copyright, see the NOTICE.txt file.
 Note, however, that there are differing interpretations as to whether APIs can
 be copyrighted.
 
