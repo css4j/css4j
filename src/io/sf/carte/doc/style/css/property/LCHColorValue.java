@@ -164,11 +164,11 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		case LCH:
 			lch = (LCHColor) color.getColor();
 			if (ColorSpace.ok_lch.equals(lch.getColorSpace())) {
-				lch = ((CSSColorValue) color).toLCHColorValue().getColor();
+				lch = color.toLCHColorValue().getColor();
 			}
 			break;
 		case LAB:
-			lch = ((CSSColorValue) color).toLCHColorValue().getColor();
+			lch = color.toLCHColorValue().getColor();
 			break;
 		case RGB:
 			RGBColor rgbcolor = (RGBColor) color.getColor();
