@@ -30,6 +30,9 @@ public interface ExtendedNodeList<T extends Node> extends NodeList, Iterable<T> 
 
 	/**
 	 * Get the node located at the <code>index</code> position in this list.
+	 * <p>
+	 * For better performance, please use an iterator instead of this method.
+	 * </p>
 	 * 
 	 * @return the node located at the <code>index</code> position in this list, or
 	 *         <code>null</code> if <code>index</code> is less than zero or greater
@@ -38,6 +41,11 @@ public interface ExtendedNodeList<T extends Node> extends NodeList, Iterable<T> 
 	@Override
 	T item(int index);
 
+	/**
+	 * Check whether this list is empty.
+	 * 
+	 * @return {@code true} if this list is empty.
+	 */
 	boolean isEmpty();
 
 }

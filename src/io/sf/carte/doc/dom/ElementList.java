@@ -21,6 +21,9 @@ public interface ElementList extends ExtendedNodeList<DOMElement> {
 	 * Given the subset of child nodes that are elements, access the element at the
 	 * <code>index</code> position of this list, with the index starting with
 	 * <code>0</code>.
+	 * <p>
+	 * For better performance, please use an iterator instead of this method.
+	 * </p>
 	 *
 	 * @param index the index.
 	 * @return the element at the given position, or <code>null</code> if the
