@@ -16,7 +16,6 @@ import java.util.Locale;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import io.sf.carte.doc.DirectionalityHelper;
@@ -82,37 +81,37 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 	@SuppressWarnings("unchecked")
 	@Override
 	protected int indexOf(SelectorList selectors) {
-		NodeList list = element.getParentNode().getChildNodes();
-		int sz = list.getLength();
+		Node node = element.getParentNode().getFirstChild();
 		int idx = 0;
-		for (int i=0; i<sz; i++) {
-			Node node = list.item(i);
+		while (node != null) {
 			if (node.getNodeType() == Node.ELEMENT_NODE && matchSelectors(selectors, (E) node)) {
 				idx++;
 				if (node == element) {
 					return idx;
 				}
 			}
+			node = node.getNextSibling();
 		}
+
 		return -1;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected int reverseIndexOf(SelectorList selectors) {
-		NodeList list = element.getParentNode().getChildNodes();
-		int sz = list.getLength();
+		Node node = element.getParentNode().getLastChild();
 		int idx = 0;
-		for (int i=sz-1; i>=0; i--) {
-			Node node = list.item(i);
-			if (node.getNodeType() == Node.ELEMENT_NODE && matchSelectors(selectors, (E) node)) {
+		while (node != null) {
+			if (node.getNodeType() == Node.ELEMENT_NODE
+				&& matchSelectors(selectors, (E) node)) {
 				idx++;
 				if (node == element) {
-					break;
+					return idx;
 				}
 			}
+			node = node.getPreviousSibling();
 		}
-		return idx;
+		return -1;
 	}
 
 	private boolean matchSelectors(SelectorList selectors, E element) {
@@ -184,36 +183,38 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 
 	@Override
 	protected boolean isNthOfType(int step, int offset) {
-		NodeList list = element.getParentNode().getChildNodes();
-		int sz = list.getLength();
+		Node node = element.getParentNode().getFirstChild();
 		int idx = 0;
-		for (int i=0; i<sz; i++) {
-			Node node = list.item(i);
-			if (node.getNodeType() == Node.ELEMENT_NODE && getLocalName().equals(node.getNodeName())) {
+		while (node != null) {
+			if (node.getNodeType() == Node.ELEMENT_NODE
+					&& getLocalName().equals(node.getLocalName())) {
 				idx++;
 				if (node == element) {
 					break;
 				}
 			}
+			node = node.getNextSibling();
 		}
+
 		idx -= offset;
 		return step == 0 ? idx == 0 : Math.floorMod(idx, step) == 0;
 	}
 
 	@Override
 	protected boolean isNthLastOfType(int step, int offset) {
-		NodeList list = element.getParentNode().getChildNodes();
-		int sz = list.getLength();
+		Node node = element.getParentNode().getLastChild();
 		int idx = 0;
-		for (int i=sz-1; i>=0; i--) {
-			Node node = list.item(i);
-			if (node.getNodeType() == Node.ELEMENT_NODE && getLocalName().equals(node.getNodeName())) {
+		while (node != null) {
+			if (node.getNodeType() == Node.ELEMENT_NODE
+					&& getLocalName().equals(node.getNodeName())) {
 				idx++;
 				if (node == element) {
 					break;
 				}
 			}
+			node = node.getPreviousSibling();
 		}
+
 		idx -= offset;
 		return step == 0 ? idx == 0 : Math.floorMod(idx, step) == 0;
 	}
@@ -237,47 +238,43 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 
 	@Override
 	protected boolean isEmpty() {
-		if (element.hasChildNodes()) {
-			NodeList list = element.getChildNodes();
-			int sz = list.getLength();
-			for (int i=0; i<sz; i++) {
-				Node node = list.item(i);
-				short type = node.getNodeType();
-				if (type == Node.ELEMENT_NODE) {
-					return false;
-				} else if (type == Node.TEXT_NODE) {
-					String value = node.getNodeValue();
-					if (value.trim().length() != 0) {
-						return false;
-					}
-				} else if (type == Node.ENTITY_REFERENCE_NODE) {
+		Node node = element.getFirstChild();
+		while (node != null) {
+			short type = node.getNodeType();
+			if (type == Node.ELEMENT_NODE) {
+				return false;
+			} else if (type == Node.TEXT_NODE) {
+				String value = node.getNodeValue();
+				if (value.trim().length() != 0) {
 					return false;
 				}
+			} else if (type == Node.ENTITY_REFERENCE_NODE) {
+				return false;
 			}
+			node = node.getNextSibling();
 		}
+
 		return true;
 	}
 
 	@Override
 	protected boolean isBlank() {
-		if (element.hasChildNodes()) {
-			NodeList list = element.getChildNodes();
-			int sz = list.getLength();
-			for (int i=0; i<sz; i++) {
-				Node node = list.item(i);
-				short type = node.getNodeType();
-				if (type == Node.ELEMENT_NODE) {
-					return false;
-				} else if (type == Node.TEXT_NODE) {
-					String value = node.getNodeValue();
-					if (value != null && !((Text) node).isElementContentWhitespace()) {
-						return false;
-					}
-				} else if (type == Node.ENTITY_REFERENCE_NODE) {
+		Node node = element.getFirstChild();
+		while (node != null) {
+			short type = node.getNodeType();
+			if (type == Node.ELEMENT_NODE) {
+				return false;
+			} else if (type == Node.TEXT_NODE) {
+				String value = node.getNodeValue();
+				if (value != null && !((Text) node).isElementContentWhitespace()) {
 					return false;
 				}
+			} else if (type == Node.ENTITY_REFERENCE_NODE) {
+				return false;
 			}
+			node = node.getNextSibling();
 		}
+
 		return true;
 	}
 
@@ -304,6 +301,8 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 	protected boolean isDefaultButton() {
 		// "A form element's default button is the first submit button
 		//  in tree order whose form owner is that form element."
+
+		// First, determine the parent form and its form ID
 		Node parent = element.getParentNode();
 		if (parent == null) {
 			return false;
@@ -320,6 +319,8 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 		} else {
 			formid = getElementId((E) parent);
 		}
+
+		// Now check whether it is the default button
 		Node sibling = element.getPreviousSibling();
 		while (sibling != null) {
 			if (sibling.getNodeType() == Node.ELEMENT_NODE) {
@@ -327,21 +328,19 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 				if (!defaultButtonCheck(element, formid)) {
 					return false;
 				}
-				if (element.hasChildNodes()) {
-					NodeList list = element.getChildNodes();
-					int sz = list.getLength();
-					for (int i = 0; i < sz; i++) {
-						Node node = list.item(i);
-						if (node.getNodeType() == Node.ELEMENT_NODE) {
-							if (!defaultButtonCheck((Element)node, formid)) {
-								return false;
-							}
+				Node node = element.getFirstChild();
+				while (node != null) {
+					if (node.getNodeType() == Node.ELEMENT_NODE) {
+						if (!defaultButtonCheck((Element) node, formid)) {
+							return false;
 						}
 					}
+					node = node.getNextSibling();
 				}
 				sibling = sibling.getPreviousSibling();
 			}
 		}
+
 		return true;
 	}
 
@@ -432,10 +431,8 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 	@Override
 	protected boolean scopeMatchChild(CombinatorSelector selector) {
 		SimpleSelector desc = selector.getSecondSelector();
-		NodeList list = element.getChildNodes();
-		int sz = list.getLength();
-		for (int i = 0; i < sz; i++) {
-			Node node = list.item(i);
+		Node node = element.getFirstChild();
+		while (node != null) {
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				@SuppressWarnings("unchecked")
 				SelectorMatcher childSM = obtainSelectorMatcher((E) node);
@@ -443,6 +440,7 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 					return true;
 				}
 			}
+			node = node.getNextSibling();
 		}
 		return false;
 	}
@@ -450,21 +448,20 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 	@Override
 	protected boolean scopeMatchDescendant(CombinatorSelector selector) {
 		SimpleSelector desc = selector.getSecondSelector();
-		NodeList list = element.getChildNodes();
-		return scopeMatchRecursive(list, desc);
+		Node first = element.getFirstChild();
+		return scopeMatchRecursive(first, desc);
 	}
 
-	private boolean scopeMatchRecursive(NodeList list, SimpleSelector desc) {
-		int sz = list.getLength();
-		for (int i = 0; i < sz; i++) {
-			Node node = list.item(i);
+	private boolean scopeMatchRecursive(Node node, SimpleSelector desc) {
+		while (node != null) {
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				@SuppressWarnings("unchecked")
 				SelectorMatcher childSM = obtainSelectorMatcher((E) node);
-				if (childSM.matches(desc) || scopeMatchRecursive(node.getChildNodes(), desc)) {
+				if (childSM.matches(desc) || scopeMatchRecursive(node.getFirstChild(), desc)) {
 					return true;
 				}
 			}
+			node = node.getNextSibling();
 		}
 		return false;
 	}

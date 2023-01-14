@@ -888,9 +888,9 @@ abstract public class HTMLDocument extends DOMDocument {
 		if (baseURL == null) {
 			String docUri = getDocumentURI();
 			ElementList headnl = getElementsByTagName("head");
-			if (headnl.getLength() != 0) {
+			if (!headnl.isEmpty()) {
 				ElementList nl = headnl.item(0).getElementsByTagName("base");
-				if (nl.getLength() != 0) {
+				if (!nl.isEmpty()) {
 					DOMElement elm = nl.item(0);
 					String s = elm.getAttribute("href");
 					if (setBaseURL(elm, s)) {
