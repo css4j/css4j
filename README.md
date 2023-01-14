@@ -165,7 +165,7 @@ and optional library packages are the following:
 - The [tokenproducer](https://github.com/css4j/tokenproducer) library; version
   1.1.1 or higher is recommended.
 
-- The [xml-dtd](https://github.com/css4j/xml-dtd) library; version 4.0.0 or
+- The [xml-dtd](https://github.com/css4j/xml-dtd) library; version 4.1.1 or
   higher is recommended.
   **It is optional at runtime.**
 
