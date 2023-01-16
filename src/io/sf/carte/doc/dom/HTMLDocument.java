@@ -886,21 +886,26 @@ abstract public class HTMLDocument extends DOMDocument {
 	@Override
 	public URL getBaseURL() {
 		if (baseURL == null) {
-			String docUri = getDocumentURI();
-			ElementList headnl = getElementsByTagName("head");
-			if (!headnl.isEmpty()) {
-				ElementList nl = headnl.item(0).getElementsByTagName("base");
-				if (!nl.isEmpty()) {
-					DOMElement elm = nl.item(0);
-					String s = elm.getAttribute("href");
-					if (setBaseURL(elm, s)) {
+			// Look for the BASE element inside HEAD
+			DOMElement root = getDocumentElement();
+			Iterator<DOMElement> headIt = root.elementIterator("head");
+			if (headIt.hasNext()) {
+				DOMElement head = headIt.next();
+				Iterator<DOMElement> baseIt = head.elementIterator("base");
+				if (baseIt.hasNext()) {
+					DOMElement base = baseIt.next();
+					String s = base.getAttribute("href");
+					if (setBaseURL(base, s)) {
 						return baseURL;
 					}
 				}
 			}
-			try {
-				baseURL = new URL(docUri);
-			} catch (MalformedURLException e) {
+			String docUri = getDocumentURI();
+			if (docUri != null) {
+				try {
+					baseURL = new URL(docUri);
+				} catch (MalformedURLException e) {
+				}
 			}
 		}
 		return baseURL;
