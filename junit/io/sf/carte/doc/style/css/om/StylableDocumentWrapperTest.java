@@ -528,6 +528,54 @@ public class StylableDocumentWrapperTest {
 	}
 
 	@Test
+	public void testBaseElement() {
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getDocumentURI());
+		assertEquals("http://www.example.com/", xhtmlDoc.getBaseURI());
+		assertEquals("http://www.example.com/", xhtmlDoc.getBaseURL().toExternalForm());
+		Node base = xhtmlDoc.getElementsByTagName("base").item(0);
+		assertEquals("http://www.example.com/", base.getBaseURI());
+
+		Node href = base.getAttributes().getNamedItem("href");
+		href.setNodeValue("http://www.example.com/newbase/");
+		assertEquals("http://www.example.com/newbase/", xhtmlDoc.getBaseURI());
+		assertEquals("http://www.example.com/newbase/", base.getBaseURI());
+		//
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		href.setNodeValue("foo://");
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", base.getBaseURI());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+	}
+
+	@Test(timeout=8000)
+	public void testBaseElementEvil() {
+		Node base = xhtmlDoc.getElementsByTagName("base").item(0);
+		Node href = base.getAttributes().getNamedItem("href");
+		href.setNodeValue("jar:http://www.example.com/evil.jar!/file");
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", base.getBaseURI());
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
+		//
+		xhtmlDoc.getErrorHandler().reset();
+		href.setNodeValue("file:/dev/zero");
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", base.getBaseURI());
+		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
+		//
+		xhtmlDoc.getErrorHandler().reset();
+		xhtmlDoc.setDocumentURI("jar:http://www.example.com/trusted.jar!/document.html");
+		href.setNodeValue("jar:http://www.example.com/trusted.jar!/css/");
+		assertEquals("jar:http://www.example.com/trusted.jar!/css/", xhtmlDoc.getBaseURI());
+		assertEquals("jar:http://www.example.com/trusted.jar!/css/", base.getBaseURI());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testMetaElementReferrerPolicy() {
 		assertEquals("same-origin", xhtmlDoc.getReferrerPolicy());
 	}

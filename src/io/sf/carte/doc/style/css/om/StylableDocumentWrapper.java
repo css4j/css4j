@@ -287,6 +287,11 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			return StylableDocumentWrapper.this.getMappedCSSNode(node);
 		}
 
+		@Override
+		public String getBaseURI() {
+			return StylableDocumentWrapper.this.getBaseURI();
+		}
+
 	}
 
 	class MyDocumentType extends MyNode implements DocumentType {
@@ -2009,6 +2014,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				try {
 					bUrl = new URL(docUrl, buri);
 				} catch (MalformedURLException e) {
+					getErrorHandler().ioError(buri, e);
 					return docUrl != null ? docUrl.toExternalForm() : null;
 				}
 				buri = bUrl.toExternalForm();
