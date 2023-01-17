@@ -207,6 +207,8 @@ public class StylableDocumentWrapperTest2 {
 		doc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
 		Node head = doc.getElementsByTagName("head").item(0);
 		Element meta = doc.createElement("meta");
+		meta.setAttribute("id", "defStyle");
+		meta.setIdAttribute("id", true);
 		meta.setAttribute("http-equiv", "Default-Style");
 		meta.setAttribute("content", "Alter 2");
 		head.appendChild(meta);
@@ -214,6 +216,15 @@ public class StylableDocumentWrapperTest2 {
 		cssFac.setLenientSystemValues(false);
 		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(doc);
 		assertEquals("Alter 2", wrapped.getSelectedStyleSheetSet());
+
+		CSSElement wrappedMeta = wrapped.getElementById("defStyle");
+		Attr content = wrappedMeta.getAttributeNode("content");
+		content.setValue("Alter 1");
+		assertEquals("Alter 1", wrapped.getSelectedStyleSheetSet());
+
+		Attr httpEquiv = wrappedMeta.getAttributeNode("http-equiv");
+		httpEquiv.setValue("foo");
+		assertEquals("Default", wrapped.getSelectedStyleSheetSet());
 	}
 
 	@Test

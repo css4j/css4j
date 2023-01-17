@@ -161,16 +161,25 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			switch (node.getNodeType()) {
 			case Node.ATTRIBUTE_NODE:
 				Element owner;
+				String tagname;
 				String name = node.getNodeName();
 				if ("style".equalsIgnoreCase(name) && node.getPrefix() == null) {
 					mynode = new StyleAttr((Attr) node);
 				} else if ((owner = ((Attr) node).getOwnerElement()) != null
-						&& ("link".equalsIgnoreCase(owner.getTagName()) || "style".equalsIgnoreCase(owner.getTagName()))
+					&& node.getPrefix() == null) {
+					if (("link".equalsIgnoreCase(tagname = owner.getTagName())
+						|| "style".equalsIgnoreCase(tagname))
 						&& ("href".equalsIgnoreCase(name) || "media".equalsIgnoreCase(name)
-								|| "title".equalsIgnoreCase(name) || "rel".equalsIgnoreCase(name)
-								|| "type".equalsIgnoreCase(name))
-						&& node.getPrefix() == null) {
-					mynode = new StyleEventAttr((Attr) node);
+							|| "title".equalsIgnoreCase(name) || "rel".equalsIgnoreCase(name)
+							|| "type".equalsIgnoreCase(name))) {
+						mynode = new StyleEventAttr((Attr) node);
+					} else if ("meta".equalsIgnoreCase(tagname)
+						&& ("http-equiv".equalsIgnoreCase(name)
+							|| "content".equalsIgnoreCase(name))) {
+						mynode = new EventAttr((Attr) node);
+					} else {
+						mynode = new MyAttr((Attr) node);
+					}
 				} else {
 					mynode = new MyAttr((Attr) node);
 				}
@@ -783,6 +792,26 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			if (ownerNode instanceof LinkStyleDefiner) {
 				((LinkStyleDefiner) ownerNode).resetLinkedSheet();
 			}
+		}
+	}
+
+	/**
+	 * An attribute that triggers a change by its non-style-definer owner element.
+	 */
+	class EventAttr extends MyAttr {
+
+		EventAttr(Attr attr) {
+			super(attr);
+		}
+
+		@Override
+		public void setValue(String value) throws DOMException {
+			super.setValue(value);
+			onDOMChange(getOwnerElement());
+		}
+
+		void onDOMChange(Node ownerNode) {
+			onStyleModify();
 		}
 	}
 
@@ -1704,6 +1733,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	 */
 	@Override
 	public String getSelectedStyleSheetSet() {
+		if (sheets.needsUpdate()) {
+			sheets.update();
+		}
 		String selectedSetName = "";
 		Iterator<LinkStyleDefiner> links = linkedStyle.iterator();
 		while (links.hasNext()) {
