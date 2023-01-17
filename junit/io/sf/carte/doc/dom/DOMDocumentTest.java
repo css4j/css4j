@@ -1943,6 +1943,10 @@ public class DOMDocumentTest {
 		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
+
+		// Remove attribute
+		element.removeAttributeNode(attr);
+		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
 	}
 
 	@Test

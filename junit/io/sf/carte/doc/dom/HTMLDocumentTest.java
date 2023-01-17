@@ -2235,6 +2235,9 @@ public class HTMLDocumentTest {
 		//
 		xhtmlDoc.normalizeDocument();
 		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
+
+		head.removeChild(meta);
+		assertEquals("Default", xhtmlDoc.getSelectedStyleSheetSet());
 	}
 
 	@Test

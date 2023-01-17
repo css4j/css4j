@@ -2930,6 +2930,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	public void onMetaRemoved(String name, String attribute) {
 		if ("default-style".equalsIgnoreCase(name)) {
 			metaDefaultStyleSet = "";
+			onSheetModify();
 		} else if ("referrer".equalsIgnoreCase(name)) {
 			metaReferrerPolicy = "";
 		}
