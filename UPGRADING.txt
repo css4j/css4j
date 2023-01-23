@@ -1,6 +1,13 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
+Upgrading to 3.9.1 from 3.9.0
+-----------------------------
+- NSAC: on url() values, you should check whether getStringValue() returns null.
+  In that case you are dealing with a var() inside url(), and you must retrieve
+  the var() using getParameters().
+
+
 Upgrading to 3.6 from 3.5
 -------------------------
  - Color primitives (the values implementing CSSColorValue) that use the RGB
