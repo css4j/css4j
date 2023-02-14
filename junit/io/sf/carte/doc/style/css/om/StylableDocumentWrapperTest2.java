@@ -11,24 +11,26 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,7 +48,7 @@ public class StylableDocumentWrapperTest2 {
 
 	private DocumentBuilder docbuilder;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException, SAXException, ParserConfigurationException {
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
@@ -126,7 +128,7 @@ public class StylableDocumentWrapperTest2 {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test (timeout=8000)
+	@Timeout(value = 8000, unit = TimeUnit.MILLISECONDS)
 	public void testLinkElement() {
 		Document document = docbuilder.newDocument();
 		Element docElement = document.createElement("html");

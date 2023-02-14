@@ -11,14 +11,14 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Iterator;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.dom.CSSDOMImplementation;
 import io.sf.carte.doc.dom.DOMBridge;
@@ -31,7 +31,7 @@ public class CascadeTest {
 
 	private Cascade cascade;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		CSSDOMImplementation impl = new CSSDOMImplementation();
 		BaseDocumentCSSStyleSheet sheet = DOMBridge.createDocumentStyleSheet(impl, CSSStyleSheetFactory.ORIGIN_AUTHOR);

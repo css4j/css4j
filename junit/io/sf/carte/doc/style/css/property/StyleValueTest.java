@@ -11,12 +11,12 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -30,7 +30,7 @@ public class StyleValueTest {
 
 	private Parser cssParser;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.cssParser = new CSSParser();
 	}

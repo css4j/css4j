@@ -11,10 +11,10 @@
 
 package io.sf.carte.doc.dom;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -23,8 +23,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -49,7 +49,7 @@ import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 public class CollectionsTest {
 	private static XMLDocumentBuilder builder;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		TestDOMImplementation impl = new TestDOMImplementation(false);
 		impl.setXmlOnly(true);

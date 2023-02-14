@@ -11,10 +11,10 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -26,7 +26,7 @@ public class LinkedCSSValueListTest {
 
 	private static ValueFactory factory;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		factory = new ValueFactory();
 	}

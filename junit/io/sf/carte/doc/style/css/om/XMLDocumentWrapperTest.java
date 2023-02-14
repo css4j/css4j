@@ -11,11 +11,11 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -25,9 +25,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMStringList;
 import org.w3c.dom.Document;
@@ -59,7 +59,7 @@ public class XMLDocumentWrapperTest {
 	private static DocumentBuilder docb;
 	private StylableDocumentWrapper xmlDoc;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws ParserConfigurationException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		dbFac.setNamespaceAware(true);
@@ -67,7 +67,7 @@ public class XMLDocumentWrapperTest {
 		docb.setEntityResolver(new DefaultEntityResolver());
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws SAXException, IOException {
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleXMLReader();
 		InputSource is = new InputSource(re);

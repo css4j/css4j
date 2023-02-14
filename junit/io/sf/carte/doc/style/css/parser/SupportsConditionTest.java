@@ -11,14 +11,14 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
@@ -27,7 +27,7 @@ public class SupportsConditionTest {
 
 	private CSSParser parser;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.parser = new CSSParser();
 	}

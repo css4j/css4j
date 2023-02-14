@@ -11,12 +11,12 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
@@ -27,7 +27,7 @@ public class SyntaxParserTest {
 
 	SyntaxParser parser;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		parser = new SyntaxParser();
 	}

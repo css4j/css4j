@@ -11,13 +11,13 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.DocumentException;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
@@ -29,7 +29,7 @@ public class RGBColorDeclarationFormattingContextTest {
 
 	CSSDocument xhtmlDoc;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException, DocumentException {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(false);
 		StyleFormattingFactory sff = new RGBStyleFormattingFactory();

@@ -11,12 +11,12 @@
 
 package io.sf.carte.doc;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.dom.DOMDocument;
 import io.sf.carte.doc.dom.DOMElement;
@@ -26,7 +26,7 @@ public class DirectionalityHelperTest {
 
 	DOMDocument document;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		document = TestDOMImplementation.loadDocument("/io/sf/carte/doc/dir.html");
 	}

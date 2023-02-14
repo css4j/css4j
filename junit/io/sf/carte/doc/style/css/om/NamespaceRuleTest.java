@@ -11,13 +11,13 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRuleList;
 
@@ -28,7 +28,7 @@ public class NamespaceRuleTest {
 
 	private AbstractCSSStyleSheet sheet;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());

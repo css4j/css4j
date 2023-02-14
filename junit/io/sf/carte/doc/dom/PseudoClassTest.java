@@ -11,15 +11,15 @@
 
 package io.sf.carte.doc.dom;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -32,7 +32,7 @@ public class PseudoClassTest {
 
 	private static DOMDocument htmlDoc;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws SAXException, IOException {
 		HtmlParser parser = new HtmlParser(XmlViolationPolicy.ALTER_INFOSET);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(false));

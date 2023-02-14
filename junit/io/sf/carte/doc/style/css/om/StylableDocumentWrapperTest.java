@@ -11,11 +11,11 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +25,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.DOMStringList;
@@ -68,7 +70,7 @@ public class StylableDocumentWrapperTest {
 
 	private StylableDocumentWrapper xhtmlDoc;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException, SAXException, ParserConfigurationException {
 		InputStream is = DOMCSSStyleSheetFactoryTest.sampleHTMLStream();
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
@@ -548,7 +550,8 @@ public class StylableDocumentWrapperTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
-	@Test(timeout=8000)
+	@Test
+	@Timeout(value = 8000, unit = TimeUnit.MILLISECONDS)
 	public void testBaseElementEvil() {
 		Node base = xhtmlDoc.getElementsByTagName("base").item(0);
 		Node href = base.getAttributes().getNamedItem("href");

@@ -11,16 +11,16 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ListStyleShorthandBuilderTest {
 
 	BaseCSSStyleDeclaration emptyStyleDecl;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		StyleRule styleRule = new StyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();

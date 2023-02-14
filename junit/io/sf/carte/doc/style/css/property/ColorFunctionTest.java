@@ -11,18 +11,18 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColor;
@@ -32,11 +32,11 @@ import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.LCHColor;
 import io.sf.carte.doc.style.css.RGBAColor;
@@ -53,7 +53,7 @@ public class ColorFunctionTest {
 	private static CSSValueSyntax colorSyntax;
 	private static CSSValueSyntax numberSyntax;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		SyntaxParser syntaxParser = new SyntaxParser();
 		colorSyntax = syntaxParser.parseSyntax("<color>");

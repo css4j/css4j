@@ -11,13 +11,13 @@
 
 package io.sf.carte.doc.dom;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,11 +27,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
 import org.w3c.dom.DocumentType;
@@ -50,7 +52,7 @@ public class XMLDocumentBuilderTest {
 	private TestDOMImplementation domImpl;
 	private XMLDocumentBuilder builder;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		domImpl = new TestDOMImplementation(false);
 		builder = new XMLDocumentBuilder(domImpl);
@@ -133,7 +135,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 	}
 
-	@Test(timeout=1000)
+	@Test
+	@Timeout(value = 900, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceXML() throws SAXException, IOException {
 		domImpl.setXmlOnly(true);
 		DOMDocument document = parseDocument("entities.xhtml");
@@ -186,7 +189,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test(timeout=1000)
+	@Test
+	@Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceXMLNotSpecifiedAttributes() throws SAXException, IOException {
 		domImpl.setXmlOnly(true);
 		builder.setIgnoreNotSpecifiedAttributes(false);
@@ -246,7 +250,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test(timeout=1000)
+	@Test
+	@Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceOnlySystem() throws SAXException, IOException {
 		HTMLDocument document = (HTMLDocument) parseDocument("entities-systemdtd.xhtml");
 		assertNotNull(document);
@@ -347,7 +352,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test(timeout=1000)
+	@Test
+	@Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceNoEntityResolver() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
@@ -405,7 +411,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test(timeout=1000)
+	@Test
+	@Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceNoEntityResolverXML()
 			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
@@ -458,7 +465,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals("Paragraph with ", element.getTextContent());
 	}
 
-	@Test(timeout=1000)
+	@Test
+	@Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceNoEntityResolverOnlySystem()
 			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
@@ -516,7 +524,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals("nothing", element.getAttribute("donotexist"));
 	}
 
-	@Test(timeout=1000)
+	@Test
+	@Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceNoEntityResolverXMLOnlySystem()
 			throws SAXException, ParserConfigurationException, IOException {
 		domImpl.setXmlOnly(true);
@@ -568,7 +577,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals("Paragraph with ", element.getTextContent());
 	}
 
-	@Test(timeout=900)
+	@Test
+	@Timeout(value = 900, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceNoEntityResolverFullDTDFail() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
@@ -578,7 +588,8 @@ public class XMLDocumentBuilderTest {
 		}
 	}
 
-	@Test(timeout=900)
+	@Test
+	@Timeout(value = 900, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceNoEntityResolverSystemDTDFail() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
@@ -704,7 +715,8 @@ public class XMLDocumentBuilderTest {
 		assertEquals(" Final comment ", comment.getNodeValue());
 	}
 
-	@Test(timeout=1000)
+	@Test
+	@Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceImpliedHtmlElement() throws SAXException, IOException {
 		builder.setHTMLProcessing(true);
 		HTMLDocument document = (HTMLDocument) parseDocument(new StringReader(

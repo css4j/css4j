@@ -11,17 +11,18 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSMediaRule;
 import org.w3c.dom.css.CSSRule;
@@ -40,7 +41,7 @@ public class DOMCSSStyleSheetTest {
 
 	private BaseCSSStyleSheet sheet = null;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
 	}
@@ -59,9 +60,10 @@ public class DOMCSSStyleSheetTest {
 		sheet.deleteRule(0);
 	}
 
-	@Test(expected = DOMException.class)
+	@Test
 	public void deleteRuleError() {
-		sheet.deleteRule(sheet.getCssRules().getLength());
+		Assertions.assertThrows(DOMException.class,
+			() -> sheet.deleteRule(sheet.getCssRules().getLength()));
 	}
 
 	@Test

@@ -1,18 +1,20 @@
 package io.sf.carte.doc.style.css.dos;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -31,12 +33,12 @@ public class VarBLATest {
 	static CSSDocument htmlDoc;
 	private static DOMCSSStyleSheetFactory factoryDef;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		factoryDef = new TestCSSStyleSheetFactory(false);
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException, DocumentException {
 		InputStream is = xhtmlClasspathStream("varbla.html");
 		htmlDoc = wrapStreamForFactory(is, "http://www.example.com/varbla.html");
@@ -46,7 +48,8 @@ public class VarBLATest {
 	/*
 	 * Billion Laughs Attack
 	 */
-	@Test(timeout = 10000)
+	@Test
+	@Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
 	public void testVarBLA() {
 		CSSElement elm = htmlDoc.getElementById("div1");
 		/*

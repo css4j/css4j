@@ -11,16 +11,16 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
@@ -36,7 +36,7 @@ public class PropertyParserColorRGBTest {
 
 	private static SyntaxParser syntaxParser;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		parser = new CSSParser();
 		syntaxParser = new SyntaxParser();

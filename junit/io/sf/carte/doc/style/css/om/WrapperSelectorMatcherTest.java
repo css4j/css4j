@@ -11,15 +11,15 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -43,7 +43,7 @@ public class WrapperSelectorMatcherTest {
 
 	private Document plaindoc;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.cssParser = new io.sf.carte.doc.style.css.parser.CSSParser();
 		setUpWithMode(CSSDocument.ComplianceMode.QUIRKS);

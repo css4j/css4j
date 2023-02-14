@@ -11,17 +11,17 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.StringTokenizer;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSRuleList;
 
@@ -36,7 +36,7 @@ public class StyleRuleTest2 {
 	StyleRule framesetRule = null;
 	StyleRule noframesRule = null;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		DOMCSSStyleSheetFactory myfactory = new TestCSSStyleSheetFactory();
 		sheet = myfactory.createStyleSheet(null, null);

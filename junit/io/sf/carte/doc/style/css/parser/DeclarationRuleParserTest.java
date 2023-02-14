@@ -11,18 +11,18 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.LinkedList;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -36,12 +36,12 @@ public class DeclarationRuleParserTest {
 	TestDeclarationRuleHandler handler;
 	TestErrorHandler errorHandler;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		parser = new CSSParser();
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		handler = new TestDeclarationRuleHandler();
 		errorHandler = new TestErrorHandler();

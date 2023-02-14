@@ -11,18 +11,18 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentType;
 
 import io.sf.carte.doc.TestConfig;
@@ -47,7 +47,7 @@ public class SelectorMatcherTest {
 
 	private TestDOMImplementation domImpl = new TestDOMImplementation(false);
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.cssParser = new io.sf.carte.doc.style.css.parser.CSSParser();
 		setUpWithMode(CSSDocument.ComplianceMode.QUIRKS);

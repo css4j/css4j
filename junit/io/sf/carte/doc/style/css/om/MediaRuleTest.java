@@ -11,10 +11,10 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -25,9 +25,9 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,12 +50,12 @@ public class MediaRuleTest {
 
 	private AbstractCSSStyleSheet sheet;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		mediaFactory = new MediaQueryFactoryImpl();
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());

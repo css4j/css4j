@@ -174,7 +174,8 @@ and optional library packages are the following:
 
 ### Test dependencies
 
-- A recent version of [JUnit 4](https://junit.org/junit4/).
+- A recent version of [JUnit 5](https://junit.org/junit5/) with the
+  `junit-vintage-engine` artifact.
 
 - The [validator.nu html5 parser](https://about.validator.nu/htmlparser/).
 

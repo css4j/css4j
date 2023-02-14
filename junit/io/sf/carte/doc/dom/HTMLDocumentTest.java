@@ -11,14 +11,14 @@
 
 package io.sf.carte.doc.dom;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -27,9 +27,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -85,7 +87,7 @@ public class HTMLDocumentTest {
 
 	HTMLDocument xhtmlDoc;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		xhtmlDoc = TestDOMImplementation.sampleHTMLDocument();
 	}
@@ -2027,7 +2029,8 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
 	}
 
-	@Test (timeout=8000)
+	@Test
+	@Timeout(value = 8000, unit = TimeUnit.MILLISECONDS)
 	public void testLinkElementEvil() {
 		DOMElement link = xhtmlDoc.createElement("link");
 		link.setAttribute("rel", "stylesheet");
@@ -2042,7 +2045,8 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
-	@Test (timeout=8000)
+	@Test
+	@Timeout(value = 8000, unit = TimeUnit.MILLISECONDS)
 	public void testLinkElementEvilJar() {
 		DOMElement link = xhtmlDoc.createElement("link");
 		link.setAttribute("rel", "stylesheet");
@@ -2155,7 +2159,8 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
-	@Test(timeout=8000)
+	@Test
+	@Timeout(value = 8000, unit = TimeUnit.MILLISECONDS)
 	public void testBaseElementEvil() {
 		DOMElement base = xhtmlDoc.getElementsByTagName("base").item(0);
 		base.setAttribute("href", "jar:http://www.example.com/evil.jar!/file");

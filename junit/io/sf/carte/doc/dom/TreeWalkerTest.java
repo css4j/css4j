@@ -11,14 +11,14 @@
 
 package io.sf.carte.doc.dom;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
 import org.w3c.dom.DOMException;
@@ -31,12 +31,12 @@ public class TreeWalkerTest {
 	private static TestDOMImplementation domImpl;
 	private DOMDocument document;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		domImpl = new TestDOMImplementation(false);
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DOMException {
 		DocumentType doctype = domImpl.createDocumentType("html", null, null);
 		document = domImpl.createDocument(null, "html", doctype);

@@ -11,29 +11,29 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Iterator;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSValue;
 
 public class PropertyDatabaseTest {
 	private static PropertyDatabase pdb;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		pdb = PropertyDatabase.getInstance();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownAfterClass() {
 		pdb = null;
 	}
