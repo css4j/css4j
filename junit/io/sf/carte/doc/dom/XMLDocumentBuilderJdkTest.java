@@ -638,12 +638,7 @@ public class XMLDocumentBuilderJdkTest {
 	}
 
 	private static InputStream loadClasspathStream(final String filename) {
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				return this.getClass().getResourceAsStream(filename);
-			}
-		});
+		return XMLDocumentBuilderJdkTest.class.getResourceAsStream(filename);
 	}
 
 }

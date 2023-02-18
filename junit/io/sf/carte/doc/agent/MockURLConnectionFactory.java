@@ -93,13 +93,7 @@ public class MockURLConnectionFactory {
 	}
 
 	private static InputStream inputStreamFromClasspath(final String filename) {
-		InputStream is = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				return getClass().getResourceAsStream(filename);
-			}
-		});
-		return is;
+		return MockURLConnectionFactory.class.getResourceAsStream(filename);
 	}
 
 	private Map<String, List<String>> getHeadersForExtension(String ext) {

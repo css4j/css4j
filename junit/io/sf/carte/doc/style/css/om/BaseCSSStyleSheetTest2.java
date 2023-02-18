@@ -30,6 +30,7 @@ import java.util.EnumSet;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.dom.TestDOMImplementation;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -478,12 +479,7 @@ public class BaseCSSStyleSheetTest2 {
 
 	private static Reader loadFilefromClasspath(String filename) {
 		final String path = "/io/sf/carte/doc/style/css/" + filename;
-		InputStream is = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				return this.getClass().getResourceAsStream(path);
-			}
-		});
+		InputStream is = TestDOMImplementation.class.getResourceAsStream(path);
 		Reader re = null;
 		if (is != null) {
 			re = new InputStreamReader(is, StandardCharsets.UTF_8);

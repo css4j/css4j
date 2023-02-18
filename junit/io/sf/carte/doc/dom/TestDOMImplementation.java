@@ -246,12 +246,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	}
 
 	private static InputStream classpathStream(final String filename) {
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				return this.getClass().getResourceAsStream(filename);
-			}
-		});
+		return TestDOMImplementation.class.getResourceAsStream(filename);
 	}
 
 	private static class TestDeviceFactory extends DummyDeviceFactory {

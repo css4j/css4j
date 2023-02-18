@@ -127,12 +127,7 @@ public class DOMCSSStyleSheetFactoryTest {
 	}
 
 	private static Reader loadCSSfromClasspath(final String filename) {
-		InputStream is = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				return this.getClass().getResourceAsStream(filename);
-			}
-		});
+		InputStream is = DOMCSSStyleSheetFactoryTest.class.getResourceAsStream(filename);
 		Reader re = null;
 		if (is != null) {
 			re = new InputStreamReader(is, StandardCharsets.UTF_8);
@@ -219,12 +214,7 @@ public class DOMCSSStyleSheetFactoryTest {
 	}
 
 	private static InputStream xhtmlClasspathStream(final String filename) {
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				return this.getClass().getResourceAsStream(filename);
-			}
-		});
+		return DOMCSSStyleSheetFactoryTest.class.getResourceAsStream(filename);
 	}
 
 }

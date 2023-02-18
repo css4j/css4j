@@ -326,12 +326,7 @@ public class DOMWriterTest {
 	}
 
 	private static InputStream classpathStream(final String filename) {
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				return this.getClass().getResourceAsStream(filename);
-			}
-		});
+		return DOMWriterTest.class.getResourceAsStream(filename);
 	}
 
 }

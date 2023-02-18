@@ -87,12 +87,7 @@ public class VarBLATest {
 	}
 
 	private static InputStream xhtmlClasspathStream(final String filename) {
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				return this.getClass().getResourceAsStream(filename);
-			}
-		});
+		return VarBLATest.class.getResourceAsStream(filename);
 	}
 
 }
