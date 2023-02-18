@@ -46,11 +46,15 @@ dependencies {
 	loggingImplementation 'org.slf4j:slf4j-api:[1.7.28,)'
 
 	testImplementation 'org.slf4j:slf4j-simple:[1.7.28,)'
+	testImplementation 'nu.validator:htmlparser:1.4.16'
+	// JUnit
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 	// ShorthandSetterTest requires JUnit 4
 	testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
-	testImplementation 'nu.validator:htmlparser:1.4.16'
+	// Jazzzer
+	testImplementation 'com.code-intelligence:jazzer-junit:0.15.0'
 
+	// Testing with Java 8
 	test8Implementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 	// ShorthandSetterTest requires JUnit 4
 	test8Implementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
@@ -111,7 +115,9 @@ sourceSets {
 }
 
 test {
-	useJUnitPlatform()
+	useJUnitPlatform() {
+		excludeTags 'Fuzz'
+	}
 }
 
 tasks.compileJava {
@@ -218,6 +224,8 @@ tasks.withType(AbstractArchiveTask).configureEach {
 	from ("$buildDir/tmp/crlf/NOTICE.txt") {
 		into 'META-INF'
 	}
+	// Exclude Jazzer stuff
+	exclude 'test/**'
 }
 
 build.dependsOn lineEndingConversion
@@ -246,6 +254,19 @@ tasks.register('testOn8', Test) {
 	javaLauncher = javaToolchains.launcherFor {
 		languageVersion = JavaLanguageVersion.of(8)
 	}
+}
+
+tasks.register('fuzzer', Test) {
+	environment 'JAZZER_FUZZ', '1'
+
+	useJUnitPlatform() {
+		includeTags 'Fuzz'
+	}
+}
+
+tasks.withType(Test) {
+	// Probably not needed
+	defaultCharacterEncoding = 'UTF-8'
 }
 
 tasks.register('testsJar', Jar) {

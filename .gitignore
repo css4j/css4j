@@ -21,4 +21,8 @@
 /build/
 /buildSrc/build/
 
+# Fuzzer
+*TestInputs/
+.cifuzz-corpus/
+
 /CHANGES.txt

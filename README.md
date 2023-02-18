@@ -147,6 +147,31 @@ And then, add the following to the `<dependencies>` section of your `pom.xml`:
 
 <br/>
 
+## In your IDE
+
+When running the test suite from your IDE, you may want to exclude the {@code Fuzz}
+tag from your JUnit Runner configuration, to avoid bootstrapping the fuzzer each
+time you run it.
+
+<br/>
+
+## Fuzzing
+
+This library includes a [Jazzer](https://github.com/CodeIntelligenceTesting/jazzer)-based
+fuzzing test that can be run with
+
+```shell
+./gradlew fuzzer
+```
+
+as well as within your IDE (in the latter case you have to set the `JAZZER_FUZZ`
+environment variable).
+
+Beware that many of the crashes that it finds are related to the coverage
+instrumentation and cannot be reproduced outside of the fuzzer.
+
+<br/>
+
 ## Software dependencies
 
 In case that you do not use a Gradle or Maven build (which would manage the
