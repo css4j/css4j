@@ -4618,7 +4618,8 @@ public class CSSParser implements Parser, Cloneable {
 						}
 					}
 					parendepth++;
-				} else if (codepoint == 91) { // '['
+				} else { // '['
+					assert codepoint == 91;
 					if (prevcp != 65 && isNotSeparator(prevcp) && prevcp != 42 && prevcp != 44 && prevcp != 93
 							&& prevcp != 41 && prevcp != 43 && prevcp != 62 && prevcp != 125 && prevcp != 126
 							&& prevcp != 124) {
@@ -5057,6 +5058,25 @@ public class CSSParser implements Parser, Cloneable {
 						if (stage == STAGE_EXPECT_ID_OR_CLASSNAME || stage == STAGE_EXPECT_PSEUDOCLASS_NAME
 								|| stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
 							processBuffer(index, codepoint, false);
+							try {
+								int ncp = getTokenControl().skipNextCodepoint();
+								if (ncp != TokenProducer.CHAR_VERTICAL_LINE) {
+									if (ncp == -1) {
+										handleError(index + 1, ParseHelper.ERR_UNEXPECTED_EOF,
+											"EOF while processing column combinator selector");
+									} else {
+										unexpectedCharError(index + 1, ncp);
+									}
+								} else {
+									newCombinatorSelector(index, SelectorType.COLUMN_COMBINATOR,
+										TokenProducer.CHAR_VERTICAL_LINE);
+									prevcp = 32;
+									return;
+								}
+							} catch (IOException e) {
+								handleError(index + 1, ParseHelper.ERR_UNEXPECTED_EOF,
+									"I/O Error when processing column combinator selector", e);
+							}
 						} else if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
 						} else if (stage == 1 && namespacePrefix == null) {
@@ -5436,6 +5456,9 @@ public class CSSParser implements Parser, Cloneable {
 				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
+				} else if (Character.isISOControl(codepoint)) {
+					unexpectedCharError(index, codepoint);
+					return;
 				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 					Selector sel = getActiveSelector();
 					if (sel.getSelectorType() == SelectorType.CONDITIONAL) {
@@ -7848,6 +7871,10 @@ public class CSSParser implements Parser, Cloneable {
 				if (!parseError) {
 					String s = quoted.toString();
 					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING, false);
+					if (lu.value != null) {
+						handleError(index, ParseHelper.ERR_WRONG_VALUE,
+							"Unexpected string: " + quoteChar + quoted + quoteChar);
+					}
 					lu.value = safeUnescapeIdentifier(index, s);
 					char c = (char) quoteChar;
 					lu.identCssText = c + ParseHelper.escapeControl(s) + c;

@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -79,6 +80,18 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
+	public void testParseSelectorElementLF() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("svg|p\n");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
+		assertEquals("p", ((ElementSelector) sel).getLocalName());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) sel).getNamespaceURI());
+		assertEquals("svg|p", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorElementError() throws CSSException, IOException {
 		try {
 			parser.parseSelectors("svg | p");
@@ -112,6 +125,30 @@ public class SelectorParserNSTest {
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 		}
+	}
+
+	@Test
+	public void testNSSelectorError() throws CSSException, IOException {
+		String s = ".foo|bar";
+		assertThrows(CSSParseException.class, () -> parser.parseSelectors(new StringReader(s)));
+	}
+
+	@Test
+	public void testNSSelectorErrorLF() throws CSSException, IOException {
+		String s = ".foo|bar\n";
+		assertThrows(CSSParseException.class, () -> parser.parseSelectors(new StringReader(s)));
+	}
+
+	@Test
+	public void testNSSelectorErrorNoTypeEOF() throws CSSException, IOException {
+		String s = ".foo|";
+		assertThrows(CSSParseException.class, () -> parser.parseSelectors(new StringReader(s)));
+	}
+
+	@Test
+	public void testNSSelectorErrorNoTypeLF() throws CSSException, IOException {
+		String s = ".foo|\n";
+		assertThrows(CSSParseException.class, () -> parser.parseSelectors(new StringReader(s)));
 	}
 
 	@Test

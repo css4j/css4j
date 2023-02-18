@@ -117,6 +117,18 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorElementLF() throws CSSException, IOException {
+		SelectorList selist = parseSelectors("p\n");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
+		assertEquals("p", ((ElementSelector) sel).getLocalName());
+		assertNull(((ElementSelector) sel).getNamespaceURI());
+		assertEquals("p", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorElementHighChar() throws CSSException, IOException {
 		SelectorList selist = parseSelectors("\u208c");
 		assertNotNull(selist);

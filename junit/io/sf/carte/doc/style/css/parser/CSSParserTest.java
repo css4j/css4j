@@ -174,6 +174,21 @@ public class CSSParserTest {
 	}
 
 	@Test
+	public void testParseMediaList() {
+		CSSParser parser = new CSSParser();
+		NSACMediaQueryList list = new NSACMediaQueryList();
+		list.parse(parser, "tv", null);
+		assertNotNull(list);
+		assertEquals(1, list.getLength());
+		assertEquals("tv", list.item(0));
+		list.setMediaText("tv, screen");
+		assertNotNull(list);
+		assertEquals(2, list.getLength());
+		assertEquals("tv", list.item(0));
+		assertEquals("screen", list.item(1));
+	}
+
+	@Test
 	public void testParseMediaQueryListAll() {
 		CSSParser parser = new CSSParser();
 		MediaQueryList mql = parser.parseMediaQueryList("all", null);
