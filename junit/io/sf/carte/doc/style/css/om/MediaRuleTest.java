@@ -364,6 +364,31 @@ public class MediaRuleTest {
 	}
 
 	@Test
+	public void testParseNestedEOF() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
+		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
+		assertEquals("screen", rule.getMedia().getMedia());
+		assertTrue(sheet == rule.getParentStyleSheet());
+		assertEquals(2, rule.getCssRules().getLength());
+		AbstractCSSRule rule0 = rule.getCssRules().item(0);
+		assertEquals(CSSRule.STYLE_RULE, rule0.getType());
+		assertTrue(rule == rule0.getParentRule());
+		AbstractCSSRule rule1 = rule.getCssRules().item(1);
+		assertEquals(CSSRule.MEDIA_RULE, rule1.getType());
+		assertTrue(rule == rule1.getParentRule());
+		MediaRule nestedmrule = (MediaRule) rule1;
+		assertEquals("(max-width: 1600px)", nestedmrule.getMedia().getMedia());
+		assertEquals("(max-width:1600px)", nestedmrule.getMedia().getMinifiedMedia());
+		assertEquals("@media screen{.foo{bottom:20px!important}@media (max-width:1600px){div.foo{margin:1em;}}}",
+				rule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
 	public void testSetCssText() throws DOMException {
 		MediaQueryList mediaList = createMediaList("screen,print");
 		MediaRule rule = new MediaRule(sheet, mediaList, CSSStyleSheetFactory.ORIGIN_AUTHOR);

@@ -151,7 +151,7 @@ public class FontFaceRuleTest {
 	@Test
 	public void testParseFontFaceRuleErrorRecovery() throws IOException {
 		StringReader re = new StringReader(
-				"@;@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
+				"@;@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')");
 		assertFalse(sheet.parseStyleSheet(re));
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.FONT_FACE_RULE, sheet.getCssRules().item(0).getType());

@@ -113,6 +113,40 @@ public class CounterStyleRuleTest {
 	}
 
 	@Test
+	public void testParseRuleErrorRecovery() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@;@counter-style thumbs {system: cyclic;\nsymbols: \\1F44D;\n suffix: \" \"");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		CounterStyleRule rule = (CounterStyleRule) sheet.getCssRules().item(0);
+		assertEquals(CSSRule.COUNTER_STYLE_RULE, rule.getType());
+		assertEquals("@counter-style thumbs {system:cyclic;symbols:\uD83D\uDC4D;suffix:\" \"}",
+				rule.getMinifiedCssText());
+		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1f44d ;\n    suffix: \" \";\n}\n",
+				rule.getCssText());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+		// Visitor
+		PropertyCountVisitor visitor = new PropertyCountVisitor();
+		sheet.acceptDescriptorRuleVisitor(visitor);
+		assertEquals(3, visitor.getCount());
+	}
+
+	@Test
+	public void testParseRuleErrorRecoveryStringEOF() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@;@counter-style thumbs {system: cyclic;\nsymbols: \\1F44D;\n suffix: \" ");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		CounterStyleRule rule = (CounterStyleRule) sheet.getCssRules().item(0);
+		assertEquals(CSSRule.COUNTER_STYLE_RULE, rule.getType());
+		assertEquals("@counter-style thumbs {system:cyclic;symbols:\uD83D\uDC4D;suffix:\" \"}",
+				rule.getMinifiedCssText());
+		assertEquals("@counter-style thumbs {\n    system: cyclic;\n    symbols: \\1f44d ;\n    suffix: \" \";\n}\n",
+				rule.getCssText());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
 	public void testSetCssTextString() {
 		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		// Rule taken from mozilla website

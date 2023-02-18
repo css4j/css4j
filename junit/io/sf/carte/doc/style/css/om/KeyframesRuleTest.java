@@ -164,6 +164,23 @@ public class KeyframesRuleTest {
 	}
 
 	@Test
+	public void testParseRuleErrorRecovery() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@;@keyframes \"My Animation\" {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+		assertEquals(CSSRule.KEYFRAMES_RULE, sheet.getCssRules().item(0).getType());
+		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
+		assertEquals("My Animation", rule.getName());
+		assertEquals("@keyframes 'My Animation'{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				rule.getMinifiedCssText());
+		assertEquals(
+				"@keyframes 'My Animation' {\n    0,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
 	public void testParseRuleEscapedFF() throws DOMException, IOException {
 		StringReader re = new StringReader(
 				"@keyframes \\66 00 {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");

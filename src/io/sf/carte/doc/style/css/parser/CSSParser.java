@@ -4246,6 +4246,12 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			protected void handleRightCurlyBracket(int index) {
 				setSelectorHandler(125);
+				closeRule();
+				rulesFound = true;
+				resetHandler();
+			}
+
+			private void closeRule() {
 				if (ruleType == FONT_FACE_RULE) {
 					handler.endFontFace();
 					if (SheetTokenHandler.this.stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING) {
@@ -4265,8 +4271,6 @@ public class CSSParser implements Parser, Cloneable {
 					handler.endSelector(SheetTokenHandler.this.selectorHandler.selist);
 					SheetTokenHandler.this.selectorHandler.selist = new MySelectorListImpl();
 				}
-				rulesFound = true;
-				resetHandler();
 			}
 
 			@Override
@@ -4299,6 +4303,19 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void endOfStream(int len) {
 				super.endOfStream(len);
+
+				if (curlyBracketDepth > 0) {
+					// We need to close rule
+					closeRule();
+					curlyBracketDepth--;
+					// If sheet-level curlyBracketDepth is zero, warn here.
+					// Otherwise, the responsibility for the warning will be at
+					// sheet level.
+					if (SheetTokenHandler.this.curlyBracketDepth == 0 && !parseError) {
+						handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+					}
+				}
+
 				contextHandler = null;
 				SheetTokenHandler.this.endOfStream(len);
 			}

@@ -125,6 +125,40 @@ public class PageRuleTest {
 	}
 
 	@Test
+	public void testParsePageRulePseudoPageMarginEOF() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@page foo:first,bar:right {margin-top: 20%;@top-left {margin-top: 0.7em; margin-left:1ex}@bottom-center {content: 'foo'");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
+		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
+		assertEquals(
+				"@page foo:first,bar:right {\n    margin-top: 20%;\n    @top-left {\n        margin-top: 0.7em;\n        margin-left: 1ex;\n    }\n    @bottom-center {\n        content: 'foo';\n    }\n}\n",
+				pagerule.getCssText());
+		assertEquals(
+				"@page foo:first,bar:right{margin-top:20%;@top-left{margin-top:.7em;margin-left:1ex}@bottom-center{content:'foo'}}",
+				pagerule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
+	public void testParsePageRulePseudoPageMarginStringEOF() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@page foo:first,bar:right {margin-top: 20%;@top-left {margin-top: 0.7em; margin-left:1ex}@bottom-center {content: 'foo");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(0).getType());
+		PageRule pagerule = (PageRule) sheet.getCssRules().item(0);
+		assertEquals(
+				"@page foo:first,bar:right {\n    margin-top: 20%;\n    @top-left {\n        margin-top: 0.7em;\n        margin-left: 1ex;\n    }\n    @bottom-center {\n        content: 'foo';\n    }\n}\n",
+				pagerule.getCssText());
+		assertEquals(
+				"@page foo:first,bar:right{margin-top:20%;@top-left{margin-top:.7em;margin-left:1ex}@bottom-center{content:'foo'}}",
+				pagerule.getMinifiedCssText());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
 	public void testParsePageRuleWithMargin() throws DOMException, IOException {
 		StringReader re = new StringReader("@page :first {margin-top: 20%;@top-left {content: 'foo'; color: blue;}}");
 		sheet.parseStyleSheet(re);

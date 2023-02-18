@@ -16,6 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
@@ -33,6 +36,17 @@ public class NamespaceRuleTest {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
 		sheet = factory.createStyleSheet(null, null);
+	}
+
+	@Test
+	public void testParse() throws DOMException, IOException {
+		StringReader re = new StringReader("@namespace svg url(http://www.w3.org/2000/svg)");
+		assertTrue(sheet.parseStyleSheet(re));
+		assertEquals(1, sheet.getCssRules().getLength());
+
+		NamespaceRule nsRule = (NamespaceRule) sheet.getCssRules().item(0);
+		assertEquals("svg", nsRule.getPrefix());
+		assertEquals("http://www.w3.org/2000/svg", nsRule.getNamespaceURI());
 	}
 
 	@Test

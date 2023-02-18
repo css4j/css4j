@@ -158,6 +158,25 @@ public class FontFeatureValuesRuleTest {
 	}
 
 	@Test
+	public void testParseRuleQuotedErrorRecovery() throws IOException {
+		StringReader re = new StringReader(
+				"@;@font-feature-values 'Some Font', 'Other Font' {@swash { swishy: 1; flowing: 2; } @styleset { double-W: 14; sharp-terminals: 16 1");
+		assertFalse(sheet.parseStyleSheet(re));
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.FONT_FEATURE_VALUES_RULE, sheet.getCssRules().item(0).getType());
+		FontFeatureValuesRule rule = (FontFeatureValuesRule) sheet.getCssRules().item(0);
+		assertEquals(2, rule.getFontFamily().length);
+		assertEquals("Some Font", rule.getFontFamily()[0]);
+		assertEquals("Other Font", rule.getFontFamily()[1]);
+		assertEquals(
+				"@font-feature-values Some Font,Other Font{@swash{swishy:1;flowing:2}@styleset{double-W:14;sharp-terminals:16 1}}",
+				rule.getMinifiedCssText());
+		assertEquals(
+				"@font-feature-values 'Some Font', 'Other Font' {\n    @swash {\n        swishy: 1;\n        flowing: 2;\n    }\n    @styleset {\n        double-W: 14;\n        sharp-terminals: 16 1;\n    }\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
 	public void testParseRuleBad() throws IOException {
 		StringReader re = new StringReader("@font-feature-values Some Font, Other Font {@swash 'foo'}");
 		sheet.parseStyleSheet(re);

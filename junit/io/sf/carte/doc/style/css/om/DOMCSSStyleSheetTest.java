@@ -177,6 +177,8 @@ public class DOMCSSStyleSheetTest {
 			}
 			return csel.getCondition().getConditionType() == csel2.getCondition().getConditionType();
 		case DIRECT_ADJACENT:
+		case SUBSEQUENT_SIBLING:
+		case COLUMN_COMBINATOR:
 			CombinatorSelector asel = (CombinatorSelector) s;
 			CombinatorSelector asel2 = (CombinatorSelector) s2;
 			return selectorEquals(asel.getSelector(), asel2.getSelector())
