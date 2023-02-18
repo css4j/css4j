@@ -4209,12 +4209,20 @@ public class CSSParser implements Parser, Cloneable {
 			protected void handleError(int index, byte errCode, String message) {
 				MySelectorTokenHandler.this.stage = 127;
 				if (!parseError) {
+					CSSParseException ex;
+					if (prevcp == endcp) {
+						ex = createException(index, errCode, "Expected end of file");
+					} else {
+						ex = createException(index, errCode, message);
+					}
 					if (errorHandler != null) {
 						if (prevcp == endcp) {
-							errorHandler.error(createException(index, errCode, "Expected end of file"));
+							errorHandler.error(ex);
 						} else {
-							errorHandler.error(createException(index, errCode, message));
+							errorHandler.error(ex);
 						}
+					} else {
+						throw ex;
 					}
 					parseError = true;
 				}
