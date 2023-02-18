@@ -4198,7 +4198,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			public void endOfStream(int len) {
-				if (buffer.length() != 0) {
+				if (stage != 0) {
 					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
 				}
 				contextHandler = null;
@@ -4608,17 +4608,20 @@ public class CSSParser implements Parser, Cloneable {
 				return;
 			} else {
 				if (codepoint == 40) { // '('
-					if (prevcp != 65 || buffer.length() == 0 || stage != STAGE_EXPECT_PSEUDOCLASS_NAME) {
-						unexpectedCharError(index, codepoint);
-					} else {
-						newConditionalSelector(index, codepoint, ConditionType.PSEUDO_CLASS);
-						if (!parseError) {
-							stage = STAGE_EXPECT_PSEUDOCLASS_ARGUMENT;
-							functionToken = true;
+					parendepth++;
+					if (!parseError) {
+						if (prevcp != 65 || buffer.length() == 0
+							|| stage != STAGE_EXPECT_PSEUDOCLASS_NAME) {
+							unexpectedCharError(index, codepoint);
+						} else {
+							newConditionalSelector(index, codepoint, ConditionType.PSEUDO_CLASS);
+							if (!parseError) {
+								stage = STAGE_EXPECT_PSEUDOCLASS_ARGUMENT;
+								functionToken = true;
+							}
 						}
 					}
-					parendepth++;
-				} else { // '['
+				} else if (!parseError) { // '['
 					assert codepoint == 91;
 					if (prevcp != 65 && isNotSeparator(prevcp) && prevcp != 42 && prevcp != 44 && prevcp != 93
 							&& prevcp != 41 && prevcp != 43 && prevcp != 62 && prevcp != 125 && prevcp != 126
@@ -5494,10 +5497,13 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void endOfStream(int len) {
-			processBuffer(len, 32, true);
 			if (!parseError) {
-				if (!addCurrentSelector(len)) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+				processBuffer(len, 32, true);
+				if (!parseError) {
+					if (!addCurrentSelector(len)) {
+						handleError(len, ParseHelper.ERR_UNEXPECTED_EOF,
+							"Unexpected end of stream");
+					}
 				}
 			}
 		}
@@ -5594,6 +5600,7 @@ public class CSSParser implements Parser, Cloneable {
 				index -= context.length() + 1;
 			}
 			super.error(index, errCode, context);
+			currentsel = null;
 			selist.clear();
 		}
 
@@ -6173,15 +6180,22 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				}
 			} else if (codepoint == 125) { // }
-				if (parendepth == 0 && squareBracketDepth == 0) {
-					if (curlyBracketDepth == 1) {
-						endOfPropertyDeclaration(index);
-						handleRightCurlyBracket(index);
-					} else if (curlyBracketDepth == 2) {
+				if (parendepth != 0 || squareBracketDepth != 0) {
+					parseError = true;
+					parendepth = 0;
+					squareBracketDepth = 0;
+				}
+				if (curlyBracketDepth == 1) {
+					endOfPropertyDeclaration(index);
+					handleRightCurlyBracket(index);
+				} else if (curlyBracketDepth == 2) {
+					int len = buffer.length();
+					if (len != 0) {
+						unexpectedTokenError(index - len, buffer);
 						buffer.setLength(0);
-					} else {
-						this.parseError = true;
 					}
+				} else {
+					parseError = true;
 				}
 				curlyBracketDepth--;
 			} else if (codepoint == 93) { // ]

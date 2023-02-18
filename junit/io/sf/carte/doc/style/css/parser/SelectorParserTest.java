@@ -2244,22 +2244,10 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorStringMethodClass() throws CSSException, IOException {
-		SelectorList selist = parseSelectors(".foo,.bar");
-		assertNotNull(selist);
-		assertEquals(2, selist.getLength());
-		Selector sel = selist.item(0);
-		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
-		Condition cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(ConditionType.CLASS, cond.getConditionType());
-		assertEquals("foo", ((AttributeCondition) cond).getValue());
-		assertEquals(".foo", sel.toString());
-		sel = selist.item(1);
-		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
-		cond = ((ConditionalSelector) sel).getCondition();
-		assertEquals(ConditionType.CLASS, cond.getConditionType());
-		assertEquals("bar", ((AttributeCondition) cond).getValue());
-		assertEquals(".bar", sel.toString());
+	public void testParseSelectorListClassError() throws CSSException, IOException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+			() -> parseSelectors("p.,.bar"));
+		assertEquals(3, ex.getColumnNumber());
 	}
 
 	@Test
