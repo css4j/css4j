@@ -149,7 +149,7 @@ And then, add the following to the `<dependencies>` section of your `pom.xml`:
 
 ## In your IDE
 
-When running the test suite from your IDE, you may want to exclude the {@code Fuzz}
+When running the test suite from your IDE, you may want to exclude the `Fuzz`
 tag from your JUnit Runner configuration, to avoid bootstrapping the fuzzer each
 time you run it.
 
