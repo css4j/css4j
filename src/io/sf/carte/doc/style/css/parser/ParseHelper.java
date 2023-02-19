@@ -44,6 +44,7 @@ public class ParseHelper {
 	public static final byte ERR_EXPR_SYNTAX = 32;
 	public static final byte ERR_RULE_SYNTAX = 33;
 	public static final byte ERR_UNEXPECTED_EOF = 10;
+	public static final byte ERR_IO = 11;
 	public static final byte ERR_UNSUPPORTED = 127;
 
 	public static final byte WARN_DUPLICATE_SELECTOR = -1;

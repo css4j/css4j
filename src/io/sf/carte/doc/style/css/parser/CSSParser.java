@@ -5077,7 +5077,7 @@ public class CSSParser implements Parser, Cloneable {
 									return;
 								}
 							} catch (IOException e) {
-								handleError(index + 1, ParseHelper.ERR_UNEXPECTED_EOF,
+								handleError(index + 1, ParseHelper.ERR_IO,
 									"I/O Error when processing column combinator selector", e);
 							}
 						} else if (stage == STAGE_COMBINATOR_OR_END) {
