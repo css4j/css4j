@@ -81,34 +81,17 @@ repositories {
 }
 
 sourceSets {
-	main {
-		java {
-			srcDirs = ['src']
-			includes += ["**/*.java"]
-		}
-		resources {
-			srcDirs = ['src']
-			excludes += ["**/*.java"]
-		}
-	}
 	test {
-		java {
-			srcDirs = ['junit']
-			includes += ["**/*.java"]
-		}
 		resources {
-			srcDirs = ['junit']
-			excludes += ["**/*.java"]
+			excludes += ['NOTICE.txt']
 		}
 	}
 	test8 {
 		java {
-			srcDirs = ['junit']
-			includes += ["**/*.java"]
+			srcDirs = ['src/test/java']
 		}
 		resources {
-			srcDirs = ['junit']
-			excludes += ["**/*.java"]
+			srcDirs = ['src/test/resources']
 		}
 		compileClasspath += sourceSets.main.output
 		runtimeClasspath += sourceSets.main.output
@@ -187,6 +170,13 @@ tasks.register('lineEndingConvCopy', CRLFConvertCopy) {
 	from "$rootDir/NOTICE.txt"
 }
 
+tasks.register('testLineEndingConvCopy', CRLFConvertCopy) {
+	description 'Convert test NOTICE to Windows line endings'
+	dependsOn testClasses
+	from "$rootDir/src/test/resources/NOTICE.txt"
+	prefix = 'test/'
+}
+
 jacocoTestReport {
 	dependsOn test
 }
@@ -209,7 +199,7 @@ tasks.withType(Javadoc) {
 	options.addStringOption('Xdoclint:none', '-quiet')
 	options.addStringOption('encoding', 'UTF-8')
 	options.addStringOption('charset', 'UTF-8')
-	options.overview = 'src/overview.html'
+	options.overview = 'src/main/resources/overview.html'
 	options.links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
 }
 
@@ -222,14 +212,28 @@ tasks.withType(AbstractArchiveTask).configureEach {
 	from ("$buildDir/tmp/crlf/LICENSE.txt") {
 		into 'META-INF'
 	}
-	from ("$buildDir/tmp/crlf/NOTICE.txt") {
+}
+
+['jar', 'sourcesJar', 'javadocJar'].each {
+	tasks.named(it) {
+		from ("$buildDir/tmp/crlf/NOTICE.txt") {
+			into 'META-INF'
+		}
+	}
+}
+
+tasks.register('testsJar', Jar) {
+	dependsOn testLineEndingConvCopy
+	archiveClassifier = 'tests'
+	from(sourceSets.test.output)
+	from ("$buildDir/tmp/crlf/test/NOTICE.txt") {
 		into 'META-INF'
 	}
 	// Exclude Jazzer stuff
-	exclude 'test/**'
+	exclude '**/CSSParserFuzzTestInputs'
 }
 
-build.dependsOn lineEndingConversion
+build.dependsOn lineEndingConversion, testsJar
 
 tasks.withType(AbstractPublishToMaven).configureEach {
 	doFirst {
@@ -268,11 +272,6 @@ tasks.register('fuzzer', Test) {
 tasks.withType(Test) {
 	// Probably not needed
 	defaultCharacterEncoding = 'UTF-8'
-}
-
-tasks.register('testsJar', Jar) {
-	archiveClassifier = 'tests'
-	from(sourceSets.test.output)
 }
 
 artifacts {
