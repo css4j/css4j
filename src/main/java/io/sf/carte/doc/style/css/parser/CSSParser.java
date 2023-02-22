@@ -4823,6 +4823,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else if (buffer.length() != 0) {
 				if (stage == 1) {
+					String raw = buffer.toString();
 					ElementSelectorImpl sel = newElementSelector(index);
 					String uri;
 					if (namespacePrefix == null) {
@@ -4834,7 +4835,6 @@ public class CSSParser implements Parser, Cloneable {
 						}
 					}
 					sel.namespaceUri = uri;
-					String raw = buffer.toString();
 					if (isNotForbiddenIdentStart(raw)) {
 						String s = unescapeBuffer(index);
 						sel.localName = s;
