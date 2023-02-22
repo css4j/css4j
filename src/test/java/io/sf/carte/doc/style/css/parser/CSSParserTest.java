@@ -306,24 +306,59 @@ public class CSSParserTest {
 	}
 
 	@Test
-	public void testBufferEndsWithEscapedChar() {
+	public void testBufferEndsWithEscapedCharOrWS() {
 		StringBuilder buffer = new StringBuilder(50);
+		buffer.append("1a");
+		assertFalse(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
+		buffer.append("\\");
+		assertFalse(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
 		buffer.append("foo");
 		assertFalse(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
 		buffer.append("\\123456");
 		assertFalse(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
 		buffer.append("\\12 foo");
 		assertFalse(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
 		buffer.append("foo\\123456");
 		assertFalse(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
 		buffer.append("\\12345");
 		assertTrue(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
 		buffer.append("foo\\12345");
 		assertTrue(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
 		buffer.append("\\1");
 		assertTrue(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+		buffer.setLength(0);
 		buffer.append("foo\\1");
 		assertTrue(CSSParser.bufferEndsWithEscapedCharOrWS(buffer));
+	}
+
+	@Test
+	public void testBufferEndsWithEscapedChar() {
+		StringBuilder buf = new StringBuilder("1a");
+		assertFalse(CSSParser.bufferEndsWithEscapedChar(buf));
+		buf = new StringBuilder("\\qa");
+		assertFalse(CSSParser.bufferEndsWithEscapedChar(buf));
+		buf = new StringBuilder("\\a");
+		assertTrue(CSSParser.bufferEndsWithEscapedChar(buf));
+		buf = new StringBuilder("w\\1a");
+		assertTrue(CSSParser.bufferEndsWithEscapedChar(buf));
+		buf = new StringBuilder("w\\1ab2e");
+		assertTrue(CSSParser.bufferEndsWithEscapedChar(buf));
+		buf = new StringBuilder("w\\1ab2e7");
+		assertFalse(CSSParser.bufferEndsWithEscapedChar(buf));
+		buf = new StringBuilder("abcdefghijk\\a");
+		assertTrue(CSSParser.bufferEndsWithEscapedChar(buf));
+		buf = new StringBuilder("abcdefghijk\\ar");
+		assertFalse(CSSParser.bufferEndsWithEscapedChar(buf));
+		buf = new StringBuilder("\\");
+		assertFalse(CSSParser.bufferEndsWithEscapedChar(buf));
 	}
 
 }

@@ -93,6 +93,14 @@ class SheetParserErrorTest {
 	}
 
 	@Test
+	public void testRuleErrorMgmt() throws CSSException, IOException {
+		String s = "@{@\n+}\n.\n.{};@;*;@;*-color";
+		parser.parseStyleSheet(new StringReader(s));
+		assertEquals(4, errorHandler.getLastException().getLineNumber());
+		assertEquals(12, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
 	public void testBadRuleClosing() throws CSSException, IOException {
 		String s = "*{(&+}(";
 		parser.parseStyleSheet(new StringReader(s));

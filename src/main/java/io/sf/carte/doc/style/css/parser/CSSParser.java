@@ -965,14 +965,26 @@ public class CSSParser implements Parser, Cloneable {
 				if (errorCode == 0) {
 					errorCode = errCode;
 					errorException = createException(index, errCode, message);
-					if (rule != null) {
-						rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, errorException);
-					} else {
-						throw errorException;
-					}
+					handleError(errorException);
 				}
 				parseError = true;
 			}
+		}
+
+		@Override
+		protected void handleError(CSSParseException ex) throws CSSParseException {
+			if (rule != null) {
+				rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, errorException);
+				parseError = true;
+			} else {
+				super.handleError(ex);
+			}
+		}
+
+		@Override
+		void resetHandler() {
+			super.resetHandler();
+			errorCode = 0;
 		}
 
 		private class SupportsDelegateHandler extends DelegateHandler {
@@ -1185,7 +1197,7 @@ public class CSSParser implements Parser, Cloneable {
 				CSSParseException ex = createException(index, errCode, message);
 				mqhelper.handler.invalidQuery(ex);
 				if (!mqhelper.handler.reportsErrors() && errorHandler != null) {
-					errorHandler.error(createException(index, errCode, message));
+					handleError(createException(index, errCode, message));
 				}
 				parseError = true;
 			}
@@ -1925,10 +1937,10 @@ public class CSSParser implements Parser, Cloneable {
 
 	static boolean bufferEndsWithEscapedCharOrWS(StringBuilder buffer) {
 		int len = buffer.length();
-		if (len != 0) {
+		if (len > 1) {
 			int bufCp = buffer.codePointAt(len - 1);
 			if (ParseHelper.isHexCodePoint(bufCp) || bufCp == 32) {
-				for (int i = 2; i <= 6; i++) {
+				for (int i = 2; i <= Math.min(len, 6); i++) {
 					bufCp = buffer.codePointAt(len - i);
 					if (ParseHelper.isHexCodePoint(bufCp)) {
 						continue;
@@ -1943,12 +1955,12 @@ public class CSSParser implements Parser, Cloneable {
 		return false;
 	}
 
-	private static boolean bufferEndsWithEscapedChar(StringBuilder buffer) {
-		int len = buffer.length();
-		if (len != 0) {
+	static boolean bufferEndsWithEscapedChar(StringBuilder buffer) {
+		final int len = buffer.length();
+		if (len > 1) {
 			int bufCp = buffer.codePointAt(len - 1);
 			if (ParseHelper.isHexCodePoint(bufCp)) {
-				for (int i = 2; i <= 6; i++) {
+				for (int i = 2; i <= Math.min(len, 6); i++) {
 					bufCp = buffer.codePointAt(len - i);
 					if (ParseHelper.isHexCodePoint(bufCp)) {
 						continue;
@@ -2810,7 +2822,7 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			protected void handleError(int index, byte errCode, String message) {
 				if (!parseError && errorHandler != null) {
-					errorHandler.error(createException(index, errCode, message));
+					handleError(createException(index, errCode, message));
 				}
 				parseError = true;
 			}
@@ -3524,6 +3536,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else {
 				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Malformed @-rule.");
+				contextHandler = null;
 			}
 		}
 
@@ -4215,16 +4228,7 @@ public class CSSParser implements Parser, Cloneable {
 					} else {
 						ex = createException(index, errCode, message);
 					}
-					if (errorHandler != null) {
-						if (prevcp == endcp) {
-							errorHandler.error(ex);
-						} else {
-							errorHandler.error(ex);
-						}
-					} else {
-						throw ex;
-					}
-					parseError = true;
+					handleError(ex);
 				}
 				selist.clear();
 				buffer.setLength(0);
@@ -4671,13 +4675,8 @@ public class CSSParser implements Parser, Cloneable {
 											errCode = ParseHelper.ERR_EXPR_SYNTAX;
 										}
 										CSSParseException ex = createException(index, errCode, e.getMessage());
-										if (errorHandler != null) {
-											errorHandler.error(ex);
-											parseError = true;
-											stage = 127;
-										} else {
-											throw ex;
-										}
+										handleError(ex);
+										stage = 127;
 									}
 								} else if (condtype == ConditionType.POSITIONAL) {
 									if (((PositionalConditionImpl) cond).hasArgument()) {
