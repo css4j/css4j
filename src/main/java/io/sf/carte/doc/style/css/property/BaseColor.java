@@ -23,9 +23,9 @@ import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.util.SimpleWriter;
 
 abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {

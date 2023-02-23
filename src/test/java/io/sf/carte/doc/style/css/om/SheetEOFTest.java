@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
