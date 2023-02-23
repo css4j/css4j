@@ -31,6 +31,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.DOMPolicyException;
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
@@ -572,6 +573,12 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
+	public SupportsRule createSupportsRule(BooleanCondition condition) {
+		return new SupportsRule(this, condition, getOrigin());
+	}
+
+	@Override
+	@Deprecated
 	public SupportsRule createSupportsRule() {
 		return new SupportsRule(this, getOrigin());
 	}
