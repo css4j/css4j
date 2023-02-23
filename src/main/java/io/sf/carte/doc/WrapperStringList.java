@@ -227,4 +227,9 @@ public class WrapperStringList implements StringList, Iterable<String>, java.io.
 		return collection.spliterator();
 	}
 
+	@Override
+	public WrapperStringList clone() {
+		return new WrapperStringList(this);
+	}
+
 }

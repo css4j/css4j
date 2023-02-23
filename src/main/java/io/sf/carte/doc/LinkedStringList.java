@@ -57,4 +57,9 @@ public class LinkedStringList extends LinkedList<String> implements StringList {
 		return super.contains(str);
 	}
 
+	@Override
+	public LinkedStringList clone() {
+		return new LinkedStringList(this);
+	}
+
 }

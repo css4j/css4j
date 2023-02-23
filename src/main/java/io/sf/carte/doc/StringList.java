@@ -17,4 +17,13 @@ import org.w3c.dom.DOMStringList;
  * Combines {@link java.util.List} and {@link DOMStringList}.
  */
 public interface StringList extends java.util.List<String>, DOMStringList {
+
+	/**
+	 * Returns a shallow copy of this {@code StringList} instance. (The elements
+	 * themselves are not copied.)
+	 *
+	 * @return a clone of this {@code StringList}.
+	 */
+	StringList clone();
+
 }

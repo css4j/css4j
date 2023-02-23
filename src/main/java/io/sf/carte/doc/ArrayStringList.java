@@ -67,4 +67,9 @@ public class ArrayStringList extends ArrayList<String> implements StringList {
 		return super.contains(str);
 	}
 
+	@Override
+	public ArrayStringList clone() {
+		return new ArrayStringList(this);
+	}
+
 }

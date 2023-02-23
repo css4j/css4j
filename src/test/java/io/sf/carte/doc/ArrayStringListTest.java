@@ -52,4 +52,18 @@ public class ArrayStringListTest {
 		assertEquals(1, list.getLength());
 	}
 
+	@Test
+	public void testClone() {
+		StringList clon = list.clone();
+		assertEquals(0, clon.getLength());
+
+		list.add("foo");
+		clon = list.clone();
+		assertEquals(1, clon.getLength());
+		assertEquals("foo", clon.item(0));
+
+		assertTrue(clon.containsAll(list));
+		assertTrue(list.containsAll(clon));
+	}
+
 }
