@@ -262,6 +262,25 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		}
 	}
 
+	@Override
+	void clear() {
+		cssRules.clear();
+		resetComments();
+	}
+
+	@Override
+	void setRule(AbstractCSSRule copyMe) {
+		setPrecedingComments(copyMe.getPrecedingComments());
+		setTrailingComments(copyMe.getTrailingComments());
+		KeyframesRule other = (KeyframesRule) copyMe;
+		name = other.name;
+		cssRules.clear();
+		cssRules.addAll(other.getCssRules());
+		for (AbstractCSSRule rule : cssRules) {
+			rule.setParentRule(this);
+		}
+	}
+
 	private class MyKeyframesHandler extends PropertyCSSHandler {
 
 		private String name = null;

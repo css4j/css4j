@@ -11,9 +11,6 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -39,7 +36,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 
 	private static final long serialVersionUID = 1L;
 
-	private AbstractCSSStyleDeclaration declaration = null;
+	private BaseCSSStyleDeclaration declaration = null;
 
 	/*
 	 * Lazily instantiated style declaration error handler
@@ -51,8 +48,8 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		declaration = createStyleDeclaration(parentSheet);
 	}
 
-	AbstractCSSStyleDeclaration createStyleDeclaration(AbstractCSSStyleSheet parentSheet) {
-		return parentSheet.createStyleDeclaration(this);
+	BaseCSSStyleDeclaration createStyleDeclaration(AbstractCSSStyleSheet parentSheet) {
+		return (BaseCSSStyleDeclaration) parentSheet.createStyleDeclaration(this);
 	}
 
 	/**
@@ -70,36 +67,20 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 	}
 
 	@Override
-	public void setCssText(String cssText) throws DOMException {
-		clear();
-		CSSParser parser = (CSSParser) createSACParser();
-		Reader re = new StringReader(cssText);
-		PropertyCSSHandler handler = createPropertyDocumentHandler();
-		handler.setLexicalPropertyListener(getLexicalPropertyListener());
-		parser.setDocumentHandler(handler);
-		parser.setErrorHandler(handler);
-		try {
-			parser.parseDeclarationRule(re);
-		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
-		} catch (IOException e) {
-			// This should never happen!
-			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
-		}
+	void setRule(AbstractCSSRule copyMe) {
+		BaseCSSDeclarationRule other = (BaseCSSDeclarationRule) copyMe;
+		setPrecedingComments(copyMe.getPrecedingComments());
+		setTrailingComments(copyMe.getTrailingComments());
+		declaration.setProperties(other.declaration);
 	}
 
+	@Override
 	void clear() {
 		declaration.clear();
 		resetComments();
 	}
 
 	void startAtRule(String name, String pseudoSelector) {
-	}
-
-	PropertyCSSHandler createPropertyDocumentHandler() {
-		return new DeclarationRuleCSSHandler();
 	}
 
 	LexicalPropertyListener getLexicalPropertyListener() {

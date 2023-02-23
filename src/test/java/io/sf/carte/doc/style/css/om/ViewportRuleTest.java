@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -104,10 +105,9 @@ public class ViewportRuleTest {
 	@Test
 	public void testSetCssTextStringBad() {
 		ViewportRule rule = new ViewportRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText("@viewport{@orientation: landscape; min-width: 640px;}");
-		assertEquals(1, rule.getStyle().getLength());
-		assertEquals("@viewport{min-width:640px}", rule.getMinifiedCssText());
-		assertTrue(rule.getStyleDeclarationErrorHandler().hasErrors());
+		assertThrows(DOMException.class,
+			() -> rule.setCssText("@viewport{@orientation: landscape; min-width: 640px;}"));
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test

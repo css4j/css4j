@@ -362,8 +362,30 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		try {
 			parser.parseFontFeatureValuesBody(body);
 		} catch (CSSParseException e) {
-			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, e.getMessage());
+			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR, "Parse error at ["
+				+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
+			ex.initCause(e);
+			throw ex;
 		}
+	}
+
+	@Override
+	void clear() {
+	}
+
+	@Override
+	void setRule(AbstractCSSRule copyMe) {
+		setPrecedingComments(copyMe.getPrecedingComments());
+		setTrailingComments(copyMe.getTrailingComments());
+		FontFeatureValuesRule other = (FontFeatureValuesRule) copyMe;
+		this.fontFamily = other.fontFamily;
+		this.annotation = other.annotation;
+		this.ornaments = other.ornaments;
+		this.stylistic = other.stylistic;
+		this.swash = other.swash;
+		this.styleset = other.styleset;
+		this.characterVariant = other.characterVariant;
+		this.mapmap = other.mapmap;
 	}
 
 	CSSHandler createFontFeatureValuesHandler(CSSParentHandler parentHandler,
@@ -424,7 +446,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				FontFeatureValuesRule.this.characterVariant.addAll(characterVariant);
 				FontFeatureValuesRule.this.styleset.addAll(styleset);
 				FontFeatureValuesRule.this.mapmap = mapmap;
-				// Comments
+				// Preceding Comments
 				FontFeatureValuesRule.this.annotation.setPrecedingComments(annotation.getPrecedingComments());
 				FontFeatureValuesRule.this.ornaments.setPrecedingComments(ornaments.getPrecedingComments());
 				FontFeatureValuesRule.this.stylistic.setPrecedingComments(stylistic.getPrecedingComments());
@@ -432,6 +454,14 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				FontFeatureValuesRule.this.characterVariant
 						.setPrecedingComments(characterVariant.getPrecedingComments());
 				FontFeatureValuesRule.this.styleset.setPrecedingComments(styleset.getPrecedingComments());
+				// Trailing Comments
+				FontFeatureValuesRule.this.annotation.setTrailingComments(annotation.getTrailingComments());
+				FontFeatureValuesRule.this.ornaments.setTrailingComments(ornaments.getTrailingComments());
+				FontFeatureValuesRule.this.stylistic.setTrailingComments(stylistic.getTrailingComments());
+				FontFeatureValuesRule.this.swash.setTrailingComments(swash.getTrailingComments());
+				FontFeatureValuesRule.this.characterVariant
+						.setTrailingComments(characterVariant.getTrailingComments());
+				FontFeatureValuesRule.this.styleset.setTrailingComments(styleset.getTrailingComments());
 			}
 			//
 			if (parentHandler != null) {
@@ -641,7 +671,27 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		rule.swash = swash;
 		rule.styleset = styleset;
 		rule.characterVariant = characterVariant;
+		rule.mapmap = deepClone(mapmap);
 		return rule;
+	}
+
+	private HashMap<String, CSSFontFeatureValuesMapImpl> deepClone(
+			HashMap<String, CSSFontFeatureValuesMapImpl> cloneFrom) {
+		HashMap<String, CSSFontFeatureValuesMapImpl> propValue = null;
+		if (cloneFrom != null) {
+			propValue = new HashMap<String, CSSFontFeatureValuesMapImpl>(cloneFrom.size());
+			Iterator<Entry<String, CSSFontFeatureValuesMapImpl>> it = cloneFrom.entrySet()
+				.iterator();
+			while (it.hasNext()) {
+				Entry<String, CSSFontFeatureValuesMapImpl> entry = it.next();
+				CSSFontFeatureValuesMapImpl value = entry.getValue();
+				if (value != null) {
+					value = value.clone();
+				}
+				propValue.put(entry.getKey(), value);
+			}
+		}
+		return propValue;
 	}
 
 	private static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap, java.io.Serializable {
@@ -651,6 +701,16 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		private final LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
 		private StringList precedingComments = null;
 		private StringList trailingComments = null;
+
+		CSSFontFeatureValuesMapImpl() {
+			super();
+		}
+
+		CSSFontFeatureValuesMapImpl(CSSFontFeatureValuesMapImpl copyMe) {
+			super();
+			setPrecedingComments(copyMe.precedingComments);
+			this.trailingComments = copyMe.trailingComments;
+		}
 
 		void addAll(CSSFontFeatureValuesMapImpl othermap) {
 			featureMap.putAll(othermap.featureMap);
@@ -684,7 +744,11 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 
 		void setPrecedingComments(StringList ruleComments) {
-			this.precedingComments  = ruleComments;
+			this.precedingComments = ruleComments;
+		}
+
+		void setTrailingComments(StringList ruleComments) {
+			this.trailingComments = ruleComments;
 		}
 
 		@Override
@@ -745,6 +809,11 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				}
 			}
 			return true;
+		}
+
+		@Override
+		public CSSFontFeatureValuesMapImpl clone() {
+			return new CSSFontFeatureValuesMapImpl(this);
 		}
 
 	}

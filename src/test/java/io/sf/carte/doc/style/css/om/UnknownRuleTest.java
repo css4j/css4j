@@ -39,17 +39,17 @@ public class UnknownRuleTest {
 	@Test
 	public void testParseRule() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"/* pre-rule */@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }");
+			"/* pre-rule */@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(0).getType());
 		UnknownRule rule = (UnknownRule) sheet.getCssRules().item(0);
 		assertEquals(
-				"/* pre-rule */\n@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }\n",
-				rule.getCssText());
+			"/* pre-rule */\n@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }\n",
+			rule.getCssText());
 		assertEquals(
-				"@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }",
-				rule.getMinifiedCssText());
+			"@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }",
+			rule.getMinifiedCssText());
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());
 		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
@@ -59,32 +59,34 @@ public class UnknownRuleTest {
 	public void testSetCssTextString() {
 		UnknownRule rule = new UnknownRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText(
-				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }");
+			"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }");
 		assertEquals(
-				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }\n",
-				rule.getCssText());
+			"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }\n",
+			rule.getCssText());
 		assertEquals(
-				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }",
-				rule.getMinifiedCssText());
+			"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }",
+			rule.getMinifiedCssText());
 	}
 
 	@Test
 	public void testSetCssTextStringComment() {
 		UnknownRule rule = new UnknownRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText(
-				"/* pre-comment */\n@-webkit-keyframes foo{from{background-position:0 0;}to{background-position:-200% 0;}}");
+			"/* pre-comment */\n@-webkit-keyframes foo{from{background-position:0 0;}/* internal-comment */to{background-position:-200% 0;}} /* post-comment */");
 		assertEquals(
-				"/* pre-comment */\n@-webkit-keyframes foo{from{background-position:0 0;}to{background-position:-200% 0;}}\n",
-				rule.getCssText());
+			"/* pre-comment */\n@-webkit-keyframes foo{from{background-position:0 0;}/* internal-comment */to{background-position:-200% 0;}} /* post-comment */\n",
+			rule.getCssText());
+		assertEquals(" pre-comment ", rule.getPrecedingComments().item(0));
+		assertEquals(" post-comment ", rule.getTrailingComments().item(0));
 		assertEquals(
-				"@-webkit-keyframes foo{from{background-position:0 0;}to{background-position:-200% 0;}}",
-				rule.getMinifiedCssText());
+			"@-webkit-keyframes foo{from{background-position:0 0;}to{background-position:-200% 0;}}",
+			rule.getMinifiedCssText());
 	}
 
 	@Test
 	public void testEquals() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"/* pre-rule */@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }\n/* pre-rule 2 */\n@-webkit-keyframes progress-bar-stripes\n{\nfrom\n{\n    background-position:\n40px  0; \n } \nto \n  { \n background-position:\n 0 0;\n } \n}");
+			"/* pre-rule */@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }\n/* pre-rule 2 */\n@-webkit-keyframes progress-bar-stripes\n{\nfrom\n{\n    background-position:\n40px  0; \n } \nto \n  { \n background-position:\n 0 0;\n } \n}");
 		sheet.parseStyleSheet(re);
 		assertEquals(2, sheet.getCssRules().getLength());
 		AbstractCSSRule rule1 = sheet.getCssRules().item(0);
@@ -104,7 +106,7 @@ public class UnknownRuleTest {
 	public void testCloneAbstractCSSStyleSheet() {
 		UnknownRule rule = new UnknownRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText(
-				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }");
+			"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }");
 		UnknownRule clon = rule.clone(sheet);
 		assertEquals(rule.getOrigin(), clon.getOrigin());
 		assertEquals(rule.getType(), clon.getType());
@@ -112,4 +114,5 @@ public class UnknownRuleTest {
 		assertTrue(rule.equals(clon));
 		assertEquals(rule.hashCode(), clon.hashCode());
 	}
+
 }

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -180,10 +181,10 @@ public class CounterStyleRuleTest {
 	@Test
 	public void testSetCssTextStringBad() {
 		CounterStyleRule rule = new CounterStyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText("@counter-style thumbs {@system:cyclic;symbols:@12;suffix:\" \"}");
-		assertEquals("@counter-style thumbs {suffix:\" \"}", rule.getMinifiedCssText());
-		assertEquals(1, rule.getStyle().getLength());
-		assertTrue(rule.getStyleDeclarationErrorHandler().hasErrors());
+		assertThrows(DOMException.class, () -> rule
+			.setCssText("@counter-style thumbs {@system:cyclic;symbols:@12;suffix:\" \"}"));
+		assertEquals(0, rule.getStyle().getLength());
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test

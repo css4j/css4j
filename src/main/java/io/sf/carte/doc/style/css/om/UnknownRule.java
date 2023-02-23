@@ -44,12 +44,15 @@ public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 	}
 
 	@Override
-	public void setCssText(String cssText) throws DOMException {
-		if (cssText == null) {
-			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Null text.");
-		}
-		resetComments();
-		this.cssText = cssText.trim();
+	void clear() {
+	}
+
+	@Override
+	void setRule(AbstractCSSRule copyMe) {
+		UnknownRule other = (UnknownRule) copyMe;
+		setPrecedingComments(copyMe.getPrecedingComments());
+		setTrailingComments(copyMe.getTrailingComments());
+		this.cssText = other.cssText;
 	}
 
 	@Override
@@ -80,6 +83,19 @@ public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 			wri.write(cssText);
 			context.endRule(wri, getTrailingComments());
 		}
+	}
+
+	/**
+	 * Set the contents of this rule, without preceding or trailing comments.
+	 * 
+	 * @param cssText the contents of this rule.
+	 * @throws NullPointerException if the text is {@code null}.
+	 */
+	public void setRuleCssText(String cssText) {
+		if (cssText == null) {
+			throw new NullPointerException("Null rule text.");
+		}
+		this.cssText = cssText;
 	}
 
 	@Override

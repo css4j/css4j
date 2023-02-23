@@ -22,7 +22,6 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
-import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
@@ -31,12 +30,12 @@ import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LangCondition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -114,18 +113,14 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		clear();
 		selectorList = null;
 		selectorText = "";
-		Parser parser = createSACParser();
+		CSSParser parser = (CSSParser) createSACParser();
 		Reader re = new StringReader(cssText);
-		PropertyCSSHandler handler = createDocumentHandler();
+		PropertyCSSHandler handler = new RuleHandler();
 		handler.setLexicalPropertyListener(getLexicalPropertyListener());
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler(handler);
 		try {
-			parser.parseRule(re);
-		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			parseRule(re, parser);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
@@ -233,11 +228,8 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 		return rule;
 	}
 
-	private PropertyCSSHandler createDocumentHandler() {
-		return new RuleHandler();
-	}
-
 	private class RuleHandler extends DeclarationRuleCSSHandler {
+
 		private RuleHandler() {
 			super();
 		}

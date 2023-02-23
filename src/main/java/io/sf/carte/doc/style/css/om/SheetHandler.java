@@ -119,7 +119,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			parentSheet.getErrorHandler().unknownRule(atRule);
 		}
 		try {
-			rule.setCssText(atRule);
+			((UnknownRule) rule).setRuleCssText(atRule);
 		} catch (DOMException e) {
 			parentSheet.getErrorHandler().badAtRule(e, atRule);
 			return;
@@ -132,6 +132,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			addLocalRule(rule);
 			resetCurrentRule();
 		}
+		lastRule = rule;
 	}
 
 	private void newRule() {

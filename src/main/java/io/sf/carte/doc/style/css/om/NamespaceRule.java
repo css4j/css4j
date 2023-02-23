@@ -77,8 +77,16 @@ public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 	}
 
 	@Override
-	public void setCssText(String cssText) throws DOMException {
-		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "Cannot modify a namespace rule");
+	void clear() {
+	}
+
+	@Override
+	void setRule(AbstractCSSRule copyMe) {
+		NamespaceRule nsRule = (NamespaceRule) copyMe;
+		setPrecedingComments(copyMe.getPrecedingComments());
+		setTrailingComments(copyMe.getTrailingComments());
+		this.namespaceURI = nsRule.namespaceURI;
+		this.prefix = nsRule.prefix;
 	}
 
 	@Override

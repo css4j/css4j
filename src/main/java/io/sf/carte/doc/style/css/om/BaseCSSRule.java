@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -18,7 +21,14 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.StringList;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
+import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSHandler;
+import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
 /**
@@ -156,11 +166,6 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 		this.trailingComments = trailingComments;
 	}
 
-	@Override
-	public String getMinifiedCssText() {
-		return getCssText();
-	}
-
 	void resetComments() {
 		precedingComments = null;
 		trailingComments = null;
@@ -170,6 +175,108 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 	boolean hasErrorsOrWarnings() {
 		return false;
 	}
+
+	@Override
+	public String getMinifiedCssText() {
+		return getCssText();
+	}
+
+	@Override
+	public void setCssText(String cssText) throws DOMException {
+		AbstractCSSStyleSheet parentSS = getParentStyleSheet();
+		if (parentSS == null) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR,
+				"This rule must be added to a sheet first");
+		}
+		// Create, load & Parse
+		BaseCSSStyleSheet css = (BaseCSSStyleSheet) parentSS.getStyleSheetFactory()
+			.createRuleStyleSheet(this, null, null);
+		CSSHandler handler = css.createSheetHandler(getOrigin(), CSSStyleSheet.COMMENTS_AUTO);
+		Reader re = new StringReader(cssText);
+		try {
+			parseRule(re, handler);
+		} catch (IOException e) {
+			// This should never happen!
+			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+		}
+
+		// Let's see how many rules we got
+		CSSRuleArrayList parsedRules = css.getCssRules();
+		int len = parsedRules.getLength();
+		if (len > 1) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+				"Attempted to parse more than one rule inside this one");
+		}
+		if (len == 1) {
+			AbstractCSSRule firstRule = parsedRules.item(0);
+			if (firstRule.getType() != getType()) {
+				throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+					"Attempted to parse a rule of type " + firstRule.getType());
+			}
+			setRule(firstRule);
+			if (css.hasRuleErrorsOrWarnings()) {
+				parentSS.getErrorHandler().mergeState(css.getErrorHandler());
+			}
+		} else {
+			// Clear the rule (in some rules this has no effect).
+			clear();
+		}
+	}
+
+	abstract void clear();
+
+	void parseRule(Reader reader, CSSHandler handler) throws IOException {
+		// Create and configure a parser
+		Parser parser = createSACParser();
+		// Allow only warnings
+		CSSErrorHandler errorHandler = new AllowWarningsRuleErrorHandler();
+		parser.setDocumentHandler(handler);
+		parser.setErrorHandler(errorHandler);
+
+		// Parse
+		parseRule(reader, parser);
+	}
+
+	void parseRule(Reader reader, Parser parser)
+			throws DOMException, IOException {
+		try {
+			parser.parseRule(reader);
+		} catch (CSSNamespaceParseException e) {
+			DOMException ex = new DOMException(DOMException.NAMESPACE_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (CSSBudgetException e) {
+			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (CSSParseException e) {
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Parse error at ["
+				+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (CSSException e) {
+			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (DOMException e) {
+			// Handler may produce DOM exceptions
+			throw e;
+		} catch (RuntimeException e) {
+			String message = e.getMessage();
+			AbstractCSSStyleSheet parentSS = getParentStyleSheet();
+			if (parentSS != null) {
+				String href = parentSS.getHref();
+				if (href != null) {
+					message = "Error in stylesheet at " + href + ": " + message;
+				}
+			}
+			DOMException ex = new DOMException(DOMException.INVALID_STATE_ERR, message);
+			ex.initCause(e);
+			throw ex;
+		}
+	}
+
+	abstract void setRule(AbstractCSSRule copyMe);
 
 	protected StyleFormattingContext getStyleFormattingContext() {
 		StyleFormattingContext context;
@@ -210,6 +317,26 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 			url = new URL(uri);
 		}
 		return url;
+	}
+
+	/**
+	 * Error handler that allows warnings but no exceptions.
+	 */
+	class AllowWarningsRuleErrorHandler implements CSSErrorHandler {
+
+		@Override
+		public void warning(CSSParseException exception) throws CSSParseException {
+			AbstractCSSStyleSheet sheet = getParentStyleSheet();
+			if (sheet != null) {
+				sheet.getErrorHandler().ruleParseWarning(BaseCSSRule.this, exception);
+			}
+		}
+
+		@Override
+		public void error(CSSParseException exception) throws CSSParseException {
+			throw exception;
+		}
+
 	}
 
 }

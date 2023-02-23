@@ -13,8 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 
-import org.w3c.dom.DOMException;
-
 import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -35,12 +33,6 @@ abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
 
 	@Override
 	abstract public String getCssText();
-
-	@Override
-	public void setCssText(String cssText) throws DOMException {
-		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-				"Cannot set text for this rule");
-	}
 
 	/**
 	 * A minified parsable textual representation of the rule. This reflects

@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -142,6 +143,19 @@ public class PropertyRuleTest {
 		assertEquals(0, rule.getStyle().removeProperty("syntax").length());
 		assertEquals(0, rule.getStyle().removeProperty("inherits").length());
 		assertEquals(0, rule.getStyle().removeProperty("not-a-descriptor").length());
+	}
+
+	@Test
+	public void testParseRuleDescriptorBadDescriptorName() throws DOMException, IOException {
+		StringReader re = new StringReader(
+			"@property --my-color {syntax: '*'; inherits: false; @initial-value: #047b42;}");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		PropertyRule rule = (PropertyRule) sheet.getCssRules().item(0);
+		assertEquals(CSSRule.PROPERTY_RULE, rule.getType());
+		assertEquals("--my-color", rule.getName());
+		assertEquals("@property --my-color {syntax:'*';inherits:false}", rule.getMinifiedCssText());
+		assertEquals(2, rule.getStyle().getLength());
 	}
 
 	@Test
@@ -279,14 +293,14 @@ public class PropertyRuleTest {
 	public void testSetCssTextStringComment() {
 		PropertyRule rule = new PropertyRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setCssText(
-				"/* pre-rule */ @property --my-color {syntax: '<color>'; inherits: false; initial-value: #047b42;}/* post-rule */");
+			"/* pre-rule */ @property --my-color {syntax: '<color>'; inherits: false; initial-value: #047b42;}/* post-rule */\n/* not-this-rule */");
 		assertEquals("--my-color", rule.getName());
 		assertEquals(3, rule.getStyle().getLength());
 		assertEquals("@property --my-color {syntax:'<color>';inherits:false;initial-value:#047b42}",
-				rule.getMinifiedCssText());
+			rule.getMinifiedCssText());
 		assertEquals(
-				"/* pre-rule */\n@property --my-color {\n    syntax: '<color>';\n    inherits: false;\n    initial-value: #047b42;\n} /* post-rule */\n",
-				rule.getCssText());
+			"/* pre-rule */\n@property --my-color {\n    syntax: '<color>';\n    inherits: false;\n    initial-value: #047b42;\n} /* post-rule */\n",
+			rule.getCssText());
 	}
 
 	@Test
@@ -357,9 +371,9 @@ public class PropertyRuleTest {
 	@Test
 	public void testSetCssTextStringBadDescriptorName() {
 		PropertyRule rule = new PropertyRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText("@property --my-color {syntax: '*'; inherits: false; @initial-value: #047b42;}");
-		assertEquals("@property --my-color {syntax:'*';inherits:false}", rule.getMinifiedCssText());
-		assertEquals(2, rule.getStyle().getLength());
+		assertThrows(DOMException.class, () -> rule.setCssText(
+			"@property --my-color {syntax: '*'; inherits: false; @initial-value: #047b42;}"));
+		assertEquals(0, rule.getStyle().getLength());
 	}
 
 	@Test

@@ -1253,6 +1253,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		if (sheetErrorHandler != null) {
 			sheetErrorHandler.reset();
 		}
+
 		// Find origin
 		byte origin = getOrigin();
 		// Scan rules for origins with higher priorities
@@ -1262,10 +1263,18 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				origin = ruleo;
 			}
 		}
+
 		Parser parser = getStyleSheetFactory().createSACParser();
 		CSSHandler handler = createSheetHandler(origin, commentMode);
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler((CSSErrorHandler) handler);
+		parseStyleSheet(reader, parser);
+
+		return !getErrorHandler().hasSacErrors();
+	}
+
+	private void parseStyleSheet(Reader reader, Parser parser)
+			throws DOMException, IOException {
 		try {
 			parser.parseStyleSheet(reader);
 		} catch (CSSNamespaceParseException e) {
@@ -1285,6 +1294,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
+		} catch (DOMException e) {
+			// Handler may produce DOM exceptions
+			throw e;
 		} catch (RuntimeException e) {
 			String message = e.getMessage();
 			String href = getHref();
@@ -1295,7 +1307,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			ex.initCause(e);
 			throw ex;
 		}
-		return !getErrorHandler().hasSacErrors();
 	}
 
 	/**

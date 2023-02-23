@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -419,12 +419,11 @@ public class SupportsRuleTest {
 	@Test
 	public void testSetCssTextStringWrongRule() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		try {
-			rule.setCssText("@page {margin-top: 20%;}");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
-		}
+		DOMException e = assertThrows(DOMException.class,
+			() -> rule.setCssText("@page {margin-top: 20%;}"));
+
+		assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+
 		assertEquals("", rule.getMinifiedCssText());
 		assertEquals("", rule.getCssText());
 	}
@@ -432,12 +431,11 @@ public class SupportsRuleTest {
 	@Test
 	public void testSetCssTextStringWrongRule2() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		try {
-			rule.setCssText("/* pre-rule */ @page {margin-top: 20%;}");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
-		}
+		DOMException e = assertThrows(DOMException.class,
+			() -> rule.setCssText("/* pre-rule */ @page {margin-top: 20%;}"));
+
+		assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
+
 		assertEquals("", rule.getMinifiedCssText());
 		assertEquals("", rule.getCssText());
 	}
@@ -445,13 +443,11 @@ public class SupportsRuleTest {
 	@Test
 	public void testSetCssTextStringWrongCondition() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		try {
-			rule.setCssText(
-					"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)) {.foo {backdrop-filter:saturate(180%) blur(20px);}}");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
+		DOMException e = assertThrows(DOMException.class, () -> rule.setCssText(
+			"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)) {.foo {backdrop-filter:saturate(180%) blur(20px);}}"));
+
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
+
 		assertEquals("", rule.getMinifiedCssText());
 		assertEquals("", rule.getCssText());
 	}
@@ -459,13 +455,11 @@ public class SupportsRuleTest {
 	@Test
 	public void testSetCssTextStringWrongCondition2() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		try {
-			rule.setCssText(
-					"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
+		DOMException e = assertThrows(DOMException.class, () -> rule.setCssText(
+			"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}"));
+
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
+
 		assertEquals("", rule.getMinifiedCssText());
 		assertEquals("", rule.getCssText());
 	}
@@ -473,13 +467,11 @@ public class SupportsRuleTest {
 	@Test
 	public void testSetCssTextStringWrongCondition3() {
 		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		try {
-			rule.setCssText(
-					"@supports ((transition-property: color) or (animation-name: foo) and (transform: rotate(10deg))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
+		DOMException e = assertThrows(DOMException.class, () -> rule.setCssText(
+			"@supports ((transition-property: color) or (animation-name: foo) and (transform: rotate(10deg))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}"));
+
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
+
 		assertEquals("", rule.getMinifiedCssText());
 		assertEquals("", rule.getCssText());
 	}

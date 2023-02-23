@@ -1,6 +1,11 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
+Upgrading to 3.10 from 3.9.1
+----------------------------
+- CSSOM: now CSSRule.setCssText() does not accept errors, only warnings.
+
+
 Upgrading to 3.9.1 from 3.9.0
 -----------------------------
 - NSAC: on url() values, you should check whether getStringValue() returns null.

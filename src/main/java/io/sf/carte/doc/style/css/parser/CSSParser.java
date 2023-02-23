@@ -2773,6 +2773,8 @@ public class CSSParser implements Parser, Cloneable {
 
 		private class RuleEndContentHandler extends CSSTokenHandler {
 
+			private boolean foundControl = false;
+
 			RuleEndContentHandler() {
 				super();
 			}
@@ -2824,10 +2826,14 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void control(int index, int codepoint) {
 				RuleTokenHandler.this.control(index, codepoint);
+				this.foundControl  = true;
 			}
 
 			@Override
 			public void commented(int index, int commentType, String comment) {
+				if (!foundControl && !parseError && commentType == 0) {
+					handler.comment(comment, isPreviousCpLF());
+				}
 			}
 
 			@Override

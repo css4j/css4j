@@ -22,11 +22,8 @@ import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.CSSGroupingRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
-import io.sf.carte.doc.style.css.nsac.CSSException;
-import io.sf.carte.doc.style.css.nsac.CSSParseException;
-import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
  * Implementation of CSSGroupingRule.
@@ -86,16 +83,12 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		Reader re = new StringReader(rule);
 		RuleHandler handler = new RuleHandler();
 		handler.setCurrentInsertionIndex(index);
-		RuleErrorHandler errorHandler = new RuleErrorHandler();
-		Parser parser = createSACParser();
+		AllowWarningsRuleErrorHandler errorHandler = new AllowWarningsRuleErrorHandler();
+		CSSParser parser = (CSSParser) createSACParser();
 		parser.setDocumentHandler(handler);
 		parser.setErrorHandler(errorHandler);
 		try {
-			parser.parseRule(re);
-		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			parseRule(re, parser);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
@@ -146,48 +139,22 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 	}
 
 	@Override
-	public void setCssText(String cssText) throws DOMException {
-		AbstractCSSStyleSheet parentSS = getParentStyleSheet();
-		if (parentSS == null) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR,
-					"This rule must be added to a sheet first");
+	void setRule(AbstractCSSRule copyMe) {
+		GroupingRule groupingRule = (GroupingRule) copyMe;
+		setGroupingRule(groupingRule);
+		setPrecedingComments(groupingRule.getPrecedingComments());
+		setTrailingComments(groupingRule.getTrailingComments());
+		cssRules.clear();
+		cssRules.addAll(groupingRule.getCssRules());
+		for (AbstractCSSRule rule : cssRules) {
+			rule.setParentRule(this);
 		}
-		// Create, load & Parse
-		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this, null, null);
-		Reader re = new StringReader(cssText);
-		try {
-			css.parseStyleSheet(re);
-		} catch (IOException e) {
-			// This should never happen!
-			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
-		}
-		CSSRuleArrayList parsedRules = css.getCssRules();
-		int len = parsedRules.getLength();
-		if (len > 1) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-					"Attempted to parse more than one rule inside this one");
-		}
-		if (len == 1) {
-			AbstractCSSRule firstRule = parsedRules.item(0);
-			if (firstRule.getType() != getType()) {
-				throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-						"Attempted to parse a rule of type " + firstRule.getType());
-			}
-			GroupingRule groupingRule = (GroupingRule) firstRule;
-			setGroupingRule(groupingRule);
-			setPrecedingComments(groupingRule.getPrecedingComments());
-			setTrailingComments(groupingRule.getTrailingComments());
-			cssRules.clear();
-			cssRules.addAll(groupingRule.getCssRules());
-			for (AbstractCSSRule rule : cssRules) {
-				rule.setParentRule(this);
-			}
-			if (css.hasRuleErrorsOrWarnings()) {
-				parentSS.getErrorHandler().mergeState(css.getErrorHandler());
-			}
-		} else {
-			cssRules.clear();
-		}
+	}
+
+	@Override
+	void clear() {
+		cssRules.clear();
+		resetComments();
 	}
 
 	abstract protected void setGroupingRule(GroupingRule rule) throws DOMException;
@@ -225,26 +192,6 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 			}
 			currentRule = rule;
 			currentInsertionIndex = insertRule(currentRule, currentInsertionIndex);
-		}
-
-	}
-
-	private class RuleErrorHandler implements CSSErrorHandler {
-
-		@Override
-		public void warning(CSSParseException exception) throws CSSParseException {
-			AbstractCSSStyleSheet sheet = getParentStyleSheet();
-			if (sheet != null) {
-				sheet.getErrorHandler().ruleParseWarning(GroupingRule.this, exception);
-			}
-		}
-
-		@Override
-		public void error(CSSParseException exception) throws CSSParseException {
-			AbstractCSSStyleSheet sheet = getParentStyleSheet();
-			if (sheet != null) {
-				sheet.getErrorHandler().ruleParseError(GroupingRule.this, exception);
-			}
 		}
 
 	}

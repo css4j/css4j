@@ -157,6 +157,14 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 	}
 
 	@Override
+	void setRule(AbstractCSSRule copyMe) {
+		super.setRule(copyMe);
+		this.name = ((PropertyRule) copyMe).name;
+		PropertyDescriptorStyleDeclaration decl = (PropertyDescriptorStyleDeclaration) getStyle();
+		decl.updateValidity();
+	}
+
+	@Override
 	void startAtRule(String name, String pseudoSelector) {
 		if (!"property".equalsIgnoreCase(name)) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Cannot set rule of type: " + name);

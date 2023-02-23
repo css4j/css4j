@@ -12,8 +12,6 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.net.URL;
 
 import org.w3c.dom.DOMException;
@@ -122,40 +120,17 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	}
 
 	@Override
-	public void setCssText(String cssText) throws DOMException {
-		AbstractCSSStyleSheet parentSS = getParentStyleSheet();
-		if (parentSS == null) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "This rule must be added to a sheet first");
-		}
-		// Create, load & Parse
-		AbstractCSSStyleSheet css = parentSS.getStyleSheetFactory().createRuleStyleSheet(this, null, null);
-		Reader re = new StringReader(cssText);
-		try {
-			css.parseStyleSheet(re);
-		} catch (IOException e) {
-			// This should never happen!
-			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
-		}
-		CSSRuleArrayList parsedRules = css.getCssRules();
-		int len = parsedRules.getLength();
-		if (len != 1) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-					"Exactly one rule must be parsed into this one, not " + len + '.');
-		}
-		AbstractCSSRule firstRule = parsedRules.item(0);
-		if (firstRule.getType() != getType()) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-					"Attempted to parse a rule of type " + firstRule.getType());
-		}
-		ImportRule imp = (ImportRule) firstRule;
+	void clear() {
+	}
+
+	@Override
+	void setRule(AbstractCSSRule copyMe) {
+		ImportRule imp = (ImportRule) copyMe;
 		this.styleSheetURI = imp.getHref();
 		this.mediaList = imp.getMedia();
 		setPrecedingComments(imp.getPrecedingComments());
 		setTrailingComments(imp.getTrailingComments());
 		this.importedSheet = null;
-		if (css.hasRuleErrorsOrWarnings()) {
-			parentSS.getErrorHandler().mergeState(css.getErrorHandler());
-		}
 	}
 
 	@Override

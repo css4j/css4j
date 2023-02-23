@@ -577,7 +577,7 @@ public class RuleParserTest {
 		assertEquals("\\1f44d ", handler.lexicalValues.get(0).toString());
 		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
 		assertEquals(0, handler.atRules.size());
-		assertEquals(0, handler.comments.size());
+		assertEquals(1, handler.comments.size());
 		assertEquals(1, handler.endCounterStyleCount);
 		handler.checkRuleEndings();
 		assertFalse(errorHandler.hasError());

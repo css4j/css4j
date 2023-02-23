@@ -106,7 +106,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRule2() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes foo {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
+				"@keyframes foo {  /* pre-0,50% */0,50% { margin-left: 100%;  width: 300%;}/* post-0,50% */\n to {margin-left: 0%;    width: 100%; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
@@ -116,7 +116,7 @@ public class KeyframesRuleTest {
 		assertEquals("@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"@keyframes foo {\n    0,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
+				"@keyframes foo {\n    /* pre-0,50% */\n    0,50% {\n        margin-left: 100%;\n        width: 300%;\n    } /* post-0,50% */\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
 		// findRule
 		CSSKeyframeRule kfrule = rule.findRule("0, 50%");
@@ -124,6 +124,8 @@ public class KeyframesRuleTest {
 		assertEquals("0,50%", kfrule.getKeyText());
 		assertEquals("margin-left:100%;width:300%", kfrule.getStyle().getMinifiedCssText());
 		assertEquals("0,50%{margin-left:100%;width:300%}", kfrule.getMinifiedCssText());
+		assertEquals(" pre-0,50% ", kfrule.getPrecedingComments().item(0));
+		assertEquals(" post-0,50% ", kfrule.getTrailingComments().item(0));
 		// appendRule
 		rule.appendRule("75%{width:75%}");
 		assertEquals(3, rule.getCssRules().getLength());
@@ -136,14 +138,23 @@ public class KeyframesRuleTest {
 		rule.deleteRule("75%");
 		assertNull(rule.findRule("75%"));
 		assertEquals(2, rule.getCssRules().getLength());
+		// appendRule
+		rule.appendRule("50%,80%{width:80%}");
+		assertEquals(3, rule.getCssRules().getLength());
+		kfrule = rule.findRule("50%,80%");
+		assertNotNull(kfrule);
+		assertEquals("50%,80%", kfrule.getKeyText());
+		assertEquals("width:80%", kfrule.getStyle().getMinifiedCssText());
+		assertEquals("50%,80%{width:80%}", kfrule.getMinifiedCssText());
+
 		// Visitor
 		PropertyCountVisitor visitor = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitor);
-		assertEquals(4, visitor.getCount());
+		assertEquals(5, visitor.getCount());
 		//
 		visitor.reset();
 		sheet.acceptDescriptorRuleVisitor(visitor);
-		assertEquals(4, visitor.getCount());
+		assertEquals(5, visitor.getCount());
 	}
 
 	@Test
