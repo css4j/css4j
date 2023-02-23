@@ -719,11 +719,7 @@ public class CSSParser implements Parser, Cloneable {
 			} else if ("or".equals(lctoken)) {
 				if (currentCond != null) {
 					predicateHandler.preBooleanHandling(index, BooleanCondition.Type.OR);
-					try {
-						processOperation(index, BooleanCondition.Type.OR, word);
-					} catch (DOMException e) {
-						unexpectedTokenError(index, word);
-					}
+					processOperation(index, BooleanCondition.Type.OR, word);
 				} else {
 					unexpectedTokenError(index, word);
 				}
@@ -738,13 +734,13 @@ public class CSSParser implements Parser, Cloneable {
 			BooleanCondition.Type curType = currentCond.getType();
 			if (curType == BooleanCondition.Type.PREDICATE) {
 				if (operation == null) {
-					BooleanCondition newCond = createOperation(opType);
+					BooleanCondition newCond = createOperation(index, opType);
 					newCond.addCondition(currentCond);
 					setNestedCondition(newCond);
 				} else if (operation.getType() == opType) {
 					currentCond = operation;
 				} else {
-					BooleanCondition newCond = createOperation(opType);
+					BooleanCondition newCond = createOperation(index, opType);
 					if (opParenDepth[opDepthIndex] != 0) {
 						BooleanCondition oldCond = operation.replaceLast(newCond);
 						newCond.addCondition(oldCond);
@@ -755,7 +751,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else if (curType == BooleanCondition.Type.NOT) {
 				if (operation != null) {
-					BooleanCondition newCond = createOperation(opType);
+					BooleanCondition newCond = createOperation(index, opType);
 					BooleanCondition oldCond = operation.replaceLast(newCond);
 					newCond.addCondition(oldCond);
 					setNestedCondition(newCond);
@@ -767,7 +763,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		BooleanCondition createOperation(BooleanCondition.Type opType) {
+		BooleanCondition createOperation(int index, BooleanCondition.Type opType)
+				throws CSSParseException {
 			if (opType == BooleanCondition.Type.AND) {
 				return conditionFactory.createAndCondition();
 			}
@@ -972,6 +969,19 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
+		protected void handleError(int index, byte errCode, String message, Throwable cause) {
+			if (!parseError) {
+				if (errorCode == 0) {
+					errorCode = errCode;
+					errorException = createException(index, errCode, message);
+					errorException.initCause(cause);
+					handleError(errorException);
+				}
+				parseError = true;
+			}
+		}
+
+		@Override
 		protected void handleError(CSSParseException ex) throws CSSParseException {
 			if (rule != null) {
 				rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, errorException);
@@ -1042,9 +1052,8 @@ public class CSSParser implements Parser, Cloneable {
 								StyleValue value = factory.parseProperty(svalue);
 								((DeclarationCondition) currentCond).setValue(value);
 							} catch (DOMException e) {
-								handleError(index, ParseHelper.ERR_WRONG_VALUE, "Bad @supports condition value.");
-								errorException.initCause(e);
-								((DeclarationCondition) currentCond).setValue(svalue);
+								handleError(index, ParseHelper.ERR_WRONG_VALUE,
+									"Bad @supports condition value.", e);
 							}
 							buffer.setLength(0);
 							readingValue = false;
@@ -1177,14 +1186,15 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		BooleanCondition createOperation(BooleanCondition.Type opType) {
+		BooleanCondition createOperation(int index, BooleanCondition.Type opType)
+				throws CSSParseException {
 			if (opType == BooleanCondition.Type.AND) {
 				return conditionFactory.createAndCondition();
 			}
 			if (getPredicateHandler().mediaType == null) {
 				return conditionFactory.createOrCondition();
 			}
-			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected 'OR'");
+			throw createException(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected 'OR'");
 		}
 
 		void emptyQuery(int index) {
@@ -1197,7 +1207,21 @@ public class CSSParser implements Parser, Cloneable {
 				CSSParseException ex = createException(index, errCode, message);
 				mqhelper.handler.invalidQuery(ex);
 				if (!mqhelper.handler.reportsErrors() && errorHandler != null) {
-					handleError(createException(index, errCode, message));
+					handleError(ex);
+				}
+				parseError = true;
+			}
+		}
+
+		@Override
+		protected void handleError(int index, byte errCode, String message, Throwable cause) {
+			if (!parseError) {
+				MediaQueryDelegateHandler mqhelper = getPredicateHandler();
+				CSSParseException ex = createException(index, errCode, message);
+				ex.initCause(cause);
+				mqhelper.handler.invalidQuery(ex);
+				if (!mqhelper.handler.reportsErrors() && errorHandler != null) {
+					handleError(ex);
 				}
 				parseError = true;
 			}
@@ -1512,7 +1536,8 @@ public class CSSParser implements Parser, Cloneable {
 					try {
 						predicate.setValue(value);
 					} catch (DOMException e) {
-						handleError(index, ParseHelper.ERR_WRONG_VALUE, e.getMessage() + ": " + value.toString());
+						handleError(index, ParseHelper.ERR_WRONG_VALUE,
+							e.getMessage() + ": " + value.toString(), e);
 						clearPredicate();
 						return;
 					}
@@ -1532,7 +1557,8 @@ public class CSSParser implements Parser, Cloneable {
 				try {
 					predicate.setValueRange(value1, value2);
 				} catch (DOMException e) {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, e.getMessage());
+					handleError(index, ParseHelper.ERR_WRONG_VALUE,
+						"Invalid value(s) in range media feature.", e);
 					clearPredicate();
 					return;
 				}
@@ -3751,7 +3777,8 @@ public class CSSParser implements Parser, Cloneable {
 				try {
 					handler.startCounterStyle(ruleSecondPart);
 				} catch (DOMException e) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Counter-style rule could not be created.", e);
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+						"Wrong name for @counter-style rule.", e);
 					setStage(INVALID_RULE);
 				}
 			}

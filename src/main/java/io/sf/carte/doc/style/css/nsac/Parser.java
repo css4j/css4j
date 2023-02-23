@@ -122,6 +122,10 @@ public interface Parser {
 
 	/**
 	 * Parse a CSS style sheet.
+	 * <p>
+	 * Note: in addition to the listed exceptions, this method may raise runtime
+	 * exceptions produced by the {@code CSSHandler}.
+	 * </p>
 	 *
 	 * @param source the input source of the CSS sheet.
 	 * 
@@ -136,10 +140,14 @@ public interface Parser {
 	 * @see #setErrorHandler
 	 */
 	void parseStyleSheet(InputSource source)
-			throws CSSParseException, IOException, IllegalStateException, IllegalArgumentException;
+		throws CSSParseException, IOException, IllegalStateException, IllegalArgumentException;
 
 	/**
 	 * Parse a CSS style sheet.
+	 * <p>
+	 * Note: in addition to the listed exceptions, this method may raise runtime
+	 * exceptions produced by the {@code CSSHandler}.
+	 * </p>
 	 *
 	 * @param reader the character stream containing the CSS sheet.
 	 * 
@@ -151,7 +159,8 @@ public interface Parser {
 	 * @see #setDocumentHandler
 	 * @see #setErrorHandler
 	 */
-	void parseStyleSheet(Reader reader) throws CSSParseException, IOException, IllegalStateException;
+	void parseStyleSheet(Reader reader)
+		throws CSSParseException, IOException, IllegalStateException;
 
 	/**
 	 * Parse a CSS sheet from a URI.
@@ -163,6 +172,10 @@ public interface Parser {
 	 * Usage of this method may have security implications. Please make sure that
 	 * the URI being passed is safe to use.
 	 * </p>
+	 * <p>
+	 * Note: in addition to the listed exceptions, this method may raise runtime
+	 * exceptions produced by the {@code CSSHandler}.
+	 * </p>
 	 *
 	 * @param uri The URI locating the sheet.
 	 * @throws CSSParseException     if an error was found and no error handler was
@@ -173,7 +186,8 @@ public interface Parser {
 	 * @see #setDocumentHandler
 	 * @see #setErrorHandler
 	 */
-	void parseStyleSheet(String uri) throws CSSParseException, IOException, IllegalStateException;
+	void parseStyleSheet(String uri)
+		throws CSSParseException, IOException, IllegalStateException;
 
 	/**
 	 * Parse a comma separated list of selectors.
@@ -240,6 +254,10 @@ public interface Parser {
 
 	/**
 	 * Parse a namespaceless CSS rule.
+	 * <p>
+	 * Note: in addition to the listed exceptions, this method may raise runtime
+	 * exceptions produced by the {@code CSSHandler}.
+	 * </p>
 	 * 
 	 * @param reader the character stream containing the CSS rule.
 	 *
@@ -249,10 +267,15 @@ public interface Parser {
 	 *                               rule.
 	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
 	 */
-	void parseRule(Reader reader) throws CSSParseException, IOException, IllegalStateException;
+	void parseRule(Reader reader)
+		throws CSSParseException, IOException, IllegalStateException;
 
 	/**
 	 * Parse a CSS rule.
+	 * <p>
+	 * Note: in addition to the listed exceptions, this method may raise runtime
+	 * exceptions produced by the {@code CSSHandler}.
+	 * </p>
 	 *
 	 * @param reader the character stream containing the CSS rule.
 	 * @param nsmap  the namespace map.
@@ -263,7 +286,8 @@ public interface Parser {
 	 *                               rule.
 	 * @throws IllegalStateException if the {@code CSSHandler} is not set.
 	 */
-	void parseRule(Reader reader, NamespaceMap nsmap) throws CSSParseException, IOException, IllegalStateException;
+	void parseRule(Reader reader, NamespaceMap nsmap)
+		throws CSSParseException, IOException, IllegalStateException;
 
 	/**
 	 * Interface giving access to namespace URI from the prefix.
