@@ -337,12 +337,43 @@ public class CSSParser implements Parser, Cloneable {
 		return re;
 	}
 
+	/**
+	 * Parse any simple (non-nesting) at-rule containing descriptors, using a
+	 * generic {@link DeclarationRuleHandler}.
+	 * <p>
+	 * In general it is recommended to use {@link #parseRule(Reader)} to parse
+	 * individual at-rules, however this method can be useful for generic rules that
+	 * are not yet supported by the {@link CSSHandler} interface, as well as for
+	 * {@code @keyframe} which isn't a top-level rule.
+	 * </p>
+	 * <p>
+	 * As mentioned, the rule cannot have nested rules.
+	 * </p>
+	 * <p>
+	 * Note: in addition to the listed exceptions, this method may raise runtime
+	 * exceptions produced by the {@code DeclarationRuleHandler}.
+	 * </p>
+	 * 
+	 * @param reader the character stream containing the CSS rule.
+	 *
+	 * @throws CSSParseException     if an error was found and no error handler was
+	 *                               set.
+	 * @throws IOException           if a I/O error was found while retrieving the
+	 *                               rule.
+	 * @throws IllegalStateException if the {@code CSSHandler} is not set or is not
+	 *                               a {@code DeclarationRuleHandler}.
+	 */
 	public void parseDeclarationRule(Reader reader) throws CSSParseException, IOException {
 		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(ShorthandDatabase.getInstance());
+		if (!(this.handler instanceof DeclarationRuleHandler)) {
+			throw new IllegalStateException(
+				"Document handler needs to implement DeclarationRuleHandler.");
+		}
+		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(
+			ShorthandDatabase.getInstance());
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
