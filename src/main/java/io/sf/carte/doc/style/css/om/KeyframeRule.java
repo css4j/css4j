@@ -214,7 +214,6 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 		@Override
 		public void startAtRule(String name, String pseudoSelector) {
 			String selector = getParentRule().keyframeSelector(pseudoSelector);
-			selector = getParentRule().keyframeSelector(selector);
 			setKeyText(selector);
 		}
 
