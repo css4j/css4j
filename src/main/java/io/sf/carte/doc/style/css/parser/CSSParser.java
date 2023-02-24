@@ -3714,6 +3714,8 @@ public class CSSParser implements Parser, Cloneable {
 				contextHandler = new MyFontFeatureValuesTH();
 			} else if ("charset".equals(ruleName)) {
 				handleError(index - 8, ParseHelper.ERR_RULE_SYNTAX, "@charset must be the first rule");
+			} else if ("property".equals(ruleName)) {
+				handleError(index - 9, ParseHelper.ERR_RULE_SYNTAX, "@property rules cannot be nested");
 			} else {
 				// Nested rule
 				buffer.append(word);
