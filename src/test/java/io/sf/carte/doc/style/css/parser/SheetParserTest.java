@@ -32,6 +32,7 @@ import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -1585,6 +1586,23 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseStyleSheetPageRuleBadNameDot() throws CSSException, IOException {
+		Reader re = new StringReader(
+			"@page LetterHead. {margin-top:20%;@top-left{content:'foo';color:green}}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(0, handler.pageRuleSelectors.size());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertEquals(0, handler.eventSeq.size());
+
+		assertTrue(errorHandler.hasError());
+		CSSParseException ex = errorHandler.getLastException();
+		assertEquals(1, ex.getLineNumber());
+		assertEquals(17, ex.getColumnNumber());
+	}
+
+	@Test
 	public void testParseStyleSheetPageRuleBadNestedMarginBox() throws CSSException, IOException {
 		Reader re = new StringReader(
 			"@page LetterHead:first{margin-top:20%;@top-left @{content:'foo';color:green}}");
@@ -2581,6 +2599,25 @@ public class SheetParserTest {
 		assertEquals(6, loc.getLineNumber());
 		assertEquals(20, loc.getColumnNumber());
 		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseKeyframesRuleErrorNameDot() throws CSSException, IOException {
+		Reader re = new StringReader(
+			"@keyframes slide.{from {margin-left: 0px;} 50% {margin-left: 110px; opacity: 1;}"
+				+ " 70% {opacity: 0.9;} to {margin-left: 200px;}}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(0, handler.keyframesNames.size());
+		assertEquals(0, handler.keyframeSelectors.size());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertEquals(0, handler.eventSeq.size());
+
+		CSSParseException ex = errorHandler.getLastException();
+		assertEquals(1, ex.getLineNumber());
+		assertEquals(17, ex.getColumnNumber());
+		assertTrue(errorHandler.hasError());
 	}
 
 	@Test

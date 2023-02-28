@@ -2206,6 +2206,10 @@ public class CSSParser implements Parser, Cloneable {
 			this.stage = stage;
 		}
 
+		int getCurlyBracketDepth() {
+			return curlyBracketDepth;
+		}
+
 		@Override
 		public void word(int index, CharSequence word) {
 			if (stage == STAGE_DECLARATION_LIST) {
@@ -2421,18 +2425,18 @@ public class CSSParser implements Parser, Cloneable {
 		public void endOfStream(int len) {
 			if (curlyBracketDepth != 0) {
 				if (stage == STAGE_DECLARATION_LIST) {
+					curlyBracketDepth--;
 					declarationHandler.endOfStream(len);
 					endBlock();
-					endBlockList();
 				} else if (stage == STAGE_END_BLOCK_LIST) {
 					return;
-				} else if (stage == STAGE_WAIT_NESTED_SELECTOR || stage == STAGE_FOUND_NESTED_SELECTOR) {
-					endBlockList();
 				}
 				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
+				endBlockList();
 			} else if (stage != STAGE_END_BLOCK_LIST) {
 				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Malformed " + blockRuleName + " rule.",
 						STAGE_SELECTOR_ERROR);
+				endBlockList();
 			}
 		}
 
@@ -2457,6 +2461,17 @@ public class CSSParser implements Parser, Cloneable {
 				super.handleError(index, errCode, message);
 				stage = stageToSet;
 			}
+		}
+
+		@Override
+		protected void handleError(CSSParseException ex) throws CSSParseException {
+			super.handleError(ex);
+			if (stage <= STAGE_WAIT_BLOCK_LIST) {
+				abortRule();
+			}
+		}
+
+		protected void abortRule() {
 		}
 
 		private class NestedRuleDeclarationTokenHandler extends DeclarationTokenHandler {
@@ -3074,6 +3089,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (contextHandler != null) {
 				contextHandler.openGroup(index, codepoint);
 			} else {
+				prevcp = codepoint;
 				if (codepoint == 123) { // '{'
 					curlyBracketDepth++;
 					if (stage == STAGE_GROUPING_OR_FONTFACE_RULE) {
@@ -3122,7 +3138,6 @@ public class CSSParser implements Parser, Cloneable {
 				} else {
 					bufferAppend(codepoint);
 				}
-				prevcp = codepoint;
 			}
 		}
 
@@ -3148,11 +3163,13 @@ public class CSSParser implements Parser, Cloneable {
 					buffer.append('}');
 					if (curlyBracketDepth == 0) {
 						// Body of rule ends
-						handler.ignorableAtRule(buffer.toString());
+						if (!parseError) {
+							handler.ignorableAtRule(buffer.toString());
+							stage = STAGE_INITIAL;
+						}
 						buffer.setLength(0);
-						stage = STAGE_INITIAL;
 						endRuleBody();
-					} else if (curlyBracketDepth == 1) {
+					} else if (!parseError && curlyBracketDepth == 1) {
 						if (stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
 							handler.ignorableAtRule(buffer.toString());
 							buffer.setLength(0);
@@ -3208,6 +3225,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (contextHandler != null) {
 				contextHandler.character(index, codepoint);
 			} else {
+				prevcp = codepoint;
 				if (codepoint == 59) { // ;
 					if (curlyBracketDepth == 0) {
 						// End of rule
@@ -3235,7 +3253,6 @@ public class CSSParser implements Parser, Cloneable {
 				} else {
 					unexpectedCharError(index, codepoint);
 				}
-				prevcp = codepoint;
 			}
 		}
 
@@ -3439,7 +3456,7 @@ public class CSSParser implements Parser, Cloneable {
 			contextHandler = selectorHandler;
 			selectorHandler.parseError = false;
 			selectorHandler.prevcp = 32;
-			selectorHandler.stage = 0;
+			selectorHandler.stage = STAGE_INITIAL;
 			this.prevcp = prevcp;
 		}
 
@@ -3864,6 +3881,14 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			protected void abortRule() {
+				contextHandler = null;
+				SheetTokenHandler.this.curlyBracketDepth += getCurlyBracketDepth();
+				SheetTokenHandler.this.parseError = true;
+				SheetTokenHandler.this.stage = 127;
+			}
+
+			@Override
 			public void endOfStream(int len) {
 				super.endOfStream(len);
 				contextHandler = null;
@@ -3905,6 +3930,14 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			protected void abortRule() {
+				contextHandler = null;
+				SheetTokenHandler.this.curlyBracketDepth += getCurlyBracketDepth();
+				SheetTokenHandler.this.parseError = true;
+				SheetTokenHandler.this.stage = 127;
+			}
+
+			@Override
 			public void endOfStream(int len) {
 				super.endOfStream(len);
 				contextHandler = null;
@@ -3943,6 +3976,14 @@ public class CSSParser implements Parser, Cloneable {
 			void endBlockList() {
 				super.endBlockList();
 				endRuleBody();
+			}
+
+			@Override
+			protected void abortRule() {
+				contextHandler = null;
+				SheetTokenHandler.this.curlyBracketDepth += getCurlyBracketDepth();
+				SheetTokenHandler.this.parseError = true;
+				SheetTokenHandler.this.stage = 127;
 			}
 
 			@Override
@@ -4166,7 +4207,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 					}
 				}
-				MySelectorTokenHandler.this.stage = 0;
+				MySelectorTokenHandler.this.stage = STAGE_INITIAL;
 				if (parseError) {
 					buffer.setLength(0);
 					ignoreRule();
@@ -4207,14 +4248,15 @@ public class CSSParser implements Parser, Cloneable {
 							resetSelectorHandler(false);
 						}
 						return;
-					} else if (SheetTokenHandler.this.curlyBracketDepth == 1) {
+					} else if (SheetTokenHandler.this.curlyBracketDepth == 0) {
 						resetSelectorHandler(true);
 						return;
 					}
 				}
 				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '}'");
-				resetSelectorHandler(true);
-				if (SheetTokenHandler.this.curlyBracketDepth < 0) {
+				// Do error recovery if no more closing brackets are expected
+				if (SheetTokenHandler.this.curlyBracketDepth <= 0) {
+					resetSelectorHandler(true);
 					SheetTokenHandler.this.curlyBracketDepth = 0;
 				}
 			}
@@ -4225,7 +4267,7 @@ public class CSSParser implements Parser, Cloneable {
 				SheetTokenHandler.this.curlyBracketDepth--;
 				if (resetSheetStage) {
 					SheetTokenHandler.this.ruleType = 0;
-					SheetTokenHandler.this.stage = 0;
+					SheetTokenHandler.this.stage = STAGE_INITIAL;
 				}
 			}
 
@@ -4239,7 +4281,7 @@ public class CSSParser implements Parser, Cloneable {
 				// At-rule
 				if (prevcp == ';') {
 					parseError = false;
-					stage = 0;
+					stage = STAGE_INITIAL;
 				} else if (stage > 0) {
 					int len = buffer.length();
 					if (len != 0) {
