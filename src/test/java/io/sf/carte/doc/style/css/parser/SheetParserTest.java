@@ -2295,6 +2295,24 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseCounterStyleRuleBadNameDot() throws CSSException, IOException {
+		Reader re = new StringReader(
+			"@counter-style foo. {symbols: \\1F44D; suffix: \" \";}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(0, handler.counterStyleNames.size());
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+		assertEquals(0, handler.eventSeq.size());
+		assertEquals(0, handler.atRules.size());
+
+		assertTrue(errorHandler.hasError());
+		CSSParseException ex = errorHandler.getLastException();
+		assertEquals(1, ex.getLineNumber());
+		assertEquals(21, ex.getColumnNumber());
+	}
+
+	@Test
 	public void testParsePropertyRule() throws IOException {
 		Reader re = new StringReader(
 			"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 24px; ignore-me:0}");

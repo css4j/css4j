@@ -114,6 +114,15 @@ public class CounterStyleRuleTest {
 	}
 
 	@Test
+	public void testParseRuleErrorBadIdent() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@counter-style foo. {system: cyclic; symbols: \\1F44D; suffix: \" \";}");
+		sheet.parseStyleSheet(re);
+		assertEquals(0, sheet.getCssRules().getLength());
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
 	public void testParseRuleErrorRecovery() throws DOMException, IOException {
 		StringReader re = new StringReader(
 				"@;@counter-style thumbs {system: cyclic;\nsymbols: \\1F44D;\n suffix: \" \"");

@@ -3813,11 +3813,17 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
-				try {
-					handler.startCounterStyle(ruleSecondPart);
-				} catch (DOMException e) {
+				if (ruleSecondPart != null && isValidIdentifier(ruleSecondPart)) {
+					try {
+						handler.startCounterStyle(ruleSecondPart);
+					} catch (DOMException e) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+							"Wrong name for @counter-style rule: " + ruleSecondPart, e);
+						setStage(INVALID_RULE);
+					}
+				} else {
 					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-						"Wrong name for @counter-style rule.", e);
+						"Wrong name for @counter-style rule: " + ruleSecondPart);
 					setStage(INVALID_RULE);
 				}
 			}
