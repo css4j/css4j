@@ -69,8 +69,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	public void setHue(PrimitiveValue hue) {
-		checkHueComponent(hue);
-		this.hue = hue;
+		this.hue = enforceHueComponent(hue);
 	}
 
 	@Override
@@ -79,8 +78,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	public void setWhiteness(PrimitiveValue whiteness) {
-		checkPcntComponent(whiteness);
-		this.whiteness = whiteness;
+		this.whiteness = enforcePcntComponent(whiteness);
 	}
 
 	@Override
@@ -89,8 +87,7 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	public void setBlackness(PrimitiveValue blackness) {
-		checkPcntComponent(blackness);
-		this.blackness = blackness;
+		this.blackness = enforcePcntComponent(blackness);
 	}
 
 	@Override

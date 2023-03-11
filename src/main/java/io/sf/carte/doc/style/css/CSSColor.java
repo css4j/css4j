@@ -31,6 +31,9 @@ public interface CSSColor {
 
 	/**
 	 * Get the color space to which this color belongs.
+	 * <p>
+	 * See {@link ColorSpace}.
+	 * </p>
 	 * 
 	 * @return the color space.
 	 */

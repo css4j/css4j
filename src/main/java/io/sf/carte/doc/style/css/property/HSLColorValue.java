@@ -97,11 +97,28 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		float hue = ((CSSTypedValue) hslColor.getHue()).getFloatValue(CSSUnit.CSS_DEG) / 360f;
-		float sat = ((CSSTypedValue) hslColor.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
-		float light = ((CSSTypedValue) hslColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
+		float sat = fraction((CSSTypedValue) hslColor.getSaturation());
+		float light = fraction((CSSTypedValue) hslColor.getLightness());
 		CSSRGBColor color = new CSSRGBColor();
 		translateHSL(hue, sat, light, color);
 		return color;
+	}
+
+	/**
+	 * Return the given value as a fraction.
+	 * 
+	 * @param number a numeric value, either a {@code <number>} or a
+	 *               {@code <percentage>}.
+	 * @return the value divided by 100.
+	 */
+	private static float fraction(CSSTypedValue number) {
+		float val;
+		if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+			val = number.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+		} else {
+			val = number.getFloatValue(CSSUnit.CSS_NUMBER);
+		}
+		return val * 0.01f;
 	}
 
 	@Override
@@ -146,7 +163,6 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			ValueFactory factory = new ValueFactory();
 			// hue
 			PrimitiveValue primihue = factory.createCSSPrimitiveValue(lu, true);
-			checkHueValidity(primihue, lunit);
 			// comma
 			lu = lu.getNextLexicalUnit();
 			if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.LexicalType.OPERATOR_COMMA) {
@@ -154,7 +170,6 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 				lu = lu.getNextLexicalUnit();
 			}
 			PrimitiveValue primisat = factory.createCSSPrimitiveValue(lu, true);
-			checkPcntCompValidity(primisat, lunit);
 			if (commaSyntax) {
 				// comma
 				lu = lu.getNextLexicalUnit();
@@ -162,7 +177,6 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			// lightness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
-			checkPcntCompValidity(primilight, lunit);
 			// comma, slash or null
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue alpha = null;

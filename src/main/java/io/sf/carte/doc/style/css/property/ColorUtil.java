@@ -133,8 +133,6 @@ class ColorUtil {
 	}
 
 	private static void oklabToXyz65(float light, float a, float b, double[] xyz65) {
-		light *= 0.01f;
-
 		double l_p = light + 0.3963377774f * a + 0.2158037573f * b;
 		double m_p = light - 0.1055613458f * a - 0.0638541728f * b;
 		double s_p = light - 0.0894841775f * a - 1.2914855480f * b;

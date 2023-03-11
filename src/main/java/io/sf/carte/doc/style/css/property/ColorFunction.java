@@ -181,10 +181,10 @@ class ColorFunction extends ColorValue {
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Color space is not supported.");
 		}
 		//
-		return ColorUtil.deltaE2000Lab(((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		return ColorUtil.deltaE2000Lab(((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER),
-				((CSSTypedValue) lab.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lab.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
@@ -253,7 +253,7 @@ class ColorFunction extends ColorValue {
 
 			setColor(colorSpace, components);
 			if (alpha != null) {
-				color.alpha = alpha;
+				color.setAlpha(alpha);
 			}
 		}
 

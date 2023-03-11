@@ -50,6 +50,8 @@ public class NumberValue extends TypedValue {
 	 */
 	private boolean specified = true;
 
+	private int maxFractionDigits = -1; // -1 means auto
+
 	public NumberValue() {
 		super(Type.NUMERIC);
 		this.unitType = CSSUnit.CSS_NUMBER;
@@ -62,8 +64,10 @@ public class NumberValue extends TypedValue {
 		this.asInteger = copied.asInteger;
 		this.calculated = copied.calculated;
 		this.specified = copied.specified;
+		this.maxFractionDigits = copied.maxFractionDigits;
 		this.lengthUnitType = copied.lengthUnitType;
 		this.dimensionUnitText = copied.dimensionUnitText;
+		this.maxFractionDigits = copied.maxFractionDigits;
 	}
 
 	@Override
@@ -106,7 +110,11 @@ public class NumberValue extends TypedValue {
 		} else {
 			NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
 			format.setMinimumFractionDigits(0);
-			format.setMaximumFractionDigits(fractionDigits(getUnitType()));
+			int fdigits = maxFractionDigits;
+			if (fdigits < 0) {
+				fdigits = fractionDigits(getUnitType());
+			}
+			format.setMaximumFractionDigits(fdigits);
 			s = format.format(real);
 		}
 		return s;
@@ -288,6 +296,10 @@ public class NumberValue extends TypedValue {
 
 	boolean isSpecified() {
 		return specified;
+	}
+
+	void setMaxFractionDigits(int maxFractionDigits) {
+		this.maxFractionDigits = maxFractionDigits;
 	}
 
 	@Override

@@ -60,58 +60,157 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		if (alpha == null) {
 			throw new NullPointerException();
 		}
+
+		if (alpha.getPrimitiveType() == Type.EXPRESSION) {
+			PercentageEvaluator eval = new PercentageEvaluator();
+			try {
+				alpha = eval.evaluateExpression((ExpressionValue) alpha);
+			} catch (DOMException e) {
+			}
+		}
+
 		if (alpha.getUnitType() == CSSUnit.CSS_NUMBER) {
-			float fv = ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_NUMBER);
-			if (fv < 0f || fv > 1f) {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-						"Alpha channel cannot be smaller than zero or greater than 1.");
+			TypedValue typed = (TypedValue) alpha;
+			float fv = typed.getFloatValue(CSSUnit.CSS_NUMBER);
+			if (fv < 0f) {
+				typed.setFloatValue(CSSUnit.CSS_NUMBER, 0f);
+			} else if (fv > 1f) {
+				typed.setFloatValue(CSSUnit.CSS_NUMBER, 1f);
 			}
 		} else if (alpha.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			float fv = ((CSSTypedValue) alpha).getFloatValue(CSSUnit.CSS_PERCENTAGE);
-			if (fv < 0f || fv > 100f) {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-						"Alpha channel percentage cannot be smaller than zero or greater than 100%.");
+			TypedValue typed = (TypedValue) alpha;
+			float fv = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			if (fv < 0f) {
+				typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 0f);
+			} else if (fv > 100f) {
+				typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 100f);
 			}
-		} else if(alpha.getCssValueType() != CssType.PROXY && alpha.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with alpha.");
+		} else if (alpha.getCssValueType() != CssType.PROXY
+				&& alpha.getPrimitiveType() != Type.EXPRESSION) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Type not compatible with alpha.");
 		}
+
 		this.alpha = alpha;
 	}
 
-	static void checkPcntComponent(PrimitiveValue primi) throws DOMException {
+	static PrimitiveValue enforcePcntComponent(PrimitiveValue primi) throws DOMException {
 		if (primi == null) {
 			throw new NullPointerException();
 		}
+
+		if (primi.getPrimitiveType() == Type.EXPRESSION) {
+			PercentageEvaluator eval = new PercentageEvaluator();
+			try {
+				primi = eval.evaluateExpression((ExpressionValue) primi);
+			} catch (DOMException e) {
+			}
+		}
+
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			float fv = ((CSSTypedValue) primi).getFloatValue(CSSUnit.CSS_PERCENTAGE);
-			if (fv < 0f || fv > 100f) {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-						"Color component percentage cannot be smaller than zero or greater than 100%.");
+			TypedValue typed = (TypedValue) primi;
+			float fv = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			if (fv < 0f) {
+				typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 0f);
+			} else if (fv > 100f) {
+				typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 100f);
 			}
 		} else if (primi.getCssValueType() != CssType.PROXY
 				 && primi.getPrimitiveType() != Type.EXPRESSION){
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Invalid color component: " + primi.getCssText());
 		}
+
+		return primi;
 	}
 
-	static void checkNumberComponent(PrimitiveValue primi) {
+	static PrimitiveValue enforcePcntOrNumberComponent(PrimitiveValue primi) throws DOMException {
 		if (primi == null) {
 			throw new NullPointerException();
 		}
-		if (primi.getUnitType() != CSSUnit.CSS_NUMBER
-				&& primi.getCssValueType() != CssType.PROXY && primi.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible: " + primi.getCssText());
+
+		if (primi.getPrimitiveType() == Type.EXPRESSION) {
+			PercentageEvaluator eval = new PercentageEvaluator();
+			try {
+				primi = eval.evaluateExpression((ExpressionValue) primi);
+			} catch (DOMException e) {
+			}
 		}
+
+		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+			TypedValue typed = (TypedValue) primi;
+			float fv = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			if (fv < 0f) {
+				typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 0f);
+			} else if (fv > 100f) {
+				typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 100f);
+			}
+		} else if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
+			TypedValue typed = (TypedValue) primi;
+			float fv = typed.getFloatValue(CSSUnit.CSS_NUMBER);
+			if (fv < 0f) {
+				typed.setFloatValue(CSSUnit.CSS_NUMBER, 0f);
+			} else if (fv > 100f) {
+				typed.setFloatValue(CSSUnit.CSS_NUMBER, 100f);
+			}
+		} else if (primi.getCssValueType() != CssType.PROXY
+				&& primi.getPrimitiveType() != Type.EXPRESSION) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Invalid color component: " + primi.getCssText());
+		}
+
+		return primi;
 	}
 
-	static void checkHueComponent(PrimitiveValue hue) {
+	static PrimitiveValue enforceHueComponent(PrimitiveValue hue) {
 		if (hue == null) {
 			throw new NullPointerException();
 		}
+
+		if (hue.getPrimitiveType() == Type.EXPRESSION) {
+			Evaluator eval = new Evaluator(CSSUnit.CSS_DEG);
+			try {
+				hue = eval.evaluateExpression((ExpressionValue) hue);
+			} catch (DOMException e) {
+			}
+		}
+
 		if (hue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(hue.getUnitType())
-				&& hue.getCssValueType() != CssType.PROXY && hue.getPrimitiveType() != Type.EXPRESSION) {
+				&& hue.getCssValueType() != CssType.PROXY
+				&& hue.getPrimitiveType() != Type.EXPRESSION) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with hue.");
 		}
+
+		return hue;
+	}
+
+	static PrimitiveValue normalizePcntToNumber(PrimitiveValue primi, float factor, int maxFractionDigits,
+			boolean calculated) {
+		if (primi == null) {
+			throw new NullPointerException();
+		}
+
+		if (primi.getPrimitiveType() == Type.EXPRESSION) {
+			PercentageEvaluator eval = new PercentageEvaluator();
+			try {
+				primi = eval.evaluateExpression((ExpressionValue) primi);
+			} catch (DOMException e) {
+			}
+		}
+
+		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+			NumberValue number = (NumberValue) primi;
+			float num = number.getFloatValue(CSSUnit.CSS_PERCENTAGE) * factor;
+			number.setFloatValue(CSSUnit.CSS_NUMBER, num);
+			number.setCalculatedNumber(calculated);
+			number.setMaxFractionDigits(maxFractionDigits);
+		} else if (primi.getUnitType() != CSSUnit.CSS_NUMBER
+				&& primi.getCssValueType() != CssType.PROXY
+				&& primi.getPrimitiveType() != Type.EXPRESSION) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Type not compatible: " + primi.getCssText());
+		}
+
+		return primi;
 	}
 
 	abstract boolean hasConvertibleComponents();

@@ -25,7 +25,6 @@ import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
@@ -171,10 +170,10 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			lab1 = rgb1.toLABColorValue().getColor();
 			lab2 = rgb2.toLABColorValue().getColor();
 		}
-		return ColorUtil.deltaE2000Lab(((CSSTypedValue) lab1.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		return ColorUtil.deltaE2000Lab(((CSSTypedValue) lab1.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab1.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab1.getB()).getFloatValue(CSSUnit.CSS_NUMBER),
-				((CSSTypedValue) lab2.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lab2.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab2.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab2.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
@@ -226,27 +225,6 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 
 	@Override
 	abstract public ColorValue clone();
-
-	static void checkPcntCompValidity(PrimitiveValue primisat, LexicalUnit lunit) {
-		if (primisat.getUnitType() != CSSUnit.CSS_PERCENTAGE && primisat.getCssValueType() != CssType.PROXY
-				&& primisat.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible: " + lunit.toString());
-		}
-	}
-
-	static void checkNumberCompValidity(PrimitiveValue primihue, LexicalUnit lunit) {
-		if (primihue.getUnitType() != CSSUnit.CSS_NUMBER && primihue.getCssValueType() != CssType.PROXY
-				&& primihue.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible: " + lunit.toString());
-		}
-	}
-
-	static void checkHueValidity(PrimitiveValue primihue, LexicalUnit lunit) {
-		if (primihue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(primihue.getUnitType())
-				&& primihue.getCssValueType() != CssType.PROXY && primihue.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible: " + lunit.toString());
-		}
-	}
 
 	/**
 	 * RGB color in the sRGB color space.

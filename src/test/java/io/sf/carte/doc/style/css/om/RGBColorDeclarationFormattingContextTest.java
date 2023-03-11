@@ -45,7 +45,7 @@ public class RGBColorDeclarationFormattingContextTest {
 			"color:lch(80% 67 278);background:radial-gradient(lch(55% 94 40) 10%, lch(57% 67 67),color(display-p3 0.32 0.67 0.48),lch(58% 64 270));voice-family:announcer,male");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertNotNull(style);
-		assertEquals("lch(80% 67 278)", style.getPropertyValue("color"));
+		assertEquals("lch(80 67 278)", style.getPropertyValue("color"));
 		assertEquals(
 				"margin-top: 24pt; margin-bottom: 36pt; background-position: 0% 0%; padding-left: calc(10% - 36pt - 12pt); color: rgb(68.74%, 77.3%, 100%); background-image: radial-gradient(rgb(96.56%, 19.73%, 11.21%) 10%, rgb(76.17%, 46.08%, 4.18%), rgb(10.56%, 68%, 46.33%), rgb(9.21%, 56.27%, 99.01%)); background-size: auto auto; background-origin: padding-box; background-clip: border-box; background-repeat: repeat repeat; background-attachment: scroll; background-color: rgb(0 0 0 / 0); voice-family: announcer, male; ",
 				style.getCssText());

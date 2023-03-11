@@ -149,10 +149,10 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			lab2 = rgbValue.toLABColorValue().getColor();
 			lab1 = toLABColorValue().getColor();
 		}
-		return ColorUtil.deltaE2000Lab(((CSSTypedValue) lab1.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		return ColorUtil.deltaE2000Lab(((CSSTypedValue) lab1.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab1.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab1.getB()).getFloatValue(CSSUnit.CSS_NUMBER),
-				((CSSTypedValue) lab2.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lab2.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab2.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab2.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
 	}

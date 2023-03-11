@@ -69,8 +69,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	public void setHue(PrimitiveValue hue) {
-		checkHueComponent(hue);
-		this.hue = hue;
+		this.hue = enforceHueComponent(hue);
 	}
 
 	@Override
@@ -79,8 +78,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	public void setSaturation(PrimitiveValue saturation) {
-		checkPcntComponent(saturation);
-		this.saturation = saturation;
+		this.saturation = enforcePcntOrNumberComponent(saturation);
 	}
 
 	@Override
@@ -89,8 +87,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	public void setLightness(PrimitiveValue lightness) {
-		checkPcntComponent(lightness);
-		this.lightness = lightness;
+		this.lightness = enforcePcntOrNumberComponent(lightness);
 	}
 
 	@Override

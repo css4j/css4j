@@ -5,6 +5,15 @@ Upgrading to 3.10 from 3.9.1
 ----------------------------
 - CSSOM: now CSSRule.setCssText() does not accept errors, only warnings.
 
+- The syntax and serialization of hsl, lab, lch, oklab and oklch now behaves
+  according to the latest Color Level 4 specification.
+
+- CSSOM: calc() values in color components are now evaluated when building the
+  Object Model. In previous versions, calc() was not evaluated in case that
+  someone was using it to represent fractions or other representative values,
+  but this is very unlikely and does not justify the annoyance of carrying the
+  calc().
+
 
 Upgrading to 3.9.1 from 3.9.0
 -----------------------------
@@ -37,14 +46,20 @@ Upgrading to 3.4 from 3.3
  - The old rgb(a) color functional serialization with commas is now the default
    for conversions to RGB (specified RGB values always kept the original syntax)
    .
+
  - In CSSColorValue, ColorSpace was renamed to ColorModel. No deprecation step
    this time, as 'ColorSpace' is to be used elsewhere.
+
  - CSSTypedValue.toRGBColorValue() was deprecated in favor of toRGBColor().
+
  - Use new CSSColorValue.getColor() to access all colors.
+
  - New StyleFormattingFactory.createComputedStyleFormattingContext() method
    returns a new DeclarationFormattingContext.
+
  - Removed method newLine(SimpleWriter) from DeclarationFormattingContext
    interface.
+
  - NSAC only: new method CSSHandler.lexicalProperty(...). For now, only being
    called for one descriptor from @property rules.
 
@@ -57,12 +72,16 @@ Upgrading to 3.3 from 3.2
 Upgrading to 3.2 from 3.1
 -------------------------
  - CSSStyleSheet.createStyleRule() now returns a CSSStyleRule.
+
  - ErrorHandler.linkedSheetError() now takes a CSSStyleSheet interface from
    css4j's 'css' package instead of 'org.w3c.dom.css'.
+
  - You no longer need to set the ID attribute in the native DOM (although the
    XMLDocumentBuilder was probably doing that for you).
+
  - Native DOM & DOM4J: now only STYLE elements in the same namespace as the
    document element are used to compute styles.
+
  - The matching of ":link" and ":visited" was narrowed down (see the Release
    Notes).
 
@@ -74,13 +93,17 @@ Upgrading to 3.1 from 3.0
    you need to call document.setDocumentURI() to set a 'file:' or 'jar:' URI.
    Otherwise, the sheets won't be processed, and the same applies to BASE href
    attributes.
+
  - The method ErrorHandler.hasErrors() now returns true if there are I/O errors.
    Those errors were previously considered transient, and therefore weren't
    appearing there.
+
  - On attribute nodes, getTextContent() now returns the attribute value instead
    of the empty string.
+
  - ExtendedNamedNodeMap<T>.removeNamedItem() and removeNamedItemNS() methods now
    return a value of the parameterized type (T).
+
  - DefaultEntityResolver.resolveEntity(DocumentTypeDeclaration) is deprecated
    (probably nobody is using that method).
 
@@ -115,15 +138,20 @@ classes, in Maven you now need to specify the xml-dtd module separately, like:
 
 - CSSOM: moved CSSCanvas, Viewport from 'agent' to 'style.css' package. The old
   interfaces can still be used (they inherit from the new), but are deprecated.
+
 - Moved BooleanCondition, BooleanConditionFactory, MediaFeaturePredicate,
   MediaQueryFactory and MediaQueryHandler from 'parser' to 'style.css' package.
   The reason: 'parser' is supposed to be mostly an implementation package, and
   this move would allow other implementations to exist.
+
 - DOM API: introduced interface 'StringList' and two implementations of it.
+
 - CSSOM: StringList is now used in comment processing instead of List<String>,
   and enablePrecedingComments() was added to AbstractCSSRule.
+
 - CSSOM: removed the clone(AbstractCSSStyleSheet) method from CSSRule interface.
   Use AbstractCSSRule.clone(AbstractCSSStyleSheet) instead.
+
 - CSSOM: method SACErrorHandler.mapError() now takes a CSSRule instead of an
   AbstractCSSRule (to make it more generic and allow other implementations).
 

@@ -99,7 +99,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		//
 		float a = (float) (c * Math.cos(h));
 		float b = (float) (c * Math.sin(h));
-		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE);
+		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
 		CSSRGBColor color = new CSSRGBColor();
 		ColorUtil.labToRGB(light, a, b, clamp, lchColor.getAlpha(), color);
@@ -191,10 +191,11 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			rgbValue.setComponent(3, (StyleValue) rgb.getBlue());
 			lch = rgbValue.toLABColorValue().toLCHColorValue().getColor();
 		}
-		return ColorUtil.deltaE2000LCh(((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		return ColorUtil.deltaE2000LCh(
+				((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
 				ColorUtil.hueRadians((CSSTypedValue) lchColor.getHue()),
-				((CSSTypedValue) lch.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lch.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lch.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
 				ColorUtil.hueRadians((CSSTypedValue) lch.getHue()));
 	}
@@ -226,29 +227,29 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
 			// lightness
-			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
-			checkPcntCompValidity(primilight, lunit);
+			PrimitiveValue primilight = factory.createCSSPrimitiveValueItem(lu, false, false)
+					.getCSSValue();
 			// chroma
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primichroma = factory.createCSSPrimitiveValue(lu, true);
-			checkNumberCompValidity(primichroma, lunit);
+			PrimitiveValue primichroma = factory.createCSSPrimitiveValueItem(lu, false, false)
+					.getCSSValue();
 			// hue
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primihue = factory.createCSSPrimitiveValue(lu, true);
-			checkHueValidity(primihue, lunit);
 			// slash or null
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue alpha = null;
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Expected slash in: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha
-				alpha = factory.createCSSPrimitiveValue(lu, true);
+				PrimitiveValue alpha = factory.createCSSPrimitiveValue(lu, true);
 				lchColor.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Bad value: " + lunit.toString());
 				}
 			}
 			lchColor.setLightness(primilight);

@@ -14,7 +14,7 @@ package io.sf.carte.doc.style.css.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -76,11 +76,11 @@ public class PropertyParserColorTest {
 
 	@Test
 	public void testParsePropertyValueLAB2() throws CSSException, IOException {
-		LexicalUnit lu = parsePropertyValue("lab(53.2% 42 57.76)");
+		LexicalUnit lu = parsePropertyValue("lab(53.2 42 57.76)");
 		assertEquals(LexicalType.LABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(53.2f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -92,7 +92,7 @@ public class PropertyParserColorTest {
 		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
-		assertEquals("lab(53.2% 42 57.76)", lu.toString());
+		assertEquals("lab(53.2 42 57.76)", lu.toString());
 	}
 
 	@Test
@@ -135,6 +135,48 @@ public class PropertyParserColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(53.2% 42 57)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueLabIntegerL() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lab(53 42 57.76)");
+		assertEquals(LexicalType.LABCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(53, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(42, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lab", lu.getFunctionName());
+		assertEquals("lab(53 42 57.76)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueLABAllPercent() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lab(53.2% 42% -57%)");
+		assertEquals(LexicalType.LABCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(53.2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(42f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(-57f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lab", lu.getFunctionName());
+		assertEquals("lab(53.2% 42% -57%)", lu.toString());
 	}
 
 	@Test
@@ -580,77 +622,33 @@ public class PropertyParserColorTest {
 
 	@Test
 	public void testParsePropertyValueLabBad() throws CSSException, IOException {
-		try {
-			parsePropertyValue("lab(12 48 0.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(-12% 48.5 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(12% 48% 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(12% 48% 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(12% 48 89.1deg)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(74% 48 89.1/)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(74% 48 /89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(74%/48 21)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(74% 48 89.1//)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(74% a 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(var(--lightness) 48 89.1deg)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lab(var(--lightness-a) 89.1deg)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(-12deg 48 0.1)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(-12% 48.5deg 89.1)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(12% 48% 89.1deg)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(12% 48%)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(12% 48)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(12%)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(74% 48 89.1/)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(74% 48 /89.1)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(74%/48 21)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(74% 48 89.1//)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(74% a 89.1)"));
+
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("lab(var(--lightness) 48 89.1deg)"));
+
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("lab(var(--lightness-a) 89.1deg)"));
 	}
 
 	@Test
@@ -687,11 +685,11 @@ public class PropertyParserColorTest {
 
 	@Test
 	public void testParsePropertyValueLCH2() throws CSSException, IOException {
-		LexicalUnit lu = parsePropertyValue("lch(53.2% 42 57.76)");
+		LexicalUnit lu = parsePropertyValue("lch(53.2 42 57.76)");
 		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(53.2f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -703,7 +701,7 @@ public class PropertyParserColorTest {
 		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lch", lu.getFunctionName());
-		assertEquals("lch(53.2% 42 57.76)", lu.toString());
+		assertEquals("lch(53.2 42 57.76)", lu.toString());
 	}
 
 	@Test
@@ -746,6 +744,195 @@ public class PropertyParserColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lch", lu.getFunctionName());
 		assertEquals("lch(53.2% 42 57)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueLCHNegChroma() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(53.2% -42.4 57)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(53.2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(57, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(53.2% 0 57)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueLchIntegerL() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(53 42 57.76)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(53, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(42, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(53 42 57.76)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueLCHChromaPercent() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(53.2% 42.4% 57.76)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(53.2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(42.4f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(53.2% 42.4% 57.76)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHClampPcnt() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(153.2% 142.4% 57.76)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(100% 100% 57.76)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHClampNegPcnt() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(-53.2% -142.4% 57.76)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(0% 0% 57.76)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHClampReal() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(153.2 542.4 57.76)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(542.4f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(100 542.4 57.76)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHClampNegReal() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(-53.2 -142.4 57.76)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(0 0 57.76)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHClampInteger() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(153 542 57.76)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(100, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(542, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(100 542 57.76)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHClampNegInteger() throws CSSException, IOException {
+		LexicalUnit lu = parsePropertyValue("lch(-53 -142 57.76)");
+		assertEquals(LexicalType.LCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(57.76f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("lch", lu.getFunctionName());
+		assertEquals("lch(0 0 57.76)", lu.toString());
 	}
 
 	@Test
@@ -1338,71 +1525,27 @@ public class PropertyParserColorTest {
 
 	@Test
 	public void testParsePropertyValueLchBad() throws CSSException, IOException {
-		try {
-			parsePropertyValue("lch(12 48 0.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(-12% 48.6 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(12% 48% 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(12% 48% 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(12% 48deg 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(12% 48 89.1%)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(74% 48 89.1/)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(74% 48 /89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(74%/48 21)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(74% 48 89.1//)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-		//
-		try {
-			parsePropertyValue("lch(74% a 89.1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(-12deg 48 0.1)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(-12% 48.6)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(12%)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(calc(12%))"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(12% 48deg 89.1)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(12% 48 89.1%)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(74% 48 89.1/)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(74% 48 /89.1)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(74%/48 21)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(74% 48 89.1//)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(74% a 89.1)"));
 	}
 
 	@Test
@@ -1585,56 +1728,36 @@ public class PropertyParserColorTest {
 
 	@Test
 	public void testParsePropertyValueColorBad() throws CSSException, IOException {
-		try {
-			parsePropertyValue("color(rec2020 )");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("color(rec2020 )"));
 	}
 
 	@Test
 	public void testParsePropertyValueColorBad2() throws CSSException, IOException {
-		try {
-			parsePropertyValue("color(rec2020, 0 0 0 )");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("color(rec2020, 0 0 0 )"));
 	}
 
 	@Test
 	public void testParsePropertyValueColorBadNoComponents() throws CSSException, IOException {
-		try {
-			parsePropertyValue("color(rec2020/40%)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("color(rec2020/40%)"));
 	}
 
 	@Test
-	public void testParsePropertyValueColorBadCommasBetweenComponents() throws CSSException, IOException {
-		try {
-			parsePropertyValue("color(rec2020 0.1, 0.2, 0.3)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+	public void testParsePropertyValueColorBadCommasBetweenComponents()
+			throws CSSException, IOException {
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("color(rec2020 0.1, 0.2, 0.3)"));
 	}
 
 	@Test
 	public void testParsePropertyValueColorBadSlashNoAlpha() throws CSSException, IOException {
-		try {
-			parsePropertyValue("color(rec2020 0.1 0.2 0.3 /)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("color(rec2020 0.1 0.2 0.3 /)"));
 	}
 
 	@Test
 	public void testParsePropertyValueColorBadNumberAfterAlpha() throws CSSException, IOException {
-		try {
-			parsePropertyValue("color(rec2020 0.1 0.2 0.3 / 0.8 1)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("color(rec2020 0.1 0.2 0.3 / 0.8 1)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {

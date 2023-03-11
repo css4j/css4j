@@ -93,7 +93,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (!labColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		float light = ((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE);
+		float light = ((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
@@ -185,10 +185,11 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			rgbValue.setComponent(3, (StyleValue) rgb.getBlue());
 			lab = rgbValue.toLABColorValue().getColor();
 		}
-		return ColorUtil.deltaE2000Lab(((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		return ColorUtil.deltaE2000Lab(
+				((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER),
-				((CSSTypedValue) lab.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				((CSSTypedValue) lab.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) lab.getB()).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
@@ -220,29 +221,30 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
 			// lightness
-			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
-			checkPcntCompValidity(primilight, lunit);
+			PrimitiveValue primilight = factory.createCSSPrimitiveValueItem(lu, false, false)
+					.getCSSValue();
 			// a
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primia = factory.createCSSPrimitiveValue(lu, true);
-			checkNumberCompValidity(primia, lunit);
+			PrimitiveValue primia = factory.createCSSPrimitiveValueItem(lu, false, false)
+					.getCSSValue();
 			// b
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primib = factory.createCSSPrimitiveValue(lu, true);
-			checkNumberCompValidity(primib, lunit);
+			PrimitiveValue primib = factory.createCSSPrimitiveValueItem(lu, false, false)
+					.getCSSValue();
 			// slash or null
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue alpha = null;
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Expected slash in: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha
-				alpha = factory.createCSSPrimitiveValue(lu, true);
+				PrimitiveValue alpha = factory.createCSSPrimitiveValue(lu, true);
 				labColor.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Bad value: " + lunit.toString());
 				}
 			}
 			labColor.setLightness(primilight);

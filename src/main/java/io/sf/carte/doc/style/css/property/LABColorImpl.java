@@ -99,8 +99,19 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	public void setLightness(PrimitiveValue lightness) {
-		checkPcntComponent(lightness);
-		this.lightness = lightness;
+		float factor;
+		int maxDigits;
+		boolean calculated;
+		if (Space.OK_Lab.equals(colorSpace)) {
+			factor = 0.01f;
+			maxDigits = 5;
+			calculated = true;
+		} else {
+			factor = 1f;
+			maxDigits = 4;
+			calculated = false;
+		}
+		this.lightness = normalizePcntToNumber(lightness, factor, maxDigits, calculated);
 	}
 
 	@Override
@@ -109,8 +120,13 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	public void setA(PrimitiveValue a) {
-		checkNumberComponent(a);
-		this.a = a;
+		float factor;
+		if (Space.OK_Lab.equals(colorSpace)) {
+			factor = 0.004f;
+		} else {
+			factor = 1.25f;
+		}
+		this.a = normalizePcntToNumber(a, factor, 5, true);
 	}
 
 	@Override
@@ -119,8 +135,13 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	public void setB(PrimitiveValue b) {
-		checkNumberComponent(b);
-		this.b = b;
+		float factor;
+		if (Space.OK_Lab.equals(colorSpace)) {
+			factor = 0.004f;
+		} else {
+			factor = 1.25f;
+		}
+		this.b = normalizePcntToNumber(b, factor, 5, true);
 	}
 
 	@Override

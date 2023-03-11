@@ -6338,22 +6338,58 @@ public class CSSParser implements Parser, Cloneable {
 				unexpectedCharError(index, ')');
 				return;
 			}
-			if ((type == LexicalType.RGBCOLOR && !isValidRGBColor(index))
-				|| (type == LexicalType.HSLCOLOR && !isValidHSLColor())
-				|| ((type == LexicalType.LABCOLOR || type == LexicalType.OKLABCOLOR)
-					&& !isValidLABColor())
-				|| ((type == LexicalType.LCHCOLOR || type == LexicalType.OKLCHCOLOR)
-					&& !isValidLCHColor())
-				|| (type == LexicalType.HWBCOLOR && !isValidHWBColor())
-				|| (type == LexicalType.COLOR_FUNCTION && !isValidColorFunction())) {
-				String s;
-				try {
-					s = "Wrong color: " + currentlu.toString();
-				} catch (Exception e) {
-					s = "Wrong color.";
+
+			switch (type) {
+			case RGBCOLOR:
+				if (isValidRGBColor(index)) {
+					return;
 				}
-				handleError(index, ParseHelper.ERR_WRONG_VALUE, s);
+				break;
+			case HSLCOLOR:
+				if (isValidHSLColor(index)) {
+					return;
+				}
+				break;
+			case LABCOLOR:
+				if (isValidLABColor(index, 100, 100f)) {
+					return;
+				}
+				break;
+			case OKLABCOLOR:
+				if (isValidLABColor(index, 1, 1f)) {
+					return;
+				}
+				break;
+			case LCHCOLOR:
+				if (isValidLCHColor(index, 100, 100f)) {
+					return;
+				}
+				break;
+			case OKLCHCOLOR:
+				if (isValidLCHColor(index, 1, 1f)) {
+					return;
+				}
+				break;
+			case HWBCOLOR:
+				if (isValidHWBColor(index)) {
+					return;
+				}
+				break;
+			case COLOR_FUNCTION:
+				if (isValidColorFunction(index)) {
+					return;
+				}
+				break;
+			default:
+				return;
 			}
+			String s;
+			try {
+				s = "Wrong color: " + currentlu.toString();
+			} catch (Exception e) {
+				s = "Wrong color.";
+			}
+			handleError(index, ParseHelper.ERR_WRONG_VALUE, s);
 		}
 
 		private boolean lastParamIsOperand() {
@@ -6397,11 +6433,15 @@ public class CSSParser implements Parser, Cloneable {
 					if (type == LexicalType.INTEGER) {
 						int value = lu.getIntegerValue();
 						if (value < 0) {
-							return false;
+							lu.intValue = 0;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value under 0.");
 						}
 						if (valCount == 3) {
 							if (value > 1) {
-								return false;
+								lu.intValue = 1;
+								handleWarning(index, ParseHelper.WARN_VALUE,
+										"Color alpha has value over 1.");
 							}
 						} else {
 							if (value != 0) {
@@ -6413,16 +6453,21 @@ public class CSSParser implements Parser, Cloneable {
 							}
 						}
 						if (value > 255) {
-							handleWarning(index, ParseHelper.WARN_VALUE, "Color component has value over 255.");
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value over 255.");
 						}
 					} else if (type == LexicalType.REAL) {
 						float value = lu.getFloatValue();
 						if (value < 0f) {
-							return false;
+							lu.floatValue = 0f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value under 0.");
 						}
 						if (valCount == 3) {
 							if (value > 1f) {
-								return false;
+								lu.floatValue = 1f;
+								handleWarning(index, ParseHelper.WARN_VALUE,
+										"Color alpha has value over 1.");
 							}
 						} else if (lastType != LexicalType.OPERATOR_SLASH) {
 							if (compType == 0) {
@@ -6433,12 +6478,19 @@ public class CSSParser implements Parser, Cloneable {
 							type = LexicalType.INTEGER;
 						}
 						if (value > 255f) {
-							handleWarning(index, ParseHelper.WARN_VALUE, "Color component has value over 255.");
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value over 255.");
 						}
 					} else if (type == LexicalType.PERCENTAGE) {
 						float value = lu.getFloatValue();
-						if (value < 0f || value > 100f) {
-							return false;
+						if (value < 0f) {
+							lu.floatValue = 0f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has percentage under 0%.");
+						} else if (value > 100f) {
+							lu.floatValue = 100f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has percentage over 100%.");
 						}
 						if (valCount != 3 && lastType != LexicalType.OPERATOR_SLASH) {
 							if (compType == 0) {
@@ -6465,7 +6517,8 @@ public class CSSParser implements Parser, Cloneable {
 								if (type == LexicalType.INTEGER && lu.getIntegerValue() != 0) {
 									return false;
 								}
-							} else if (type == LexicalType.PERCENTAGE && lastType == LexicalType.INTEGER) {
+							} else if (type == LexicalType.PERCENTAGE
+									&& lastType == LexicalType.INTEGER) {
 								// We tolerate zeroes mixed with percentages
 								if (lu.getPreviousLexicalUnit().getIntegerValue() != 0) {
 									return false;
@@ -6500,9 +6553,9 @@ public class CSSParser implements Parser, Cloneable {
 					|| type == LexicalType.VAR || type == LexicalType.CALC || type == LexicalType.FUNCTION;
 		}
 
-		private boolean isValidHSLColor() {
+		private boolean isValidHSLColor(int index) {
 			LexicalUnitImpl lu = currentlu.parameters;
-			short pcntCount = 0;
+			short slaCount = 0;
 			LexicalType lastType = LexicalType.UNKNOWN; // EXT1 means angle type
 			boolean hasCommas = false;
 			boolean hasNoCommas = false;
@@ -6512,68 +6565,155 @@ public class CSSParser implements Parser, Cloneable {
 				if (type == LexicalType.PERCENTAGE || (type == LexicalType.FUNCTION
 						&& isPercentageFunctionArgs(lu.getParameters()))) {
 					if (lastType == LexicalType.UNKNOWN) {
-						// First type must be integer, real, angle or VAR
+						// First type must be integer (includes calc()), real,
+						// angle or VAR, but not a percentage.
 						return false;
 					}
+					// Check commas
 					if (hasCommas) {
 						if (lastType != LexicalType.OPERATOR_COMMA) {
 							return false;
 						}
-					} else if (lastType == LexicalType.INTEGER || lastType == LexicalType.REAL
-							|| lastType == LexicalType.EXT1 || lastType == LexicalType.VAR) {
-						// last type was integer, real, angle or var().
-						hasNoCommas = true;
+					} else {
+						// If last type was integer, real, percentage or angle,
+						// the syntax has no commas.
+						hasNoCommas = hasNoCommas || lastType == LexicalType.REAL
+								|| lastType == LexicalType.PERCENTAGE
+								|| lastType == LexicalType.INTEGER || lastType == LexicalType.EXT1;
 					}
-					pcntCount++;
+
+					if (type == LexicalType.PERCENTAGE) {
+						// Clamp
+						float value = lu.getFloatValue();
+						if (value < 0f) {
+							lu.floatValue = 0f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value under 0%.");
+						} else if (value > 100f) {
+							lu.floatValue = 100f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value over 100%.");
+						}
+					} else {
+						// To simplify the logic, consider as a percentage
+						type = LexicalType.PERCENTAGE;
+					}
+
+					// We got either S, L or alpha
+					slaCount++;
+				} else if (type == LexicalType.REAL) {
+					if (lastType != LexicalType.UNKNOWN) {
+						// We got either S, L or alpha
+						slaCount++;
+						// Clamp
+						float value = lu.getFloatValue();
+						if (value < 0f) {
+							lu.floatValue = 0f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value under 0.");
+						} else if (lastType == LexicalType.OPERATOR_SLASH) {
+							if (value > 1f) {
+								lu.floatValue = 1f;
+								handleWarning(index, ParseHelper.WARN_VALUE,
+										"Color alpha has value over 1.");
+							}
+						} else if (value > 100f) {
+							lu.floatValue = 100f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value over 100%.");
+						}
+						// Check commas
+						if (hasCommas) {
+							if (lastType != LexicalType.OPERATOR_COMMA) {
+								return false;
+							}
+						} else {
+							// If last type was integer, real, percentage or angle,
+							// the syntax has no commas.
+							hasNoCommas = hasNoCommas || lastType == LexicalType.REAL
+									|| lastType == LexicalType.PERCENTAGE
+									|| lastType == LexicalType.INTEGER
+									|| lastType == LexicalType.EXT1;
+						}
+					}
 				} else if (type == LexicalType.OPERATOR_COMMA) {
-					if (lastType == LexicalType.OPERATOR_COMMA || lastType == LexicalType.UNKNOWN || hasNoCommas) {
+					// Check that a comma was expected at this point
+					if (lastType == LexicalType.OPERATOR_COMMA || lastType == LexicalType.UNKNOWN
+							|| hasNoCommas) {
 						return false;
 					}
 					hasCommas = true;
 				} else if (type == LexicalType.INTEGER) {
 					if (lastType != LexicalType.UNKNOWN) {
-						int value;
-						if ((lastType != LexicalType.OPERATOR_SLASH && lastType != LexicalType.OPERATOR_COMMA)
-								|| (pcntCount < 2 && !hasVar) || (value = lu.getIntegerValue()) < 0 || value > 1) {
-							return false;
+						// Clamp value if necessary
+						int value = lu.getIntegerValue();
+						if (value < 0) {
+							lu.intValue = 0;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value under 0%.");
+						} else if (value > 100) {
+							lu.intValue = 100;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has value over 100%.");
+						}
+						if (value > 1 && lastType == LexicalType.OPERATOR_SLASH) {
+							lu.intValue = 1;
+						}
+						// We got either S, L or alpha
+						slaCount++;
+						// To simplify the logic, consider as a percentage
+						type = LexicalType.PERCENTAGE;
+						// Check commas
+						if (hasCommas) {
+							if (lastType != LexicalType.OPERATOR_COMMA) {
+								return false;
+							}
+						} else {
+							// If last type was integer, real, percentage or angle,
+							// the syntax has no commas.
+							hasNoCommas = hasNoCommas || lastType == LexicalType.REAL
+									|| lastType == LexicalType.PERCENTAGE
+									|| lastType == LexicalType.INTEGER
+									|| lastType == LexicalType.EXT1;
 						}
 					}
 				} else if (isAngleUnit(lu)) {
+					// We got H
 					if (lastType != LexicalType.UNKNOWN) {
 						return false;
 					}
 					type = LexicalType.EXT1;
 				} else if (type == LexicalType.OPERATOR_SLASH) {
-					if (((pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)
-							|| (lastType != LexicalType.PERCENTAGE && lastType != LexicalType.VAR))
+					// We have to meet a few conditions here
+					if (((slaCount != 2 && !hasVar) || (hasVar && slaCount > 2)
+							|| (lastType != LexicalType.PERCENTAGE && lastType != LexicalType.REAL
+									&& lastType != LexicalType.VAR))
 							|| hasCommas) {
 						return false;
-					}
-				} else if (type == LexicalType.REAL) {
-					if (lastType != LexicalType.UNKNOWN) {
-						if ((lastType != LexicalType.OPERATOR_SLASH && lastType != LexicalType.OPERATOR_COMMA)
-								|| (pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)) {
-							return false;
-						}
-						pcntCount = 3;
 					}
 				} else if (type == LexicalType.CALC) {
 					if (lastType == LexicalType.UNKNOWN) {
 						type = LexicalType.INTEGER;
 					} else if (lastType == LexicalType.OPERATOR_SLASH) {
 						type = LexicalType.REAL;
-						pcntCount = 3;
+						slaCount++;
 					} else {
+						// Check commas
 						if (hasCommas) {
 							if (lastType != LexicalType.OPERATOR_COMMA) {
 								return false;
 							}
-						} else if (lastType == LexicalType.INTEGER || lastType == LexicalType.EXT1
-								|| lastType == LexicalType.VAR) {
-							// last type was integer, angle or var().
-							hasNoCommas = true;
+						} else {
+							// If last type was integer, real, percentage or angle,
+							// the syntax has no commas.
+							hasNoCommas = hasNoCommas || lastType == LexicalType.REAL
+									|| lastType == LexicalType.PERCENTAGE
+									|| lastType == LexicalType.INTEGER
+									|| lastType == LexicalType.EXT1;
 						}
-						pcntCount++;
+						// We got either S, L or alpha
+						slaCount++;
+						// To simplify the logic, consider as a percentage
 						type = LexicalType.PERCENTAGE;
 					}
 				} else if (type == LexicalType.VAR) {
@@ -6585,29 +6725,47 @@ public class CSSParser implements Parser, Cloneable {
 				lu = lu.nextLexicalUnit;
 			} while (lu != null);
 
-			return pcntCount >= 2 || (hasVar && pcntCount <= 1);
+			return slaCount == 2 || slaCount == 3 || (hasVar && slaCount < 2);
 		}
 
-		private boolean isValidHWBColor() {
+		private boolean isValidHWBColor(int index) {
 			LexicalUnitImpl lu = currentlu.parameters;
 			short pcntCount = 0;
 			LexicalType lastType = LexicalType.UNKNOWN; // EXT1 means angle type
 			boolean hasVar = false;
 			do {
 				LexicalType type = lu.getLexicalUnitType();
-				if (type == LexicalType.PERCENTAGE || (type == LexicalType.FUNCTION
-						&& isPercentageFunctionArgs(lu.getParameters()))) {
+				if (type == LexicalType.PERCENTAGE) {
 					if (lastType == LexicalType.UNKNOWN) {
 						// First type must be integer, real, angle or VAR
 						return false;
 					}
 					pcntCount++;
+					float value = lu.getFloatValue();
+					if (value < 0f) {
+						lu.floatValue = 0f;
+						handleWarning(index, ParseHelper.WARN_VALUE,
+								"Color component has value under 0%.");
+					} else if (value > 100f) {
+						lu.floatValue = 100f;
+						handleWarning(index, ParseHelper.WARN_VALUE,
+								"Color component has value over 100%.");
+					}
 				} else if (type == LexicalType.INTEGER) {
 					if (lastType != LexicalType.UNKNOWN) {
-						int value;
 						if ((lastType != LexicalType.OPERATOR_SLASH)
-								|| (pcntCount < 2 && !hasVar) || (value = lu.getIntegerValue()) < 0 || value > 1) {
+								|| (pcntCount < 2 && !hasVar)) {
 							return false;
+						}
+						int value = lu.getIntegerValue();
+						if (value < 0) {
+							lu.intValue = 0;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color alpha has value under 0.");
+						} else if (value > 1) {
+							lu.intValue = 1;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color alpha has value over 1.");
 						}
 					}
 				} else if (isAngleUnit(lu)) {
@@ -6617,16 +6775,28 @@ public class CSSParser implements Parser, Cloneable {
 					type = LexicalType.EXT1;
 				} else if (type == LexicalType.OPERATOR_SLASH) {
 					if (((pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)
-							|| (lastType != LexicalType.PERCENTAGE && lastType != LexicalType.VAR))) {
+							|| (lastType != LexicalType.PERCENTAGE
+									&& lastType != LexicalType.VAR))) {
 						return false;
 					}
 				} else if (type == LexicalType.REAL) {
 					if (lastType != LexicalType.UNKNOWN) {
-						if ((lastType != LexicalType.OPERATOR_SLASH)
-								|| (pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)) {
+						if (lastType != LexicalType.OPERATOR_SLASH || (pcntCount != 2 && !hasVar)
+								|| (hasVar && pcntCount > 2)) {
 							return false;
 						}
 						pcntCount = 3;
+						// Clamp
+						float value = lu.getFloatValue();
+						if (value < 0f) {
+							lu.floatValue = 0f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color alpha has value under 0.");
+						} else if (value > 1f) {
+							lu.floatValue = 1f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color alpha has value over 1.");
+						}
 					}
 				} else if (type == LexicalType.CALC) {
 					if (lastType == LexicalType.UNKNOWN) {
@@ -6640,6 +6810,13 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				} else if (type == LexicalType.VAR) {
 					hasVar = true;
+				} else if (type == LexicalType.FUNCTION
+						&& isPercentageFunctionArgs(lu.getParameters())) {
+					if (lastType == LexicalType.UNKNOWN) {
+						// First type must be integer, real, angle or VAR
+						return false;
+					}
+					pcntCount++;
 				} else {
 					return false;
 				}
@@ -6676,29 +6853,62 @@ public class CSSParser implements Parser, Cloneable {
 			return lunit.matches(SyntaxParser.createSimpleSyntax("percentage")) == Match.TRUE;
 		}
 
-		private boolean isValidLABColor() {
-			LexicalUnit lu = currentlu.parameters;
+		private boolean isValidLABColor(int index, int iUpperLightness, float fUpperLightness) {
+			LexicalUnitImpl lu = currentlu.parameters;
 			boolean hasVar = false;
 			if (lu == null) {
 				return false;
 			}
-			// First argument: percentage
+			// First argument: percentage, real or integer
 			LexicalType type = lu.getLexicalUnitType();
 			if (type == LexicalType.PERCENTAGE) {
-				if (lu.getFloatValue() < 0f) {
-					return false;
+				// Clamp
+				float fL = lu.getFloatValue();
+				if (fL < 0f) {
+					lu.floatValue = 0f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has percentage under 0%.");
+				} else if (fL > 100f) {
+					lu.floatValue = 100f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has percentage over 100%.");
+				}
+			} else if (type == LexicalType.REAL) {
+				// Clamp
+				float fL = lu.getFloatValue();
+				if (fL < 0f) {
+					lu.floatValue = 0f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has value under 0.");
+				} else if (fL > fUpperLightness) {
+					lu.floatValue = fUpperLightness;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has value over " + fUpperLightness);
+				}
+			} else if (type == LexicalType.INTEGER) {
+				// Clamp
+				int iL = lu.getIntegerValue();
+				if (iL < 0) {
+					lu.intValue = 0;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has value under 0.");
+				} else if (iL > iUpperLightness) {
+					lu.intValue = iUpperLightness;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has value over " + iUpperLightness);
 				}
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
 			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION) {
 				return false;
 			}
-			//
-			lu = lu.getNextLexicalUnit();
+
+			lu = lu.nextLexicalUnit;
 			if (lu == null) {
 				// Just one value: only OK if it was a var().
 				return hasVar;
 			}
+
 			// Establish a value loop
 			int numericValueCount = 1;
 			do {
@@ -6710,136 +6920,225 @@ public class CSSParser implements Parser, Cloneable {
 				case FUNCTION:
 					numericValueCount++;
 					if (numericValueCount > 3) {
+						// The slash could be inside a var()
 						if (!hasVar || numericValueCount > 4) {
 							return false;
 						}
-						return isValidAlpha(lu);
+						return isValidAlpha(index, lu);
 					}
 					break;
 				case OPERATOR_SLASH:
-					lu = lu.getNextLexicalUnit();
+					lu = lu.nextLexicalUnit;
 					// This must be alpha channel value
 					if (lu == null || numericValueCount > 3 || (numericValueCount < 3 && !hasVar)) {
 						return false;
 					}
-					return isValidAlpha(lu);
+					return isValidAlpha(index, lu);
 				case PERCENTAGE:
-					if (!hasVar || numericValueCount > 3) {
-						return false;
-					}
-					float fAlpha = lu.getFloatValue();
-					if (fAlpha < 0 || fAlpha > 100f) {
-						return false;
-					}
-					// Loop while there are VARs
-					lu = lu.getNextLexicalUnit();
-					while (lu != null) {
-						if (lu.getLexicalUnitType() != LexicalType.VAR) {
+					// Could be a or b, also alpha if the slash is inside a var()
+					numericValueCount++;
+					if (numericValueCount > 3) {
+						// The slash could be inside a var()
+						if (!hasVar || numericValueCount > 4) {
 							return false;
 						}
-						lu = lu.getNextLexicalUnit();
+						return isValidAlpha(index, lu);
 					}
-					return true;
+					// If it has a var(), we don't know whether to clamp
+					// as a/b or as alpha
+					if (!hasVar) {
+						// Clamp
+						float fval = lu.getFloatValue();
+						if (fval < -100f) {
+							lu.floatValue = -100f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has percentage under -100%.");
+						} else if (fval > 100f) {
+							lu.floatValue = 100f;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color component has percentage over 100%.");
+						}
+					}
+					break;
 				case VAR:
 					hasVar = true;
 					break;
 				default:
 					return false;
 				}
-				lu = lu.getNextLexicalUnit();
+				lu = lu.nextLexicalUnit;
 			} while (lu != null);
-			return true;
+
+			return numericValueCount == 3 || numericValueCount == 4
+					|| (hasVar && numericValueCount < 3);
 		}
 
-		private boolean isValidLCHColor() {
-			LexicalUnit lu = currentlu.parameters;
+		private boolean isValidLCHColor(int index, int iUpperLightness, float fUpperLightness) {
+			LexicalUnitImpl lu = currentlu.parameters;
 			boolean hasVar = false;
 			if (lu == null) {
 				return false;
 			}
-			// First argument: percentage
+			// First argument: percentage, real or integer
 			LexicalType type = lu.getLexicalUnitType();
 			if (type == LexicalType.PERCENTAGE) {
-				if (lu.getFloatValue() < 0f) {
-					return false;
+				// Clamp
+				float fL = lu.getFloatValue();
+				if (fL < 0f) {
+					lu.floatValue = 0f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has percentage under 0%.");
+				} else if (fL > 100f) {
+					lu.floatValue = 100f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has percentage over 100%.");
+				}
+			} else if (type == LexicalType.REAL) {
+				// Clamp
+				float fL = lu.getFloatValue();
+				if (fL < 0f) {
+					lu.floatValue = 0f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has value under 0.");
+				} else if (fL > fUpperLightness) {
+					lu.floatValue = fUpperLightness;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has value over " + fUpperLightness);
+				}
+			} else if (type == LexicalType.INTEGER) {
+				// Clamp
+				int iL = lu.getIntegerValue();
+				if (iL < 0) {
+					lu.intValue = 0;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has value under 0.");
+				} else if (iL > iUpperLightness) {
+					lu.intValue = iUpperLightness;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color lightness has value over " + iUpperLightness);
 				}
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
 			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION) {
 				return false;
 			}
-			//
-			lu = lu.getNextLexicalUnit();
+
+			lu = lu.nextLexicalUnit;
 			if (lu == null) {
 				// Just one value: only OK if it was a var().
 				return hasVar;
 			}
+
 			// Now it must be the chroma (unless var() involved)
 			type = lu.getLexicalUnitType();
-			if (type != LexicalType.REAL && type != LexicalType.INTEGER && type != LexicalType.CALC
-					&& type != LexicalType.FUNCTION) {
+			if (type == LexicalType.PERCENTAGE) {
+				// Clamp
+				float fC = lu.getFloatValue();
+				if (fC < 0f) {
+					lu.floatValue = 0f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color chroma has percentage under 0.");
+				} else if (fC > 100f) {
+					lu.floatValue = 100f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color chroma has percentage over 100.");
+				}
+			} else if (type == LexicalType.REAL) {
+				if (!hasVar) {
+					// Clamp
+					float fC = lu.getFloatValue();
+					if (fC < 0f) {
+						lu.floatValue = 0f;
+						handleWarning(index, ParseHelper.WARN_VALUE,
+								"Color component has value under 0.");
+					}
+				}
+			} else if (type == LexicalType.INTEGER) {
+				if (!hasVar) {
+					// Clamp
+					int iC = lu.getIntegerValue();
+					if (iC < 0) {
+						lu.intValue = 0;
+						handleWarning(index, ParseHelper.WARN_VALUE,
+								"Color component has value under 0.");
+					}
+				}
+			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
 				} else if (hasVar) {
 					// If not an angle, must be slash or alpha
 					if (!CSSUnit.isAngleUnitType(lu.getCssUnit())) {
 						if (type == LexicalType.OPERATOR_SLASH) {
-							lu = lu.getNextLexicalUnit();
+							lu = lu.nextLexicalUnit;
 							// This must be alpha channel value
 							if (lu == null) {
 								return false;
 							}
 						}
-						return isValidAlpha(lu);
+						return isValidAlpha(index, lu);
 					}
 				} else {
 					return false;
 				}
 			}
+
 			// Now the hue
-			lu = lu.getNextLexicalUnit();
+			lu = lu.nextLexicalUnit;
 			if (lu == null) {
 				// Just two values: only OK if a var() is involved.
 				return hasVar;
 			}
+
 			type = lu.getLexicalUnitType();
 			if (type != LexicalType.REAL && type != LexicalType.INTEGER && !isAngleUnit(lu)
-					&& type != LexicalType.CALC) {
+					&& type != LexicalType.CALC && type != LexicalType.FUNCTION) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
 				} else if (hasVar) {
 					if (type == LexicalType.OPERATOR_SLASH) {
-						lu = lu.getNextLexicalUnit();
+						lu = lu.nextLexicalUnit;
 						// This must be alpha channel value
 						if (lu == null) {
 							return false;
 						}
 					}
-					return isValidAlpha(lu);
+					return isValidAlpha(index, lu);
 				} else {
 					return false;
 				}
 			}
-			// We are done, unless there is an alpha channel
-			lu = lu.getNextLexicalUnit();
+
+			// We are done unless there is an alpha channel
+			lu = lu.nextLexicalUnit;
 			if (lu != null) {
 				type = lu.getLexicalUnitType();
 				if (type == LexicalType.OPERATOR_SLASH) {
-					lu = lu.getNextLexicalUnit();
+					lu = lu.nextLexicalUnit;
 					// This must be alpha channel value
 					if (lu == null) {
 						return false;
 					}
+				} else if (type == LexicalType.VAR) {
+					lu = lu.nextLexicalUnit;
+					while (lu != null) {
+						if (lu.getLexicalUnitType() != LexicalType.VAR) {
+							return isValidAlpha(index, lu);
+						}
+						lu = lu.nextLexicalUnit;
+					}
+					return true;
 				} else if (!hasVar) {
 					return false;
 				}
-				return isValidAlpha(lu);
+				return isValidAlpha(index, lu);
 			}
+
 			return true;
 		}
 
-		private boolean isValidColorFunction() {
-			LexicalUnit lu = currentlu.parameters;
+		private boolean isValidColorFunction(int index) {
+			LexicalUnitImpl lu = currentlu.parameters;
 			if (lu == null) {
 				return false;
 			}
@@ -6856,7 +7155,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			}
 
-			lu = lu.getNextLexicalUnit();
+			lu = lu.nextLexicalUnit;
 			if (lu == null) {
 				// Just one value: only OK if it was a var().
 				return hasVar;
@@ -6878,12 +7177,12 @@ public class CSSParser implements Parser, Cloneable {
 					if (!foundNumericValue && !hasVar) {
 						return false;
 					}
-					lu = lu.getNextLexicalUnit();
+					lu = lu.nextLexicalUnit;
 					// This must be alpha channel value
 					if (lu == null) {
 						return false;
 					}
-					return isValidAlpha(lu);
+					return isValidAlpha(index, lu);
 				case FUNCTION:
 					LexicalUnit lunit;
 					if (lu.getNextLexicalUnit() == null) {
@@ -6897,46 +7196,62 @@ public class CSSParser implements Parser, Cloneable {
 				default:
 					return false;
 				}
-				lu = lu.getNextLexicalUnit();
+				lu = lu.nextLexicalUnit;
 			} while (lu != null);
 			return true;
 		}
 
-		private boolean isValidAlpha(LexicalUnit lu) {
+		private boolean isValidAlpha(int index, LexicalUnitImpl lu) {
 			LexicalType type = lu.getLexicalUnitType();
 			switch (type) {
 			case INTEGER:
 				int iAlpha = lu.getIntegerValue();
-				if (iAlpha < 0 || iAlpha > 1) {
-					return false;
+				if (iAlpha < 0) {
+					lu.intValue = 0;
+					handleWarning(index, ParseHelper.WARN_VALUE, "Color alpha has value under 0.");
+				} else if (iAlpha > 1) {
+					lu.intValue = 1;
+					handleWarning(index, ParseHelper.WARN_VALUE, "Color alpha has value over 1.");
 				}
 				break;
 			case REAL:
 				float fAlpha = lu.getFloatValue();
-				if (fAlpha < 0 || fAlpha > 1) {
-					return false;
+				if (fAlpha < 0f) {
+					lu.floatValue = 0f;
+					handleWarning(index, ParseHelper.WARN_VALUE, "Color alpha has value under 0.");
+				} else if (fAlpha > 1f) {
+					lu.floatValue = 1f;
+					handleWarning(index, ParseHelper.WARN_VALUE, "Color alpha has value over 1.");
 				}
 				break;
 			case PERCENTAGE:
 				fAlpha = lu.getFloatValue();
-				if (fAlpha < 0 || fAlpha > 100f) {
-					return false;
+				if (fAlpha < 0f) {
+					lu.floatValue = 0f;
+					handleWarning(index, ParseHelper.WARN_VALUE, "Color alpha has value under 0%.");
+				} else if (fAlpha > 100f) {
+					lu.floatValue = 100f;
+					handleWarning(index, ParseHelper.WARN_VALUE,
+							"Color alpha has value over 100%.");
 				}
 				break;
 			case VAR:
 			case CALC:
+			case FUNCTION:
 				break;
 			default:
 				return false;
 			}
+
 			// Loop while there are VARs
-			lu = lu.getNextLexicalUnit();
+			lu = lu.nextLexicalUnit;
 			while (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalType.VAR) {
 					return false;
 				}
-				lu = lu.getNextLexicalUnit();
+				lu = lu.nextLexicalUnit;
 			}
+
 			return true;
 		}
 

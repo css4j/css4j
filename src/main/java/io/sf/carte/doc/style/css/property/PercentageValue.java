@@ -49,7 +49,7 @@ public class PercentageValue extends NumberValue {
 	 */
 	@Override
 	public float getFloatValue(short unitType) throws DOMException {
-		if (unitType == CSSUnit.CSS_PERCENTAGE) {
+		if (unitType == getUnitType()) {
 			return realvalue;
 		} else if (unitType == CSSUnit.CSS_NUMBER) {
 			return realvalue * 0.01f;

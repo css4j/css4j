@@ -136,15 +136,14 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			ValueFactory factory = new ValueFactory();
 			// hue
 			PrimitiveValue primihue = factory.createCSSPrimitiveValue(lu, true);
-			ColorValue.checkHueValidity(primihue, lunit);
 			// whiteness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primiwhite = factory.createCSSPrimitiveValue(lu, true);
-			ColorValue.checkPcntCompValidity(primiwhite, lunit);
+			checkPcntCompValidity(primiwhite, lunit);
 			// blackness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primiblackness = factory.createCSSPrimitiveValue(lu, true);
-			ColorValue.checkPcntCompValidity(primiblackness, lunit);
+			checkPcntCompValidity(primiblackness, lunit);
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue alpha = null;
@@ -165,6 +164,15 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			hwbColor.setBlackness(primiblackness);
 		}
 
+	}
+
+	private static void checkPcntCompValidity(PrimitiveValue primisat, LexicalUnit lunit) {
+		if (primisat.getUnitType() != CSSUnit.CSS_PERCENTAGE
+				&& primisat.getCssValueType() != CssType.PROXY
+				&& primisat.getPrimitiveType() != Type.EXPRESSION) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Type not compatible: " + lunit.toString());
+		}
 	}
 
 	private void translateHWB(float hue, float whiteness, float blackness, CSSRGBColor color) {

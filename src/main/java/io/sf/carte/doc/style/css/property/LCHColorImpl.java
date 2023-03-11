@@ -99,8 +99,16 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	public void setLightness(PrimitiveValue lightness) {
-		checkPcntComponent(lightness);
-		this.lightness = lightness;
+		float factor;
+		boolean calculated;
+		if (Space.OK_LCh.equals(colorSpace)) {
+			factor = 0.01f;
+			calculated = true;
+		} else {
+			factor = 1f;
+			calculated = false;
+		}
+		this.lightness = normalizePcntToNumber(lightness, factor, 5, calculated);
 	}
 
 	@Override
@@ -109,8 +117,16 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	public void setChroma(PrimitiveValue chroma) {
-		checkNumberComponent(chroma);
-		this.chroma = chroma;
+		float factor;
+		int maxDigits;
+		if (Space.OK_LCh.equals(colorSpace)) {
+			factor = 0.004f;
+			maxDigits = 5;
+		} else {
+			factor = 1.5f;
+			maxDigits = 4;
+		}
+		this.chroma = normalizePcntToNumber(chroma, factor, maxDigits, true);
 	}
 
 	@Override
@@ -119,8 +135,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	public void setHue(PrimitiveValue hue) {
-		checkHueComponent(hue);
-		this.hue = hue;
+		this.hue = enforceHueComponent(hue);
 	}
 
 	@Override
