@@ -52,9 +52,14 @@ public interface CSSPrimitiveValue extends CSSValue {
 	}
 
 	/**
-	 * If this is a numeric value, get its unit type.
+	 * If this is a {@link CSSValue.Type#NUMERIC NUMERIC} value, get its unit type.
+	 * <p>
+	 * To determine the unit type of a {@code calc()} expression, please use
+	 * {@link CSSExpressionValue#computeUnitType()}.
+	 * </p>
 	 * 
-	 * @return the unit type, {@code CSS_INVALID} if the unit or type are not valid.
+	 * @return the unit type as in {@link CSSUnit}, or {@code CSS_INVALID} if the
+	 *         type is not numeric or the unit is not valid.
 	 */
 	default short getUnitType() {
 		return CSSUnit.CSS_INVALID;

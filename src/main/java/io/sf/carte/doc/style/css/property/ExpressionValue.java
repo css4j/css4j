@@ -343,6 +343,24 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 		return roundResult;
 	}
 
+	/**
+	 * Perform a dimensional analysis of this expression and compute the unit type
+	 * of the result.
+	 * 
+	 * @return the unit type of the result, as in {@link CSSUnit}.
+	 */
+	@Override
+	public short computeUnitType() {
+		DimensionalEvaluator eval = new DimensionalEvaluator();
+		short unit;
+		try {
+			unit = eval.computeUnitType(getExpression());
+		} catch (DOMException e) {
+			unit = CSSUnit.CSS_INVALID;
+		}
+		return unit;
+	}
+
 	@Override
 	public Match matches(CSSValueSyntax syntax) {
 		if (syntax == null) {

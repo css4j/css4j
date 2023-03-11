@@ -24,6 +24,14 @@ public interface CSSExpressionValue extends CSSTypedValue {
 	 */
 	CSSExpression getExpression();
 
+	/**
+	 * Perform a dimensional analysis of this expression and compute the unit type
+	 * of the result.
+	 * 
+	 * @return the unit type of the result, as in {@link CSSUnit}.
+	 */
+	short computeUnitType();
+
 	@Override
 	CSSExpressionValue clone();
 

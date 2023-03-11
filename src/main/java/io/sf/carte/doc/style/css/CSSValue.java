@@ -112,7 +112,7 @@ public interface CSSValue extends Cloneable {
 		REVERT,
 
 		/**
-		 * Numeric type.
+		 * Numeric type (excludes {@code calc()} which is an {@link #EXPRESSION}).
 		 * <p>
 		 * Casting to {@link CSSTypedValue} or
 		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} should give

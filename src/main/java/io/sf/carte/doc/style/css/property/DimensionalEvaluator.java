@@ -29,16 +29,37 @@ class DimensionalEvaluator extends Evaluator {
 		super();
 	}
 
-	Category dimensionalAnalysis(CSSExpression expression) {
+	/**
+	 * Compute the result unit type of the given expression.
+	 * 
+	 * @param expression the expression to analyze.
+	 * @return the unit type of the result, as in {@link CSSUnit}.
+	 * @throws DOMException if the resulting unit type is not a valid CSS unit.
+	 */
+	short computeUnitType(CSSExpression expression) throws DOMException {
 		hasPercentage = false;
 		Unit resultUnit = new Unit();
 		evaluateExpression(expression, resultUnit);
 		int exp = resultUnit.getExponent();
 		if (exp > 1 || exp < 0) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Resulting unit is not valid CSS unit.");
 		}
 		//
-		return getCategory(resultUnit.getUnitType());
+		return resultUnit.getUnitType();
+	}
+
+	/**
+	 * Perform a dimensional analysis of the given expression and obtain the
+	 * {@link Category} of the result.
+	 * 
+	 * @param expression the expression to analyze.
+	 * @return the category of the result.
+	 * @throws DOMException if the resulting unit type is unknown or not a valid CSS
+	 *                      unit.
+	 */
+	Category dimensionalAnalysis(CSSExpression expression) throws DOMException {
+		return getCategory(computeUnitType(expression));
 	}
 
 	@Override
