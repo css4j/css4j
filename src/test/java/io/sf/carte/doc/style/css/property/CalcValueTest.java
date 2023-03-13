@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.AlgebraicExpression;
@@ -28,25 +30,48 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.om.StyleRule;
+import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
+import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class CalcValueTest {
 
+	static AbstractCSSStyleSheet sheet;
+	CSSStyleDeclarationRule parentStyleRule;
+	AbstractCSSStyleDeclaration style;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		sheet = factory.createStyleSheet(null, null);
+	}
+
+	@BeforeEach
+	public void setUpBefore() {
+		parentStyleRule = sheet.createStyleRule();
+		style = parentStyleRule.getStyle();
+	}
+
+	private StyleDeclarationErrorHandler getStyleDeclarationErrorHandler() {
+		return parentStyleRule.getStyleDeclarationErrorHandler();
+	}
+
 	@Test
 	public void testEquals() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("left: calc(20px + 2vw + 8.1% - 2.1vw); ");
 		CalcValue value = (CalcValue) style.getPropertyCSSValue("left");
 		assertTrue(value.equals(value));
+
 		style.setCssText("left: calc(20px + 2vw + 8.1% - 2.1vw); ");
 		CalcValue value2 = (CalcValue) style.getPropertyCSSValue("left");
 		assertTrue(value.equals(value2));
 		assertEquals(value.hashCode(), value2.hashCode());
+
 		style.setCssText("left: calc(20px + 2vw + 8% - 2.1vw);");
 		value2 = (CalcValue) style.getPropertyCSSValue("left");
 		assertFalse(value.equals(value2));
@@ -55,19 +80,18 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssText() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(80% - 3em); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		assertEquals("80% - 3em", calc.getExpression().toString());
 		assertEquals("calc(80% - 3em)", val.getCssText());
 		assertEquals("calc(80% - 3em)", val.getMinifiedCssText("width"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
 		assertEquals(Match.TRUE, val.matches(syn));
@@ -85,15 +109,14 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssText2() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(100%/3 - 2*1em - 2*1px); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		CSSExpression expr = calc.getExpression();
 		assertEquals("100%/3 - 2*1em - 2*1px", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
@@ -112,9 +135,10 @@ public class CalcValueTest {
 		CSSExpression op1 = ae.item(1);
 		assertTrue(op1.isInverseOperation());
 		assertEquals("2*1em", op1.toString());
+
 		assertEquals("calc(100%/3 - 2*1em - 2*1px)", val.getCssText());
 		assertEquals("calc(100%/3 - 2*1em - 2*1px)", val.getMinifiedCssText("width"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
 		assertEquals(Match.TRUE, val.matches(syn));
@@ -136,15 +160,14 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssText3() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("font-size: calc(1em + (0.4vw + 0.25vh)/2); ");
 		StyleValue val = style.getPropertyCSSValue("font-size");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		CSSExpression expr = calc.getExpression();
 		assertEquals("1em + (0.4vw + 0.25vh)/2", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
@@ -168,9 +191,10 @@ public class CalcValueTest {
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op11.getPartType());
 		assertTrue(op11.isInverseOperation());
 		assertEquals("2", op11.toString());
+
 		assertEquals("calc(1em + (0.4vw + 0.25vh)/2)", val.getCssText());
 		assertEquals("calc(1em + (.4vw + .25vh)/2)", val.getMinifiedCssText("font-size"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
 		assertEquals(Match.TRUE, val.matches(syn));
@@ -190,15 +214,14 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssText4() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("font-size: calc(1em - (0.4vw + 0.25vh)/2); ");
 		StyleValue val = style.getPropertyCSSValue("font-size");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		CSSExpression expr = calc.getExpression();
 		assertEquals("1em - (0.4vw + 0.25vh)/2", expr.toString());
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
@@ -222,9 +245,10 @@ public class CalcValueTest {
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op11.getPartType());
 		assertTrue(op11.isInverseOperation());
 		assertEquals("2", op11.toString());
+
 		assertEquals("calc(1em - (0.4vw + 0.25vh)/2)", val.getCssText());
 		assertEquals("calc(1em - (.4vw + .25vh)/2)", val.getMinifiedCssText("font-size"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
 		assertEquals(Match.TRUE, val.matches(syn));
@@ -242,19 +266,19 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssText5() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("left: calc(20px + 2vw + 8.1% - 2.1vw); ");
 		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		CSSExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw + 8.1% - 2.1vw", expr.toString());
 		assertEquals("calc(20px + 2vw + 8.1% - 2.1vw)", val.getCssText());
 		assertEquals("calc(20px + 2vw + 8.1% - 2.1vw)", val.getMinifiedCssText("left"));
+
 		assertEquals(CSSExpression.AlgebraicPart.SUM, expr.getPartType());
 		SumExpression sum = (SumExpression) expr;
 		assertFalse(sum.inverseOperation);
@@ -275,21 +299,21 @@ public class CalcValueTest {
 		assertEquals(CSSExpression.AlgebraicPart.OPERAND, op3.getPartType());
 		assertTrue(op3.isInverseOperation());
 		assertEquals("2.1vw", op3.getCssText());
+
 		assertTrue(expr.equals(expr.clone()));
 		assertTrue(val.equals(val.clone()));
 	}
 
 	@Test
 	public void testSetCssText6() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("left: calc(20px + 2vw + (8.1% - 2.1vw)); ");
 		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		CSSExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw + 8.1% - 2.1vw", expr.toString());
 		assertEquals("calc(20px + 2vw + 8.1% - 2.1vw)", val.getCssText());
@@ -299,15 +323,14 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssText7() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("left: calc(20px + 2vw - (8.1% - 2.1vw)); ");
 		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		CSSExpression expr = calc.getExpression();
 		assertEquals("20px + 2vw - (8.1% - 2.1vw)", expr.toString());
 		assertEquals("calc(20px + 2vw - (8.1% - 2.1vw))", val.getCssText());
@@ -317,15 +340,14 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssText8() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("left: calc(20px + 2 * (8.1% - 2.1vw)); ");
 		StyleValue val = style.getPropertyCSSValue("left");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		CSSExpression expr = calc.getExpression();
 		assertEquals("20px + 2*(8.1% - 2.1vw)", expr.toString());
 		assertEquals("calc(20px + 2*(8.1% - 2.1vw))", val.getCssText());
@@ -335,15 +357,14 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssText9() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((75vw*9/16 - 100vh)/-2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_PX, calc.computeUnitType());
 		CSSExpression expr = calc.getExpression();
 		assertEquals("(75vw*9/16 - 100vh)/-2", expr.toString());
 		assertEquals("calc((75vw*9/16 - 100vh)/-2)", val.getCssText());
@@ -353,14 +374,12 @@ public class CalcValueTest {
 
 	@Test
 	public void testMatchNumber() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("z-index: calc((6*2 - 10)/2); ");
 		StyleValue val = style.getPropertyCSSValue("z-index");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_NUMBER, ((ExpressionValue) val).computeUnitType());
 		//
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>");
@@ -384,15 +403,197 @@ public class CalcValueTest {
 	}
 
 	@Test
+	public void testMatchNumberLengthCancellation() {
+		style.setCssText("z-index: calc((1vw - 1em)/(1cap - 1ex)); ");
+		StyleValue val = style.getPropertyCSSValue("z-index");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_NUMBER, ((ExpressionValue) val).computeUnitType());
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchLength() {
+		style.setCssText("margin-top: calc(1vh - 1em); ");
+		StyleValue val = style.getPropertyCSSValue("margin-top");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_PX, ((ExpressionValue) val).computeUnitType());
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchLengthPercentage() {
+		style.setCssText("margin-left: calc(90vw + 8% - 1em); ");
+		StyleValue val = style.getPropertyCSSValue("margin-left");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchPercentage() {
+		style.setCssText("margin-left: calc(2 * 8% - 3.2 * 1%); ");
+		StyleValue val = style.getPropertyCSSValue("margin-left");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		//
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchPlainPercentage() {
+		style.setCssText("foo: calc(4.2%)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PERCENTAGE, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchPercentageSumProduct() {
+		style.setCssText("foo: calc(2% + (1% + 0.2%)*2)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PERCENTAGE, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchLengthMinusPercent() {
+		style.setCssText("foo: calc(15.1em - 4.2%)");
+		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
 	public void testMatchAngle() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("azimuth: calc((75deg*2/1.6 - 100grad)/2); ");
 		StyleValue val = style.getPropertyCSSValue("azimuth");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_DEG, ((ExpressionValue) val).computeUnitType());
 		//
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
@@ -413,14 +614,12 @@ public class CalcValueTest {
 
 	@Test
 	public void testMatchTime() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("pause-after: calc((6s*2 - 100ms*45)/2); ");
 		StyleValue val = style.getPropertyCSSValue("pause-after");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_S, ((ExpressionValue) val).computeUnitType());
 		//
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>");
@@ -441,14 +640,12 @@ public class CalcValueTest {
 
 	@Test
 	public void testMatchResolution() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("resolution: calc((72dpi*2 - 100dpcm)/2); ");
 		StyleValue val = style.getPropertyCSSValue("resolution");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		assertEquals(CSSUnit.CSS_DPI, ((ExpressionValue) val).computeUnitType());
 		//
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<resolution>");
@@ -469,15 +666,14 @@ public class CalcValueTest {
 
 	@Test
 	public void testMatchError() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((75vw*9/16deg - 100vh)/-2); ");
+
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		//
+		assertEquals(CSSUnit.CSS_INVALID, ((ExpressionValue) val).computeUnitType());
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -495,26 +691,65 @@ public class CalcValueTest {
 
 	@Test
 	public void testPiE() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("border-top-width: calc(sin(pi*1rad/3)/e*1px); ");
 		StyleValue val = style.getPropertyCSSValue("border-top-width");
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
 		CalcValue calc = (CalcValue) val;
 		CSSExpression expr = calc.getExpression();
 		assertEquals("sin(3.1415927*1rad/3)/2.7182817*1px", expr.toString());
 		assertEquals("calc(sin(3.1415927*1rad/3)/2.7182817*1px)", val.getCssText());
 		assertEquals("calc(sin(3.1415927*1rad/3)/2.7182817*1px)", val.getMinifiedCssText(""));
 		assertEquals(CSSExpression.AlgebraicPart.PRODUCT, expr.getPartType());
+
 		// Uppercase
 		style.setCssText("border-top-width: calc(sin(PI*1rad/3)/E*1px); ");
 		val = style.getPropertyCSSValue("border-top-width");
 		calc = (CalcValue) val;
 		expr = calc.getExpression();
 		assertEquals("sin(3.1415927*1rad/3)/2.7182817*1px", expr.toString());
+	}
+
+	@Test
+	public void testPi() {
+		style.setCssText("border-top-width: calc(sin(2*pi/3)/2)");
+		StyleValue val = style.getPropertyCSSValue("border-top-width");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
+		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_NUMBER, calc.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testE() {
+		style.setCssText("border-top-width: calc(pow(e, 0.345)/2)");
+		StyleValue val = style.getPropertyCSSValue("border-top-width");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+
+		CalcValue calc = (CalcValue) val;
+		assertEquals(CSSUnit.CSS_NUMBER, calc.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
 	}
 
 	@Test
@@ -529,9 +764,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextVar2() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("margin-left:calc(var(--bar,0.3rem))");
 		StyleValue val = style.getPropertyCSSValue("margin-left");
 		assertNotNull(val);
@@ -557,9 +789,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextNegative() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(-3em); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -586,9 +815,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpression() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((50% - 3em)*2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -602,9 +828,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpression2() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((100.0% - 60.0px) / 3); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -618,9 +841,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubCalcExpression() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(calc(50% - 3em)*2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -634,9 +854,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpression3() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((50% - 3em) - (2% - 1px)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -650,9 +867,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionFunction() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((50% - 3em) - max(6px, 1em)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -666,9 +880,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubCalcExpression2() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((50% - 3em) - calc(2% - 1px)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -682,9 +893,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubCalcExpression3() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(calc(50% - 3em) - (2% - 1px)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -698,9 +906,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpression4() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em)/(35 - 21)); ");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
@@ -714,9 +919,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpression5() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) - (35 - 21)); ");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
@@ -730,9 +932,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionFunction4() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) / max(6px, 1em)); ");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
@@ -746,9 +945,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionFunction5() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("line-height: calc((1.5 - 1.3)*(100vw - 21em) - max(6px, 1em)); ");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
@@ -762,9 +958,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttribute() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("counter-reset: calc(attr(start integer, 1) - 1);");
 		StyleValue val = style.getPropertyCSSValue("counter-reset");
 		assertNotNull(val);
@@ -778,9 +971,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionNegative() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((-3em)*2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -794,9 +984,6 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionNegative2() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((-3em + 5%)*2); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNotNull(val);
@@ -815,123 +1002,90 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextError() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(*(-3em + 5%)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextError2() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(/(-3em + 5%)); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextError3() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(3em 5%); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextError5() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(*5%);");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextError6() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(3*);");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextError7() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc((3em - 0.5%) 6);");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextErrorConsecutiveOps() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(3em * + 5%); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextErrorConsecutiveOps2() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(3em + * 5%); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextErrorConsecutiveOps3() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(3em - / 5%); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextErrorConsecutiveOps4() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(3em / - 5%); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void testSetCssTextErrorConsecutiveOps5() {
-		StyleRule styleRule = new StyleRule();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
-		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style.setCssText("width: calc(3em * - 5%); ");
 		StyleValue val = style.getPropertyCSSValue("width");
 		assertNull(val);
-		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test

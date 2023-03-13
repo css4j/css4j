@@ -24,6 +24,7 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
 
 /**
@@ -122,17 +123,7 @@ public class Evaluator {
 		} else if ("sign".equalsIgnoreCase(name)) {
 			return functionSign(function.getArguments(), resultUnit);
 		} else {
-			// Do not know how to evaluate, convert arguments to absolute anyway.
-			function = function.clone();
-			LinkedCSSValueList args = function.getArguments();
-			int sz = args.getLength();
-			for (int i = 0; i < sz; i++) {
-				CSSValue value = args.item(i);
-				if (value.getCssValueType() == CssType.TYPED) {
-					args.set(i, absoluteValue((CSSPrimitiveValue) value));
-				}
-			}
-			return (TypedValue) function;
+			return unknownFunction(function, resultUnit);
 		}
 	}
 
@@ -143,15 +134,20 @@ public class Evaluator {
 		}
 		Iterator<? extends CSSValue> it = arguments.iterator();
 		CSSValue arg = it.next();
-		enforceTyped(arg);
-		float max = floatValue((CSSTypedValue) arg, resultUnit);
+		TypedValue typed = enforceTyped(arg);
+		float max = floatValue(typed, resultUnit);
+		int exp = resultUnit.getExponent();
 		short firstUnit = resultUnit.getUnitType();
 		short maxUnit = firstUnit;
 		float maxInSpecifiedUnit = max;
 		while (it.hasNext()) {
 			arg = it.next();
-			enforceTyped(arg);
-			float partial = floatValue((CSSTypedValue) arg, resultUnit);
+			typed = enforceTyped(arg);
+			float partial = floatValue(typed, resultUnit);
+			if (exp != resultUnit.getExponent()) {
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"max() arguments have incompatible dimensions.");
+			}
 			float partialInFirstUnit = NumberValue.floatValueConversion(partial, resultUnit.getUnitType(), firstUnit);
 			if (max < partialInFirstUnit) {
 				max = partialInFirstUnit;
@@ -163,29 +159,51 @@ public class Evaluator {
 		return value;
 	}
 
-	private void enforceTyped(CSSValue arg) throws DOMException {
+	private TypedValue enforceTyped(CSSValue arg) throws DOMException {
 		if (arg.getCssValueType() != CssType.TYPED) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected value: " + arg.getCssText());
+			throw new DOMException(DOMException.SYNTAX_ERR,
+					"Unexpected value: " + arg.getCssText());
 		}
+		TypedValue typed = (TypedValue) arg;
+		if (typed.getPrimitiveType() == Type.IDENT) {
+			String s = typed.getStringValue();
+			// We may have got Pi or E
+			if ("pi".equalsIgnoreCase(s)) {
+				typed = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) Math.PI);
+			} else if ("e".equalsIgnoreCase(s)) {
+				typed = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) Math.E);
+			} else {
+				throw new DOMException(DOMException.SYNTAX_ERR,
+						"Unexpected value: " + arg.getCssText());
+			}
+		}
+		return typed;
 	}
 
-	private TypedValue functionMin(CSSValueList<? extends CSSValue> arguments,
-			Unit resultUnit) throws DOMException {
+	private TypedValue functionMin(CSSValueList<? extends CSSValue> arguments, Unit resultUnit)
+			throws DOMException {
 		if (arguments.getLength() == 0) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "min() functions take at least one argument");
+			throw new DOMException(DOMException.SYNTAX_ERR,
+					"min() functions take at least one argument");
 		}
 		Iterator<? extends CSSValue> it = arguments.iterator();
 		CSSValue arg = it.next();
-		enforceTyped(arg);
-		float min = floatValue((CSSTypedValue) arg, resultUnit);
+		TypedValue typed = enforceTyped(arg);
+		float min = floatValue(typed, resultUnit);
+		int exp = resultUnit.getExponent();
 		short firstUnit = resultUnit.getUnitType();
 		short minUnit = firstUnit;
 		float minInSpecifiedUnit = min;
 		while (it.hasNext()) {
 			arg = it.next();
-			enforceTyped(arg);
-			float partial = floatValue((CSSTypedValue) arg, resultUnit);
-			float partialInFirstUnit = NumberValue.floatValueConversion(partial, resultUnit.getUnitType(), firstUnit);
+			typed = enforceTyped(arg);
+			float partial = floatValue(typed, resultUnit);
+			if (exp != resultUnit.getExponent()) {
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"min() arguments have incompatible dimensions.");
+			}
+			float partialInFirstUnit = NumberValue.floatValueConversion(partial,
+					resultUnit.getUnitType(), firstUnit);
 			if (min > partialInFirstUnit) {
 				min = partialInFirstUnit;
 				minInSpecifiedUnit = partial;
@@ -204,11 +222,20 @@ public class Evaluator {
 		CSSTypedValue arg = typedArgument(arguments, 1);
 		float result = floatValue(arg, resultUnit);
 		short centralUnit = resultUnit.getUnitType();
+		int exp = resultUnit.getExponent();
 		arg = typedArgument(arguments, 0);
 		float min = floatValue(arg, resultUnit);
+		if (exp != resultUnit.getExponent()) {
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"clamp() arguments have incompatible dimensions.");
+		}
 		min = NumberValue.floatValueConversion(min, resultUnit.getUnitType(), centralUnit);
 		arg = typedArgument(arguments, 2);
 		float max = floatValue(arg, resultUnit);
+		if (exp != resultUnit.getExponent()) {
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"clamp() arguments have incompatible dimensions.");
+		}
 		max = NumberValue.floatValueConversion(max, resultUnit.getUnitType(), centralUnit);
 		if (result > max) {
 			result = max;
@@ -451,33 +478,54 @@ public class Evaluator {
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		float fval = floatValue(arg, resultUnit);
+		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
 		float result = Math.signum(fval);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
 		return value;
 	}
 
+	TypedValue unknownFunction(CSSFunctionValue function, Unit resultUnit) {
+		// Do not know how to evaluate, convert arguments to absolute anyway.
+		resultUnit.setUnitType(CSSUnit.CSS_INVALID);
+
+		function = function.clone();
+		LinkedCSSValueList args = function.getArguments();
+		int sz = args.getLength();
+		for (int i = 0; i < sz; i++) {
+			CSSValue value = args.item(i);
+			if (value.getCssValueType() == CssType.TYPED) {
+				args.set(i, absoluteValue((CSSPrimitiveValue) value));
+			}
+		}
+		return (TypedValue) function;
+	}
+
 	private TypedValue typedArgument(CSSValueList<? extends CSSValue> arguments,
 			int index) {
 		CSSValue arg = arguments.item(index);
-		enforceTyped(arg);
-		return (TypedValue) arg;
+		return enforceTyped(arg);
 	}
 
 	private float floatValue(CSSTypedValue value, Unit resultUnit) throws DOMException {
-		value = evaluate(value, resultUnit);
+		TypedValue typed = evaluate(value, resultUnit);
 		short resultType = resultUnit.getUnitType();
 		float result;
-		short type = value.getUnitType();
+		short type = typed.getUnitType();
 		if (type == CSSUnit.CSS_NUMBER) {
-			result = value.getFloatValue(CSSUnit.CSS_NUMBER);
+			result = typed.getFloatValue(CSSUnit.CSS_NUMBER);
 		} else if (type != CSSUnit.CSS_PERCENTAGE) {
-			result = value.getFloatValue(resultType);
+			result = typed.getFloatValue(resultType);
 		} else {
-			result = percentage(value, preferredUnit);
+			short preferredUnit = getPreferredUnit();
+			result = percentage(typed, preferredUnit);
 			resultUnit.setUnitType(preferredUnit);
 		}
 		return result;
+	}
+
+	short getPreferredUnit() {
+		return preferredUnit;
 	}
 
 	/**

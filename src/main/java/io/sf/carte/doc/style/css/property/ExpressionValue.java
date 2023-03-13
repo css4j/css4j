@@ -381,6 +381,9 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 		try {
 			result = eval.dimensionalAnalysis(getExpression());
 		} catch (DOMException e) {
+			if (eval.hasUnknownFunction() && syntax.getCategory() == Category.universal) {
+				return Match.TRUE;
+			}
 			return Match.FALSE;
 		}
 		// Universal match (after checking the expression correctness)
