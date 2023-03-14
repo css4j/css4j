@@ -238,7 +238,7 @@ public interface Parser {
 	 *                              value.
 	 * @throws NullPointerException if {@code reader} is {@code null}.
 	 */
-	LexicalUnit parsePropertyValue(Reader reader) throws CSSParseException, IOException, IllegalArgumentException;
+	LexicalUnit parsePropertyValue(Reader reader) throws CSSParseException, IOException;
 
 	/**
 	 * Parse a CSS priority value (e.g. "!important").
