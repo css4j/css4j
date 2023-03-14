@@ -403,6 +403,58 @@ public class CalcValueTest {
 	}
 
 	@Test
+	public void testMatchNumberList() {
+		style.setCssText("foo: calc((6*2 - 10)/2) calc(20 - 3)");
+		StyleValue val = style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CssType.LIST, val.getCssValueType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>#");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchNumberCommaList() {
+		style.setCssText("foo: calc((6*2 - 10)/2),calc(20 - 3)");
+		StyleValue val = style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CssType.LIST, val.getCssValueType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
 	public void testMatchNumberLengthCancellation() {
 		style.setCssText("z-index: calc((1vw - 1em)/(1cap - 1ex)); ");
 		StyleValue val = style.getPropertyCSSValue("z-index");
@@ -452,6 +504,58 @@ public class CalcValueTest {
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<length>#");
 		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchLengthList() {
+		style.setCssText("foo: calc(1vh - 1em) calc(2.5vw - 1px); ");
+		StyleValue val = style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CssType.LIST, val.getCssValueType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>+");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>+");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testMatchLengthCommaList() {
+		style.setCssText("foo: calc(1vh - 1em), calc(2.5vw - 1px); ");
+		StyleValue val = style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CssType.LIST, val.getCssValueType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>#");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>+");
+		assertEquals(Match.FALSE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.FALSE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<color>");

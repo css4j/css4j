@@ -1,9 +1,22 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
-Upgrading to 3.10 from 3.9.1
-----------------------------
-- CSSOM: now CSSRule.setCssText() does not accept errors, only warnings.
+Upgrading to 4.0 from 3.9.1
+---------------------------
+- CSSOM: now CSSRule.setCssText() does not accept errors anymore, only warnings.
+
+- CSSOM: mathematical functions (like sin(), abs(), pow(), etc.) now belong to
+  the new MATH_FUNCTION type instead of FUNCTION. If you do your own function
+  processing you may have to account for that.
+
+  Any value of the MATH_FUNCTION type can be used to compute values in a calc()
+  context. Non-math FUNCTION values can be parsed into a calc() and serialized,
+  but cannot be numerically evaluated.
+
+  MATH_FUNCTION values implement the new CSSMathFunctionValue interface.
+
+- CSSOM: the evaluateFunction() method in Evaluator now takes a CSSMathFunctionValue
+  argument instead of a CSSFunctionValue.
 
 - The syntax and serialization of hsl, lab, lch, oklab and oklch now behaves
   according to the latest Color Level 4 specification.

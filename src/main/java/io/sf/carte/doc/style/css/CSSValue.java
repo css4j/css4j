@@ -256,6 +256,18 @@ public interface CSSValue extends Cloneable {
 		FUNCTION,
 
 		/**
+		 * Mathematical function (as defined by CSS Values and Units).
+		 * <p>
+		 * Cast to {@link CSSMathFunctionValue}.
+		 * </p>
+		 * <p>
+		 * Note: on functions, {@link CSSTypedValue#getStringValue()} must return the
+		 * function name.
+		 * </p>
+		 */
+		MATH_FUNCTION,
+
+		/**
 		 * Unicode range. See {@link CSSUnicodeRangeValue}.
 		 */
 		UNICODE_RANGE,

@@ -104,6 +104,8 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				type = Type.GRADIENT;
 			} else if ("env".equals(func)) {
 				type = Type.ENV;
+			} else if (MathFunctionHelper.getMathFunction(func) != null) {
+				type = Type.MATH_FUNCTION;
 			} else {
 				type = Type.FUNCTION;
 			}

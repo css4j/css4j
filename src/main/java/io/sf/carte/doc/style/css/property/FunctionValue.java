@@ -20,7 +20,6 @@ import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -88,38 +87,6 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 	}
 
 	@Override
-	public Match matches(CSSValueSyntax syntax) {
-		if (syntax == null) {
-			return Match.FALSE;
-		}
-
-		switch (syntax.getCategory()) {
-		case number:
-		case length:
-		case lengthPercentage:
-		case percentage:
-		case integer:
-		case resolution:
-		case angle:
-		case time:
-		case frequency:
-		case flex:
-		case universal:
-			// Numeric match
-			return dimensionalAnalysis(syntax, true);
-		default:
-			return super.matches(syntax);
-		}
-	}
-
-	private boolean isImageFunction() {
-		// Custom gradients and other image functions
-		return functionName.endsWith("-gradient") || functionName.equalsIgnoreCase("image")
-				|| functionName.equalsIgnoreCase("image-set")
-				|| functionName.equalsIgnoreCase("cross-fade");
-	}
-
-	@Override
 	Match matchesComponent(CSSValueSyntax syntax) {
 		switch (syntax.getCategory()) {
 		case transformFunction:
@@ -128,57 +95,18 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 		case image:
 			// Custom gradients and other image functions
 			return isImageFunction() ? Match.TRUE : Match.FALSE;
+		case universal:
+			return Match.TRUE;
 		default:
-			return dimensionalAnalysis(syntax, false);
+			return Match.FALSE;
 		}
 	}
 
-	private Match dimensionalAnalysis(CSSValueSyntax syntax, boolean followComponents) {
-		DimensionalEvaluator eval = new DimensionalEvaluator();
-		Category result;
-		try {
-			result = eval.dimensionalAnalysis(this);
-		} catch (DOMException e) {
-			if (eval.hasUnknownFunction() && syntax.getCategory() == Category.universal) {
-				return Match.TRUE;
-			}
-			return Match.FALSE;
-		}
-		// Universal match (after checking the expression correctness)
-		if (syntax.getCategory() == Category.universal) {
-			return Match.TRUE;
-		}
-		//
-		boolean lengthPercentageL = false, lengthPercentageP = false;
-		do {
-			Category cat = syntax.getCategory();
-			if (cat == result) {
-				return Match.TRUE;
-			}
-			// Match length-percentage, also <number> clamps to <integer>.
-			if ((cat == Category.lengthPercentage
-					&& (result == Category.length || result == Category.percentage))
-					|| (cat == Category.integer && result == Category.number)) {
-				return Match.TRUE;
-			}
-			// Do we have a <length-percentage> and did we match length or percentage in
-			// previous loops?
-			if (result == Category.lengthPercentage) {
-				if (cat == Category.length) {
-					if (lengthPercentageP) {
-						return Match.TRUE;
-					}
-					lengthPercentageL = true;
-				} else if (cat == Category.percentage) {
-					if (lengthPercentageL) {
-						return Match.TRUE;
-					}
-					lengthPercentageP = true;
-				}
-			}
-		} while (followComponents && (syntax = syntax.getNext()) != null);
-
-		return Match.FALSE;
+	private boolean isImageFunction() {
+		// Custom gradients and other image functions
+		return functionName.endsWith("-gradient") || functionName.equalsIgnoreCase("image")
+				|| functionName.equalsIgnoreCase("image-set")
+				|| functionName.equalsIgnoreCase("cross-fade");
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
@@ -59,72 +60,98 @@ public class Evaluator {
 	}
 
 	/**
-	 * Evaluate the given function.
+	 * Evaluate the given mathematical function.
 	 * <p>
 	 * This method checks the result unit, assuming that the unit must match that of
 	 * the returned primitive value (some functions may return values where the
 	 * units are raised to a power greater than one, or lesser than zero).
 	 * 
-	 * @param function the function to evaluate.
+	 * @param function the mathematical function to evaluate.
 	 * @return the result of evaluating the function, or the function itself if this
 	 *         class does not know how to evaluate it.
 	 * @throws DOMException if a problem was found evaluating the function, or the
 	 *                      resulting unit is not a valid CSS unit.
 	 */
-	public CSSTypedValue evaluateFunction(CSSFunctionValue function) throws DOMException {
+	public CSSTypedValue evaluateFunction(CSSMathFunctionValue function) throws DOMException {
 		Unit resultUnit = new Unit();
 		CSSTypedValue result = evaluateFunction(function, resultUnit);
 		int exp = resultUnit.getExponent();
 		if (exp > 1 || exp < 0) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
 		}
+
+		float fv = result.getFloatValue(result.getUnitType());
+		if (Float.isNaN(fv)) {
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Result is not a number (NaN).");
+		}
+
 		return result;
 	}
 
 	/**
-	 * Evaluate the given function.
+	 * Evaluate the given mathematical function.
 	 * 
-	 * @param function   the function to evaluate.
+	 * @param function   the mathematical function to evaluate.
 	 * @param resultUnit the result unit(s).
 	 * @return the result of evaluating the function, or the function itself if this
 	 *         class does not know how to evaluate it.
 	 * @throws DOMException if a problem was found evaluating the function.
 	 */
-	TypedValue evaluateFunction(CSSFunctionValue function, Unit resultUnit) throws DOMException {
-		String name = function.getFunctionName();
-		if ("max".equalsIgnoreCase(name)) {
-			return functionMax(function.getArguments(), resultUnit);
-		} else if ("min".equalsIgnoreCase(name)) {
-			return functionMin(function.getArguments(), resultUnit);
-		} else if ("clamp".equalsIgnoreCase(name)) {
-			return functionClamp(function.getArguments(), resultUnit);
-		} else if ("sin".equalsIgnoreCase(name)) {
-			return functionSin(function.getArguments(), resultUnit);
-		} else if ("cos".equalsIgnoreCase(name)) {
-			return functionCos(function.getArguments(), resultUnit);
-		} else if ("tan".equalsIgnoreCase(name)) {
-			return functionTan(function.getArguments(), resultUnit);
-		} else if ("asin".equalsIgnoreCase(name)) {
-			return functionASin(function.getArguments(), resultUnit);
-		} else if ("acos".equalsIgnoreCase(name)) {
-			return functionACos(function.getArguments(), resultUnit);
-		} else if ("atan".equalsIgnoreCase(name)) {
-			return functionATan(function.getArguments(), resultUnit);
-		} else if ("atan2".equalsIgnoreCase(name)) {
-			return functionATan2(function.getArguments(), resultUnit);
-		} else if ("pow".equalsIgnoreCase(name)) {
-			return functionPow(function.getArguments(), resultUnit);
-		} else if ("sqrt".equalsIgnoreCase(name)) {
-			return functionSqrt(function.getArguments(), resultUnit);
-		} else if ("hypot".equalsIgnoreCase(name)) {
-			return functionHypot(function.getArguments(), resultUnit);
-		} else if ("abs".equalsIgnoreCase(name)) {
-			return functionAbs(function.getArguments(), resultUnit);
-		} else if ("sign".equalsIgnoreCase(name)) {
-			return functionSign(function.getArguments(), resultUnit);
-		} else {
-			return unknownFunction(function, resultUnit);
+	TypedValue evaluateFunction(CSSMathFunctionValue function, Unit resultUnit)
+			throws DOMException {
+		TypedValue typed;
+		switch (function.getFunction()) {
+		case MAX:
+			typed = functionMax(function.getArguments(), resultUnit);
+			break;
+		case MIN:
+			typed = functionMin(function.getArguments(), resultUnit);
+			break;
+		case CLAMP:
+			typed = functionClamp(function.getArguments(), resultUnit);
+			break;
+		case SIN:
+			typed = functionSin(function.getArguments(), resultUnit);
+			break;
+		case COS:
+			typed = functionCos(function.getArguments(), resultUnit);
+			break;
+		case TAN:
+			typed = functionTan(function.getArguments(), resultUnit);
+			break;
+		case ASIN:
+			typed = functionASin(function.getArguments(), resultUnit);
+			break;
+		case ACOS:
+			typed = functionACos(function.getArguments(), resultUnit);
+			break;
+		case ATAN:
+			typed = functionATan(function.getArguments(), resultUnit);
+			break;
+		case ATAN2:
+			typed = functionATan2(function.getArguments(), resultUnit);
+			break;
+		case POW:
+			typed = functionPow(function.getArguments(), resultUnit);
+			break;
+		case SQRT:
+			typed = functionSqrt(function.getArguments(), resultUnit);
+			break;
+		case HYPOT:
+			typed = functionHypot(function.getArguments(), resultUnit);
+			break;
+		case ABS:
+			typed = functionAbs(function.getArguments(), resultUnit);
+			break;
+		case SIGN:
+			typed = functionSign(function.getArguments(), resultUnit);
+			break;
+		default:
+			// Perhaps the caller was compiled against a later version
+			// of this library
+			throw new IllegalStateException("Unknown math function: " + function.getFunctionName());
 		}
+		return typed;
 	}
 
 	private TypedValue functionMax(CSSValueList<? extends CSSValue> arguments,
@@ -132,9 +159,12 @@ public class Evaluator {
 		if (arguments.getLength() == 0) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "max() functions take at least one argument");
 		}
+
 		Iterator<? extends CSSValue> it = arguments.iterator();
 		CSSValue arg = it.next();
 		TypedValue typed = enforceTyped(arg);
+		typed = evaluate(typed, resultUnit);
+		boolean calculated = typed.isCalculatedNumber();
 		float max = floatValue(typed, resultUnit);
 		int exp = resultUnit.getExponent();
 		short firstUnit = resultUnit.getUnitType();
@@ -143,6 +173,7 @@ public class Evaluator {
 		while (it.hasNext()) {
 			arg = it.next();
 			typed = enforceTyped(arg);
+			typed = evaluate(typed, resultUnit);
 			float partial = floatValue(typed, resultUnit);
 			if (exp != resultUnit.getExponent()) {
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
@@ -153,9 +184,12 @@ public class Evaluator {
 				max = partialInFirstUnit;
 				maxInSpecifiedUnit = partial;
 				maxUnit = resultUnit.getUnitType();
+				calculated = typed.isCalculatedNumber();
 			}
 		}
+
 		NumberValue value = NumberValue.createCSSNumberValue(maxUnit, maxInSpecifiedUnit);
+		value.setCalculatedNumber(calculated);
 		return value;
 	}
 
@@ -164,6 +198,7 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR,
 					"Unexpected value: " + arg.getCssText());
 		}
+
 		TypedValue typed = (TypedValue) arg;
 		if (typed.getPrimitiveType() == Type.IDENT) {
 			String s = typed.getStringValue();
@@ -177,6 +212,7 @@ public class Evaluator {
 						"Unexpected value: " + arg.getCssText());
 			}
 		}
+
 		return typed;
 	}
 
@@ -186,9 +222,12 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR,
 					"min() functions take at least one argument");
 		}
+
 		Iterator<? extends CSSValue> it = arguments.iterator();
 		CSSValue arg = it.next();
 		TypedValue typed = enforceTyped(arg);
+		typed = evaluate(typed, resultUnit);
+		boolean calculated = typed.isCalculatedNumber();
 		float min = floatValue(typed, resultUnit);
 		int exp = resultUnit.getExponent();
 		short firstUnit = resultUnit.getUnitType();
@@ -197,6 +236,7 @@ public class Evaluator {
 		while (it.hasNext()) {
 			arg = it.next();
 			typed = enforceTyped(arg);
+			typed = evaluate(typed, resultUnit);
 			float partial = floatValue(typed, resultUnit);
 			if (exp != resultUnit.getExponent()) {
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
@@ -208,9 +248,12 @@ public class Evaluator {
 				min = partialInFirstUnit;
 				minInSpecifiedUnit = partial;
 				minUnit = resultUnit.getUnitType();
+				calculated = typed.isCalculatedNumber();
 			}
 		}
+
 		NumberValue value = NumberValue.createCSSNumberValue(minUnit, minInSpecifiedUnit);
+		value.setCalculatedNumber(calculated);
 		return value;
 	}
 
@@ -219,31 +262,41 @@ public class Evaluator {
 		if (arguments.getLength() != 3) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Clamp functions take three arguments");
 		}
+
 		CSSTypedValue arg = typedArgument(arguments, 1);
+		arg = evaluate(arg, resultUnit);
+		boolean calculated = arg.isCalculatedNumber();
 		float result = floatValue(arg, resultUnit);
 		short centralUnit = resultUnit.getUnitType();
 		int exp = resultUnit.getExponent();
-		arg = typedArgument(arguments, 0);
-		float min = floatValue(arg, resultUnit);
+		TypedValue arg0 = typedArgument(arguments, 0);
+		arg0 = evaluate(arg0, resultUnit);
+		float min = floatValue(arg0, resultUnit);
 		if (exp != resultUnit.getExponent()) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 					"clamp() arguments have incompatible dimensions.");
 		}
 		min = NumberValue.floatValueConversion(min, resultUnit.getUnitType(), centralUnit);
-		arg = typedArgument(arguments, 2);
-		float max = floatValue(arg, resultUnit);
+		TypedValue arg2 = typedArgument(arguments, 2);
+		arg2 = evaluate(arg2, resultUnit);
+		float max = floatValue(arg2, resultUnit);
 		if (exp != resultUnit.getExponent()) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 					"clamp() arguments have incompatible dimensions.");
 		}
 		max = NumberValue.floatValueConversion(max, resultUnit.getUnitType(), centralUnit);
+
 		if (result > max) {
 			result = max;
+			calculated = arg2.isCalculatedNumber();
 		}
 		if (result < min) {
 			result = min;
+			calculated = arg0.isCalculatedNumber();
 		}
+
 		NumberValue value = NumberValue.createCSSNumberValue(centralUnit, result);
+		value.setCalculatedNumber(calculated);
 		return value;
 	}
 
@@ -253,7 +306,7 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "sin() functions take one argument");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float fval = floatValue(arg, resultUnit);
+		float fval = evalValue(arg, resultUnit);
 		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
 			int exp = resultUnit.getExponent();
 			if (exp > 1 || exp < 0) {
@@ -263,8 +316,10 @@ public class Evaluator {
 		}
 		float result = (float) Math.sin(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
+		resultUnit.setExponent(0);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -274,7 +329,7 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "cos() functions take one argument");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float fval = floatValue(arg, resultUnit);
+		float fval = evalValue(arg, resultUnit);
 		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
 			int exp = resultUnit.getExponent();
 			if (exp > 1 || exp < 0) {
@@ -284,8 +339,10 @@ public class Evaluator {
 		}
 		float result = (float) Math.cos(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
+		resultUnit.setExponent(0);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -295,7 +352,7 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "tan() functions take one argument");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float fval = floatValue(arg, resultUnit);
+		float fval = evalValue(arg, resultUnit);
 		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
 			int exp = resultUnit.getExponent();
 			if (exp > 1 || exp < 0) {
@@ -305,8 +362,10 @@ public class Evaluator {
 		}
 		float result = (float) Math.tan(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
+		resultUnit.setExponent(0);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -316,13 +375,15 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "asin() functions take one argument");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float result = (float) Math.asin(floatValue(arg, resultUnit));
+		float result = (float) Math.asin(evalValue(arg, resultUnit));
 		if (resultUnit.getExponent() != 0) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "asin() argument must be dimensionless");
 		}
 		resultUnit.setUnitType(CSSUnit.CSS_RAD);
+		resultUnit.setExponent(1);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_RAD, result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -332,13 +393,15 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "acos() functions take one argument");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float result = (float) Math.acos(floatValue(arg, resultUnit));
+		float result = (float) Math.acos(evalValue(arg, resultUnit));
 		if (resultUnit.getExponent() != 0) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "acos() argument must be dimensionless");
 		}
 		resultUnit.setUnitType(CSSUnit.CSS_RAD);
+		resultUnit.setExponent(1);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_RAD, result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -348,14 +411,16 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "atan() functions take one argument");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float f1 = floatValue(arg, resultUnit);
+		float f1 = evalValue(arg, resultUnit);
 		if (resultUnit.getExponent() != 0) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "atan() argument must be dimensionless");
 		}
 		float result = (float) Math.atan(f1);
 		resultUnit.setUnitType(CSSUnit.CSS_RAD);
+		resultUnit.setExponent(1);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_RAD, result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -366,18 +431,20 @@ public class Evaluator {
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		CSSTypedValue arg2 = typedArgument(arguments, 1);
-		float f1 = floatValue(arg, resultUnit);
+		float f1 = evalValue(arg, resultUnit);
 		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "atan2() arguments must be dimensionless");
 		}
-		float f2 = floatValue(arg2, resultUnit);
+		float f2 = evalValue(arg2, resultUnit);
 		if (resultUnit.getExponent() != 0) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "atan2() arguments must be dimensionless");
 		}
 		float result = (float) Math.atan2(f1, f2);
 		resultUnit.setUnitType(CSSUnit.CSS_RAD);
+		resultUnit.setExponent(1);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_RAD, result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -389,15 +456,16 @@ public class Evaluator {
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		CSSTypedValue arg2 = typedArgument(arguments, 1);
 		resultUnit.setUnitType(arg.getUnitType());
-		float base = floatValue(arg, resultUnit);
+		float base = evalValue(arg, resultUnit);
 		Unit expUnit = new Unit();
-		float exponent = floatValue(arg2, expUnit);
+		float exponent = evalValue(arg2, expUnit);
 		if (expUnit.getExponent() != 0) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "pow() exponent cannot have a dimension");
 		}
 		float result = (float) Math.pow(base, exponent);
 		resultUnit.setExponent(resultUnit.getExponent() * Math.round(exponent));
 		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -407,7 +475,7 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "sqrt() functions take one argument");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float result = (float) Math.sqrt(floatValue(arg, resultUnit));
+		float result = (float) Math.sqrt(evalValue(arg, resultUnit));
 		int exp = resultUnit.getExponent();
 		if (exp % 2 != 0) {
 			// Odd number
@@ -416,6 +484,7 @@ public class Evaluator {
 		resultUnit.setExponent(exp / 2);
 
 		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -428,12 +497,12 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "hypot() functions need at least one argument.");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float partial = floatValue(arg, resultUnit);
+		float partial = evalValue(arg, resultUnit);
 		double result = partial * partial;
 		short firstUnit = resultUnit.getUnitType();
 		for (int i = 1; i < len; i++) {
 			arg = typedArgument(arguments, i);
-			partial = floatValue(arg, resultUnit);
+			partial = evalValue(arg, resultUnit);
 			if (firstUnit != resultUnit.getUnitType()) {
 				partial = NumberValue.floatValueConversion(partial, resultUnit.getUnitType(), firstUnit);
 			}
@@ -441,6 +510,7 @@ public class Evaluator {
 		}
 		result = Math.sqrt(result);
 		NumberValue value = NumberValue.createCSSNumberValue(firstUnit, (float) result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -449,13 +519,14 @@ public class Evaluator {
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		CSSTypedValue arg2 = typedArgument(arguments, 1);
 		Unit arg2Type = new Unit();
-		float f1 = floatValue(arg, resultUnit);
-		float f2 = floatValue(arg2, arg2Type);
+		float f1 = evalValue(arg, resultUnit);
+		float f2 = evalValue(arg2, arg2Type);
 		if (resultUnit.getUnitType() != arg2Type.getUnitType()) {
 			f2 = NumberValue.floatValueConversion(f2, arg2Type.getUnitType(), resultUnit.getUnitType());
 		}
 		float result = (float) Math.hypot(f1, f2);
 		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
+		value.setCalculatedNumber(true);
 		return value;
 	}
 
@@ -465,9 +536,11 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "abs() functions take one argument.");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float fval = floatValue(arg, resultUnit);
+		TypedValue typed = evaluate(arg, resultUnit);
+		float fval = floatValue(typed, resultUnit);
 		float result = Math.abs(fval);
 		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
+		value.setCalculatedNumber(typed.isCalculatedNumber());
 		return value;
 	}
 
@@ -477,8 +550,9 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "sign() functions take one argument.");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		float fval = floatValue(arg, resultUnit);
+		float fval = evalValue(arg, resultUnit);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
+		resultUnit.setExponent(0);
 		float result = Math.signum(fval);
 		NumberValue value = new NumberValue();
 		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
@@ -507,8 +581,12 @@ public class Evaluator {
 		return enforceTyped(arg);
 	}
 
-	private float floatValue(CSSTypedValue value, Unit resultUnit) throws DOMException {
+	private float evalValue(CSSTypedValue value, Unit resultUnit) throws DOMException {
 		TypedValue typed = evaluate(value, resultUnit);
+		return floatValue(typed, resultUnit);
+	}
+
+	private float floatValue(CSSTypedValue typed, Unit resultUnit) throws DOMException {
 		short resultType = resultUnit.getUnitType();
 		float result;
 		short type = typed.getUnitType();
@@ -546,9 +624,16 @@ public class Evaluator {
 		if (exp > 1 || exp < 0) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
 		}
-		if (calc.mustRoundResult() && result.isCalculatedNumber()) {
+
+		if (calc.mustRoundResult()) {
 			((NumberValue) result).roundToInteger();
 		}
+
+		float fv = result.getFloatValue(result.getUnitType());
+		if (Float.isNaN(fv)) {
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Result is not a number (NaN).");
+		}
+
 		return result;
 	}
 
@@ -589,14 +674,14 @@ public class Evaluator {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Sum without operands.");
 		}
 		CSSExpression op = sumop.item(0);
-		float result = floatValue(evaluateExpression(op, resultUnit), resultUnit);
+		float result = evalValue(evaluateExpression(op, resultUnit), resultUnit);
 		if (op.isInverseOperation()) {
 			result = -result;
 		}
 		short firstUnit = resultUnit.getUnitType();
 		for (int i = 1; i < len; i++) {
 			op = sumop.item(i);
-			float partial = floatValue(evaluateExpression(op, resultUnit), resultUnit);
+			float partial = evalValue(evaluateExpression(op, resultUnit), resultUnit);
 			short partialUnit = resultUnit.getUnitType();
 			if (firstUnit != partialUnit) {
 				partial = NumberValue.floatValueConversion(partial, partialUnit, firstUnit);
@@ -619,7 +704,7 @@ public class Evaluator {
 		for (int i = 0; i < len; i++) {
 			CSSExpression op = product.item(i);
 			CSSTypedValue partialValue = evaluateExpression(op, resultUnit);
-			float partial = floatValue(partialValue, resultUnit);
+			float partial = evalValue(partialValue, resultUnit);
 			short partialUnit = resultUnit.getUnitType();
 			if (partialUnit != CSSUnit.CSS_NUMBER) {
 				if (firstUnit == CSSUnit.CSS_NUMBER) {
@@ -668,6 +753,7 @@ public class Evaluator {
 				result *= partial;
 			}
 		}
+
 		if (unitExp < 0) {
 			if (firstUnit == CSSUnit.CSS_HZ) {
 				firstUnit = CSSUnit.CSS_S;
@@ -683,8 +769,10 @@ public class Evaluator {
 				unitExp = -unitExp;
 			}
 		}
+
 		resultUnit.setUnitType(firstUnit);
 		resultUnit.setExponent(unitExp);
+
 		return result;
 	}
 
@@ -708,13 +796,18 @@ public class Evaluator {
 
 	private TypedValue evaluate(CSSPrimitiveValue partialValue, Unit resultUnit) {
 		TypedValue typed;
-		CSSTypedValue.Type pType = partialValue.getPrimitiveType();
-		if (pType == CSSValue.Type.FUNCTION) {
-			typed = evaluateFunction((CSSFunctionValue) partialValue, resultUnit);
-		} else if (pType == CSSValue.Type.EXPRESSION) {
+		switch (partialValue.getPrimitiveType()) {
+		case MATH_FUNCTION:
+			typed = evaluateFunction((CSSMathFunctionValue) partialValue, resultUnit);
+			break;
+		case EXPRESSION:
 			CSSExpression expr = ((ExpressionValue) partialValue).getExpression();
 			typed = evaluateExpression(expr, resultUnit);
-		} else {
+			break;
+		case FUNCTION:
+			typed = unknownFunction((CSSFunctionValue) partialValue, resultUnit);
+			break;
+		default:
 			typed = absoluteValue(partialValue);
 			resultUnit.setUnitType(typed.getUnitType());
 		}

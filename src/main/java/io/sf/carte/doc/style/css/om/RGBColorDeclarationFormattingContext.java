@@ -52,6 +52,7 @@ public class RGBColorDeclarationFormattingContext extends DefaultDeclarationForm
 			}
 			break;
 		case FUNCTION:
+		case MATH_FUNCTION:
 		case GRADIENT:
 			writeFunction(wri, propertyName, (CSSFunctionValue) value);
 			return;
@@ -142,6 +143,7 @@ public class RGBColorDeclarationFormattingContext extends DefaultDeclarationForm
 			}
 			break;
 		case FUNCTION:
+		case MATH_FUNCTION:
 		case GRADIENT:
 			writeMinifiedFunction(wri, propertyName, (CSSFunctionValue) value);
 			return;

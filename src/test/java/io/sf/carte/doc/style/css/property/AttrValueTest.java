@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -206,47 +207,38 @@ public class AttrValueTest {
 	@Test
 	public void testSetCssTextStringError() {
 		AttrValue value = new AttrValue((byte) 0);
-		try {
-			value.setCssText("attr()");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
-		//
-		try {
-			value.setCssText("attr( )");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
-		//
-		try {
-			value.setCssText("attr(-)");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
-		//
-		try {
-			value.setCssText("attr(att-content string, attr(foo))");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
-		//
-		try {
-			value.setCssText("attr(att-content string, calc(attr(foo)/3))");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
-		//
-		try {
-			value.setCssText("attr(att-content string, calc(sqrt(attr(foo)/3)))");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
+		DOMException e = assertThrows(DOMException.class, () -> value.setCssText("attr()"));
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
+
+		e = assertThrows(DOMException.class, () -> value.setCssText("attr( )"));
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
+
+		e = assertThrows(DOMException.class, () -> value.setCssText("attr(-)"));
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
+	}
+
+	@Test
+	public void testSetCssTextStringErrorContainsAttr() {
+		AttrValue value = new AttrValue((byte) 0);
+		DOMException e = assertThrows(DOMException.class,
+				() -> value.setCssText("attr(att-content string, attr(foo))"));
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
+	}
+
+	@Test
+	public void testSetCssTextStringErrorAttrInsideCalc() {
+		AttrValue value = new AttrValue((byte) 0);
+		DOMException e = assertThrows(DOMException.class,
+				() -> value.setCssText("attr(att-content string, calc(attr(foo)/3))"));
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
+	}
+
+	@Test
+	public void testSetCssTextStringErrorAttrInsideSqrt() {
+		AttrValue value = new AttrValue((byte) 0);
+		DOMException e = assertThrows(DOMException.class,
+				() -> value.setCssText("attr(att-content string, calc(sqrt(attr(foo)/3)))"));
+		assertEquals(DOMException.SYNTAX_ERR, e.code);
 	}
 
 	@Test

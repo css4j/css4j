@@ -1257,7 +1257,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			CSSTypedValue.Type ptype = cssValue.getPrimitiveType();
 			if (ptype == Type.UNKNOWN) {
 				return true;
-			} else if (ptype == Type.FUNCTION) {
+			} else if (ptype == Type.FUNCTION || ptype == Type.MATH_FUNCTION) {
 				CSSFunctionValue function = (CSSFunctionValue) cssValue;
 				CSSValueList<? extends CSSValue> list = function.getArguments();
 				for (CSSValue value : list) {

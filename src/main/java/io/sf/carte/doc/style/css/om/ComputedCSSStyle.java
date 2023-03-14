@@ -28,6 +28,7 @@ import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSPropertyDefinition;
@@ -630,6 +631,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 			} else if (type == Type.FUNCTION) {
 				FunctionValue function = (FunctionValue) pri;
+				function = function.clone();
+				// Convert arguments to absolute.
+				LinkedCSSValueList args = function.getArguments();
+				int sz = args.size();
+				for (int i = 0; i < sz; i++) {
+					args.set(i, absoluteValue(propertyName, args.get(i), useParentStyle));
+				}
+			} else if (type == Type.MATH_FUNCTION) {
+				CSSMathFunctionValue function = (CSSMathFunctionValue) pri;
 				function = function.clone();
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
@@ -1582,8 +1592,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				computedStyleError("font-size", exprval.getCssText(), "Could not evaluate expression value.", e);
 			}
 			return cssSize;
-		case FUNCTION:
-			FunctionValue function = (FunctionValue) cssSize;
+		case MATH_FUNCTION:
+			CSSMathFunctionValue function = (CSSMathFunctionValue) cssSize;
 			function = function.clone();
 			LinkedCSSValueList args = function.getArguments();
 			int siz = args.size();

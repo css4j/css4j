@@ -19,6 +19,7 @@ import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
@@ -33,11 +34,13 @@ import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
  */
 class DimensionalEvaluator extends Evaluator {
 
-	private boolean hasPercentage;
+	private transient boolean hasPercentage;
 
 	private transient Random random = null;
 
 	private transient CSSExpression latestExpression;
+
+	private transient CSSMathFunctionValue latestFunction;
 
 	private transient boolean unknownFunction;
 
@@ -60,19 +63,22 @@ class DimensionalEvaluator extends Evaluator {
 	 * 
 	 * @param expression the expression to analyze.
 	 * @return the unit type of the result, as in {@link CSSUnit}.
-	 * @throws DOMException if the resulting unit type is not a valid CSS unit.
+	 * @throws DOMException if a problem was found evaluating the expression.
 	 */
 	short computeUnitType(CSSExpression expression) throws DOMException {
 		hasPercentage = false;
 		Unit resultUnit = new Unit();
 		evaluateExpression(expression, resultUnit);
+
+		short unit;
 		int exp = resultUnit.getExponent();
 		if (exp > 1 || exp < 0) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-					"Resulting unit is not valid CSS unit.");
+			unit = CSSUnit.CSS_INVALID;
+		} else {
+			unit = resultUnit.getUnitType();
 		}
-		//
-		return resultUnit.getUnitType();
+
+		return unit;
 	}
 
 	/**
@@ -88,6 +94,35 @@ class DimensionalEvaluator extends Evaluator {
 		return getCategory(computeUnitType(expression));
 	}
 
+	@Override
+	TypedValue evaluateFunction(CSSMathFunctionValue function, Unit resultUnit)
+			throws DOMException {
+		this.latestFunction = function;
+		return super.evaluateFunction(function, resultUnit);
+	}
+
+	/**
+	 * Compute the result unit type of the given expression.
+	 * 
+	 * @param expression the expression to analyze.
+	 * @return the unit type of the result, as in {@link CSSUnit}.
+	 * @throws DOMException if a problem was found evaluating the function.
+	 */
+	short computeUnitType(CSSMathFunctionValue function) throws DOMException {
+		hasPercentage = false;
+		Unit resultUnit = new Unit();
+		evaluateFunction(function, resultUnit);
+
+		short unit = resultUnit.getUnitType();
+		int exp = resultUnit.getExponent();
+		if (exp > 1 || exp < 0 || (hasPercentage && unit != CSSUnit.CSS_PERCENTAGE
+				&& unit != CSSUnit.CSS_NUMBER)) {
+			unit = CSSUnit.CSS_INVALID;
+		}
+
+		return unit;
+	}
+
 	/**
 	 * Perform a dimensional analysis of the given function and obtain the
 	 * {@link Category} of the result.
@@ -97,17 +132,25 @@ class DimensionalEvaluator extends Evaluator {
 	 * @throws DOMException if the resulting unit type is unknown or not a valid CSS
 	 *                      unit.
 	 */
-	Category dimensionalAnalysis(CSSFunctionValue function) throws DOMException {
+	Category dimensionalAnalysis(CSSMathFunctionValue function) throws DOMException {
 		hasPercentage = false;
 		Unit resultUnit = new Unit();
 		evaluateFunction(function, resultUnit);
-		int exp = resultUnit.getExponent();
-		if (exp > 1 || exp < 0) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-					"Resulting unit is not valid CSS unit.");
+
+		short unit;
+		switch (resultUnit.getExponent()) {
+		case 0:
+			// In case we got a sign()-like function
+			// with a % argument
+			hasPercentage = false;
+		case 1:
+			unit = resultUnit.getUnitType();
+			break;
+		default:
+			unit = CSSUnit.CSS_INVALID;
 		}
-		//
-		return getCategory(resultUnit.getUnitType());
+
+		return getCategory(unit);
 	}
 
 	/**
@@ -183,27 +226,68 @@ class DimensionalEvaluator extends Evaluator {
 
 	@Override
 	short getPreferredUnit() {
-		// Scan for preferred unit
-		CSSExpression expression = latestExpression.getParentExpression();
-		while (expression != null && expression.getPartType() == AlgebraicPart.PRODUCT) {
-			expression = expression.getParentExpression();
-		}
-
 		short unit = CSSUnit.CSS_PERCENTAGE;
-		if (expression != null) {
-			// Now we must have a sum from which we may be able to infer the unit
-			expression = findNonPercentOperand(expression);
+
+		// Scan for preferred unit
+		if (latestExpression != null) {
+			CSSExpression expression = latestExpression.getParentExpression();
+			while (expression != null && expression.getPartType() == AlgebraicPart.PRODUCT) {
+				expression = expression.getParentExpression();
+			}
+
 			if (expression != null) {
-				CSSOperandExpression operand = (CSSOperandExpression) expression;
-				CSSPrimitiveValue value = operand.getOperand();
-				if (value.getUnitType() != CSSUnit.CSS_INVALID) {
-					unit = value.getUnitType();
-					if (CSSUnit.isRelativeLengthUnitType(unit)) {
-						unit = CSSUnit.CSS_PX;
+				// Now we must have a sum from which we may be able to infer the unit
+				expression = findNonPercentOperand(expression);
+				if (expression != null) {
+					CSSOperandExpression operand = (CSSOperandExpression) expression;
+					CSSPrimitiveValue value = operand.getOperand();
+					if (value.getUnitType() != CSSUnit.CSS_INVALID) {
+						unit = value.getUnitType();
+						if (CSSUnit.isRelativeLengthUnitType(unit)) {
+							unit = CSSUnit.CSS_PX;
+						}
 					}
 				}
 			}
 		}
+
+		if (latestFunction != null && unit == CSSUnit.CSS_PERCENTAGE) { // Math function
+			LinkedCSSValueList args = latestFunction.getArguments();
+			int len = args.getLength();
+			argLoop: for (int i = 0; i < len; i++) {
+				short argUnit;
+				StyleValue arg = args.get(i);
+				switch (arg.getPrimitiveType()) {
+				case NUMERIC:
+					argUnit = ((TypedValue) arg).getUnitType();
+					if (argUnit != CSSUnit.CSS_PERCENTAGE && argUnit != CSSUnit.CSS_INVALID
+							&& argUnit != CSSUnit.CSS_OTHER) {
+						unit = argUnit;
+						if (CSSUnit.isRelativeLengthUnitType(unit)) {
+							unit = CSSUnit.CSS_PX;
+						}
+						break argLoop;
+					}
+					break;
+				case EXPRESSION:
+					argUnit = ((ExpressionValue) arg).computeUnitType();
+					if (argUnit != CSSUnit.CSS_INVALID) {
+						unit = argUnit;
+						break argLoop;
+					}
+					break;
+				case MATH_FUNCTION:
+					argUnit = ((CSSMathFunctionValue) arg).computeUnitType();
+					if (argUnit != CSSUnit.CSS_INVALID) {
+						unit = argUnit;
+						break argLoop;
+					}
+					break;
+				default:
+				}
+			}
+		}
+
 		return unit;
 	}
 

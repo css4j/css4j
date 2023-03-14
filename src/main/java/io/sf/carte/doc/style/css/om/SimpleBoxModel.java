@@ -22,7 +22,7 @@ import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.CSSFunctionValue;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -884,8 +884,9 @@ abstract class SimpleBoxModel {
 		float fv;
 		if (declType == Type.EXPRESSION) {
 			fv = calcValue(styledecl, propertyName, (ExpressionValue) cssval, unitType, useDeviceDocumentWidth);
-		} else if (declType == Type.FUNCTION) {
-			fv = functionValue(styledecl, propertyName, (CSSFunctionValue) cssval, unitType, useDeviceDocumentWidth);
+		} else if (declType == Type.MATH_FUNCTION) {
+			fv = functionValue(styledecl, propertyName, (CSSMathFunctionValue) cssval, unitType,
+					useDeviceDocumentWidth);
 		} else if (declType == Type.NUMERIC) {
 			if (cssval.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
 				fv = percentageValue(styledecl, cssval, unitType, useDeviceDocumentWidth);
@@ -961,8 +962,8 @@ abstract class SimpleBoxModel {
 		return result.getFloatValue(unitType);
 	}
 
-	private float functionValue(ComputedCSSStyle styledecl, String propertyName, CSSFunctionValue function,
-			short unitType, boolean useDeviceDocumentWidth) {
+	private float functionValue(ComputedCSSStyle styledecl, String propertyName,
+			CSSMathFunctionValue function, short unitType, boolean useDeviceDocumentWidth) {
 		BoxEvaluator ev = new BoxEvaluator(styledecl, propertyName, useDeviceDocumentWidth);
 		return ev.evaluateFunction(function).getFloatValue(unitType);
 	}

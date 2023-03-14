@@ -138,7 +138,7 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 		pType = value.getPrimitiveType();
 		if (pType == primitiveType) {
 			return true;
-		} else if (pType == Type.FUNCTION) {
+		} else if (pType == Type.FUNCTION || pType == Type.MATH_FUNCTION) {
 			return functionContainsType((FunctionValue) value, primitiveType);
 		} else if (pType == Type.EXPRESSION) {
 			return expressionContainsType(((ExpressionValue) value).getExpression(), primitiveType);

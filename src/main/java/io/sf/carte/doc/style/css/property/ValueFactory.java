@@ -18,6 +18,7 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -904,6 +905,7 @@ public class ValueFactory {
 				break;
 			case FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
+				CSSMathFunctionValue.MathFunction functionId;
 				if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
 						|| func.endsWith("conic-gradient")) {
 					primi = new GradientValue();
@@ -930,6 +932,8 @@ public class ValueFactory {
 					break;
 				} else if ("env".equals(func)) {
 					primi = new EnvVariableValue();
+				} else if ((functionId = MathFunctionHelper.getMathFunction(func)) != null) {
+					primi = new MathFunctionValue(functionId);
 				} else {
 					primi = new FunctionValue();
 				}
