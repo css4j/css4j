@@ -53,6 +53,13 @@ public class LexicalValueTest {
 		value.setCssText("'foo'");
 		assertEquals(Type.STRING, value.getFinalType());
 		//
+		value.setCssText("calc(3*var(--foo))");
+		assertEquals(Type.EXPRESSION, value.getFinalType());
+	}
+
+	@Test
+	public void testGetFinalTypeRatio() {
+		LexicalValue value = new LexicalValue();
 		value.setCssText("1em / 1");
 		assertEquals(Type.UNKNOWN, value.getFinalType());
 		//
@@ -70,7 +77,11 @@ public class LexicalValueTest {
 		//
 		value.setCssText("foo / 9");
 		assertEquals(Type.UNKNOWN, value.getFinalType());
-		//
+	}
+
+	@Test
+	public void testGetFinalTypeColor() {
+		LexicalValue value = new LexicalValue();
 		value.setCssText("rgb(var(--foo) 0 0.3)");
 		assertEquals(Type.COLOR, value.getFinalType());
 		//
@@ -85,9 +96,43 @@ public class LexicalValueTest {
 		//
 		value.setCssText("color(display-p3 var(--foo))");
 		assertEquals(Type.COLOR, value.getFinalType());
-		//
+	}
+
+	@Test
+	public void testGetFinalTypeFunctions() {
+		LexicalValue value = new LexicalValue();
 		value.setCssText("url(var(--myURI))");
 		assertEquals(Type.URI, value.getFinalType());
+		//
+		value.setCssText("attr(var(--title))");
+		assertEquals(Type.ATTR, value.getFinalType());
+		//
+		value.setCssText("rect(2px 12em 3em var(--foo))");
+		assertEquals(Type.RECT, value.getFinalType());
+		//
+		value.setCssText("element(var(--foo))");
+		assertEquals(Type.ELEMENT_REFERENCE, value.getFinalType());
+		//
+		value.setCssText("foo(0.42, 0, 1, var(--arg4))");
+		assertEquals(Type.FUNCTION, value.getFinalType());
+		//
+		value.setCssText("cubic-bezier(0.42, 0, 1, var(--arg4))");
+		assertEquals(Type.CUBIC_BEZIER, value.getFinalType());
+		//
+		value.setCssText("steps(var(--arg), start)");
+		assertEquals(Type.STEPS, value.getFinalType());
+		//
+		value.setCssText("sin(4 / var(--foo))");
+		assertEquals(Type.MATH_FUNCTION, value.getFinalType());
+		//
+		value.setCssText("counters(ListCounter, var(--foo))");
+		assertEquals(Type.COUNTERS, value.getFinalType());
+		//
+		value.setCssText("counter(ListCounter, var(--foo))");
+		assertEquals(Type.COUNTER, value.getFinalType());
+		//
+		value.setCssText("env(var(--safe-area))");
+		assertEquals(Type.ENV, value.getFinalType());
 	}
 
 	@Test
