@@ -202,8 +202,8 @@ class DimensionalEvaluator extends Evaluator {
 			unit = CSSUnit.CSS_PX;
 			// Multiply value by random number, to avoid accidental cancellation
 			NumberValue number = NumberValue.createCSSNumberValue(CSSUnit.CSS_PX,
-					(float) (partialValue.getFloatValue(partialValue.getUnitType())
-							* random.nextDouble(1.1d, 1.9d)));
+					partialValue.getFloatValue(partialValue.getUnitType())
+							* (((float) random.nextDouble()) + 1.1f));
 			number.setCalculatedNumber(true);
 			partialValue = number;
 		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
