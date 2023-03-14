@@ -678,12 +678,18 @@ public class RuleParserTest {
 		handler.checkRuleEndings();
 	}
 
-	private void parseRule(String string) throws CSSParseException, IOException {
-		parser.parseRule(new StringReader(string));
+	private void parseRule(String string) throws CSSParseException {
+		try {
+			parser.parseRule(new StringReader(string));
+		} catch (IOException e) {
+		}
 	}
 
-	private void parseRule(String string, NamespaceMap nsmap) throws CSSParseException, IOException {
-		parser.parseRule(new StringReader(string), nsmap);
+	private void parseRule(String string, NamespaceMap nsmap) throws CSSParseException {
+		try {
+			parser.parseRule(new StringReader(string), nsmap);
+		} catch (IOException e) {
+		}
 	}
 
 	class TestRuleErrorHandler extends TestErrorHandler {

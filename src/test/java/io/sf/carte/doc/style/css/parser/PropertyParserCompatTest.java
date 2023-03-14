@@ -49,7 +49,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedBackslahHack() throws CSSException, IOException {
+	public void testParsePropertyEscapedBackslahHack() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue("600px\\9");
 		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
@@ -64,7 +64,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedBackslahHack2() throws CSSException, IOException {
+	public void testParsePropertyEscapedBackslahHack2() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue("2px 3px\\9");
 		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
@@ -79,7 +79,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyCustomFunction() throws CSSException, IOException {
+	public void testParsePropertyCustomFunction() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue("--my-function(foo=bar)");
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -93,7 +93,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyProgid() throws CSSException, IOException {
+	public void testParsePropertyProgid() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue(
 				"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
@@ -122,7 +122,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyProgid2() throws CSSException, IOException {
+	public void testParsePropertyProgid2() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue(
 				"progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#bd0afa,EndColorStr=#d0df9f)");
@@ -151,7 +151,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyProgid3() throws CSSException, IOException {
+	public void testParsePropertyProgid3() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue("progid:DXImageTransform.Microsoft.Blur(pixelradius=5)");
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -171,7 +171,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyValueProgid() throws CSSException, IOException {
+	public void testParsePropertyValueProgid() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue(
 				"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
@@ -200,7 +200,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIEExpression() throws CSSException, IOException {
+	public void testParsePropertyValueIEExpression() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue("expression(iequirk = (document.body.scrollTop) + \"px\" )");
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -230,7 +230,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIEExpressionBackslashError() throws CSSException, IOException {
+	public void testParsePropertyValueIEExpressionBackslashError() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		try {
 			parsePropertyValue("expression(iequirk = (document.body.scrollTop) + 5px\\9 )");
@@ -241,7 +241,7 @@ public class PropertyParserCompatTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIEExpressionCompatError() throws CSSException, IOException {
+	public void testParsePropertyValueIEExpressionCompatError() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		try {
 			parsePropertyValue("expression(= (document.body.scrollTop) + \"px\" )");
@@ -251,8 +251,12 @@ public class PropertyParserCompatTest {
 		}
 	}
 
-	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {
-		return parser.parsePropertyValue(new StringReader(value));
+	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {
+		try {
+			return parser.parsePropertyValue(new StringReader(value));
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	private void assertMatch(Match match, LexicalUnit lu, String syntax) {

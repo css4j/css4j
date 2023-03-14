@@ -50,7 +50,7 @@ public class DeclarationRuleParserTest {
 	}
 
 	@Test
-	public void testParseDeclarationRuleMargin() throws CSSException, IOException {
+	public void testParseDeclarationRuleMargin() throws CSSException {
 		parseDeclarationRule("@top-left{content:'foo';color:blue}");
 		assertEquals(1, handler.ruleNames.size());
 		assertEquals(1, handler.selectorNames.size());
@@ -70,7 +70,7 @@ public class DeclarationRuleParserTest {
 	}
 
 	@Test
-	public void testParseDeclarationRuleViewport() throws CSSException, IOException {
+	public void testParseDeclarationRuleViewport() throws CSSException {
 		parseDeclarationRule("@viewport{orientation:landscape}");
 		assertEquals(1, handler.ruleNames.size());
 		assertEquals(1, handler.selectorNames.size());
@@ -86,7 +86,7 @@ public class DeclarationRuleParserTest {
 	}
 
 	@Test
-	public void testParseDeclarationRuleViewport2() throws CSSException, IOException {
+	public void testParseDeclarationRuleViewport2() throws CSSException {
 		parseDeclarationRule("@viewport{orientation:landscape;min-width: 640px;}");
 		assertEquals(1, handler.ruleNames.size());
 		assertEquals(1, handler.selectorNames.size());
@@ -109,7 +109,7 @@ public class DeclarationRuleParserTest {
 	}
 
 	@Test
-	public void testParseDeclarationRuleViewportEOF() throws CSSException, IOException {
+	public void testParseDeclarationRuleViewportEOF() throws CSSException {
 		parseDeclarationRule("@viewport{orientation:landscape");
 		assertEquals(1, handler.ruleNames.size());
 		assertEquals(1, handler.selectorNames.size());
@@ -125,7 +125,7 @@ public class DeclarationRuleParserTest {
 	}
 
 	@Test
-	public void testParseDeclarationRuleCounterStyle() throws CSSException, IOException {
+	public void testParseDeclarationRuleCounterStyle() throws CSSException {
 		parseDeclarationRule("@counter-style thumbs {system:cyclic;symbols:\\1F44D;suffix:\" \"}");
 		assertEquals(1, handler.ruleNames.size());
 		assertEquals(1, handler.selectorNames.size());
@@ -149,7 +149,7 @@ public class DeclarationRuleParserTest {
 	}
 
 	@Test
-	public void testParseDeclarationRuleBad() throws CSSException, IOException {
+	public void testParseDeclarationRuleBad() throws CSSException {
 		parseDeclarationRule("@viewport{orientation;landscape}");
 		assertEquals(1, handler.ruleNames.size());
 		assertEquals(1, handler.selectorNames.size());
@@ -158,8 +158,11 @@ public class DeclarationRuleParserTest {
 		assertTrue(errorHandler.hasError());
 	}
 
-	private void parseDeclarationRule(String string) throws CSSParseException, IOException {
-		parser.parseDeclarationRule(new StringReader(string));
+	private void parseDeclarationRule(String string) throws CSSParseException {
+		try {
+			parser.parseDeclarationRule(new StringReader(string));
+		} catch (IOException e) {
+		}
 		assertEquals(1, handler.streamEndcount);
 	}
 

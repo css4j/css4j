@@ -43,7 +43,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLAB() throws CSSException, IOException {
+	public void testParsePropertyValueOKLAB() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% .424 .5776)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -75,7 +75,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLAB2() throws CSSException, IOException {
+	public void testParsePropertyValueOKLAB2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% 42 57.76)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -96,7 +96,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLAB3() throws CSSException, IOException {
+	public void testParsePropertyValueOKLAB3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% 42.4 57)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -117,7 +117,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLAB4() throws CSSException, IOException {
+	public void testParsePropertyValueOKLAB4() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% 42 57)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -138,7 +138,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABClampPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABClampPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(153.2% 142% 157%/200%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -167,7 +167,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABClampPcntNeg() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABClampPcntNeg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(-1.2% -142% -157%/-200%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -196,7 +196,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABClamp() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(1.532 1000.9 -3300.7/200%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -225,7 +225,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABClampNeg() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABClampNeg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(-0.2 1000.9 -3300.7/-200%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -254,7 +254,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLabIntegerL() throws CSSException, IOException {
+	public void testParsePropertyValueOKLabIntegerL() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(2 42 57.76)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -275,7 +275,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLabIntegerLNeg() throws CSSException, IOException {
+	public void testParsePropertyValueOKLabIntegerLNeg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(-2 42 57.76)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -296,7 +296,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABAllPercent() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABAllPercent() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% 42% -57%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -317,7 +317,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvar() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(var(--ligthness-a-b))");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -333,7 +333,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvar2() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvar2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(var(--ligthness-a) 57.76)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -353,7 +353,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarSlash() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(var(--ligthness-a-b) /.3)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -376,7 +376,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABalpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABalpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% 42.4 57.76 / 0.6)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -402,7 +402,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLAB2alphaClamp() throws CSSException, IOException {
+	public void testParsePropertyValueOKLAB2alphaClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% 42 57.76 / 1.6)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -428,7 +428,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLAB3alphaClamp() throws CSSException, IOException {
+	public void testParsePropertyValueOKLAB3alphaClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% 42.4 57 / -0.6)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -454,7 +454,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLAB4alphaIntClamp() throws CSSException, IOException {
+	public void testParsePropertyValueOKLAB4alphaIntClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.2% 42 57 / -6)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -480,7 +480,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABalphaPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABalphaPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(0.532 42.4 57.76 / 60%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -506,7 +506,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(var(--ligthness-a) 57.76/160%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -532,7 +532,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarContainsSlashInt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarContainsSlashInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(0.237 0.115 -0.044 var(--slash) 2)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -563,7 +563,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarContainsSlashNegInt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarContainsSlashNegInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(0.237 0.115 -0.044 var(--slash) -2)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -594,7 +594,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarContainsSlash() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarContainsSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(0.237 0.115 -0.044 var(--slash) 1.6)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -625,7 +625,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarContainsSlashNeg() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarContainsSlashNeg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(0.237 0.115 -0.044 var(--slash) -0.7)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -656,7 +656,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarContainsSlashPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarContainsSlashPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"oklab(0.237 0.115 -0.044 var(--slash) var(--ignoreme) 160%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
@@ -700,7 +700,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarContainsSlashNegPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarContainsSlashNegPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(0.237 0.115 -0.044 var(--slash) -160%)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -732,7 +732,7 @@ public class PropertyParserColorOKTest {
 
 	@Test
 	public void testParsePropertyValueOKLABvarContainsSlashAndAlpha()
-			throws CSSException, IOException {
+			throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(0.237 0.115 -0.044 var(--slash) var(--alpha))");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -771,7 +771,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABvarAlphaVar() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABvarAlphaVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"oklab(var(--ligthness-a) 57.76/var(--alpha) var(--these) var(--could-be-empty))");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
@@ -818,7 +818,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABCalc() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABCalc() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(calc(2*24%) 42.4 57)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -849,7 +849,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABCalc2() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABCalc2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.1% calc(2*21.6) 42.4)");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -879,7 +879,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABCalc3() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABCalc3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(53.1% 42.4 calc(2*21.6))");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -909,7 +909,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABCalc4() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABCalc4() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklab(calc(2*24%) calc(-2*31.3) calc(2*21.6))");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -957,7 +957,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLABCalc4Alpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLABCalc4Alpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"oklab(calc(2*24%) calc(-2*31.3) calc(2*21.6)/calc(2*0.18))");
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
@@ -1022,7 +1022,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLabBad() throws CSSException, IOException {
+	public void testParsePropertyValueOKLabBad() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(-12deg 48 0.1)"));
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(-12% 48.5)"));
@@ -1065,7 +1065,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCH() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCH() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42.4 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1097,7 +1097,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCH2() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCH2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(0.532 42 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1118,7 +1118,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCH3() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCH3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42.4 57)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1139,7 +1139,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCH4() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCH4() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42 57)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1160,7 +1160,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHNegChroma() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHNegChroma() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% -42.4 57)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1181,7 +1181,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLChIntegerL() throws CSSException, IOException {
+	public void testParsePropertyValueOKLChIntegerL() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(3 42 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1202,7 +1202,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHChromaPercent() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHChromaPercent() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42.4% 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1223,7 +1223,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHClampPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHClampPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(153.2% 142.4% 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1244,7 +1244,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHClampNegPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHClampNegPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(-53.2% -142.4% 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1265,7 +1265,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHClampReal() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHClampReal() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(153.2 542.4 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1286,7 +1286,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHClampNegReal() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHClampNegReal() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(-53.2 -142.4 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1307,7 +1307,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHClampInteger() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHClampInteger() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(153 542 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1328,7 +1328,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHClampNegInteger() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHClampNegInteger() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(-53 -142 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1349,7 +1349,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHangle() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHangle() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42.4 57.76deg)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1371,7 +1371,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvar() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(var(--ligthness-chroma-hue))");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1387,7 +1387,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvar2() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvar2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(var(--ligthness-chroma) 57.76)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1407,7 +1407,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarSlash() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(var(--ligthness-c-h) /.3)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1430,7 +1430,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHalpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHalpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42.4 57.76 / 0.6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1457,7 +1457,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCH2alpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCH2alpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42 57.76 / 0.6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1484,7 +1484,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCH3alpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCH3alpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42.4 57 / 6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1511,7 +1511,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCH4alpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCH4alpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42 57 / 0.6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1538,7 +1538,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHangleAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHangleAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42.4 57.76deg / -1%)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1566,7 +1566,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHalphaPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHalphaPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.2% 42.4 57.76 / 60%)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1593,7 +1593,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(var(--ligthness-chroma) 57.76/0.6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1619,7 +1619,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarContainsSlashAlphaInt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarContainsSlashAlphaInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(0.589 42.81 57.76 var(--slash) 6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1650,7 +1650,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarContainsSlashAlphaNegInt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarContainsSlashAlphaNegInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(0.589 42.81 57.76 var(--slash) -6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1681,7 +1681,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarContainsSlashAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarContainsSlashAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(0.589 42.81 57.76 var(--slash) 1.6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1712,7 +1712,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarContainsSlashNegAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarContainsSlashNegAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(0.589 42.81 57.76 var(--slash) -.6)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1744,7 +1744,7 @@ public class PropertyParserColorOKTest {
 
 	@Test
 	public void testParsePropertyValueOKLCHvarContainsSlashAlphaPcnt()
-			throws CSSException, IOException {
+			throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"oklch(0.589 42.81 57.76 var(--slash) var(--ignoreme) 330%)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
@@ -1788,7 +1788,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarContainsSlashAlphaNegPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarContainsSlashAlphaNegPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(0.589 42.81 57.76 var(--slash) -330%)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1820,7 +1820,7 @@ public class PropertyParserColorOKTest {
 
 	@Test
 	public void testParsePropertyValueOKLCHvarContainsSlashAndAlpha()
-			throws CSSException, IOException {
+			throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(0.589 42.81 57.76 var(--slash) var(--alpha))");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1860,7 +1860,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHalphaTrailingVar() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHalphaTrailingVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"oklch(53.2% 42.4 57.76 / var(--alpha) var(--these) var(--could-be-empty))");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
@@ -1906,7 +1906,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarAlphaVar() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarAlphaVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"oklch(var(--ligthness-chroma) 57.76/var(--alpha) var(--these) var(--could-be-empty))");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
@@ -1953,7 +1953,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHvarAngleAlphaVar() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHvarAngleAlphaVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"oklch(var(--ligthness-chroma) 0.8rad/var(--alpha) var(--these) var(--could-be-empty))");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
@@ -2001,7 +2001,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHCalc() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHCalc() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(calc(2*24%) 42.4 57)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2032,7 +2032,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHCalc2() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHCalc2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.1% calc(2*21.6) 42.4)");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2062,7 +2062,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHCalc3() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHCalc3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(53.1% 42.4 calc(2*21.6))");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2092,7 +2092,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHCalc4() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHCalc4() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("oklch(calc(2*24%) calc(-2*31.3) calc(2*21.6))");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2140,7 +2140,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLCHCalc4Alpha() throws CSSException, IOException {
+	public void testParsePropertyValueOKLCHCalc4Alpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"oklch(calc(2*24%) calc(-2*31.3) calc(2*21.6)/calc(2*0.18))");
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
@@ -2205,7 +2205,7 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLchBad() throws CSSException, IOException {
+	public void testParsePropertyValueOKLchBad() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(-12deg 48 0.1)"));
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(-12% 48.6)"));
@@ -2238,8 +2238,12 @@ public class PropertyParserColorOKTest {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(74% a 89.1)"));
 	}
 
-	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {
-		return parser.parsePropertyValue(new StringReader(value));
+	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {
+		try {
+			return parser.parsePropertyValue(new StringReader(value));
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 }

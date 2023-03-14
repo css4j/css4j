@@ -55,7 +55,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorError() throws CSSException, IOException {
+	public void testParseSelectorError() throws CSSException {
 		try {
 			parseSelectors("?foo");
 			fail("Must throw exception");
@@ -65,7 +65,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorError3() throws CSSException, IOException {
+	public void testParseSelectorError3() throws CSSException {
 		try {
 			parseSelectors("&foo");
 			fail("Must throw exception");
@@ -75,7 +75,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorError4() throws CSSException, IOException {
+	public void testParseSelectorError4() throws CSSException {
 		try {
 			parseSelectors("%foo");
 			fail("Must throw exception");
@@ -85,7 +85,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorError5() throws CSSException, IOException {
+	public void testParseSelectorError5() throws CSSException {
 		try {
 			parseSelectors("!foo");
 			fail("Must throw exception");
@@ -95,7 +95,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorUniversal() throws CSSException, IOException {
+	public void testParseSelectorUniversal() throws CSSException {
 		SelectorList selist = parseSelectors("*");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -105,7 +105,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElement() throws CSSException, IOException {
+	public void testParseSelectorElement() throws CSSException {
 		SelectorList selist = parseSelectors("p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -117,7 +117,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementLF() throws CSSException, IOException {
+	public void testParseSelectorElementLF() throws CSSException {
 		SelectorList selist = parseSelectors("p\n");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -129,7 +129,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementHighChar() throws CSSException, IOException {
+	public void testParseSelectorElementHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("\u208c");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -141,7 +141,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementControlHighCharError() throws CSSException, IOException {
+	public void testParseSelectorElementControlHighCharError() throws CSSException {
 		// High control characters are excluded in XML and HTML for security reasons
 		try {
 			parseSelectors("\u009e");
@@ -152,7 +152,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementSurrogate() throws CSSException, IOException {
+	public void testParseSelectorElementSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("\ud83c\udf52");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -164,7 +164,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementEscaped() throws CSSException, IOException {
+	public void testParseSelectorElementEscaped() throws CSSException {
 		SelectorList selist = parseSelectors("\\61 ");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -176,7 +176,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementEscaped2() throws CSSException, IOException {
+	public void testParseSelectorElementEscaped2() throws CSSException {
 		SelectorList selist = parseSelectors("\\64 iv");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -188,7 +188,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementEscaped3() throws CSSException, IOException {
+	public void testParseSelectorElementEscaped3() throws CSSException {
 		SelectorList selist = parseSelectors("\\31 23");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -200,7 +200,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementEscaped4() throws CSSException, IOException {
+	public void testParseSelectorElementEscaped4() throws CSSException {
 		SelectorList selist = parseSelectors("\\.foo");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -212,7 +212,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementEscaped5() throws CSSException, IOException {
+	public void testParseSelectorElementEscaped5() throws CSSException {
 		SelectorList selist = parseSelectors("\\\\foo");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -224,7 +224,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementBad() throws CSSException, IOException {
+	public void testParseSelectorElementBad() throws CSSException {
 		try {
 			parseSelectors("9p");
 			fail("Must throw exception");
@@ -234,7 +234,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementIEHack() throws CSSException, IOException {
+	public void testParseSelectorElementIEHack() throws CSSException {
 		try {
 			parseSelectors("body*");
 			fail("Must throw exception");
@@ -244,7 +244,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementIEHack2() throws CSSException, IOException {
+	public void testParseSelectorElementIEHack2() throws CSSException {
 		try {
 			parseSelectors("body\\ ");
 			fail("Must throw exception");
@@ -254,7 +254,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementList() throws CSSException, IOException {
+	public void testParseSelectorElementList() throws CSSException {
 		SelectorList selist = parseSelectors("p, span");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -285,7 +285,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementList2() throws CSSException, IOException {
+	public void testParseSelectorElementList2() throws CSSException {
 		SelectorList selist = parseSelectors("p, p span");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -305,7 +305,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementList3() throws CSSException, IOException {
+	public void testParseSelectorElementList3() throws CSSException {
 		SelectorList selist = parseSelectors("p, p .class");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -327,7 +327,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementListBad() throws CSSException, IOException {
+	public void testParseSelectorElementListBad() throws CSSException {
 		try {
 			parseSelectors("p,");
 			fail("Must throw exception");
@@ -337,7 +337,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorListDuplicate() throws CSSException, IOException {
+	public void testParseSelectorListDuplicate() throws CSSException {
 		SelectorList selist = parseSelectors("p, p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -348,7 +348,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorListDuplicate2() throws CSSException, IOException {
+	public void testParseSelectorListDuplicate2() throws CSSException {
 		SelectorList selist = parseSelectors(".class, .class, ::first-line, ::first-line");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -365,7 +365,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseStringSelectorElement() throws CSSException, IOException {
+	public void testParseStringSelectorElement() throws CSSException {
 		SelectorList selist = parseSelectors("p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -377,7 +377,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError() throws CSSException, IOException {
+	public void testParseSelectorElementError() throws CSSException {
 		try {
 			parseSelectors("!,p");
 			fail("Must throw an exception");
@@ -387,7 +387,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError2() throws CSSException, IOException {
+	public void testParseSelectorElementError2() throws CSSException {
 		try {
 			parseSelectors(",p");
 			fail("Must throw an exception");
@@ -397,7 +397,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError3() throws CSSException, IOException {
+	public void testParseSelectorElementError3() throws CSSException {
 		try {
 			parseSelectors("p⁑");
 			fail("Must throw an exception");
@@ -406,7 +406,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError4() throws CSSException, IOException {
+	public void testParseSelectorElementError4() throws CSSException {
 		try {
 			parseSelectors("⁑p");
 			fail("Must throw an exception");
@@ -416,7 +416,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError5() throws CSSException, IOException {
+	public void testParseSelectorElementError5() throws CSSException {
 		try {
 			parseSelectors("p*");
 			fail("Must throw an exception");
@@ -426,7 +426,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError6() throws CSSException, IOException {
+	public void testParseSelectorElementError6() throws CSSException {
 		try {
 			parseSelectors("p* .foo");
 			fail("Must throw an exception");
@@ -436,7 +436,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorElementErrorDoubleEscape() throws CSSException, IOException {
+	public void testParseSelectorElementErrorDoubleEscape() throws CSSException {
 		try {
 			parseSelectors("\\\\&p");
 			fail("Must throw an exception");
@@ -446,7 +446,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorWSError() throws CSSException, IOException {
+	public void testParseSelectorWSError() throws CSSException {
 		try {
 			parseSelectors("display: none;");
 			fail("Must throw exception");
@@ -456,7 +456,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorWSError2() throws CSSException, IOException {
+	public void testParseSelectorWSError2() throws CSSException {
 		try {
 			parseSelectors("# foo");
 			fail("Must throw exception");
@@ -466,7 +466,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorWSError3() throws CSSException, IOException {
+	public void testParseSelectorWSError3() throws CSSException {
 		try {
 			parseSelectors("foo. bar");
 			fail("Must throw exception");
@@ -476,7 +476,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttribute() throws CSSException, IOException {
+	public void testParseSelectorAttribute() throws CSSException {
 		SelectorList selist = parseSelectors("[title],[foo]");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -499,7 +499,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttribute2() throws CSSException, IOException {
+	public void testParseSelectorAttribute2() throws CSSException {
 		SelectorList selist = parseSelectors("p[title]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -516,7 +516,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttribute2WS() throws CSSException, IOException {
+	public void testParseSelectorAttribute2WS() throws CSSException {
 		SelectorList selist = parseSelectors("p[ title ]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -533,7 +533,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttribute3() throws CSSException, IOException {
+	public void testParseSelectorAttribute3() throws CSSException {
 		SelectorList selist = parseSelectors(".foo[title]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -552,7 +552,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttribute4() throws CSSException, IOException {
+	public void testParseSelectorAttribute4() throws CSSException {
 		SelectorList selist = parseSelectors("p[_a-b]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -569,7 +569,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHighChar() throws CSSException, IOException {
+	public void testParseSelectorAttributeHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("p[\u208c]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -586,7 +586,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHighChar2() throws CSSException, IOException {
+	public void testParseSelectorAttributeHighChar2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\u208c]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -603,7 +603,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSurrogate() throws CSSException, IOException {
+	public void testParseSelectorAttributeSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("p[\ud83c\udf52]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -620,7 +620,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorAttributeSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\ud83c\udf52]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -637,7 +637,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeUniversal() throws CSSException, IOException {
+	public void testParseSelectorAttributeUniversal() throws CSSException {
 		SelectorList selist = parseSelectors("*[title]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -654,7 +654,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeEscaped() throws CSSException, IOException {
+	public void testParseSelectorAttributeEscaped() throws CSSException {
 		SelectorList selist = parseSelectors("\\.p[\\31 23]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -671,7 +671,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError() throws CSSException, IOException {
+	public void testParseSelectorAttributeError() throws CSSException {
 		try {
 			parseSelectors("p[ti!tle]");
 			fail("Must throw an exception");
@@ -681,7 +681,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError2() throws CSSException, IOException {
+	public void testParseSelectorAttributeError2() throws CSSException {
 		try {
 			parseSelectors("p[ti$tle]");
 			fail("Must throw an exception");
@@ -691,7 +691,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError2WS() throws CSSException, IOException {
+	public void testParseSelectorAttributeError2WS() throws CSSException {
 		try {
 			parseSelectors("p[ ti$tle]");
 			fail("Must throw an exception");
@@ -701,7 +701,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError3() throws CSSException, IOException {
+	public void testParseSelectorAttributeError3() throws CSSException {
 		try {
 			parseSelectors("p[ti^tle]");
 			fail("Must throw an exception");
@@ -711,7 +711,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError4() throws CSSException, IOException {
+	public void testParseSelectorAttributeError4() throws CSSException {
 		try {
 			parseSelectors("p[ti*tle]");
 			fail("Must throw an exception");
@@ -721,7 +721,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError5() throws CSSException, IOException {
+	public void testParseSelectorAttributeError5() throws CSSException {
 		try {
 			parseSelectors("p[ti~tle]");
 			fail("Must throw an exception");
@@ -731,7 +731,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError6() throws CSSException, IOException {
+	public void testParseSelectorAttributeError6() throws CSSException {
 		try {
 			parseSelectors("p[ti@tle]");
 			fail("Must throw an exception");
@@ -741,7 +741,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError7() throws CSSException, IOException {
+	public void testParseSelectorAttributeError7() throws CSSException {
 		try {
 			parseSelectors("p[9title]");
 			fail("Must throw an exception");
@@ -751,7 +751,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError8() throws CSSException, IOException {
+	public void testParseSelectorAttributeError8() throws CSSException {
 		try {
 			parseSelectors("p[.title]");
 			fail("Must throw an exception");
@@ -761,7 +761,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeError9() throws CSSException, IOException {
+	public void testParseSelectorAttributeError9() throws CSSException {
 		try {
 			parseSelectors("p[#title]");
 			fail("Must throw an exception");
@@ -771,7 +771,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHighCharError() throws CSSException, IOException {
+	public void testParseSelectorAttributeHighCharError() throws CSSException {
 		try {
 			parseSelectors("p[\u26a1]"); // ⚡ high voltage sign
 			fail("Must throw an exception");
@@ -781,7 +781,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValue() throws CSSException, IOException {
+	public void testParseSelectorAttributeValue() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -799,7 +799,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueNQ() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueNQ() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=hi]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -817,7 +817,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueNQEscaped() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueNQEscaped() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=\\*foo]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -835,7 +835,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueWS1() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueWS1() throws CSSException {
 		SelectorList selist = parseSelectors("p[ title=\"hi\" ]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -853,7 +853,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValue2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValue2() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=\"hi:\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -871,7 +871,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueWS2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueWS2() throws CSSException {
 		SelectorList selist = parseSelectors("p[title = \"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -888,7 +888,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueWS3() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueWS3() throws CSSException {
 		SelectorList selist = parseSelectors("p[ title = \"hi\" ]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -905,7 +905,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueCI() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCI() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=hi i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -925,7 +925,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueCIWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCIWS() throws CSSException {
 		SelectorList selist = parseSelectors("p[ title=hi i ]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -945,7 +945,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueCI2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCI2() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=\"hi\" i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -965,7 +965,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueCIuc() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCIuc() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=\"hi\" I]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -985,7 +985,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueCS() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCS() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=hi s]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1005,7 +1005,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueCSuc() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCSuc() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=hi S]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1024,7 +1024,7 @@ public class SelectorParserTest {
 		assertEquals("p[title=\"hi\" s]", sel.toString());
 	}
 	@Test
-	public void testParseSelectorAttributeValueHighChar() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("p[\u208c=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1042,7 +1042,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueHighChar2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueHighChar2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\u208c=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1060,7 +1060,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueEscaped() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueEscaped() throws CSSException {
 		SelectorList selist = parseSelectors("p[title=\\208c \\68]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1078,7 +1078,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueSurrogate() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("p[\ud83c\udf52=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1096,7 +1096,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\ud83c\udf52=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1225,7 +1225,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCI1() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCI1() throws CSSException {
 		SelectorList selist = parseSelectors("input[type=text i][dir=auto]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1254,7 +1254,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCI2() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCI2() throws CSSException {
 		SelectorList selist = parseSelectors("input[type=text][dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1283,7 +1283,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCI3() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCI3() throws CSSException {
 		SelectorList selist = parseSelectors("input[foo=bar i][type=text i][dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1322,7 +1322,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCIDescendant() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCIDescendant() throws CSSException {
 		SelectorList selist = parseSelectors("div input[foo=bar i][type=text i][dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1367,7 +1367,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCIAdjacent() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCIAdjacent() throws CSSException {
 		SelectorList selist = parseSelectors("div+input[foo=bar i][type=text i][dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1412,7 +1412,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCISibling() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCISibling() throws CSSException {
 		SelectorList selist = parseSelectors("div~input[foo=bar i][type=text i][dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1457,7 +1457,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOf() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOf() throws CSSException {
 		SelectorList selist = parseSelectors("p[title~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1474,7 +1474,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOfWS1() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOfWS1() throws CSSException {
 		SelectorList selist = parseSelectors("p[title ~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1491,7 +1491,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOfWS2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOfWS2() throws CSSException {
 		SelectorList selist = parseSelectors("p[ title ~=\"hi\" ]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1508,7 +1508,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOfHighChar() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOfHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("p[\u208c~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1525,7 +1525,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOfHighChar2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOfHighChar2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\u208c~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1542,7 +1542,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOfSurrogate() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOfSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("p[\ud83c\udf52~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1559,7 +1559,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOfSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOfSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\ud83c\udf52~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1576,7 +1576,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphen() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphen() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang|=\"en\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1593,7 +1593,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenNQ() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenNQ() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang|=en]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1610,7 +1610,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenWS() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang |=\"en\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1627,7 +1627,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenHighChar() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("p[\u208c|=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1644,7 +1644,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenHighChar2() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenHighChar2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\u208c|=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1661,7 +1661,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenSurrogate() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("p[\ud83c\udf52|=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1678,7 +1678,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\ud83c\udf52|=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1695,7 +1695,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenError() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenError() throws CSSException {
 		try {
 			parseSelectors("p[lang | =\"en\"]");
 			fail("Must throw an exception");
@@ -1705,7 +1705,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenError2() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenError2() throws CSSException {
 		try {
 			parseSelectors("p[ lang | =\"en\" ]");
 			fail("Must throw an exception");
@@ -1715,7 +1715,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSubstring() throws CSSException, IOException {
+	public void testParseSelectorAttributeSubstring() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang*=\"CH\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1732,7 +1732,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSubstringWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeSubstringWS() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang *=\"CH\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1749,7 +1749,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSubstringHighChar() throws CSSException, IOException {
+	public void testParseSelectorAttributeSubstringHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("p[\u208c*=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1766,7 +1766,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSubstringHighChar2() throws CSSException, IOException {
+	public void testParseSelectorAttributeSubstringHighChar2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\u208c*=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1783,7 +1783,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSubstringSurrogate() throws CSSException, IOException {
+	public void testParseSelectorAttributeSubstringSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("p[\ud83c\udf52*=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1800,7 +1800,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSubstringSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorAttributeSubstringSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\ud83c\udf52*=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1817,7 +1817,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeEndSuffix() throws CSSException, IOException {
+	public void testParseSelectorAttributeEndSuffix() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang$=\"CH\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1834,7 +1834,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeEndSuffixWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeEndSuffixWS() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang $= \"CH\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1851,7 +1851,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeEndSuffixHighChar() throws CSSException, IOException {
+	public void testParseSelectorAttributeEndSuffixHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("p[\u208c$=\"2/3\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1868,7 +1868,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeEndSuffixHighChar2() throws CSSException, IOException {
+	public void testParseSelectorAttributeEndSuffixHighChar2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\u208c$=\"2/3\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1885,7 +1885,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeEndSuffixSurrogate() throws CSSException, IOException {
+	public void testParseSelectorAttributeEndSuffixSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("p[\ud83c\udf52$=\"2/3\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1902,7 +1902,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeEndSuffixSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorAttributeEndSuffixSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\ud83c\udf52$=\"2/3\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1919,7 +1919,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeBeginPrefix() throws CSSException, IOException {
+	public void testParseSelectorAttributeBeginPrefix() throws CSSException {
 		SelectorList selist = parseSelectors("p[style^=\"display:\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1936,7 +1936,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeBeginPrefixWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeBeginPrefixWS() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang ^= \"en\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1953,7 +1953,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeBeginPrefixHighChar() throws CSSException, IOException {
+	public void testParseSelectorAttributeBeginPrefixHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("p[\u208c^=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1970,7 +1970,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeBeginPrefixHighChar2() throws CSSException, IOException {
+	public void testParseSelectorAttributeBeginPrefixHighChar2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\u208c^=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1987,7 +1987,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeBeginPrefixSurrogate() throws CSSException, IOException {
+	public void testParseSelectorAttributeBeginPrefixSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("p[\ud83c\udf52^=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2004,7 +2004,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeBeginPrefixSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorAttributeBeginPrefixSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors("p[_\ud83c\udf52^=\"foo\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2021,7 +2021,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorLang() throws CSSException, IOException {
+	public void testParseSelectorLang() throws CSSException {
 		SelectorList selist = parseSelectors("p:lang(en)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2037,7 +2037,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorLang2() throws CSSException, IOException {
+	public void testParseSelectorLang2() throws CSSException {
 		SelectorList selist = parseSelectors("p:lang(zh, \"*-hant\")");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2053,7 +2053,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorLang3() throws CSSException, IOException {
+	public void testParseSelectorLang3() throws CSSException {
 		SelectorList selist = parseSelectors("p:lang(zh, '*-hant')");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2069,7 +2069,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorLang4() throws CSSException, IOException {
+	public void testParseSelectorLang4() throws CSSException {
 		SelectorList selist = parseSelectors("p:lang(es, fr, \\*-Latn)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2085,7 +2085,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorLang_Variant() throws CSSException, IOException {
+	public void testParseSelectorLang_Variant() throws CSSException {
 		SelectorList selist = parseSelectors("p:lang(fr-be)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2101,7 +2101,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorLangError() throws CSSException, IOException {
+	public void testParseSelectorLangError() throws CSSException {
 		try {
 			parseSelectors(":lang(zh, )");
 			fail("Must throw exception");
@@ -2111,7 +2111,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorLangError2() throws CSSException, IOException {
+	public void testParseSelectorLangError2() throws CSSException {
 		try {
 			parseSelectors(":lang( , \"*-hant\")");
 			fail("Must throw exception");
@@ -2121,7 +2121,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorLangErrorString() throws CSSException, IOException {
+	public void testParseSelectorLangErrorString() throws CSSException {
 		try {
 			parseSelectors(":lang(fr, '*-hant)");
 			fail("Must throw exception");
@@ -2131,7 +2131,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClass() throws CSSException, IOException {
+	public void testParseSelectorClass() throws CSSException {
 		SelectorList selist = parseSelectors(".exampleclass");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2144,7 +2144,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClass2() throws CSSException, IOException {
+	public void testParseSelectorClass2() throws CSSException {
 		SelectorList selist = parseSelectors("p.exampleclass");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2160,7 +2160,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClass3() throws CSSException, IOException {
+	public void testParseSelectorClass3() throws CSSException {
 		SelectorList selist = parseSelectors("._123");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2173,7 +2173,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassOtherChar() throws CSSException, IOException {
+	public void testParseSelectorClassOtherChar() throws CSSException {
 		SelectorList selist = parseSelectors(".exampleclass⁑");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2186,7 +2186,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassHighChar() throws CSSException, IOException {
+	public void testParseSelectorClassHighChar() throws CSSException {
 		SelectorList selist = parseSelectors(".foo\u208c");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2199,7 +2199,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassSurrogate() throws CSSException, IOException {
+	public void testParseSelectorClassSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors(".foo\ud950\udc90");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2212,7 +2212,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorClassSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors(".foo🚧");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2225,7 +2225,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorListClass() throws CSSException, IOException {
+	public void testParseSelectorListClass() throws CSSException {
 		SelectorList selist = parseSelectors(".foo,.bar");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -2244,14 +2244,14 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorListClassError() throws CSSException, IOException {
+	public void testParseSelectorListClassError() throws CSSException {
 		CSSParseException ex = assertThrows(CSSParseException.class,
 			() -> parseSelectors("p.,.bar"));
 		assertEquals(3, ex.getColumnNumber());
 	}
 
 	@Test
-	public void testParseSelectorClassError() throws CSSException, IOException {
+	public void testParseSelectorClassError() throws CSSException {
 		try {
 			parseSelectors("p.example&class");
 			fail("Must throw exception");
@@ -2261,7 +2261,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError2() throws CSSException, IOException {
+	public void testParseSelectorClassError2() throws CSSException {
 		try {
 			parseSelectors("p.9class");
 			fail("Must throw exception");
@@ -2271,7 +2271,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError3() throws CSSException, IOException {
+	public void testParseSelectorClassError3() throws CSSException {
 		try {
 			parseSelectors("p.example$class");
 			fail("Must throw exception");
@@ -2281,7 +2281,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError4() throws CSSException, IOException {
+	public void testParseSelectorClassError4() throws CSSException {
 		try {
 			parseSelectors("p.example%class");
 			fail("Must throw exception");
@@ -2291,7 +2291,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError5() throws CSSException, IOException {
+	public void testParseSelectorClassError5() throws CSSException {
 		try {
 			parseSelectors("p.example!class");
 			fail("Must throw exception");
@@ -2301,7 +2301,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError6() throws CSSException, IOException {
+	public void testParseSelectorClassError6() throws CSSException {
 		try {
 			parseSelectors("p.example'class");
 			fail("Must throw exception");
@@ -2311,7 +2311,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError7() throws CSSException, IOException {
+	public void testParseSelectorClassError7() throws CSSException {
 		try {
 			parseSelectors("p.example(class");
 			fail("Must throw exception");
@@ -2321,7 +2321,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError8() throws CSSException, IOException {
+	public void testParseSelectorClassError8() throws CSSException {
 		try {
 			parseSelectors("p.example)");
 			fail("Must throw exception");
@@ -2331,7 +2331,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError9() throws CSSException, IOException {
+	public void testParseSelectorClassError9() throws CSSException {
 		try {
 			parseSelectors("p.example*class");
 			fail("Must throw exception");
@@ -2341,7 +2341,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError10() throws CSSException, IOException {
+	public void testParseSelectorClassError10() throws CSSException {
 		try {
 			parseSelectors("p.example;class");
 			fail("Must throw exception");
@@ -2351,7 +2351,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError11() throws CSSException, IOException {
+	public void testParseSelectorClassError11() throws CSSException {
 		try {
 			parseSelectors("p.example<class");
 			fail("Must throw exception");
@@ -2361,7 +2361,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError12() throws CSSException, IOException {
+	public void testParseSelectorClassError12() throws CSSException {
 		try {
 			parseSelectors("p.example=class");
 			fail("Must throw exception");
@@ -2371,7 +2371,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError13() throws CSSException, IOException {
+	public void testParseSelectorClassError13() throws CSSException {
 		try {
 			parseSelectors("p.example?class");
 			fail("Must throw exception");
@@ -2381,7 +2381,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError14() throws CSSException, IOException {
+	public void testParseSelectorClassError14() throws CSSException {
 		try {
 			parseSelectors("p.example@class");
 			fail("Must throw exception");
@@ -2391,7 +2391,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError15() throws CSSException, IOException {
+	public void testParseSelectorClassError15() throws CSSException {
 		try {
 			parseSelectors("p.example{class}");
 			fail("Must throw exception");
@@ -2401,7 +2401,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError16() throws CSSException, IOException {
+	public void testParseSelectorClassError16() throws CSSException {
 		try {
 			parseSelectors("p.example]");
 			fail("Must throw exception");
@@ -2411,7 +2411,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError17() throws CSSException, IOException {
+	public void testParseSelectorClassError17() throws CSSException {
 		SelectorList selist = parseSelectors("p.example\\class");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2427,7 +2427,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError18() throws CSSException, IOException {
+	public void testParseSelectorClassError18() throws CSSException {
 		try {
 			parseSelectors("p.example^class");
 			fail("Must throw exception");
@@ -2437,7 +2437,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError19() throws CSSException, IOException {
+	public void testParseSelectorClassError19() throws CSSException {
 		try {
 			parseSelectors("p.example|class");
 			fail("Must throw exception");
@@ -2447,7 +2447,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError20() throws CSSException, IOException {
+	public void testParseSelectorClassError20() throws CSSException {
 		try {
 			parseSelectors("p.example{");
 			fail("Must throw exception");
@@ -2457,7 +2457,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError21() throws CSSException, IOException {
+	public void testParseSelectorClassError21() throws CSSException {
 		try {
 			parseSelectors("p.example}");
 			fail("Must throw exception");
@@ -2467,7 +2467,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError22() throws CSSException, IOException {
+	public void testParseSelectorClassError22() throws CSSException {
 		try {
 			parseSelectors("p.example())");
 			fail("Must throw exception");
@@ -2477,7 +2477,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError23() throws CSSException, IOException {
+	public void testParseSelectorClassError23() throws CSSException {
 		try {
 			parseSelectors(".#example");
 			fail("Must throw exception");
@@ -2487,7 +2487,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError24() throws CSSException, IOException {
+	public void testParseSelectorClassError24() throws CSSException {
 		try {
 			parseSelectors("..example");
 			fail("Must throw exception");
@@ -2497,7 +2497,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassError25() throws CSSException, IOException {
+	public void testParseSelectorClassError25() throws CSSException {
 		try {
 			parseSelectors("./* */example");
 			fail("Must throw exception");
@@ -2507,7 +2507,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped() throws CSSException {
 		SelectorList selist = parseSelectors(".foo\\/1");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2520,7 +2520,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped2() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped2() throws CSSException {
 		SelectorList selist = parseSelectors(".foo\\:1");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2533,7 +2533,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped3() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped3() throws CSSException {
 		SelectorList selist = parseSelectors(".\\31 23");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2546,7 +2546,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped4() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped4() throws CSSException {
 		SelectorList selist = parseSelectors("._\\31 23");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2559,7 +2559,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped5() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped5() throws CSSException {
 		SelectorList selist = parseSelectors(".-\\31 23\\\\a");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2572,7 +2572,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped5WS() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped5WS() throws CSSException {
 		SelectorList selist = parseSelectors(".-\\31 23\\\\a ");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2585,7 +2585,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped6() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped6() throws CSSException {
 		SelectorList selist = parseSelectors(".foo\\(-\\.3\\)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2598,7 +2598,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped7() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped7() throws CSSException {
 		SelectorList selist = parseSelectors(".\\31 foo\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2616,7 +2616,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped8() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped8() throws CSSException {
 		SelectorList selist = parseSelectors(".\\31 jkl\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2634,7 +2634,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscapedBad() throws CSSException, IOException {
+	public void testParseSelectorClassEscapedBad() throws CSSException {
 		SelectorList selist = parseSelectors(".\\31jkl\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2652,7 +2652,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorId() throws CSSException, IOException {
+	public void testParseSelectorId() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2665,7 +2665,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdHighChar() throws CSSException, IOException {
+	public void testParseSelectorIdHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("#\u208c");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2678,7 +2678,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdSurrogate() throws CSSException, IOException {
+	public void testParseSelectorIdSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors("#\ud950\udc90");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2691,7 +2691,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdEscaped() throws CSSException, IOException {
+	public void testParseSelectorIdEscaped() throws CSSException {
 		SelectorList selist = parseSelectors("#\\31 23");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2707,7 +2707,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorTypeId() throws CSSException, IOException {
+	public void testParseSelectorTypeId() throws CSSException {
 		SelectorList selist = parseSelectors("input#submit");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2723,7 +2723,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdEscapedChar() throws CSSException, IOException {
+	public void testParseSelectorIdEscapedChar() throws CSSException {
 		SelectorList selist = parseSelectors("#foo\\/1");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2736,7 +2736,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdError() throws CSSException, IOException {
+	public void testParseSelectorIdError() throws CSSException {
 		try {
 			parseSelectors("#example&id");
 			fail("Must throw exception");
@@ -2746,7 +2746,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdError2() throws CSSException, IOException {
+	public void testParseSelectorIdError2() throws CSSException {
 		try {
 			parseSelectors("#9example");
 			fail("Must throw exception");
@@ -2756,7 +2756,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdError3() throws CSSException, IOException {
+	public void testParseSelectorIdError3() throws CSSException {
 		try {
 			parseSelectors("#.example");
 			fail("Must throw exception");
@@ -2766,7 +2766,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdError4() throws CSSException, IOException {
+	public void testParseSelectorIdError4() throws CSSException {
 		try {
 			parseSelectors("##example");
 			fail("Must throw exception");
@@ -2776,7 +2776,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdError5() throws CSSException, IOException {
+	public void testParseSelectorIdError5() throws CSSException {
 		try {
 			parseSelectors("#example()");
 			fail("Must throw exception");
@@ -2786,7 +2786,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorIdError6() throws CSSException, IOException {
+	public void testParseSelectorIdError6() throws CSSException {
 		try {
 			parseSelectors("#/* */example");
 			fail("Must throw exception");
@@ -2796,7 +2796,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChild() throws CSSException, IOException {
+	public void testParseSelectorChild() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid > span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2815,7 +2815,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildNoSpaces() throws CSSException, IOException {
+	public void testParseSelectorChildNoSpaces() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid>span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2834,7 +2834,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildAttribute() throws CSSException, IOException {
+	public void testParseSelectorChildAttribute() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid>[foo]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2855,7 +2855,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildAttributeWS() throws CSSException, IOException {
+	public void testParseSelectorChildAttributeWS() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid> [foo]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2876,7 +2876,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildUniversal() throws CSSException, IOException {
+	public void testParseSelectorChildUniversal() throws CSSException {
 		SelectorList selist = parseSelectors("* > span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2893,7 +2893,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildUniversal2() throws CSSException, IOException {
+	public void testParseSelectorChildUniversal2() throws CSSException {
 		SelectorList selist = parseSelectors("span > *");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -2910,7 +2910,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError() throws CSSException, IOException {
+	public void testParseSelectorChildError() throws CSSException {
 		try {
 			parseSelectors("#id>");
 			fail("Must throw exception");
@@ -2920,7 +2920,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError2() throws CSSException, IOException {
+	public void testParseSelectorChildError2() throws CSSException {
 		try {
 			parseSelectors("#id:>p");
 			fail("Must throw exception");
@@ -2930,7 +2930,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError3() throws CSSException, IOException {
+	public void testParseSelectorChildError3() throws CSSException {
 		try {
 			parseSelectors("#id>+p");
 			fail("Must throw exception");
@@ -2940,7 +2940,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError4() throws CSSException, IOException {
+	public void testParseSelectorChildError4() throws CSSException {
 		try {
 			parseSelectors("#id>*p");
 			fail("Must throw exception");
@@ -2950,7 +2950,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError5() throws CSSException, IOException {
+	public void testParseSelectorChildError5() throws CSSException {
 		try {
 			parseSelectors("#id>*\\60");
 			fail("Must throw exception");
@@ -2960,7 +2960,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError6() throws CSSException, IOException {
+	public void testParseSelectorChildError6() throws CSSException {
 		try {
 			parseSelectors("#id>~p");
 			fail("Must throw exception");
@@ -2970,7 +2970,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError7() throws CSSException, IOException {
+	public void testParseSelectorChildError7() throws CSSException {
 		try {
 			parseSelectors(":>p");
 			fail("Must throw exception");
@@ -2980,7 +2980,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError8() throws CSSException, IOException {
+	public void testParseSelectorChildError8() throws CSSException {
 		try {
 			parseSelectors("#id>*+");
 			fail("Must throw exception");
@@ -2990,7 +2990,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError9() throws CSSException, IOException {
+	public void testParseSelectorChildError9() throws CSSException {
 		try {
 			parseSelectors("#id>#+");
 			fail("Must throw exception");
@@ -3000,7 +3000,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError10() throws CSSException, IOException {
+	public void testParseSelectorChildError10() throws CSSException {
 		try {
 			parseSelectors("#id>.+");
 			fail("Must throw exception");
@@ -3010,7 +3010,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError11() throws CSSException, IOException {
+	public void testParseSelectorChildError11() throws CSSException {
 		try {
 			parseSelectors("#id|>p");
 			fail("Must throw exception");
@@ -3020,7 +3020,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError12() throws CSSException, IOException {
+	public void testParseSelectorChildError12() throws CSSException {
 		try {
 			parseSelectors("#id>>p");
 			fail("Must throw exception");
@@ -3030,7 +3030,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError13() throws CSSException, IOException {
+	public void testParseSelectorChildError13() throws CSSException {
 		try {
 			parseSelectors("#id&>p");
 			fail("Must throw exception");
@@ -3040,7 +3040,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError14() throws CSSException, IOException {
+	public void testParseSelectorChildError14() throws CSSException {
 		try {
 			parseSelectors("#id#>p");
 			fail("Must throw exception");
@@ -3050,7 +3050,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError15() throws CSSException, IOException {
+	public void testParseSelectorChildError15() throws CSSException {
 		try {
 			parseSelectors("#id+>p");
 			fail("Must throw exception");
@@ -3060,7 +3060,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError16() throws CSSException, IOException {
+	public void testParseSelectorChildError16() throws CSSException {
 		try {
 			parseSelectors("#id~>p");
 			fail("Must throw exception");
@@ -3070,7 +3070,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError17() throws CSSException, IOException {
+	public void testParseSelectorChildError17() throws CSSException {
 		try {
 			parseSelectors("#id@>p");
 			fail("Must throw exception");
@@ -3080,7 +3080,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorChildError18() throws CSSException, IOException {
+	public void testParseSelectorChildError18() throws CSSException {
 		try {
 			parseSelectors("#id$>p");
 			fail("Must throw exception");
@@ -3090,7 +3090,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantElement() throws CSSException, IOException {
+	public void testParseSelectorDescendantElement() throws CSSException {
 		SelectorList selist = parseSelectors("li span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3107,7 +3107,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantElementEscaped() throws CSSException, IOException {
+	public void testParseSelectorDescendantElementEscaped() throws CSSException {
 		SelectorList selist = parseSelectors("\\61  span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3124,7 +3124,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantElementEscaped2() throws CSSException, IOException {
+	public void testParseSelectorDescendantElementEscaped2() throws CSSException {
 		SelectorList selist = parseSelectors("div \\61");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3141,7 +3141,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantElementEscaped3() throws CSSException, IOException {
+	public void testParseSelectorDescendantElementEscaped3() throws CSSException {
 		SelectorList selist = parseSelectors("body \\64 iv");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3158,7 +3158,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendant() throws CSSException, IOException {
+	public void testParseSelectorDescendant() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3177,7 +3177,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantComment() throws CSSException, IOException {
+	public void testParseSelectorDescendantComment() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid/* */span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3196,7 +3196,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendant2() throws CSSException, IOException {
+	public void testParseSelectorDescendant2() throws CSSException {
 		SelectorList selist = parseSelectors("#\\31 exampleid\\/2 span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3215,7 +3215,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendant3() throws CSSException, IOException {
+	public void testParseSelectorDescendant3() throws CSSException {
 		SelectorList selist = parseSelectors(".foo  span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3234,7 +3234,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendant3WS() throws CSSException, IOException {
+	public void testParseSelectorDescendant3WS() throws CSSException {
 		SelectorList selist = parseSelectors("[myattr]  span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3253,7 +3253,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantUniversal() throws CSSException, IOException {
+	public void testParseSelectorDescendantUniversal() throws CSSException {
 		SelectorList selist = parseSelectors("* span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3270,7 +3270,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantUniversal2() throws CSSException, IOException {
+	public void testParseSelectorDescendantUniversal2() throws CSSException {
 		SelectorList selist = parseSelectors(":rtl * ");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3291,7 +3291,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantUniversal3() throws CSSException, IOException {
+	public void testParseSelectorDescendantUniversal3() throws CSSException {
 		SelectorList selist = parseSelectors("* .foo");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3310,7 +3310,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantUniversal4() throws CSSException, IOException {
+	public void testParseSelectorDescendantUniversal4() throws CSSException {
 		SelectorList selist = parseSelectors("span *");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3327,7 +3327,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinedDescendant() throws CSSException, IOException {
+	public void testParseSelectorCombinedDescendant() throws CSSException {
 		SelectorList selist = parseSelectors("body:not(.foo)[id*=substring] .header");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3366,7 +3366,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendantCombined() throws CSSException, IOException {
+	public void testParseSelectorDescendantCombined() throws CSSException {
 		SelectorList selist = parseSelectors(".fooclass #descid.barclass");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3396,7 +3396,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorComplexCombined() throws CSSException, IOException {
+	public void testParseSelectorComplexCombined() throws CSSException {
 		SelectorList selist = parseSelectors(".fooclass #descid.barclass .someclass");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3435,7 +3435,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorComplexCombined2() throws CSSException, IOException {
+	public void testParseSelectorComplexCombined2() throws CSSException {
 		SelectorList selist = parseSelectors(".barclass#otherid.otherclass .someclass");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3470,7 +3470,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingElement() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingElement() throws CSSException {
 		SelectorList selist = parseSelectors("li+span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3487,7 +3487,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSibling() throws CSSException, IOException {
+	public void testParseSelectorNextSibling() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid + span:empty");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3511,7 +3511,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingNoSpaces() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingNoSpaces() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid+span:empty");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3535,7 +3535,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingNoSpaces2() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingNoSpaces2() throws CSSException {
 		SelectorList selist = parseSelectors(".myclass:foo+.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3563,7 +3563,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingUniversal() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingUniversal() throws CSSException {
 		SelectorList selist = parseSelectors("*+span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3580,7 +3580,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingUniversalWS() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingUniversalWS() throws CSSException {
 		SelectorList selist = parseSelectors("* + span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3597,7 +3597,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingError() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingError() throws CSSException {
 		try {
 			parseSelectors("#id ++p");
 			fail("Must throw exception");
@@ -3607,7 +3607,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingError2() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingError2() throws CSSException {
 		try {
 			parseSelectors("#id|+p");
 			fail("Must throw exception");
@@ -3617,7 +3617,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingError3() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingError3() throws CSSException {
 		try {
 			parseSelectors("#id@+p");
 			fail("Must throw exception");
@@ -3627,7 +3627,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingError4() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingError4() throws CSSException {
 		try {
 			parseSelectors("#id>+p");
 			fail("Must throw exception");
@@ -3637,7 +3637,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingError5() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingError5() throws CSSException {
 		try {
 			parseSelectors("#id+~p");
 			fail("Must throw exception");
@@ -3647,7 +3647,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorSubsequentSibling() throws CSSException, IOException {
+	public void testParseSelectorSubsequentSibling() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid ~ span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3666,7 +3666,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorSubsequentSiblingNoSpaces() throws CSSException, IOException {
+	public void testParseSelectorSubsequentSiblingNoSpaces() throws CSSException {
 		SelectorList selist = parseSelectors("#exampleid~span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3685,7 +3685,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorSubsequentSiblingElement() throws CSSException, IOException {
+	public void testParseSelectorSubsequentSiblingElement() throws CSSException {
 		SelectorList selist = parseSelectors("li~span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3702,7 +3702,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorSubsequentSibling2() throws CSSException, IOException {
+	public void testParseSelectorSubsequentSibling2() throws CSSException {
 		SelectorList selist = parseSelectors(".foo .bar.class~.otherclass li:first-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3749,7 +3749,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorSubsequentSiblingError() throws CSSException, IOException {
+	public void testParseSelectorSubsequentSiblingError() throws CSSException {
 		try {
 			parseSelectors("#id~~p");
 			fail("Must throw exception");
@@ -3759,7 +3759,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorSubsequentSiblingError2() throws CSSException, IOException {
+	public void testParseSelectorSubsequentSiblingError2() throws CSSException {
 		try {
 			parseSelectors("#id>~p");
 			fail("Must throw exception");
@@ -3769,7 +3769,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorColumnCombinatorElement() throws CSSException, IOException {
+	public void testParseSelectorColumnCombinatorElement() throws CSSException {
 		SelectorList selist = parseSelectors("col||td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3786,7 +3786,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorColumnCombinatorElementError() throws CSSException, IOException {
+	public void testParseSelectorColumnCombinatorElementError() throws CSSException {
 		try {
 			parseSelectors("col||");
 			fail("Must throw an exception");
@@ -3796,7 +3796,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorColumnCombinatorElementError2() throws CSSException, IOException {
+	public void testParseSelectorColumnCombinatorElementError2() throws CSSException {
 		try {
 			parseSelectors("col||,p");
 			fail("Must throw an exception");
@@ -3806,7 +3806,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorColumnCombinator() throws CSSException, IOException {
+	public void testParseSelectorColumnCombinator() throws CSSException {
 		SelectorList selist = parseSelectors("col.foo||td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3829,7 +3829,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorColumnCombinatorWS() throws CSSException, IOException {
+	public void testParseSelectorColumnCombinatorWS() throws CSSException {
 		SelectorList selist = parseSelectors("col.foo || td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3852,7 +3852,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinators1() throws CSSException, IOException {
+	public void testParseSelectorCombinators1() throws CSSException {
 		SelectorList selist = parseSelectors(".ancestor .parent>.child ~ .childsibling:foo");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3897,7 +3897,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElement() throws CSSException, IOException {
+	public void testParseSelectorPseudoElement() throws CSSException {
 		SelectorList selist = parseSelectors("p::first-line");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3914,7 +3914,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementEscapedBad() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementEscapedBad() throws CSSException {
 		try {
 			parseSelectors("p::\\.first-line");
 			fail("Must throw exception");
@@ -3924,7 +3924,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementQuirk() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementQuirk() throws CSSException {
 		SelectorList selist = parseSelectors("p::-webkit-foo");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -3941,7 +3941,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementError() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementError() throws CSSException {
 		try {
 			parseSelectors("p::first&line");
 			fail("Must throw exception");
@@ -3951,7 +3951,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementError2() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementError2() throws CSSException {
 		try {
 			parseSelectors("p::9first-line");
 			fail("Must throw exception");
@@ -3961,7 +3961,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementError3() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementError3() throws CSSException {
 		try {
 			parseSelectors("::first-line()");
 			fail("Must throw an exception");
@@ -3971,7 +3971,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementCommentError() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementCommentError() throws CSSException {
 		try {
 			parseSelectors("::/* */first-line");
 			fail("Must throw an exception");
@@ -3981,7 +3981,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementQuirkError() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementQuirkError() throws CSSException {
 		try {
 			parseSelectors("::-webkit-foo()");
 			fail("Must throw exception");
@@ -3991,7 +3991,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementOld() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementOld() throws CSSException {
 		SelectorList selist = parseSelectors("p:first-line");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4008,7 +4008,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementPseudoclassed() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementPseudoclassed() throws CSSException {
 		SelectorList selist = parseSelectors("p::first-letter:hover");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4030,7 +4030,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClass() throws CSSException, IOException {
+	public void testParseSelectorPseudoClass() throws CSSException {
 		SelectorList selist = parseSelectors("div:blank");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4048,7 +4048,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassCustomEscaped() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassCustomEscaped() throws CSSException {
 		SelectorList selist = parseSelectors(":-css4j-blank");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4066,7 +4066,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassErrorCustom() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassErrorCustom() throws CSSException {
 		try {
 			parseSelectors(":--css4j-blank");
 			fail("Must throw exception");
@@ -4082,7 +4082,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassError() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassError() throws CSSException {
 		try {
 			parseSelectors("div:blank&");
 			fail("Must throw exception");
@@ -4092,7 +4092,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassError2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassError2() throws CSSException {
 		try {
 			parseSelectors("div:9blank");
 			fail("Must throw exception");
@@ -4102,7 +4102,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassError3() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassError3() throws CSSException {
 		try {
 			parseSelectors("div:-");
 			fail("Must throw exception");
@@ -4112,7 +4112,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassCommentError() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassCommentError() throws CSSException {
 		try {
 			parseSelectors("div:/* */blank");
 			fail("Must throw exception");
@@ -4122,7 +4122,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassArgument() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassArgument() throws CSSException {
 		SelectorList selist = parseSelectors("p:dir(ltr)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4140,7 +4140,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassDirError() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassDirError() throws CSSException {
 		try {
 			parseSelectors(":dir()");
 			fail("Must throw exception");
@@ -4150,7 +4150,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassDirError2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassDirError2() throws CSSException {
 		try {
 			parseSelectors(":dir(,)");
 			fail("Must throw exception");
@@ -4160,7 +4160,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChild1() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChild1() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(1)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4178,7 +4178,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassFirstChild() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassFirstChild() throws CSSException {
 		SelectorList selist = parseSelectors(":first-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4194,7 +4194,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassFirstChild2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassFirstChild2() throws CSSException {
 		SelectorList selist = parseSelectors("p:first-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4214,7 +4214,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassFirstChildError() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassFirstChildError() throws CSSException {
 		try {
 			parseSelectors(":first-child()");
 			fail("Must throw an exception");
@@ -4224,7 +4224,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassFirstChildError2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassFirstChildError2() throws CSSException {
 		try {
 			parseSelectors(":first-child(even)");
 			fail("Must throw an exception");
@@ -4234,7 +4234,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassLastChild() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassLastChild() throws CSSException {
 		SelectorList selist = parseSelectors(":last-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4250,7 +4250,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassFirstChildList() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassFirstChildList() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(1),:first-child");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -4259,7 +4259,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassLastChildList() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassLastChildList() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-last-child(1),:last-child");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -4268,7 +4268,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassOnlyChild() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassOnlyChild() throws CSSException {
 		SelectorList selist = parseSelectors("p:only-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4284,7 +4284,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassOnlyChild2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassOnlyChild2() throws CSSException {
 		SelectorList selist = parseSelectors("*:only-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4300,7 +4300,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError() throws CSSException {
 		try {
 			parseSelectors(":nth-child()");
 			fail("Must throw an exception");
@@ -4313,7 +4313,7 @@ public class SelectorParserTest {
 	 * web-platform-tests/wpt/master/css/selectors/anplusb-selector-parsing.html
 	 */
 	@Test
-	public void testParseSelectorPseudoClassNthChildError2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError2() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n - 1 2)");
 			fail("Must throw an exception");
@@ -4323,7 +4323,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError3() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError3() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n - b1)");
 			fail("Must throw an exception");
@@ -4333,7 +4333,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError4() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError4() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n-+1)");
 			fail("Must throw an exception");
@@ -4343,7 +4343,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError5() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError5() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n+-1)");
 			fail("Must throw an exception");
@@ -4353,7 +4353,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError6() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError6() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n +-1)");
 			fail("Must throw an exception");
@@ -4363,7 +4363,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError7() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError7() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n +- 1)");
 			fail("Must throw an exception");
@@ -4373,7 +4373,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError8() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError8() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n -+ 1)");
 			fail("Must throw an exception");
@@ -4383,7 +4383,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError9() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError9() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n + - 1)");
 			fail("Must throw an exception");
@@ -4393,7 +4393,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError10() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError10() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n - + 1)");
 			fail("Must throw an exception");
@@ -4403,7 +4403,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError11() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError11() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n -1n)");
 			fail("Must throw an exception");
@@ -4413,7 +4413,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError12() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError12() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n - +b1)");
 			fail("Must throw an exception");
@@ -4423,7 +4423,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError13() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError13() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n -b1)");
 			fail("Must throw an exception");
@@ -4433,7 +4433,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError14() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError14() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n b1)");
 			fail("Must throw an exception");
@@ -4443,7 +4443,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError15() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError15() throws CSSException {
 		try {
 			parseSelectors(":nth-child(n 1)");
 			fail("Must throw an exception");
@@ -4453,7 +4453,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthChildError16() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthChildError16() throws CSSException {
 		try {
 			parseSelectors(":nth-child(- - 1)");
 			fail("Must throw an exception");
@@ -4463,7 +4463,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthEven() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthEven() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(even)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4482,7 +4482,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthOdd() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthOdd() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(odd)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4501,7 +4501,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthKeywords() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthKeywords() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(even),:nth-child(2n),:nth-child(odd),:nth-child(2n+1)");
 		assertNotNull(selist);
 		assertEquals(4, selist.getLength());
@@ -4512,7 +4512,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNth() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNth() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(5)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4530,7 +4530,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthAn() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthAn() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(10n)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4546,7 +4546,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthAnB() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthAnB() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(10n+9)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4562,7 +4562,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthAnBcr() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthAnBcr() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(10n\n+9)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4578,7 +4578,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthAnBzero() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthAnBzero() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(10n+0)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4594,7 +4594,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthAnB2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthAnB2() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(n+2)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4612,7 +4612,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthLast() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthLast() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-last-child(5)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4630,7 +4630,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthLast2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthLast2() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-last-child(3n)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4648,7 +4648,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthLast3() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthLast3() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-last-child(-n+2)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4666,7 +4666,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthLast4() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthLast4() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-last-child(2n)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4684,7 +4684,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthOf() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthOf() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(5 of p)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4706,7 +4706,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthLastOf() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthLastOf() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-last-child(5 of p)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4728,7 +4728,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthAnBOf() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthAnBOf() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(6n+3 of p)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4750,7 +4750,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthOfBad() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthOfBad() throws CSSException {
 		try {
 			parseSelectors(":nth-child(5 of)");
 			fail("Should throw an exception");
@@ -4759,7 +4759,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassFirstOfType() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassFirstOfType() throws CSSException {
 		SelectorList selist = parseSelectors(":first-of-type");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4775,7 +4775,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthOfType() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthOfType() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-of-type(2)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4791,7 +4791,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthOfType2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthOfType2() throws CSSException {
 		SelectorList selist = parseSelectors("p:nth-of-type(2)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4810,7 +4810,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthOfType3() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthOfType3() throws CSSException {
 		SelectorList selist = parseSelectors("p:nth-of-type(2n)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4829,7 +4829,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassLastOfType() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassLastOfType() throws CSSException {
 		SelectorList selist = parseSelectors(":last-of-type");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4845,7 +4845,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthLastOfType() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthLastOfType() throws CSSException {
 		SelectorList selist = parseSelectors("p:nth-last-of-type(2n)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4864,7 +4864,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassOnlyOfType() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassOnlyOfType() throws CSSException {
 		SelectorList selist = parseSelectors("p:only-of-type");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4880,7 +4880,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombined() throws CSSException, IOException {
+	public void testParseSelectorCombined() throws CSSException {
 		SelectorList selist = parseSelectors(".exampleclass:first-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4899,7 +4899,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinedIdPseudoclass() throws CSSException, IOException {
+	public void testParseSelectorCombinedIdPseudoclass() throws CSSException {
 		SelectorList selist = parseSelectors("#example-ID:foo");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4917,7 +4917,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinedDoubleId() throws CSSException, IOException {
+	public void testParseSelectorCombinedDoubleId() throws CSSException {
 		SelectorList selist = parseSelectors("#foo#bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4935,7 +4935,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinedAttributes() throws CSSException, IOException {
+	public void testParseSelectorCombinedAttributes() throws CSSException {
 		SelectorList selist = parseSelectors("span[class=\"example\"][foo=\"bar\"],:rtl *");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -4958,7 +4958,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot() throws CSSException {
 		SelectorList selist = parseSelectors(":not(p.foo, span:first-child, div a)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4981,7 +4981,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot2() throws CSSException {
 		SelectorList selist = parseSelectors(":not([disabled],.foo,[type=\"submit\"])");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5018,7 +5018,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot3() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot3() throws CSSException {
 		SelectorList selist = parseSelectors(".foo .myclass:not(.bar)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5052,7 +5052,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot4() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot4() throws CSSException {
 		SelectorList selist = parseSelectors(".foo+.myclass:not(.bar)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5086,7 +5086,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot5() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot5() throws CSSException {
 		SelectorList selist = parseSelectors(".foo~.myclass:not(.bar)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5120,7 +5120,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot6() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot6() throws CSSException {
 		SelectorList selist = parseSelectors(":not(:visited,:hover)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5145,7 +5145,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot7() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot7() throws CSSException {
 		SelectorList selist = parseSelectors(":not(:lang(en))");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5165,7 +5165,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot8() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot8() throws CSSException {
 		SelectorList selist = parseSelectors(":not([style*=\"background\"])");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5186,7 +5186,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot9() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot9() throws CSSException {
 		SelectorList selist = parseSelectors("html:not(.foo)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5211,7 +5211,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot10() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot10() throws CSSException {
 		SelectorList selist = parseSelectors("html:not(.foo) body:not(.bar)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5252,7 +5252,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot11() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot11() throws CSSException {
 		SelectorList selist = parseSelectors("html:not(.foo) body:not(.bar) .myclass.otherclass");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5264,7 +5264,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot12() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot12() throws CSSException {
 		SelectorList selist = parseSelectors(":not([style*=\\*foo],\\64 iv,.\\39 z,#\\31 23)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5302,7 +5302,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot13() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot13() throws CSSException {
 		SelectorList selist = parseSelectors(
 			"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div");
 		assertNotNull(selist);
@@ -5408,7 +5408,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNotAttrHighChar() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNotAttrHighChar() throws CSSException {
 		SelectorList selist = parseSelectors(":not([\u208c*=\"foo\"])");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5429,7 +5429,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNotAttrSurrogate() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNotAttrSurrogate() throws CSSException {
 		SelectorList selist = parseSelectors(":not([\ud83c\udf52*=\"foo\"])");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5450,7 +5450,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNotAttrSurrogate2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNotAttrSurrogate2() throws CSSException {
 		SelectorList selist = parseSelectors(":not([_\ud83c\udf52*=\"foo\"])");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5471,7 +5471,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNotAttrHighCharError() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNotAttrHighCharError() throws CSSException {
 		try {
 			parseSelectors(":not(p[\u26a1])"); // ⚡ high voltage sign
 			fail("Must throw an exception");
@@ -5480,7 +5480,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNotEmpty() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNotEmpty() throws CSSException {
 		try {
 			parseSelectors(":not()");
 			fail("Should throw an exception");
@@ -5490,7 +5490,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNotEmpty2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNotEmpty2() throws CSSException {
 		try {
 			parseSelectors("foo:not()");
 			fail("Should throw an exception");
@@ -5500,7 +5500,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassBadNot() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassBadNot() throws CSSException {
 		try {
 			parseSelectors(":not");
 			fail("Should throw an exception");
@@ -5510,7 +5510,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassBadNot2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassBadNot2() throws CSSException {
 		try {
 			parseSelectors(":not:only-child");
 			fail("Should throw an exception");
@@ -5520,7 +5520,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassBadNot3() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassBadNot3() throws CSSException {
 		try {
 			parseSelectors("svg:not:only-child");
 			fail("Should throw an exception");
@@ -5530,7 +5530,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassBadNot4() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassBadNot4() throws CSSException {
 		try {
 			parseSelectors(":not p");
 			fail("Should throw an exception");
@@ -5540,7 +5540,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassBadNot5() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassBadNot5() throws CSSException {
 		try {
 			parseSelectors(":not::first-letter");
 			fail("Should throw an exception");
@@ -5550,7 +5550,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassBadNot6() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassBadNot6() throws CSSException {
 		try {
 			parseSelectors(":not.class");
 			fail("Should throw an exception");
@@ -5560,7 +5560,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassBadNot7() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassBadNot7() throws CSSException {
 		try {
 			parseSelectors(":not (.class)");
 			fail("Should throw an exception");
@@ -5570,7 +5570,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassHas() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassHas() throws CSSException {
 		SelectorList selist = parseSelectors("html:has(> img)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5596,7 +5596,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassHas2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassHas2() throws CSSException {
 		SelectorList selist = parseSelectors("html:has(+ img)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5622,7 +5622,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassHas3() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassHas3() throws CSSException {
 		SelectorList selist = parseSelectors("html:has(div>img)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5649,7 +5649,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassHas4() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassHas4() throws CSSException {
 		SelectorList selist = parseSelectors("html:has(~ img)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5675,7 +5675,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassHas5() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassHas5() throws CSSException {
 		SelectorList selist = parseSelectors("tr:has(|| img)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -5700,8 +5700,12 @@ public class SelectorParserTest {
 		assertEquals("tr:has(||img)", sel.toString());
 	}
 
-	private SelectorList parseSelectors(String selist) throws io.sf.carte.doc.style.css.nsac.CSSException, IOException {
-		return parser.parseSelectors(new StringReader(selist));
+	private SelectorList parseSelectors(String selist) throws CSSException {
+		try {
+			return parser.parseSelectors(new StringReader(selist));
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 }

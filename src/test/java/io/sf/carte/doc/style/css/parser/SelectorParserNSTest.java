@@ -56,7 +56,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorUniversalNS() throws CSSException, IOException {
+	public void testParseSelectorUniversalNS() throws CSSException {
 		SelectorList selist = parseSelectors("svg|*");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -68,7 +68,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElement() throws CSSException, IOException {
+	public void testParseSelectorElement() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -80,7 +80,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementLF() throws CSSException, IOException {
+	public void testParseSelectorElementLF() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p\n");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -92,7 +92,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError() throws CSSException, IOException {
+	public void testParseSelectorElementError() throws CSSException {
 		try {
 			parser.parseSelectors("svg | p");
 			fail("Must throw an exception");
@@ -101,7 +101,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError2() throws CSSException, IOException {
+	public void testParseSelectorElementError2() throws CSSException {
 		try {
 			parser.parseSelectors("svg| p");
 			fail("Must throw an exception");
@@ -110,7 +110,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError3() throws CSSException, IOException {
+	public void testParseSelectorElementError3() throws CSSException {
 		try {
 			parser.parseSelectors("svg|");
 			fail("Must throw an exception");
@@ -119,7 +119,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementError4() throws CSSException, IOException {
+	public void testParseSelectorElementError4() throws CSSException {
 		try {
 			parser.parseSelectors("svg|, p");
 			fail("Must throw an exception");
@@ -128,31 +128,31 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testNSSelectorError() throws CSSException, IOException {
+	public void testNSSelectorError() throws CSSException {
 		String s = ".foo|bar";
 		assertThrows(CSSParseException.class, () -> parser.parseSelectors(new StringReader(s)));
 	}
 
 	@Test
-	public void testNSSelectorErrorLF() throws CSSException, IOException {
+	public void testNSSelectorErrorLF() throws CSSException {
 		String s = ".foo|bar\n";
 		assertThrows(CSSParseException.class, () -> parser.parseSelectors(new StringReader(s)));
 	}
 
 	@Test
-	public void testNSSelectorErrorNoTypeEOF() throws CSSException, IOException {
+	public void testNSSelectorErrorNoTypeEOF() throws CSSException {
 		String s = ".foo|";
 		assertThrows(CSSParseException.class, () -> parser.parseSelectors(new StringReader(s)));
 	}
 
 	@Test
-	public void testNSSelectorErrorNoTypeLF() throws CSSException, IOException {
+	public void testNSSelectorErrorNoTypeLF() throws CSSException {
 		String s = ".foo|\n";
 		assertThrows(CSSParseException.class, () -> parser.parseSelectors(new StringReader(s)));
 	}
 
 	@Test
-	public void testParseSelectorElementErrorBadPrefix() throws CSSException, IOException {
+	public void testParseSelectorElementErrorBadPrefix() throws CSSException {
 		try {
 			parser.parseSelectors("foo|p");
 			fail("Must throw an exception");
@@ -161,7 +161,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementErrorBadPrefix2() throws CSSException, IOException {
+	public void testParseSelectorElementErrorBadPrefix2() throws CSSException {
 		try {
 			parser.parseSelectors("foo|p div");
 			fail("Must throw an exception");
@@ -170,7 +170,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementErrorBadPrefix3() throws CSSException, IOException {
+	public void testParseSelectorElementErrorBadPrefix3() throws CSSException {
 		try {
 			parser.parseSelectors("foo|p,div");
 			fail("Must throw an exception");
@@ -179,7 +179,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementErrorBadPrefixUniversal() throws CSSException, IOException {
+	public void testParseSelectorElementErrorBadPrefixUniversal() throws CSSException {
 		try {
 			parser.parseSelectors("foo|*");
 			fail("Must throw an exception");
@@ -188,7 +188,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementErrorBadIdentifier() throws CSSException, IOException {
+	public void testParseSelectorElementErrorBadIdentifier() throws CSSException {
 		try {
 			parser.parseSelectors("svg|9p");
 			fail("Must throw exception");
@@ -197,7 +197,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementNoNS() throws CSSException, IOException {
+	public void testParseSelectorElementNoNS() throws CSSException {
 		SelectorList selist = parseSelectors("|p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -209,7 +209,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementNoNSDefaultNS() throws CSSException, IOException {
+	public void testParseSelectorElementNoNSDefaultNS() throws CSSException {
 		SelectorList selist = parseSelectorsNS("|p", "", "https://www.w3.org/1999/xhtml/");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -221,7 +221,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementAllNS() throws CSSException, IOException {
+	public void testParseSelectorElementAllNS() throws CSSException {
 		SelectorList selist = parseSelectors("*|p");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -233,7 +233,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementDefaultNS() throws CSSException, IOException {
+	public void testParseSelectorElementDefaultNS() throws CSSException {
 		// Set XHTML namespace as default
 		SelectorList selist = parseSelectorsNS("p", "", "https://www.w3.org/1999/xhtml/");
 		assertNotNull(selist);
@@ -246,7 +246,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementList() throws CSSException, IOException {
+	public void testParseSelectorElementList() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p, svg|span");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -262,7 +262,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementList2() throws CSSException, IOException {
+	public void testParseSelectorElementList2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p, svg|p span");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -286,7 +286,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorElementList3() throws CSSException, IOException {
+	public void testParseSelectorElementList3() throws CSSException {
 		SelectorList selist = parseSelectors("p, p svg|span");
 		assertNotNull(selist);
 		assertEquals(2, selist.getLength());
@@ -311,7 +311,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttribute2() throws CSSException, IOException {
+	public void testParseSelectorAttribute2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[title]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -328,7 +328,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValue() throws CSSException, IOException {
+	public void testParseSelectorAttributeValue() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -346,7 +346,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueWS() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[title = \"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -364,7 +364,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueCI() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCI() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[title=hi i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -383,7 +383,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueCI2() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueCI2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[title=\"hi\" i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -402,7 +402,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCI1() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCI1() throws CSSException {
 		SelectorList selist = parseSelectors("svg|input[svg|type=text i][dir=auto]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -429,7 +429,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCI2() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCI2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|input[type=text][svg|dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -456,7 +456,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorCombinatorAttributeValueCI3() throws CSSException, IOException {
+	public void testParseSelectorCombinatorAttributeValueCI3() throws CSSException {
 		SelectorList selist = parseSelectors("svg|input[svg|foo=bar i][type=text I][dir=auto i]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -491,7 +491,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeNSValue() throws CSSException, IOException {
+	public void testParseSelectorAttributeNSValue() throws CSSException {
 		SelectorList selist = parseSelectors("p[svg|title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -509,7 +509,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeNSDefaultNSValue() throws CSSException, IOException {
+	public void testParseSelectorAttributeNSDefaultNSValue() throws CSSException {
 		SelectorList selist = parseSelectorsNS("p[title=\"hi\"]", "", "https://www.w3.org/1999/xhtml/");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -527,7 +527,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeNoNSValue() throws CSSException, IOException {
+	public void testParseSelectorAttributeNoNSValue() throws CSSException {
 		SelectorList selist = parseSelectors("p[|title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -545,7 +545,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeNoNSDefaultNSValue() throws CSSException, IOException {
+	public void testParseSelectorAttributeNoNSDefaultNSValue() throws CSSException {
 		// Default namespaces should have no effect on attributes
 		SelectorList selist = parseSelectorsNS("p[|title=\"hi\"]", "", "https://www.w3.org/1999/xhtml/");
 		assertNotNull(selist);
@@ -564,7 +564,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeAllNSValue() throws CSSException, IOException {
+	public void testParseSelectorAttributeAllNSValue() throws CSSException {
 		SelectorList selist = parseSelectors("p[*|title=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -582,7 +582,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOf() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOf() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[title~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -600,7 +600,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeValueOneOfWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeValueOneOfWS() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[title ~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -618,7 +618,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphen() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphen() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[lang|=\"en\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -636,7 +636,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeHyphenWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeHyphenWS() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[lang |=\"en\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -654,7 +654,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSubstring() throws CSSException, IOException {
+	public void testParseSelectorAttributeSubstring() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[lang*=\"CH\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -672,7 +672,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorAttributeSubstringWS() throws CSSException, IOException {
+	public void testParseSelectorAttributeSubstringWS() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p[lang *=\"CH\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -690,7 +690,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorLang() throws CSSException, IOException {
+	public void testParseSelectorLang() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p:lang(en)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -707,7 +707,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorLang2() throws CSSException, IOException {
+	public void testParseSelectorLang2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p:lang(zh, \"*-hant\")");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -724,7 +724,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorClass2() throws CSSException, IOException {
+	public void testParseSelectorClass2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p.exampleclass");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -741,7 +741,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div.foo\\(-\\.3\\)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -758,7 +758,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped2() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div.\\31 foo\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -780,7 +780,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscaped3() throws CSSException, IOException {
+	public void testParseSelectorClassEscaped3() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div.\\31 jkl\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -802,7 +802,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorClassEscapedBad() throws CSSException, IOException {
+	public void testParseSelectorClassEscapedBad() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div.\\31jkl\\&-.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -824,7 +824,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorChild() throws CSSException, IOException {
+	public void testParseSelectorChild() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div > span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -842,7 +842,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorChildNoSpaces() throws CSSException, IOException {
+	public void testParseSelectorChildNoSpaces() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div>span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -860,7 +860,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorChildAttribute() throws CSSException, IOException {
+	public void testParseSelectorChildAttribute() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div>[foo]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -880,7 +880,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorChildAttributeWS() throws CSSException, IOException {
+	public void testParseSelectorChildAttributeWS() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div> [foo]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -900,7 +900,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorDescendant() throws CSSException, IOException {
+	public void testParseSelectorDescendant() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -918,7 +918,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSibling() throws CSSException, IOException {
+	public void testParseSelectorNextSibling() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div + span:empty");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -941,7 +941,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingNoSpaces() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingNoSpaces() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div+span:empty");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -964,7 +964,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorNextSiblingNoSpaces2() throws CSSException, IOException {
+	public void testParseSelectorNextSiblingNoSpaces2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div.myclass:foo+.bar");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -994,7 +994,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorSubsequentSibling() throws CSSException, IOException {
+	public void testParseSelectorSubsequentSibling() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div ~ span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1012,7 +1012,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorSubsequentSiblingNoSpaces() throws CSSException, IOException {
+	public void testParseSelectorSubsequentSiblingNoSpaces() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div~span");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1030,7 +1030,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorColumnCombinator() throws CSSException, IOException {
+	public void testParseSelectorColumnCombinator() throws CSSException {
 		SelectorList selist = parseSelectors("svg|col.foo||td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1054,7 +1054,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorColumnCombinatorWS() throws CSSException, IOException {
+	public void testParseSelectorColumnCombinatorWS() throws CSSException {
 		SelectorList selist = parseSelectors("svg|col.foo || td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1078,7 +1078,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorColumnCombinator2() throws CSSException, IOException {
+	public void testParseSelectorColumnCombinator2() throws CSSException {
 		SelectorList selist = parseSelectors("col.foo||svg|td");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1102,7 +1102,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElement() throws CSSException, IOException {
+	public void testParseSelectorPseudoElement() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p::first-line");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1120,7 +1120,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementOld() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementOld() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p:first-line");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1138,7 +1138,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoElementPseudoclassed() throws CSSException, IOException {
+	public void testParseSelectorPseudoElementPseudoclassed() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p::first-letter:hover");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1161,7 +1161,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClass() throws CSSException, IOException {
+	public void testParseSelectorPseudoClass() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div:blank");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1180,7 +1180,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassArgument() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassArgument() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p:dir(ltr)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1199,7 +1199,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassFirstChild2() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassFirstChild2() throws CSSException {
 		SelectorList selist = parseSelectors("svg|p:first-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1220,7 +1220,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassFirstChild3() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassFirstChild3() throws CSSException {
 		SelectorList selist = parseSelectors("svg|*:first-child");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1241,7 +1241,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthOf() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthOf() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(5 of svg|p)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1264,7 +1264,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNthOfUniversal() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNthOfUniversal() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(5 of svg|*)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1287,7 +1287,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassNot() throws CSSException, IOException {
+	public void testParseSelectorPseudoClassNot() throws CSSException {
 		SelectorList selist = parseSelectors(":not(p.foo, svg|span:first-child, div a)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1320,7 +1320,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testEquals() throws CSSException, IOException {
+	public void testEquals() throws CSSException {
 		SelectorList selist = parseSelectors("svg|div");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1333,7 +1333,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testEquals2() throws CSSException, IOException {
+	public void testEquals2() throws CSSException {
 		SelectorList selist = parseSelectors("div[svg|title ~=\"hi\"]");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1346,7 +1346,7 @@ public class SelectorParserNSTest {
 	}
 
 	@Test
-	public void testEquals3() throws CSSException, IOException {
+	public void testEquals3() throws CSSException {
 		SelectorList selist = parseSelectors(":nth-child(5 of svg|p)");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -1358,16 +1358,16 @@ public class SelectorParserNSTest {
 		assertFalse(sel.equals(sel2));
 	}
 
-	private SelectorList parseSelectors(String selist) throws CSSException, IOException {
+	private SelectorList parseSelectors(String selist) throws CSSException {
 		return parseSelectorsNS(selist, null, null);
 	}
 
-	private SelectorList parseSelectorsNS(String selist, String prefix, String nsuri) throws CSSException, IOException {
+	private SelectorList parseSelectorsNS(String selist, String prefix, String nsuri) throws CSSException {
 		return parseSelectorsNS(selist, prefix, nsuri, parser);
 	}
 
 	static SelectorList parseSelectorsNS(String selist, String prefix, String nsuri, CSSParser parser)
-			throws CSSException, IOException {
+			throws CSSException {
 		int[] allowInWords = { 45, 95 }; // -_
 		SelectorTokenHandler handler = parser.new SelectorTokenHandler();
 		if (prefix != null) {
@@ -1376,7 +1376,10 @@ public class SelectorParserNSTest {
 		handler.factory.registerNamespacePrefix("svg", TestConfig.SVG_NAMESPACE_URI);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		StringReader re = new StringReader(selist);
-		tp.parse(re, "/*", "*/");
+		try {
+			tp.parse(re, "/*", "*/");
+		} catch (IOException e) {
+		}
 		return handler.getSelectorList();
 	}
 

@@ -52,7 +52,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyInherit() throws CSSException, IOException {
+	public void testParsePropertyInherit() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("inherit");
 		assertEquals(LexicalType.INHERIT, lu.getLexicalUnitType());
 		assertEquals("inherit", lu.getCssText());
@@ -65,7 +65,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyInitial() throws CSSException, IOException {
+	public void testParsePropertyInitial() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("initial");
 		assertEquals(LexicalType.INITIAL, lu.getLexicalUnitType());
 		assertEquals("initial", lu.getCssText());
@@ -78,7 +78,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyUnset() throws CSSException, IOException {
+	public void testParsePropertyUnset() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("unset");
 		assertEquals(LexicalType.UNSET, lu.getLexicalUnitType());
 		assertEquals("unset", lu.getCssText());
@@ -91,7 +91,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyReset() throws CSSException, IOException {
+	public void testParsePropertyReset() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("revert");
 		assertEquals(LexicalType.REVERT, lu.getLexicalUnitType());
 		assertEquals("revert", lu.getCssText());
@@ -206,7 +206,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParseProperty2() throws CSSException, IOException {
+	public void testParseProperty2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(" Times New Roman ");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Times", lu.getStringValue());
@@ -219,7 +219,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParseProperty3() throws CSSException, IOException {
+	public void testParseProperty3() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("Times New Roman");
 		assertEquals(LexicalType.IDENT, lunit.getLexicalUnitType());
 		assertEquals("Times", lunit.getStringValue());
@@ -243,7 +243,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadImportant() throws CSSException, IOException {
+	public void testParsePropertyBadImportant() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% - 3em !important");
 			fail("Must throw exception");
@@ -253,7 +253,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRange() throws CSSException, IOException {
+	public void testParsePropertyRange() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("U+416");
 		assertEquals(LexicalType.UNICODE_RANGE, lu.getLexicalUnitType());
 		assertEquals("U+416", lu.toString());
@@ -276,7 +276,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRange2() throws CSSException, IOException {
+	public void testParsePropertyRange2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("U+0025-00FF");
 		assertEquals(LexicalType.UNICODE_RANGE, lu.getLexicalUnitType());
 		assertEquals("U+25-ff", lu.toString());
@@ -303,7 +303,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRange3() throws CSSException, IOException {
+	public void testParsePropertyRange3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("U+0025-00FF ");
 		assertEquals(LexicalType.UNICODE_RANGE, lu.getLexicalUnitType());
 		assertEquals("U+25-ff", lu.toString());
@@ -330,7 +330,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRangeWildcard() throws CSSException, IOException {
+	public void testParsePropertyRangeWildcard() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("U+4??");
 		assertEquals(LexicalType.UNICODE_RANGE, lu.getLexicalUnitType());
 		assertEquals("U+4??", lu.toString());
@@ -354,7 +354,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRangeList() throws CSSException, IOException {
+	public void testParsePropertyRangeList() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("U+022, U+0025-00FF, U+4??, U+FF00");
 		assertEquals(LexicalType.UNICODE_RANGE, lunit.getLexicalUnitType());
 		assertEquals("U+22, U+25-ff, U+4??, U+ff00", lunit.toString());
@@ -411,7 +411,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRangeWildcard2() throws CSSException, IOException {
+	public void testParsePropertyRangeWildcard2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("U+???");
 		assertEquals(LexicalType.UNICODE_RANGE, lu.getLexicalUnitType());
 		assertEquals("U+???", lu.toString());
@@ -434,7 +434,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRangeWildcardBad() throws CSSException, IOException {
+	public void testParsePropertyRangeWildcardBad() throws CSSException {
 		try {
 			parsePropertyValue("U+030-???");
 			fail("Must throw exception");
@@ -443,7 +443,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRangeWildcardBad2() throws CSSException, IOException {
+	public void testParsePropertyRangeWildcardBad2() throws CSSException {
 		try {
 			parsePropertyValue("U+030-?");
 			fail("Must throw exception");
@@ -453,7 +453,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRangeWildcardBad3() throws CSSException, IOException {
+	public void testParsePropertyRangeWildcardBad3() throws CSSException {
 		try {
 			parsePropertyValue("U+???-250");
 			fail("Must throw exception");
@@ -463,7 +463,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyRangeBadWildcard() throws CSSException, IOException {
+	public void testParsePropertyRangeBadWildcard() throws CSSException {
 		try {
 			parsePropertyValue("U+??????");
 			fail("Must throw exception");
@@ -473,7 +473,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped() throws CSSException, IOException {
+	public void testParsePropertyEscaped() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\1F44D");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
@@ -481,7 +481,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped2() throws CSSException, IOException {
+	public void testParsePropertyEscaped2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\:foo");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals(":foo", lu.getStringValue());
@@ -489,7 +489,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped3() throws CSSException, IOException {
+	public void testParsePropertyEscaped3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("block\\9");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block\t", lu.getStringValue());
@@ -497,7 +497,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped4() throws CSSException, IOException {
+	public void testParsePropertyEscaped4() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("bl\\9 ock");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("bl\tock", lu.getStringValue());
@@ -505,7 +505,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped5() throws CSSException, IOException {
+	public void testParsePropertyEscaped5() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-\\9 block");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("-\tblock", lu.getStringValue());
@@ -513,7 +513,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped6() throws CSSException, IOException {
+	public void testParsePropertyEscaped6() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\FFFFFF");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\\FFFFFF", lu.getStringValue());
@@ -521,7 +521,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped7() throws CSSException, IOException {
+	public void testParsePropertyEscaped7() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\f435");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\\f435", lu.getStringValue()); // Private use character, must be escaped
@@ -529,7 +529,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped8() throws CSSException, IOException {
+	public void testParsePropertyEscaped8() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-a\\14c");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("-aŌ", lu.getStringValue());
@@ -537,7 +537,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped9() throws CSSException, IOException {
+	public void testParsePropertyEscaped9() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-a\\14c  u");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("-aŌ", lu.getStringValue());
@@ -547,7 +547,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscaped10() throws CSSException, IOException {
+	public void testParsePropertyEscaped10() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("a\\3d b");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("a=b", lu.getStringValue());
@@ -555,7 +555,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedNull() throws CSSException, IOException {
+	public void testParsePropertyEscapedNull() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\0");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\ufffd", lu.getStringValue());
@@ -563,7 +563,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedIdentNull() throws CSSException, IOException {
+	public void testParsePropertyEscapedIdentNull() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("a\\0");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("a\ufffd", lu.getStringValue());
@@ -571,7 +571,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedIdentNull2() throws CSSException, IOException {
+	public void testParsePropertyEscapedIdentNull2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("a\\0 b");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("a\ufffdb", lu.getStringValue());
@@ -579,7 +579,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedNullIdent() throws CSSException, IOException {
+	public void testParsePropertyEscapedNullIdent() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\0 a");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\ufffda", lu.getStringValue());
@@ -587,7 +587,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedIdentNullIdent() throws CSSException, IOException {
+	public void testParsePropertyEscapedIdentNullIdent() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("a\\0  b");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("a\ufffd", lu.getStringValue());
@@ -596,7 +596,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedTwoIdents() throws CSSException, IOException {
+	public void testParsePropertyEscapedTwoIdents() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("a\\3d  b");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("a=", lu.getStringValue());
@@ -612,7 +612,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedBackslash() throws CSSException, IOException {
+	public void testParsePropertyEscapedBackslash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\\\");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\\", lu.getStringValue());
@@ -620,7 +620,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedWS_FirstChar() throws CSSException, IOException {
+	public void testParsePropertyEscapedWS_FirstChar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\ 5");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals(" 5", lu.getStringValue());
@@ -629,7 +629,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedWS_Minus() throws CSSException, IOException {
+	public void testParsePropertyEscapedWS_Minus() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\ -");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals(" -", lu.getStringValue());
@@ -637,7 +637,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedWS_MinusDigit() throws CSSException, IOException {
+	public void testParsePropertyEscapedWS_MinusDigit() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\ -2");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals(" -2", lu.getStringValue());
@@ -646,7 +646,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedMinus() throws CSSException, IOException {
+	public void testParsePropertyEscapedMinus() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\-");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("-", lu.getStringValue());
@@ -654,7 +654,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedSeveral() throws CSSException, IOException {
+	public void testParsePropertyEscapedSeveral() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\31\\ a\\;\\-\\\\");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("1 a;-\\", lu.getStringValue());
@@ -662,7 +662,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedSeveral_WithPlus() throws CSSException, IOException {
+	public void testParsePropertyEscapedSeveral_WithPlus() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\+\\ a\\;\\-\\\\");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("+ a;-\\", lu.getStringValue());
@@ -690,7 +690,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedPlus() throws CSSException, IOException {
+	public void testParsePropertyEscapedPlus() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\+");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("+", lu.getStringValue());
@@ -698,7 +698,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedPlusDigit() throws CSSException, IOException {
+	public void testParsePropertyEscapedPlusDigit() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\+2");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("+2", lu.getStringValue());
@@ -706,7 +706,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedColon() throws CSSException, IOException {
+	public void testParsePropertyEscapedColon() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\:");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals(":", lu.getStringValue());
@@ -714,7 +714,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedWS() throws CSSException, IOException {
+	public void testParsePropertyEscapedWS() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("Awesome\\ 5");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Awesome 5", lu.getStringValue());
@@ -722,7 +722,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBackslahHackError() throws CSSException, IOException {
+	public void testParsePropertyBackslahHackError() throws CSSException {
 		try {
 			parsePropertyValue("600px\\9");
 			fail("Must throw exception");
@@ -732,7 +732,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyTab() throws CSSException, IOException {
+	public void testParsePropertyTab() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("larger\t");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("larger", lu.getStringValue());
@@ -740,7 +740,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedTab() throws CSSException, IOException {
+	public void testParsePropertyEscapedTab() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("\\9");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\t", lu.getStringValue());
@@ -748,7 +748,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyIntegerArg() throws CSSException, IOException {
+	public void testParsePropertyIntegerArg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1");
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(1, lu.getIntegerValue());
@@ -769,7 +769,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyIntegerPlusSign() throws CSSException, IOException {
+	public void testParsePropertyIntegerPlusSign() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("+1");
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(1, lu.getIntegerValue());
@@ -790,7 +790,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyMargin() throws CSSException, IOException {
+	public void testParsePropertyMargin() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("0.5em auto");
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lunit.getCssUnit());
@@ -818,7 +818,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBorderImage() throws CSSException, IOException {
+	public void testParsePropertyBorderImage() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("/img/border.png", lu.getStringValue());
@@ -869,7 +869,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyQuotedString() throws CSSException, IOException {
+	public void testParsePropertyQuotedString() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("'foo'");
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("foo", lu.getStringValue());
@@ -889,7 +889,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyQuotedBackslash() throws CSSException, IOException {
+	public void testParsePropertyQuotedBackslash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("'\\\\'");
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("\\", lu.getStringValue());
@@ -897,7 +897,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyQuotedBackslashBad() throws CSSException, IOException {
+	public void testParsePropertyQuotedBackslashBad() throws CSSException {
 		try {
 			parsePropertyValue("'\\'");
 			fail("Must throw exception");
@@ -910,7 +910,7 @@ public class PropertyParserTest {
 	 */
 
 	@Test
-	public void testParsePropertyCustomFunctionError() throws CSSException, IOException {
+	public void testParsePropertyCustomFunctionError() throws CSSException {
 		try {
 			parsePropertyValue("--my-function(foo=bar)");
 			fail("Must throw exception");
@@ -919,7 +919,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyProgidError() throws CSSException, IOException {
+	public void testParsePropertyProgidError() throws CSSException {
 		try {
 			parsePropertyValue(
 					"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
@@ -929,7 +929,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyProgid2Error() throws CSSException, IOException {
+	public void testParsePropertyProgid2Error() throws CSSException {
 		try {
 			parsePropertyValue(
 					"progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#bd0afa,EndColorStr=#d0df9f)");
@@ -939,7 +939,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyProgid3Error() throws CSSException, IOException {
+	public void testParsePropertyProgid3Error() throws CSSException {
 		try {
 			parsePropertyValue("progid:DXImageTransform.Microsoft.Blur(pixelradius=5)");
 			fail("Must throw exception");
@@ -948,7 +948,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyProgidEscaped() throws CSSException, IOException {
+	public void testParsePropertyProgidEscaped() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("progid:DXImageTransform.Microsoft.gradient(enabled=false)", lu.getStringValue());
@@ -956,7 +956,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertySquareBrackets() throws CSSException, IOException {
+	public void testParsePropertySquareBrackets() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("[header-top]");
 		assertEquals(LexicalType.LEFT_BRACKET, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
@@ -970,7 +970,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueEmptyError() throws CSSException, IOException {
+	public void testParsePropertyValueEmptyError() throws CSSException {
 		try {
 			parsePropertyValue("");
 			fail("Must throw an excption");
@@ -980,7 +980,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueEofError() throws CSSException, IOException {
+	public void testParsePropertyValueEofError() throws CSSException {
 		try {
 			parsePropertyValue("yellow;");
 			fail("Must throw an excption");
@@ -990,7 +990,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueLengthIdent() throws CSSException, IOException {
+	public void testParsePropertyValueLengthIdent() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("2.1px auto");
 		assertEquals(2.1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("px", lu.getDimensionUnitText());
@@ -1012,7 +1012,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitEm() throws CSSException, IOException {
+	public void testParsePropertyValueUnitEm() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1.3em");
 		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
@@ -1042,7 +1042,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitEmPlusSign() throws CSSException, IOException {
+	public void testParsePropertyValueUnitEmPlusSign() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("+1.3em");
 		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
@@ -1072,7 +1072,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitEmMinusSign() throws CSSException, IOException {
+	public void testParsePropertyValueUnitEmMinusSign() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-1.3em");
 		assertEquals(-1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
@@ -1082,7 +1082,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitsUC() throws CSSException, IOException {
+	public void testParsePropertyValueUnitsUC() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1.3EX");
 		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("ex", lu.getDimensionUnitText());
@@ -1091,7 +1091,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyUnitsList() throws CSSException, IOException {
+	public void testParsePropertyUnitsList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("2em .85em");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
@@ -1132,7 +1132,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitsNegative() throws CSSException, IOException {
+	public void testParsePropertyValueUnitsNegative() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-0.2em");
 		assertEquals(-0.2f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
@@ -1141,7 +1141,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitsNegShort() throws CSSException, IOException {
+	public void testParsePropertyValueUnitsNegShort() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-.2em");
 		assertEquals(-0.2f, lu.getFloatValue(), 1e-5f);
 		assertEquals("em", lu.getDimensionUnitText());
@@ -1150,7 +1150,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitHz() throws CSSException, IOException {
+	public void testParsePropertyValueUnitHz() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1.3Hz");
 		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
@@ -1174,7 +1174,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitKHz() throws CSSException, IOException {
+	public void testParsePropertyValueUnitKHz() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1.3kHz");
 		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
@@ -1198,7 +1198,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitSecond() throws CSSException, IOException {
+	public void testParsePropertyValueUnitSecond() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1.3s");
 		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("s", lu.getDimensionUnitText());
@@ -1223,7 +1223,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitSecondMilliSecond() throws CSSException, IOException {
+	public void testParsePropertyValueUnitSecondMilliSecond() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("1.3s 20ms");
 		assertEquals(1.3, lunit.getFloatValue(), 1e-5f);
 		assertEquals("s", lunit.getDimensionUnitText());
@@ -1257,7 +1257,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitSecondCommaMilliSecond() throws CSSException, IOException {
+	public void testParsePropertyValueUnitSecondCommaMilliSecond() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("1.3s, 20ms");
 		assertEquals(1.3, lunit.getFloatValue(), 1e-5f);
 		assertEquals("s", lunit.getDimensionUnitText());
@@ -1294,7 +1294,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitMillisecond() throws CSSException, IOException {
+	public void testParsePropertyValueUnitMillisecond() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1.3ms");
 		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("ms", lu.getDimensionUnitText());
@@ -1318,7 +1318,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueUnitFlex() throws CSSException, IOException {
+	public void testParsePropertyValueUnitFlex() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("0.7fr");
 		assertEquals(0.7f, lu.getFloatValue(), 1e-5f);
 		assertEquals("fr", lu.getDimensionUnitText());
@@ -1342,7 +1342,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueSquareBrackets() throws CSSException, IOException {
+	public void testParsePropertyValueSquareBrackets() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("[header-top] auto [header-bottom]");
 		assertEquals(LexicalType.LEFT_BRACKET, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
@@ -1356,7 +1356,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyZero() throws CSSException, IOException {
+	public void testParsePropertyZero() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("0");
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
@@ -1390,7 +1390,7 @@ public class PropertyParserTest {
 	 * Integers larger than 2147483647 are parsed as floats.
 	 */
 	@Test
-	public void testParsePropertyLongInteger() throws CSSException, IOException {
+	public void testParsePropertyLongInteger() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("10000000000");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(1e10, lu.getFloatValue(), 1e-5f);
@@ -1398,7 +1398,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyLongReal() throws CSSException, IOException {
+	public void testParsePropertyLongReal() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("10000000000.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(1e10, lu.getFloatValue(), 1e-5f);
@@ -1406,14 +1406,14 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyZeroFloat() throws CSSException, IOException {
+	public void testParsePropertyZeroFloat() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("0.0");
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 	}
 
 	@Test
-	public void testParsePropertyZeroEm() throws CSSException, IOException {
+	public void testParsePropertyZeroEm() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("0.0em");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
@@ -1422,7 +1422,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyOneFloat() throws CSSException, IOException {
+	public void testParsePropertyOneFloat() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
@@ -1446,14 +1446,14 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyPlusOneFloat() throws CSSException, IOException {
+	public void testParsePropertyPlusOneFloat() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("+1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 	}
 
 	@Test
-	public void testParsePropertyPlusOneFloatError() throws CSSException, IOException {
+	public void testParsePropertyPlusOneFloatError() throws CSSException {
 		try {
 			parsePropertyValue("++1.0");
 			fail("Must throw exception");
@@ -1463,14 +1463,14 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyMinusOneFloat() throws CSSException, IOException {
+	public void testParsePropertyMinusOneFloat() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(-1f, lu.getFloatValue(), 1e-5f);
 	}
 
 	@Test
-	public void testParsePropertyFloatExp_e() throws CSSException, IOException {
+	public void testParsePropertyFloatExp_e() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("2.345678e-05");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(2.345678e-5, lu.getFloatValue(), 1e-11);
@@ -1495,7 +1495,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatExp_e_plus() throws CSSException, IOException {
+	public void testParsePropertyFloatExp_e_plus() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("2.345678e+8");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(2.345678e+8, lu.getFloatValue(), 10f);
@@ -1520,7 +1520,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatExp_E() throws CSSException, IOException {
+	public void testParsePropertyFloatExp_E() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-2.345678E-05");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(-2.345678e-5, lu.getFloatValue(), 1e-11);
@@ -1545,7 +1545,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatExp_E_plus() throws CSSException, IOException {
+	public void testParsePropertyFloatExp_E_plus() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("+2.345678E+8");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(2.345678e+8, lu.getFloatValue(), 10f);
@@ -1570,7 +1570,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatExpError() throws CSSException, IOException {
+	public void testParsePropertyFloatExpError() throws CSSException {
 		try {
 			parsePropertyValue("1.0e+ 02");
 			fail("Must throw exception");
@@ -1580,7 +1580,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatExpError2() throws CSSException, IOException {
+	public void testParsePropertyFloatExpError2() throws CSSException {
 		try {
 			parsePropertyValue("+1.0e+ 02");
 			fail("Must throw exception");
@@ -1590,7 +1590,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatExpError3() throws CSSException, IOException {
+	public void testParsePropertyFloatExpError3() throws CSSException {
 		try {
 			parsePropertyValue("-1.0e+ 02");
 			fail("Must throw exception");
@@ -1600,7 +1600,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatList() throws CSSException, IOException {
+	public void testParsePropertyFloatList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(".1234 5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-6f);
@@ -1631,7 +1631,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatList2() throws CSSException, IOException {
+	public void testParsePropertyFloatList2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(".1234 +5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
@@ -1662,7 +1662,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatList3() throws CSSException, IOException {
+	public void testParsePropertyFloatList3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(".1234 -5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
@@ -1693,7 +1693,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyFloatCommaList() throws CSSException, IOException {
+	public void testParsePropertyFloatCommaList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(".1234,5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
@@ -1717,7 +1717,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyIntegerIdentBadMatch() throws CSSException, IOException {
+	public void testParsePropertyIntegerIdentBadMatch() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("2 auto");
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(2, lu.getIntegerValue());
@@ -1747,7 +1747,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyPercent() throws CSSException, IOException {
+	public void testParsePropertyPercent() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("1%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
@@ -1774,7 +1774,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyPercentPlusSign() throws CSSException, IOException {
+	public void testParsePropertyPercentPlusSign() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("+1%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
@@ -1801,7 +1801,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyPercentNegativeSign() throws CSSException, IOException {
+	public void testParsePropertyPercentNegativeSign() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-1%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(-1f, lu.getFloatValue(), 1e-5f);
@@ -1829,7 +1829,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyLengthPercentage() throws CSSException, IOException {
+	public void testParsePropertyLengthPercentage() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("2px,1%");
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
 		assertEquals(2f, lunit.getFloatValue(), 1e-5f);
@@ -1857,7 +1857,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyPercent2() throws CSSException, IOException {
+	public void testParsePropertyPercent2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("0.01%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(0.01f, lu.getFloatValue(), 1e-5f);
@@ -1865,7 +1865,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueString() throws CSSException, IOException {
+	public void testParsePropertyValueString() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("'a string'");
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("a string", lu.getStringValue());
@@ -1873,7 +1873,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIdentifier() throws CSSException, IOException {
+	public void testParsePropertyValueIdentifier() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("foo bar");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("foo", lu.getStringValue());
@@ -1905,7 +1905,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIdentifier2() throws CSSException, IOException {
+	public void testParsePropertyValueIdentifier2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("foo         bar     ");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("foo", lu.getStringValue());
@@ -1918,7 +1918,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIdentifierColor() throws CSSException, IOException {
+	public void testParsePropertyValueIdentifierColor() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("Yellow");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Yellow", lu.getStringValue());
@@ -1950,7 +1950,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueSpecificIdentifier() throws CSSException, IOException {
+	public void testParsePropertyValueSpecificIdentifier() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("Foo");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Foo", lu.getStringValue());
@@ -1988,7 +1988,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueSpecificIdentifierSequence() throws CSSException, IOException {
+	public void testParsePropertyValueSpecificIdentifierSequence() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("Foo Foo");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Foo", lu.getStringValue());
@@ -2025,7 +2025,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueBadIdentifier() throws CSSException, IOException {
+	public void testParsePropertyValueBadIdentifier() throws CSSException {
 		try {
 			parsePropertyValue("-9foo_bar");
 			fail("Must throw exception");
@@ -2035,7 +2035,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueBadIdentifier2() throws CSSException, IOException {
+	public void testParsePropertyValueBadIdentifier2() throws CSSException {
 		try {
 			parsePropertyValue("9foo_bar");
 			fail("Must throw exception");
@@ -2045,7 +2045,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIdentifierTab() throws CSSException, IOException {
+	public void testParsePropertyValueIdentifierTab() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("foo\tbar");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("foo", lu.getStringValue());
@@ -2055,7 +2055,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIdentifierNL() throws CSSException, IOException {
+	public void testParsePropertyValueIdentifierNL() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("foo\nbar");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("foo", lu.getStringValue());
@@ -2065,7 +2065,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCounters() throws CSSException, IOException {
+	public void testParsePropertyValueCounters() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("counters(section, '.') ' '");
 		assertEquals("counters", lu.getFunctionName());
 		assertEquals(LexicalType.COUNTERS_FUNCTION, lu.getLexicalUnitType());
@@ -2087,7 +2087,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCountersError() throws CSSException, IOException {
+	public void testParsePropertyValueCountersError() throws CSSException {
 		try {
 			parsePropertyValue("counters()");
 			fail("Must throw exception");
@@ -2097,7 +2097,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCounterError() throws CSSException, IOException {
+	public void testParsePropertyValueCounterError() throws CSSException {
 		try {
 			parsePropertyValue("counter()");
 			fail("Must throw exception");
@@ -2107,7 +2107,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalc() throws CSSException, IOException {
+	public void testParsePropertyValueCalc() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(100% - 3em)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2153,7 +2153,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcNegative() throws CSSException, IOException {
+	public void testParsePropertyValueCalcNegative() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(-3em)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2190,7 +2190,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcNumber() throws CSSException, IOException {
+	public void testParsePropertyValueCalcNumber() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(-2*3.4)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2238,7 +2238,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalc2() throws CSSException, IOException {
+	public void testParsePropertyValueCalc2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(10em - 2%)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2284,7 +2284,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalc3() throws CSSException, IOException {
+	public void testParsePropertyValueCalc3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(100vh - 2em)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2329,7 +2329,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalc4() throws CSSException, IOException {
+	public void testParsePropertyValueCalc4() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc((10em + 2%) * 3)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2388,7 +2388,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalc5() throws CSSException, IOException {
+	public void testParsePropertyValueCalc5() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(100%/3 - 2*1em - 2*1px)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2441,7 +2441,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalc6() throws CSSException, IOException {
+	public void testParsePropertyValueCalc6() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(0ex + max(10em, 2%) * 3)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2507,7 +2507,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalc7() throws CSSException, IOException {
+	public void testParsePropertyValueCalc7() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(1em + (0.4vw + 0.25vh)/2)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2571,7 +2571,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcVarSubexpression() throws CSSException, IOException {
+	public void testParsePropertyValueCalcVarSubexpression() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc((var(--subexp)) * 3)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2626,7 +2626,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcNegDenom() throws CSSException, IOException {
+	public void testParsePropertyValueCalcNegDenom() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(1em + (0.4vw + 0.25vh)/-2)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2671,7 +2671,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcNegDenom2() throws CSSException, IOException {
+	public void testParsePropertyValueCalcNegDenom2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc((75vw*9/16 - 100vh)/-2)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2724,7 +2724,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcPlusNegValue() throws CSSException, IOException {
+	public void testParsePropertyValueCalcPlusNegValue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(100vh + -2em)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2769,7 +2769,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcPlusZerolessNegValue() throws CSSException, IOException {
+	public void testParsePropertyValueCalcPlusZerolessNegValue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(100vh + -.2em)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2814,7 +2814,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcMinusPosValue() throws CSSException, IOException {
+	public void testParsePropertyValueCalcMinusPosValue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(100vh - +2em)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2859,7 +2859,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcMinusZerolessPosValue() throws CSSException, IOException {
+	public void testParsePropertyValueCalcMinusZerolessPosValue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(100vh - +.2em)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2883,7 +2883,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcInsideCalc() throws CSSException, IOException {
+	public void testParsePropertyValueCalcInsideCalc() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(calc(2.1 * 3px) - 1pt)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2934,7 +2934,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcAttr() throws CSSException, IOException {
+	public void testParsePropertyValueCalcAttr() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(attr(start integer, 1) - 1)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -2976,7 +2976,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcAttr2() throws CSSException, IOException {
+	public void testParsePropertyValueCalcAttr2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(attr(start length, 8%) - 1.1px)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -3021,7 +3021,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcAttr3() throws CSSException, IOException {
+	public void testParsePropertyValueCalcAttr3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(attr(start length, 8%) * 2)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -3066,7 +3066,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueCalcCustom() throws CSSException, IOException {
+	public void testParsePropertyValueCalcCustom() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc(var(--foo, 1%) * 3)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
@@ -3118,7 +3118,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc() throws CSSException, IOException {
+	public void testParsePropertyBadCalc() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% - 3em");
 			fail("Must throw exception");
@@ -3127,7 +3127,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc3() throws CSSException, IOException {
+	public void testParsePropertyBadCalc3() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% -");
 			fail("Must throw exception");
@@ -3136,7 +3136,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc4() throws CSSException, IOException {
+	public void testParsePropertyBadCalc4() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% -)");
 			fail("Must throw exception");
@@ -3145,7 +3145,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc5() throws CSSException, IOException {
+	public void testParsePropertyBadCalc5() throws CSSException {
 		try {
 			parsePropertyValue("calc(100%-)");
 			fail("Must throw exception");
@@ -3154,7 +3154,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc6() throws CSSException, IOException {
+	public void testParsePropertyBadCalc6() throws CSSException {
 		try {
 			parsePropertyValue("calc(100%+)");
 			fail("Must throw exception");
@@ -3163,7 +3163,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc7() throws CSSException, IOException {
+	public void testParsePropertyBadCalc7() throws CSSException {
 		try {
 			parsePropertyValue("calc(100%-2em)");
 			fail("Must throw exception");
@@ -3172,7 +3172,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc8() throws CSSException, IOException {
+	public void testParsePropertyBadCalc8() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% -!important");
 			fail("Must throw exception");
@@ -3182,7 +3182,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc9() throws CSSException, IOException {
+	public void testParsePropertyBadCalc9() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% + - 2em)");
 			fail("Must throw exception");
@@ -3191,7 +3191,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc10() throws CSSException, IOException {
+	public void testParsePropertyBadCalc10() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% - + 2em)");
 			fail("Must throw exception");
@@ -3200,7 +3200,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc11() throws CSSException, IOException {
+	public void testParsePropertyBadCalc11() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% + + 2em)");
 			fail("Must throw exception");
@@ -3209,7 +3209,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc12() throws CSSException, IOException {
+	public void testParsePropertyBadCalc12() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% + * 2em)");
 			fail("Must throw exception");
@@ -3218,7 +3218,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc13() throws CSSException, IOException {
+	public void testParsePropertyBadCalc13() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% * + 2em)");
 			fail("Must throw exception");
@@ -3227,7 +3227,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc14() throws CSSException, IOException {
+	public void testParsePropertyBadCalc14() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% * - 2em)");
 			fail("Must throw exception");
@@ -3236,7 +3236,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalc15() throws CSSException, IOException {
+	public void testParsePropertyBadCalc15() throws CSSException {
 		try {
 			parsePropertyValue("calc(100% * * 2em)");
 			fail("Must throw exception");
@@ -3245,7 +3245,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalcSignedSubexpression() throws CSSException, IOException {
+	public void testParsePropertyBadCalcSignedSubexpression() throws CSSException {
 		try {
 			parsePropertyValue("calc(+(2em * 1))");
 			fail("Must throw exception");
@@ -3254,7 +3254,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadCalcSignedSubexpression2() throws CSSException, IOException {
+	public void testParsePropertyBadCalcSignedSubexpression2() throws CSSException {
 		try {
 			parsePropertyValue("calc(-(2em * 1))");
 			fail("Must throw exception");
@@ -3263,7 +3263,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadExpression() throws CSSException, IOException {
+	public void testParsePropertyBadExpression() throws CSSException {
 		try {
 			parsePropertyValue("3em*2");
 			fail("Must throw exception");
@@ -3272,7 +3272,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadExpression2() throws CSSException, IOException {
+	public void testParsePropertyBadExpression2() throws CSSException {
 		try {
 			parsePropertyValue("calc(1)*2");
 			fail("Must throw exception");
@@ -3281,7 +3281,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadExpression3() throws CSSException, IOException {
+	public void testParsePropertyBadExpression3() throws CSSException {
 		try {
 			parsePropertyValue("calc(1)+2");
 			fail("Must throw exception");
@@ -3290,7 +3290,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueMax() throws CSSException, IOException {
+	public void testParsePropertyValueMax() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("max(10em, 2%)");
 		assertEquals("max", lu.getFunctionName());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -3335,7 +3335,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueClamp() throws CSSException, IOException {
+	public void testParsePropertyValueClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("clamp(10deg, 0.2rad, 25deg)");
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
 		assertEquals("clamp", lu.getFunctionName());
@@ -3391,7 +3391,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueClampVar() throws CSSException, IOException {
+	public void testParsePropertyValueClampVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("clamp(10deg, var(--angle), 25deg)");
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
 		assertEquals("clamp", lu.getFunctionName());
@@ -3443,7 +3443,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionTrigonometric() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionTrigonometric() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("cos(30deg), tan(45deg)");
 		assertEquals(LexicalType.FUNCTION, lunit.getLexicalUnitType());
 		assertEquals("cos", lunit.getFunctionName());
@@ -3492,7 +3492,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionTrigonometricInverse() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionTrigonometricInverse() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("acos(.62), atan(0.965)");
 		assertEquals(LexicalType.FUNCTION, lunit.getLexicalUnitType());
 		assertEquals("acos", lunit.getFunctionName());
@@ -3541,7 +3541,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueMaxBad() throws CSSException, IOException {
+	public void testParsePropertyValueMaxBad() throws CSSException {
 		try {
 			parsePropertyValue("max(10em, 2%");
 			fail("Must throw exception");
@@ -3550,7 +3550,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueMaxBad2() throws CSSException, IOException {
+	public void testParsePropertyValueMaxBad2() throws CSSException {
 		try {
 			parsePropertyValue("max(10em, 2%!important");
 			fail("Must throw exception");
@@ -3560,7 +3560,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunction() throws CSSException, IOException {
+	public void testParsePropertyValueFunction() throws CSSException {
 		LexicalUnit pre = parsePropertyValue("bar foo(0.1, calc((0.5% - 2em)*2.2), 1.0)");
 		assertEquals(LexicalType.IDENT, pre.getLexicalUnitType());
 		assertEquals("bar", pre.getStringValue());
@@ -3621,7 +3621,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionBezier() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionBezier() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5, 1)");
 		assertEquals("cubic-bezier", lu.getFunctionName());
 		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
@@ -3656,7 +3656,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionBezierMini() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionBezierMini() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("cubic-bezier(.33, .1, .5, 1)");
 		assertEquals("cubic-bezier", lu.getFunctionName());
 		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
@@ -3691,7 +3691,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionBezierBackslashError() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionBezierBackslashError() throws CSSException {
 		try {
 			parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5, 1\\9)");
 			fail("Must throw exception");
@@ -3701,7 +3701,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionBezierNegativeArg() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionBezierNegativeArg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("cubic-bezier(-.33, -.1, -1, -1.02)");
 		assertEquals("cubic-bezier", lu.getFunctionName());
 		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
@@ -3738,7 +3738,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionImageSet() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionImageSet() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"-webkit-image-set(url(//www.example.com/path/to/img.png) 1x, url(//www2.example.com/path2/to2/img2.png) 2x) foo(bar)");
 		assertNotNull(lu);
@@ -3786,7 +3786,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionTransformList() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionTransformList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("translate(-10px, -20px) scale(2) rotate(45deg)");
 		assertEquals("translate", lu.getFunctionName());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -3810,7 +3810,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionTransformListCS() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionTransformListCS() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"translate(-10px, -20px) scale(2) rotate(45deg), rotate(15deg) scale(2) translate(20px)");
 		assertEquals("translate", lu.getFunctionName());
@@ -3835,7 +3835,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionCustom() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionCustom() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-webkit-linear-gradient(transparent, #fff)");
 		assertEquals("-webkit-linear-gradient", lu.getFunctionName());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -3867,7 +3867,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionCustomNoWS() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionCustomNoWS() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-foo(transparent,green,#fff)");
 		assertEquals("-foo", lu.getFunctionName());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -3904,7 +3904,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionSwitch() throws CSSException, IOException {
+	public void testParsePropertyValueFunctionSwitch() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("switch(var(--foo); transparent; #fff)");
 		assertEquals("switch", lu.getFunctionName());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -3945,7 +3945,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadFunction() throws CSSException, IOException {
+	public void testParsePropertyBadFunction() throws CSSException {
 		try {
 			parsePropertyValue("foo(,+)");
 			fail("Must throw exception");
@@ -3954,7 +3954,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadFunction2() throws CSSException, IOException {
+	public void testParsePropertyBadFunction2() throws CSSException {
 		try {
 			parsePropertyValue("foo(2,+)");
 			fail("Must throw exception");
@@ -3963,7 +3963,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadFunction3() throws CSSException, IOException {
+	public void testParsePropertyBadFunction3() throws CSSException {
 		try {
 			parsePropertyValue("foo(2,+3,bar*)");
 			fail("Must throw exception");
@@ -3972,7 +3972,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURL1() throws CSSException, IOException {
+	public void testParsePropertyValueURL1() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("url(imag/image.png)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("imag/image.png", lu.getStringValue());
@@ -4001,7 +4001,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURL2() throws CSSException, IOException {
+	public void testParsePropertyValueURL2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"url(data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -4015,7 +4015,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURLSQ() throws CSSException, IOException {
+	public void testParsePropertyValueURLSQ() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -4025,7 +4025,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURLDQ() throws CSSException, IOException {
+	public void testParsePropertyValueURLDQ() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"url(\"data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/\")");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -4035,7 +4035,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURLSemicolon() throws CSSException, IOException {
+	public void testParsePropertyValueURLSemicolon() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"url(data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -4045,7 +4045,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURLSemicolon2() throws CSSException, IOException {
+	public void testParsePropertyValueURLSemicolon2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"url(https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -4058,7 +4058,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURL_Var() throws CSSException, IOException {
+	public void testParsePropertyValueURL_Var() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("url(var(--image))");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertNull(lu.getStringValue());
@@ -4091,7 +4091,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURLEmpty() throws CSSException, IOException {
+	public void testParsePropertyValueURLEmpty() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("url()");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertNull(lu.getStringValue());
@@ -4120,7 +4120,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadUrl() throws CSSException, IOException {
+	public void testParsePropertyBadUrl() throws CSSException {
 		try {
 			parsePropertyValue(" url(http://www.example.com/");
 			fail("Must throw exception");
@@ -4130,7 +4130,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadUrl3() throws CSSException, IOException {
+	public void testParsePropertyBadUrl3() throws CSSException {
 		try {
 			parsePropertyValue("url(");
 			fail("Must throw exception");
@@ -4139,7 +4139,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadUrl4() throws CSSException, IOException {
+	public void testParsePropertyBadUrl4() throws CSSException {
 		try {
 			parsePropertyValue("url('a' 'b')");
 			fail("Must throw exception");
@@ -4148,7 +4148,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadUrl5() throws CSSException, IOException {
+	public void testParsePropertyBadUrl5() throws CSSException {
 		try {
 			parsePropertyValue("url(a 'b')");
 			fail("Must throw exception");
@@ -4157,7 +4157,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadUrl6() throws CSSException, IOException {
+	public void testParsePropertyBadUrl6() throws CSSException {
 		try {
 			parsePropertyValue("url('a' b)");
 			fail("Must throw exception");
@@ -4166,7 +4166,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadUrl7() throws CSSException, IOException {
+	public void testParsePropertyBadUrl7() throws CSSException {
 		try {
 			parsePropertyValue("url(a b)");
 			fail("Must throw exception");
@@ -4175,7 +4175,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttr() throws CSSException, IOException {
+	public void testParsePropertyValueAttr() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-count)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4201,7 +4201,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrFallback() throws CSSException, IOException {
+	public void testParsePropertyValueAttrFallback() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-count, 'default')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4227,7 +4227,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueAttrPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-count percentage)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4255,7 +4255,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrInteger() throws CSSException, IOException {
+	public void testParsePropertyValueAttrInteger() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-a integer) attr(data-b number)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4281,7 +4281,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrIntegerComma() throws CSSException, IOException {
+	public void testParsePropertyValueAttrIntegerComma() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-a integer),attr(data-b number)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4307,7 +4307,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrIntegerFallbackComma() throws CSSException, IOException {
+	public void testParsePropertyValueAttrIntegerFallbackComma() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-a integer, auto),attr(data-b number, none)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4343,7 +4343,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrIntegerFallbackWSList() throws CSSException, IOException {
+	public void testParsePropertyValueAttrIntegerFallbackWSList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-a integer, auto) attr(data-b number, none)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4377,7 +4377,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrIntegerFallbackWSList2() throws CSSException, IOException {
+	public void testParsePropertyValueAttrIntegerFallbackWSList2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-a string, 1) attr(data-b integer, 'foo')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4415,7 +4415,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrLengthPercentageFallbackWSList() throws CSSException, IOException {
+	public void testParsePropertyValueAttrLengthPercentageFallbackWSList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-a length, 4%) attr(data-b percentage, 6px)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4439,7 +4439,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrIntegerFallbackVarWSList() throws CSSException, IOException {
+	public void testParsePropertyValueAttrIntegerFallbackVarWSList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"attr(data-a integer, auto) attr(data-b number, var(--data-b-fb))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
@@ -4474,7 +4474,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrIntegerFallbackVar2WSList() throws CSSException, IOException {
+	public void testParsePropertyValueAttrIntegerFallbackVar2WSList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"attr(data-a integer, var(--data-a-fb)) attr(data-b number, var(--data-b-fb))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
@@ -4511,7 +4511,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrUnit() throws CSSException, IOException {
+	public void testParsePropertyValueAttrUnit() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-width length, 'default')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4533,7 +4533,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrLengthPercentage() throws CSSException, IOException {
+	public void testParsePropertyValueAttrLengthPercentage() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-width length, 8%)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4557,7 +4557,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrURL() throws CSSException, IOException {
+	public void testParsePropertyValueAttrURL() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-img url)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4589,7 +4589,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrURLFallback() throws CSSException, IOException {
+	public void testParsePropertyValueAttrURLFallback() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-img url, 'foo.png')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4598,7 +4598,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrFlex() throws CSSException, IOException {
+	public void testParsePropertyValueAttrFlex() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-flex flex, 2fr)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4620,7 +4620,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrVar() throws CSSException, IOException {
+	public void testParsePropertyValueAttrVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-width var(--data-type), 5%)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4640,7 +4640,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrVarFallback() throws CSSException, IOException {
+	public void testParsePropertyValueAttrVarFallback() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-width length, var(--data-width))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -4660,7 +4660,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrError() throws CSSException, IOException {
+	public void testParsePropertyValueAttrError() throws CSSException {
 		try {
 			parsePropertyValue("attr()");
 			fail("Must throw exception");
@@ -4670,7 +4670,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrError2() throws CSSException, IOException {
+	public void testParsePropertyValueAttrError2() throws CSSException {
 		try {
 			parsePropertyValue("attr(-)");
 			fail("Must throw exception");
@@ -4680,7 +4680,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueEnv() throws CSSException, IOException {
+	public void testParsePropertyValueEnv() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("env(safe-area-inset-top, 20px)");
 		assertEquals("env", lu.getFunctionName());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -4710,7 +4710,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueVarLengthList() throws CSSException, IOException {
+	public void testParsePropertyValueVarLengthList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("var(--foo) 12.3px");
 		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -4737,7 +4737,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueLengthVarLengthList() throws CSSException, IOException {
+	public void testParsePropertyValueLengthVarLengthList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("6pt var(--foo) 12.3px");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals("6pt var(--foo) 12.3px", lu.toString());
@@ -4759,7 +4759,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueLengthVarLengthListDoubleComma() throws CSSException, IOException {
+	public void testParsePropertyValueLengthVarLengthListDoubleComma() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("6pt var(--foo), 12.3px");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals("6pt var(--foo), 12.3px", lu.toString());
@@ -4781,7 +4781,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueLengthVarLengthLengthList() throws CSSException, IOException {
+	public void testParsePropertyValueLengthVarLengthLengthList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("6pt var(--foo) 12.3px 2vw");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals("6pt var(--foo) 12.3px 2vw", lu.toString());
@@ -4803,7 +4803,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueVarElementRef() throws CSSException, IOException {
+	public void testParsePropertyValueVarElementRef() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("var(--foo, element(#bar))");
 		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -4832,7 +4832,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueProgidError() throws CSSException, IOException {
+	public void testParsePropertyValueProgidError() throws CSSException {
 		try {
 			parsePropertyValue(
 					"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
@@ -4843,7 +4843,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueIEExpressionError() throws CSSException, IOException {
+	public void testParsePropertyValueIEExpressionError() throws CSSException {
 		try {
 			parsePropertyValue("expression(iequirk = (document.body.scrollTop) + \"px\" )");
 			fail("Must throw exception");
@@ -4853,7 +4853,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueElementReference() throws CSSException, IOException {
+	public void testParsePropertyValueElementReference() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("element(#fooid)");
 		assertNotNull(lu);
 		assertEquals(LexicalType.ELEMENT_REFERENCE, lu.getLexicalUnitType());
@@ -4880,7 +4880,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueGradient() throws CSSException, IOException {
+	public void testParsePropertyValueGradient() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue(
 				"linear-gradient(linear, left top, left bottom, from(#bd0afa), to(#d0df9f))");
 		assertEquals(LexicalType.FUNCTION, lunit.getLexicalUnitType());
@@ -4980,7 +4980,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueMask() throws CSSException, IOException {
+	public void testParsePropertyValueMask() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 			"url(https://www.example.com/foo.svg) no-repeat center/1.3128205128ex .8ex");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -5016,7 +5016,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePriorityString() throws CSSException, IOException {
+	public void testParsePriorityString() throws IOException {
 		assertFalse(parser.parsePriority(new StringReader("")));
 		assertFalse(parser.parsePriority(new StringReader("foo")));
 		assertTrue(parser.parsePriority(new StringReader("important")));
@@ -5027,8 +5027,12 @@ public class PropertyParserTest {
 		assertFalse(parser.parsePriority(new StringReader("importantt")));
 	}
 
-	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {
-		return parser.parsePropertyValue(new StringReader(value));
+	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {
+		try {
+			return parser.parsePropertyValue(new StringReader(value));
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	private void assertMatch(Match match, LexicalUnit lu, String syntax) {

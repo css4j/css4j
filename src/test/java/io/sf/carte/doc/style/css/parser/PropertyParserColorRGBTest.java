@@ -43,130 +43,130 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor2() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("#"));
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor3() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor3() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class, () -> parsePropertyValue("#x"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor4() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor4() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class, () -> parsePropertyValue("#,"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor5() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor5() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class, () -> parsePropertyValue("#:"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor6() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor6() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("#@charset"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor7() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor7() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue(" #-"));
 		assertEquals(3, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor8() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor8() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class, () -> parsePropertyValue("#_"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor9() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor9() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class, () -> parsePropertyValue("#."));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor10() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor10() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class, () -> parsePropertyValue("##"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor11() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor11() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("#fff(e)"));
 		assertEquals(5, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor12() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor12() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("#(e)"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor13() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor13() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("#:fff"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor14() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor14() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("#fff(e)"));
 		assertEquals(5, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor15() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor15() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("#foo "));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadHexColor16() throws CSSException, IOException {
+	public void testParsePropertyBadHexColor16() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("#\\#aaa"));
 	}
 
 	@Test
-	public void testParsePropertyBadImportant() throws CSSException, IOException {
+	public void testParsePropertyBadImportant() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("rgb(128, 0, 97 !important"));
 		assertEquals(16, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadImportant2() throws CSSException, IOException {
+	public void testParsePropertyBadImportant2() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("rgb(128, 0, 97 !important)"));
 		assertEquals(16, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadImportant4() throws CSSException, IOException {
+	public void testParsePropertyBadImportant4() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("# !important"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBadImportant5() throws CSSException, IOException {
+	public void testParsePropertyBadImportant5() throws CSSException {
 		CSSParseException e = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("#!important"));
 		assertEquals(2, e.getColumnNumber());
 	}
 
 	@Test
-	public void testParsePropertyBorderColor() throws CSSException, IOException {
+	public void testParsePropertyBorderColor() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("blue #a7f31a green");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("blue", lu.getStringValue());
@@ -194,7 +194,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBZero() throws CSSException, IOException {
+	public void testParsePropertyValueRGBZero() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(0 0 0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -223,7 +223,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBZeroSlash() throws CSSException, IOException {
+	public void testParsePropertyValueRGBZeroSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(0 0 0 / 0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -246,7 +246,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBA() throws CSSException, IOException {
+	public void testParsePropertyValueRGBA() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1,2,3,0.45)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -273,7 +273,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAZeroAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAZeroAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(0,0,0,0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -300,7 +300,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAPcntAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAPcntAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1,2,3,45%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -327,7 +327,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1%,2%,3%,0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -354,7 +354,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBACommasPcntMixed() throws CSSException, IOException {
+	public void testParsePropertyValueRGBACommasPcntMixed() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1%,0,3%,120%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -381,7 +381,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAPcntMixed() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAPcntMixed() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1% 0 3%/120%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -404,7 +404,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAVar() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1,var(--foo))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -426,7 +426,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAVar2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAVar2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1,var(--foo),0.9)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -453,7 +453,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAVar3() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAVar3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1,2,3,var(--foo))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -485,7 +485,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBVarSlash() throws CSSException, IOException {
+	public void testParsePropertyValueRGBVarSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(1 var(--foo)/0.6)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -510,7 +510,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBVarSlashPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueRGBVarSlashPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(1 var(--foo)/52%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -535,7 +535,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlashVar() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlashVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(1 2 3/var(--foo))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -563,7 +563,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGB() throws CSSException, IOException {
+	public void testParsePropertyValueRGB() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -581,7 +581,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBReal() throws CSSException, IOException {
+	public void testParsePropertyValueRGBReal() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12.6 127.4 48.8)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -599,7 +599,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCalc() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCalc() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(calc(12) 127 calc(48))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -625,7 +625,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCalcReal() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCalcReal() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(calc(12) 127.8 calc(48.3))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -651,7 +651,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCalcAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCalcAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(calc(12) 127 calc(48)/calc(80%))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -686,7 +686,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueRGBPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12% 27% 48%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -704,7 +704,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBPcntMix() throws CSSException, IOException {
+	public void testParsePropertyValueRGBPcntMix() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(0 27% 48%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -722,7 +722,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBPcntMix2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBPcntMix2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(27% 0 48%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -740,7 +740,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlash() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48 / 0.1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -763,7 +763,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBRealSlash() throws CSSException, IOException {
+	public void testParsePropertyValueRGBRealSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12.9 127 48.1 / 0.1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -786,7 +786,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBRealSlashZero() throws CSSException, IOException {
+	public void testParsePropertyValueRGBRealSlashZero() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12.9 127 48.1 / 0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -809,7 +809,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBRealSlashZeroReal() throws CSSException, IOException {
+	public void testParsePropertyValueRGBRealSlashZeroReal() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12.9 127 48.1 / 0.0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -832,7 +832,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlashMini() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlashMini() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48/.1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -855,7 +855,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlashMini2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlashMini2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48/ .1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -878,7 +878,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlashPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlashPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48 / 82%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -901,7 +901,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlashIntAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlashIntAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48 / 1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -924,7 +924,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlashIntAlphaClamp() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlashIntAlphaClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48 / 2)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -947,7 +947,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlashIntAlphaZero() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlashIntAlphaZero() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48 / 0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -970,7 +970,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBSlashIntAlphaZeroClamp() throws CSSException, IOException {
+	public void testParsePropertyValueRGBSlashIntAlphaZeroClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12 127 48 / -2)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -993,7 +993,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBPcntSlash() throws CSSException, IOException {
+	public void testParsePropertyValueRGBPcntSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12% 27% 48%/0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1016,7 +1016,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBPcntSlashPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueRGBPcntSlashPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12% 27% 48%/8%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1039,7 +1039,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBComma() throws CSSException, IOException {
+	public void testParsePropertyValueRGBComma() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12, 127, 48)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1061,7 +1061,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCommaPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCommaPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12%,27%,48%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1083,7 +1083,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCommaPcnt2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCommaPcnt2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(0,27%,48%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1105,7 +1105,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAPcntAlphaPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAPcntAlphaPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(12%, 27%, 48%, 8%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1132,7 +1132,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAPcntAlphaPcntClamp() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAPcntAlphaPcntClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(12%, 27%, 48%, 108%)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1159,7 +1159,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAPcntAlphaInt() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAPcntAlphaInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(12%, 27%, 48%, 0)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1186,7 +1186,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAPcntAlphaInt2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAPcntAlphaInt2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(12%, 27%, 48%, 1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1213,7 +1213,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBAPcntAlphaInt3() throws CSSException, IOException {
+	public void testParsePropertyValueRGBAPcntAlphaInt3() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(12%, 0, 48%, 1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1240,82 +1240,82 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCommaBad() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCommaBad() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12,, 48)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCommaBad2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCommaBad2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12,13,)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCommaBad3() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCommaBad3() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(,13,14,15)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12/ 48 0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12 48/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad3() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad3() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12 48,127,0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad4() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad4() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12,48 127,0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad5() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad5() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12,48,127/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad6() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad6() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgba(0, 0, 0 / 0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad7() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad7() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgba(0, 0, 0, 0, 0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad8() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad8() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 0 0 0/0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad9() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad9() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 0 0/0 0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad10() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad10() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 0 0/0/0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad11() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad11() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 0 0//0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad12() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBad12() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 0 0/0/)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBClampRValue() throws CSSException, IOException {
+	public void testParsePropertyValueRGBClampRValue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(-6 0.2 2.8)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1333,7 +1333,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBClampGValue() throws CSSException, IOException {
+	public void testParsePropertyValueRGBClampGValue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(0.2 -6 2.8)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1351,7 +1351,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBClampBValue() throws CSSException, IOException {
+	public void testParsePropertyValueRGBClampBValue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(0.2 2.8 -6)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1369,110 +1369,110 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadChar() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadChar() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 a 0/ 0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadChar2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadChar2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 0 0/@ 0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadMix() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadMix() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 2% 10)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadMix2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadMix2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(2% 0 10)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadMix3() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadMix3() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(2% 20 10)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadMix4() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadMix4() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(2% 20.6 10)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadMix5() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadMix5() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(20.6 2% 30%)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadMixCommas() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadMixCommas() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0, 2%, 10)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadMixCommas2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadMixCommas2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(2%, 0, 10)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(1,var(--foo)/0.2)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar2() throws CSSException {
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("rgb(1 var(--foo) var(--bar),0.2)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar3() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar3() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(1 /var(--foo))"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar4() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar4() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(1 3 5 /var(--foo)/)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar5() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar5() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(var(--foo)/.8,4)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar6() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar6() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(var(--foo)/.8,.4)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar7() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar7() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue(
 				"rgb(var(--foo),var(--foo),var(--foo),var(--foo),var(--foo))"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar8() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar8() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue(
 				"rgb(var(--foo) var(--foo) var(--foo) var(--foo)/var(--foo))"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar9() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar9() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(var(--foo)/.8/.4)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVar10() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVar10() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(var(--foo)/1/.4)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadVarComma() throws CSSException, IOException {
+	public void testParsePropertyValueRGBBadVarComma() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(10 20 var(--foo), 0)"));
 	}
 
 	@Test
-	public void testParsePropertyValueRGBCommaClampAlphaInteger() throws CSSException, IOException {
+	public void testParsePropertyValueRGBCommaClampAlphaInteger() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(12,48,-127,2)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1500,7 +1500,7 @@ public class PropertyParserColorRGBTest {
 
 	@Test
 	public void testParsePropertyValueRGBCommaClampAlphaNegInteger()
-			throws CSSException, IOException {
+			throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(-12,-48,-127,-1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1527,7 +1527,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBClampAlphaInteger() throws CSSException, IOException {
+	public void testParsePropertyValueRGBClampAlphaInteger() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12% 48% 127%/2)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1550,7 +1550,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBClampAlpha2() throws CSSException, IOException {
+	public void testParsePropertyValueRGBClampAlpha2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12% 48% 127%/-1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1573,7 +1573,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBClampAlphaReal() throws CSSException, IOException {
+	public void testParsePropertyValueRGBClampAlphaReal() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12% 48% 127%/2.1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1596,7 +1596,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBClampAlphaRealNeg() throws CSSException, IOException {
+	public void testParsePropertyValueRGBClampAlphaRealNeg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12% 48% 127%/-0.1)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1619,7 +1619,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSL() throws CSSException, IOException {
+	public void testParsePropertyValueHSL() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1648,7 +1648,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLNumber() throws CSSException, IOException {
+	public void testParsePropertyValueHSLNumber() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12.81 25% 48%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1666,7 +1666,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLAllNumber() throws CSSException, IOException {
+	public void testParsePropertyValueHSLAllNumber() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12.81 25 48)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1684,7 +1684,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLAllReal() throws CSSException, IOException {
+	public void testParsePropertyValueHSLAllReal() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12.81 25.0 48.0)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1702,7 +1702,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLAllIntegerAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHSLAllIntegerAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(240 80 50 / 0.5)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1725,7 +1725,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLAllRealClamp() throws CSSException, IOException {
+	public void testParsePropertyValueHSLAllRealClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12.81 125.0 -48.0)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1743,7 +1743,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLAllIntegerClamp() throws CSSException, IOException {
+	public void testParsePropertyValueHSLAllIntegerClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 125 -148)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1761,7 +1761,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLComma() throws CSSException, IOException {
+	public void testParsePropertyValueHSLComma() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12, 25%, 48%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1783,7 +1783,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommaNumber() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCommaNumber() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12.81, 25%, 48%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1805,7 +1805,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLA() throws CSSException, IOException {
+	public void testParsePropertyValueHSLA() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsla(12, 25%, 48%,.2)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1832,7 +1832,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLANumber() throws CSSException, IOException {
+	public void testParsePropertyValueHSLANumber() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsla(12.81, 25%, 48%,.2)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1859,7 +1859,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLSlash() throws CSSException, IOException {
+	public void testParsePropertyValueHSLSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48% / 0.1)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1882,7 +1882,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLSlashPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueHSLSlashPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48% / 24%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1905,7 +1905,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLSlashClampNegPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueHSLSlashClampNegPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 -25% -48% / -24%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1928,7 +1928,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLNumberSlashPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueHSLNumberSlashPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12.81 25% 48% / 24%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1951,7 +1951,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLSlashIntegerAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHSLSlashIntegerAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48% / 1)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1975,7 +1975,7 @@ public class PropertyParserColorRGBTest {
 
 	@Test
 	public void testParsePropertyValueHSLNumberSlashIntegerAlpha()
-			throws CSSException, IOException {
+			throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12.81 25% 48% / 1)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1999,7 +1999,7 @@ public class PropertyParserColorRGBTest {
 
 	@Test
 	public void testParsePropertyValueHSLNumberSlashIntegerAlphaClamp()
-			throws CSSException, IOException {
+			throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12.81 25% 48% / 1000)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2022,7 +2022,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLSlashIntegerAlpha2() throws CSSException, IOException {
+	public void testParsePropertyValueHSLSlashIntegerAlpha2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48% / 0)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2046,7 +2046,7 @@ public class PropertyParserColorRGBTest {
 
 	@Test
 	public void testParsePropertyValueHSLSlashIntegerAlpha2Clamp()
-			throws CSSException, IOException {
+			throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 148% / -3)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2069,7 +2069,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLDeg() throws CSSException, IOException {
+	public void testParsePropertyValueHSLDeg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12deg 25% 48%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2088,7 +2088,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLDegAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHSLDegAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12deg 25% 48%/1.1)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2112,7 +2112,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLVar() throws CSSException, IOException {
+	public void testParsePropertyValueHSLVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo))");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2130,7 +2130,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLVar2() throws CSSException, IOException {
+	public void testParsePropertyValueHSLVar2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(var(--foo) 25% 30%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2148,7 +2148,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLVarSlash() throws CSSException, IOException {
+	public void testParsePropertyValueHSLVarSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo)/0.6)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2171,7 +2171,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLVarSlash2() throws CSSException, IOException {
+	public void testParsePropertyValueHSLVarSlash2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(var(--foo) 12% 25%/0.6)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2194,7 +2194,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLVarSlashInt() throws CSSException, IOException {
+	public void testParsePropertyValueHSLVarSlashInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo)/1)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2217,7 +2217,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCalcHue() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCalcHue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(calc(12) 25% 48%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2239,7 +2239,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCalcSat() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCalcSat() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 calc(25%) 48%)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2261,7 +2261,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCalcLig() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCalcLig() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% calc(48%))");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2283,7 +2283,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCalcAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCalcAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48%/calc(0.9))");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2310,7 +2310,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCalcAlphaPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCalcAlphaPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% 48%/calc(90%))");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2337,7 +2337,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLAllCalc() throws CSSException, IOException {
+	public void testParsePropertyValueHSLAllCalc() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(calc(12) calc(25%) calc(48%)/calc(90%))");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2381,94 +2381,94 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommaBad() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCommaBad() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12,, 48%)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommaBad2() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCommaBad2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12,13%,)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommaBad3() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCommaBad3() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(,13,14%,15%)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommaNoCommaBadInt() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCommaNoCommaBadInt() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(3,14 15)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommaNoCommaBadPercent() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCommaNoCommaBadPercent() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12,48% 94%,0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommaNoCommaBadReal() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCommaNoCommaBadReal() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12deg,48% 94.2,0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommasSyntaxSlash() throws CSSException, IOException {
+	public void testParsePropertyValueHSLCommasSyntaxSlash() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12,48%,91%/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadCommasSyntaxCalc() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadCommasSyntaxCalc() throws CSSException {
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("hsl(calc(12),calc(48%) calc(91%))"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadNoCommaThenComma() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadNoCommaThenComma() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12 48%,93%,0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadSlashNoAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadSlashNoAlpha() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12 48% 0.1/)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadNoLightness() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadNoLightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12 48%/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadHueEm() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadHueEm() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12em 48% 91%/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLAngleSat() throws CSSException, IOException {
+	public void testParsePropertyValueHSLAngleSat() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(38.5,14deg, 15)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadHuePcnt() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadHuePcnt() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12% 48% 91%)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadDoubleSlash() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadDoubleSlash() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12deg 48% 91%//0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadDoubleAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadDoubleAlpha() throws CSSException {
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("hsl(12deg 48% 91%/2%/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHSLBadDoubleSlash2() throws CSSException, IOException {
+	public void testParsePropertyValueHSLBadDoubleSlash2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12deg 48% 91%/0.1/)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWB() throws CSSException, IOException {
+	public void testParsePropertyValueHWB() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2497,7 +2497,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWB_UC() throws CSSException, IOException {
+	public void testParsePropertyValueHWB_UC() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("HWB(12 25% 48%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2526,7 +2526,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBClamp() throws CSSException, IOException {
+	public void testParsePropertyValueHWBClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 125% 148%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2544,7 +2544,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBClampNeg() throws CSSException, IOException {
+	public void testParsePropertyValueHWBClampNeg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 -125% -148%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2562,7 +2562,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHWBAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48% / 0.1)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2585,7 +2585,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBDecHueAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHWBDecHueAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12.76 25.7% 48.2% / 0.1)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2608,7 +2608,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBClampAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHWBClampAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48% / 1.1)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2631,7 +2631,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBClampAlphaNeg() throws CSSException, IOException {
+	public void testParsePropertyValueHWBClampAlphaNeg() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48% / -1.1)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2654,7 +2654,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBClampAlphaInt() throws CSSException, IOException {
+	public void testParsePropertyValueHWBClampAlphaInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48% / 2)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2677,7 +2677,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBClampAlphaNegInt() throws CSSException, IOException {
+	public void testParsePropertyValueHWBClampAlphaNegInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48% / -1)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2700,7 +2700,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBClampPcntAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHWBClampPcntAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48% / 111%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2723,7 +2723,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBClampNegPcntAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHWBClampNegPcntAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48% / -111%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2746,7 +2746,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBVar() throws CSSException, IOException {
+	public void testParsePropertyValueHWBVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% var(--foo))");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2764,7 +2764,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBVar2() throws CSSException, IOException {
+	public void testParsePropertyValueHWBVar2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(var(--foo) 25% 30%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2782,7 +2782,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBVarSlash() throws CSSException, IOException {
+	public void testParsePropertyValueHWBVarSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% var(--foo)/0.6)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2805,7 +2805,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBVarSlash2() throws CSSException, IOException {
+	public void testParsePropertyValueHWBVarSlash2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(var(--foo) 12% 25%/0.6)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2828,7 +2828,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBVarSlashInt() throws CSSException, IOException {
+	public void testParsePropertyValueHWBVarSlashInt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% var(--foo)/1)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2851,7 +2851,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBCalcHue() throws CSSException, IOException {
+	public void testParsePropertyValueHWBCalcHue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(calc(12) 25% 48%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2873,7 +2873,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBCalcSat() throws CSSException, IOException {
+	public void testParsePropertyValueHWBCalcSat() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 calc(25%) 48%)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2895,7 +2895,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBCalcLig() throws CSSException, IOException {
+	public void testParsePropertyValueHWBCalcLig() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% calc(48%))");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2917,7 +2917,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBCalcAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHWBCalcAlpha() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48%/calc(0.9))");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2944,7 +2944,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBCalcAlphaPcnt() throws CSSException, IOException {
+	public void testParsePropertyValueHWBCalcAlphaPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% 48%/calc(90%))");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2971,73 +2971,73 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadLightness() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadLightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12 48% 0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadNoLightness() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadNoLightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12 48%/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadCommaSyntax() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadCommaSyntax() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12,48%,91%)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadHuePcnt() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadHuePcnt() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12% 48% 91%/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadHueEm() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadHueEm() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12em 48% 91%/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadIntSat() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadIntSat() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48 91%)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadRealSat() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadRealSat() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48.2 91%)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadIntLightness() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadIntLightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadRealLightness() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadRealLightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadAngleLightness() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadAngleLightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91.1deg)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadDoubleSlash() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadDoubleSlash() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91%//0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadDoubleSlashAlpha() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadDoubleSlashAlpha() throws CSSException {
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("hwb(12deg 48% 91%/2%/0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadSlashAlphaSlash() throws CSSException, IOException {
+	public void testParsePropertyValueHWBBadSlashAlphaSlash() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91%/0.1/)"));
 	}
 
 	@Test
-	public void testParsePropertyValueColorHex3() throws CSSException, IOException {
+	public void testParsePropertyValueColorHex3() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("#fd3");
 		assertEquals(LexicalType.RGBCOLOR, lunit.getLexicalUnitType());
 		assertEquals("rgb", lunit.getFunctionName());
@@ -3066,7 +3066,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueColorHex4() throws CSSException, IOException {
+	public void testParsePropertyValueColorHex4() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("#fd3b");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		assertEquals("#fd3b", lu.toString());
@@ -3093,7 +3093,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueColorHex6() throws CSSException, IOException {
+	public void testParsePropertyValueColorHex6() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("#a7f31a");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		assertEquals("#a7f31a", lu.toString());
@@ -3113,7 +3113,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueColorHex8() throws CSSException, IOException {
+	public void testParsePropertyValueColorHex8() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("#a7f31af0");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		assertEquals("#a7f31af0", lu.toString());
@@ -3139,8 +3139,12 @@ public class PropertyParserColorRGBTest {
 		assertNull(lu.getNextLexicalUnit());
 	}
 
-	private LexicalUnit parsePropertyValue(String value) throws CSSParseException, IOException {
-		return parser.parsePropertyValue(new StringReader(value));
+	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {
+		try {
+			return parser.parsePropertyValue(new StringReader(value));
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 }
