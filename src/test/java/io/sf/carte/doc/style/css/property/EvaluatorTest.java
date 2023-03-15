@@ -826,8 +826,8 @@ public class EvaluatorTest {
 	}
 
 	@Test
-	public void testMinNotCalculated() {
-		style.setCssText("foo: min(1.2, 3)");
+	public void testMinNotCalculated1() {
+		style.setCssText("foo: min(1.2, 3*2)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(MathFunction.MIN, val.getFunction());
@@ -837,6 +837,8 @@ public class EvaluatorTest {
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
 		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
@@ -844,6 +846,30 @@ public class EvaluatorTest {
 
 		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
 		assertEquals(1.2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertFalse(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testMinNotCalculated2() {
+		style.setCssText("foo: min(2.4*2, 3)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(MathFunction.MIN, val.getFunction());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(3f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
 
@@ -1030,7 +1056,7 @@ public class EvaluatorTest {
 
 	@Test
 	public void testMaxNotCalculated1() {
-		style.setCssText("foo: max(4, 3)");
+		style.setCssText("foo: max(4, 1.5*2)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(MathFunction.MAX, val.getFunction());
@@ -1040,6 +1066,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -1053,7 +1081,7 @@ public class EvaluatorTest {
 
 	@Test
 	public void testMaxNotCalculated2() {
-		style.setCssText("foo: max(4, 5)");
+		style.setCssText("foo: max(2*2, 5)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(MathFunction.MAX, val.getFunction());
@@ -1063,6 +1091,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -1213,7 +1243,7 @@ public class EvaluatorTest {
 
 	@Test
 	public void testClampNotCalculated1() {
-		style.setCssText("foo: clamp(12, 8, 16)");
+		style.setCssText("foo: clamp(12, 4*2, 4*4)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(MathFunction.CLAMP, val.getFunction());
@@ -1223,6 +1253,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -1236,7 +1268,7 @@ public class EvaluatorTest {
 
 	@Test
 	public void testClampNotCalculated2() {
-		style.setCssText("foo: clamp(1.2, 8, 16)");
+		style.setCssText("foo: clamp(1.6*2, 8, 4*4)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(MathFunction.CLAMP, val.getFunction());
@@ -1246,6 +1278,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -1259,7 +1293,7 @@ public class EvaluatorTest {
 
 	@Test
 	public void testClampNotCalculated3() {
-		style.setCssText("foo: clamp(1.2, 18, 16)");
+		style.setCssText("foo: clamp(2*2, 2*9, 16)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(MathFunction.CLAMP, val.getFunction());
@@ -1269,6 +1303,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -2364,7 +2400,7 @@ public class EvaluatorTest {
 	}
 
 	@Test
-	public void testSignPos() {
+	public void testSignPositive() {
 		style.setCssText("foo: sign(1.2)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
@@ -2375,6 +2411,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -2397,6 +2435,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -2440,7 +2480,7 @@ public class EvaluatorTest {
 	}
 
 	@Test
-	public void testSignUnitPos() {
+	public void testSignUnitPositive() {
 		style.setCssText("foo: sign(1.2pt)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
@@ -2490,6 +2530,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -2542,7 +2584,7 @@ public class EvaluatorTest {
 	}
 
 	@Test
-	public void testAbsPos() {
+	public void testAbsPositive() {
 		style.setCssText("foo: abs(1.2)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
@@ -2553,6 +2595,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -2575,6 +2619,8 @@ public class EvaluatorTest {
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -2603,6 +2649,8 @@ public class EvaluatorTest {
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
 		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
@@ -2623,7 +2671,7 @@ public class EvaluatorTest {
 	}
 
 	@Test
-	public void testAbsUnitPos() {
+	public void testAbsUnitPositive() {
 		style.setCssText("foo: abs(1.2pt)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
