@@ -19,6 +19,7 @@ import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -63,23 +64,29 @@ class CounterValue extends AbstractCounterValue {
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
-			setName(lu.getStringValue());
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+				setName(lu.getStringValue());
+			} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
+				throw new CSSLexicalProcessingException("var() inside counter() found.");
+			}
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalUnit.LexicalType.OPERATOR_COMMA) {
+				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					lu = lu.getNextLexicalUnit();
 					if (lu == null) {
 						badSyntax(lunit);
 					}
-					LexicalUnit.LexicalType lutype = lu.getLexicalUnitType();
-					if (lutype == LexicalUnit.LexicalType.IDENT || (lutype == LexicalUnit.LexicalType.FUNCTION
+					LexicalType lutype = lu.getLexicalUnitType();
+					if (lutype == LexicalType.IDENT || (lutype == LexicalType.FUNCTION
 							&& "symbols".equalsIgnoreCase(lu.getFunctionName()))) {
 						ValueFactory vf = new ValueFactory();
-						LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, false);
+						LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, true);
 						setCounterStyle(item.getCSSValue());
 						if (item.getNextLexicalUnit() != null) {
 							badSyntax(lunit);
 						}
+					} else if (lutype == LexicalType.VAR) {
+						throw new CSSLexicalProcessingException("var() inside counter() found.");
 					} else {
 						badSyntax(lunit);
 					}

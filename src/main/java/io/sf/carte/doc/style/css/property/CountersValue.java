@@ -77,15 +77,25 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
-			setName(lu.getStringValue());
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+				setName(lu.getStringValue());
+			} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
+				throw new CSSLexicalProcessingException("var() inside counters() found.");
+			}
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
 				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					lu = lu.getNextLexicalUnit();
-					if (lu == null || lu.getLexicalUnitType() != LexicalType.STRING) {
+					if (lu == null) {
 						badSyntax(lunit);
 					}
-					setSeparator(lu.getStringValue());
+					if (lu.getLexicalUnitType() == LexicalType.STRING) {
+						setSeparator(lu.getStringValue());
+					} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
+						throw new CSSLexicalProcessingException("var() inside counters() found.");
+					} else {
+						badSyntax(lunit);
+					}
 					lu = lu.getNextLexicalUnit();
 					if (lu != null) {
 						if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
@@ -97,11 +107,13 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 							if (lutype == LexicalType.IDENT || (lutype == LexicalType.FUNCTION
 									&& "symbols".equalsIgnoreCase(lu.getFunctionName()))) {
 								ValueFactory vf = new ValueFactory();
-								LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, false);
+								LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, true);
 								setCounterStyle(item.getCSSValue());
 								if (item.getNextLexicalUnit() != null) {
 									badSyntax(lunit);
 								}
+							} else if (lutype == LexicalType.VAR) {
+								throw new CSSLexicalProcessingException("var() inside counters() found.");
 							} else {
 								badSyntax(lunit);
 							}

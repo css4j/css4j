@@ -763,6 +763,161 @@ public class LexicalValueTest {
 	}
 
 	@Test
+	public void testCounter_Var() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("content: counter(var(--myCounter), decimal);");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counter(var(--myCounter), decimal)", cssval.getCssText());
+		assertEquals("counter(var(--myCounter),decimal)", cssval.getMinifiedCssText("content"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounter_Var2() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("content: counter(ListCounter, var(--myCounterStyle));");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counter(ListCounter, var(--myCounterStyle))", cssval.getCssText());
+		assertEquals("counter(ListCounter,var(--myCounterStyle))",
+				cssval.getMinifiedCssText("content"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounter_Var_Symbols() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("content: counter(ListCounter, symbols(var(--symbolType) '*' '†' '‡'));");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counter(ListCounter, symbols(var(--symbolType) '*' '†' '‡'))",
+				cssval.getCssText());
+		assertEquals("counter(ListCounter,symbols(var(--symbolType) '*' '†' '‡'))",
+				cssval.getMinifiedCssText("content"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounters_Var() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("content: counters(var(--myCounter),'. ');");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counters(var(--myCounter), '. ')", cssval.getCssText());
+		assertEquals("counters(var(--myCounter),'. ')", cssval.getMinifiedCssText("content"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounters_Var_Separator() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("content: counters(ListCounter,var(--mySeparator));");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counters(ListCounter, var(--mySeparator))", cssval.getCssText());
+		assertEquals("counters(ListCounter,var(--mySeparator))",
+				cssval.getMinifiedCssText("content"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounters_Var_Symbols() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+				"content: counters(ListCounter,'. ',symbols(var(--symbolType) '*' '†' '‡'));");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counters(ListCounter, '. ', symbols(var(--symbolType) '*' '†' '‡'))",
+				cssval.getCssText());
+		assertEquals("counters(ListCounter,'. ',symbols(var(--symbolType) '*' '†' '‡'))",
+				cssval.getMinifiedCssText("content"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounters_Var_CounterStyle() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("content: counters(ListCounter,'. ',var(--counterStyle));");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counters(ListCounter, '. ', var(--counterStyle))", cssval.getCssText());
+		assertEquals("counters(ListCounter,'. ',var(--counterStyle))",
+				cssval.getMinifiedCssText("content"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
 	public void testClone() {
 		LexicalValue value = new LexicalValue();
 		value.setCssText("1em 1px");
