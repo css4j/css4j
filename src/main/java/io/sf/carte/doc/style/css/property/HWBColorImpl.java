@@ -11,7 +11,11 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HWBColor;
 
 class HWBColorImpl extends BaseColor implements HWBColor {
@@ -97,6 +101,102 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	@Override
+	void setColorComponents(double[] hwb) {
+		NumberValue h = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, (float) hwb[0]);
+		h.setSubproperty(true);
+		h.setAbsolutizedUnit();
+		setHue(h);
+
+		PercentageValue w = new PercentageValue();
+		w.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) (hwb[1] * 100d));
+		w.setSubproperty(true);
+		w.setAbsolutizedUnit();
+		setWhiteness(w);
+
+		PercentageValue b = new PercentageValue();
+		b.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) (hwb[2] * 100d));
+		b.setSubproperty(true);
+		b.setAbsolutizedUnit();
+		setBlackness(b);
+	}
+
+	@Override
+	double[] toArray() {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
+		double[] hwb = new double[3];
+		hwb[0] = ColorUtil.hueDegrees((CSSTypedValue) getHue());
+		hwb[1] = ColorUtil.floatPercent((CSSTypedValue) getWhiteness());
+		hwb[2] = ColorUtil.floatPercent((CSSTypedValue) getBlackness());
+		return hwb;
+	}
+
+	@Override
+	double[] toSRGB(boolean clamp) {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
+		double hue = ColorUtil.hueDegrees((CSSTypedValue) getHue()) / 360f;
+		double whiteness = ColorUtil.fraction((CSSTypedValue) getWhiteness());
+		double blackness = ColorUtil.fraction((CSSTypedValue) getBlackness());
+
+		double[] rgb = new double[3];
+		hwbToSRGB(hue, whiteness, blackness, rgb);
+		return rgb;
+	}
+
+	private void hwbToSRGB(double hue, double whiteness, double blackness, double[] rgb) {
+		if (hue > 1d) {
+			hue -= Math.floor(hue);
+		} else if (hue < 0d) {
+			hue = hue - Math.floor(hue) + 1d;
+		}
+		hue *= 6d;
+		double fh = Math.floor(hue);
+		double f = hue - fh;
+		int ifh = (int) fh;
+		if (ifh % 2 == 1) {
+			f = 1d - f;
+		}
+		double value = 1d - blackness;
+		double wv = whiteness + f * (value - whiteness);
+		switch (ifh) {
+		case 1:
+			rgb[0] = wv;
+			rgb[1] = value;
+			rgb[2] = whiteness;
+			break;
+		case 2:
+			rgb[0] = whiteness;
+			rgb[1] = value;
+			rgb[2] = wv;
+			break;
+		case 3:
+			rgb[0] = whiteness;
+			rgb[1] = wv;
+			rgb[2] = value;
+			break;
+		case 4:
+			rgb[0] = wv;
+			rgb[1] = whiteness;
+			rgb[2] = value;
+			break;
+		case 5:
+			rgb[0] = value;
+			rgb[1] = whiteness;
+			rgb[2] = wv;
+			break;
+		default:
+			rgb[0] = value;
+			rgb[1] = wv;
+			rgb[2] = whiteness;
+		}
+	}
+
+	@Override
 	public String toString() {
 		boolean nonOpaque = isNonOpaque();
 		StringBuilder buf = new StringBuilder(20);
@@ -173,6 +273,11 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 			return false;
 		}
 		return alpha.equals(other.alpha);
+	}
+
+	@Override
+	public ColorValue packInValue() {
+		return new HWBColorValue(this);
 	}
 
 	@Override

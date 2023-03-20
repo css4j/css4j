@@ -36,8 +36,12 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 	private final LCHColorImpl lchColor;
 
 	public OKLCHColorValue() {
+		this(new LCHColorImpl(Space.OK_LCh, ColorSpace.ok_lch));
+	}
+
+	OKLCHColorValue(LCHColorImpl color) {
 		super();
-		lchColor = new LCHColorImpl(Space.OK_LCh, ColorSpace.ok_lch);
+		lchColor = color;
 	}
 
 	OKLCHColorValue(OKLCHColorValue copied) {
@@ -95,14 +99,18 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 		//
 		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
 		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
-		float h = ColorUtil.hueRadians(primihue);
+		double h = ColorUtil.hueRadians(primihue);
 		//
-		float a = (float) (c * Math.cos(h));
-		float b = (float) (c * Math.sin(h));
+		double a = c * Math.cos(h);
+		double b = c * Math.sin(h);
 		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
+		ColorProfile profile = new SRGBColorProfile();
+		double[] rgb = new double[3];
+		ColorUtil.oklabToRGB(light, a, b, clamp, profile, rgb);
 		CSSRGBColor color = new CSSRGBColor();
-		ColorUtil.oklabToRGB(light, a, b, clamp, lchColor.getAlpha(), color);
+		color.setColorComponents(rgb);
+		color.setAlpha(lchColor.getAlpha().clone());
 		return color;
 	}
 
@@ -124,14 +132,14 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
 		}
 		//
-		float a = (float) (c * Math.cos(h));
-		float b = (float) (c * Math.sin(h));
+		double a = c * Math.cos(h);
+		double b = c * Math.sin(h);
 		//
-		float[] lab = new float[3];
+		double[] lab = new double[3];
 		ColorUtil.oklabToLab(light, a, b, lab);
-		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[0]);
-		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[1]);
-		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[2]);
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[0]);
+		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[1]);
+		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[2]);
 		primiL.setAbsolutizedUnit();
 		primia.setAbsolutizedUnit();
 		primib.setAbsolutizedUnit();
@@ -162,10 +170,10 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
 		}
 		//
-		float a = (float) (c * Math.cos(h));
-		float b = (float) (c * Math.sin(h));
+		double a = c * Math.cos(h);
+		double b = c * Math.sin(h);
 		//
-		float[] lab = new float[3];
+		double[] lab = new double[3];
 		ColorUtil.oklabToLab(light, a, b, lab);
 		c = (float) Math.sqrt(lab[1] * lab[1] + lab[2] * lab[2]);
 		h = (float) (Math.atan2(lab[2], lab[1]) * 180f / Math.PI);
@@ -173,7 +181,7 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 			h += 360f;
 		}
 		//
-		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[0]);
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[0]);
 		NumberValue primiC = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, c);
 		NumberValue primih = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, h);
 		primiL.setAbsolutizedUnit();
@@ -276,12 +284,10 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
 			// lightness
-			PrimitiveValue primilight = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
 			// chroma
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primichroma = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primichroma = factory.createCSSPrimitiveValue(lu, true);
 			// hue
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primihue = factory.createCSSPrimitiveValue(lu, true);

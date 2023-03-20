@@ -220,6 +220,14 @@ public interface LexicalUnit {
 		COLOR_FUNCTION,
 
 		/**
+		 * color-mix() function, for example: <code>color-mix(in display-p3, #0200fa 10%, white)</code>
+		 * 
+		 * @see #getFunctionName
+		 * @see #getParameters
+		 */
+		COLOR_MIX,
+
+		/**
 		 * Identifier, both predefined and custom.
 		 * 
 		 * @see #getStringValue

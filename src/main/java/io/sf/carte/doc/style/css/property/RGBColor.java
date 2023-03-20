@@ -16,12 +16,14 @@ import java.util.Objects;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.RGBAColor;
+import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 
 class RGBColor extends BaseColor implements RGBAColor {
 
@@ -99,11 +101,24 @@ class RGBColor extends BaseColor implements RGBAColor {
 		if (red == null) {
 			throw new NullPointerException();
 		}
-		enforceColorComponentType(red);
-		this.red = red;
+		this.red = enforceColorComponentType(red);
 	}
 
-	void enforceColorComponentType(PrimitiveValue primi) {
+	PrimitiveValue enforceColorComponentType(PrimitiveValue primi) {
+		if (primi.getPrimitiveType() == Type.EXPRESSION) {
+			PercentageEvaluator eval = new PercentageEvaluator();
+			try {
+				primi = eval.evaluateExpression((ExpressionValue) primi);
+			} catch (DOMException e) {
+			}
+		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
+			PercentageEvaluator eval = new PercentageEvaluator();
+			try {
+				primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			} catch (DOMException e) {
+			}
+		}
+
 		if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
 			CSSTypedValue typed = (CSSTypedValue) primi;
 			float fv = typed.getFloatValue(CSSUnit.CSS_NUMBER);
@@ -130,9 +145,16 @@ class RGBColor extends BaseColor implements RGBAColor {
 					typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 100f);
 				}
 			}
-		} else if (primi.getCssValueType() != CssType.PROXY && primi.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with color component.");
+		} else if (primi.getCssValueType() != CssType.PROXY
+				&& primi.getPrimitiveType() != Type.EXPRESSION
+				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+				&& (primi.getPrimitiveType() != Type.IDENT
+						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Type not compatible with color component.");
 		}
+
+		return primi;
 	}
 
 	@Override
@@ -144,8 +166,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 		if (green == null) {
 			throw new NullPointerException();
 		}
-		enforceColorComponentType(green);
-		this.green = green;
+		this.green = enforceColorComponentType(green);
 	}
 
 	@Override
@@ -157,8 +178,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 		if (blue == null) {
 			throw new NullPointerException();
 		}
-		enforceColorComponentType(blue);
-		this.blue = blue;
+		this.blue = enforceColorComponentType(blue);
 	}
 
 	@Override
@@ -172,6 +192,65 @@ class RGBColor extends BaseColor implements RGBAColor {
 				&& isConvertibleComponent(getBlue());
 	}
 
+	@Override
+	double[] toArray() {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+		double[] rgb = new double[3];
+		rgb[0] = rgbComponentNormalized((TypedValue) getRed());
+		rgb[1] = rgbComponentNormalized((TypedValue) getGreen());
+		rgb[2] = rgbComponentNormalized((TypedValue) getBlue());
+		return rgb;
+	}
+
+	@Override
+	void setColorComponents(double[] rgb) {
+		PercentageValue red = new PercentageValue();
+		red.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) (rgb[0] * 100d));
+		red.setSubproperty(true);
+		red.setAbsolutizedUnit();
+		setRed(red);
+
+		PercentageValue green = new PercentageValue();
+		green.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) (rgb[1] * 100d));
+		green.setSubproperty(true);
+		green.setAbsolutizedUnit();
+		setGreen(green);
+
+		PercentageValue blue = new PercentageValue();
+		blue.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) (rgb[2] * 100d));
+		blue.setSubproperty(true);
+		blue.setAbsolutizedUnit();
+		setBlue(blue);
+	}
+
+	@Override
+	double[] toSRGB(boolean clamp) {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+		double[] rgb = new double[3];
+		rgb[0] = rgbComponentNormalized((TypedValue) getRed());
+		rgb[1] = rgbComponentNormalized((TypedValue) getGreen());
+		rgb[2] = rgbComponentNormalized((TypedValue) getBlue());
+		return rgb;
+	}
+
+	@Override
+	double[] toXYZ(Illuminant white) {
+		double[] rgb =toSRGB(true);
+		double r = RGBColor.inverseSRGBCompanding(rgb[0]);
+		double g = RGBColor.inverseSRGBCompanding(rgb[1]);
+		double b = RGBColor.inverseSRGBCompanding(rgb[2]);
+
+		double[] xyz = ColorUtil.linearSRGBToXYZd65(r, g, b);
+		if (white == Illuminant.D50) {
+			xyz = ColorUtil.d65xyzToD50(xyz);
+		}
+		return xyz;
+	}
+
 	public HSLColor toHSLColor() {
 		HSLColorImpl hslColor = createHSLColor();
 		toHSLColor(hslColor);
@@ -183,18 +262,18 @@ class RGBColor extends BaseColor implements RGBAColor {
 	}
 
 	void toHSLColor(HSLColorImpl hslColor) {
-		Hsl hsl = toHSL();
+		double[] hsl = toHSL();
 		if (hsl == null) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Conversion to hsl() failed.");
 		}
 		NumberValue h = new NumberValue();
-		h.setFloatValue(CSSUnit.CSS_DEG, hsl.h);
+		h.setFloatValue(CSSUnit.CSS_DEG, (float) hsl[0]);
 		h.setAbsolutizedUnit();
 		PercentageValue s = new PercentageValue();
-		s.setFloatValue(CSSUnit.CSS_PERCENTAGE, hsl.s);
+		s.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) hsl[1]);
 		s.setAbsolutizedUnit();
 		PercentageValue l = new PercentageValue();
-		l.setFloatValue(CSSUnit.CSS_PERCENTAGE, hsl.l);
+		l.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) hsl[2]);
 		l.setAbsolutizedUnit();
 		hslColor.setHue(h);
 		hslColor.setSaturation(s);
@@ -202,131 +281,47 @@ class RGBColor extends BaseColor implements RGBAColor {
 		hslColor.setAlpha(getAlpha());
 	}
 
-	private static class Hsl {
-		float h, s, l;
-	}
-
 	/**
 	 * Convert the color to HSL space.
 	 * 
 	 * @return the color in HSL space, or null if the conversion failed.
 	 */
-	Hsl toHSL() {
-		float r, g, b;
-		if (red.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			r = ((CSSTypedValue) red).getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01f;
-		} else if (red.getUnitType() == CSSUnit.CSS_NUMBER) {
-			r = ((CSSTypedValue) red).getFloatValue(CSSUnit.CSS_NUMBER);
-			r = r / 255f;
-		} else {
-			return null;
-		}
-		if (green.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			g = ((CSSTypedValue) green).getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01f;
-		} else if (green.getUnitType() == CSSUnit.CSS_NUMBER) {
-			g = ((CSSTypedValue) green).getFloatValue(CSSUnit.CSS_NUMBER);
-			g = g / 255f;
-		} else {
-			return null;
-		}
-		if (blue.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			b = ((CSSTypedValue) blue).getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01f;
-		} else if (blue.getUnitType() == CSSUnit.CSS_NUMBER) {
-			b = ((CSSTypedValue) blue).getFloatValue(CSSUnit.CSS_NUMBER);
-			b = b / 255f;
-		} else {
-			return null;
-		}
-		if (r > 1f || g > 1f || b > 1f) {
-			return null;
-		}
-		float max;
-		boolean maxr = false, maxg = false;
-		if (g > r) {
-			max = g;
-			maxg = true;
-		} else {
-			max = r;
-			maxr = true;
-		}
-		if (b > max) {
-			max = b;
-			maxr = false;
-			maxg = false;
-		}
-		float min = Math.min(r, g);
-		min = Math.min(min, b);
-		float h;
-		if (max == min) {
-			h = 0f;
-		} else if (maxr) {
-			h = (g - b) / (max - min) * 60f + 360f;
-			h = (float) Math.IEEEremainder(h, 360d);
-			if (h < 0f) {
-				h += 360f;
-			}
-		} else if (maxg) {
-			h = (b - r) / (max - min) * 60f + 120f;
-			if (h < 0f) {
-				h += 360f;
-			}
-		} else {
-			h = (r - g) / (max - min) * 60f + 240f;
-			if (h < 0f) {
-				h += 360f;
-			}
-		}
-		float l = (max + min) * 0.5f;
-		Hsl hsl = new Hsl();
-		if (max != min) {
-			if (l <= 0.5f) {
-				hsl.s = Math.round((max - min) / l * 500f) * 0.1f;
-			} else {
-				hsl.s = Math.round((max - min) / (1f - l) * 500f) * 0.1f;
-			}
-		} else {
-			hsl.s = 0;
-		}
-		hsl.h = Math.round(h * 10f) * 0.1f;
-		if (hsl.h >= 360f) {
-			hsl.h -= 360f;
-		}
-		hsl.l = Math.round(l * 1000f) * 0.1f;
-		return hsl;
-	}
-
-	void toLABColor(LABColorImpl color) throws DOMException {
+	double[] toHSL() {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		double r = rgbComponentNormalized((TypedValue) getRed());
-		double g = rgbComponentNormalized((TypedValue) getGreen());
-		double b = rgbComponentNormalized((TypedValue) getBlue());
-		//
-		rgbToLab(r, g, b, getAlpha(), color);
+		double r, g, b;
+		r = rgbComponentNormalized((TypedValue) red);
+		g = rgbComponentNormalized((TypedValue) green);
+		b = rgbComponentNormalized((TypedValue) blue);
+
+		if (r > 1f || g > 1f || b > 1f) {
+			return null;
+		}
+
+		return ColorUtil.srgbToHsl(r, g, b);
 	}
 
 	/**
 	 * Normalize a component to a [0,1] interval.
 	 * 
-	 * @param number the component.
+	 * @param typed the component.
 	 * @return the normalized component.
 	 */
-	double rgbComponentNormalized(TypedValue number) {
+	double rgbComponentNormalized(TypedValue typed) {
 		double comp;
-		if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			comp = number.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01d;
+		short unit = typed.getUnitType();
+		if (unit == CSSUnit.CSS_PERCENTAGE) {
+			comp = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01d;
+		} else if (unit == CSSUnit.CSS_NUMBER) {
+			comp = typed.getFloatValue(CSSUnit.CSS_NUMBER) / 255d;
+		} else if (typed.getPrimitiveType() == Type.IDENT) {
+			comp = 0d;
 		} else {
-			comp = number.getFloatValue(CSSUnit.CSS_NUMBER) / 255d;
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Wrong component: " + typed.getCssText());
 		}
 		return comp;
-	}
-
-	void rgbToLab(double r, double g, double b, PrimitiveValue alpha, LABColorImpl labColor) {
-		float[] lab = new float[3];
-		// Convert inverse-companded RGB color to Lab
-		ColorUtil.rgbToLab(r, g, b, lab);
-		setLabColor(lab, alpha, labColor);
 	}
 
 	static double inverseSRGBCompanding(double compandedComponent) {
@@ -449,7 +444,12 @@ class RGBColor extends BaseColor implements RGBAColor {
 	}
 
 	@Override
-	public BaseColor clone() {
+	public ColorValue packInValue() {
+		return new RGBColorValue(this);
+	}
+
+	@Override
+	public RGBColor clone() {
 		return new RGBColor(this);
 	}
 

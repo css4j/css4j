@@ -36,8 +36,12 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	private final LABColorImpl labColor;
 
 	public LABColorValue() {
+		this(new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab));
+	}
+
+	LABColorValue(LABColorImpl color) {
 		super();
-		labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
+		labColor = color;
 	}
 
 	LABColorValue(LABColorValue copied) {
@@ -89,16 +93,11 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColor(boolean clamp) throws DOMException {
-		// Convert to XYZ
-		if (!labColor.hasConvertibleComponents()) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
-		}
-		float light = ((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
-		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
-		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
-		//
+		// Convert to sRGB
+		double[] rgb = labColor.toSRGB(clamp);
 		CSSRGBColor color = new CSSRGBColor();
-		ColorUtil.labToRGB(light, a, b, clamp, labColor.getAlpha(), color);
+		color.setColorComponents(rgb);
+		color.setAlpha(labColor.getAlpha().clone());
 		return color;
 	}
 
@@ -221,16 +220,13 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
 			// lightness
-			PrimitiveValue primilight = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
 			// a
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primia = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primia = factory.createCSSPrimitiveValue(lu, true);
 			// b
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primib = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primib = factory.createCSSPrimitiveValue(lu, true);
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {

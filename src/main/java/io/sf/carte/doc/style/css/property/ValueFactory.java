@@ -946,6 +946,10 @@ public class ValueFactory {
 				primi = new VarValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case COLOR_MIX:
+				primi = new ColorMixFunction();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case EMPTY:
 				primi = new LexicalValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);

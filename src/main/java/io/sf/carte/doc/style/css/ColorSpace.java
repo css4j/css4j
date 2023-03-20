@@ -48,9 +48,14 @@ public interface ColorSpace {
 	String rec2020 = "rec2020";
 
 	/**
-	 * CIE XYZ
+	 * CIE XYZ (D65)
 	 */
 	String xyz = "xyz";
+
+	/**
+	 * CIE XYZ (D50)
+	 */
+	String xyz_d50 = "xyz-d50";
 
 	/**
 	 * CIE Lab

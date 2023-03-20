@@ -51,6 +51,10 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		super(Type.COLOR);
 	}
 
+	ColorValue(Type unitType) {
+		super(unitType);
+	}
+
 	ColorValue(ColorValue copied) {
 		super(copied);
 		this.systemDefault = copied.systemDefault;
@@ -114,7 +118,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	}
 
 	@Override
-	public String getMinifiedCssText(String propertyValue) {
+	public String getMinifiedCssText(String propertyName) {
 		return getColor().toMinifiedString();
 	}
 

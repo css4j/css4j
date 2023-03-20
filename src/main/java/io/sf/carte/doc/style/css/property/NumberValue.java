@@ -294,6 +294,10 @@ public class NumberValue extends TypedValue {
 		this.specified = false;
 	}
 
+	void setSpecified(boolean specified) {
+		this.specified = specified;
+	}
+
 	boolean isSpecified() {
 		return specified;
 	}
@@ -593,6 +597,9 @@ public class NumberValue extends TypedValue {
 		String requestedUnitStr;
 		try {
 			requestedUnitStr = CSSUnit.dimensionUnitString(unitType);
+			if (requestedUnitStr.length() == 0) {
+				requestedUnitStr ="<number>";
+			}
 		} catch (DOMException e) {
 			requestedUnitStr = '<' + Integer.toString(unitType) + '>';
 		}

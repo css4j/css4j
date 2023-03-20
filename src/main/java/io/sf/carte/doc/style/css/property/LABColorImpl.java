@@ -14,8 +14,13 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 import java.util.Objects;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.LABColor;
+import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -101,17 +106,17 @@ class LABColorImpl extends BaseColor implements LABColor {
 	public void setLightness(PrimitiveValue lightness) {
 		float factor;
 		int maxDigits;
-		boolean calculated;
+		boolean specified;
 		if (Space.OK_Lab.equals(colorSpace)) {
 			factor = 0.01f;
-			maxDigits = 5;
-			calculated = true;
+			maxDigits = 6;
+			specified = false;
 		} else {
 			factor = 1f;
 			maxDigits = 4;
-			calculated = false;
+			specified = true;
 		}
-		this.lightness = normalizePcntToNumber(lightness, factor, maxDigits, calculated);
+		this.lightness = normalizePcntToNumber(lightness, factor, maxDigits, specified);
 	}
 
 	@Override
@@ -126,7 +131,7 @@ class LABColorImpl extends BaseColor implements LABColor {
 		} else {
 			factor = 1.25f;
 		}
-		this.a = normalizePcntToNumber(a, factor, 5, true);
+		this.a = normalizePcntToNumber(a, factor, 5, false);
 	}
 
 	@Override
@@ -141,13 +146,100 @@ class LABColorImpl extends BaseColor implements LABColor {
 		} else {
 			factor = 1.25f;
 		}
-		this.b = normalizePcntToNumber(b, factor, 5, true);
+		this.b = normalizePcntToNumber(b, factor, 5, false);
 	}
 
 	@Override
 	boolean hasConvertibleComponents() {
 		return isConvertibleComponent(getA()) && isConvertibleComponent(getB())
 				&& isConvertibleComponent(getLightness());
+	}
+
+	@Override
+	void setColorComponents(double[] lab) {
+		NumberValue l = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[0]);
+		l.setSubproperty(true);
+		l.setAbsolutizedUnit();
+		if (getSpace() == Space.OK_Lab) {
+			l.setMaxFractionDigits(6);
+		} else {
+			l.setMaxFractionDigits(4);
+		}
+		setLightness(l);
+
+		NumberValue a = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[1]);
+		a.setSubproperty(true);
+		a.setAbsolutizedUnit();
+		a.setMaxFractionDigits(5);
+		setA(a);
+
+		NumberValue b = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[2]);
+		b.setSubproperty(true);
+		b.setAbsolutizedUnit();
+		b.setMaxFractionDigits(5);
+		setB(b);
+	}
+
+	@Override
+	double[] toArray() {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
+		double[] lab = new double[3];
+		lab[0] = ColorUtil.floatNumber((CSSTypedValue) getLightness());
+		lab[1] = ColorUtil.floatNumber((CSSTypedValue) getA());
+		lab[2] = ColorUtil.floatNumber((CSSTypedValue) getB());
+		return lab;
+	}
+
+	@Override
+	double[] toSRGB(boolean clamp) {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+		float light = ColorUtil.floatNumber((CSSTypedValue) getLightness());
+		float a = ColorUtil.floatNumber((CSSTypedValue) getA());
+		float b = ColorUtil.floatNumber((CSSTypedValue) getB());
+
+		double[] rgb = new double[3];
+		ColorProfile profile = new SRGBColorProfile();
+		if (colorSpace == Space.OK_Lab) {
+			ColorUtil.oklabToRGB(light, a, b, clamp, profile, rgb);
+		} else {
+			ColorUtil.labToClampedRGB(light, a, b, clamp, profile, rgb);
+		}
+		return rgb;
+	}
+
+	@Override
+	double[] toXYZ(Illuminant white) {
+		// Convert to XYZ
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
+		float light = ColorUtil.floatNumber((CSSTypedValue) getLightness());
+		float a = ColorUtil.floatNumber((CSSTypedValue) getA());
+		float b = ColorUtil.floatNumber((CSSTypedValue) getB());
+
+		double[] xyz;
+
+		if (colorSpace == Space.OK_Lab) {
+			xyz = ColorUtil.oklabToXyzD65(light, a, b);
+			if (white == Illuminant.D50) {
+				// Chromatic adjustment: D65 to D50
+				xyz = ColorUtil.d65xyzToD50(xyz);
+			}
+		} else {
+			xyz = ColorUtil.labToXYZd50(light, a, b);
+			if (white == Illuminant.D65) {
+				// D50 to D65
+				xyz = ColorUtil.d50xyzToD65(xyz);
+			}
+		}
+
+		return xyz;
 	}
 
 	@Override
@@ -245,6 +337,14 @@ class LABColorImpl extends BaseColor implements LABColor {
 			return false;
 		}
 		return alpha.equals(other.alpha);
+	}
+
+	@Override
+	public ColorValue packInValue() {
+		if (colorSpace == Space.OK_Lab) {
+			return new OKLABColorValue(this);
+		}
+		return new LABColorValue(this);
 	}
 
 	@Override

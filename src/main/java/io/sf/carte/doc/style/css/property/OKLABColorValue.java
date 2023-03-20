@@ -36,8 +36,12 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 	private final LABColorImpl labColor;
 
 	public OKLABColorValue() {
+		this(new LABColorImpl(Space.OK_Lab, ColorSpace.ok_lab));
+	}
+
+	OKLABColorValue(LABColorImpl color) {
 		super();
-		labColor = new LABColorImpl(Space.OK_Lab, ColorSpace.ok_lab);
+		labColor = color;
 	}
 
 	OKLABColorValue(OKLABColorValue copied) {
@@ -97,8 +101,12 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
+		ColorProfile profile = new SRGBColorProfile();
+		double[] rgb = new double[3];
+		ColorUtil.oklabToRGB(light, a, b, clamp, profile, rgb);
 		CSSRGBColor color = new CSSRGBColor();
-		ColorUtil.oklabToRGB(light, a, b, clamp, labColor.getAlpha(), color);
+		color.setColorComponents(rgb);
+		color.setAlpha(labColor.getAlpha().clone());
 		return color;
 	}
 
@@ -111,11 +119,11 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
-		float[] lab = new float[3];
+		double[] lab = new double[3];
 		ColorUtil.oklabToLab(light, a, b, lab);
-		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[0]);
-		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[1]);
-		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[2]);
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[0]);
+		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[1]);
+		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[2]);
 		primiL.setAbsolutizedUnit();
 		primia.setAbsolutizedUnit();
 		primib.setAbsolutizedUnit();
@@ -134,22 +142,22 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
 		float light = ((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
-		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
-		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
+		double a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
+		double b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
 		//
-		float[] lab = new float[3];
+		double[] lab = new double[3];
 		ColorUtil.oklabToLab(light, a, b, lab);
 		//
 		a = lab[1];
 		b = lab[2];
-		float c = (float) Math.sqrt(a * a + b * b);
-		float h = (float) (Math.atan2(b, a) * 180f / Math.PI);
-		if (h < 0f) {
-			h += 360f;
+		double c = Math.sqrt(a * a + b * b);
+		double h = Math.atan2(b, a) * 180d / Math.PI;
+		if (h < 0d) {
+			h += 360d;
 		}
-		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, lab[0]);
-		NumberValue chroma = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, c);
-		NumberValue hue = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, h);
+		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[0]);
+		NumberValue chroma = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) c);
+		NumberValue hue = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, (float) h);
 		primiL.setAbsolutizedUnit();
 		chroma.setAbsolutizedUnit();
 		hue.setAbsolutizedUnit();
@@ -254,16 +262,13 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
 			// lightness
-			PrimitiveValue primilight = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
 			// a
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primia = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primia = factory.createCSSPrimitiveValue(lu, true);
 			// b
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primib = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primib = factory.createCSSPrimitiveValue(lu, true);
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {

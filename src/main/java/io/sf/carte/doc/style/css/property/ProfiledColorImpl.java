@@ -16,6 +16,8 @@ import java.util.Arrays;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 
 class ProfiledColorImpl extends BaseColor {
 
@@ -23,7 +25,11 @@ class ProfiledColorImpl extends BaseColor {
 
 	private String colorSpace;
 
-	private final PrimitiveValue[] components;
+	private PrimitiveValue[] components;
+
+	ProfiledColorImpl(String colorSpace) {
+		this(colorSpace, new PrimitiveValue[0]);
+	}
 
 	ProfiledColorImpl(String colorSpace, PrimitiveValue[] components) {
 		super();
@@ -114,6 +120,45 @@ class ProfiledColorImpl extends BaseColor {
 	}
 
 	@Override
+	void setColorComponents(double[] comp) {
+		if (components.length == 0) {
+			components = new PrimitiveValue[comp.length];
+		}
+
+		for (int i = 0; i < comp.length; i++) {
+			NumberValue c = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) comp[i]);
+			c.setSubproperty(true);
+			c.setAbsolutizedUnit();
+			this.components[i] = c;
+		}
+
+		for (int i = comp.length; i < components.length; i++) {
+			NumberValue c = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0f);
+			c.setSubproperty(true);
+			this.components[i] = c;
+		}
+	}
+
+	@Override
+	double[] toArray() {
+		double[] comp = new double[components.length];
+		for (int i = 0; i < comp.length; i++) {
+			comp[i] = ((TypedValue) components[i]).getFloatValue(CSSUnit.CSS_NUMBER);
+		}
+		return comp;
+	}
+
+	@Override
+	double[] toSRGB(boolean clamp) {
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot convert profiled colors.");
+	}
+
+	@Override
+	double[] toXYZ(Illuminant white) {
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot convert profiled colors.");
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder(64);
 		buf.append("color(").append(getColorSpace());
@@ -166,6 +211,11 @@ class ProfiledColorImpl extends BaseColor {
 		}
 		ProfiledColorImpl other = (ProfiledColorImpl) obj;
 		return Arrays.equals(components, other.components);
+	}
+
+	@Override
+	public ColorValue packInValue() {
+		return new ColorFunction(this);
 	}
 
 	@Override

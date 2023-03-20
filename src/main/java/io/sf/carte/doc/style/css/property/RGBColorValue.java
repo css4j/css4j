@@ -30,11 +30,16 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	private static final long serialVersionUID = 1L;
 
-	private final CSSRGBColor color;
+	private final RGBColor color;
 
 	RGBColorValue() {
 		super();
 		color = new CSSRGBColor();
+	}
+
+	RGBColorValue(RGBColor rgbColor) {
+		super();
+		color = rgbColor;
 	}
 
 	protected RGBColorValue(RGBColorValue copied) {
@@ -207,10 +212,18 @@ public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			if (lu != null) {
 				// alpha
 				lu = lu.getNextLexicalUnit();
-				color.setAlpha(factory.createCSSPrimitiveValue(lu, true));
+				PrimitiveValue alpha = factory.createCSSPrimitiveValue(lu, true);
+				if (!commaSyntax && alpha.getUnitType() == CSSUnit.CSS_NUMBER
+						&& basiccolor.getUnitType() == CSSUnit.CSS_NUMBER) {
+					// It may have been set by hex notation, and
+					// this avoids surprises in the serialization
+					((NumberValue) alpha).setAbsolutizedUnit();
+				}
+				color.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Bad value: " + lunit.toString());
 				}
 			}
 		}

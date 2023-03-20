@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
@@ -148,8 +149,7 @@ public class ColorValueOKSpaceTest {
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor(false);
-		String s = rgb.toString();
-		assertEquals("rgb(75.76%, 60.41%, 54.48%)", s);
+		assertEquals("rgb(75.76%, 60.41%, 54.48%)", rgb.toString());
 		assertEquals(75.76f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.01f);
 		assertEquals(60.41f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
@@ -157,7 +157,8 @@ public class ColorValueOKSpaceTest {
 		assertEquals(54.48f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.01f);
 		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		ColorValue srgbValue = (ColorValue) new ValueFactory().parseProperty(s);
+
+		ColorValue srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, labColor.deltaE2000(srgbValue), 0.01f);
 		assertEquals(0f, srgbValue.deltaE2000(labColor), 0.01f);
 		assertFalse(labColor.equals(srgbValue));
@@ -183,35 +184,42 @@ public class ColorValueOKSpaceTest {
 		// Delta 0 to converted value
 		assertEquals(0f, color.deltaE2000(lchColor), 0.001f);
 		assertEquals(0f, lchColor.deltaE2000(color), 0.001f);
-		// HSL indirect conversion
-		RGBColorValue rgbColor = new RGBColorValue();
-		rgbColor.setCssText(rgb.toString());
-		HSLColorValue hslColor = rgbColor.toHSLColorValue();
+
+		// Conversion lab -> lch -> rgb
+		srgbValue = (ColorValue) lchColor.toRGBColor().packInValue();
+		assertEquals(0f, color.deltaE2000(srgbValue), 0.001f);
+		assertEquals(0f, srgbValue.deltaE2000(color), 0.001f);
+
+		// HSL indirect conversion lab -> lch -> rgb -> hsl
+		HSLColorValue hslColor = srgbValue.toHSLColorValue();
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
-		assertEquals("hsl(16.7, 30.5%, 65.1%)", hsl.toString());
-		assertEquals(16.7f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals("hsl(16.717, 30.5%, 65.12%)", hsl.toString());
+		assertEquals(16.72f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.01f);
 		assertEquals(30.5f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
-		assertEquals(65.1f,
+		assertEquals(65.12f,
 				((CSSTypedValue) hsl.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
 		assertEquals(1f, ((CSSTypedValue) hsl.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		// Small Delta to converted value
-		assertEquals(0f, hslColor.deltaE2000(labColor), 0.025f);
-		assertEquals(0f, labColor.deltaE2000(hslColor), 0.025f);
-		// DeltaE2000 failure
+		assertEquals(0f, hslColor.deltaE2000(labColor), 0.002f);
+		assertEquals(0f, labColor.deltaE2000(hslColor), 0.002f);
+
+		// Large DeltaE2000
 		RGBColorValue rgbColor2 = new RGBColorValue();
 		rgbColor2.setCssText("rgb(calc(25*2),63,77)");
-		assertThrows(DOMException.class, () -> labColor.deltaE2000(rgbColor2));
-		assertThrows(DOMException.class, () -> rgbColor2.deltaE2000(labColor));
+		assertEquals(46.86f, labColor.deltaE2000(rgbColor2), 0.01f);
+		assertEquals(46.86f, rgbColor2.deltaE2000(labColor), 0.01f);
+
 		// Component access
 		assertSame(lab.getAlpha(), labColor.getComponent(0));
 		assertSame(lab.getLightness(), labColor.getComponent(1));
 		assertSame(lab.getA(), labColor.getComponent(2));
 		assertSame(lab.getB(), labColor.getComponent(3));
 		assertNull(labColor.getComponent(4));
+
 		// Match
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
@@ -350,7 +358,7 @@ public class ColorValueOKSpaceTest {
 		assertEquals(Type.COLOR, xyzValue.getPrimitiveType());
 		ColorValue xyzcolor = (ColorValue) xyzValue;
 		assertEquals(CSSColorValue.ColorModel.XYZ, xyzcolor.getColorModel());
-		assertEquals(2.74f, color.deltaE2000(xyzcolor), 0.1f);
+		assertEquals(0.014f, color.deltaE2000(xyzcolor), 0.01f);
 
 		// Delta to OKLCh
 		style.setCssText("color: oklch(0.52 0.17804 141.843)");
@@ -362,6 +370,84 @@ public class ColorValueOKSpaceTest {
 		assertEquals(CSSColorValue.ColorModel.LCH, okColor.getColorModel());
 		assertEquals(ColorSpace.ok_lch, okColor.getColor().getColorSpace());
 		assertEquals(0f, color.deltaE2000(okColor), 0.001f);
+
+		// To sRGB
+		CSSColor srgb = lab.toColorSpace(ColorSpace.srgb);
+		assertNotNull(srgb);
+		assertEquals(CSSColorValue.ColorModel.RGB, srgb.getColorModel());
+		assertEquals("rgb(0%, 50.77%, 0%)", srgb.toString());
+
+		// HSL
+		CSSColor hsl = lab.toColorSpace("hsl");
+		assertNotNull(hsl);
+		assertEquals(CSSColorValue.ColorModel.HSL, hsl.getColorModel());
+		assertEquals("hsl(120, 100%, 25.39%)", hsl.toString());
+
+		// HWB
+		CSSColor hwb = lab.toColorSpace("hwb");
+		assertNotNull(hwb);
+		assertEquals(CSSColorValue.ColorModel.HWB, hwb.getColorModel());
+		assertEquals("hwb(120 0% 49.23%)", hwb.toString());
+
+		// To A98 RGB
+		CSSColor a98rgb = lab.toColorSpace(ColorSpace.a98_rgb);
+		assertNotNull(a98rgb);
+		assertEquals(CSSColorValue.ColorModel.RGB, a98rgb.getColorModel());
+		assertEquals("color(a98-rgb 0.2843 0.4978 0.1027)", a98rgb.toString());
+
+		// To Display P3
+		CSSColor display_p3 = lab.toColorSpace(ColorSpace.display_p3);
+		assertNotNull(display_p3);
+		assertEquals(CSSColorValue.ColorModel.RGB, display_p3.getColorModel());
+		assertEquals("color(display-p3 0.2209 0.494 0.1209)", display_p3.toString());
+
+		// To Prophoto RGB
+		CSSColor prophoto = lab.toColorSpace(ColorSpace.prophoto_rgb);
+		assertNotNull(prophoto);
+		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
+		assertEquals("color(prophoto-rgb 0.2318 0.3957 0.1243)", prophoto.toString());
+
+		// To REC 2020
+		CSSColor rec2020 = lab.toColorSpace(ColorSpace.rec2020);
+		assertNotNull(rec2020);
+		assertEquals(CSSColorValue.ColorModel.RGB, rec2020.getColorModel());
+		assertEquals("color(rec2020 0.2376 0.4316 0.0764)", rec2020.toString());
+
+		// To XYZ
+		CSSColor xyz = lab.toColorSpace(ColorSpace.xyz);
+		assertNotNull(xyz);
+		assertEquals(CSSColorValue.ColorModel.XYZ, xyz.getColorModel());
+		assertEquals("color(xyz 0.07757 0.1545 0.02358)", xyz.toString());
+
+		// To XYZ D50
+		CSSColor xyzD50 = lab.toColorSpace(ColorSpace.xyz_d50);
+		assertNotNull(xyzD50);
+		assertEquals(CSSColorValue.ColorModel.XYZ, xyzD50.getColorModel());
+		assertEquals("color(xyz-d50 0.08363 0.15492 0.01934)", xyzD50.toString());
+
+		// To OK Lab
+		CSSColor ok_lab = lab.toColorSpace(ColorSpace.ok_lab);
+		assertNotNull(ok_lab);
+		assertEquals(CSSColorValue.ColorModel.LAB, ok_lab.getColorModel());
+		assertEquals("oklab(0.52 -0.14 0.11)", ok_lab.toString());
+
+		// To OK LCh
+		CSSColor ok_lch = lab.toColorSpace(ColorSpace.ok_lch);
+		assertNotNull(ok_lch);
+		assertEquals(CSSColorValue.ColorModel.LCH, ok_lch.getColorModel());
+		assertEquals("oklch(0.52 0.17804 141.843)", ok_lch.toString());
+
+		// To CIE Lab
+		CSSColor cie_lab = lab.toColorSpace(ColorSpace.cie_lab);
+		assertNotNull(cie_lab);
+		assertEquals(CSSColorValue.ColorModel.LAB, cie_lab.getColorModel());
+		assertEquals("lab(46.3012 -47.21364 50.17707)", cie_lab.toString());
+
+		// To CIE LCh
+		CSSColor cie_lch = lab.toColorSpace(ColorSpace.cie_lch);
+		assertNotNull(cie_lch);
+		assertEquals(CSSColorValue.ColorModel.LCH, cie_lch.getColorModel());
+		assertEquals("lch(46.3012 68.8975 133.257)", cie_lch.toString());
 	}
 
 	@Test
@@ -440,6 +526,11 @@ public class ColorValueOKSpaceTest {
 
 		// Delta 0 to converted value
 		assertEquals(0f, color.deltaE2000(lchColor), 0.001f);
+
+		// Packing
+		CSSColorValue labValue = lab.packInValue();
+		assertNotNull(labValue);
+		assertEquals(labColor, labValue);
 	}
 
 	@Test
@@ -490,12 +581,12 @@ public class ColorValueOKSpaceTest {
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
-		assertEquals("rgb(100%, 0.05%, 99.94%)", rgb.toString());
+		assertEquals("#f0f", rgb.toString());
 		assertEquals(100f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.001f);
-		assertEquals(0.05f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		assertEquals(0f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.01f);
-		assertEquals(99.94f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		assertEquals(100f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.01f);
 		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 
@@ -555,9 +646,9 @@ public class ColorValueOKSpaceTest {
 		LABColorValue cielabColor = color.toLABColorValue();
 		assertNotNull(cielabColor);
 		LABColor cielab = cielabColor.getColor();
-		assertEquals("lab(22.716 20.149 -46.789)", cielabColor.getCssText());
-		assertEquals("lab(22.716 20.149 -46.789)", cielab.toString());
-		assertEquals("lab(22.716 20.149 -46.789)", cielabColor.getMinifiedCssText("color"));
+		assertEquals("lab(22.716 20.149 -46.788)", cielabColor.getCssText());
+		assertEquals("lab(22.716 20.149 -46.788)", cielab.toString());
+		assertEquals("lab(22.716 20.149 -46.788)", cielabColor.getMinifiedCssText("color"));
 		CSSPrimitiveValue ciel = cielab.getLightness();
 		CSSPrimitiveValue ciea = cielab.getA();
 		CSSPrimitiveValue cieb = cielab.getB();
@@ -566,7 +657,7 @@ public class ColorValueOKSpaceTest {
 		assertNotNull(cieb);
 		assertEquals(22.716f, ((CSSTypedValue) ciel).getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
 		assertEquals(20.149f, ((CSSTypedValue) ciea).getFloatValue(CSSUnit.CSS_NUMBER), 0.01f);
-		assertEquals(-46.789f, ((CSSTypedValue) cieb).getFloatValue(CSSUnit.CSS_NUMBER), 0.01f);
+		assertEquals(-46.788f, ((CSSTypedValue) cieb).getFloatValue(CSSUnit.CSS_NUMBER), 0.01f);
 		assertEquals(1f, ((CSSTypedValue) cielab.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER),
 				1e-5f);
 
@@ -919,12 +1010,12 @@ public class ColorValueOKSpaceTest {
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
-		assertEquals("rgb(100%, 0.05%, 99.94%)", rgb.toString());
+		assertEquals("#f0f", rgb.toString());
 		assertEquals(100f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.001f);
-		assertEquals(0.05f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		assertEquals(0f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.01f);
-		assertEquals(99.94f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+		assertEquals(100f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.01f);
 		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 
@@ -1155,9 +1246,9 @@ public class ColorValueOKSpaceTest {
 		assertEquals(6f, ((CSSTypedValue) a).getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
 		assertEquals(48.583f, ((CSSTypedValue) b).getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
 		assertEquals(1f, ((CSSTypedValue) lab.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("oklab(0.81739 6 48.583)", value.getCssText());
-		assertEquals("oklab(0.81739 6 48.583)", labColor.toString());
-		assertEquals("oklab(.81739 6 48.583)", value.getMinifiedCssText("color"));
+		assertEquals("oklab(0.817395 6 48.583)", value.getCssText());
+		assertEquals("oklab(0.817395 6 48.583)", labColor.toString());
+		assertEquals("oklab(.817395 6 48.583)", value.getMinifiedCssText("color"));
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
@@ -1198,9 +1289,9 @@ public class ColorValueOKSpaceTest {
 		assertEquals(Type.NUMERIC, b.getPrimitiveType());
 		assertEquals(32.86f, ((CSSTypedValue) b).getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
 		assertEquals(1f, ((CSSTypedValue) lab.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("oklab(0.81739 48.583 32.86)", value.getCssText());
-		assertEquals("oklab(0.81739 48.583 32.86)", labColor.toString());
-		assertEquals("oklab(.81739 48.583 32.86)", value.getMinifiedCssText("color"));
+		assertEquals("oklab(0.817395 48.583 32.86)", value.getCssText());
+		assertEquals("oklab(0.817395 48.583 32.86)", labColor.toString());
+		assertEquals("oklab(.817395 48.583 32.86)", value.getMinifiedCssText("color"));
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
@@ -1290,8 +1381,7 @@ public class ColorValueOKSpaceTest {
 		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertEquals("#00f", rgb.toString());
 		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
+		ColorValue rgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(2.04f, color.deltaE2000(rgbValue), 0.01f);
 
 		// To Lab
@@ -1321,8 +1411,7 @@ public class ColorValueOKSpaceTest {
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgb(86.8%, 65.5%, 0%)", rgb.toString());
 		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
+		CSSColorValue rgbValue = rgb.packInValue();
 		assertEquals(3.024f, color.deltaE2000(rgbValue), 0.01f);
 
 		// To Lab
@@ -1348,14 +1437,13 @@ public class ColorValueOKSpaceTest {
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgb(0%, 66.07%, 19.86%)", rgb.toString());
 		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
+		CSSColorValue rgbValue = rgb.packInValue();
 		assertEquals(2.033f, color.deltaE2000(rgbValue), 0.1f);
 
 		// To Lab
 		LABColorValue cielabColor = color.toLABColorValue();
 		assertNotNull(cielabColor);
-		assertEquals("lab(59.597 -55.898 41.645)", cielabColor.getCssText());
+		assertEquals("lab(59.597 -55.899 41.645)", cielabColor.getCssText());
 	}
 
 	@Test
@@ -1451,6 +1539,7 @@ public class ColorValueOKSpaceTest {
 		assertEquals("oklch", lch.getColorSpace());
 		assertEquals("oklch(0.71834 0.0518 42.069)", lch.toString());
 		assertEquals("oklch(.71834 .0518 42.069)", lch.toMinifiedString());
+
 		// Set wrong values
 		DOMException e = assertThrows(DOMException.class, () ->
 			lchColor.setComponent(0, NumberValue.createCSSNumberValue(CSSUnit.CSS_EM, 1f)));
@@ -1464,6 +1553,7 @@ public class ColorValueOKSpaceTest {
 		e = assertThrows(DOMException.class, () ->
 			lchColor.setComponent(3, NumberValue.createCSSNumberValue(CSSUnit.CSS_EM, 1f)));
 		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
+
 		// Serialization
 		assertEquals("oklch(0.71834 0.0518 42.069)", value.getCssText());
 		assertEquals("oklch(0.71834 0.0518 42.069)", lchColor.toString());
@@ -1481,9 +1571,9 @@ public class ColorValueOKSpaceTest {
 				((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
 		assertEquals(54.477f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.01f);
-		String s = rgb.toString();
-		assertEquals("rgb(75.77%, 60.4%, 54.48%)", s);
-		ColorValue srgbValue = (ColorValue) new ValueFactory().parseProperty(s);
+
+		assertEquals("rgb(75.77%, 60.4%, 54.48%)", rgb.toString());
+		ColorValue srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, lchColor.deltaE2000(srgbValue), 1.1e-2f);
 		assertEquals(0f, srgbValue.deltaE2000(lchColor), 1.1e-2f);
 		assertFalse(lchColor.equals(srgbValue));
@@ -1506,29 +1596,31 @@ public class ColorValueOKSpaceTest {
 		assertEquals(1f, ((CSSTypedValue) lab.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		// Delta 0 to converted value
 		assertEquals(0f, color.deltaE2000(labColor), 0.001f);
+
 		// HSL indirect conversion
-		RGBColorValue rgbColor = new RGBColorValue();
-		rgbColor.setCssText(rgb.toString());
-		HSLColorValue hslColor = rgbColor.toHSLColorValue();
+		HSLColorValue hslColor = srgbValue.toHSLColorValue();
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
 		assertEquals(16.7f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
-				0.001f);
-		assertEquals(30.5f,
+				0.1f);
+		assertEquals(30.528f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.001f);
-		assertEquals(65.1f,
+		assertEquals(65.125f,
 				((CSSTypedValue) hsl.getLightness()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.001f);
 		assertEquals(1f, ((CSSTypedValue) hsl.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+
 		// Small Delta to converted value
-		assertEquals(0f, hslColor.deltaE2000(lchColor), 0.02f);
-		assertEquals(0f, lchColor.deltaE2000(hslColor), 0.02f);
-		// DeltaE2000 failure
+		assertEquals(0f, hslColor.deltaE2000(lchColor), 0.01f);
+		assertEquals(0f, lchColor.deltaE2000(hslColor), 0.01f);
+
+		// DeltaE2000 to rgb
 		RGBColorValue rgbColor2 = new RGBColorValue();
 		rgbColor2.setCssText("rgb(calc(25*2),63,77)");
-		assertThrows(DOMException.class, () -> lchColor.deltaE2000(rgbColor2));
-		assertThrows(DOMException.class, () -> rgbColor2.deltaE2000(lchColor));
+		assertEquals(46.87f, lchColor.deltaE2000(rgbColor2), 0.01f);
+		assertEquals(46.87f, rgbColor2.deltaE2000(lchColor), 0.01f);
+
 		// Component access
 		assertSame(lch.getAlpha(), lchColor.getComponent(0));
 		assertSame(lch.getLightness(), lchColor.getComponent(1));
@@ -1608,9 +1700,9 @@ public class ColorValueOKSpaceTest {
 		assertEquals(0.0288f, ((CSSTypedValue) chroma).getFloatValue(CSSUnit.CSS_NUMBER), 0.0001f);
 		assertEquals(264.05f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG), 0.0001f);
 		assertEquals(1f, ((CSSTypedValue) lch.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("oklch(0.0415 0.0288 264.05)", value.getCssText());
-		assertEquals("oklch(0.0415 0.0288 264.05)", lchColor.toString());
-		assertEquals("oklch(.0415 .0288 264.05)", value.getMinifiedCssText("color"));
+		assertEquals("oklch(0.041502 0.0288 264.05)", value.getCssText());
+		assertEquals("oklch(0.041502 0.0288 264.05)", lchColor.toString());
+		assertEquals("oklch(.041502 .0288 264.05)", value.getMinifiedCssText("color"));
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor(false);
@@ -1620,9 +1712,9 @@ public class ColorValueOKSpaceTest {
 				0.0001f);
 		assertEquals(1.002f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.001f);
-		String s = rgb.toString();
-		assertEquals("rgb(0%, 0%, 1%)", s);
-		ColorValue srgbValue = (ColorValue) new ValueFactory().parseProperty(s);
+
+		assertEquals("rgb(0%, 0%, 1%)", rgb.toString());
+		CSSColorValue srgbValue = rgb.packInValue();
 		assertEquals(0f, lchColor.deltaE2000(srgbValue), 0.0021f);
 		assertEquals(0f, srgbValue.deltaE2000(lchColor), 0.0021f);
 
@@ -1654,7 +1746,7 @@ public class ColorValueOKSpaceTest {
 		assertEquals(Type.COLOR, xyzValue.getPrimitiveType());
 		ColorValue xyzcolor = (ColorValue) xyzValue;
 		assertEquals(CSSColorValue.ColorModel.XYZ, xyzcolor.getColorModel());
-		assertEquals(0.335f, color.deltaE2000(xyzcolor), 0.01f);
+		assertEquals(0f, color.deltaE2000(xyzcolor), 0.001f);
 
 		// Delta to OKLab
 		style.setCssText("color: oklab(0.0415 -0.003 -0.0286)");
@@ -1665,7 +1757,85 @@ public class ColorValueOKSpaceTest {
 		ColorValue okColor = (ColorValue) okValue;
 		assertEquals(CSSColorValue.ColorModel.LAB, okColor.getColorModel());
 		assertEquals(ColorSpace.ok_lab, okColor.getColor().getColorSpace());
-		assertEquals(0f, color.deltaE2000(okColor), 0.01f);
+		assertEquals(0.003f, color.deltaE2000(okColor), 0.001f);
+
+		// To sRGB
+		CSSColor srgb = lch.toColorSpace(ColorSpace.srgb);
+		assertNotNull(srgb);
+		assertEquals(CSSColorValue.ColorModel.RGB, srgb.getColorModel());
+		assertEquals("rgb(0%, 0%, 1%)", srgb.toString());
+
+		// HSL
+		CSSColor hsl = lch.toColorSpace("hsl");
+		assertNotNull(hsl);
+		assertEquals(CSSColorValue.ColorModel.HSL, hsl.getColorModel());
+		assertEquals("hsl(240, 100%, 0.5%)", hsl.toString());
+
+		// HWB
+		CSSColor hwb = lch.toColorSpace("hwb");
+		assertNotNull(hwb);
+		assertEquals(CSSColorValue.ColorModel.HWB, hwb.getColorModel());
+		assertEquals("hwb(240 0% 99%)", hwb.toString());
+
+		// To A98 RGB
+		CSSColor a98rgb = lch.toColorSpace(ColorSpace.a98_rgb);
+		assertNotNull(a98rgb);
+		assertEquals(CSSColorValue.ColorModel.RGB, a98rgb.getColorModel());
+		assertEquals("color(a98-rgb 0.0055 0.0054 0.0339)", a98rgb.toString());
+
+		// To Display P3
+		CSSColor display_p3 = lch.toColorSpace(ColorSpace.display_p3);
+		assertNotNull(display_p3);
+		assertEquals(CSSColorValue.ColorModel.RGB, display_p3.getColorModel());
+		assertEquals("color(display-p3 0 0 0.0091)", display_p3.toString());
+
+		// To Prophoto RGB
+		CSSColor prophoto = lch.toColorSpace(ColorSpace.prophoto_rgb);
+		assertNotNull(prophoto);
+		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
+		assertEquals("color(prophoto-rgb 0.0017 0.0003 0.0107)", prophoto.toString());
+
+		// To REC 2020
+		CSSColor rec2020 = lch.toColorSpace(ColorSpace.rec2020);
+		assertNotNull(rec2020);
+		assertEquals(CSSColorValue.ColorModel.RGB, rec2020.getColorModel());
+		assertEquals("color(rec2020 0.0002 0 0.0031)", rec2020.toString());
+
+		// To XYZ
+		CSSColor xyz = lch.toColorSpace(ColorSpace.xyz);
+		assertNotNull(xyz);
+		assertEquals(CSSColorValue.ColorModel.XYZ, xyz.getColorModel());
+		assertEquals("color(xyz 0.00014 0.00006 0.00074)", xyz.toString());
+
+		// To XYZ D50
+		CSSColor xyzD50 = lch.toColorSpace(ColorSpace.xyz_d50);
+		assertNotNull(xyzD50);
+		assertEquals(CSSColorValue.ColorModel.XYZ, xyzD50.getColorModel());
+		assertEquals("color(xyz-d50 0.00011 0.00005 0.00055)", xyzD50.toString());
+
+		// To OK Lab
+		CSSColor ok_lab = lch.toColorSpace(ColorSpace.ok_lab);
+		assertNotNull(ok_lab);
+		assertEquals(CSSColorValue.ColorModel.LAB, ok_lab.getColorModel());
+		assertEquals("oklab(0.041502 -0.00299 -0.02864)", ok_lab.toString());
+
+		// To OK LCh
+		CSSColor ok_lch = lch.toColorSpace(ColorSpace.ok_lch);
+		assertNotNull(ok_lch);
+		assertEquals(CSSColorValue.ColorModel.LCH, ok_lch.getColorModel());
+		assertEquals("oklch(0.041502 0.0288 264.05)", ok_lch.toString());
+
+		// To CIE Lab
+		CSSColor cie_lab = lch.toColorSpace(ColorSpace.cie_lab);
+		assertNotNull(cie_lab);
+		assertEquals(CSSColorValue.ColorModel.LAB, cie_lab.getColorModel());
+		assertEquals("lab(0.0423 0.26524 -0.97224)", cie_lab.toString());
+
+		// To CIE LCh
+		CSSColor cie_lch = lch.toColorSpace(ColorSpace.cie_lch);
+		assertNotNull(cie_lch);
+		assertEquals(CSSColorValue.ColorModel.LCH, cie_lch.getColorModel());
+		assertEquals("lch(0.0423 1.0078 285.26)", cie_lch.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -1700,7 +1870,12 @@ public class ColorValueOKSpaceTest {
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgb(9.7%, 0%, 0%)", rgb.toString());
-		assertEquals("hsl(0, 100%, 4.9%)", ((RGBColor) rgb).toHSLColor().toString());
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(25.3f, lchColor.deltaE2000(srgbValue), 0.1f);
+		assertEquals(25.3f, srgbValue.deltaE2000(lchColor), 0.1f);
+
+		// HSL
+		assertEquals("hsl(0, 100%, 4.85%)", ((RGBColor) rgb).toHSLColor().toString());
 
 		// To LAB
 		LABColorValue labColor = lchColor.toLABColorValue();
@@ -1712,6 +1887,11 @@ public class ColorValueOKSpaceTest {
 		// Delta 0 to converted value
 		assertEquals(0f, color.deltaE2000(labColor), 0.001f);
 		assertEquals(0f, color.deltaE2000(cielchColor), 0.001f);
+
+		// Packing
+		CSSColorValue lchValue = lch.packInValue();
+		assertNotNull(lchValue);
+		assertEquals(lchColor, lchValue);
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -1769,10 +1949,13 @@ public class ColorValueOKSpaceTest {
 				((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
 		assertEquals(0f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.001f);
-		assertEquals("hsl(120, 100%, 25.4%)", ((RGBColor) rgb).toHSLColor().toString());
+		assertEquals("hsl(120, 100%, 25.39%)", ((RGBColor) rgb).toHSLColor().toString());
 
 		// Delta 0 to converted value
 		assertEquals(0f, color.deltaE2000(labColor), 0.001f);
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(0.75f, lchColor.deltaE2000(srgbValue), 0.01f);
+		assertEquals(0.75f, srgbValue.deltaE2000(lchColor), 0.01f);
 	}
 
 	@Test
@@ -1811,6 +1994,9 @@ public class ColorValueOKSpaceTest {
 				0.01f);
 		assertEquals(94.01f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.01f);
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(0f, lchColor.deltaE2000(srgbValue), 0.001f);
+		assertEquals(0f, srgbValue.deltaE2000(lchColor), 0.001f);
 
 		// To LAB
 		LABColorValue labColor = lchColor.toLABColorValue();
@@ -1898,12 +2084,13 @@ public class ColorValueOKSpaceTest {
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
-		String s = rgb.toString();
-		assertEquals("rgb(0%, 89.16%, 88.01%)", s);
-		assertEquals("hsl(179.2, 100%, 44.6%)", ((RGBColor) rgb).toHSLColor().toString());
+		assertEquals("rgb(0%, 89.16%, 88.01%)", rgb.toString());
+
+		// To HSL
+		assertEquals("hsl(179.226, 100%, 44.58%)", ((RGBColor) rgb).toHSLColor().toString());
 
 		// Delta to converted RGB value near 2 (clamp)
-		ColorValue srgbValue = (ColorValue) new ValueFactory().parseProperty(s);
+		CSSColorValue srgbValue = rgb.packInValue();
 		assertEquals(0f, color.deltaE2000(srgbValue), 2f);
 		assertEquals(0f, srgbValue.deltaE2000(color), 2f);
 
@@ -1953,9 +2140,13 @@ public class ColorValueOKSpaceTest {
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
-		String s = rgb.toString();
-		assertEquals("rgb(0%, 69.18%, 83.53%)", s);
-		assertEquals("hsl(190.3, 100%, 41.8%)", ((RGBColor) rgb).toHSLColor().toString());
+		assertEquals("rgb(0%, 69.18%, 83.53%)", rgb.toString());
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(16.4f, lchColor.deltaE2000(srgbValue), 0.1f);
+		assertEquals(16.4f, srgbValue.deltaE2000(lchColor), 0.1f);
+
+		// HSL
+		assertEquals("hsl(190.309, 100%, 41.77%)", ((RGBColor) rgb).toHSLColor().toString());
 
 		// Delta 0 to converted Lab
 		assertEquals(0f, color.deltaE2000(labColor), 0.001f);
@@ -2017,10 +2208,13 @@ public class ColorValueOKSpaceTest {
 				((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
 		assertEquals(0f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.001f);
-		assertEquals("hsl(120, 100%, 25.4%)", ((RGBColor) rgb).toHSLColor().toString());
+		assertEquals("hsl(120, 100%, 25.39%)", ((RGBColor) rgb).toHSLColor().toString());
 
 		// Delta 0 to converted value
 		assertEquals(0f, color.deltaE2000(labColor), 0.001f);
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(0.75f, lchColor.deltaE2000(srgbValue), 0.01f);
+		assertEquals(0.75f, srgbValue.deltaE2000(lchColor), 0.01f);
 	}
 
 	@Test
@@ -2046,9 +2240,9 @@ public class ColorValueOKSpaceTest {
 		assertEquals(0.0288f, ((CSSTypedValue) chroma).getFloatValue(CSSUnit.CSS_NUMBER), 0.0001f);
 		assertEquals(264.05f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG), 0.0001f);
 		assertEquals(1f, ((CSSTypedValue) lch.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("oklch(0.0415 0.0288 264.05)", value.getCssText());
-		assertEquals("oklch(0.0415 0.0288 264.05)", lchColor.toString());
-		assertEquals("oklch(.0415 .0288 264.05)", value.getMinifiedCssText("color"));
+		assertEquals("oklch(0.041502 0.0288 264.05)", value.getCssText());
+		assertEquals("oklch(0.041502 0.0288 264.05)", lchColor.toString());
+		assertEquals("oklch(.041502 .0288 264.05)", value.getMinifiedCssText("color"));
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor(false);
@@ -2058,11 +2252,10 @@ public class ColorValueOKSpaceTest {
 				0.0001f);
 		assertEquals(1.002f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.001f);
-		String s = rgb.toString();
-		assertEquals("rgb(0%, 0%, 1%)", s);
-		ColorValue srgbValue = (ColorValue) new ValueFactory().parseProperty(s);
-		assertEquals(0f, lchColor.deltaE2000(srgbValue), 0.0021f);
-		assertEquals(0f, srgbValue.deltaE2000(lchColor), 0.0021f);
+		assertEquals("rgb(0%, 0%, 1%)", rgb.toString());
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(0f, lchColor.deltaE2000(srgbValue), 0.001f);
+		assertEquals(0f, srgbValue.deltaE2000(lchColor), 0.001f);
 
 		// To LAB
 		LABColorValue labColor = lchColor.toLABColorValue();
@@ -2098,39 +2291,45 @@ public class ColorValueOKSpaceTest {
 		ColorValue color = (ColorValue) value;
 		assertEquals(CSSColorValue.ColorModel.LCH, color.getColorModel());
 		OKLCHColorValue lchColor = (OKLCHColorValue) color;
+
 		LCHColor lch = lchColor.getColor();
 		assertNotNull(lch);
 		CSSPrimitiveValue lightness = lch.getLightness();
 		CSSPrimitiveValue chroma = lch.getChroma();
 		CSSPrimitiveValue hue = lch.getHue();
+		NumberValue alpha = (NumberValue) lch.getAlpha();
 		assertNotNull(lightness);
 		assertNotNull(chroma);
 		assertNotNull(hue);
+		assertNotNull(alpha);
 		assertEquals(0.041502f, ((CSSTypedValue) lightness).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.0001f);
 		assertEquals(0.4f, ((CSSTypedValue) chroma).getFloatValue(CSSUnit.CSS_NUMBER), 0.0001f);
 		assertEquals(264.05f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG), 0.0001f);
 		assertEquals(1f, ((CSSTypedValue) lch.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("oklch(0.0415 0.4 264.05)", value.getCssText());
-		assertEquals("oklch(0.0415 0.4 264.05)", lchColor.toString());
-		assertEquals("oklch(.0415 .4 264.05)", value.getMinifiedCssText("color"));
+		assertEquals("oklch(0.041502 0.4 264.05)", value.getCssText());
+		assertEquals("oklch(0.041502 0.4 264.05)", lchColor.toString());
+		assertEquals("oklch(.041502 .4 264.05)", value.getMinifiedCssText("color"));
+		assertTrue(alpha.isSpecified());
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor(true);
 		NumberValue red = (NumberValue) rgb.getRed();
 		NumberValue green = (NumberValue) rgb.getGreen();
 		NumberValue blue = (NumberValue) rgb.getBlue();
+		alpha = (NumberValue) rgb.getAlpha();
 		assertEquals(0f, red.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.0001f);
 		assertFalse(red.isSpecified());
 		assertEquals(0f, green.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.0001f);
 		assertFalse(green.isSpecified());
 		assertEquals(0f, blue.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.001f);
 		assertFalse(blue.isSpecified());
-		String s = rgb.toString();
-		assertEquals("#000", s);
-		ColorValue srgbValue = (ColorValue) new ValueFactory().parseProperty(s);
-		assertEquals(37.14f, lchColor.deltaE2000(srgbValue), 0.01f);
-		assertEquals(37.14f, srgbValue.deltaE2000(lchColor), 0.01f);
+		assertTrue(alpha.isSpecified());
+		assertEquals("#000", rgb.toString());
+
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(37.14f, lchColor.deltaE2000(srgbValue), 0.001f);
+		assertEquals(37.14f, srgbValue.deltaE2000(lchColor), 0.001f);
 
 		// To LAB
 		LABColorValue labColor = lchColor.toLABColorValue();
@@ -2140,7 +2339,7 @@ public class ColorValueOKSpaceTest {
 		NumberValue labLightness = (NumberValue) lab.getLightness();
 		NumberValue a = (NumberValue) lab.getA();
 		NumberValue b = (NumberValue) lab.getB();
-		NumberValue alpha = (NumberValue) lab.getAlpha();
+		alpha = (NumberValue) lab.getAlpha();
 		assertNotNull(labLightness);
 		assertNotNull(a);
 		assertNotNull(b);
@@ -2176,23 +2375,28 @@ public class ColorValueOKSpaceTest {
 		CSSPrimitiveValue lightness = lch.getLightness();
 		CSSPrimitiveValue chroma = lch.getChroma();
 		CSSPrimitiveValue hue = lch.getHue();
+		NumberValue alpha = (NumberValue) lch.getAlpha();
 		assertNotNull(lightness);
 		assertNotNull(chroma);
 		assertNotNull(hue);
+		assertNotNull(alpha);
 		assertEquals(0.041502f, ((CSSTypedValue) lightness).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.0001f);
 		assertEquals(0f, ((CSSTypedValue) chroma).getFloatValue(CSSUnit.CSS_NUMBER), 0.0001f);
 		assertEquals(264.05f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG), 0.0001f);
 		assertEquals(1f, ((CSSTypedValue) lch.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("oklch(0.0415 0 264.05)", value.getCssText());
-		assertEquals("oklch(0.0415 0 264.05)", lchColor.toString());
-		assertEquals("oklch(.0415 0 264.05)", value.getMinifiedCssText("color"));
+		assertEquals("oklch(0.041502 0 264.05)", value.getCssText());
+		assertEquals("oklch(0.041502 0 264.05)", lchColor.toString());
+		assertEquals("oklch(.041502 0 264.05)", value.getMinifiedCssText("color"));
+		assertTrue(alpha.isSpecified());
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor(false);
-		String s = rgb.toString();
-		assertEquals("rgb(0.09%, 0.09%, 0.09%)", s);
-		ColorValue srgbValue = (ColorValue) new ValueFactory().parseProperty(s);
+		assertEquals("rgb(0.09%, 0.09%, 0.09%)", rgb.toString());
+		alpha = (NumberValue) rgb.getAlpha();
+		assertTrue(alpha.isSpecified());
+
+		CSSColorValue srgbValue = rgb.packInValue();
 		assertEquals(0f, lchColor.deltaE2000(srgbValue), 0.001f);
 		assertEquals(0f, srgbValue.deltaE2000(lchColor), 0.001f);
 
@@ -2204,7 +2408,7 @@ public class ColorValueOKSpaceTest {
 		NumberValue labLightness = (NumberValue) lab.getLightness();
 		NumberValue a = (NumberValue) lab.getA();
 		NumberValue b = (NumberValue) lab.getB();
-		NumberValue alpha = (NumberValue) lab.getAlpha();
+		alpha = (NumberValue) lab.getAlpha();
 		assertNotNull(labLightness);
 		assertNotNull(a);
 		assertNotNull(b);
@@ -2263,6 +2467,9 @@ public class ColorValueOKSpaceTest {
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgba(32.33%, 0%, 71.14%, 0.8)", rgb.toString());
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(12.85f, lchColor.deltaE2000(srgbValue), 0.01f);
+		assertEquals(12.85f, srgbValue.deltaE2000(lchColor), 0.01f);
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -2305,6 +2512,11 @@ public class ColorValueOKSpaceTest {
 		assertEquals(113.1f, lchColor.deltaE2000(rgbColor2), 0.1f);
 		assertEquals(113.1f, rgbColor2.deltaE2000(lchColor), 0.1f);
 
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(113.1f, lchColor.deltaE2000(srgbValue), 0.1f);
+		assertEquals(113.1f, srgbValue.deltaE2000(lchColor), 0.1f);
+
+		// HSL
 		HSLColorValue hslColor = rgbColor2.toHSLColorValue();
 		assertEquals(113.1f, lchColor.deltaE2000(hslColor), 0.1f);
 		assertEquals(113.1f, hslColor.deltaE2000(lchColor), 0.1f);
@@ -2334,13 +2546,16 @@ public class ColorValueOKSpaceTest {
 		assertEquals(6f, ((CSSTypedValue) chroma).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertEquals(48.583f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
 		assertEquals(1f, ((CSSTypedValue) lch.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("oklch(0.81739 6 48.583)", value.getCssText());
-		assertEquals("oklch(0.81739 6 48.583)", lchColor.toString());
-		assertEquals("oklch(.81739 6 48.583)", value.getMinifiedCssText("color"));
+		assertEquals("oklch(0.817395 6 48.583)", value.getCssText());
+		assertEquals("oklch(0.817395 6 48.583)", lchColor.toString());
+		assertEquals("oklch(.817395 6 48.583)", value.getMinifiedCssText("color"));
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("#fff", rgb.toString());
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(70.3f, lchColor.deltaE2000(srgbValue), 0.1f);
+		assertEquals(70.3f, srgbValue.deltaE2000(lchColor), 0.1f);
 
 		// DeltaE2000
 		RGBColorValue rgbColor2 = new RGBColorValue();
@@ -2380,9 +2595,9 @@ public class ColorValueOKSpaceTest {
 		assertEquals(Type.NUMERIC, hue.getPrimitiveType());
 		assertEquals(32.86f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG), 0.001f);
 		assertEquals(1f, ((CSSTypedValue) lch.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("oklch(0.81739 48.583 32.86)", value.getCssText());
-		assertEquals("oklch(0.81739 48.583 32.86)", lchColor.toString());
-		assertEquals("oklch(.81739 48.583 32.86)", value.getMinifiedCssText("color"));
+		assertEquals("oklch(0.817395 48.583 32.86)", value.getCssText());
+		assertEquals("oklch(0.817395 48.583 32.86)", lchColor.toString());
+		assertEquals("oklch(.817395 48.583 32.86)", value.getMinifiedCssText("color"));
 
 		// To RGB
 		RGBAColor rgb = color.toRGBColor();
@@ -2457,6 +2672,10 @@ public class ColorValueOKSpaceTest {
 				0.01f);
 		assertEquals(0.68f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
+
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(0f, lchColor.deltaE2000(srgbValue), 0.001f);
+		assertEquals(0f, srgbValue.deltaE2000(lchColor), 0.001f);
 	}
 
 	@Test
@@ -2481,9 +2700,8 @@ public class ColorValueOKSpaceTest {
 				0.001f);
 		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertEquals("#f00", rgb.toString());
-		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
+
+		ColorValue rgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0.373f, color.deltaE2000(rgbValue), 0.001f);
 
 		// To Lab
@@ -2493,7 +2711,7 @@ public class ColorValueOKSpaceTest {
 
 		// To LCH
 		LCHColorValue lchColor = color.toLCHColorValue();
-		assertEquals("lch(54.383 108.325 41.144)", lchColor.getCssText());
+		assertEquals("lch(54.383 108.324 41.144)", lchColor.getCssText());
 	}
 
 	@Test
@@ -2519,9 +2737,9 @@ public class ColorValueOKSpaceTest {
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgb(86.44%, 65.25%, 0%)", rgb.toString());
 		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
-		assertEquals(1.33f, color.deltaE2000(rgbValue), 0.01f);
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(1.33f, color.deltaE2000(srgbValue), 0.01f);
+		assertEquals(1.33f, srgbValue.deltaE2000(color), 0.01f);
 	}
 
 	@Test
@@ -2541,9 +2759,9 @@ public class ColorValueOKSpaceTest {
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgb(0%, 66.03%, 6.67%)", rgb.toString());
 		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
-		assertEquals(2.32f, color.deltaE2000(rgbValue), 0.01f);
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(2.32f, color.deltaE2000(srgbValue), 0.01f);
+		assertEquals(2.32f, srgbValue.deltaE2000(color), 0.01f);
 
 		// To Lab
 		LABColorValue cielabColor = color.toLABColorValue();
@@ -2571,9 +2789,9 @@ public class ColorValueOKSpaceTest {
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgb(100%, 66.24%, 45.39%)", rgb.toString());
 		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
-		assertEquals(1.88f, color.deltaE2000(rgbValue), 0.01f);
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(1.88f, color.deltaE2000(srgbValue), 0.01f);
+		assertEquals(1.88f, srgbValue.deltaE2000(color), 0.01f);
 
 		// To Lab
 		LABColorValue cielabColor = color.toLABColorValue();
@@ -2603,9 +2821,9 @@ public class ColorValueOKSpaceTest {
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgb(0%, 86.06%, 85.73%)", rgb.toString());
 		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
-		assertEquals(0.7f, color.deltaE2000(rgbValue), 0.1f);
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(0.7f, color.deltaE2000(srgbValue), 0.1f);
+		assertEquals(0.7f, srgbValue.deltaE2000(color), 0.1f);
 
 		// To Lab
 		LABColorValue cielabColor = color.toLABColorValue();
@@ -2635,9 +2853,9 @@ public class ColorValueOKSpaceTest {
 		RGBAColor rgb = color.toRGBColor();
 		assertEquals("rgb(0%, 55.29%, 0%)", rgb.toString());
 		//
-		RGBColorValue rgbValue = new RGBColorValue();
-		rgbValue.setCssText(rgb.toString());
-		assertEquals(2f, color.deltaE2000(rgbValue), 0.01f);
+		CSSColorValue srgbValue = rgb.packInValue();
+		assertEquals(2f, color.deltaE2000(srgbValue), 0.01f);
+		assertEquals(2f, srgbValue.deltaE2000(color), 0.01f);
 
 		// To Lab
 		LABColorValue cielabColor = color.toLABColorValue();

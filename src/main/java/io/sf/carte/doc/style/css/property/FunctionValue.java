@@ -160,7 +160,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 					item = expressionItem(lu);
 					newval = item.getCSSValue();
 				} else {
-					item = factory.createCSSPrimitiveValueItem(lu, false, false);
+					item = factory.createCSSPrimitiveValueItem(lu, false, true);
 					newval = item.getCSSValue();
 				}
 				lu = item.getNextLexicalUnit();

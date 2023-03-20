@@ -34,6 +34,11 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		hslColor = new MyHSLColorImpl();
 	}
 
+	HSLColorValue(HSLColorImpl color) {
+		super();
+		hslColor = color;
+	}
+
 	HSLColorValue(HSLColorValue copied) {
 		super(copied);
 		this.hslColor = copied.hslColor.clone();
@@ -93,32 +98,11 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColor() throws DOMException {
-		if (!hslColor.hasConvertibleComponents()) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
-		}
-		float hue = ((CSSTypedValue) hslColor.getHue()).getFloatValue(CSSUnit.CSS_DEG) / 360f;
-		float sat = fraction((CSSTypedValue) hslColor.getSaturation());
-		float light = fraction((CSSTypedValue) hslColor.getLightness());
+		double[] rgb = hslColor.toSRGB(false);
 		CSSRGBColor color = new CSSRGBColor();
-		translateHSL(hue, sat, light, color);
+		color.setColorComponents(rgb);
+		color.setAlpha(hslColor.alpha.clone());
 		return color;
-	}
-
-	/**
-	 * Return the given value as a fraction.
-	 * 
-	 * @param number a numeric value, either a {@code <number>} or a
-	 *               {@code <percentage>}.
-	 * @return the value divided by 100.
-	 */
-	private static float fraction(CSSTypedValue number) {
-		float val;
-		if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			val = number.getFloatValue(CSSUnit.CSS_PERCENTAGE);
-		} else {
-			val = number.getFloatValue(CSSUnit.CSS_NUMBER);
-		}
-		return val * 0.01f;
 	}
 
 	@Override
@@ -201,52 +185,6 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			hslColor.setLightness(primilight);
 		}
 
-	}
-
-	private void translateHSL(float hue, float sat, float light, CSSRGBColor color) {
-		if (hue > 1f) {
-			hue -= (float) Math.floor(hue);
-		} else if (hue < 0f) {
-			hue = hue - (float) Math.floor(hue) + 1f;
-		}
-		float m2;
-		if (light <= 0.5f) {
-			m2 = light * (sat + 1f);
-		} else {
-			m2 = light + sat - light * sat;
-		}
-		float m1 = light * 2f - m2;
-		PercentageValue red = new PercentageValue();
-		red.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue + 1f / 3f));
-		red.setAbsolutizedUnit();
-		PercentageValue green = new PercentageValue();
-		green.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue));
-		green.setAbsolutizedUnit();
-		PercentageValue blue = new PercentageValue();
-		blue.setFloatValue(CSSUnit.CSS_PERCENTAGE, hueToRgb(m1, m2, hue - 1f / 3f));
-		blue.setAbsolutizedUnit();
-		color.setRed(red);
-		color.setGreen(green);
-		color.setBlue(blue);
-		color.alpha = hslColor.alpha.clone();
-	}
-
-	private static float hueToRgb(float m1, float m2, float h) {
-		if (h < 0f) {
-			h = h + 1f;
-		} else if (h > 1f) {
-			h = h - 1f;
-		}
-		if (h * 6f < 1f) {
-			return (m1 + (m2 - m1) * h * 6f) * 100f;
-		}
-		if (h * 2f < 1f) {
-			return m2 * 100f;
-		}
-		if (h * 3f < 2f) {
-			return (m1 + (m2 - m1) * (2f / 3f - h) * 6f) * 100f;
-		}
-		return m1 * 100f;
 	}
 
 	@Override

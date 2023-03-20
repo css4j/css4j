@@ -106,7 +106,9 @@ public interface CSSColorValue extends CSSTypedValue {
 	 * 
 	 * @return the color model.
 	 */
-	ColorModel getColorModel();
+	default ColorModel getColorModel() {
+		return getColor().getColorModel();
+	}
 
 	/**
 	 * Compute the difference to the given color, according to CIE Delta E 2000.
@@ -155,6 +157,11 @@ public interface CSSColorValue extends CSSTypedValue {
 		return toRGBColor();
 	}
 
+	/**
+	 * Creates and returns a copy of this value.
+	 * 
+	 * @return a clone of this value.
+	 */
 	@Override
 	CSSColorValue clone();
 

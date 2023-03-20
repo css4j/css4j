@@ -402,6 +402,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case OKLCHCOLOR:
 		case HWBCOLOR:
 		case COLOR_FUNCTION:
+		case COLOR_MIX:
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
 		case CUBIC_BEZIER_FUNCTION:
@@ -648,6 +649,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case OKLCHCOLOR:
 		case HWBCOLOR:
 		case COLOR_FUNCTION:
+		case COLOR_MIX:
 			return matchBoolean(cat == Category.color);
 		case CALC:
 			return isNumericCategory(cat) ? matchesOperandOfSyntax(lexicalUnit.getParameters(), syntax) : Match.FALSE;

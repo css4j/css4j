@@ -160,10 +160,29 @@ public interface CSSValue extends Cloneable {
 		 * {@link CSSColor#item(int)}, or cast it to a model sub-interface (like
 		 * {@link RGBAColor}) according to the result of
 		 * {@link CSSColorValue#getColorModel() getColorModel()}. See
-		 * {@link CSSColorValue.ColorModel} for details.
+		 * {@link CSSColorValue.ColorModel ColorModel} for details.
 		 * </p>
 		 */
 		COLOR,
+
+		/**
+		 * Color-Mix function.
+		 * <p>
+		 * Cast to {@link CSSColorMixFunction}.
+		 * </p>
+		 * <p>
+		 * {@link CSSColorValue#getColor() getColor()} provides the interpolated color
+		 * as a {@link CSSColor}.
+		 * </p>
+		 * <p>
+		 * Once you retrieve the color, you can then use the indexed component access in
+		 * {@link CSSColor#item(int)}, or cast it to a model sub-interface (like
+		 * {@link RGBAColor}) according to the result of {@link CSSColor#getColorModel()
+		 * getColorModel()}. See {@link CSSColorValue.ColorModel ColorModel} for
+		 * details.
+		 * </p>
+		 */
+		COLOR_MIX,
 
 		/**
 		 * URI ({@code url()}).

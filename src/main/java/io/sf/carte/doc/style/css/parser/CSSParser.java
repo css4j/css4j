@@ -6217,6 +6217,8 @@ public class CSSParser implements Parser, Cloneable {
 				lu = newLexicalUnit(LexicalType.HWBCOLOR, true);
 			} else if ("color".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.COLOR_FUNCTION, true);
+			} else if ("color-mix".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.COLOR_MIX, true);
 			} else if ("element".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.ELEMENT_REFERENCE, true);
 				functionToken = true;
@@ -6380,6 +6382,11 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				}
 				break;
+			case COLOR_MIX:
+				if (isValidColorMixFunction()) {
+					return;
+				}
+				break;
 			default:
 				return;
 			}
@@ -6413,8 +6420,6 @@ public class CSSParser implements Parser, Cloneable {
 			LexicalType lastType = LexicalType.UNKNOWN;
 			boolean hasCommas = false;
 			boolean hasNoCommas = false;
-			// Color component values are: 0) unknown, 1) integer or real, 2) %
-			byte compType = 0;
 			boolean hasVar = false;
 			do {
 				LexicalType type = lu.getLexicalUnitType();
@@ -6436,21 +6441,10 @@ public class CSSParser implements Parser, Cloneable {
 							lu.intValue = 0;
 							handleWarning(index, ParseHelper.WARN_VALUE,
 									"Color component has value under 0.");
-						}
-						if (valCount == 3) {
-							if (value > 1) {
-								lu.intValue = 1;
-								handleWarning(index, ParseHelper.WARN_VALUE,
-										"Color alpha has value over 1.");
-							}
-						} else {
-							if (value != 0) {
-								if (compType == 0) {
-									compType = 1;
-								} else if (compType == 2) {
-									return false;
-								}
-							}
+						} else if (valCount == 3 && value > 1) {
+							lu.intValue = 1;
+							handleWarning(index, ParseHelper.WARN_VALUE,
+									"Color alpha has value over 1.");
 						}
 						if (value > 255) {
 							handleWarning(index, ParseHelper.WARN_VALUE,
@@ -6470,11 +6464,6 @@ public class CSSParser implements Parser, Cloneable {
 										"Color alpha has value over 1.");
 							}
 						} else if (lastType != LexicalType.OPERATOR_SLASH) {
-							if (compType == 0) {
-								compType = 1;
-							} else if (compType == 2) {
-								return false;
-							}
 							type = LexicalType.INTEGER;
 						}
 						if (value > 255f) {
@@ -6492,13 +6481,11 @@ public class CSSParser implements Parser, Cloneable {
 							handleWarning(index, ParseHelper.WARN_VALUE,
 									"Color component has percentage over 100%.");
 						}
-						if (valCount != 3 && lastType != LexicalType.OPERATOR_SLASH) {
-							if (compType == 0) {
-								compType = 2;
-							} else if (compType == 1) {
-								return false;
-							}
+					} else if (type == LexicalType.IDENT) {
+						if (!"none".equalsIgnoreCase(lu.getStringValue()) || valCount == 3) {
+							return false;
 						}
+						type = LexicalType.PERCENTAGE;
 					}
 
 					if (hasCommas) {
@@ -6506,23 +6493,10 @@ public class CSSParser implements Parser, Cloneable {
 							return false;
 						}
 					} else if (lastType != type) {
-						if (lastType != LexicalType.UNKNOWN) {
-							if (valCount == 3) {
-								if (lastType != LexicalType.OPERATOR_SLASH) {
-									// No commas, must be slash
-									return false;
-								}
-							} else if (lastType == LexicalType.PERCENTAGE) {
-								// We tolerate zeroes mixed with percentages
-								if (type == LexicalType.INTEGER && lu.getIntegerValue() != 0) {
-									return false;
-								}
-							} else if (type == LexicalType.PERCENTAGE
-									&& lastType == LexicalType.INTEGER) {
-								// We tolerate zeroes mixed with percentages
-								if (lu.getPreviousLexicalUnit().getIntegerValue() != 0) {
-									return false;
-								}
+						if (valCount == 3) {
+							if (lastType != LexicalType.OPERATOR_SLASH) {
+								// No commas, must be slash
+								return false;
 							}
 						}
 					} else {
@@ -6549,8 +6523,10 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private boolean isComponentType(LexicalType type) {
-			return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE || type == LexicalType.REAL
-					|| type == LexicalType.VAR || type == LexicalType.CALC || type == LexicalType.FUNCTION;
+			return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE
+					|| type == LexicalType.REAL || type == LexicalType.VAR
+					|| type == LexicalType.CALC || type == LexicalType.IDENT
+					|| type == LexicalType.FUNCTION;
 		}
 
 		private boolean isValidHSLColor(int index) {
@@ -6718,6 +6694,13 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				} else if (type == LexicalType.VAR) {
 					hasVar = true;
+				} else if (type == LexicalType.IDENT) {
+					if (!"none".equalsIgnoreCase(lu.getStringValue())) {
+						return false;
+					}
+					slaCount++;
+					// To simplify the logic, consider as a percentage
+					type = LexicalType.PERCENTAGE;
 				} else {
 					return false;
 				}
@@ -6817,6 +6800,13 @@ public class CSSParser implements Parser, Cloneable {
 						return false;
 					}
 					pcntCount++;
+				} else if (type == LexicalType.IDENT) {
+					if (!"none".equalsIgnoreCase(lu.getStringValue())) {
+						return false;
+					}
+					pcntCount++;
+					// To simplify the logic, consider as a percentage
+					type = LexicalType.PERCENTAGE;
 				} else {
 					return false;
 				}
@@ -6899,7 +6889,9 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
-			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION) {
+			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
+					&& (type != LexicalType.IDENT
+							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				return false;
 			}
 
@@ -6914,9 +6906,13 @@ public class CSSParser implements Parser, Cloneable {
 			do {
 				type = lu.getLexicalUnitType();
 				switch (type) {
-				case CALC:
+				case IDENT:
+					if (!"none".equalsIgnoreCase(lu.getStringValue())) {
+						return false;
+					}
 				case REAL:
 				case INTEGER:
+				case CALC:
 				case FUNCTION:
 					numericValueCount++;
 					if (numericValueCount > 3) {
@@ -7019,7 +7015,9 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
-			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION) {
+			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
+					&& (type != LexicalType.IDENT
+							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				return false;
 			}
 
@@ -7063,7 +7061,9 @@ public class CSSParser implements Parser, Cloneable {
 								"Color component has value under 0.");
 					}
 				}
-			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION) {
+			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
+					&& (type != LexicalType.IDENT
+							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
 				} else if (hasVar) {
@@ -7092,7 +7092,9 @@ public class CSSParser implements Parser, Cloneable {
 
 			type = lu.getLexicalUnitType();
 			if (type != LexicalType.REAL && type != LexicalType.INTEGER && !isAngleUnit(lu)
-					&& type != LexicalType.CALC && type != LexicalType.FUNCTION) {
+					&& type != LexicalType.CALC && type != LexicalType.FUNCTION
+					&& (type != LexicalType.IDENT
+							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
 				} else if (hasVar) {
@@ -7166,10 +7168,14 @@ public class CSSParser implements Parser, Cloneable {
 			do {
 				type = lu.getLexicalUnitType();
 				switch (type) {
-				case CALC:
+				case IDENT:
+					if (!"none".equalsIgnoreCase(lu.getStringValue())) {
+						return false;
+					}
 				case REAL:
 				case PERCENTAGE:
 				case INTEGER:
+				case CALC:
 				case VAR:
 					foundNumericValue = true;
 					break;
@@ -7253,6 +7259,194 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			return true;
+		}
+
+		private boolean isValidColorMixFunction() {
+			LexicalUnit lu = currentlu.parameters;
+			if (lu == null) {
+				return false;
+			}
+
+			boolean hasVar = false;
+
+			// First argument: "in"
+			LexicalType type = lu.getLexicalUnitType();
+			if (type != LexicalType.IDENT) {
+				if (type == LexicalType.VAR) {
+					hasVar = true;
+				} else {
+					return false;
+				}
+			} else if (!"in".equalsIgnoreCase(lu.getStringValue())) {
+				return false;
+			}
+
+			lu = lu.getNextLexicalUnit();
+			if (lu == null) {
+				// Just one value: only OK if it was a var().
+				return hasVar;
+			}
+
+			// Second argument: identifier (color space)
+			type = lu.getLexicalUnitType();
+			if (type != LexicalType.IDENT) {
+				if (type == LexicalType.VAR) {
+					hasVar = true;
+				} else {
+					// Further checks would be too complicated
+					return hasVar;
+				}
+			}
+
+			lu = lu.getNextLexicalUnit(); // Expect a comma if not var()
+			if (lu == null) {
+				// Just two values: only OK if it was a var().
+				return hasVar;
+			}
+
+			type = lu.getLexicalUnitType();
+			boolean lastTypeIsComma = type == LexicalType.OPERATOR_COMMA;
+			if (!lastTypeIsComma) {
+				// Should be the interpolation method
+				if (type == LexicalType.IDENT) {
+					lu = lu.getNextLexicalUnit();
+					if (lu == null) {
+						// Three items: only OK if there was a var().
+						return hasVar;
+					}
+					type = lu.getLexicalUnitType();
+					if (type == LexicalType.IDENT) {
+						if (!hasVar && !"hue".equalsIgnoreCase(lu.getStringValue())) {
+							return false;
+						}
+						lu = lu.getNextLexicalUnit();
+						if (lu == null) {
+							// Three items: only OK if there was a var().
+							return hasVar;
+						}
+						type = lu.getLexicalUnitType();
+					}
+					lastTypeIsComma = type == LexicalType.OPERATOR_COMMA;
+				} else {
+					if (type == LexicalType.VAR) {
+						hasVar = true;
+					}
+					if (!hasVar) {
+						return false;
+					}
+				}
+			}
+
+			if (lastTypeIsComma) {
+				lu = lu.getNextLexicalUnit();
+			}
+
+			if (lu == null) {
+				// Ending with a comma: error
+				return !lastTypeIsComma && hasVar;
+			}
+
+			CSSValueSyntax synColor = new SyntaxParser().parseSyntax("<color>");
+
+			// Check the first color spec
+			LexicalType uType = lu.getLexicalUnitType();
+			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC) {
+				// Could be % <color>
+				lu = lu.getNextLexicalUnit();
+				if (lu == null || cannotBeColor(lu, synColor)) {
+					// No color
+					return false;
+				}
+				lu = lu.getNextLexicalUnit();
+			} else if (uType == LexicalType.VAR) {
+				hasVar = true;
+				lu = lu.getNextLexicalUnit();
+			} else if (cannotBeColor(lu, synColor)) {
+				return false;
+			} else {
+				// Check for % after <color>
+				lu = lu.getNextLexicalUnit();
+				if (lu == null) {
+					return hasVar;
+				}
+				uType = lu.getLexicalUnitType();
+				if (uType != LexicalType.OPERATOR_COMMA) {
+					switch (uType) {
+					case VAR:
+						hasVar = true;
+					case PERCENTAGE:
+					case CALC:
+						lu = lu.getNextLexicalUnit();
+						break;
+					default:
+						return false;
+					}
+				}
+			}
+
+			if (lu == null) {
+				return hasVar;
+			}
+
+			uType = lu.getLexicalUnitType();
+			// Must be a comma if not var()
+			if (uType != LexicalType.OPERATOR_COMMA) {
+				// Assume the rest is right if we got the right type
+				return hasVar && (!cannotBeColor(lu, synColor) || uType == LexicalType.PERCENTAGE
+						|| uType == LexicalType.CALC || uType == LexicalType.VAR);
+			} else {
+				lu = lu.getNextLexicalUnit();
+				uType = lu.getLexicalUnitType();
+			}
+
+			// Now examine the second color spec
+			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC) {
+				// Could be % <color>
+				lu = lu.getNextLexicalUnit();
+				if (lu == null || cannotBeColor(lu, synColor)) {
+					// No color
+					return false;
+				}
+				lu = lu.getNextLexicalUnit();
+			} else if (uType == LexicalType.VAR) {
+				hasVar = true;
+				lu = lu.getNextLexicalUnit();
+			} else if (cannotBeColor(lu, synColor)) {
+				return false;
+			} else {
+				// Check for % after <color>
+				lu = lu.getNextLexicalUnit();
+				if (lu == null) {
+					return true;
+				}
+				uType = lu.getLexicalUnitType();
+				if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC
+						|| uType == LexicalType.VAR) {
+					lu = lu.getNextLexicalUnit();
+				} else {
+					return false;
+				}
+			}
+
+			// Loop while there are VARs
+			while (lu != null) {
+				if (lu.getLexicalUnitType() != LexicalType.VAR) {
+					return false;
+				}
+				lu = lu.getNextLexicalUnit();
+			}
+
+			return true;
+		}
+
+		private boolean cannotBeColor(LexicalUnit lu, CSSValueSyntax syn) {
+			LexicalUnit lunit;
+			if (lu.getNextLexicalUnit() == null) {
+				lunit = lu;
+			} else {
+				lunit = lu.shallowClone();
+			}
+			return lunit.matches(syn) == Match.FALSE;
 		}
 
 		protected void handleRightCurlyBracket(int index) {

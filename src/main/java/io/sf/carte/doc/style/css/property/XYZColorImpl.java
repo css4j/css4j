@@ -11,17 +11,16 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import java.util.List;
+import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.CSSValue.CssType;
-import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.XYZColor;
+import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 
 class XYZColorImpl extends BaseColor implements XYZColor {
 
@@ -31,13 +30,16 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 	private PrimitiveValue y = null;
 	private PrimitiveValue z = null;
 
-	XYZColorImpl(List<PrimitiveValue> components) {
+	private final Illuminant refWhite;
+
+	XYZColorImpl(Illuminant white) {
 		super();
-		setComponents(components);
+		this.refWhite = white;
 	}
 
 	XYZColorImpl(XYZColorImpl copyMe) {
 		super();
+		refWhite = copyMe.refWhite;
 		if (copyMe.x != null) {
 			x = copyMe.x.clone();
 		}
@@ -50,23 +52,6 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 		alpha = copyMe.alpha.clone();
 	}
 
-	private void setComponents(List<PrimitiveValue> components) {
-		// First component is mandatory
-		x = components.get(0);
-		try {
-			y = components.get(1);
-		} catch (IndexOutOfBoundsException e) {
-			y = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0f);
-			z = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0f);
-			return;
-		}
-		try {
-			z = components.get(2);
-		} catch (IndexOutOfBoundsException e) {
-			z = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0f);
-		}
-	}
-
 	@Override
 	public ColorModel getColorModel() {
 		return ColorModel.XYZ;
@@ -74,12 +59,12 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 
 	@Override
 	public String getColorSpace() {
-		return ColorSpace.xyz;
+		return refWhite == Illuminant.D50 ? ColorSpace.xyz_d50 : ColorSpace.xyz;
 	}
 
 	@Override
 	Space getSpace() {
-		return Space.CIE_XYZ;
+		return refWhite == Illuminant.D50 ? Space.CIE_XYZ_D50 : Space.CIE_XYZ;
 	}
 
 	@Override
@@ -130,8 +115,7 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 	}
 
 	public void setX(PrimitiveValue x) {
-		checkAxisComponent(x);
-		this.x = x;
+		this.x = normalizeAxisComponent(x);
 	}
 
 	@Override
@@ -140,8 +124,7 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 	}
 
 	public void setY(PrimitiveValue y) {
-		checkAxisComponent(y);
-		this.y = y;
+		this.y = normalizeAxisComponent(y);
 	}
 
 	@Override
@@ -150,18 +133,11 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 	}
 
 	public void setZ(PrimitiveValue z) {
-		checkAxisComponent(z);
-		this.z = z;
+		this.z = normalizeAxisComponent(z);
 	}
 
-	private void checkAxisComponent(PrimitiveValue axis) {
-		if (axis == null) {
-			throw new NullPointerException();
-		}
-		if (axis.getUnitType() != CSSUnit.CSS_NUMBER
-				&& axis.getCssValueType() != CssType.PROXY && axis.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible.");
-		}
+	private PrimitiveValue normalizeAxisComponent(PrimitiveValue axis) {
+		return normalizePcntToNumber(axis, 0.01f, 5, true);
 	}
 
 	@Override
@@ -170,56 +146,103 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 				&& isConvertibleComponent(getZ());
 	}
 
-	RGBAColor toSRGB(boolean clamp) {
-		float[] rgb = new float[3];
-		double[] xyz = new double[3];
-		xyz[0] = ((TypedValue) this.x).getFloatValue(CSSUnit.CSS_NUMBER);
-		xyz[1] = ((TypedValue) this.y).getFloatValue(CSSUnit.CSS_NUMBER);
-		xyz[2] = ((TypedValue) this.z).getFloatValue(CSSUnit.CSS_NUMBER);
-		ColorUtil.d50xyzToSRGB(xyz[0], xyz[1], xyz[2], rgb);
-		// range check
-		if (!ColorUtil.rangeRoundCheck(rgb) && clamp) {
-			float[] lab = new float[3];
-			ColorUtil.xyzToLab(xyz, lab);
-			rgb = ColorUtil.clampRGB(lab[0], lab[1], lab[2], rgb);
-		}
-		// Set the RGBColor
-		RGBColor color = new RGBColor();
-		color.alpha = getAlpha().clone();
-		NumberValue red = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[0] * 100f);
-		NumberValue green = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[1] * 100f);
-		NumberValue blue = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, rgb[2] * 100f);
-		red.setAbsolutizedUnit();
-		green.setAbsolutizedUnit();
-		blue.setAbsolutizedUnit();
-		color.setRed(red);
-		color.setGreen(green);
-		color.setBlue(blue);
-		//
-		return color;
+	@Override
+	void setColorComponents(double[] xyz) {
+		NumberValue x = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[0]);
+		x.setSubproperty(true);
+		x.setAbsolutizedUnit();
+		x.setMaxFractionDigits(5);
+		setX(x);
+
+		NumberValue y = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[1]);
+		y.setSubproperty(true);
+		y.setAbsolutizedUnit();
+		y.setMaxFractionDigits(5);
+		setY(y);
+
+		NumberValue z = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[2]);
+		z.setSubproperty(true);
+		z.setAbsolutizedUnit();
+		z.setMaxFractionDigits(5);
+		setZ(z);
 	}
 
-	void toLABColor(LABColorImpl color) throws DOMException {
+	@Override
+	double[] toArray() {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
+
 		double[] xyz = new double[3];
-		xyz[0] = ((TypedValue) this.x).getFloatValue(CSSUnit.CSS_NUMBER);
-		xyz[1] = ((TypedValue) this.y).getFloatValue(CSSUnit.CSS_NUMBER);
-		xyz[2] = ((TypedValue) this.z).getFloatValue(CSSUnit.CSS_NUMBER);
-		float[] lab = new float[3];
-		ColorUtil.xyzToLab(xyz, lab);
-		setLabColor(lab, alpha, color);
+		xyz[0] = ColorUtil.floatNumber((TypedValue) this.x);
+		xyz[1] = ColorUtil.floatNumber((TypedValue) this.y);
+		xyz[2] = ColorUtil.floatNumber((TypedValue) this.z);
+		return xyz;
+	}
+
+	@Override
+	double[] toXYZ(Illuminant white) {
+		double[] xyz = toArray();
+
+		if (refWhite != white) {
+			if (white == Illuminant.D50) {
+				// D65 to D50
+				xyz = ColorUtil.d65xyzToD50(xyz);
+			} else {
+				// D50 to D65
+				xyz = ColorUtil.d50xyzToD65(xyz);
+			}
+		}
+
+		return xyz;
+	}
+
+	@Override
+	double[] toSRGB(boolean clamp) {
+		double[] xyz = toArray();
+
+		double[] xyzD65;
+
+		if (refWhite == Illuminant.D50) {
+			// Chromatic adjustment: D50 to D65
+			xyzD65 = ColorUtil.d50xyzToD65(xyz);
+		} else {
+			xyzD65 = xyz;
+		}
+
+		double[] rgb = new double[3];
+		// XYZ to RGB
+		ColorUtil.d65xyzToSRGB(xyzD65, rgb);
+
+		// range check
+		if (!ColorUtil.rangeRoundCheck(rgb) && clamp) {
+			double[] lab = new double[3];
+			if (refWhite == Illuminant.D65) {
+				xyz = ColorUtil.d65xyzToD50(xyzD65);
+			}
+			ColorUtil.xyzD50ToLab(xyz, lab);
+			ColorProfile profile = new SRGBColorProfile();
+			ColorUtil.clampRGB(lab[0], lab[1], lab[2], profile, rgb);
+		}
+		return rgb;
+	}
+
+	RGBAColor toSRGBColor(boolean clamp) {
+		double[] rgb = toSRGB(clamp);
+
+		// Set the RGBColor
+		RGBColor color = new RGBColor();
+		color.setColorComponents(rgb);
+		color.setAlpha(getAlpha().clone());
+
+		return color;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((x == null) ? 0 : x.hashCode());
-		result = prime * result + ((y == null) ? 0 : y.hashCode());
-		result = prime * result + ((z == null) ? 0 : z.hashCode());
-		result = prime * result + alpha.hashCode();
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(refWhite, x, y, z);
 		return result;
 	}
 
@@ -228,35 +251,20 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!super.equals(obj)) {
 			return false;
 		}
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		XYZColorImpl other = (XYZColorImpl) obj;
-		if (x == null) {
-			if (other.x != null) {
-				return false;
-			}
-		} else if (!x.equals(other.x)) {
-			return false;
-		}
-		if (y == null) {
-			if (other.y != null) {
-				return false;
-			}
-		} else if (!y.equals(other.y)) {
-			return false;
-		}
-		if (z == null) {
-			if (other.z != null) {
-				return false;
-			}
-		} else if (!z.equals(other.z)) {
-			return false;
-		}
-		return alpha.equals(other.alpha);
+		return refWhite == other.refWhite && Objects.equals(x, other.x)
+				&& Objects.equals(y, other.y) && Objects.equals(z, other.z);
+	}
+
+	@Override
+	public ColorValue packInValue() {
+		return new ColorFunction(this);
 	}
 
 	@Override

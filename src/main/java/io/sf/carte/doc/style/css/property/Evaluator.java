@@ -72,9 +72,9 @@ public class Evaluator {
 	 * @throws DOMException if a problem was found evaluating the function, or the
 	 *                      resulting unit is not a valid CSS unit.
 	 */
-	public CSSTypedValue evaluateFunction(CSSMathFunctionValue function) throws DOMException {
+	public TypedValue evaluateFunction(CSSMathFunctionValue function) throws DOMException {
 		Unit resultUnit = new Unit();
-		CSSTypedValue result = evaluateFunction(function, resultUnit);
+		TypedValue result = evaluateFunction(function, resultUnit);
 		int exp = resultUnit.getExponent();
 		if (exp > 1 || exp < 0) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");

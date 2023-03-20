@@ -122,6 +122,9 @@ public class LexicalValueTest {
 		value.setCssText("steps(var(--arg), start)");
 		assertEquals(Type.STEPS, value.getFinalType());
 		//
+		value.setCssText("color-mix(in display-p3, #0200fa var(--pcnt), white)");
+		assertEquals(Type.COLOR_MIX, value.getFinalType());
+		//
 		value.setCssText("sin(4 / var(--foo))");
 		assertEquals(Type.MATH_FUNCTION, value.getFinalType());
 		//

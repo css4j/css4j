@@ -20,6 +20,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.ColorSpace;
@@ -42,14 +43,14 @@ class ColorFunction extends ColorValue {
 		super();
 	}
 
+	ColorFunction(BaseColor color) {
+		super();
+		this.color = color;
+	}
+
 	ColorFunction(ColorFunction copied) {
 		super(copied);
 		this.color = copied.color.clone();
-	}
-
-	@Override
-	public CSSColorValue.ColorModel getColorModel() {
-		return color.getColorModel();
 	}
 
 	@Override
@@ -113,12 +114,13 @@ class ColorFunction extends ColorValue {
 		case sRGB:
 			return (RGBColor) color;
 		case CIE_XYZ:
-			return ((XYZColorImpl) color).toSRGB(clamp);
+		case CIE_XYZ_D50:
+			return ((XYZColorImpl) color).toSRGBColor(clamp);
 		default:
 		}
 		//
 		if (getColorModel() == ColorModel.RGB) {
-			return ((ProfiledRGBColor) color).toSRGB(clamp);
+			return ((ProfiledRGBColor) color).toSRGBColor(clamp);
 		}
 		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Custom color profile is not supported.");
 	}
@@ -207,7 +209,7 @@ class ColorFunction extends ColorValue {
 			} catch (DOMException e) {
 				throw e;
 			} catch (RuntimeException e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+				throw new DOMException(DOMException.SYNTAX_ERR, "Wrong value: " + lunit.toString());
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
@@ -225,7 +227,7 @@ class ColorFunction extends ColorValue {
 			String colorSpace = lu.getStringValue();
 			lu = lu.getNextLexicalUnit();
 			if (lu == null) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+				throw new DOMException(DOMException.SYNTAX_ERR, "Wrong value: " + lunit.toString());
 			}
 
 			// Components
@@ -245,13 +247,26 @@ class ColorFunction extends ColorValue {
 					alpha = factory.createCSSPrimitiveValue(lu, true);
 					lu = lu.getNextLexicalUnit();
 					if (lu != null) {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+						throw new DOMException(DOMException.SYNTAX_ERR,
+								"Wrong value: " + lunit.toString());
 					}
 					break;
 				}
 			}
 
-			setColor(colorSpace, components);
+			color = ColorSpaceHelper.createProfiledColor(colorSpace);
+			if (color == null) {
+				if (colorSpace.startsWith("--")) {
+					PrimitiveValue[] ca = components.toArray(new PrimitiveValue[0]);
+					color = new ProfiledColorImpl(colorSpace, ca);
+				} else {
+					throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+							"Unsupported color space: " + colorSpace);
+				}
+			} else {
+				setComponents(components);
+			}
+
 			if (alpha != null) {
 				color.setAlpha(alpha);
 			}
@@ -259,39 +274,63 @@ class ColorFunction extends ColorValue {
 
 	}
 
-	static void checkNumberPcntCompValidity(PrimitiveValue primi, LexicalUnit lunit) {
-		if (primi.getUnitType() != CSSUnit.CSS_NUMBER && primi.getUnitType() != CSSUnit.CSS_PERCENTAGE
-				&& primi.getCssValueType() != CssType.PROXY && primi.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported value: " + lunit.toString());
+	private static void checkNumberPcntCompValidity(PrimitiveValue primi, LexicalUnit lunit) {
+		if (primi.getUnitType() != CSSUnit.CSS_NUMBER
+				&& primi.getUnitType() != CSSUnit.CSS_PERCENTAGE
+				&& primi.getCssValueType() != CssType.PROXY
+				&& primi.getPrimitiveType() != Type.EXPRESSION
+				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+				&& (primi.getPrimitiveType() != Type.IDENT
+						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
+			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+					"Unsupported value: " + lunit.toString());
 		}
 	}
 
-	private void setColor(String colorSpace, List<PrimitiveValue> components) {
-		if (ColorSpace.srgb.equalsIgnoreCase(colorSpace)) {
-			colorSpace = ColorSpace.srgb;
-			color = new ProfiledRGBColor(colorSpace, components);
-		} else if (ColorSpace.display_p3.equalsIgnoreCase(colorSpace)) {
-			colorSpace = ColorSpace.display_p3;
-			color = new ProfiledRGBColor(colorSpace, components);
-		} else if (ColorSpace.a98_rgb.equalsIgnoreCase(colorSpace)) {
-			colorSpace = ColorSpace.a98_rgb;
-			color = new ProfiledRGBColor(colorSpace, components);
-		} else if (ColorSpace.prophoto_rgb.equalsIgnoreCase(colorSpace)) {
-			colorSpace = ColorSpace.prophoto_rgb;
-			color = new ProfiledRGBColor(colorSpace, components);
-		} else if (ColorSpace.rec2020.equalsIgnoreCase(colorSpace)) {
-			colorSpace = ColorSpace.rec2020;
-			color = new ProfiledRGBColor(colorSpace, components);
-		} else if (ColorSpace.xyz.equalsIgnoreCase(colorSpace)) {
-			colorSpace = ColorSpace.xyz;
-			color = new XYZColorImpl(components);
-		} else {
-			if (!colorSpace.startsWith("--")) {
-				throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unsupported color space: " + colorSpace);
-			}
-			PrimitiveValue[] ca = components.toArray(new PrimitiveValue[0]);
-			color = new ProfiledColorImpl(colorSpace, ca);
+	private void setComponents(List<PrimitiveValue> components) {
+		int maxlen = color.getLength() - 1;
+		int len = components.size();
+		for (int i = 0; i < len; i++) {
+			PrimitiveValue comp = components.get(i);
+			comp = enforceColorComponentType(comp);
+			color.setComponent(i + 1, comp);
 		}
+
+		// Set missing components to zero
+		for (int i = len; i < maxlen; i++) {
+			NumberValue zero = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0f);
+			zero.setSubproperty(true);
+			color.setComponent(i + 1, zero);
+		}
+	}
+
+	static PrimitiveValue enforceColorComponentType(PrimitiveValue primi) {
+		if (primi.getPrimitiveType() == Type.EXPRESSION) {
+			PercentageEvaluator eval = new PercentageEvaluator();
+			try {
+				primi = eval.evaluateExpression((ExpressionValue) primi);
+			} catch (DOMException e) {
+			}
+		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
+			PercentageEvaluator eval = new PercentageEvaluator();
+			try {
+				primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			} catch (DOMException e) {
+			}
+		}
+
+		if (primi.getUnitType() != CSSUnit.CSS_NUMBER
+				&& primi.getUnitType() != CSSUnit.CSS_PERCENTAGE
+				&& primi.getCssValueType() != CssType.PROXY
+				&& primi.getPrimitiveType() != Type.EXPRESSION
+				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+				&& (primi.getPrimitiveType() != Type.IDENT
+						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Type not compatible with a color component: " + primi.getCssText());
+		}
+
+		return primi;
 	}
 
 	@Override

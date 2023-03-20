@@ -11,7 +11,11 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HSLColor;
 
 class HSLColorImpl extends BaseColor implements HSLColor {
@@ -94,6 +98,92 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	boolean hasConvertibleComponents() {
 		return isConvertibleComponent(getSaturation()) && isConvertibleComponent(getHue())
 				&& isConvertibleComponent(getLightness());
+	}
+
+	@Override
+	void setColorComponents(double[] hsl) {
+		NumberValue h = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, (float) (hsl[0]));
+		h.setSubproperty(true);
+		h.setAbsolutizedUnit();
+		setHue(h);
+
+		PercentageValue s = new PercentageValue();
+		s.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) hsl[1]);
+		s.setSubproperty(true);
+		s.setAbsolutizedUnit();
+		setSaturation(s);
+
+		PercentageValue l = new PercentageValue();
+		l.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) hsl[2]);
+		l.setSubproperty(true);
+		l.setAbsolutizedUnit();
+		setLightness(l);
+	}
+
+	@Override
+	double[] toArray() {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
+		double[] hsl = new double[3];
+		hsl[0] = ColorUtil.hueDegrees((CSSTypedValue) getHue());
+		hsl[1] = ColorUtil.floatPercent((CSSTypedValue) getSaturation());
+		hsl[2] = ColorUtil.floatPercent((CSSTypedValue) getLightness());
+		return hsl;
+	}
+
+	@Override
+	double[] toSRGB(boolean clamp) {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
+		double hue = ColorUtil.hueDegrees((CSSTypedValue) getHue()) / 360d;
+		float sat = ColorUtil.fraction((CSSTypedValue) getSaturation());
+		float light = ColorUtil.fraction((CSSTypedValue) getLightness());
+
+		double[] rgb = new double[3];
+		hslToSRGB(hue, sat, light, rgb);
+		return rgb;
+	}
+
+	private static void hslToSRGB(double hue, float sat, float light, double[] rgb) {
+		if (hue > 1d) {
+			hue -= Math.floor(hue);
+		} else if (hue < 0d) {
+			hue = hue - Math.floor(hue) + 1d;
+		}
+
+		float m2;
+		if (light <= 0.5f) {
+			m2 = light * (sat + 1f);
+		} else {
+			m2 = light + sat - light * sat;
+		}
+		float m1 = light * 2f - m2;
+
+		rgb[0] = hueToRgb(m1, m2, hue + 1d / 3d);
+		rgb[1] = hueToRgb(m1, m2, hue);
+		rgb[2] = hueToRgb(m1, m2, hue - 1d / 3d);
+	}
+
+	private static double hueToRgb(float m1, float m2, double h) {
+		if (h < 0d) {
+			h = h + 1d;
+		} else if (h > 1d) {
+			h = h - 1d;
+		}
+		if (h * 6d < 1d) {
+			return m1 + (m2 - m1) * h * 6d;
+		}
+		if (h * 2d < 1d) {
+			return m2;
+		}
+		if (h * 3d < 2d) {
+			return m1 + (m2 - m1) * (2d / 3d - h) * 6d;
+		}
+		return m1;
 	}
 
 	@Override
@@ -233,6 +323,11 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 			return false;
 		}
 		return alpha.equals(other.alpha);
+	}
+
+	@Override
+	public ColorValue packInValue() {
+		return new HSLColorValue(this);
 	}
 
 	@Override

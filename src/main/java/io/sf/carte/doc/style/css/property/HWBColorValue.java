@@ -30,8 +30,12 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	private final HWBColorImpl hwbColor;
 
 	public HWBColorValue() {
+		this(new HWBColorImpl());
+	}
+
+	HWBColorValue(HWBColorImpl color) {
 		super();
-		hwbColor = new HWBColorImpl();
+		hwbColor = color;
 	}
 
 	HWBColorValue(HWBColorValue copied) {
@@ -92,14 +96,11 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColor() throws DOMException {
-		if (!hwbColor.hasConvertibleComponents()) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
-		}
-		float hue = ((CSSTypedValue) hwbColor.getHue()).getFloatValue(CSSUnit.CSS_DEG) / 360f;
-		float whiteness = ((CSSTypedValue) hwbColor.getWhiteness()).getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
-		float blackness = ((CSSTypedValue) hwbColor.getBlackness()).getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
+		double[] rgb = hwbColor.toSRGB(false);
+
 		CSSRGBColor color = new CSSRGBColor();
-		translateHWB(hue, whiteness, blackness, color);
+		color.setColorComponents(rgb);
+		color.setAlpha(hwbColor.alpha.clone());
 		return color;
 	}
 
@@ -173,68 +174,6 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Type not compatible: " + lunit.toString());
 		}
-	}
-
-	private void translateHWB(float hue, float whiteness, float blackness, CSSRGBColor color) {
-		if (hue > 1f) {
-			hue -= (float) Math.floor(hue);
-		} else if (hue < 0f) {
-			hue = hue - (float) Math.floor(hue) + 1f;
-		}
-		hue *= 6f;
-		float fh = (float) Math.floor(hue);
-		float f = hue - fh;
-		int ifh = (int) fh;
-		if (ifh % 2 == 1) {
-			f = 1f -f;
-		}
-		float value = 1f - blackness;
-		float wv = whiteness + f * (value - whiteness);
-		float r, g, b;
-		switch (ifh) {
-		case 1:
-			r = wv;
-			g = value;
-			b = whiteness;
-			break;
-		case 2:
-			r = whiteness;
-			g = value;
-			b = wv;
-			break;
-		case 3:
-			r = whiteness;
-			g = wv;
-			b = value;
-			break;
-		case 4:
-			r = wv;
-			g = whiteness;
-			b = value;
-			break;
-		case 5:
-			r = value;
-			g = whiteness;
-			b = wv;
-			break;
-		default:
-			r = value;
-			g = wv;
-			b = whiteness;
-		}
-		PercentageValue red = new PercentageValue();
-		red.setFloatValue(CSSUnit.CSS_PERCENTAGE, r * 100f);
-		red.setAbsolutizedUnit();
-		PercentageValue green = new PercentageValue();
-		green.setFloatValue(CSSUnit.CSS_PERCENTAGE, g * 100f);
-		green.setAbsolutizedUnit();
-		PercentageValue blue = new PercentageValue();
-		blue.setFloatValue(CSSUnit.CSS_PERCENTAGE, b * 100f);
-		blue.setAbsolutizedUnit();
-		color.setRed(red);
-		color.setGreen(green);
-		color.setBlue(blue);
-		color.alpha = hwbColor.alpha.clone();
 	}
 
 	@Override

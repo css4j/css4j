@@ -36,8 +36,12 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	private final LCHColorImpl lchColor;
 
 	public LCHColorValue() {
+		this(new LCHColorImpl(Space.CIE_LCh, "lch"));
+	}
+
+	LCHColorValue(LCHColorImpl color) {
 		super();
-		lchColor = new LCHColorImpl(Space.CIE_LCh, "lch");
+		lchColor = color;
 	}
 
 	LCHColorValue(LCHColorValue copied) {
@@ -89,20 +93,10 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColor(boolean clamp) throws DOMException {
-		if (!lchColor.hasConvertibleComponents()) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
-		}
-		//
-		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
-		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
-		float h = ColorUtil.hueRadians(primihue);
-		//
-		float a = (float) (c * Math.cos(h));
-		float b = (float) (c * Math.sin(h));
-		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
-		//
+		double[] rgb = lchColor.toSRGB(clamp);
 		CSSRGBColor color = new CSSRGBColor();
-		ColorUtil.labToRGB(light, a, b, clamp, lchColor.getAlpha(), color);
+		color.setColorComponents(rgb);
+		color.setAlpha(lchColor.getAlpha().clone());
 		return color;
 	}
 
@@ -227,15 +221,16 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
 			// lightness
-			PrimitiveValue primilight = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
+
 			// chroma
 			lu = lu.getNextLexicalUnit();
-			PrimitiveValue primichroma = factory.createCSSPrimitiveValueItem(lu, false, false)
-					.getCSSValue();
+			PrimitiveValue primichroma = factory.createCSSPrimitiveValue(lu, true);
+
 			// hue
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primihue = factory.createCSSPrimitiveValue(lu, true);
+
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
