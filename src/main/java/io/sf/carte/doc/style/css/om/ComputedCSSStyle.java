@@ -643,7 +643,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				function = function.clone();
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
-					pri = (TypedValue) ev.evaluateFunction(function);
+					pri = ev.evaluateFunction(function);
 				} catch (DOMException e) {
 					computedStyleWarning(propertyName, pri, "Could not evaluate function value.", e);
 					// Evaluation failed, convert arguments to absolute anyway.
@@ -1602,7 +1602,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			ev = new FontEvaluator();
 			try {
-				cssSize = (TypedValue) ev.evaluateFunction(function);
+				cssSize = ev.evaluateFunction(function);
 			} catch (DOMException e) {
 				computedStyleError("font-size", function.getCssText(), "Could not evaluate function value.", e);
 			}
