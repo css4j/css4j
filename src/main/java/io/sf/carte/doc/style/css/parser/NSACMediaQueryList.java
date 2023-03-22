@@ -361,10 +361,8 @@ class NSACMediaQueryList implements MediaQueryList {
 			if (!super.equals(obj)) {
 				return false;
 			}
-			if (obj instanceof MediaQuery) {
-				if (getMedia().equals(((MediaQuery) obj).getMedia())) {
-					return true;
-				}
+			if ((obj instanceof MediaQuery) && getMedia().equals(((MediaQuery) obj).getMedia())) {
+				return true;
 			}
 			return false;
 		}

@@ -522,10 +522,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 			if (spec.charAt((specLen = spec.length()) - 1) == '\'') {
 				spec = spec.substring(1, specLen - 1);
 			}
-		} else if (c0 == '"') {
-			if (spec.charAt((specLen = spec.length()) - 1) == '"') {
-				spec = spec.substring(1, specLen - 1);
-			}
+		} else if (c0 == '"' && spec.charAt((specLen = spec.length()) - 1) == '"') {
+			spec = spec.substring(1, specLen - 1);
 		}
 
 		// If this is not a range match, use simplified path

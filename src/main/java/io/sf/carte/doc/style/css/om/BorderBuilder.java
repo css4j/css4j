@@ -184,10 +184,8 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		// Check which shorthands can be built, and build the 'unused' set
 		PropertyCount counter = new PropertyCount();
 		counter.count(declaredSet, important);
-		if (declaredSet.size() < 3) {
-			if (important || !isInShadowedSet(declaredSet, counter)) {
-				return false;
-			}
+		if (declaredSet.size() < 3 && (important || !isInShadowedSet(declaredSet, counter))) {
+			return false;
 		}
 		PropertyValueScore score = new PropertyValueScore(declaredSet);
 		score.score(counter);
@@ -246,65 +244,64 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	private boolean isInShadowedSet(String property, PropertyCount counter) {
 		BaseCSSStyleDeclaration style = getParentStyle();
 		if ("border-top-width".equals(property)) {
-			if (counter.countBWidth == 4
-					|| (style.isPropertySet("border-top-style") && style.isPropertySet("border-top-color"))) {
+			if (counter.countBWidth == 4 || (style.isPropertySet("border-top-style")
+					&& style.isPropertySet("border-top-color"))) {
 				return true;
 			}
 		} else if ("border-top-style".equals(property)) {
-			if (counter.countBStyle == 4
-					|| (style.isPropertySet("border-top-width") && style.isPropertySet("border-top-color"))) {
+			if (counter.countBStyle == 4 || (style.isPropertySet("border-top-width")
+					&& style.isPropertySet("border-top-color"))) {
 				return true;
 			}
 		} else if ("border-top-color".equals(property)) {
-			if (counter.countBColor == 4
-					|| (style.isPropertySet("border-top-width") && style.isPropertySet("border-top-style"))) {
+			if (counter.countBColor == 4 || (style.isPropertySet("border-top-width")
+					&& style.isPropertySet("border-top-style"))) {
 				return true;
 			}
 		} else if ("border-right-width".equals(property)) {
-			if (counter.countBWidth == 4
-					|| (style.isPropertySet("border-right-style") && style.isPropertySet("border-right-color"))) {
+			if (counter.countBWidth == 4 || (style.isPropertySet("border-right-style")
+					&& style.isPropertySet("border-right-color"))) {
 				return true;
 			}
 		} else if ("border-right-style".equals(property)) {
-			if (counter.countBStyle == 4
-					|| (style.isPropertySet("border-right-width") && style.isPropertySet("border-right-color"))) {
+			if (counter.countBStyle == 4 || (style.isPropertySet("border-right-width")
+					&& style.isPropertySet("border-right-color"))) {
 				return true;
 			}
 		} else if ("border-right-color".equals(property)) {
-			if (counter.countBColor == 4
-					|| (style.isPropertySet("border-right-width") && style.isPropertySet("border-right-style"))) {
+			if (counter.countBColor == 4 || (style.isPropertySet("border-right-width")
+					&& style.isPropertySet("border-right-style"))) {
 				return true;
 			}
 		} else if ("border-bottom-width".equals(property)) {
-			if (counter.countBWidth == 4
-					|| (style.isPropertySet("border-bottom-style") && style.isPropertySet("border-bottom-color"))) {
+			if (counter.countBWidth == 4 || (style.isPropertySet("border-bottom-style")
+					&& style.isPropertySet("border-bottom-color"))) {
 				return true;
 			}
 		} else if ("border-bottom-style".equals(property)) {
-			if (counter.countBStyle == 4
-					|| (style.isPropertySet("border-bottom-width") && style.isPropertySet("border-bottom-color"))) {
+			if (counter.countBStyle == 4 || (style.isPropertySet("border-bottom-width")
+					&& style.isPropertySet("border-bottom-color"))) {
 				return true;
 			}
 		} else if ("border-bottom-color".equals(property)) {
-			if (counter.countBColor == 4
-					|| (style.isPropertySet("border-bottom-width") && style.isPropertySet("border-bottom-style"))) {
+			if (counter.countBColor == 4 || (style.isPropertySet("border-bottom-width")
+					&& style.isPropertySet("border-bottom-style"))) {
 				return true;
 			}
 		} else if ("border-left-width".equals(property)) {
-			if (counter.countBWidth == 4
-					|| (style.isPropertySet("border-left-style") && style.isPropertySet("border-left-color"))) {
+			if (counter.countBWidth == 4 || (style.isPropertySet("border-left-style")
+					&& style.isPropertySet("border-left-color"))) {
 				return true;
 			}
 		} else if ("border-left-style".equals(property)) {
-			if (counter.countBStyle == 4
-					|| (style.isPropertySet("border-left-width") && style.isPropertySet("border-left-color"))) {
+			if (counter.countBStyle == 4 || (style.isPropertySet("border-left-width")
+					&& style.isPropertySet("border-left-color"))) {
 				return true;
 			}
-		} else if ("border-left-color".equals(property)) {
-			if (counter.countBColor == 4
-					|| (style.isPropertySet("border-left-width") && style.isPropertySet("border-left-style"))) {
-				return true;
-			}
+		} else if ("border-left-color".equals(property)
+				&& (counter.countBColor == 4 || (style.isPropertySet("border-left-width")
+						&& style.isPropertySet("border-left-style")))) {
+			return true;
 		}
 		return false;
 	}
@@ -1239,20 +1236,17 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			if (isBoxLiveProperty(score, borderTopPty, live_state)) {
 				unusedSet.remove(borderTopPty);
 			}
-			if (isBoxLiveProperty(score, borderBottomPty, live_state)) {
-				if (unusedSet.remove(borderBottomPty)) {
-					property = borderBottomPty;
-				}
+			if (isBoxLiveProperty(score, borderBottomPty, live_state)
+					&& unusedSet.remove(borderBottomPty)) {
+				property = borderBottomPty;
 			}
-			if (isBoxLiveProperty(score, borderLeftPty, live_state)) {
-				if (unusedSet.remove(borderLeftPty)) {
-					property = borderLeftPty;
-				}
+			if (isBoxLiveProperty(score, borderLeftPty, live_state)
+					&& unusedSet.remove(borderLeftPty)) {
+				property = borderLeftPty;
 			}
-			if (isBoxLiveProperty(score, borderRightPty, live_state)) {
-				if (unusedSet.remove(borderRightPty)) {
-					property = borderRightPty;
-				}
+			if (isBoxLiveProperty(score, borderRightPty, live_state)
+					&& unusedSet.remove(borderRightPty)) {
+				property = borderRightPty;
 			}
 			appended = appendValueIfNotInitial(wri, context, property, false);
 			if (!appended) {
@@ -1260,7 +1254,8 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			}
 			break;
 		case 20: // 2 values
-			if (isBoxLiveProperty(score, borderTopPty, live_state) && unusedSet.remove(borderTopPty)) {
+			if (isBoxLiveProperty(score, borderTopPty, live_state)
+					&& unusedSet.remove(borderTopPty)) {
 				property = borderTopPty;
 			} else {
 				property = borderBottomPty;
@@ -1271,7 +1266,8 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			}
 			buf.append(' ');
 			String property2;
-			if (isBoxLiveProperty(score, borderLeftPty, live_state) && unusedSet.remove(borderLeftPty)) {
+			if (isBoxLiveProperty(score, borderLeftPty, live_state)
+					&& unusedSet.remove(borderLeftPty)) {
 				property2 = borderLeftPty;
 			} else {
 				property2 = borderRightPty;
@@ -1294,7 +1290,8 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				buf.append(initialString);
 			}
 			buf.append(' ');
-			if (isBoxLiveProperty(score, borderLeftPty, live_state) && unusedSet.remove(borderLeftPty)) {
+			if (isBoxLiveProperty(score, borderLeftPty, live_state)
+					&& unusedSet.remove(borderLeftPty)) {
 				property = borderLeftPty;
 			} else {
 				property = borderRightPty;

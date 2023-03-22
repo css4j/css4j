@@ -65,11 +65,10 @@ class BoxShorthandSetter extends ShorthandSetter {
 		short vcount = boxValueCount(currentValue);
 		// Exit if result of value count is invalid
 		if (vcount == 0 || vcount > 4) {
-			StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
-			if (errHandler != null) {
-				if (!hasCompatValue()) {
-					errHandler.wrongSubpropertyCount(getShorthandName(), vcount);
-				}
+			StyleDeclarationErrorHandler errHandler = styleDeclaration
+					.getStyleDeclarationErrorHandler();
+			if (errHandler != null && !hasCompatValue()) {
+				errHandler.wrongSubpropertyCount(getShorthandName(), vcount);
 			}
 			return false;
 		}

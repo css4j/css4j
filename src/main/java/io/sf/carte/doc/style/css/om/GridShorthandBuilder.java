@@ -127,11 +127,10 @@ class GridShorthandBuilder extends ShorthandBuilder {
 				return true;
 			}
 			//
-			if (!values.defaultGridTAreas && values.lacksRepeatInGridTRows) {
-				if (values.gridAreasSyntax(buf, declaredSet)) {
-					appendPriority(buf, important);
-					return true;
-				}
+			if (!values.defaultGridTAreas && values.lacksRepeatInGridTRows
+					&& values.gridAreasSyntax(buf, declaredSet)) {
+				appendPriority(buf, important);
+				return true;
 			}
 			//
 			values.gridRowsColumnsSyntax(buf, declaredSet, important);
@@ -216,11 +215,10 @@ class GridShorthandBuilder extends ShorthandBuilder {
 						return true;
 					}
 				}
-			} else if (!values.defaultGridTAreas && values.lacksRepeatInGridTRows) {
-				if (values.gridAreasSyntax(buf, declaredSet)) {
-					appendPriority(buf, important);
-					return true;
-				}
+			} else if (!values.defaultGridTAreas && values.lacksRepeatInGridTRows
+					&& values.gridAreasSyntax(buf, declaredSet)) {
+				appendPriority(buf, important);
+				return true;
 			}
 			//
 			values.gridRowsColumnsSyntax(buf, declaredSet, important);

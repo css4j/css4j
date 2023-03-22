@@ -345,11 +345,10 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private void handleLayerUnknownValues(Set<String> subp, List<LexicalUnit> unknownValues) {
-		if (subp.size() == 1 && unknownValues.size() == 1) {
-			if (lastChanceLayerAssign(subp.iterator().next(), unknownValues.get(0))) {
-				subp.clear();
-				return;
-			}
+		if (subp.size() == 1 && unknownValues.size() == 1
+				&& lastChanceLayerAssign(subp.iterator().next(), unknownValues.get(0))) {
+			subp.clear();
+			return;
 		}
 		reportUnknownValues(subp, unknownValues);
 	}

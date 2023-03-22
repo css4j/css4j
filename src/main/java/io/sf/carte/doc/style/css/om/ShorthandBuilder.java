@@ -610,21 +610,21 @@ abstract class ShorthandBuilder {
 		if (value2.isSystemDefault() != value1.isSystemDefault()) {
 			return false;
 		}
-		if (value1.getCssValueType() == CssType.TYPED && value2.getCssValueType() == CssType.TYPED) {
+		if (value1.getCssValueType() == CssType.TYPED
+				&& value2.getCssValueType() == CssType.TYPED) {
 			TypedValue pvalue1 = (TypedValue) value1;
 			Type type1 = pvalue1.getPrimitiveType();
 			TypedValue pvalue2 = (TypedValue) value2;
 			Type type2 = pvalue2.getPrimitiveType();
 			if (type1 == Type.IDENT) {
 				if (type2 == Type.COLOR) {
-					return testColorIdentifier(pvalue2, pvalue1.getStringValue().toLowerCase(Locale.ROOT));
+					return testColorIdentifier(pvalue2,
+							pvalue1.getStringValue().toLowerCase(Locale.ROOT));
 				} else if (type2 == Type.IDENT) {
 					return pvalue1.getStringValue().equalsIgnoreCase(pvalue2.getStringValue());
 				}
-			} else if (type1 == Type.COLOR) {
-				if (type2 == Type.IDENT) {
-					return testColorIdentifier(pvalue1, pvalue2.getStringValue());
-				}
+			} else if (type1 == Type.COLOR && type2 == Type.IDENT) {
+				return testColorIdentifier(pvalue1, pvalue2.getStringValue());
 			}
 		}
 		return value1.equals(value2);

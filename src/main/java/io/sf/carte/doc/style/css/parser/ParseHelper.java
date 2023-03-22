@@ -114,11 +114,10 @@ public class ParseHelper {
 				// no longer an hexadecimal digit
 				int istart;
 				if (i != iCP) {
-					if (appendCodePoint(buf, value, iCP, i, unescapeControl, replaceNull)) {
-						if (cp == 32) {
-							// Skip first whitespace
-							i++;
-						}
+					if (appendCodePoint(buf, value, iCP, i, unescapeControl, replaceNull)
+							&& cp == 32) {
+						// Skip first whitespace
+						i++;
 					}
 					istart = i;
 				} else {
@@ -1225,10 +1224,8 @@ public class ParseHelper {
 		for (int i = 0; i < len; i++) {
 			char c = seq.charAt(i);
 			char lc = lcString.charAt(i);
-			if (c != lc) {
-				if (Character.isLowerCase(c) || Character.toLowerCase(c) != lc) {
-					return false;
-				}
+			if (c != lc && (Character.isLowerCase(c) || Character.toLowerCase(c) != lc)) {
+				return false;
 			}
 		}
 		return true;
@@ -1254,10 +1251,8 @@ public class ParseHelper {
 		for (int i = 0; i < len; i++) {
 			char c = seq.charAt(i);
 			char lc = lcString.charAt(i);
-			if (c != lc) {
-				if (Character.isLowerCase(c) || Character.toLowerCase(c) != lc) {
-					return false;
-				}
+			if (c != lc && (Character.isLowerCase(c) || Character.toLowerCase(c) != lc)) {
+				return false;
 			}
 		}
 		return true;

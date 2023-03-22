@@ -152,11 +152,10 @@ class PropertyDescriptorStyleDeclaration extends BaseCSSStyleDeclaration {
 					hasSyntax = true;
 					isUniversalSyntax = ((CSSTypedValue) value).getStringValue().trim().equals("*");
 				}
-			} else if ("inherits".equalsIgnoreCase(property)) {
-				if (value.getPrimitiveType() == Type.IDENT) {
-					String s = ((CSSTypedValue) value).getStringValue().trim();
-					hasInherits = "true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s);
-				}
+			} else if ("inherits".equalsIgnoreCase(property)
+					&& value.getPrimitiveType() == Type.IDENT) {
+				String s = ((CSSTypedValue) value).getStringValue().trim();
+				hasInherits = "true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s);
 			}
 		}
 	}

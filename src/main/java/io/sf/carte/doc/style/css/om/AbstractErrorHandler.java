@@ -166,15 +166,11 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 
 	@Override
 	public boolean hasComputedStyleErrors(CSSElement element) {
-		if (computedStyleErrors != null) {
-			if (computedStyleErrors.containsKey(element)) {
-				return true;
-			}
+		if (computedStyleErrors != null && computedStyleErrors.containsKey(element)) {
+			return true;
 		}
-		if (hintErrors != null) {
-			if (hintErrors.containsKey(element)) {
-				return true;
-			}
+		if (hintErrors != null && hintErrors.containsKey(element)) {
+			return true;
 		}
 		return false;
 	}
@@ -201,10 +197,8 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 
 	@Override
 	public boolean hasComputedStyleWarnings(CSSElement element) {
-		if (computedStyleWarnings != null) {
-			if (computedStyleWarnings.containsKey(element)) {
-				return true;
-			}
+		if (computedStyleWarnings != null && computedStyleWarnings.containsKey(element)) {
+			return true;
 		}
 		return false;
 	}

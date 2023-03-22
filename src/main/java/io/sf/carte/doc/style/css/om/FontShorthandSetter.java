@@ -120,19 +120,17 @@ class FontShorthandSetter extends ShorthandSetter {
 	@Override
 	protected boolean assignSubproperty(String subproperty) {
 		// font-size is a special case
-		if (subproperty.equals("font-size")) {
-			if (assignFontSize()) {
-				// Check for line-height
-				if (currentValue != null && currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
-					// the line-height value
-					nextCurrentValue();
-					StyleValue cssValue = createCSSValue(subproperty, currentValue);
-					setProperty("line-height", cssValue, isPriorityImportant());
-					nextCurrentValue();
-					lineHeightSet = true;
-				}
-				return true;
+		if (subproperty.equals("font-size") && assignFontSize()) {
+			// Check for line-height
+			if (currentValue != null && currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
+				// the line-height value
+				nextCurrentValue();
+				StyleValue cssValue = createCSSValue(subproperty, currentValue);
+				setProperty("line-height", cssValue, isPriorityImportant());
+				nextCurrentValue();
+				lineHeightSet = true;
 			}
+			return true;
 		}
 		// Rest of properties
 		switch (currentValue.getLexicalUnitType()) {

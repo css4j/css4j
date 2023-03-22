@@ -91,10 +91,8 @@ public class NumberValue extends TypedValue {
 		double rintValue = Math.rint(realvalue);
 		if (asInteger) {
 			return Integer.toString((int) rintValue);
-		} else if (realvalue == rintValue) {
-			if (notaNumber) {
-				return (int) rintValue + dimensionUnitText;
-			}
+		} else if (realvalue == rintValue && notaNumber) {
+			return (int) rintValue + dimensionUnitText;
 		}
 		String s = serializeNumber(realvalue);
 		StringBuilder buf = new StringBuilder(s.length() + dimensionUnitText.length());
@@ -139,12 +137,10 @@ public class NumberValue extends TypedValue {
 		if (asInteger) {
 			wri.write(Integer.toString((int) rintValue));
 			return;
-		} else if (realvalue == rintValue) {
-			if (notaNumber) {
-				wri.write(Integer.toString((int) rintValue));
-				wri.write(dimensionUnitText);
-				return;
-			}
+		} else if (realvalue == rintValue && notaNumber) {
+			wri.write(Integer.toString((int) rintValue));
+			wri.write(dimensionUnitText);
+			return;
 		}
 		String s = serializeNumber(realvalue);
 		wri.write(s);

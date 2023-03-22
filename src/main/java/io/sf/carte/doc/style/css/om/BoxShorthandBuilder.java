@@ -231,10 +231,9 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 			break;
 		case 16: // 3 values
 		case 17:
-			if (declaredSet.contains(topProperty) && keyword_state_top == live_state) {
-				if (!appendValueIfSaneAndNotInitial(buf, topProperty)) {
-					return false;
-				}
+			if (declaredSet.contains(topProperty) && keyword_state_top == live_state
+					&& !appendValueIfSaneAndNotInitial(buf, topProperty)) {
+				return false;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -259,20 +258,18 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 				appended = false;
 			}
 			buf.append(' ');
-			if (declaredSet.contains(bottomProperty) && keyword_state_bottom == live_state) {
-				if (!appendValueIfSaneAndNotInitial(buf, bottomProperty)) {
-					return false;
-				}
+			if (declaredSet.contains(bottomProperty) && keyword_state_bottom == live_state
+					&& !appendValueIfSaneAndNotInitial(buf, bottomProperty)) {
+				return false;
 			}
 			if (!appended) {
 				buf.append('0');
 			}
 			break;
 		default:
-			if (declaredSet.contains(topProperty) && keyword_state_top == live_state) {
-				if (!appendValueIfSaneAndNotInitial(buf, topProperty)) {
-					return false;
-				}
+			if (declaredSet.contains(topProperty) && keyword_state_top == live_state
+					&& !appendValueIfSaneAndNotInitial(buf, topProperty)) {
+				return false;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -280,10 +277,9 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 				appended = false;
 			}
 			buf.append(' ');
-			if (declaredSet.contains(rightProperty) && keyword_state_right == live_state) {
-				if (!appendValueIfSaneAndNotInitial(buf, rightProperty)) {
-					return false;
-				}
+			if (declaredSet.contains(rightProperty) && keyword_state_right == live_state
+					&& !appendValueIfSaneAndNotInitial(buf, rightProperty)) {
+				return false;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -291,10 +287,9 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 				appended = false;
 			}
 			buf.append(' ');
-			if (declaredSet.contains(bottomProperty) && keyword_state_bottom == live_state) {
-				if (!appendValueIfSaneAndNotInitial(buf, bottomProperty)) {
-					return false;
-				}
+			if (declaredSet.contains(bottomProperty) && keyword_state_bottom == live_state
+					&& !appendValueIfSaneAndNotInitial(buf, bottomProperty)) {
+				return false;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -302,10 +297,9 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 				appended = false;
 			}
 			buf.append(' ');
-			if (declaredSet.contains(leftProperty) && keyword_state_left == live_state) {
-				if (!appendValueIfSaneAndNotInitial(buf, leftProperty)) {
-					return false;
-				}
+			if (declaredSet.contains(leftProperty) && keyword_state_left == live_state
+					&& !appendValueIfSaneAndNotInitial(buf, leftProperty)) {
+				return false;
 			}
 			if (!appended) {
 				buf.append('0');

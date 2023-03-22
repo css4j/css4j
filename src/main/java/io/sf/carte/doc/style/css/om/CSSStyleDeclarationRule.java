@@ -169,8 +169,7 @@ abstract public class CSSStyleDeclarationRule extends BaseCSSDeclarationRule {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = super.hashCode();
+		int result = super.hashCode();
 		result = prime * result + ((selectorList == null) ? 0 : selectorList.hashCode());
 		return result;
 	}

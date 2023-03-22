@@ -263,10 +263,8 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private void setCredentials(HttpURLConnection hcon, URL url, String realm, long creationDate) {
 		AuthenticationCredentials creds = getAuthenticationCredentials(url, realm);
-		if (creds != null) {
-			if (creds.getAuthType() == AuthenticationCredentials.HTTP_BASIC_AUTH) {
-				hcon.setRequestProperty(HEADER_AUTHORIZATION, basicToken(creds));
-			}
+		if (creds != null && creds.getAuthType() == AuthenticationCredentials.HTTP_BASIC_AUTH) {
+			hcon.setRequestProperty(HEADER_AUTHORIZATION, basicToken(creds));
 		}
 	}
 

@@ -1227,20 +1227,18 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				if (d == '/' && lenm1 - i > tnlen) {
 					i++;
 					i = skipIgnorableChars(i, data, lenm1);
-					if (i < lenm1) {
-						if (data.regionMatches(true, i, tagname, 0, tnlen)) {
-							i = skipIgnorableChars(i + tnlen, data, lenm1);
-							if (i <= lenm1 && data.charAt(i) == '>') {
-								// Escape
-								if (buf == null) {
-									buf = new StringBuilder(lenm1 + 4);
-									buf.append(data.subSequence(0, idx));
-								}
-								buf.append("&lt;");
-								buf.append(data.subSequence(idx + 1, i + 1));
-								idx = i + 1;
-								continue;
+					if (i < lenm1 && data.regionMatches(true, i, tagname, 0, tnlen)) {
+						i = skipIgnorableChars(i + tnlen, data, lenm1);
+						if (i <= lenm1 && data.charAt(i) == '>') {
+							// Escape
+							if (buf == null) {
+								buf = new StringBuilder(lenm1 + 4);
+								buf.append(data.subSequence(0, idx));
 							}
+							buf.append("&lt;");
+							buf.append(data.subSequence(idx + 1, i + 1));
+							idx = i + 1;
+							continue;
 						}
 					}
 				}
@@ -1577,20 +1575,16 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		@Override
 		void setAttributeOwner(DOMElement newOwner) throws DOMException {
 			DOMElement oldOwner;
-			if (newOwner == null && (oldOwner = getOwnerElement()) != null
-					&& isSameNamespace(oldOwner.getNamespaceURI())) {
-				if (oldOwner.classList != null) {
-					// Restore attribute value from owner's classList and clear it.
-					this.value = oldOwner.classList.getValue();
-					oldOwner.classList.clear();
-				}
+			if ((newOwner == null && (oldOwner = getOwnerElement()) != null
+					&& isSameNamespace(oldOwner.getNamespaceURI())) && oldOwner.classList != null) {
+				// Restore attribute value from owner's classList and clear it.
+				this.value = oldOwner.classList.getValue();
+				oldOwner.classList.clear();
 			}
 			super.setAttributeOwner(newOwner);
-			if (newOwner != null) {
-				if (isSameNamespace(newOwner.getNamespaceURI())) {
-					if (newOwner.classList != null) {
-						newOwner.classList.setValue(this.value);
-					}
+			if (newOwner != null && isSameNamespace(newOwner.getNamespaceURI())) {
+				if (newOwner.classList != null) {
+					newOwner.classList.setValue(this.value);
 				}
 			}
 		}
@@ -2378,7 +2372,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	@Override
 	void checkDocumentOwner(Node newChild) {
-		if (newChild.getOwnerDocument() != this && newChild.getNodeType() != Node.DOCUMENT_TYPE_NODE) {
+		if (newChild.getOwnerDocument() != this
+				&& newChild.getNodeType() != Node.DOCUMENT_TYPE_NODE) {
 			throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, "Different document owners.");
 		}
 	}
@@ -2397,15 +2392,15 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					node = node.getNextSibling();
 				}
 			}
-		} else if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-			if (replaced.getNodeType() != Node.DOCUMENT_TYPE_NODE) {
-				Node node = getFirstChild();
-				while (node != null) {
-					if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Document already has a doctype.");
-					}
-					node = node.getNextSibling();
+		} else if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE
+				&& replaced.getNodeType() != Node.DOCUMENT_TYPE_NODE) {
+			Node node = getFirstChild();
+			while (node != null) {
+				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
+					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Document already has a doctype.");
 				}
+				node = node.getNextSibling();
 			}
 		}
 	}
@@ -2696,15 +2691,14 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		while (links.hasNext()) {
 			AbstractCSSStyleSheet sheet = links.next().getSheet();
 			String title;
-			if (sheet != null && (title = sheet.getTitle()) != null && title.length() > 0) {
-				if (!sheet.getDisabled()) {
-					if (selectedSetName.length() > 0) {
-						if (!selectedSetName.equalsIgnoreCase(title)) {
-							return null;
-						}
-					} else {
-						selectedSetName = title;
+			if ((sheet != null && (title = sheet.getTitle()) != null && title.length() > 0)
+					&& !sheet.getDisabled()) {
+				if (selectedSetName.length() > 0) {
+					if (!selectedSetName.equalsIgnoreCase(title)) {
+						return null;
 					}
+				} else {
+					selectedSetName = title;
 				}
 			}
 		}
@@ -2712,12 +2706,11 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	/**
-	 * Selects a style sheet set, disabling the other non-persistent sheet sets. If the name
-	 * is the empty string, all non-persistent sheets will be disabled. Otherwise, if the name
-	 * does not match any of the sets, does nothing.
+	 * Selects a style sheet set, disabling the other non-persistent sheet sets. If
+	 * the name is the empty string, all non-persistent sheets will be disabled.
+	 * Otherwise, if the name does not match any of the sets, does nothing.
 	 * 
-	 * @param name
-	 *            the case-sensitive name of the set to select.
+	 * @param name the case-sensitive name of the set to select.
 	 */
 	@Override
 	public void setSelectedStyleSheetSet(String name) {
@@ -2750,10 +2743,10 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	/**
-	 * Enables a style sheet set. If the name does not match any of the sets, does nothing.
+	 * Enables a style sheet set. If the name does not match any of the sets, does
+	 * nothing.
 	 * 
-	 * @param name
-	 *            the case-sensitive name of the set to enable.
+	 * @param name the case-sensitive name of the set to enable.
 	 */
 	@Override
 	public void enableStyleSheetsForSet(String name) {
@@ -2764,10 +2757,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		while (links.hasNext()) {
 			AbstractCSSStyleSheet sheet = links.next().getSheet();
 			String title;
-			if (sheet != null && (title = sheet.getTitle()) != null && title.length() > 0) {
-				if (title.equals(name)) {
-					sheet.setDisabled(false);
-				}
+			if ((sheet != null && (title = sheet.getTitle()) != null && title.length() > 0)
+					&& title.equals(name)) {
+				sheet.setDisabled(false);
 			}
 		}
 	}

@@ -881,10 +881,9 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		boolean whitespaceLast = firstText;
 		int buflen = buf.length();
 		char c;
-		if (buflen != 0 && Character.isWhitespace(c = buf.charAt(buflen - 1))) {
-			if (!preserveNL || c != '\n') {
-				whitespaceLast = true;
-			}
+		if ((buflen != 0 && Character.isWhitespace(c = buf.charAt(buflen - 1)))
+				&& (!preserveNL || c != '\n')) {
+			whitespaceLast = true;
 		}
 		//
 		int cp;

@@ -42,14 +42,16 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 					if (isNone) {
 						IdentifierValue none = new IdentifierValue("none");
 						none.setSubproperty(true);
-						styleDeclaration.setProperty("font-variant-ligatures", none, isPriorityImportant());
+						styleDeclaration.setProperty("font-variant-ligatures", none,
+								isPriorityImportant());
 					}
 					initValueString();
 					appendValueItemString(text);
 					return true;
 				} else {
 					// 'normal' or 'none' mixed with other values
-					StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
+					StyleDeclarationErrorHandler errHandler = styleDeclaration
+							.getStyleDeclarationErrorHandler();
 					if (errHandler != null) {
 						errHandler.shorthandError(getShorthandName(),
 								"Found '" + text + "' keyword mixed with other values");
@@ -66,10 +68,8 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 		// Rest of properties
 		switch (currentValue.getLexicalUnitType()) {
 		case IDENT:
-			if (subproperty.equals("font-variant-alternates")) {
-				if (testFontVariantAlternates()) {
-					return true;
-				}
+			if (subproperty.equals("font-variant-alternates") && testFontVariantAlternates()) {
+				return true;
 			}
 			boolean is_set = false;
 			while (currentValue != null) {
@@ -78,7 +78,8 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 					addSubpropertyValue(subproperty, cssValue, false);
 					is_set = true;
 					nextCurrentValue();
-					if (currentValue == null || currentValue.getLexicalUnitType() != LexicalType.IDENT) {
+					if (currentValue == null
+							|| currentValue.getLexicalUnitType() != LexicalType.IDENT) {
 						break;
 					}
 				} else {
@@ -87,10 +88,8 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 			}
 			return is_set;
 		case FUNCTION:
-			if (subproperty.equals("font-variant-alternates")) {
-				if (testFontVariantAlternates()) {
-					return true;
-				}
+			if (subproperty.equals("font-variant-alternates") && testFontVariantAlternates()) {
+				return true;
 			}
 		default:
 		}

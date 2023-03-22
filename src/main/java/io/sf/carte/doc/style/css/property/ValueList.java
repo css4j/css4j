@@ -266,14 +266,13 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 							result = match;
 						}
 					}
-				} else if (mult == Multiplier.PLUS || syntax.getCategory() == Category.transformList) {
-					if (!isCommaSeparated()) {
-						Match match = valuesMatch(iterator(), syntax);
-						if (match == Match.TRUE) {
-							return Match.TRUE;
-						} else if (result == Match.FALSE) {
-							result = match;
-						}
+				} else if ((mult == Multiplier.PLUS
+						|| syntax.getCategory() == Category.transformList) && !isCommaSeparated()) {
+					Match match = valuesMatch(iterator(), syntax);
+					if (match == Match.TRUE) {
+						return Match.TRUE;
+					} else if (result == Match.FALSE) {
+						result = match;
 					}
 				}
 			} while ((syntax = syntax.getNext()) != null);
@@ -285,13 +284,13 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 	Match matchesComponent(CSSValueSyntax syntax) {
 		Multiplier mult = syntax.getMultiplier();
 		if (mult == Multiplier.NUMBER) {
-			if (isCommaSeparated() || getLength() == 1 || syntax.getCategory() == Category.transformList) {
+			if (isCommaSeparated() || getLength() == 1
+					|| syntax.getCategory() == Category.transformList) {
 				return valuesMatch(iterator(), syntax);
 			}
-		} else if (mult == Multiplier.PLUS || syntax.getCategory() == Category.transformList) {
-			if (!isCommaSeparated()) {
-				return valuesMatch(iterator(), syntax);
-			}
+		} else if ((mult == Multiplier.PLUS || syntax.getCategory() == Category.transformList)
+				&& !isCommaSeparated()) {
+			return valuesMatch(iterator(), syntax);
 		}
 		return Match.FALSE;
 	}
@@ -300,7 +299,8 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 		Match result = Match.TRUE;
 		while (it.hasNext()) {
 			StyleValue value = it.next();
-			if (value.getCssValueType() == CssType.LIST && syntax.getCategory() != Category.transformList) {
+			if (value.getCssValueType() == CssType.LIST
+					&& syntax.getCategory() != Category.transformList) {
 				return Match.FALSE;
 			}
 			Match match = value.matchesComponent(syntax);

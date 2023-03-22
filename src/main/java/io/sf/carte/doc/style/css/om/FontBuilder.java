@@ -128,11 +128,10 @@ class FontBuilder extends ShorthandBuilder {
 			if (fvTypes == 2) {
 				return false;
 			}
-			if (fvTypes == 0 && !fontVariantDone) {
-				if (!isFontVariantSetToInitialOrCss21(declaredSet)) {
-					builder.appendMinifiedCssText(buf);
-					setFontVariantDone();
-				}
+			if (fvTypes == 0 && !fontVariantDone
+					&& !isFontVariantSetToInitialOrCss21(declaredSet)) {
+				builder.appendMinifiedCssText(buf);
+				setFontVariantDone();
 			}
 		}
 		return true;

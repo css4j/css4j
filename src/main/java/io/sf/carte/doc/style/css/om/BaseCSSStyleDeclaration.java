@@ -156,21 +156,19 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			CssType type = cssVal.getCssValueType();
 			// Verify if the property is a subproperty of a previously set
 			// shorthand
-			if (type != CssType.SHORTHAND) {
-				if (cssVal.isSubproperty()) {
-					Iterator<String> it = unusedShorthands.iterator();
-					while (it.hasNext()) {
-						String sh = it.next();
-						ShorthandValue shval = (ShorthandValue) propValue.get(sh);
-						if (shval.isSetSubproperty(ptyname)) {
-							if (important == shval.isImportant()) {
-								it.remove();
-								appendShorthandMinifiedCssText(sb, sh, shval);
-							}
+			if (type != CssType.SHORTHAND && cssVal.isSubproperty()) {
+				Iterator<String> it = unusedShorthands.iterator();
+				while (it.hasNext()) {
+					String sh = it.next();
+					ShorthandValue shval = (ShorthandValue) propValue.get(sh);
+					if (shval.isSetSubproperty(ptyname)) {
+						if (important == shval.isImportant()) {
+							it.remove();
+							appendShorthandMinifiedCssText(sb, sh, shval);
 						}
 					}
-					continue;
 				}
+				continue;
 			}
 			// No subproperty of already printed shorthand, print it.
 			cssVal = getCSSValue(ptyname);
@@ -241,21 +239,19 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			CssType type = cssVal.getCssValueType();
 			// Verify if the property is a subproperty of a previously set
 			// shorthand
-			if (type != CssType.SHORTHAND) {
-				if (((StyleValue) cssVal).isSubproperty()) {
-					Iterator<String> it = unusedShorthands.iterator();
-					while (it.hasNext()) {
-						String sh = it.next();
-						ShorthandValue shval = (ShorthandValue) propValue.get(sh);
-						if (shval.isSetSubproperty(ptyname)) {
-							if (important == shval.isImportant()) {
-								it.remove();
-								writeShorthandCssText(wri, context, sh, shval);
-							}
+			if (type != CssType.SHORTHAND && ((StyleValue) cssVal).isSubproperty()) {
+				Iterator<String> it = unusedShorthands.iterator();
+				while (it.hasNext()) {
+					String sh = it.next();
+					ShorthandValue shval = (ShorthandValue) propValue.get(sh);
+					if (shval.isSetSubproperty(ptyname)) {
+						if (important == shval.isImportant()) {
+							it.remove();
+							writeShorthandCssText(wri, context, sh, shval);
 						}
 					}
-					continue;
 				}
+				continue;
 			}
 			// No subproperty of already printed shorthand, print it.
 			StyleValue ptyvalue = getCSSValue(ptyname);
@@ -953,7 +949,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	protected void setLonghandProperty(String propertyName, LexicalUnit value, boolean important) throws DOMException {
+	protected void setLonghandProperty(String propertyName, LexicalUnit value, boolean important)
+			throws DOMException {
 		ValueFactory factory = getValueFactory();
 		StyleValue cssvalue;
 		try {
@@ -992,30 +989,29 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					cssvalue = listToString(list);
 				}
 			}
-		} else if (propertyName.equals("background-position")) {
-			// Check property
-			if (cssvalue.getCssValueType() == CssType.LIST) {
-				ValueList list = (ValueList) cssvalue;
-				if (list.isCommaSeparated()) {
-					int sz = list.getLength();
-					for (int i = 0; i < sz; i++) {
-						StyleValue item = list.item(i);
-						if (item.getCssValueType() == CssType.LIST) {
-							if (!checkBackgroundPosition((ValueList) item)) {
-								list.remove(i--);
-								// Report error
-								wrongBackgroundPositionError(item.getCssText());
-							}
+		} else // Check property
+		if (propertyName.equals("background-position")
+				&& cssvalue.getCssValueType() == CssType.LIST) {
+			ValueList list = (ValueList) cssvalue;
+			if (list.isCommaSeparated()) {
+				int sz = list.getLength();
+				for (int i = 0; i < sz; i++) {
+					StyleValue item = list.item(i);
+					if (item.getCssValueType() == CssType.LIST) {
+						if (!checkBackgroundPosition((ValueList) item)) {
+							list.remove(i--);
+							// Report error
+							wrongBackgroundPositionError(item.getCssText());
 						}
 					}
-					if (list.getLength() == 0) {
-						return; // ignore
-					}
-				} else if (!checkBackgroundPosition(list)) {
-					// Report error
-					wrongBackgroundPositionError(list.getCssText());
+				}
+				if (list.getLength() == 0) {
 					return; // ignore
 				}
+			} else if (!checkBackgroundPosition(list)) {
+				// Report error
+				wrongBackgroundPositionError(list.getCssText());
+				return; // ignore
 			}
 		}
 		setProperty(propertyName, cssvalue, important);
@@ -1164,12 +1160,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	boolean replaceProperty(String propertyName, StyleValue cssValue, String priority) {
 		int idx = propertyList.indexOf(propertyName);
 		boolean overriddenImportant = "important".equals(priorities.get(idx));
-		if (!overriddenImportant || "important".equals(priority)) {
-			if (addOverrideProperty(propertyName, cssValue, priority)) {
-				propertyList.remove(idx);
-				priorities.remove(idx);
-				return true;
-			}
+		if ((!overriddenImportant || "important".equals(priority))
+				&& addOverrideProperty(propertyName, cssValue, priority)) {
+			propertyList.remove(idx);
+			priorities.remove(idx);
+			return true;
 		}
 		return false;
 	}
@@ -1220,12 +1215,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		while (it.hasNext()) {
 			String shName = it.next();
 			ShorthandValue shval = (ShorthandValue) propValue.get(shName);
-			if (!shval.isImportant() || "important".equals(priority)) {
-				if (shval.overrideByLonghand(longhandName)) {
-					it.remove();
-					propValue.remove(shName);
-					return;
-				}
+			if ((!shval.isImportant() || "important".equals(priority))
+					&& shval.overrideByLonghand(longhandName)) {
+				it.remove();
+				propValue.remove(shName);
+				return;
 			}
 		}
 	}
@@ -1662,13 +1656,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 			// Normal shorthands
 			if ("font".equals(propertyName)) {
-				if (getStyleDatabase() != null) {
-					// Check for system font identifier
-					if (value.getLexicalUnitType() == LexicalType.IDENT && value.getNextLexicalUnit() == null) {
-						String decl = getStyleDatabase().getSystemFontDeclaration(value.getStringValue());
-						if (decl != null) {
-							return setSystemFont(decl, important);
-						}
+				// Check for system font identifier
+				if (getStyleDatabase() != null && value.getLexicalUnitType() == LexicalType.IDENT
+						&& value.getNextLexicalUnit() == null) {
+					String decl = getStyleDatabase()
+							.getSystemFontDeclaration(value.getStringValue());
+					if (decl != null) {
+						return setSystemFont(decl, important);
 					}
 				}
 				setter = new FontShorthandSetter(this);

@@ -163,12 +163,10 @@ class ShorthandSetter extends BaseShorthandSetter {
 							it.remove();
 							break valueloop;
 						}
-					} else if (property.endsWith("-image")) {
-						if (unass.size() == 1) {
-							setSubpropertyValue(property, createCSSValue(property, lu));
-							it.remove();
-							break valueloop;
-						}
+					} else if (property.endsWith("-image") && unass.size() == 1) {
+						setSubpropertyValue(property, createCSSValue(property, lu));
+						it.remove();
+						break valueloop;
 					}
 				}
 			}
@@ -406,10 +404,8 @@ class ShorthandSetter extends BaseShorthandSetter {
 				addUnassignedProperty(it.next());
 			}
 		}
-		if (!unassignedValues.isEmpty()) {
-			if (!scanUnassigned(unassignedValues)) {
-				return false;
-			}
+		if (!unassignedValues.isEmpty() && !scanUnassigned(unassignedValues)) {
+			return false;
 		}
 		// Reset subproperties not set by this shorthand
 		resetSubproperties();
@@ -422,10 +418,8 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	protected boolean assignSubproperty(String subproperty) {
 		LexicalType lutype = currentValue.getLexicalUnitType();
-		if (lutype == LexicalType.IDENT) {
-			if (assignIdentifiers(subproperty)) {
-				return true;
-			}
+		if (lutype == LexicalType.IDENT && assignIdentifiers(subproperty)) {
+			return true;
 		}
 		if (subproperty.endsWith("-color")) {
 			if (BaseCSSStyleDeclaration.testColor(currentValue)) {

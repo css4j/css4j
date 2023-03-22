@@ -92,25 +92,17 @@ class BorderImageBuilder extends ShorthandBuilder {
 		if (declaredSet.contains("border-image-source")) {
 			appendBorderImageSource(biSource);
 		}
-		if (declaredSet.contains("border-image-slice")) {
-			if (!appendBorderImageSlice(biSlice)) {
-				return false;
-			}
+		if (declaredSet.contains("border-image-slice") && !appendBorderImageSlice(biSlice)) {
+			return false;
 		}
-		if (declaredSet.contains("border-image-width")) {
-			if (!appendBorderImageWidth(biWidth)) {
-				return false;
-			}
+		if (declaredSet.contains("border-image-width") && !appendBorderImageWidth(biWidth)) {
+			return false;
 		}
-		if (declaredSet.contains("border-image-outset")) {
-			if (!appendBorderImageOutset(biOutset)) {
-				return false;
-			}
+		if (declaredSet.contains("border-image-outset") && !appendBorderImageOutset(biOutset)) {
+			return false;
 		}
-		if (declaredSet.contains("border-image-repeat")) {
-			if (!appendBorderImageRepeat(biRepeat)) {
-				return false;
-			}
+		if (declaredSet.contains("border-image-repeat") && !appendBorderImageRepeat(biRepeat)) {
+			return false;
 		}
 		// We already checked for all values being initial, but only for a full declaredSet
 		if (bibuf.length() == 0) {

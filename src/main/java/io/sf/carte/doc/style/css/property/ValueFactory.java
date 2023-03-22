@@ -254,10 +254,8 @@ public class ValueFactory {
 				return type;
 			}
 			lu = lu.getNextLexicalUnit();
-			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-					lu = lu.getNextLexicalUnit();
-				}
+			if (lu != null && lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
+				lu = lu.getNextLexicalUnit();
 			}
 		}
 		return -1;
@@ -279,10 +277,8 @@ public class ValueFactory {
 				return type;
 			}
 			lu = lu.getNextLexicalUnit();
-			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-					lu = lu.getNextLexicalUnit();
-				}
+			if (lu != null && lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
+				lu = lu.getNextLexicalUnit();
 			}
 		}
 		return -1;

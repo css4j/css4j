@@ -504,11 +504,9 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	private void discardGenericRule() {
-		if (ignoreGroupingRules == 0) {
-			if (currentRule != null) {
-				// Restore parent rule
-				currentRule = currentRule.getParentRule();
-			}
+		if (ignoreGroupingRules == 0 && currentRule != null) {
+			// Restore parent rule
+			currentRule = currentRule.getParentRule();
 		}
 		resetCommentStack();
 	}

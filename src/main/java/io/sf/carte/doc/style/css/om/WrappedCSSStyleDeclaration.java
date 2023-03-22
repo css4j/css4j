@@ -104,10 +104,8 @@ class WrappedCSSStyleDeclaration extends BaseCSSStyleDeclaration {
 			if (hrefcontext != null) {
 				value = ((ValueList) value).wrap(oldHrefContext, hrefcontext);
 			}
-		} else if (value.getPrimitiveType() == CSSValue.Type.URI) {
-			if (hrefcontext != null) {
-				value = new URIValueWrapper((URIValue) value, oldHrefContext, hrefcontext);
-			}
+		} else if (value.getPrimitiveType() == CSSValue.Type.URI && hrefcontext != null) {
+			value = new URIValueWrapper((URIValue) value, oldHrefContext, hrefcontext);
 		}
 		return value;
 	}

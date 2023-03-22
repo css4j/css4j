@@ -85,12 +85,11 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 				nextCurrentValue();
 				return value;
 			} else {
-				StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
-				if (errHandler != null) {
-					if (!hasCompatValue()) {
-						errHandler.shorthandError(getShorthandName(),
+				StyleDeclarationErrorHandler errHandler = styleDeclaration
+						.getStyleDeclarationErrorHandler();
+				if (errHandler != null && !hasCompatValue()) {
+					errHandler.shorthandError(getShorthandName(),
 							"Wrong border-radius value: " + currentValue.toString());
-					}
 				}
 			}
 		}

@@ -310,10 +310,9 @@ class BackgroundBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
-		if (declaredSet.contains("background-image")) {
-			if (!appendBackgroundImage(buf, ((ValueList) bgimage).item(index))) {
-				return false;
-			}
+		if (declaredSet.contains("background-image")
+				&& !appendBackgroundImage(buf, ((ValueList) bgimage).item(index))) {
+			return false;
 		}
 		ValueList list = (ValueList) bgposition;
 		StyleValue posval;

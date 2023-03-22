@@ -229,13 +229,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			// Add parent stylesheet info
 			if (value.getCssValueType() == CssType.LIST) {
 				if (hrefcontext != null) {
-					value = ((ValueList) value).wrap(hrefcontext, getOwnerNode().getOwnerDocument().getBaseURI());
-				}
-			} else if (value.getPrimitiveType() == Type.URI) {
-				if (hrefcontext != null) {
-					value = new URIValueWrapper((URIValue) value, hrefcontext,
+					value = ((ValueList) value).wrap(hrefcontext,
 							getOwnerNode().getOwnerDocument().getBaseURI());
 				}
+			} else if (value.getPrimitiveType() == Type.URI && hrefcontext != null) {
+				value = new URIValueWrapper((URIValue) value, hrefcontext,
+						getOwnerNode().getOwnerDocument().getBaseURI());
 			}
 		}
 		super.setPropertyCSSValue(propertyName, value, hrefcontext);
@@ -506,15 +505,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				computedStyleError(propertyName, pri.getCssText(), null, e);
 				return null;
 			}
-			if (value != null) {
-				if (value.getPrimitiveType() == Type.LEXICAL) {
-					if (!isCustomPropertyName(propertyName)) {
-						// Not a custom property
-						computedStyleError(propertyName, value.getCssText(), "Invalid value for non-custom property.");
-						return null;
-					}
-					return value;
+			if (value != null && value.getPrimitiveType() == Type.LEXICAL) {
+				if (!isCustomPropertyName(propertyName)) {
+					// Not a custom property
+					computedStyleError(propertyName, value.getCssText(),
+							"Invalid value for non-custom property.");
+					return null;
 				}
+				return value;
 			}
 		} else if (pritype == Type.ATTR) {
 			value = computeAttribute(propertyName, (AttrValue) pri);
@@ -523,16 +521,16 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		} else if (pritype == Type.INTERNAL) {
 			// Pending substitution values.
 			PendingValue pending = (PendingValue) pri;
-			value = getSubstitutedValue(propertyName, pending.getShorthandName(), pending.getLexicalUnit().clone(),
-					isPropertyImportant(propertyName));
+			value = getSubstitutedValue(propertyName, pending.getShorthandName(),
+					pending.getLexicalUnit().clone(), isPropertyImportant(propertyName));
 		} else {
 			return null;
 		}
 		return value;
 	}
 
-	private static StyleValue inheritValue(ComputedCSSStyle ancStyle, String propertyName, StyleValue value,
-			boolean inherited) {
+	private static StyleValue inheritValue(ComputedCSSStyle ancStyle, String propertyName,
+			StyleValue value, boolean inherited) {
 		while (value == null ? inherited : value.getPrimitiveType() == Type.INHERIT) {
 			ancStyle = ancStyle.getParentComputedStyle();
 			if (ancStyle == null) {

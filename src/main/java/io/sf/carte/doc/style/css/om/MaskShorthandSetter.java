@@ -398,14 +398,12 @@ class MaskShorthandSetter extends ShorthandSetter {
 			layerBuffer.append(" /");
 			miniLayerBuffer.append('/');
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
-			if (nlu != null) {
-				if ((nlu.getLexicalUnitType() == LexicalType.IDENT
+			if (nlu != null && ((nlu.getLexicalUnitType() == LexicalType.IDENT
 					&& getShorthandDatabase().isIdentifierValue("mask-size", nlu.getStringValue()))
-					|| ValueFactory.isSizeSACUnit(nlu)) {
-					value = createCSSValue("mask-size", nlu);
-					list.add(value);
-					nextCurrentValue();
-				}
+					|| ValueFactory.isSizeSACUnit(nlu))) {
+				value = createCSSValue("mask-size", nlu);
+				list.add(value);
+				nextCurrentValue();
 			}
 			if (list.getLength() == 1) {
 				lstSize.add(list.item(0));

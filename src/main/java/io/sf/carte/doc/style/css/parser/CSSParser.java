@@ -836,12 +836,10 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (buffer.length() != 0) {
 					unexpectedCharError(index, codepoint);
 				}
-				if (opParenDepth[opDepthIndex] == 0 && currentCond != null) {
-					if (opDepthIndex != 0) {
-						opDepthIndex--;
-						if (currentCond.getParentCondition() != null) {
-							currentCond = currentCond.getParentCondition();
-						}
+				if (opParenDepth[opDepthIndex] == 0 && currentCond != null && opDepthIndex != 0) {
+					opDepthIndex--;
+					if (currentCond.getParentCondition() != null) {
+						currentCond = currentCond.getParentCondition();
 					}
 				}
 				prevcp = codepoint;
@@ -1320,13 +1318,15 @@ public class CSSParser implements Parser, Cloneable {
 					buffer.append(word);
 				} else if (ParseHelper.equalsIgnoreCase(word, "not")) {
 					if (stage != 0) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'not' at the wrong parsing stage");
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"Found 'not' at the wrong parsing stage");
 					} else {
 						negativeQuery = true;
 					}
 				} else if (ParseHelper.equalsIgnoreCase(word, "only")) {
 					if (stage != 0) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'only' at the wrong parsing stage");
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"Found 'only' at the wrong parsing stage");
 					} else {
 						handler.onlyPrefix();
 					}
@@ -1341,16 +1341,15 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			private boolean appendWord(int index, CharSequence word, int quote) {
-				if (buffer.length() != 0) {
-					if (escapedTokenIndex == -1) {
-						if (isPrevCpWhitespace()) {
-							if (stage == 1) {
-								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found white space between media");
-								return false;
-							}
-							spaceFound = true;
-							buffer.append(' ');
+				if (buffer.length() != 0 && escapedTokenIndex == -1) {
+					if (isPrevCpWhitespace()) {
+						if (stage == 1) {
+							handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+									"Found white space between media");
+							return false;
 						}
+						spaceFound = true;
+						buffer.append(' ');
 					}
 				}
 				if (quote == WORD_UNQUOTED) {
@@ -1374,7 +1373,8 @@ public class CSSParser implements Parser, Cloneable {
 				switch (type) {
 				case AND:
 					if (stage > 1) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'and' at the wrong parsing stage");
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"Found 'and' at the wrong parsing stage");
 						return;
 					}
 					if (buffer.length() != 0) {
@@ -2384,12 +2384,10 @@ public class CSSParser implements Parser, Cloneable {
 						unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
 					}
 					return;
-				} else if (stage == STAGE_WAIT_SELECTOR) {
-					if (isValidSelectorCharacter(codePoint)) {
-						buffer.append(chars);
-						prevcp = codePoint;
-						return;
-					}
+				} else if (stage == STAGE_WAIT_SELECTOR && isValidSelectorCharacter(codePoint)) {
+					buffer.append(chars);
+					prevcp = codePoint;
+					return;
 				}
 				unexpectedCharError(index, codePoint, STAGE_SELECTOR_ERROR);
 			}
@@ -3169,13 +3167,12 @@ public class CSSParser implements Parser, Cloneable {
 						}
 						buffer.setLength(0);
 						endRuleBody();
-					} else if (!parseError && curlyBracketDepth == 1) {
-						if (stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
-							handler.ignorableAtRule(buffer.toString());
-							buffer.setLength(0);
-							stage = STAGE_GROUPING_OR_FONTFACE_RULE;
-							switchContextToStage2();
-						}
+					} else if (!parseError && curlyBracketDepth == 1
+							&& stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
+						handler.ignorableAtRule(buffer.toString());
+						buffer.setLength(0);
+						stage = STAGE_GROUPING_OR_FONTFACE_RULE;
+						switchContextToStage2();
 					}
 				} else if (codepoint == TokenProducer.CHAR_RIGHT_PAREN) {
 					decrParenDepth(index);
@@ -3184,10 +3181,11 @@ public class CSSParser implements Parser, Cloneable {
 						if (ruleSecondPart != null) {
 							stage = STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL;
 						} else {
-							handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty URI in namespace rule");
+							handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+									"Empty URI in namespace rule");
 						}
 					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL
-						|| stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
+							|| stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
 						processFirstPart(index);
 						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
 					} else {
@@ -5019,11 +5017,9 @@ public class CSSParser implements Parser, Cloneable {
 			if (!skipCharacterHandling()) {
 				if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 					// Special case: comma
-					if (codepoint == 44) {
-						if (prevcp == 44 || buffer.length() == 0) {
-							unexpectedCharError(index, codepoint);
-							return;
-						}
+					if (codepoint == 44 && (prevcp == 44 || buffer.length() == 0)) {
+						unexpectedCharError(index, codepoint);
+						return;
 					}
 					if (isPrevCpWhitespace() && buffer.length() != 0) {
 						buffer.append(' ');
@@ -5612,11 +5608,9 @@ public class CSSParser implements Parser, Cloneable {
 		public void endOfStream(int len) {
 			if (!parseError) {
 				processBuffer(len, 32, true);
-				if (!parseError) {
-					if (!addCurrentSelector(len)) {
-						handleError(len, ParseHelper.ERR_UNEXPECTED_EOF,
-							"Unexpected end of stream");
-					}
+				if (!parseError && !addCurrentSelector(len)) {
+					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF,
+						"Unexpected end of stream");
 				}
 			}
 		}
@@ -6493,11 +6487,9 @@ public class CSSParser implements Parser, Cloneable {
 							return false;
 						}
 					} else if (lastType != type) {
-						if (valCount == 3) {
-							if (lastType != LexicalType.OPERATOR_SLASH) {
-								// No commas, must be slash
-								return false;
-							}
+						if (valCount == 3 && lastType != LexicalType.OPERATOR_SLASH) {
+							// No commas, must be slash
+							return false;
 						}
 					} else {
 						hasNoCommas = true;
@@ -8043,22 +8035,21 @@ public class CSSParser implements Parser, Cloneable {
 				for (; i >= 0; i--) {
 					cp = ident.codePointAt(i);
 					if (!Character.isLetter(cp) && cp != 37) { // Not letter nor %
-						if (cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1)) {
-							// Either not ending in [0-9] range or not parsable as a number
-							if (!newIdentifier(raw, ident, cssText)) {
-								// Check for a single '+' or '-'
-								if (raw.length() == 1) {
-									char c = raw.charAt(0);
-									if (c == '+') {
-										newOperator(index, '+', LexicalType.OPERATOR_PLUS);
-										return;
-									} else if (c == '-') {
-										newOperator(index, '-', LexicalType.OPERATOR_MINUS);
-										return;
-									}
-								} else {
-									checkForIEValue(index, raw);
+						// Either not ending in [0-9] range or not parsable as a number
+						if ((cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1))
+								&& !newIdentifier(raw, ident, cssText)) {
+							// Check for a single '+' or '-'
+							if (raw.length() == 1) {
+								char c = raw.charAt(0);
+								if (c == '+') {
+									newOperator(index, '+', LexicalType.OPERATOR_PLUS);
+									return;
+								} else if (c == '-') {
+									newOperator(index, '-', LexicalType.OPERATOR_MINUS);
+									return;
 								}
+							} else {
+								checkForIEValue(index, raw);
 							}
 						}
 						break;
@@ -8530,10 +8521,8 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void escaped(int index, int codepoint) {
-			if (!parseError) {
-				if (unicodeRange || isEscapedContentError(index, codepoint)) {
-					unexpectedCharError(index, codepoint);
-				}
+			if (!parseError && (unicodeRange || isEscapedContentError(index, codepoint))) {
+				unexpectedCharError(index, codepoint);
 			}
 		}
 
@@ -9055,10 +9044,8 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		void handleWarning(int index, byte errCode, String message) {
-			if (!parseError) {
-				if (errorHandler != null) {
-					errorHandler.warning(createException(index, errCode, message));
-				}
+			if (!parseError && errorHandler != null) {
+				errorHandler.warning(createException(index, errCode, message));
 			}
 		}
 

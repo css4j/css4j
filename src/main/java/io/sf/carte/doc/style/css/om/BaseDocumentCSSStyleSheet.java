@@ -244,11 +244,13 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 		}
 		// Now the override style.
 		if (elt.hasOverrideStyle(pseudoElt)) {
-			BaseCSSStyleDeclaration ovstyle = (BaseCSSStyleDeclaration) elt.getOverrideStyle(pseudoElt);
+			BaseCSSStyleDeclaration ovstyle = (BaseCSSStyleDeclaration) elt
+					.getOverrideStyle(pseudoElt);
 			style.addStyle(ovstyle);
 		}
 		// Finally, the user's important style sheet.
-		AbstractCSSStyleSheet userImportantStyleSheet = getStyleSheetFactory().getUserImportantStyleSheet();
+		AbstractCSSStyleSheet userImportantStyleSheet = getStyleSheetFactory()
+				.getUserImportantStyleSheet();
 		if (userImportantStyleSheet != null) {
 			// Build a new cascade
 			Cascade usercascade = new Cascade();
@@ -270,13 +272,11 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 		CSSElement elt = style.getOwnerNode();
 		ErrorHandler errHandler = elt.getOwnerDocument().getErrorHandler();
 		errHandler.resetComputedStyleErrors(elt);
-		if (origin >= CSSStyleSheetFactory.ORIGIN_AUTHOR) {
-			if (elt.hasPresentationalHints()) {
-				try {
-					elt.exportHintsToStyle(style);
-				} catch (DOMException e) {
-					errHandler.presentationalHintError(elt, e);
-				}
+		if (origin >= CSSStyleSheetFactory.ORIGIN_AUTHOR && elt.hasPresentationalHints()) {
+			try {
+				elt.exportHintsToStyle(style);
+			} catch (DOMException e) {
+				errHandler.presentationalHintError(elt, e);
 			}
 		}
 		/*
@@ -312,11 +312,13 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 		}
 		// Finally, the user's important style sheet.
 		if (origin >= CSSStyleSheetFactory.ORIGIN_USER_IMPORTANT) {
-			AbstractCSSStyleSheet userImportantStyleSheet = getStyleSheetFactory().getUserImportantStyleSheet();
+			AbstractCSSStyleSheet userImportantStyleSheet = getStyleSheetFactory()
+					.getUserImportantStyleSheet();
 			if (userImportantStyleSheet != null) {
 				// Build a new cascade
 				Cascade usercascade = new Cascade();
-				usercascade.cascade(matcher, getTargetMedium(), userImportantStyleSheet.getCssRules());
+				usercascade.cascade(matcher, getTargetMedium(),
+						userImportantStyleSheet.getCssRules());
 				styleit = usercascade.iterator();
 				while (styleit.hasNext()) {
 					StyleRule rule = styleit.next();
@@ -359,7 +361,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 						SupportsRule supports = (SupportsRule) rule;
 						DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
 						StyleDatabase sdb;
-						if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null && supports.supports(sdb)) {
+						if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null
+								&& supports.supports(sdb)) {
 							CSSRuleArrayList rules = supports.getCssRules();
 							cascade(matcher, targetMedium, rules);
 						}
@@ -485,12 +488,10 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 
 			@Override
 			public StyleRule next() {
-				if (currentList != null) {
-					if (currentList.hasNext()) {
-						StyleRule thenext = currentList.next();
-						findCurrentList();
-						return thenext;
-					}
+				if (currentList != null && currentList.hasNext()) {
+					StyleRule thenext = currentList.next();
+					findCurrentList();
+					return thenext;
 				}
 				throw new NoSuchElementException();
 			}

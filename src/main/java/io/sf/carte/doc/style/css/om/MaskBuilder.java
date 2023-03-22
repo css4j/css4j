@@ -188,11 +188,10 @@ class MaskBuilder extends ShorthandBuilder {
 	}
 
 	private boolean appendLayer(StringBuilder buf, Set<String> declaredSet, int index,
-		int lastIndex) {
-		if (declaredSet.contains("mask-image")) {
-			if (!appendImage(buf, ((ValueList) mskimage).item(index))) {
-				return false;
-			}
+			int lastIndex) {
+		if (declaredSet.contains("mask-image")
+				&& !appendImage(buf, ((ValueList) mskimage).item(index))) {
+			return false;
 		}
 		ValueList list = (ValueList) mskposition;
 		StyleValue posval;

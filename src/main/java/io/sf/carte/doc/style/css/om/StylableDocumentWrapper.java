@@ -1624,10 +1624,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		Iterator<LinkStyleDefiner> it = definerSet.iterator();
 		while (it.hasNext()) {
 			LinkStyleDefiner definer = it.next();
-			if (definer instanceof LinkStyleProcessingInstruction) {
-				if (((LinkStyleProcessingInstruction) definer).isSameSheet(href)) {
-					return true;
-				}
+			if (definer instanceof LinkStyleProcessingInstruction
+					&& ((LinkStyleProcessingInstruction) definer).isSameSheet(href)) {
+				return true;
 			}
 		}
 		return false;
@@ -1762,15 +1761,14 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		while (links.hasNext()) {
 			CSSStyleSheet sheet = links.next().getSheet();
 			String title;
-			if (sheet != null && (title = sheet.getTitle()) != null && title.length() > 0) {
-				if (!sheet.getDisabled()) {
-					if (selectedSetName.length() > 0) {
-						if (!selectedSetName.equalsIgnoreCase(title)) {
-							return null;
-						}
-					} else {
-						selectedSetName = title;
+			if (sheet != null && (title = sheet.getTitle()) != null && title.length() > 0
+					&& !sheet.getDisabled()) {
+				if (selectedSetName.length() > 0) {
+					if (!selectedSetName.equalsIgnoreCase(title)) {
+						return null;
 					}
+				} else {
+					selectedSetName = title;
 				}
 			}
 		}
@@ -1832,10 +1830,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		while (links.hasNext()) {
 			CSSStyleSheet sheet = links.next().getSheet();
 			String title;
-			if (sheet != null && (title = sheet.getTitle()) != null && title.length() > 0) {
-				if (title.equals(name)) {
-					sheet.setDisabled(false);
-				}
+			if (sheet != null && (title = sheet.getTitle()) != null && title.length() > 0
+					&& title.equals(name)) {
+				sheet.setDisabled(false);
 			}
 		}
 	}

@@ -330,10 +330,9 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 				}
 				Node node = element.getFirstChild();
 				while (node != null) {
-					if (node.getNodeType() == Node.ELEMENT_NODE) {
-						if (!defaultButtonCheck((Element) node, formid)) {
-							return false;
-						}
+					if (node.getNodeType() == Node.ELEMENT_NODE
+							&& !defaultButtonCheck((Element) node, formid)) {
+						return false;
 					}
 					node = node.getNextSibling();
 				}
