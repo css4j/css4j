@@ -236,8 +236,8 @@ class ColorUtil {
 		}
 
 		hwb[0] = (i - f / (v - w)) * 60d;
-		hwb[1] = w;
-		hwb[2] = 1d - v;
+		hwb[1] = w * 100d;
+		hwb[2] = (1d - v) * 100d;
 
 		return hwb;
 	}

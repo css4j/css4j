@@ -632,6 +632,38 @@ public class PropertyParserColorHWBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueHWBAttr() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"hwb(attr(data-hue angle) attr(data-w percentage) attr(data-b %)/attr(data-alpha number))");
+		assertNotNull(lu);
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("attr(data-hue angle)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("attr(data-w percentage)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("attr(data-b %)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("attr(data-alpha number)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals(
+				"hwb(attr(data-hue angle) attr(data-w percentage) attr(data-b %)/attr(data-alpha number))",
+				lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueHWBBadLightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12 48% 0.1)"));
 	}

@@ -763,6 +763,33 @@ public class LexicalValueTest {
 	}
 
 	@Test
+	public void testColorMix_Attr() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+				"color: color-mix(in attr(data-space ident) attr(data-method ident) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%));");
+		StyleValue cssval = style.getPropertyCSSValue("color");
+		assertNotNull(cssval);
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals(
+				"color-mix(in attr(data-space ident) attr(data-method ident) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%))",
+				cssval.getCssText());
+		assertEquals(
+				"color-mix(in attr(data-space ident) attr(data-method ident) hue,hwb(60.8 26% 24%) 37%,hwb(90.3 40% 31%))",
+				cssval.getMinifiedCssText("color"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
 	public void testCounter_Var() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("content: counter(var(--myCounter), decimal);");

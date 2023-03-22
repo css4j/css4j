@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue;
-import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.RGBAColor;
@@ -66,11 +65,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	@Override
 	public String getMinifiedCssText(String propertyValue) {
 		String css = hwbColor.toMinifiedString();
-		if (hwbColor.getAlpha().getPrimitiveType() == Type.NUMERIC
-				&& ((CSSTypedValue) hwbColor.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER) == 1f
-				&& hwbColor.getHue().getPrimitiveType() == Type.NUMERIC
-				&& hwbColor.getWhiteness().getPrimitiveType() == Type.NUMERIC
-				&& hwbColor.getBlackness().getPrimitiveType() == Type.NUMERIC) {
+		if (!hwbColor.isNonOpaque() && hasConvertibleComponents()) {
 			String rgbCss = ((CSSRGBColor) toRGBColor()).toMinifiedString();
 			if (rgbCss.length() < css.length()) {
 				css = rgbCss;

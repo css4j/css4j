@@ -50,7 +50,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 
 	private HueInterpolationMethod inMethod;
 
-	private String unknownMethod = null;
+	private PrimitiveValue unknownMethod = null;
 
 	private int hueIndex = -1;
 
@@ -140,13 +140,18 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 	}
 
 	private static void checkColorValidity(PrimitiveValue primi) {
-		Type pType = primi.getPrimitiveType();
-		if (pType != Type.COLOR && pType != Type.COLOR_MIX
-				&& primi.getCssValueType() != CssType.PROXY && pType != Type.EXPRESSION
-				&& pType != Type.MATH_FUNCTION) {
+		if (!isValidColor(primi)) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Unsupported value: " + primi.getCssText());
 		}
+	}
+
+	private static boolean isValidColor(PrimitiveValue primi) {
+		// Relative color syntaxes are not valid
+		Type pType = primi.getPrimitiveType();
+		return pType == Type.COLOR || primi.getCssValueType() == CssType.PROXY
+				|| (pType == Type.IDENT && ColorIdentifiers.getInstance()
+						.isColorIdentifier(((TypedValue) primi).getStringValue()));
 	}
 
 	/**
@@ -283,7 +288,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 			break;
 		case UNKNOWN:
 			wri.write(' ');
-			wri.write(unknownMethod);
+			unknownMethod.writeCssText(wri);
 			wri.write(" hue");
 			break;
 		default:
@@ -333,11 +338,23 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 	@Override
 	public PrimitiveValue getComponent(int index) {
 		PrimitiveValue comp;
-		if (index == 0) {
+		switch (index) {
+		case 0:
 			comp = colorValue1;
-		} else if (index == 1) {
+			break;
+		case 1:
+			comp = percent1;
+			break;
+		case 2:
 			comp = colorValue2;
-		} else {
+			break;
+		case 3:
+			comp = percent2;
+			break;
+		case 4:
+			comp = unknownMethod;
+			break;
+		default:
 			comp = null;
 		}
 		return comp;
@@ -346,11 +363,43 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 	@Override
 	public void setComponent(int index, StyleValue component) {
 		PrimitiveValue comp = (PrimitiveValue) component;
-		if (index == 0) {
+		switch (index) {
+		case 0:
 			setColorValue1(comp);
-		} else if (index == 1) {
+			break;
+		case 1:
+			setPercentage1(comp);
+			break;
+		case 2:
 			setColorValue2(comp);
+			break;
+		case 3:
+			setPercentage2(comp);
+			break;
+		case 4:
+			setInterpolationMethod(comp);
+			break;
+		default:
 		}
+	}
+
+	private void setInterpolationMethod(PrimitiveValue primi) {
+		if (primi.getPrimitiveType() == Type.IDENT) {
+			String s = ((TypedValue) primi).getStringValue();
+			inMethod = ColorSpaceHelper.parseInterpolationMethod(s);
+			if (inMethod != HueInterpolationMethod.UNKNOWN) {
+				unknownMethod = null;
+				return;
+			}
+		} else {
+			inMethod = HueInterpolationMethod.UNKNOWN;
+		}
+		unknownMethod = primi;
+	}
+
+	@Override
+	public int getComponentCount() {
+		return unknownMethod == null ? 4 : 5;
 	}
 
 	@Override
@@ -391,10 +440,13 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 
 	@Override
 	boolean hasConvertibleComponents() {
-		return isConvertible(colorValue1) && isConvertible(colorValue2);
+		return isConvertibleColor(colorValue1) && isConvertibleColor(colorValue2)
+				&& (percent1 == null || percent1.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				&& (percent2 == null || percent2.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				&& unknownMethod == null;
 	}
 
-	private boolean isConvertible(PrimitiveValue colorValue) {
+	private boolean isConvertibleColor(PrimitiveValue colorValue) {
 		return (colorValue instanceof ColorValue
 				&& ((ColorValue) colorValue).hasConvertibleComponents())
 				|| colorValue.getPrimitiveType() == Type.IDENT;
@@ -437,19 +489,37 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 			ValueFactory factory = new ValueFactory();
 
 			// In
-			if (lu.getLexicalUnitType() != LexicalType.IDENT
-					|| !"in".equalsIgnoreCase(lu.getStringValue())) {
+			LexicalType type = lu.getLexicalUnitType();
+			switch (type) {
+			case VAR:
+			case ATTR:
+				throw new CSSLexicalProcessingException(
+						"Unprocessable proxy inside color-mix() found.");
+			case IDENT:
+				if ("in".equalsIgnoreCase(lu.getStringValue())) {
+					break;
+				}
+			default:
 				throw new DOMException(DOMException.SYNTAX_ERR,
 						"Color-Mix begings with 'in', not with " + lunit.toString());
 			}
 
 			// Color space
 			lu = lu.getNextLexicalUnit();
-			if (lu.getLexicalUnitType() != LexicalType.IDENT) {
+			type = lu.getLexicalUnitType();
+			String colorSpace;
+			switch (type) {
+			case VAR:
+			case ATTR:
+				throw new CSSLexicalProcessingException(
+						"Unprocessable proxy inside color-mix() found.");
+			case IDENT:
+				colorSpace = lu.getStringValue();
+				break;
+			default:
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 						"Color space must be identifier, not: " + lunit.toString());
 			}
-			String colorSpace = lu.getStringValue();
 
 			lu = lu.getNextLexicalUnit();
 			if (lu == null) {
@@ -458,18 +528,24 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 
 			// Interpolation method or comma
 			HueInterpolationMethod method = HueInterpolationMethod.SHORTER;
-			String unknownMethod = null;
+			PrimitiveValue unknownMethod = null;
 
 			if (lu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
-				if (lu.getLexicalUnitType() != LexicalType.IDENT) {
-					wrongValueSyntax(lunit);
-					return;
-				}
-				String s = lu.getStringValue();
-				method = ColorSpaceHelper.parseInterpolationMethod(s);
-				if (method == HueInterpolationMethod.UNKNOWN) {
-					unknownMethod = s;
-					reportSyntaxWarning("Unknown interpolation method: " + s);
+				if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+					String s = lu.getStringValue();
+					method = ColorSpaceHelper.parseInterpolationMethod(s);
+					if (method == HueInterpolationMethod.UNKNOWN) {
+						unknownMethod = factory.createCSSPrimitiveValue(lu, true);
+						reportSyntaxWarning("Unknown interpolation method: " + s);
+					}
+				} else {
+					CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("custom-ident");
+					if (lu.shallowClone().matches(syn) != Match.TRUE) {
+						wrongValueSyntax(lunit);
+						return;
+					}
+					method = HueInterpolationMethod.UNKNOWN;
+					unknownMethod = factory.createCSSPrimitiveValue(lu, true);
 				}
 
 				lu = lu.getNextLexicalUnit();
@@ -503,11 +579,10 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 			}
 
 			PrimitiveValue color1, pcnt1;
-			CSSValueSyntax synColor = SyntaxParser.createSimpleSyntax("color");
 			CSSValueSyntax synPcnt = SyntaxParser.createSimpleSyntax("percentage");
 
 			PrimitiveValue primi = factory.createCSSPrimitiveValue(lu, true);
-			if (primi.matches(synColor) == Match.FALSE) {
+			if (!isValidColor(primi)) {
 				if (primi.matches(synPcnt) == Match.FALSE) {
 					wrongValueSyntax(lunit);
 					return;
@@ -520,7 +595,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 						return;
 					}
 					primi = factory.createCSSPrimitiveValue(lu, true);
-					if (primi.matches(synColor) == Match.FALSE) {
+					if (!isValidColor(primi)) {
 						wrongValueSyntax(lunit);
 						return;
 					}
@@ -567,7 +642,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 
 			PrimitiveValue color2, pcnt2;
 			primi = factory.createCSSPrimitiveValue(lu, true);
-			if (primi.matches(synColor) == Match.FALSE) {
+			if (!isValidColor(primi)) {
 				if (primi.matches(synPcnt) == Match.FALSE) {
 					wrongValueSyntax(lunit);
 					return;
@@ -580,7 +655,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 						return;
 					}
 					primi = factory.createCSSPrimitiveValue(lu, true);
-					if (primi.matches(synColor) == Match.FALSE) {
+					if (!isValidColor(primi)) {
 						wrongValueSyntax(lunit);
 						return;
 					}
@@ -737,8 +812,8 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 
 			color.setAlpha(alpha);
 
-			double[] components1 = conv1.toArray();
-			double[] components2 = conv2.toArray();
+			double[] components1 = conv1.toNumberArray();
+			double[] components2 = conv2.toNumberArray();
 
 			int len = Math.max(components1.length, components2.length);
 			double[] components = new double[len];

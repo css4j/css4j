@@ -871,7 +871,7 @@ public class ColorFunctionTest {
 		rgb = val.toRGBColor(false);
 		String s = rgb.toString();
 		assertEquals("rgb(15.3%, 63.32%, 24.56%)", s);
-		ColorValue srgbValue = (ColorValue) (ColorValue) rgb.packInValue();
+		ColorValue srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val.deltaE2000(srgbValue), 5e-3f);
 		assertEquals(0f, srgbValue.deltaE2000(val), 5e-3f);
 	}
@@ -928,7 +928,7 @@ public class ColorFunctionTest {
 		RGBAColor srgb = val.toRGBColor();
 		String s = srgb.toString();
 		assertEquals("rgba(0%, 23.8%, 100%, 0.5)", s);
-		ColorValue srgbValue = (ColorValue) (ColorValue) rgb.packInValue();
+		ColorValue srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val.deltaE2000(srgbValue), 1e-6f);
 		assertEquals(0f, srgbValue.deltaE2000(val), 1e-6f);
 		//
@@ -951,7 +951,7 @@ public class ColorFunctionTest {
 		srgb = val2.toRGBColor();
 		s = srgb.toString();
 		assertEquals("rgba(4.95%, 78.16%, 100%, 0.8)", s);
-		srgbValue = (ColorValue) (ColorValue) rgb.packInValue();
+		srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val2.deltaE2000(srgbValue), 1e-6f);
 		assertEquals(0f, srgbValue.deltaE2000(val2), 1e-6f);
 
@@ -1028,7 +1028,7 @@ public class ColorFunctionTest {
 		RGBAColor srgb = val.toRGBColor();
 		String s = srgb.toString();
 		assertEquals("rgba(40%, 80%, 10.01%, 0.5)", s);
-		ColorValue srgbValue = (ColorValue) (ColorValue) rgb.packInValue();
+		ColorValue srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val.deltaE2000(srgbValue), 1e-3f);
 		assertEquals(0f, srgbValue.deltaE2000(val), 1e-3f);
 
@@ -1060,7 +1060,7 @@ public class ColorFunctionTest {
 		srgb = val2.toRGBColor(true);
 		s = srgb.toString();
 		assertEquals("rgba(0%, 83.74%, 93.99%, 0.8)", s);
-		srgbValue = (ColorValue) (ColorValue) rgb.packInValue();
+		srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val2.deltaE2000(srgbValue), 1e-6f);
 		assertEquals(0f, srgbValue.deltaE2000(val2), 1e-6f);
 	}
@@ -1101,7 +1101,7 @@ public class ColorFunctionTest {
 		RGBAColor srgb = val.toRGBColor(false);
 		String s = srgb.toString();
 		assertEquals("rgba(4.95%, 78.19%, 34.05%, 0.5)", s);
-		ColorValue srgbValue = (ColorValue) (ColorValue) rgb.packInValue();
+		ColorValue srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val.deltaE2000(srgbValue), 3e-3f);
 		assertEquals(0f, srgbValue.deltaE2000(val), 3e-3f);
 		//
@@ -1125,7 +1125,7 @@ public class ColorFunctionTest {
 		srgb = val2.toRGBColor(false);
 		s = srgb.toString();
 		assertEquals("rgba(34.66%, 76.05%, 43.31%, 0.8)", s);
-		srgbValue = (ColorValue) (ColorValue) rgb.packInValue();
+		srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val2.deltaE2000(srgbValue), 2e-3f);
 		assertEquals(0f, srgbValue.deltaE2000(val2), 2e-3f);
 		//
@@ -1165,7 +1165,7 @@ public class ColorFunctionTest {
 		RGBAColor srgb = val.toRGBColor();
 		String s = srgb.toString();
 		assertEquals("rgb(95.37%, 98.94%, 0%)", s);
-		ColorValue srgbValue = (ColorValue) (ColorValue) rgb.packInValue();
+		ColorValue srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val.deltaE2000(srgbValue), 1e-6f);
 		assertEquals(0f, srgbValue.deltaE2000(val), 1e-6f);
 	}
@@ -1410,7 +1410,7 @@ public class ColorFunctionTest {
 		// To sRGB
 		RGBAColor srgb = val.toRGBColor();
 		assertEquals("rgba(11.19%, 26.32%, 91.61%, 0.5)", srgb.toString());
-		ColorValue srgbValue = (ColorValue) (ColorValue) srgb.packInValue();
+		ColorValue srgbValue = (ColorValue) srgb.packInValue();
 		assertEquals(0f, val.deltaE2000(srgbValue), 1e-3f);
 		assertEquals(0f, srgbValue.deltaE2000(val), 1e-3f);
 
@@ -1441,7 +1441,7 @@ public class ColorFunctionTest {
 		// To RGB
 		srgb = val2.toRGBColor(false);
 		assertEquals("rgba(16.74%, 25.58%, 68.53%, 0.8)", srgb.toString());
-		srgbValue = (ColorValue) (ColorValue) srgb.packInValue();
+		srgbValue = (ColorValue) srgb.packInValue();
 		assertEquals(0f, val2.deltaE2000(srgbValue), 5e-3f);
 		assertEquals(0f, srgbValue.deltaE2000(val2), 5e-3f);
 		//
@@ -1622,7 +1622,7 @@ public class ColorFunctionTest {
 		//
 		RGBAColor srgb = val.toRGBColor();
 		assertEquals("rgba(0%, 25.38%, 100%, 0.5)", srgb.toString());
-		ColorValue srgbValue = (ColorValue) (ColorValue) srgb.packInValue();
+		ColorValue srgbValue = (ColorValue) srgb.packInValue();
 		assertEquals(0.972f, val.deltaE2000(srgbValue), 1e-3f);
 		assertEquals(0.972f, srgbValue.deltaE2000(val), 1e-3f);
 		//
@@ -1652,7 +1652,7 @@ public class ColorFunctionTest {
 		//
 		srgb = val2.toRGBColor(false);
 		assertEquals("rgba(9.93%, 25.24%, 78.03%, 0.8)", srgb.toString());
-		srgbValue = (ColorValue) (ColorValue) srgb.packInValue();
+		srgbValue = (ColorValue) srgb.packInValue();
 		assertEquals(0f, val2.deltaE2000(srgbValue), 5e-3f);
 		assertEquals(0f, srgbValue.deltaE2000(val2), 5e-3f);
 		//

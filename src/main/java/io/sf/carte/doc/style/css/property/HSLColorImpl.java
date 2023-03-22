@@ -102,7 +102,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 
 	@Override
 	void setColorComponents(double[] hsl) {
-		NumberValue h = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, (float) (hsl[0]));
+		NumberValue h = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, (float) hsl[0]);
 		h.setSubproperty(true);
 		h.setAbsolutizedUnit();
 		setHue(h);
@@ -121,7 +121,7 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	@Override
-	double[] toArray() {
+	public double[] toNumberArray() throws DOMException {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}

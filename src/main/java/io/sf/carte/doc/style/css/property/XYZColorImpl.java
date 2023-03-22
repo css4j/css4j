@@ -168,7 +168,7 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 	}
 
 	@Override
-	double[] toArray() {
+	public double[] toNumberArray() throws DOMException {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
@@ -182,7 +182,7 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 
 	@Override
 	double[] toXYZ(Illuminant white) {
-		double[] xyz = toArray();
+		double[] xyz = toNumberArray();
 
 		if (refWhite != white) {
 			if (white == Illuminant.D50) {
@@ -199,7 +199,7 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 
 	@Override
 	double[] toSRGB(boolean clamp) {
-		double[] xyz = toArray();
+		double[] xyz = toNumberArray();
 
 		double[] xyzD65;
 

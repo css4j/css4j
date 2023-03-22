@@ -233,9 +233,18 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 	 *                  {@link io.sf.carte.doc.style.css.CSSValue.CssType#PROXY
 	 *                  PROXY}).
 	 * @throws NullPointerException if the index is valid but the {@code component}
-	 *                              is {@code null}.
+	 *                              cannot be {@code null}.
 	 */
 	public void setComponent(int index, StyleValue component) {
+	}
+
+	/**
+	 * Get the number of components of this value.
+	 * 
+	 * @return the number of components, {@code 0} if none.
+	 */
+	public int getComponentCount() {
+		return 0;
 	}
 
 	/**

@@ -18,12 +18,23 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.StringTokenizer;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentType;
+import org.w3c.dom.css.CSSRule;
+import org.w3c.dom.css.CSSRuleList;
 
+import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.om.BaseCSSStyleSheet;
+import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
+import io.sf.carte.doc.style.css.om.StyleRule;
+import io.sf.carte.doc.style.css.property.NumberValue;
 
 public class CSSDOMImplementationTest {
 	private static CSSDOMImplementation domImpl;
@@ -110,6 +121,51 @@ public class CSSDOMImplementationTest {
 		//
 		doctype = domImpl.createDocumentType("html", null, "\"><injection foo=\"");
 		assertEquals("<!DOCTYPE html SYSTEM \"&quot;&gt;&lt;injection foo=&quot;\">", doctype.toString());
+	}
+
+	@Test
+	public void getFontSize() {
+		TestDOMImplementation impl = new TestDOMImplementation();
+		CSSDocument newdoc = impl.createDocument(null, null, null);
+		CSSElement root = newdoc.createElement("html");
+		newdoc.appendChild(root);
+		CSSElement elm = newdoc.createElement("body");
+		elm.setAttribute("style", "font-size: 12pt");
+		root.appendChild(elm);
+		CSSElement h3 = newdoc.createElement("h3");
+		elm.appendChild(h3);
+		CSSComputedProperties style = newdoc.getStyleSheet().getComputedStyle(h3, null);
+		assertNotNull(style);
+		StyleRule rule = defaultStyleRule("h3", "font-size");
+		assertNotNull(rule);
+		NumberValue val = (NumberValue) rule.getStyle().getPropertyCSSValue("font-size");
+		assertNotNull(val);
+		assertEquals(12f * val.getFloatValue(CSSUnit.CSS_EM), style.getComputedFontSize(), 0.05);
+		assertFalse(newdoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(newdoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	private StyleRule defaultStyleRule(String selectorText, String propertyName) {
+		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		CSSRuleList rules = sheet.getCssRules();
+		for (int i = 0; i < rules.getLength(); i++) {
+			CSSRule rule = rules.item(i);
+			if (rule instanceof StyleRule) {
+				String selText = ((StyleRule) rule).getSelectorText();
+				// Small hack
+				StringTokenizer st = new StringTokenizer(selText, ",");
+				while (st.hasMoreElements()) {
+					String selector = st.nextToken();
+					if (selector.equals(selectorText)) {
+						if (((StyleRule) rule).getStyle().getPropertyCSSValue(propertyName) != null) {
+							return (StyleRule) rule;
+						}
+						break;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 }

@@ -117,7 +117,9 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			}
 		} else if (alpha.getCssValueType() != CssType.PROXY
 				&& alpha.getPrimitiveType() != Type.EXPRESSION
-				&& alpha.getPrimitiveType() != Type.MATH_FUNCTION) {
+				&& alpha.getPrimitiveType() != Type.MATH_FUNCTION
+				&& (alpha.getPrimitiveType() != Type.IDENT
+						|| !"none".equalsIgnoreCase(((TypedValue) alpha).getStringValue()))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Type not compatible with alpha.");
 		}
@@ -526,7 +528,22 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 	abstract void setColorComponents(double[] comp);
 
-	abstract double[] toArray();
+	/**
+	 * Convert the color components to a normalized numeric form and put them in an
+	 * array.
+	 * <p>
+	 * The array does not include the alpha channel.
+	 * </p>
+	 * <p>
+	 * For RGB colors, the components are in the [0,1] interval.
+	 * </p>
+	 * 
+	 * @return the array with the non-alpha normalized color components.
+	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted
+	 *                      to numbers.
+	 */
+	@Override
+	abstract public double[] toNumberArray() throws DOMException;
 
 	double[] toXYZ(Illuminant white) {
 		double[] rgb = toSRGB(true);

@@ -22,18 +22,16 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.StringTokenizer;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSRuleList;
 import org.w3c.dom.css.CSSStyleSheet;
 
 import io.sf.carte.doc.DocumentException;
-import io.sf.carte.doc.dom.TestDOMImplementation;
+import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -61,16 +59,24 @@ public class ComputedCSSStyleTest {
 
 	static CSSStyleSheet sheet;
 
+	static Document refXhtmlDoc;
+
 	CSSDocument xhtmlDoc;
 
 	@BeforeAll
-	public static void setUpBeforeClass() {
+	public static void setUpBeforeClass() throws IOException, DocumentException {
 		sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
+		refXhtmlDoc = DOMCSSStyleSheetFactoryTest.plainDocumentFromStream(
+				DOMCSSStyleSheetFactoryTest.sampleHTMLStream(),
+				MockURLConnectionFactory.SAMPLE_URL);
+		//refXhtmlDoc = TestDOMImplementation.sampleHTMLDocument();
 	}
 
 	@BeforeEach
 	public void setUp() throws IOException, DocumentException {
-		xhtmlDoc = DOMCSSStyleSheetFactoryTest.sampleXHTML();
+		xhtmlDoc = DOMCSSStyleSheetFactoryTest.getFactoryWithUASheet()
+				.createCSSDocument((Document) refXhtmlDoc.cloneNode(true));
+		//xhtmlDoc = (CSSDocument) refXhtmlDoc.cloneNode(true);
 	}
 
 	@Test
@@ -130,28 +136,6 @@ public class ComputedCSSStyleTest {
 		xhtmlDoc.setTargetMedium("screen");
 		style = elm.getComputedStyle(null);
 		assertEquals("Helvetica", style.getUsedFontFamily());
-	}
-
-	@Test
-	public void getFontSize() {
-		TestDOMImplementation impl = new TestDOMImplementation();
-		CSSDocument newdoc = impl.createDocument(null, null, null);
-		CSSElement root = newdoc.createElement("html");
-		newdoc.appendChild(root);
-		CSSElement elm = newdoc.createElement("body");
-		elm.setAttribute("style", "font-size: 12pt");
-		root.appendChild(elm);
-		CSSElement h3 = newdoc.createElement("h3");
-		elm.appendChild(h3);
-		CSSComputedProperties style = newdoc.getStyleSheet().getComputedStyle(h3, null);
-		assertNotNull(style);
-		StyleRule rule = defaultStyleRule("h3", "font-size");
-		assertNotNull(rule);
-		NumberValue val = (NumberValue) rule.getStyle().getPropertyCSSValue("font-size");
-		assertNotNull(val);
-		assertEquals(12f * val.getFloatValue(CSSUnit.CSS_EM), style.getComputedFontSize(), 0.05);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 	@Test
@@ -2240,6 +2224,28 @@ public class ComputedCSSStyleTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
 		/*
+		 * attr() value with dimension unit, em.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(data-margin em)");
+		elm.setAttribute("data-margin", "1.18");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(14.16f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
+		 * attr() value with dimension unit, %.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(data-margin %)");
+		elm.setAttribute("data-margin", "2.1");
+		style = elm.getComputedStyle(null);
+		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(2.1f, marginLeft.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		/*
 		 * attr() unsafe value, fallback.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
@@ -3621,26 +3627,92 @@ public class ComputedCSSStyleTest {
 		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
 	}
 
-	StyleRule defaultStyleRule(String selectorText, String propertyName) {
-		CSSRuleList rules = sheet.getCssRules();
-		for (int i = 0; i < rules.getLength(); i++) {
-			CSSRule rule = rules.item(i);
-			if (rule instanceof StyleRule) {
-				String selText = ((StyleRule) rule).getSelectorText();
-				// Small hack
-				StringTokenizer st = new StringTokenizer(selText, ",");
-				while (st.hasMoreElements()) {
-					String selector = st.nextToken();
-					if (selector.equals(selectorText)) {
-						if (((StyleRule) rule).getStyle().getPropertyCSSValue(propertyName) != null) {
-							return (StyleRule) rule;
-						}
-						break;
-					}
-				}
-			}
-		}
-		return null;
+	@Test
+	public void getComputedStyleColorAttr() throws CSSMediaException {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		elm.setAttribute("data-red", "11%");
+		elm.setAttribute("data-green", "29%");
+		elm.setAttribute("data-blue", "77%");
+		elm.getOverrideStyle(null).setCssText(
+				"color: rgb(attr(data-red percentage) attr(data-green percentage) attr(data-blue percentage))");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("rgb(11% 29% 77%)", style.getPropertyValue("color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		// Attr error
+		elm.getOverrideStyle(null).setCssText(
+				"color: rgb(attr(data-red percentage),attr(data-green percentage),attr(data-blue %))");
+		style = elm.getComputedStyle(null);
+		assertEquals("#808000", style.getPropertyValue("color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void getComputedStyleColorMix() throws CSSMediaException {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		elm.getOverrideStyle(null)
+				.setCssText("color: color-mix(in HWB, hwb(60.8 26% 24%) 41%, hwb(90.3 40% 31%))");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("hwb(78.205 34.26% 28.13%)", style.getPropertyValue("color"));
+
+		// Attr method, %
+		elm.setAttribute("data-method", "larger");
+		elm.setAttribute("data-pcnt1", "41%");
+		elm.getOverrideStyle(null).setCssText(
+				"color: color-mix(in HWB attr(data-method ident) hue, hwb(60.8 26% 24%) attr(data-pcnt1 percentage), hwb(90.3 40% 31%))");
+		style = elm.getComputedStyle(null);
+		assertEquals("hwb(78.205 34.26% 28.13%)", style.getPropertyValue("color"));
+
+		// Attr colors %
+		elm.setAttribute("data-color1", "lab(76.473 -12.12 60.839)");
+		elm.setAttribute("data-color2", "oklch(0.7118 0.1088 130.59)");
+		elm.setAttribute("data-pcnt2", "55");
+		elm.getOverrideStyle(null).setCssText(
+				"color: color-mix(in HWB,attr(data-color1 color) attr(data-pcnt1 percentage),attr(data-color2 color) attr(data-pcnt2 %))");
+		style = elm.getComputedStyle(null);
+		assertEquals("hwb(77.659 34% 28.01%)", style.getPropertyValue("color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		// Attr error
+		elm.setAttribute("data-pcnt2", "55%");
+		assertEquals("#808000", style.getPropertyValue("color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void getComputedStyleFunctionAttr() throws CSSMediaException {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+
+		elm.setAttribute("data-1", "calc(10/2)");
+		elm.setAttribute("data-2", "pow(2,3)");
+		elm.setAttribute("data-3", "calc(2*11px)");
+		elm.getOverrideStyle(null).setCssText(
+				"foo: function(attr(data-1 number) attr(data-2 number), attr(data-3 length))");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("function(5 8, 22px)", style.getPropertyValue("foo"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		// Attr error with fallback
+		elm.getOverrideStyle(null).setCssText(
+				"foo: function(attr(data-1 number) attr(data-2 number), attr(data-3 px))");
+		style = elm.getComputedStyle(null);
+		assertEquals("function(5 8, 0)", style.getPropertyValue("foo"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 }

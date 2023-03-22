@@ -68,6 +68,22 @@ public interface CSSColor {
 	int getLength();
 
 	/**
+	 * Convert the color components to a normalized form and put them in an array.
+	 * <p>
+	 * The array does not include the alpha channel (that is, the array length is
+	 * {@link #getLength()}{@code  - 1}).
+	 * </p>
+	 * <p>
+	 * For RGB colors, the components are in the [0,1] interval.
+	 * </p>
+	 * 
+	 * @return the array with the non-alpha normalized color components.
+	 * @throws DOMException INVALID_STATE_ERR if the components cannot be converted
+	 *                      to numbers.
+	 */
+	double[] toNumberArray() throws DOMException;
+
+	/**
 	 * Convert this color to the given CSS color space.
 	 * 
 	 * @param colorSpace the destination color space. The color spaces in

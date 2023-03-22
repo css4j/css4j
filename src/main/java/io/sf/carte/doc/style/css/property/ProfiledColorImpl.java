@@ -140,7 +140,11 @@ class ProfiledColorImpl extends BaseColor {
 	}
 
 	@Override
-	double[] toArray() {
+	public double[] toNumberArray() throws DOMException {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
 		double[] comp = new double[components.length];
 		for (int i = 0; i < comp.length; i++) {
 			comp[i] = ((TypedValue) components[i]).getFloatValue(CSSUnit.CSS_NUMBER);

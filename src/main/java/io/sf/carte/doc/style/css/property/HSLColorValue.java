@@ -14,8 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue;
-import io.sf.carte.doc.style.css.CSSTypedValue;
-import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -67,11 +65,7 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 	@Override
 	public String getMinifiedCssText(String propertyValue) {
 		String css = hslColor.toMinifiedString(commaSyntax);
-		if (hslColor.getAlpha().getPrimitiveType() == Type.NUMERIC
-				&& ((CSSTypedValue) hslColor.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER) == 1f
-				&& hslColor.getHue().getPrimitiveType() == Type.NUMERIC
-				&& hslColor.getSaturation().getPrimitiveType() == Type.NUMERIC
-				&& hslColor.getLightness().getPrimitiveType() == Type.NUMERIC) {
+		if (!hslColor.isNonOpaque() && hasConvertibleComponents()) {
 			String rgbCss = ((CSSRGBColor) toRGBColor()).toMinifiedString();
 			if (rgbCss.length() < css.length() - 5) {
 				// The RGB serialization is significantly smaller

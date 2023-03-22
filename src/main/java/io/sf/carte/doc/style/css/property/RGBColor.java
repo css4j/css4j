@@ -193,7 +193,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 	}
 
 	@Override
-	double[] toArray() {
+	public double[] toNumberArray() throws DOMException {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}

@@ -633,7 +633,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		if (category == CssType.TYPED) {
 			CSSTypedValue primi = (CSSTypedValue) value;
 			Type ptype = primi.getPrimitiveType();
-			if (ptype == Type.COLOR) {
+			if (ptype == Type.COLOR || ptype == Type.COLOR_MIX) {
 				return true;
 			}
 			if (ptype == Type.IDENT) {

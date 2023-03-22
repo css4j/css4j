@@ -1038,6 +1038,37 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBAttr() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"rgb(attr(data-red percentage) attr(data-green percentage) attr(data-blue %)/attr(data-alpha %))");
+		assertNotNull(lu);
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("attr(data-red percentage)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("attr(data-green percentage)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("attr(data-blue %)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("attr(data-alpha %)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(attr(data-red percentage) attr(data-green percentage) attr(data-blue %)/attr(data-alpha %))",
+				lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueRGBComma() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(12, 127, 48)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
@@ -1697,6 +1728,29 @@ public class PropertyParserColorRGBTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
 		assertEquals("rgb(12% 48% none/0.1)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBNoneAlpha() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("rgb(12% 48% 27.3%/none)");
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(12f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(48f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(27.3f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("none", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+		assertEquals("rgb(12% 48% 27.3%/none)", lu.toString());
 	}
 
 	@Test

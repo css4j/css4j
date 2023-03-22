@@ -44,6 +44,7 @@ public class RGBColorDeclarationFormattingContext extends DefaultDeclarationForm
 
 		switch (value.getPrimitiveType()) {
 		case COLOR:
+		case COLOR_MIX:
 			try {
 				RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
 				wri.write(rgb.toString());
@@ -135,6 +136,7 @@ public class RGBColorDeclarationFormattingContext extends DefaultDeclarationForm
 
 		switch (value.getPrimitiveType()) {
 		case COLOR:
+		case COLOR_MIX:
 			try {
 				RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
 				wri.write(rgb.toMinifiedString());

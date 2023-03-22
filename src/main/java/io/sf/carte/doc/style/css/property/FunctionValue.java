@@ -77,6 +77,11 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 		}
 	}
 
+	@Override
+	public int getComponentCount() {
+		return arguments.getLength();
+	}
+
 	void setFunctionName(String functionName) {
 		this.functionName = functionName;
 	}
@@ -207,9 +212,11 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 				switch (pType) {
 				case STRING:
 				case COLOR:
+				case COLOR_MIX:
 				case URI:
 				case ATTR:
 				case COUNTER:
+				case COUNTERS:
 				case RECT:
 				case UNKNOWN:
 				case ELEMENT_REFERENCE:

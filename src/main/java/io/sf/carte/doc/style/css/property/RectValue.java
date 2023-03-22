@@ -130,6 +130,11 @@ public class RectValue extends TypedValue implements CSSRectValue {
 	}
 
 	@Override
+	public int getComponentCount() {
+		return 4;
+	}
+
+	@Override
 	LexicalSetter newLexicalSetter() {
 		return new MyLexicalSetter();
 	}

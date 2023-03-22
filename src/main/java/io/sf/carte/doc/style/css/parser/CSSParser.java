@@ -6482,7 +6482,7 @@ public class CSSParser implements Parser, Cloneable {
 									"Color component has percentage over 100%.");
 						}
 					} else if (type == LexicalType.IDENT) {
-						if (!"none".equalsIgnoreCase(lu.getStringValue()) || valCount == 3) {
+						if (!"none".equalsIgnoreCase(lu.getStringValue())) {
 							return false;
 						}
 						type = LexicalType.PERCENTAGE;
@@ -6526,7 +6526,7 @@ public class CSSParser implements Parser, Cloneable {
 			return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE
 					|| type == LexicalType.REAL || type == LexicalType.VAR
 					|| type == LexicalType.CALC || type == LexicalType.IDENT
-					|| type == LexicalType.FUNCTION;
+					|| type == LexicalType.FUNCTION || type == LexicalType.ATTR;
 		}
 
 		private boolean isValidHSLColor(int index) {
@@ -6538,8 +6538,9 @@ public class CSSParser implements Parser, Cloneable {
 			boolean hasVar = false;
 			do {
 				LexicalType type = lu.getLexicalUnitType();
-				if (type == LexicalType.PERCENTAGE || (type == LexicalType.FUNCTION
-						&& isPercentageFunctionArgs(lu.getParameters()))) {
+				if (type == LexicalType.PERCENTAGE
+						|| ((type == LexicalType.FUNCTION || type == LexicalType.ATTR)
+								&& isPercentageUnit(lu))) {
 					if (lastType == LexicalType.UNKNOWN) {
 						// First type must be integer (includes calc()), real,
 						// angle or VAR, but not a percentage.
@@ -6667,8 +6668,10 @@ public class CSSParser implements Parser, Cloneable {
 							|| hasCommas) {
 						return false;
 					}
-				} else if (type == LexicalType.CALC) {
+				} else if (type == LexicalType.CALC || type == LexicalType.FUNCTION
+						|| type == LexicalType.ATTR) {
 					if (lastType == LexicalType.UNKNOWN) {
+						// First type must be integer, real, angle or VAR
 						type = LexicalType.INTEGER;
 					} else if (lastType == LexicalType.OPERATOR_SLASH) {
 						type = LexicalType.REAL;
@@ -6781,8 +6784,10 @@ public class CSSParser implements Parser, Cloneable {
 									"Color alpha has value over 1.");
 						}
 					}
-				} else if (type == LexicalType.CALC) {
+				} else if (type == LexicalType.CALC || type == LexicalType.FUNCTION
+						|| type == LexicalType.ATTR) {
 					if (lastType == LexicalType.UNKNOWN) {
+						// First type must be integer, real, angle or VAR
 						type = LexicalType.INTEGER;
 					} else if (lastType == LexicalType.OPERATOR_SLASH) {
 						type = LexicalType.REAL;
@@ -6793,13 +6798,6 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				} else if (type == LexicalType.VAR) {
 					hasVar = true;
-				} else if (type == LexicalType.FUNCTION
-						&& isPercentageFunctionArgs(lu.getParameters())) {
-					if (lastType == LexicalType.UNKNOWN) {
-						// First type must be integer, real, angle or VAR
-						return false;
-					}
-					pcntCount++;
 				} else if (type == LexicalType.IDENT) {
 					if (!"none".equalsIgnoreCase(lu.getStringValue())) {
 						return false;
@@ -6833,12 +6831,12 @@ public class CSSParser implements Parser, Cloneable {
 			return true;
 		}
 
-		private boolean isPercentageFunctionArgs(LexicalUnit param) {
+		private boolean isPercentageUnit(LexicalUnit unit) {
 			LexicalUnit lunit;
-			if (param.getNextLexicalUnit() == null) {
-				lunit = param;
+			if (unit.getNextLexicalUnit() == null) {
+				lunit = unit;
 			} else {
-				lunit = param.shallowClone();
+				lunit = unit.shallowClone();
 			}
 			return lunit.matches(SyntaxParser.createSimpleSyntax("percentage")) == Match.TRUE;
 		}
@@ -6890,7 +6888,7 @@ public class CSSParser implements Parser, Cloneable {
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
 			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
-					&& (type != LexicalType.IDENT
+					&& type != LexicalType.ATTR && (type != LexicalType.IDENT
 							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				return false;
 			}
@@ -6914,6 +6912,7 @@ public class CSSParser implements Parser, Cloneable {
 				case INTEGER:
 				case CALC:
 				case FUNCTION:
+				case ATTR:
 					numericValueCount++;
 					if (numericValueCount > 3) {
 						// The slash could be inside a var()
@@ -7016,7 +7015,7 @@ public class CSSParser implements Parser, Cloneable {
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
 			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
-					&& (type != LexicalType.IDENT
+					&& type != LexicalType.ATTR && (type != LexicalType.IDENT
 							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				return false;
 			}
@@ -7062,7 +7061,7 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				}
 			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
-					&& (type != LexicalType.IDENT
+					&& type != LexicalType.ATTR && (type != LexicalType.IDENT
 							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
@@ -7093,7 +7092,7 @@ public class CSSParser implements Parser, Cloneable {
 			type = lu.getLexicalUnitType();
 			if (type != LexicalType.REAL && type != LexicalType.INTEGER && !isAngleUnit(lu)
 					&& type != LexicalType.CALC && type != LexicalType.FUNCTION
-					&& (type != LexicalType.IDENT
+					&& type != LexicalType.ATTR && (type != LexicalType.IDENT
 							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
@@ -7190,6 +7189,7 @@ public class CSSParser implements Parser, Cloneable {
 					}
 					return isValidAlpha(index, lu);
 				case FUNCTION:
+				case ATTR:
 					LexicalUnit lunit;
 					if (lu.getNextLexicalUnit() == null) {
 						lunit = lu;
@@ -7241,9 +7241,15 @@ public class CSSParser implements Parser, Cloneable {
 							"Color alpha has value over 100%.");
 				}
 				break;
+			case IDENT:
+				if (!"none".equalsIgnoreCase(lu.getStringValue())) {
+					return false;
+				}
+				break;
 			case VAR:
 			case CALC:
 			case FUNCTION:
+			case ATTR:
 				break;
 			default:
 				return false;
@@ -7292,7 +7298,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (type != LexicalType.IDENT) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
-				} else {
+				} else if (type != LexicalType.ATTR) {
 					// Further checks would be too complicated
 					return hasVar;
 				}
@@ -7308,7 +7314,7 @@ public class CSSParser implements Parser, Cloneable {
 			boolean lastTypeIsComma = type == LexicalType.OPERATOR_COMMA;
 			if (!lastTypeIsComma) {
 				// Should be the interpolation method
-				if (type == LexicalType.IDENT) {
+				if (type == LexicalType.IDENT || type == LexicalType.ATTR) {
 					lu = lu.getNextLexicalUnit();
 					if (lu == null) {
 						// Three items: only OK if there was a var().
@@ -7327,13 +7333,10 @@ public class CSSParser implements Parser, Cloneable {
 						type = lu.getLexicalUnitType();
 					}
 					lastTypeIsComma = type == LexicalType.OPERATOR_COMMA;
-				} else {
-					if (type == LexicalType.VAR) {
-						hasVar = true;
-					}
-					if (!hasVar) {
-						return false;
-					}
+				} else if (type == LexicalType.VAR) {
+					hasVar = true;
+				} else if (!hasVar) {
+					return false;
 				}
 			}
 
@@ -7376,6 +7379,7 @@ public class CSSParser implements Parser, Cloneable {
 						hasVar = true;
 					case PERCENTAGE:
 					case CALC:
+					case ATTR:
 						lu = lu.getNextLexicalUnit();
 						break;
 					default:
@@ -7421,7 +7425,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 				uType = lu.getLexicalUnitType();
 				if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC
-						|| uType == LexicalType.VAR) {
+						|| uType == LexicalType.VAR || uType == LexicalType.ATTR) {
 					lu = lu.getNextLexicalUnit();
 				} else {
 					return false;

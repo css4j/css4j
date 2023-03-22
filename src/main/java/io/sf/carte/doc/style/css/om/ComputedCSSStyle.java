@@ -24,6 +24,8 @@ import org.w3c.dom.Node;
 import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSColor;
+import io.sf.carte.doc.style.css.CSSColorMixFunction;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -53,10 +55,10 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.AttrValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
+import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.EnvVariableValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
 import io.sf.carte.doc.style.css.property.ExpressionValue;
-import io.sf.carte.doc.style.css.property.FunctionValue;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.LexicalValue;
@@ -69,7 +71,6 @@ import io.sf.carte.doc.style.css.property.ProxyValue;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StringValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
-import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.URIValueWrapper;
@@ -451,6 +452,38 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return value;
 	}
 
+	/**
+	 * Convert a Primitive to a Typed value.
+	 * <p>
+	 * Use this method when getting a LIST would be an error.
+	 * </p>
+	 * 
+	 * @param propertyName the property name.
+	 * @param value        the value.
+	 * @return the Typed value.
+	 */
+	private TypedValue primitiveToTypedValue(String propertyName, PrimitiveValue value) {
+		TypedValue typed;
+
+		if (value.getCssValueType() == CssType.TYPED) {
+			typed = (TypedValue) value;
+		} else {
+			StyleValue proxy = value;
+			do {
+				proxy = replaceProxyValue(propertyName, proxy);
+			} while (proxy != null && proxy.getCssValueType() == CssType.PROXY
+					&& proxy.getPrimitiveType() != Type.LEXICAL);
+			if (proxy == null || proxy.getCssValueType() != CssType.TYPED) {
+				computedStyleError(propertyName, value.getCssText(),
+						"Could not evaluate proxy value");
+				return null;
+			}
+			typed = (TypedValue) proxy;
+		}
+
+		return typed;
+	}
+
 	StyleValue replaceProxyValue(String propertyName, CSSValue pri) {
 		StyleValue value;
 		Type pritype = pri.getPrimitiveType();
@@ -543,7 +576,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		// If value is null now, we have no idea about this property's value
 		if (value != null) {
-			if (value.isSystemDefault() && value instanceof SystemDefaultValue) {
+			if (value.isSystemDefault()) {
 				return value;
 			}
 			// Convert to absolute units
@@ -609,44 +642,39 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return value;
 	}
 
-	TypedValue absoluteTypedValue(String propertyName, TypedValue pri, boolean useParentStyle) {
-		if (isRelativeUnit(pri)) {
+	TypedValue absoluteTypedValue(String propertyName, TypedValue typed, boolean useParentStyle) {
+		if (isRelativeUnit(typed)) {
 			try {
-				pri = absoluteNumberValue((NumberValue) pri, useParentStyle);
+				typed = absoluteNumberValue((NumberValue) typed, useParentStyle);
 			} catch (DOMException | IllegalStateException e) {
-				computedStyleError(propertyName, pri.getCssText(), "Could not absolutize property value.", e);
+				computedStyleError(propertyName, typed.getCssText(),
+						"Could not absolutize property value.", e);
 			}
 		} else {
-			Type type = pri.getPrimitiveType();
+			Type type = typed.getPrimitiveType();
 			if (type == Type.EXPRESSION) {
-				pri = pri.clone();
-				ExpressionValue exprval = (ExpressionValue) pri;
+				typed = typed.clone();
+				ExpressionValue exprval = (ExpressionValue) typed;
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
-					pri = ev.evaluateExpression(exprval);
+					typed = ev.evaluateExpression(exprval);
 				} catch (DOMException e) {
-					computedStyleWarning(propertyName, pri, "Could not evaluate expression value.", e);
+					computedStyleWarning(propertyName, typed,
+							"Could not evaluate expression value.", e);
 					// Evaluation failed, convert expressions to absolute anyway.
 					absoluteExpressionValue(propertyName, exprval.getExpression(), useParentStyle);
 				}
-			} else if (type == Type.FUNCTION) {
-				FunctionValue function = (FunctionValue) pri;
-				function = function.clone();
-				// Convert arguments to absolute.
-				LinkedCSSValueList args = function.getArguments();
-				int sz = args.size();
-				for (int i = 0; i < sz; i++) {
-					args.set(i, absoluteValue(propertyName, args.get(i), useParentStyle));
-				}
 			} else if (type == Type.MATH_FUNCTION) {
-				CSSMathFunctionValue function = (CSSMathFunctionValue) pri;
-				function = function.clone();
+				CSSMathFunctionValue function = (CSSMathFunctionValue) typed;
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
-					pri = ev.evaluateFunction(function);
+					typed = ev.evaluateFunction(function);
 				} catch (DOMException e) {
-					computedStyleWarning(propertyName, pri, "Could not evaluate function value.", e);
+					computedStyleWarning(propertyName, typed, "Could not evaluate function value.",
+							e);
 					// Evaluation failed, convert arguments to absolute anyway.
+					typed = typed.clone();
+					function = (CSSMathFunctionValue) typed;
 					LinkedCSSValueList args = function.getArguments();
 					int sz = args.size();
 					for (int i = 0; i < sz; i++) {
@@ -654,13 +682,17 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					}
 				}
 			} else if (type == Type.COLOR) {
-				pri = computeColor(propertyName, pri);
-			} else {
-				// Handle rect() and ratio()
-				pri = relativizeComponents(propertyName, pri);
+				// We could handle colors as a normal componentized value,
+				// but we would miss the conversion of null components to 0
+				typed = computeColor(propertyName, (ColorValue) typed);
+			} else if (type == Type.COLOR_MIX) {
+				typed = computeColorMix(propertyName, typed, useParentStyle);
+			} else if (typed.getComponentCount() != 0) {
+				// Handle rect(), ratio() and arbitrary functions
+				typed = absolutizeComponents(propertyName, typed, useParentStyle);
 			}
 		}
-		return pri;
+		return typed;
 	}
 
 	private NumberValue absoluteNumberValue(NumberValue value, boolean useParentStyle) {
@@ -818,63 +850,236 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		throw new StyleDatabaseRequiredException("Unit conversion failed.");
 	}
 
-	private TypedValue computeColor(String propertyName, TypedValue color) {
+	private TypedValue computeColor(String propertyName, ColorValue color) {
 		TypedValue color2 = null;
-		int i = 0;
-		while (true) {
+
+		int len = color.getColor().getLength();
+		for (int i = 0; i < len; i++) {
 			PrimitiveValue comp = (PrimitiveValue) color.getComponent(i);
-			if (comp == null) {
-				break;
-			}
-			if (comp.getPrimitiveType() == Type.EXPRESSION) {
+			if (comp != null) {
+				TypedValue typed = primitiveToTypedValue(propertyName, comp);
+				if (comp != typed) {
+					if (typed == null) {
+						return null;
+					}
+					if (color2 == null) {
+						color2 = color.clone();
+					}
+					color2.setComponent(i, typed);
+				}
+				if (typed.getPrimitiveType() == Type.EXPRESSION) {
+					if (color2 == null) {
+						color2 = color.clone();
+					}
+					Evaluator ev = new PercentageEvaluator();
+					try {
+						typed = ev.evaluateExpression((ExpressionValue) typed);
+					} catch (DOMException e) {
+						computedStyleError(propertyName, color.getCssText(),
+								"Could not evaluate expression value in color.", e);
+						return null;
+					}
+					color2.setComponent(i, typed);
+				} else if (typed.getPrimitiveType() == Type.MATH_FUNCTION) {
+					if (color2 == null) {
+						color2 = color.clone();
+					}
+					PercentageEvaluator eval = new PercentageEvaluator();
+					try {
+						typed = eval.evaluateFunction((CSSMathFunctionValue) typed);
+					} catch (DOMException e) {
+						computedStyleError(propertyName, color.getCssText(),
+								"Could not evaluate math function in color.", e);
+						return null;
+					}
+					color2.setComponent(i, typed);
+				}
+			} else {
+				// Omitted components are zero
+				comp = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0f);
 				if (color2 == null) {
 					color2 = color.clone();
 				}
-				ExpressionValue exprval = (ExpressionValue) comp;
-				Evaluator ev = new PercentageEvaluator();
-				try {
-					comp = ev.evaluateExpression(exprval);
-				} catch (DOMException e) {
-					computedStyleError(propertyName, color.getCssText(), "Could not evaluate expression value.",
-							e);
-					return color;
-				}
 				color2.setComponent(i, comp);
 			}
-			i++;
 		}
+
 		return color2 == null ? color : color2;
 	}
 
-	private TypedValue relativizeComponents(String propertyName, TypedValue pri) {
-		TypedValue pri2 = null;
-		int i = 0;
-		while (true) {
-			StyleValue comp = pri.getComponent(i);
-			if (comp == null) {
-				break;
+	private TypedValue computeColorMix(String propertyName, TypedValue typed,
+			boolean useParentStyle) {
+		TypedValue typed2 = null;
+
+		typed = absolutizeComponents(propertyName, typed, useParentStyle);
+
+		CSSColorMixFunction colorMix = (CSSColorMixFunction) typed;
+		PrimitiveValue colorVal1 = (PrimitiveValue) colorMix.getColorValue1();
+		PrimitiveValue colorVal2 = (PrimitiveValue) colorMix.getColorValue2();
+		TypedValue color1 = primitiveToTypedValue(propertyName, colorVal1);
+		TypedValue color2 = primitiveToTypedValue(propertyName, colorVal2);
+
+		if (color1 == null || color2 == null) {
+			return null;
+		}
+
+		color1 = absolutizeComponents(propertyName, color1, useParentStyle);
+		color2 = absolutizeComponents(propertyName, color2, useParentStyle);
+
+		if (color1 != colorVal1) {
+			typed2 = typed.clone();
+			typed2.setComponent(0, color1);
+		}
+		if (color2 != colorVal2) {
+			if (typed2 == null) {
+				typed2 = typed.clone();
 			}
-			if (comp.getPrimitiveType() == Type.EXPRESSION) {
-				if (pri2 == null) {
-					pri2 = pri.clone();
+			typed2.setComponent(2, color2);
+		}
+
+		PrimitiveValue primi = (PrimitiveValue) colorMix.getPercentage1();
+		if (primi != null) {
+			TypedValue pcnt1 = primitiveToTypedValue(propertyName, primi);
+			pcnt1 = absolutizeComponents(propertyName, pcnt1, useParentStyle);
+			if (pcnt1 == null) {
+				return null;
+			}
+			if (pcnt1 != primi) {
+				if (typed2 == null) {
+					typed2 = typed.clone();
 				}
-				ExpressionValue exprval = (ExpressionValue) comp;
+				typed2.setComponent(1, pcnt1);
+			}
+		}
+
+		primi = (PrimitiveValue) colorMix.getPercentage2();
+		if (primi != null) {
+			TypedValue pcnt2 = primitiveToTypedValue(propertyName, primi);
+			if (pcnt2 == null) {
+				return null;
+			}
+			pcnt2 = absolutizeComponents(propertyName, pcnt2, useParentStyle);
+			if (pcnt2 != primi) {
+				if (typed2 == null) {
+					typed2 = typed.clone();
+				}
+				typed2.setComponent(3, pcnt2);
+			}
+		}
+
+		// Interpolation method ?
+		PrimitiveValue interpMethod = (PrimitiveValue) typed.getComponent(4);
+		if (interpMethod != null) {
+			if (typed2 == null) {
+				typed2 = typed.clone();
+			}
+			TypedValue ident = primitiveToTypedValue(propertyName, primi);
+			if (ident == null || ident.getPrimitiveType() != Type.IDENT) {
+				return null;
+			}
+			typed2.setComponent(4, ident);
+		}
+
+		colorMix = (CSSColorMixFunction) (typed2 == null ? typed : typed2);
+
+		CSSColor color = colorMix.getColor();
+		if (color != null) {
+			typed = (TypedValue) color.packInValue();
+		} else {
+			typed = null;
+		}
+
+		return typed;
+	}
+
+	private TypedValue absolutizeComponents(String propertyName, TypedValue typed,
+			boolean useParentStyle) {
+		TypedValue typed2 = null;
+
+		int len = typed.getComponentCount();
+		for (int i = 0; i < len; i++) {
+			StyleValue comp = typed.getComponent(i);
+			if (comp == null) {
+				continue;
+			}
+
+			StyleValue value = replaceProxyValues(propertyName, comp);
+			if (value == null) {
+				continue;
+			}
+			value = absoluteValue(propertyName, value, useParentStyle);
+
+			if (value != comp) {
+				if (value == null) {
+					return null;
+				}
+				if (typed2 == null) {
+					typed2 = typed.clone();
+				}
+				typed2.setComponent(i, value);
+			}
+
+			if (value.getPrimitiveType() == Type.EXPRESSION) {
+				if (typed2 == null) {
+					typed2 = typed.clone();
+				}
+
+				ExpressionValue exprval = (ExpressionValue) value;
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
 					comp = ev.evaluateExpression(exprval);
-				} catch (DOMException e) {
-					computedStyleError(propertyName, pri.getCssText(), "Could not evaluate expression value.",
-							e);
-					return pri;
+					typed2.setComponent(i, comp);
+				} catch (RuntimeException e) {
+					computedStyleWarning(propertyName, exprval,
+							"Could not evaluate expression value.", e);
+					// Evaluation failed, convert expressions to absolute anyway.
+					exprval = exprval.clone();
+					try {
+						absoluteExpressionValue(propertyName, exprval.getExpression(),
+								useParentStyle);
+						typed2.setComponent(i, exprval);
+					} catch (RuntimeException e1) {
+						// Probably the problem already reported, ignore
+					}
 				}
-				pri2.setComponent(i, comp);
+			} else if (value.getPrimitiveType() == Type.MATH_FUNCTION) {
+				if (typed2 == null) {
+					typed2 = typed.clone();
+				}
+				CSSMathFunctionValue mathFunction = (CSSMathFunctionValue) value;
+				PercentageEvaluator eval = new PercentageEvaluator();
+				try {
+					comp = eval.evaluateFunction(mathFunction);
+					typed2.setComponent(i, comp);
+				} catch (RuntimeException e) {
+					computedStyleWarning(propertyName, mathFunction,
+							"Could not evaluate math function.", e);
+					// Evaluation failed, convert arguments to absolute anyway.
+					mathFunction = mathFunction.clone();
+					LinkedCSSValueList args = mathFunction.getArguments();
+					int sz = args.size();
+					for (int j = 0; i < sz; i++) {
+						try {
+							args.set(j, absoluteValue(propertyName, args.get(j), useParentStyle));
+						} catch (RuntimeException e1) {
+							// Probably the problem already reported, ignore
+							continue;
+						}
+					}
+					try {
+						typed2.setComponent(i, (StyleValue) mathFunction);
+					} catch (RuntimeException e1) {
+						// Probably the problem already reported, ignore
+					}
+				}
 			}
-			i++;
 		}
-		return pri2 == null ? pri : pri2;
+
+		return typed2 == null ? typed : typed2;
 	}
 
-	private void absoluteExpressionValue(String propertyName, CSSExpression expr, boolean useParentStyle) {
+	private void absoluteExpressionValue(String propertyName, CSSExpression expr,
+			boolean useParentStyle) throws DOMException {
 		switch (expr.getPartType()) {
 		case SUM:
 		case PRODUCT:
@@ -908,7 +1113,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		String attrvalue = owner.getAttribute(attrname);
 		String attrtype = attr.getAttributeType();
 		if (attrvalue.length() != 0) {
-			if (isSafeAttrValue(propertyName, owner, attrname)) {
+			if (isSafeAttrName(propertyName, owner, attrname)) {
 				if (attrtype == null || "string".equalsIgnoreCase(attrtype)) {
 					// Do not reparse
 					StringValue value = new StringValue(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
@@ -953,16 +1158,24 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					// Attribute value must now be typed
 					if (value != null) {
 						if (value.getCssValueType() == CssType.TYPED) {
-							try {
-								value = attrValueOfType((TypedValue) value, attrtype);
-								if (value != null) {
-									return value;
+							TypedValue typed = (TypedValue) value;
+							// Absolutize
+							typed = absoluteTypedValue(propertyName, typed, false);
+							if (typed != null) {
+								try {
+									value = attrValueOfType(typed, attrtype);
+									if (value != null) {
+										return value;
+									}
+									computedStyleWarning(propertyName, attr,
+											"Attribute value does not match type (" + attrtype
+													+ ").");
+								} catch (DOMException e) {
+									computedStyleError(propertyName, attr.getCssText(),
+											"Attribute value does not match type (" + attrtype
+													+ ").",
+											e);
 								}
-								computedStyleWarning(propertyName, attr,
-										"Attribute value does not match type (" + attrtype + ").");
-							} catch (DOMException e) {
-								computedStyleError(propertyName, attr.getCssText(),
-										"Attribute value does not match type (" + attrtype + ").", e);
 							}
 						} else {
 							computedStyleWarning(propertyName, attr, "Invalid attribute value.");
@@ -1032,7 +1245,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 * @param attrname     the name of the attribute.
 	 * @return {@code true} if the value is considered safe.
 	 */
-	private boolean isSafeAttrValue(String propertyName, CSSElement element, String attrname) {
+	private boolean isSafeAttrName(String propertyName, CSSElement element, String attrname) {
 		String tagname;
 		if (!"content".equals(propertyName)) {
 			if (attrname.contains("nonce") || attrname.contains("pass") || attrname.contains("pwd")
@@ -1104,21 +1317,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					return value;
 				}
 			} else if (ptype == CSSUnit.CSS_NUMBER) {
+				float numVal = value.getFloatValue(ptype);
 				String lctypeval = type.toLowerCase(Locale.ROOT).intern();
 				short expectedType = ParseHelper.unitFromString(lctypeval);
 				if (expectedType != CSSUnit.CSS_OTHER) {
-					if (CSSUnit.isLengthUnitType(expectedType)) {
-						return NumberValue.createCSSNumberValue(expectedType, value.getFloatValue(ptype));
-					} else if (CSSUnit.isAngleUnitType(expectedType)) {
-						return NumberValue.createCSSNumberValue(expectedType, value.getFloatValue(ptype));
-					} else if (expectedType == CSSUnit.CSS_S
-							|| expectedType == CSSUnit.CSS_MS) {
-						return NumberValue.createCSSNumberValue(expectedType, value.getFloatValue(ptype));
-					} else if (expectedType == CSSUnit.CSS_HZ
-							|| expectedType == CSSUnit.CSS_KHZ) {
-						return NumberValue.createCSSNumberValue(expectedType, value.getFloatValue(ptype));
-					}
-					return null;
+					return NumberValue.createCSSNumberValue(expectedType, numVal);
 				}
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 						"Unknown attribute type '" + type + "' found in computed style.");
@@ -2553,11 +2756,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		getOwnerNode().getOwnerDocument().getErrorHandler().computedStyleError(getOwnerNode(), propertyName, ex);
 	}
 
-	private void computedStyleWarning(String propertyName, PrimitiveValue value, String message) {
+	private void computedStyleWarning(String propertyName, CSSPrimitiveValue value,
+			String message) {
 		computedStyleWarning(propertyName, value, message, null);
 	}
 
-	private void computedStyleWarning(String propertyName, PrimitiveValue value, String message, Throwable cause) {
+	private void computedStyleWarning(String propertyName, CSSPrimitiveValue value, String message,
+			Throwable cause) {
 		CSSPropertyValueException ex;
 		if (cause == null) {
 			ex = new CSSPropertyValueException(message);
@@ -2569,7 +2774,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		}
 		ex.setValueText(value.getCssText());
-		getOwnerNode().getOwnerDocument().getErrorHandler().computedStyleWarning(getOwnerNode(), propertyName, ex);
+		getOwnerNode().getOwnerDocument().getErrorHandler().computedStyleWarning(getOwnerNode(),
+				propertyName, ex);
 	}
 
 	/**

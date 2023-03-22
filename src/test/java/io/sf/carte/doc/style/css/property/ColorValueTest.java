@@ -1373,6 +1373,7 @@ public class ColorValueTest {
 		StyleValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.COLOR, value.getPrimitiveType());
 		assertEquals("hwb(0 0% 0%)", value.getCssText());
 		assertEquals("#f00", value.getMinifiedCssText("color"));
 		RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();

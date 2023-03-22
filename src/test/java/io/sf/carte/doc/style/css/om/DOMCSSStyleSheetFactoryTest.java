@@ -72,6 +72,14 @@ public class DOMCSSStyleSheetFactoryTest {
 		assertEquals(RULES_IN_SAMPLE_CSS, css.getCssRules().getLength());
 	}
 
+	static DOMCSSStyleSheetFactory getFactory() {
+		return factory;
+	}
+
+	static DOMCSSStyleSheetFactory getFactoryWithUASheet() {
+		return factoryDef;
+	}
+
 	/**
 	 * Loads a default style sheet for XHTML.
 	 * 
@@ -139,8 +147,11 @@ public class DOMCSSStyleSheetFactoryTest {
 		return sampleXHTML(factoryDef);
 	}
 
-	public static CSSDocument sampleXHTML(DOMCSSStyleSheetFactory factory) throws IOException, DocumentException {
-		return wrapStreamForFactory(sampleHTMLStream(), MockURLConnectionFactory.SAMPLE_URL, factory);
+	public static CSSDocument sampleXHTML(DOMCSSStyleSheetFactory factory)
+			throws IOException, DocumentException {
+		Document doc = plainDocumentFromStream(sampleHTMLStream(),
+				MockURLConnectionFactory.SAMPLE_URL);
+		return factory.createCSSDocument(doc);
 	}
 
 	public static CSSDocument simpleBoxHTML() throws IOException, DocumentException {
@@ -158,10 +169,11 @@ public class DOMCSSStyleSheetFactoryTest {
 
 	public static CSSDocument wrapStreamDefaultSheet(InputStream is, String documentURI)
 			throws IOException, DocumentException {
-		return wrapStreamForFactory(is, documentURI, factoryDef);
+		Document doc = plainDocumentFromStream(is, documentURI);
+		return factoryDef.createCSSDocument(doc);
 	}
 
-	static CSSDocument wrapStreamForFactory(InputStream is, String documentURI, DOMCSSStyleSheetFactory factory)
+	static Document plainDocumentFromStream(InputStream is, String documentURI)
 			throws IOException, DocumentException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docb;
@@ -170,19 +182,26 @@ public class DOMCSSStyleSheetFactoryTest {
 		} catch (ParserConfigurationException e) {
 			throw new DocumentException("Error creating a document builder", e);
 		}
-		docb.setEntityResolver(new DefaultEntityResolver());
+
+		return plainDocumentFromStream(is, documentURI, docb);
+	}
+
+	static Document plainDocumentFromStream(InputStream is, String documentURI,
+			DocumentBuilder builder) throws IOException, DocumentException {
+		builder.setEntityResolver(new DefaultEntityResolver());
+
 		Document doc;
 		try {
-			doc = docb.parse(is);
+			doc = builder.parse(is);
 		} catch (SAXException e) {
 			throw new DocumentException("Error parsing XML document", e);
 		} finally {
 			is.close();
 		}
-		if (documentURI != null) {
-			doc.setDocumentURI(documentURI);
-		}
-		return factory.createCSSDocument(doc);
+
+		doc.setDocumentURI(documentURI);
+
+		return doc;
 	}
 
 	public static Reader sampleHTMLReader() {

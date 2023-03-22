@@ -79,13 +79,16 @@ public class ColorMixFunctionTest {
 		assertEquals(ColorSpace.display_p3, color.getCSSColorSpace());
 
 		assertSame(color.getColorValue1(), color.getComponent(0));
-		assertSame(color.getColorValue2(), color.getComponent(1));
-		assertNull(color.getComponent(2));
+		assertSame(color.getPercentage1(), color.getComponent(1));
+		assertSame(color.getColorValue2(), color.getComponent(2));
+		assertSame(color.getPercentage2(), color.getComponent(3));
+		assertNull(color.getComponent(4));
+		assertEquals(4, color.getComponentCount());
 
 		ColorValue colorValue1 = (ColorValue) color.getColorValue1();
 		assertNotNull(colorValue1);
 		assertEquals(Type.COLOR, colorValue1.getPrimitiveType());
-		BaseColor color1 = (BaseColor) ((ColorValue) colorValue1).getColor();
+		BaseColor color1 = (BaseColor) colorValue1.getColor();
 		assertEquals(CSSColorValue.ColorModel.RGB, color1.getColorModel());
 		assertEquals(ColorSpace.srgb, color1.getColorSpace());
 		assertEquals("#0200fa", color1.toString());
@@ -548,6 +551,70 @@ public class ColorMixFunctionTest {
 	}
 
 	@Test
+	public void testColorMixOKLabAttr() throws IOException {
+		style.setCssText(
+				"color: color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 percentage), hwb(186.2 29% 12%))");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.COLOR_MIX, value.getPrimitiveType());
+		ColorMixFunction color = (ColorMixFunction) value;
+		assertEquals(CSSColorValue.ColorModel.LAB, color.getColorModel());
+		assertEquals(ColorSpace.ok_lab, color.getCSSColorSpace());
+
+		// Serialization
+		assertEquals(
+				"color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 percentage), hwb(186.2 29% 12%))",
+				color.getCssText());
+		assertEquals(
+				"color-mix(in oklab,oklch(.831 .1602 167.34) attr(data-pcnt1 percentage),hwb(186.2 29% 12%))",
+				color.getMinifiedCssText("color"));
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(100);
+		color.writeCssText(wri);
+		assertEquals(
+				"color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 percentage), hwb(186.2 29% 12%))",
+				wri.toString());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testColorMixHWB() throws IOException {
+		style.setCssText(
+				"color: color-mix(in HWB, hwb(60.8 26% 24%) 41%, hwb(90.3 40% 31%))");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.COLOR_MIX, value.getPrimitiveType());
+		ColorMixFunction color = (ColorMixFunction) value;
+		assertEquals(CSSColorValue.ColorModel.HWB, color.getColorModel());
+		assertEquals("hwb", color.getCSSColorSpace());
+
+		// Serialization
+		assertEquals("color-mix(in hwb, hwb(60.8 26% 24%) 41%, hwb(90.3 40% 31%))",
+				color.getCssText());
+		assertEquals("color-mix(in hwb,hwb(60.8 26% 24%) 41%,hwb(90.3 40% 31%))",
+				color.getMinifiedCssText("color"));
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(100);
+		color.writeCssText(wri);
+		assertEquals("color-mix(in hwb, hwb(60.8 26% 24%) 41%, hwb(90.3 40% 31%))",
+				wri.toString());
+
+		// Mix the colors
+		BaseColor mixed = color.getColor();
+		assertNotNull(mixed);
+		assertEquals(CSSColorValue.ColorModel.HWB, mixed.getColorModel());
+		assertEquals(ColorSpace.srgb, mixed.getColorSpace());
+		assertEquals("hwb(78.205 34.26% 28.13%)", mixed.toString());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testColorMixCIELab() throws IOException {
 		style.setCssText(
 				"color: color-mix(in lab, oklch(0.831 0.1602 167.34) 44%, hwb(186.2 29% 12%))");
@@ -793,8 +860,11 @@ public class ColorMixFunctionTest {
 		assertEquals(ColorSpace.cie_lch, color.getCSSColorSpace());
 
 		assertSame(color.getColorValue1(), color.getComponent(0));
-		assertSame(color.getColorValue2(), color.getComponent(1));
-		assertNull(color.getComponent(2));
+		assertSame(color.getPercentage1(), color.getComponent(1));
+		assertSame(color.getColorValue2(), color.getComponent(2));
+		assertSame(color.getPercentage2(), color.getComponent(3));
+		assertNull(color.getComponent(4));
+		assertEquals(4, color.getComponentCount());
 
 		PrimitiveValue colorValue1 = color.getColorValue1();
 		assertNotNull(colorValue1);
@@ -854,8 +924,11 @@ public class ColorMixFunctionTest {
 		assertEquals(ColorSpace.cie_lch, color.getCSSColorSpace());
 
 		assertSame(color.getColorValue1(), color.getComponent(0));
-		assertSame(color.getColorValue2(), color.getComponent(1));
-		assertNull(color.getComponent(2));
+		assertSame(color.getPercentage1(), color.getComponent(1));
+		assertSame(color.getColorValue2(), color.getComponent(2));
+		assertSame(color.getPercentage2(), color.getComponent(3));
+		assertNull(color.getComponent(4));
+		assertEquals(4, color.getComponentCount());
 
 		PrimitiveValue colorValue1 = color.getColorValue1();
 		assertNotNull(colorValue1);
@@ -915,8 +988,11 @@ public class ColorMixFunctionTest {
 		assertEquals(ColorSpace.cie_lch, color.getCSSColorSpace());
 
 		assertSame(color.getColorValue1(), color.getComponent(0));
-		assertSame(color.getColorValue2(), color.getComponent(1));
-		assertNull(color.getComponent(2));
+		assertSame(color.getPercentage1(), color.getComponent(1));
+		assertSame(color.getColorValue2(), color.getComponent(2));
+		assertSame(color.getPercentage2(), color.getComponent(3));
+		assertNull(color.getComponent(4));
+		assertEquals(4, color.getComponentCount());
 
 		PrimitiveValue colorValue1 = color.getColorValue1();
 		assertNotNull(colorValue1);
@@ -1186,8 +1262,8 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(ColorSpace.srgb, mixed.getColorSpace());
 		assertEquals(CSSColorValue.ColorModel.HWB, mixed.getColorModel());
-		assertEquals("hwb(108 0% 10.19%)", mixed.toString());
-		assertEquals("color(display-p3 0.4384 0.8853 0.2653)",
+		assertEquals("hwb(108 0% 0.1%)", mixed.toString());
+		assertEquals("color(display-p3 0.4893 0.9848 0.2991)",
 				mixed.toColorSpace(ColorSpace.display_p3).toString());
 	}
 

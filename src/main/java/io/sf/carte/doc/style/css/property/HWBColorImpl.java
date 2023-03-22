@@ -108,20 +108,20 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 		setHue(h);
 
 		PercentageValue w = new PercentageValue();
-		w.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) (hwb[1] * 100d));
+		w.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) hwb[1]);
 		w.setSubproperty(true);
 		w.setAbsolutizedUnit();
 		setWhiteness(w);
 
 		PercentageValue b = new PercentageValue();
-		b.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) (hwb[2] * 100d));
+		b.setFloatValue(CSSUnit.CSS_PERCENTAGE, (float) hwb[2]);
 		b.setSubproperty(true);
 		b.setAbsolutizedUnit();
 		setBlackness(b);
 	}
 
 	@Override
-	double[] toArray() {
+	public double[] toNumberArray() throws DOMException {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}

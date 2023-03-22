@@ -47,7 +47,7 @@ class ColorConverter {
 			if (createValue) {
 				this.destColor = source;
 			}
-			return source.toArray();
+			return source.toNumberArray();
 		}
 
 		double[] result;
@@ -97,7 +97,7 @@ class ColorConverter {
 			}
 		} else if ("hsl".equals(colorSpace) || "hsla".equals(colorSpace)) {
 			if (source.getColorModel() == ColorModel.HSL) {
-				result = source.toArray();
+				result = source.toNumberArray();
 			} else {
 				result = source.toSRGB(true);
 				result = ColorUtil.srgbToHsl(result[0], result[1], result[2]);
@@ -107,7 +107,7 @@ class ColorConverter {
 			}
 		} else if ("hwb".equals(colorSpace)) {
 			if (source.getColorModel() == ColorModel.HWB) {
-				result = source.toArray();
+				result = source.toNumberArray();
 			} else {
 				double[] rgb = source.toSRGB(true);
 				result = ColorUtil.srgbToHwb(rgb);
@@ -119,7 +119,7 @@ class ColorConverter {
 			result = new double[3];
 			if (source.getSpace() == Space.CIE_LCh) {
 				// LCh to Lab
-				double[] lch = source.toArray();
+				double[] lch = source.toNumberArray();
 				ColorUtil.lchToLab(lch, result);
 			} else {
 				double[] xyz = source.toXYZ(Illuminant.D50);
@@ -131,7 +131,7 @@ class ColorConverter {
 		} else if (ColorSpace.cie_lch.equals(colorSpace)) {
 			double[] lab;
 			if (source.getSpace() == Space.CIE_Lab) {
-				lab = source.toArray();
+				lab = source.toNumberArray();
 			} else {
 				double[] xyz = source.toXYZ(Illuminant.D50);
 				lab = new double[3];
@@ -147,7 +147,7 @@ class ColorConverter {
 			result = new double[3];
 			if (source.getSpace() == Space.OK_LCh) {
 				// LCh to Lab
-				double[] lch = source.toArray();
+				double[] lch = source.toNumberArray();
 				ColorUtil.lchToLab(lch, result);
 			} else {
 				double[] xyz = source.toXYZ(Illuminant.D65);
@@ -159,7 +159,7 @@ class ColorConverter {
 		} else if (ColorSpace.ok_lch.equals(colorSpace)) {
 			double[] lab;
 			if (source.getSpace() == Space.OK_Lab) {
-				lab = source.toArray();
+				lab = source.toNumberArray();
 			} else {
 				double[] xyz = source.toXYZ(Illuminant.D65);
 				lab = new double[3];
