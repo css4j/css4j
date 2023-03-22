@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
@@ -49,6 +50,7 @@ public class RatioValueTest {
 	public void testGetCssText() {
 		ValueFactory vf = new ValueFactory();
 		PrimitiveValue value = vf.parseMediaFeature("3/2");
+		assertEquals(Type.RATIO, value.getPrimitiveType());
 		RatioValue ratio = (RatioValue) value;
 		assertEquals("3", ratio.getAntecedentValue().getCssText());
 		assertEquals("2", ratio.getConsequentValue().getCssText());

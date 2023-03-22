@@ -46,6 +46,16 @@ public class AttrValueTest {
 		assertEquals(0, AttrValue.defaultFallback(value.getAttributeType()).getStringValue().length());
 		assertEquals("attr(title)", value.getCssText());
 		assertEquals("attr(title)", value.getMinifiedCssText(""));
+
+		final CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("string");
+		SyntaxParser synParser = new SyntaxParser();
+		assertEquals(Match.TRUE, value.matches(syn));
+		CSSValueSyntax synCI = synParser.parseSyntax("<custom-ident>");
+		CSSValueSyntax synLengthP = synParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLengthP));
+		CSSValueSyntax synUniversal = synParser.parseSyntax("*");
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(title string)");
 		assertEquals("title", value.getAttributeName());
@@ -54,6 +64,11 @@ public class AttrValueTest {
 		assertEquals(0, AttrValue.defaultFallback(value.getAttributeType()).getStringValue().length());
 		assertEquals("attr(title string)", value.getCssText());
 		assertEquals("attr(title string)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.TRUE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLengthP));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(title string, 'foo')");
 		assertEquals("title", value.getAttributeName());
@@ -62,11 +77,12 @@ public class AttrValueTest {
 		assertEquals("attr(title string, 'foo')", value.getCssText());
 		assertEquals("attr(title string,'foo')", value.getMinifiedCssText(""));
 		//
-		value.setCssText("attr(title)");
-		assertEquals("title", value.getAttributeName());
-		assertNull(value.getAttributeType());
-		assertNull(value.getFallback());
-		assertEquals(0, AttrValue.defaultFallback(value.getAttributeType()).getStringValue().length());
+		value.setCssText("attr(data-id ident, none)");
+		assertEquals("data-id", value.getAttributeName());
+		assertEquals("ident", value.getAttributeType());
+		assertEquals("none", ((CSSTypedValue) value.getFallback()).getStringValue());
+		assertEquals("attr(data-id ident, none)", value.getCssText());
+		assertEquals("attr(data-id ident,none)", value.getMinifiedCssText(""));
 		//
 		value.setCssText("attr(width length, 20em)");
 		assertEquals("width", value.getAttributeName());
@@ -74,6 +90,14 @@ public class AttrValueTest {
 		assertEquals("20em", value.getFallback().getCssText());
 		assertEquals("attr(width length, 20em)", value.getCssText());
 		assertEquals("attr(width length,20em)", value.getMinifiedCssText(""));
+
+		CSSValueSyntax synLength = synParser.parseSyntax("<length>");
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.TRUE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synLengthP));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(width length)");
 		assertEquals("width", value.getAttributeName());
@@ -89,6 +113,12 @@ public class AttrValueTest {
 		assertEquals("20em", value.getFallback().getCssText());
 		assertEquals("attr(width px, 20em)", value.getCssText());
 		assertEquals("attr(width px,20em)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.TRUE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synLengthP));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(width px)");
 		assertEquals("width", value.getAttributeName());
@@ -97,6 +127,12 @@ public class AttrValueTest {
 		assertEquals("0", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
 		assertEquals("attr(width px)", value.getCssText());
 		assertEquals("attr(width px)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.TRUE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synLengthP));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(width percentage, 40%)");
 		assertEquals("width", value.getAttributeName());
@@ -104,6 +140,12 @@ public class AttrValueTest {
 		assertEquals("40%", value.getFallback().getCssText());
 		assertEquals("attr(width percentage, 40%)", value.getCssText());
 		assertEquals("attr(width percentage,40%)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synLengthP));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(width percentage)");
 		assertEquals("width", value.getAttributeName());
@@ -112,6 +154,25 @@ public class AttrValueTest {
 		assertEquals("0%", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
 		assertEquals("attr(width percentage)", value.getCssText());
 		assertEquals("attr(width percentage)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synLengthP));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
+		//
+		value.setCssText("attr(width %)");
+		assertEquals("width", value.getAttributeName());
+		assertEquals("%", value.getAttributeType());
+		assertNull(value.getFallback());
+		assertEquals("attr(width %)", value.getCssText());
+		assertEquals("attr(width %)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synLengthP));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(elev angle, 20deg)");
 		assertEquals("elev", value.getAttributeName());
@@ -119,6 +180,14 @@ public class AttrValueTest {
 		assertEquals("20deg", value.getFallback().getCssText());
 		assertEquals("attr(elev angle, 20deg)", value.getCssText());
 		assertEquals("attr(elev angle,20deg)", value.getMinifiedCssText(""));
+
+		CSSValueSyntax synAngle = synParser.parseSyntax("<angle>");
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synAngle));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(elev angle)");
 		assertEquals("elev", value.getAttributeName());
@@ -127,6 +196,12 @@ public class AttrValueTest {
 		assertEquals("0deg", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
 		assertEquals("attr(elev angle)", value.getCssText());
 		assertEquals("attr(elev angle)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synAngle));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(elev deg, 20deg)");
 		assertEquals("elev", value.getAttributeName());
@@ -134,6 +209,12 @@ public class AttrValueTest {
 		assertEquals("20deg", value.getFallback().getCssText());
 		assertEquals("attr(elev deg, 20deg)", value.getCssText());
 		assertEquals("attr(elev deg,20deg)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synAngle));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(elev deg)");
 		assertEquals("elev", value.getAttributeName());
@@ -142,6 +223,12 @@ public class AttrValueTest {
 		assertEquals("0deg", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
 		assertEquals("attr(elev deg)", value.getCssText());
 		assertEquals("attr(elev deg)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synAngle));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(pause time, 2s)");
 		assertEquals("pause", value.getAttributeName());
@@ -149,6 +236,14 @@ public class AttrValueTest {
 		assertEquals("2s", value.getFallback().getCssText());
 		assertEquals("attr(pause time, 2s)", value.getCssText());
 		assertEquals("attr(pause time,2s)", value.getMinifiedCssText(""));
+
+		CSSValueSyntax synTime = synParser.parseSyntax("<time>");
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synTime));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(pause time)");
 		assertEquals("pause", value.getAttributeName());
@@ -157,6 +252,12 @@ public class AttrValueTest {
 		assertEquals("0s", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
 		assertEquals("attr(pause time)", value.getCssText());
 		assertEquals("attr(pause time)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synTime));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(pause s, 2s)");
 		assertEquals("pause", value.getAttributeName());
@@ -172,6 +273,12 @@ public class AttrValueTest {
 		assertEquals("0s", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
 		assertEquals("attr(pause s)", value.getCssText());
 		assertEquals("attr(pause s)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synTime));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(pitch frequency, 200Hz)");
 		assertEquals("pitch", value.getAttributeName());
@@ -187,6 +294,14 @@ public class AttrValueTest {
 		assertEquals("0Hz", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
 		assertEquals("attr(pitch frequency)", value.getCssText());
 		assertEquals("attr(pitch frequency)", value.getMinifiedCssText(""));
+
+		CSSValueSyntax synFreq = synParser.parseSyntax("<frequency>");
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.TRUE, value.matches(synFreq));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 		//
 		value.setCssText("attr(pitch Hz, 200Hz)");
 		assertEquals("pitch", value.getAttributeName());
@@ -202,6 +317,29 @@ public class AttrValueTest {
 		assertEquals("0Hz", AttrValue.defaultFallback(value.getAttributeType()).getCssText());
 		assertEquals("attr(pitch Hz)", value.getCssText());
 		assertEquals("attr(pitch Hz)", value.getMinifiedCssText(""));
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.FALSE, value.matches(synTime));
+		assertEquals(Match.TRUE, value.matches(synFreq));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
+		//
+		value.setCssText("attr(data-grid flex)");
+		assertEquals("data-grid", value.getAttributeName());
+		assertEquals("flex", value.getAttributeType());
+		assertNull(value.getFallback());
+		assertEquals("attr(data-grid flex)", value.getCssText());
+		assertEquals("attr(data-grid flex)", value.getMinifiedCssText(""));
+
+		CSSValueSyntax synFlex = synParser.parseSyntax("<flex>");
+
+		assertEquals(Match.FALSE, value.matches(syn));
+		assertEquals(Match.FALSE, value.matches(synCI));
+		assertEquals(Match.FALSE, value.matches(synLength));
+		assertEquals(Match.FALSE, value.matches(synTime));
+		assertEquals(Match.TRUE, value.matches(synFlex));
+		assertEquals(Match.TRUE, value.matches(synUniversal));
 	}
 
 	@Test
