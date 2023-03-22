@@ -333,7 +333,7 @@ public class XMLDocumentWrapperTest {
 		StyleValue color = (StyleValue) style.getPropertyCSSValue("color");
 		assertNotNull(color);
 		assertEquals("#000", color.getCssText());
-		assertFalse(color.isSystemDefault());
+		assertTrue(color.isSystemDefault());
 		assertEquals(0, style.getLength());
 	}
 

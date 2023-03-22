@@ -384,12 +384,11 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 			TypedValue value = null;
 			propertyName = propertyName.toLowerCase(Locale.ROOT);
 			if ("color".equals(propertyName) || propertyName.endsWith("-color")) {
-				value = (TypedValue) new ValueFactory().parseProperty("#000000");
+				value = (TypedValue) new ValueFactory().parseProperty("#000");
 				((ColorValue) value).setSystemDefault();
+				return value;
 			} else if ("font-family".equals(propertyName)) {
 				value = (TypedValue) new ValueFactory().parseProperty("serif");
-			}
-			if (value != null) {
 				return new LenientSystemDefaultValue(value);
 			}
 		}
