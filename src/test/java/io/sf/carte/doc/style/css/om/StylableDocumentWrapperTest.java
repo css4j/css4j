@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -68,18 +69,26 @@ import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class StylableDocumentWrapperTest {
 
+	static Document refXhtmlDoc;
+
 	private StylableDocumentWrapper xhtmlDoc;
 
-	@BeforeEach
-	public void setUp() throws IOException, SAXException, ParserConfigurationException {
+	@BeforeAll
+	public static void setUpBeforeClass()
+			throws IOException, SAXException, ParserConfigurationException {
 		InputStream is = DOMCSSStyleSheetFactoryTest.sampleHTMLStream();
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docb = dbFac.newDocumentBuilder();
 		docb.setEntityResolver(new DefaultEntityResolver());
 		InputSource source = new InputSource(new InputStreamReader(is, StandardCharsets.UTF_8));
-		Document doc = docb.parse(source);
+		refXhtmlDoc = docb.parse(source);
 		is.close();
-		doc.getDocumentElement().normalize();
+		refXhtmlDoc.getDocumentElement().normalize();
+	}
+
+	@BeforeEach
+	public void setUp() {
+		Document doc = (Document) refXhtmlDoc.cloneNode(true);
 		doc.setDocumentURI("http://www.example.com/xhtml/htmlsample.html");
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);

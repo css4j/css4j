@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -28,10 +29,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,14 +48,73 @@ import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class StylableDocumentWrapperTest2 {
 
-	private DocumentBuilder docbuilder;
+	private static DocumentBuilder docbuilder;
 
-	@BeforeEach
-	public void setUp() throws IOException, SAXException, ParserConfigurationException {
+	@BeforeAll
+	public static void setUpBeforeClass()
+			throws IOException, SAXException, ParserConfigurationException {
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		docbuilder = dbFac.newDocumentBuilder();
+	}
+
+	@Test
+	public void testElement() {
+		Document document = docbuilder.newDocument();
+		Element element = document.createElement("html");
+		document.appendChild(element);
+		// Wrap
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(false);
+		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(document);
+		CSSElement docElm = wrapped.getDocumentElement();
+		assertNotNull(docElm);
+		assertEquals("html", docElm.getTagName());
+
+		docElm.setAttribute("lang", "en");
+		assertEquals("en", docElm.getAttribute("lang"));
+		assertNotNull(docElm.getAttributeNode("lang"));
+
+		docElm.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base",
+				"http://www.example.com/");
+		assertEquals("http://www.example.com/", docElm.getAttribute("xml:base"));
+		assertEquals("http://www.example.com/",
+				docElm.getAttributeNS("http://www.w3.org/XML/1998/namespace", "base"));
+		assertNotNull(docElm.getAttributeNode("xml:base"));
+
+		docElm.removeAttribute("lang");
+		assertFalse(docElm.hasAttribute("lang"));
+
+		// Nothing happens
+		docElm.removeAttribute("lang");
+
+		docElm.removeAttributeNS("http://www.w3.org/XML/1998/namespace", "base");
+		assertFalse(docElm.hasAttributeNS("http://www.w3.org/XML/1998/namespace", "base"));
+
+		// Nothing happens
+		docElm.removeAttributeNS("http://www.w3.org/XML/1998/namespace", "base");
+
+		docElm.setAttribute("class", "foo");
+		assertTrue(docElm.hasAttribute("class"));
+		final Attr attr = docElm.getAttributeNode("class");
+		assertNotNull(attr);
+		assertEquals("class", attr.getName());
+		assertEquals("foo", attr.getValue());
+		assertSame(attr, docElm.removeAttributeNode(attr));
+		assertFalse(docElm.hasAttribute("class"));
+
+		DOMException ex = assertThrows(DOMException.class, () -> docElm.removeAttributeNode(attr));
+		assertEquals(DOMException.NOT_FOUND_ERR, ex.code);
+
+		Attr title = wrapped.createAttribute("title");
+		assertSame(title, docElm.setAttributeNode(title));
+		assertTrue(docElm.hasAttribute("title"));
+
+		Attr base = wrapped.createAttributeNS("http://www.w3.org/XML/1998/namespace", "base");
+		assertSame(base, docElm.setAttributeNodeNS(base));
+		assertTrue(docElm.hasAttributeNS("http://www.w3.org/XML/1998/namespace", "base"));
+		assertSame(base, docElm.getAttributeNodeNS("http://www.w3.org/XML/1998/namespace", "base"));
 	}
 
 	@Test

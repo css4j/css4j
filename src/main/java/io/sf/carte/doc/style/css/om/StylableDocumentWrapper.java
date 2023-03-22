@@ -853,12 +853,14 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public void setAttribute(String name, String value) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			element.setAttribute(name, value);
 		}
 
 		@Override
 		public void removeAttribute(String name) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			Attr attr = element.getAttributeNode(name);
+			nodemap.remove(attr);
+			element.removeAttribute(name);
 		}
 
 		@Override
@@ -872,12 +874,17 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public Attr setAttributeNode(Attr newAttr) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			Attr rawnode = (Attr) ((DOMNode) newAttr).rawnode;
+			element.setAttributeNode(rawnode);
+			return newAttr;
 		}
 
 		@Override
 		public Attr removeAttributeNode(Attr oldAttr) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			Attr rawnode = (Attr) ((DOMNode) oldAttr).rawnode;
+			Attr attr = element.removeAttributeNode(rawnode);
+			nodemap.remove(attr);
+			return oldAttr;
 		}
 
 		@Override
@@ -896,12 +903,14 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public void setAttributeNS(String namespaceURI, String qualifiedName, String value) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			element.setAttributeNS(namespaceURI, qualifiedName, value);
 		}
 
 		@Override
 		public void removeAttributeNS(String namespaceURI, String localName) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			Attr attr = element.getAttributeNodeNS(namespaceURI, localName);
+			nodemap.remove(attr);
+			element.removeAttributeNS(namespaceURI, localName);
 		}
 
 		@Override
@@ -915,7 +924,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public Attr setAttributeNodeNS(Attr newAttr) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			Attr rawnode = (Attr) ((DOMNode) newAttr).rawnode;
+			element.setAttributeNodeNS(rawnode);
+			return newAttr;
 		}
 
 		@Override
@@ -1451,6 +1462,11 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	@Override
 	public Node adoptNode(Node source) throws DOMException {
 		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+	}
+
+	@Override
+	public Node cloneNode(boolean deep) {
+		return getStyleSheetFactory().createCSSDocument((Document) document.cloneNode(deep));
 	}
 
 	@Override
