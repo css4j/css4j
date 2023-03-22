@@ -216,8 +216,12 @@ class FontBuilder extends ShorthandBuilder {
 				|| declaredSet.contains("font-family") || declaredSet.contains("font-stretch")) {
 			boolean not_initial_lh = isNotInitialValue(vLineHeight, "line-height");
 			boolean not_initial_fsz = isNotInitialValue(vFontSize, "font-size");
-			boolean not_initial_fst = isNotInitialValue(vFontStretch, "font-stretch") && isFontStretchCss3(vFontStretch);
-			boolean not_initial_ff = isNotInitialValue(vFontFamily, "font-family");
+			boolean not_initial_fst = isNotInitialValue(vFontStretch, "font-stretch")
+					&& isFontStretchCss3(vFontStretch);
+			// We only want to consider font-family as an initial value if it
+			// was not specified or is a keyword.
+			boolean not_initial_ff = !vFontFamily.isSystemDefault()
+					&& !isEffectiveInitialKeyword(vFontFamily);
 			if (not_initial_fsz || not_initial_lh || not_initial_fst) {
 				// We need to serialize font size, perhaps also line height.
 				String fontSizeText;
