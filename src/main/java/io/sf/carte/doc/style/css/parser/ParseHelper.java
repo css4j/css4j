@@ -1293,13 +1293,13 @@ public class ParseHelper {
 	 * For internal use by the library, may be removed in the future.
 	 * 
 	 * @param dataType the attr data type.
-	 * @param cat the grammar data type category to check.
+	 * @param cat      the grammar data type category to check.
 	 * @return true if the data type matches the syntax category.
 	 */
 	public static boolean matchAttrType(String dataType, Category cat) {
 		if ("length".equals(dataType)) {
 			return cat == Category.length || cat == Category.lengthPercentage;
-		} else if ("percentage".equals(dataType)) {
+		} else if ("percentage".equals(dataType) || "%".equals(dataType)) {
 			return cat == Category.percentage || cat == Category.lengthPercentage;
 		} else if ("color".equals(dataType)) {
 			return cat == Category.color;

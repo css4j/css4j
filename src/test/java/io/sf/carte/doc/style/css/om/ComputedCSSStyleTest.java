@@ -3662,12 +3662,19 @@ public class ComputedCSSStyleTest {
 		assertEquals("hwb(78.205 34.26% 28.13%)", style.getPropertyValue("color"));
 
 		// Attr method, %
-		elm.setAttribute("data-method", "larger");
+		elm.setAttribute("data-method", "longer");
 		elm.setAttribute("data-pcnt1", "41%");
 		elm.getOverrideStyle(null).setCssText(
 				"color: color-mix(in HWB attr(data-method ident) hue, hwb(60.8 26% 24%) attr(data-pcnt1 percentage), hwb(90.3 40% 31%))");
 		style = elm.getComputedStyle(null);
-		assertEquals("hwb(78.205 34.26% 28.13%)", style.getPropertyValue("color"));
+		assertEquals("hwb(225.805 34.26% 28.13%)", style.getPropertyValue("color"));
+
+		// Attr colorspace method, %
+		elm.setAttribute("data-space", "hwb");
+		elm.getOverrideStyle(null).setCssText(
+				"color: color-mix(in attr(data-space ident) attr(data-method ident) hue, hwb(60.8 26% 24%) attr(data-pcnt1 percentage), hwb(90.3 40% 31%))");
+		style = elm.getComputedStyle(null);
+		assertEquals("hwb(225.805 34.26% 28.13%)", style.getPropertyValue("color"));
 
 		// Attr colors %
 		elm.setAttribute("data-color1", "lab(76.473 -12.12 60.839)");

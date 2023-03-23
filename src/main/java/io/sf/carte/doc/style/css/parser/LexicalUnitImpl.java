@@ -276,14 +276,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	@Override
 	public String getStringValue() {
-		if (unitType == LexicalType.ATTR) {
-			StringBuilder buf = new StringBuilder();
-			LexicalUnit lu = this.parameters;
-			if (lu != null) {
-				buf.append(lu.toString());
-			}
-			return buf.toString();
-		}
 		return value;
 	}
 
@@ -522,34 +514,38 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	@Override
 	public Match matches(CSSValueSyntax syntax) {
-		switch (getLexicalUnitType()) {
-		case INHERIT:
-		case INITIAL:
-		case UNSET:
-		case REVERT:
-			// If a keyword is followed by something, it matches nothing
-			return nextLexicalUnit == null ? Match.PENDING : Match.FALSE;
-		default:
-			break;
-		}
-		//
-		CSSValueSyntax comp = syntax;
-		do {
+		if (syntax != null) {
+			switch (getLexicalUnitType()) {
+			case INHERIT:
+			case INITIAL:
+			case UNSET:
+			case REVERT:
+				// If a keyword is followed by something, it matches nothing
+				return nextLexicalUnit == null ? Match.PENDING : Match.FALSE;
+			default:
+				break;
+			}
 			//
-			Multiplier mult = comp.getMultiplier();
-			Category cat = comp.getCategory();
-			if (cat == Category.universal) {
-				return Match.TRUE;
-			}
-			// If there is a next unit but no multiplier defined, skip this syntax
-			if (mult != Multiplier.NONE || nextLexicalUnit == null || cat == Category.transformList) {
-				Match result;
-				if ((result = matchesComponent(syntax, comp)) != Match.FALSE) {
-					return result;
+			CSSValueSyntax comp = syntax;
+			do {
+				//
+				Multiplier mult = comp.getMultiplier();
+				Category cat = comp.getCategory();
+				if (cat == Category.universal) {
+					return Match.TRUE;
 				}
-			}
-			comp = comp.getNext();
-		} while (comp != null);
+				// If there is a next unit but no multiplier defined, skip this syntax
+				if (mult != Multiplier.NONE || nextLexicalUnit == null
+						|| cat == Category.transformList) {
+					Match result;
+					if ((result = matchesComponent(syntax, comp)) != Match.FALSE) {
+						return result;
+					}
+				}
+				comp = comp.getNext();
+			} while (comp != null);
+
+		}
 		return Match.FALSE;
 	}
 

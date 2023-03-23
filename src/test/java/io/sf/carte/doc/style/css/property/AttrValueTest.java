@@ -360,7 +360,7 @@ public class AttrValueTest {
 		AttrValue value = new AttrValue((byte) 0);
 		DOMException e = assertThrows(DOMException.class,
 				() -> value.setCssText("attr(att-content string, attr(foo))"));
-		assertEquals(DOMException.SYNTAX_ERR, e.code);
+		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 	}
 
 	@Test
@@ -368,7 +368,7 @@ public class AttrValueTest {
 		AttrValue value = new AttrValue((byte) 0);
 		DOMException e = assertThrows(DOMException.class,
 				() -> value.setCssText("attr(att-content string, calc(attr(foo)/3))"));
-		assertEquals(DOMException.SYNTAX_ERR, e.code);
+		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 	}
 
 	@Test
@@ -376,7 +376,7 @@ public class AttrValueTest {
 		AttrValue value = new AttrValue((byte) 0);
 		DOMException e = assertThrows(DOMException.class,
 				() -> value.setCssText("attr(att-content string, calc(sqrt(attr(foo)/3)))"));
-		assertEquals(DOMException.SYNTAX_ERR, e.code);
+		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 	}
 
 	@Test

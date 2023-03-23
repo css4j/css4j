@@ -12,8 +12,8 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Locale;
-import java.util.StringTokenizer;
 
 import org.w3c.dom.DOMException;
 
@@ -22,7 +22,10 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -83,6 +86,11 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 	 * @param fallback the fallback value.
 	 */
 	public void setFallback(StyleValue fallback) {
+		if (fallback != null && (TypedValue.isOrContainsType(fallback, Type.ATTR)
+				|| fallback.getCssValueType() == CssType.KEYWORD)) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Invalid fallback: " + fallback.toString());
+		}
 		this.fallback = fallback;
 	}
 
@@ -230,10 +238,86 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
-			String strval = lunit.getStringValue();
-			parseAttrValues(strval);
+			String attrname;
+			String typeval = null;
+			StyleValue fallback = null;
+
+			LexicalUnit lu = lunit.getParameters();
+
+			LexicalType type = lu.getLexicalUnitType();
+			if (type == LexicalType.IDENT) {
+				attrname = lu.getStringValue();
+			} else if (type == LexicalType.VAR) {
+				// Cannot handle a var() before the comma
+				throw new CSSLexicalProcessingException("var() inside attr() found.");
+			} else {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Invalid attr() name.");
+			}
+
+			lu = lu.getNextLexicalUnit();
+			if (lu != null) {
+				type = lu.getLexicalUnitType();
+				if (type != LexicalType.OPERATOR_COMMA) {
+					// attr(name type
+					if (type == LexicalType.VAR) {
+						// Cannot handle a var() before the comma
+						throw new CSSLexicalProcessingException("var() inside attr() found.");
+					} else if (type == LexicalType.ATTR) {
+						throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+								"Invalid attr() nested in attr().");
+					}
+					if (type == LexicalType.IDENT) {
+						typeval = lu.getStringValue();
+					} else if (type == LexicalType.OPERATOR_MOD) {
+						typeval = "%";
+					} else {
+						throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+								"Invalid attr() name.");
+					}
+					lu = lu.getNextLexicalUnit();
+					if (lu == null) {
+						// attr(name type) and that's all
+						AttrValue.this.attrname = attrname;
+						AttrValue.this.typeval = typeval;
+						AttrValue.this.fallback = null;
+						nextLexicalUnit = lunit.getNextLexicalUnit();
+						return;
+					}
+					type = lu.getLexicalUnitType();
+					if (type != LexicalType.OPERATOR_COMMA) {
+						wrongSyntax(lunit);
+					}
+				}
+				// Move past comma
+				lu = lu.getNextLexicalUnit();
+				if (lu == null) {
+					wrongSyntax(lunit);
+				}
+				// Check the fallback
+				type = lu.getLexicalUnitType();
+				ValueFactory factory = new ValueFactory(flags);
+				try {
+					fallback = factory.createCSSValue(lu.clone(), null, false);
+				} catch (RuntimeException e) {
+					DOMException ex = new DOMException(DOMException.TYPE_MISMATCH_ERR,
+							"Invalid fallback: " + fallback.toString());
+					ex.initCause(e);
+					throw ex;
+				}
+			}
+
+			// Everything is fine, so assign the fields starting
+			// with the fallback which may trigger an error.
+			setFallback(fallback);
+			AttrValue.this.attrname = attrname;
+			AttrValue.this.typeval = typeval;
+
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
+	}
+
+	private static void wrongSyntax(LexicalUnit lunit) {
+		throw new DOMException(DOMException.SYNTAX_ERR, "Wrong attr() syntax: " + lunit.toString());
 	}
 
 	@Override
@@ -281,52 +365,16 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		checkModifiableProperty();
-		ValueFactory factory = new ValueFactory(flags);
-		StyleValue cssval = factory.parseProperty(cssText);
-		if (cssval == null || cssval.getPrimitiveType() != Type.ATTR) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an attr value.");
+		CSSParser parser = new CSSParser();
+		LexicalUnit lunit;
+		try {
+			lunit = parser.parsePropertyValue(new StringReader(cssText));
+		} catch (CSSParseException e) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "Not an attr value.");
+		} catch (IOException e) {
+			return;
 		}
-		AttrValue attr = (AttrValue) cssval;
-		this.attrname = attr.attrname;
-		this.typeval = attr.typeval;
-		this.fallback = attr.fallback;
-	}
-
-	private void parseAttrValues(String attr) throws DOMException {
-		int len = attr.length();
-		int idx = attr.indexOf(',');
-		int idxp1 = idx + 1;
-		if (idxp1 == len) {
-			badSyntax(attr);
-		}
-		if (idxp1 != 0) {
-			String s = attr.substring(idxp1, len).trim();
-			ValueFactory factory = new ValueFactory(flags);
-			StyleValue value = factory.parseProperty(s);
-			if (TypedValue.isOrContainsType(value, Type.ATTR)) {
-				badSyntax(attr);
-			}
-			fallback = value;
-		}
-		if (idx == -1) {
-			idx = len;
-		}
-		StringTokenizer st = new StringTokenizer(attr.substring(0, idx));
-		if (!st.hasMoreTokens()) {
-			badSyntax(attr);
-		}
-		attrname = st.nextToken();
-		attrname = ParseHelper.parseIdent(attrname);
-		if (st.hasMoreTokens()) {
-			typeval = st.nextToken();
-			if (st.hasMoreTokens()) {
-				badSyntax(attr);
-			}
-		}
-	}
-
-	private void badSyntax(String attr) throws DOMException {
-		throw new DOMException(DOMException.SYNTAX_ERR, "Bad attr(): " + attr);
+		newLexicalSetter().setLexicalUnit(lunit);
 	}
 
 	@Override

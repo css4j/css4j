@@ -479,14 +479,13 @@ public class ValueFactory {
 	/**
 	 * Creates a CSSValue according to the given lexical value.
 	 * <p>
-	 * The value is assumed to be stand-alone, independent of a shorthand property.
+	 * The value is assumed to be stand-alone, independent.
 	 * 
-	 * @param lunit
-	 *            the lexical value.
-	 * @return a CSSValue associated to the given lexical value, or null if the lexical unit
-	 *         was not appropriate.
-	 * @throws DOMException
-	 *             if the lexical unit had a wrong content to create a value.
+	 * @param lunit the lexical value.
+	 * @return a {@code CSSValue} associated to the given lexical value, or
+	 *         {@code null} if a bracket list was empty.
+	 * @throws DOMException if the lexical unit had a wrong content to create a
+	 *                      value.
 	 */
 	public StyleValue createCSSValue(LexicalUnit lunit)
 			throws DOMException {
@@ -496,20 +495,35 @@ public class ValueFactory {
 	/**
 	 * Creates a CSSValue according to the given lexical value.
 	 * <p>
-	 * The value is assumed to be stand-alone, independent of a shorthand property.
+	 * The value is assumed to be stand-alone, independent.
 	 * 
-	 * @param lunit
-	 *            the lexical value.
-	 * @param style
-	 *            the (style) declaration that should handle errors, or null to not
-	 *            handle errors.
-	 * @return a CSSValue associated to the given lexical value, or null if the lexical unit
-	 *         was not appropriate.
-	 * @throws DOMException
-	 *             if the lexical unit had a wrong content to create a value.
+	 * @param lunit the lexical value.
+	 * @param style the (style) declaration that should handle errors, or
+	 *              {@code null} to not handle errors.
+	 * @return a {@code CSSValue} associated to the given lexical value, or
+	 *         {@code null} if a bracket list was empty.
+	 * @throws DOMException if the lexical unit had a wrong content to create a
+	 *                      value.
 	 */
 	public StyleValue createCSSValue(LexicalUnit lunit, AbstractCSSStyleDeclaration style)
 			throws DOMException {
+		return createCSSValue(lunit, style, false);
+	}
+
+	/**
+	 * Creates a CSSValue according to the given lexical value.
+	 * 
+	 * @param lunit       the lexical value.
+	 * @param style       the (style) declaration that should handle errors, or
+	 *                    {@code null} to not handle errors.
+	 * @param subproperty the flag marking whether it is a sub-property.
+	 * @return a {@code CSSValue} associated to the given lexical value, or
+	 *         {@code null} if a bracket list was empty.
+	 * @throws DOMException if the lexical unit had a wrong content to create a
+	 *                      value.
+	 */
+	public StyleValue createCSSValue(LexicalUnit lunit, AbstractCSSStyleDeclaration style,
+			boolean subproperty) throws DOMException {
 		if (lunit.getNextLexicalUnit() != null) {
 			ValueList superlist = null; // Comma-separated values
 			ValueList list = ValueList.createWSValueList(); // Whitespace-separated
@@ -520,9 +534,10 @@ public class ValueFactory {
 					StyleValue value;
 					// Check for bracket list.
 					if (nlu.getLexicalUnitType() != LexicalType.LEFT_BRACKET) {
-						ValueItem item = createCSSValueItem(nlu, false);
+						ValueItem item = createCSSValueItem(nlu, subproperty);
 						if (item.hasWarnings() && style != null) {
-							StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
+							StyleDeclarationErrorHandler errHandler = style
+									.getStyleDeclarationErrorHandler();
 							if (errHandler != null) {
 								item.handleSyntaxWarnings(errHandler);
 							}
@@ -541,7 +556,7 @@ public class ValueFactory {
 						if (nlu == null) {
 							throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
 						}
-						ListValueItem listitem = parseBracketList(nlu, style, false);
+						ListValueItem listitem = parseBracketList(nlu, style, subproperty);
 						if (listitem != null) {
 							value = listitem.getCSSValue();
 							nlu = listitem.getNextLexicalUnit();
@@ -599,7 +614,7 @@ public class ValueFactory {
 			}
 			return listOrFirstItem(list);
 		} else {
-			ValueItem item = createCSSValueItem(lunit, false);
+			ValueItem item = createCSSValueItem(lunit, subproperty);
 			if (item.hasWarnings() && style != null) {
 				StyleDeclarationErrorHandler errHandler = style.getStyleDeclarationErrorHandler();
 				if (errHandler != null) {

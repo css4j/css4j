@@ -289,7 +289,7 @@ public interface LexicalUnit {
 		/**
 		 * Attribute: <code>attr(...)</code>.
 		 * 
-		 * @see #getStringValue
+		 * @see #getParameters
 		 */
 		ATTR,
 
