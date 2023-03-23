@@ -72,6 +72,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		super(copied);
 		this.inColorSpace = copied.inColorSpace;
 		this.inMethod = copied.inMethod;
+		this.unknownMethod = copied.unknownMethod;
 		this.colorValue1 = copied.colorValue1.clone();
 		this.colorValue2 = copied.colorValue2.clone();
 		if (copied.percent1 != null) {
@@ -91,6 +92,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		this.inColorSpace = setfrom.inColorSpace;
 		this.inColorModel = setfrom.inColorModel;
 		this.inMethod = setfrom.inMethod;
+		this.unknownMethod = setfrom.unknownMethod;
 		this.colorValue1 = setfrom.colorValue1;
 		this.colorValue2 = setfrom.colorValue2;
 		this.percent1 = setfrom.percent1;
