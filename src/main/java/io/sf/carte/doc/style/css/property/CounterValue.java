@@ -68,6 +68,8 @@ class CounterValue extends AbstractCounterValue {
 				setName(lu.getStringValue());
 			} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
 				throw new CSSLexicalProcessingException("var() inside counter() found.");
+			} else {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Invalid counter() name.");
 			}
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {

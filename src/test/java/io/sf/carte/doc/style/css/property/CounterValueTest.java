@@ -174,6 +174,13 @@ public class CounterValueTest {
 	}
 
 	@Test
+	public void testWrongCounter() {
+		style.setCssText("content: counter(1px);");
+		assertNull(style.getPropertyCSSValue("content"));
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testClone() {
 		style.setCssText("content: counter(ListCounter, upper-latin);");
 		CounterValue value = (CounterValue) style.getPropertyCSSValue("content");

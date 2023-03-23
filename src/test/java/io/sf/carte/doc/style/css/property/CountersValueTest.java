@@ -204,6 +204,13 @@ public class CountersValueTest {
 	}
 
 	@Test
+	public void testWrongCounters() {
+		style.setCssText("content: counters(1px, '.', upper-latin);");
+		assertNull(style.getPropertyCSSValue("content"));
+		assertTrue(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
 	public void testClone() {
 		style.setCssText("content: counters(ListCounter,'.', upper-latin);");
 		CountersValue value = (CountersValue) style.getPropertyCSSValue("content");

@@ -81,6 +81,8 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 				setName(lu.getStringValue());
 			} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
 				throw new CSSLexicalProcessingException("var() inside counters() found.");
+			} else {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Invalid counters() name.");
 			}
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
