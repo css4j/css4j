@@ -43,6 +43,11 @@ public class SyntaxParserTest {
 	}
 
 	@Test
+	public void testCreateSimpleSyntaxNull() {
+		assertNull(SyntaxParser.createSimpleSyntax("non-existing"));
+	}
+
+	@Test
 	public void testParseSyntaxUniversal() {
 		CSSValueSyntax syn = parser.parseSyntax("*");
 		assertEquals("*", syn.getName());

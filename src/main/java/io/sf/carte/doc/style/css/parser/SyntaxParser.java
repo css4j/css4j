@@ -67,7 +67,12 @@ public class SyntaxParser {
 	 */
 	public static CSSValueSyntax createSimpleSyntax(String category) {
 		category = category.toLowerCase(Locale.ROOT);
-		return new SyntaxComponent(category, category(category));
+		Category cat = category(category);
+		if (cat != null) {
+			return new SyntaxComponent(category, cat);
+		} else {
+			return null;
+		}
 	}
 
 	/**
