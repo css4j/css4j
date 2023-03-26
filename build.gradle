@@ -259,6 +259,10 @@ tasks.register('testOn8', Test) {
 	javaLauncher = javaToolchains.launcherFor {
 		languageVersion = JavaLanguageVersion.of(8)
 	}
+
+	useJUnitPlatform() {
+		excludeTags 'Fuzz'
+	}
 }
 
 tasks.register('fuzzer', Test) {
