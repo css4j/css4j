@@ -19,6 +19,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 /**
  * Base implementation for primitive values.
@@ -151,6 +152,14 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 					handler.syntaxWarning(it.next());
 				}
 			}
+		}
+
+		boolean checkProxyValue(LexicalUnit lunit) {
+			LexicalType type = lunit.getLexicalUnitType();
+			if (type == LexicalType.VAR || type == LexicalType.ATTR) {
+				throw new CSSLexicalProcessingException("Cannot handle this PROXY in this value.");
+			}
+			return false;
 		}
 
 		@Override

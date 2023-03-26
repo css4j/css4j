@@ -272,8 +272,14 @@ public interface LexicalUnit {
 		 * <p>
 		 * For example: <code>element(#someId)</code>.
 		 * <p>
+		 * <p>
+		 * If the element Id is a string, use {@link LexicalUnit#getStringValue()
+		 * getStringValue()}, otherwise use {@link LexicalUnit#getParameters()
+		 * getParameters()} if it contains a {@code var()} or {@code attr()}.
+		 * </p>
 		 *
 		 * @see #getStringValue
+		 * @see #getParameters
 		 */
 		ELEMENT_REFERENCE,
 
@@ -571,10 +577,6 @@ public interface LexicalUnit {
 	 * <code>uri(....)</code> or quotes.
 	 * </p>
 	 * <p>
-	 * If the type is <code>ATTR</code>, the return value doesn't contain
-	 * <code>attr(....)</code>.
-	 * </p>
-	 * <p>
 	 * If the type is <code>UNICODE_WILDCARD</code>, the return value is the
 	 * wildcard without the preceding "U+".
 	 * </p>
@@ -582,11 +584,11 @@ public interface LexicalUnit {
 	 * @return the string value, or <code>null</code> if this unit does not have a
 	 *         string to return.
 	 * 
-	 * @see LexicalType#URI
-	 * @see LexicalType#ATTR
 	 * @see LexicalType#IDENT
 	 * @see LexicalType#STRING
+	 * @see LexicalType#URI
 	 * @see LexicalType#UNICODE_WILDCARD
+	 * @see LexicalType#ELEMENT_REFERENCE
 	 */
 	String getStringValue();
 

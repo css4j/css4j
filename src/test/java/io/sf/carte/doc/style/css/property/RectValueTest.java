@@ -61,7 +61,7 @@ public class RectValueTest {
 	}
 
 	@Test
-	public void testGetCssText() {
+	public void testRect() {
 		style.setCssText("clip: rect(2px 12em 3em 2pt); ");
 		StyleValue cssval = style.getPropertyCSSValue("clip");
 		assertNotNull(cssval);
@@ -77,7 +77,7 @@ public class RectValueTest {
 	}
 
 	@Test
-	public void testGetCssTextSeparator() {
+	public void testRectCommaSeparated() {
 		style.setCssText("clip: rect(2px, 12em, 3em, 2pt); ");
 		StyleValue cssval = style.getPropertyCSSValue("clip");
 		assertNotNull(cssval);
@@ -93,7 +93,7 @@ public class RectValueTest {
 	}
 
 	@Test
-	public void testRect() {
+	public void testRectComponents() {
 		style.setCssText("clip: rect(2px 12em 3em 2pt); ");
 		RectValue value = (RectValue) style.getPropertyCSSValue("clip");
 		NumberValue number = new NumberValue();

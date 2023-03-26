@@ -79,9 +79,8 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 			LexicalUnit lu = lunit.getParameters();
 			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
 				setName(lu.getStringValue());
-			} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
-				throw new CSSLexicalProcessingException("var() inside counters() found.");
 			} else {
+				checkProxyValue(lu);
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Invalid counters() name.");
 			}
 			lu = lu.getNextLexicalUnit();
@@ -93,9 +92,8 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 					}
 					if (lu.getLexicalUnitType() == LexicalType.STRING) {
 						setSeparator(lu.getStringValue());
-					} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
-						throw new CSSLexicalProcessingException("var() inside counters() found.");
 					} else {
+						checkProxyValue(lu);
 						badSyntax(lunit);
 					}
 					lu = lu.getNextLexicalUnit();
@@ -109,21 +107,22 @@ class CountersValue extends AbstractCounterValue implements CSSCountersValue {
 							if (lutype == LexicalType.IDENT || (lutype == LexicalType.FUNCTION
 									&& "symbols".equalsIgnoreCase(lu.getFunctionName()))) {
 								ValueFactory vf = new ValueFactory();
-								LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, true);
+								LexicalSetter item = vf.createCSSPrimitiveValueItem(lu, false, false);
 								setCounterStyle(item.getCSSValue());
 								if (item.getNextLexicalUnit() != null) {
 									badSyntax(lunit);
 								}
-							} else if (lutype == LexicalType.VAR) {
-								throw new CSSLexicalProcessingException("var() inside counters() found.");
 							} else {
+								checkProxyValue(lu);
 								badSyntax(lunit);
 							}
 						} else {
+							checkProxyValue(lu);
 							badSyntax(lunit);
 						}
 					}
 				} else {
+					checkProxyValue(lu);
 					badSyntax(lunit);
 				}
 			}

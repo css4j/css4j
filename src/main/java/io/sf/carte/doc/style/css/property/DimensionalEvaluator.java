@@ -24,6 +24,8 @@ import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 
 /**
@@ -191,25 +193,70 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
+	protected CSSValue absoluteProxyValue(CSSPrimitiveValue partialValue) {
+		if (partialValue.getPrimitiveType() == Type.ATTR) {
+			checkRandom();
+			AttrValue attr = (AttrValue) partialValue;
+			String attrtype = attr.getAttributeType();
+			if (attrtype != null) {
+				int len = attrtype.length();
+				if (len <= 2) {
+					ValueFactory factory = new ValueFactory();
+					NumberValue value = (NumberValue) factory.parseProperty('1' + attrtype);
+					value.setFloatValue(value.getUnitType(), random.nextFloat() + 1.1f);
+					return value;
+				}
+				if ("length".equals(attrtype)) {
+					return NumberValue.createCSSNumberValue(CSSUnit.CSS_PX,
+							random.nextFloat() + 1.1f);
+				} else if ("percentage".equals(attrtype)) {
+					return NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE,
+							random.nextFloat() * 10f + 1.1f);
+				} else if ("integer".equals(attrtype)) {
+					return NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER,
+							random.nextInt(15) + 1);
+				} else if ("number".equals(attrtype)) {
+					return NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER,
+							random.nextFloat() + 1.1f);
+				} else if ("angle".equals(attrtype)) {
+					return NumberValue.createCSSNumberValue(CSSUnit.CSS_RAD,
+							random.nextFloat() + 1.1f);
+				} else if ("time".equals(attrtype)) {
+					return NumberValue.createCSSNumberValue(CSSUnit.CSS_S,
+							random.nextFloat() + 1.1f);
+				} else if ("frequency".equals(attrtype)) {
+					return NumberValue.createCSSNumberValue(CSSUnit.CSS_HZ,
+							random.nextFloat() * 10f + 1.1f);
+				}
+			}
+		}
+		return super.absoluteProxyValue(partialValue);
+	}
+
+	@Override
 	protected TypedValue absoluteTypedValue(TypedValue partialValue) {
 		short unit = partialValue.getUnitType();
 		if (CSSUnit.isRelativeLengthUnitType(unit)) {
 			// Check if random is initialized
-			if (random == null) {
-				random = new Random();
-			}
+			checkRandom();
 			// Use an absolute unit
 			unit = CSSUnit.CSS_PX;
 			// Multiply value by random number, to avoid accidental cancellation
 			NumberValue number = NumberValue.createCSSNumberValue(CSSUnit.CSS_PX,
 					partialValue.getFloatValue(partialValue.getUnitType())
-							* (((float) random.nextDouble()) + 1.1f));
+							* (random.nextFloat() + 1.1f));
 			number.setCalculatedNumber(true);
 			partialValue = number;
 		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
 			hasPercentage = true;
 		}
 		return partialValue;
+	}
+
+	private void checkRandom() {
+		if (random == null) {
+			random = new Random();
+		}
 	}
 
 	@Override

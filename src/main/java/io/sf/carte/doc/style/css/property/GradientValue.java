@@ -22,6 +22,7 @@ import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 /**
  * Implementation of a gradient value.
@@ -237,10 +238,14 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 						}
 						getArguments().add(list);
 					}
+				} else {
+					checkProxyValue(lu);
 				}
 			} else if (canBeAngleOrPercentage(lu)) {
 				getArguments().add(factory.createCSSPrimitiveValue(lu, true));
 				finalLU = lu.getNextLexicalUnit();
+			} else {
+				checkProxyValue(lu);
 			}
 			if (finalLU != null) {
 				if (finalLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
@@ -353,7 +358,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					throw new CSSLexicalProcessingException("var() without fallback found.");
 				}
 			}
-			return false;
+			return LexicalType.ATTR == lunit.getLexicalUnitType()
+					&& (lunit = lunit.getParameters().getNextLexicalUnit()) != null
+					&& lunit.getLexicalUnitType() == LexicalType.IDENT
+					&& "color".equalsIgnoreCase(lunit.getStringValue());
 		}
 
 		/**
@@ -366,7 +374,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			return lunit.getLexicalUnitType() == LexicalType.PERCENTAGE
 					|| ValueFactory.isSizeSACUnit(lunit)
 					|| (LexicalType.VAR == lunit.getLexicalUnitType()
-						&& isSizeOrPercentageVar(lunit));
+							&& isSizeOrPercentageVar(lunit))
+					|| (LexicalType.ATTR == lunit.getLexicalUnitType()
+							&& lunit.shallowClone().matches(SyntaxParser
+									.createSimpleSyntax("length-percentage")) != Match.FALSE);
 		}
 
 		private boolean isSizeOrPercentageVar(LexicalUnit lunit) {
@@ -504,10 +515,16 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		 * @return true if the value could be an angle or a percentage.
 		 */
 		private boolean canBeAngleOrPercentage(LexicalUnit lunit) {
+			LexicalUnit luc;
 			return ValueFactory.isAngleSACUnit(lunit)
 					|| lunit.getLexicalUnitType() == LexicalType.PERCENTAGE
 					|| (LexicalType.VAR == lunit.getLexicalUnitType()
-						&& isAngleOrPercentageVar(lunit));
+							&& isAngleOrPercentageVar(lunit))
+					|| (LexicalType.ATTR == lunit.getLexicalUnitType()
+							&& ((luc = lunit.shallowClone()).matches(
+									SyntaxParser.createSimpleSyntax("angle")) != Match.FALSE
+									|| luc.matches(SyntaxParser
+											.createSimpleSyntax("percentage")) != Match.FALSE));
 		}
 
 		private boolean isAngleOrPercentageVar(LexicalUnit lunit) {

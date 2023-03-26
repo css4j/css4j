@@ -23,6 +23,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
@@ -63,6 +64,52 @@ public class ElementReferenceValueTest {
 		assertEquals(CSSValue.Type.ELEMENT_REFERENCE, cssval.getPrimitiveType());
 		assertEquals("element(#someId)", cssval.getCssText());
 		assertEquals("someId", ((CSSTypedValue) cssval).getStringValue());
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testParseLexicalVarId() {
+		BaseCSSStyleDeclaration style = createStyleDeclaration();
+		style.setCssText("background-image: element(var(--myId));");
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("element(var(--myId))", cssval.getCssText());
+		assertEquals("background-image:element(var(--myId))", style.getMinifiedCssText());
+
+		// Syntax matching
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testParseLexicalAttrId() {
+		BaseCSSStyleDeclaration style = createStyleDeclaration();
+		style.setCssText("background-image: element(attr(data-id ident));");
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("element(attr(data-id ident))", cssval.getCssText());
+		assertEquals("background-image:element(attr(data-id ident))", style.getMinifiedCssText());
+
 		// Syntax matching
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");

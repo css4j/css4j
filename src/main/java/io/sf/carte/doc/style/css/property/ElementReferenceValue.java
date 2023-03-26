@@ -126,6 +126,14 @@ class ElementReferenceValue extends TypedValue {
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {
 			refname = lunit.getStringValue();
+			if (refname == null) {
+				LexicalUnit param = lunit.getParameters();
+				if (param != null) {
+					checkProxyValue(param);
+				}
+				throw new DOMException(DOMException.SYNTAX_ERR,
+						"Invalid element reference: " + lunit.toString());
+			}
 			this.nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 	}

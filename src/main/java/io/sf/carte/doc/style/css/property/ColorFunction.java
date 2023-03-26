@@ -221,6 +221,7 @@ class ColorFunction extends ColorValue {
 
 			// Color space
 			if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.IDENT) {
+				checkProxyValue(lu);
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 						"Color space must be identifier: " + lunit.toString());
 			}

@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.style.css.CSSCounterValue;
 
 /**
@@ -55,6 +57,30 @@ abstract class AbstractCounterValue extends TypedValue implements CSSCounterValu
 
 	public void setCounterStyle(PrimitiveValue listStyle) {
 		this.listStyle = listStyle;
+	}
+
+	@Override
+	public StyleValue getComponent(int index) {
+		if (index == 0) {
+			return getCounterStyle();
+		}
+		return null;
+	}
+
+	@Override
+	public void setComponent(int index, StyleValue component) throws DOMException {
+		if (index == 0) {
+			if (!(component instanceof PrimitiveValue)) {
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+						"Expected a primitive value, got a " + component.getCssValueType());
+			}
+			setCounterStyle((PrimitiveValue) component);
+		}
+	}
+
+	@Override
+	public int getComponentCount() {
+		return 1;
 	}
 
 	@Override

@@ -1061,7 +1061,7 @@ public class CalcValueTest {
 	}
 
 	@Test
-	public void testSetCssTextSubExpressionAttribute() {
+	public void testSetCssTextSubExpressionAttributeInt() {
 		style.setCssText("counter-reset: calc(attr(start integer, 1) - 1);");
 		StyleValue val = style.getPropertyCSSValue("counter-reset");
 		assertNotNull(val);
@@ -1071,6 +1071,295 @@ public class CalcValueTest {
 		assertEquals("attr(start integer, 1) - 1", calc.getExpression().toString());
 		assertEquals("calc(attr(start integer, 1) - 1)", val.getCssText());
 		assertEquals("calc(attr(start integer,1) - 1)", val.getMinifiedCssText("line-height"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeNumber() {
+		style.setCssText("line-height: calc(attr(data-lh number, 1) + 1);");
+		StyleValue val = style.getPropertyCSSValue("line-height");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-lh number, 1) + 1", calc.getExpression().toString());
+		assertEquals("calc(attr(data-lh number, 1) + 1)", val.getCssText());
+		assertEquals("calc(attr(data-lh number,1) + 1)", val.getMinifiedCssText("line-height"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeLength() {
+		style.setCssText("line-height: calc(attr(data-lh length, 1em) + 1ex);");
+		StyleValue val = style.getPropertyCSSValue("line-height");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-lh length, 1em) + 1ex", calc.getExpression().toString());
+		assertEquals("calc(attr(data-lh length, 1em) + 1ex)", val.getCssText());
+		assertEquals("calc(attr(data-lh length,1em) + 1ex)", val.getMinifiedCssText("line-height"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeLengthEx() {
+		style.setCssText("line-height: calc(attr(data-lh ex, 1em) + 1ex);");
+		StyleValue val = style.getPropertyCSSValue("line-height");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-lh ex, 1em) + 1ex", calc.getExpression().toString());
+		assertEquals("calc(attr(data-lh ex, 1em) + 1ex)", val.getCssText());
+		assertEquals("calc(attr(data-lh ex,1em) + 1ex)", val.getMinifiedCssText("line-height"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeLengthPercentage() {
+		style.setCssText("line-height: calc(attr(data-lh %, 1em) + 1ex);");
+		StyleValue val = style.getPropertyCSSValue("line-height");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-lh %, 1em) + 1ex", calc.getExpression().toString());
+		assertEquals("calc(attr(data-lh %, 1em) + 1ex)", val.getCssText());
+		assertEquals("calc(attr(data-lh %,1em) + 1ex)", val.getMinifiedCssText("line-height"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeLengthPercentage2() {
+		style.setCssText("line-height: calc(attr(data-lh %, 1%) + 2%);");
+		StyleValue val = style.getPropertyCSSValue("line-height");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-lh %, 1%) + 2%", calc.getExpression().toString());
+		assertEquals("calc(attr(data-lh %, 1%) + 2%)", val.getCssText());
+		assertEquals("calc(attr(data-lh %,1%) + 2%)", val.getMinifiedCssText("line-height"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeLengthPercentage3() {
+		style.setCssText("line-height: calc(attr(data-lh percentage, 1%) + 2%);");
+		StyleValue val = style.getPropertyCSSValue("line-height");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-lh percentage, 1%) + 2%", calc.getExpression().toString());
+		assertEquals("calc(attr(data-lh percentage, 1%) + 2%)", val.getCssText());
+		assertEquals("calc(attr(data-lh percentage,1%) + 2%)",
+				val.getMinifiedCssText("line-height"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeAngle() {
+		style.setCssText("azimuth: calc(attr(data-az angle, 1rad) + 25deg);");
+		StyleValue val = style.getPropertyCSSValue("azimuth");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-az angle, 1rad) + 25deg", calc.getExpression().toString());
+		assertEquals("calc(attr(data-az angle, 1rad) + 25deg)", val.getCssText());
+		assertEquals("calc(attr(data-az angle,1rad) + 25deg)",
+				val.getMinifiedCssText("azimuth"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeTime() {
+		style.setCssText("pause-after: calc(attr(data-pause time, 1s) + 2/1Hz);");
+		StyleValue val = style.getPropertyCSSValue("pause-after");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-pause time, 1s) + 2/1hz", calc.getExpression().toString());
+		assertEquals("calc(attr(data-pause time, 1s) + 2/1hz)", val.getCssText());
+		assertEquals("calc(attr(data-pause time,1s) + 2/1hz)",
+				val.getMinifiedCssText("pause-after"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <time>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeFreq() {
+		style.setCssText("pitch: calc(attr(data-pitch frequency, 1hz) + 1/25ms);");
+		StyleValue val = style.getPropertyCSSValue("pitch");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("attr(data-pitch frequency, 1hz) + 1/25ms", calc.getExpression().toString());
+		assertEquals("calc(attr(data-pitch frequency, 1hz) + 1/25ms)", val.getCssText());
+		assertEquals("calc(attr(data-pitch frequency,1hz) + 1/25ms)",
+				val.getMinifiedCssText("pitch"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<frequency>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <frequency>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<time>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeTimeFreq() {
+		style.setCssText("pitch: calc(1/attr(data-pitch time, 1ms) + 1/.0025s);");
+		StyleValue val = style.getPropertyCSSValue("pitch");
+		assertNotNull(val);
+		assertEquals(CssType.TYPED, val.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
+		CalcValue calc = (CalcValue) val;
+		assertEquals("1/attr(data-pitch time, 1ms) + 1/0.0025s", calc.getExpression().toString());
+		assertEquals("calc(1/attr(data-pitch time, 1ms) + 1/0.0025s)", val.getCssText());
+		assertEquals("calc(1/attr(data-pitch time,1ms) + 1/.0025s)",
+				val.getMinifiedCssText("pitch"));
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<frequency>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <frequency>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<time>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
 	}
 
 	@Test

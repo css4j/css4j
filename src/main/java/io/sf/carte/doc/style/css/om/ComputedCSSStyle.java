@@ -279,7 +279,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			LexicalUnit lunit = value.getLexicalUnit().clone();
 			LexicalUnit replUnit;
 			try {
-				replUnit = ancStyle.replaceLexicalVar(property, lunit, counter);
+				replUnit = ancStyle.replaceLexicalProxy(property, lunit, counter);
 			} catch (CSSResourceLimitException e) {
 				throw e;
 			} catch (Exception e) {
@@ -445,7 +445,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				while (item != null && item.getCssValueType() == CssType.PROXY) {
 					item = replaceProxyValue(property, item);
 				}
-				list.set(i, item);
+				if (item == null) {
+					value = null;
+					break;
+				} else {
+					list.set(i, item);
+				}
 			}
 		} else if (type == CssType.PROXY) {
 			do {
@@ -567,7 +572,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (customPropertyStack == null) {
 			customPropertyStack = new LinkedList<String>();
 		}
-		lunit = replaceLexicalVar(longhand, lunit, new CounterRef());
+		lunit = replaceLexicalProxy(longhand, lunit, new CounterRef());
 		return lunit != null ? setShorthandLonghands(shorthand, lunit, prioImportant, null) : false;
 	}
 
@@ -916,6 +921,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 		typed = absolutizeComponents(propertyName, typed, useParentStyle);
 
+		if (typed == null) {
+			// Components could not be made absolute
+			return null;
+		}
+
 		CSSColorMixFunction colorMix = (CSSColorMixFunction) typed;
 		PrimitiveValue colorVal1 = (PrimitiveValue) colorMix.getColorValue1();
 		PrimitiveValue colorVal2 = (PrimitiveValue) colorMix.getColorValue2();
@@ -1008,7 +1018,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 			StyleValue value = replaceProxyValues(propertyName, comp);
 			if (value == null) {
-				continue;
+				// Proxy values could not be replaced
+				return null;
 			}
 			value = absoluteValue(propertyName, value, useParentStyle);
 
@@ -1197,10 +1208,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		// Fallback
 		StyleValue fallback = attr.getFallback();
 		if (fallback != null && fallback.getCssValueType() != CssType.TYPED) {
+			String attrname = attr.getAttributeName();
+			addAttrNameGuard(attrname);
 			fallback = replaceProxyValues(propertyName, fallback);
 			if (fallback != null && fallback.getCssValueType() == CssType.PROXY) {
 				fallback = replaceProxyValues(propertyName, fallback);
 			}
+			removeAttrNameGuard(attrname);
 		}
 		if (fallback == null) {
 			if (attrValueStack != null && !attrValueStack.isEmpty()) {
@@ -1471,8 +1485,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	/**
-	 * Create a CSSOM value from a lexical value, substituting any {@code VAR}
-	 * lexical units as necessary.
+	 * Create a CSSOM value from a lexical value, substituting any {@code VAR} and
+	 * {@code ATTR} lexical units as necessary.
 	 * 
 	 * @param property
 	 * @param lexval
@@ -1486,7 +1500,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		LexicalUnit lunit = lexval.getLexicalUnit().clone();
 		LexicalUnit replUnit;
 		try {
-			replUnit = replaceLexicalVar(property, lunit, counter);
+			replUnit = replaceLexicalProxy(property, lunit, counter);
 		} catch (CSSResourceLimitException e) {
 			throw e;
 		} catch (DOMException e) {
@@ -1509,8 +1523,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	/**
-	 * Given a lexical value, replace all occurrences of the {@code VAR} lexical
-	 * type with the values of the corresponding custom properties.
+	 * Given a lexical value, replace all occurrences of the {@code VAR} and
+	 * {@code ATTR} lexical types with the values of the corresponding custom
+	 * properties or attributes.
 	 * 
 	 * @param property
 	 * @param lexval
@@ -1519,7 +1534,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 * @throws DOMException
 	 * @throws CSSResourceLimitException
 	 */
-	private LexicalUnit replaceLexicalVar(String property, LexicalUnit lexval, CounterRef counter)
+	private LexicalUnit replaceLexicalProxy(String property, LexicalUnit lexval, CounterRef counter)
 			throws DOMException {
 		final int REPLACE_COUNT_LIMIT = 0x45000;
 
@@ -1547,7 +1562,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 									"Resource limit hit while replacing custom property: "
 											+ propertyName);
 						}
-						newlu = replaceLexicalVar(property, param.clone(), counter);
+						newlu = replaceLexicalProxy(property, param.clone(), counter);
 					} else {
 						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 								"Circularity evaluating custom property " + propertyName);
@@ -1604,36 +1619,36 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					if (isLexval) {
 						lexval = lu;
 					}
-					continue;
 				}
+				continue;
+			} else if (lu.getLexicalUnitType() == LexicalType.ATTR) {
+				boolean isLexval = lu == lexval;
+				LexicalUnit newlu = replacementAttrUnit(property, lu, counter);
+				try {
+					counter.replaceCounter += lu.countReplaceBy(newlu);
+				} catch (CSSBudgetException e) {
+					DOMException ex = new CSSResourceLimitException(
+							"Resource limit hit while replacing attr() property " + property);
+					ex.initCause(e);
+					throw ex;
+				}
+				if (counter.replaceCounter >= REPLACE_COUNT_LIMIT) {
+					throw new CSSResourceLimitException(
+							"Resource limit hit while replacing attr() property " + property);
+				}
+				if (isLexval) {
+					lexval = newlu;
+				}
+				lu = newlu;
+				continue;
 			} else {
 				LexicalUnit param = lu.getParameters();
 				if (param != null) {
 					// Ignore return value (it is a parameter)
-					replaceLexicalVar(property, param, counter);
+					replaceLexicalProxy(property, param, counter);
 				} else if ((param = lu.getSubValues()) != null) {
 					// Ignore return value (it is a sub-value)
-					replaceLexicalVar(property, param, counter);
-				}
-				if (lu.getLexicalUnitType() == LexicalType.ATTR) {
-					LexicalUnit newlu = replacementAttrUnit(property, lu, counter);
-					try {
-						counter.replaceCounter += lu.countReplaceBy(newlu);
-					} catch (CSSBudgetException e) {
-						DOMException ex = new CSSResourceLimitException(
-								"Resource limit hit while replacing attr() property " + property);
-						ex.initCause(e);
-						throw ex;
-					}
-					if (counter.replaceCounter >= REPLACE_COUNT_LIMIT) {
-						throw new CSSResourceLimitException(
-								"Resource limit hit while replacing attr() property " + property);
-					}
-					if (lu == lexval) {
-						lexval = newlu;
-					}
-					lu = newlu;
-					continue;
+					replaceLexicalProxy(property, param, counter);
 				}
 			}
 			lu = lu.getNextLexicalUnit();
@@ -1679,7 +1694,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (fallbackLU != null) {
 			// Replace param, just in case
 			try {
-				fallbackLU = replaceLexicalVar(property, fallbackLU.clone(), counter);
+				fallbackLU = replaceLexicalProxy(property, fallbackLU.clone(), counter);
 				if (counter.increment()) {
 					if (exception != null) {
 						computedStyleError(property, null,
@@ -1729,19 +1744,38 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		String attrtype;
 		lu = lu.getNextLexicalUnit();
 		if (lu != null) {
-			switch (lu.getLexicalUnitType()) {
-			case IDENT:
-				attrtype = lu.getStringValue();
-				break;
-			case OPERATOR_MOD:
-				attrtype = "%";
-				break;
-			default:
-				computedStyleError(propertyName, attr.getCssText(),
-						"Unexpected attribute type: " + lu.getCssText());
-				return null;
+			if (lu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
+				switch (lu.getLexicalUnitType()) {
+				case IDENT:
+					attrtype = lu.getStringValue();
+					break;
+				case OPERATOR_MOD:
+					attrtype = "%";
+					break;
+				default:
+					computedStyleError(propertyName, attr.getCssText(),
+							"Unexpected attribute type: " + lu.getCssText());
+					return null;
+				}
+				lu = lu.getNextLexicalUnit();
+				if (lu != null) {
+					if (lu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
+						computedStyleError(propertyName, attr.getCssText(),
+								"Expected comma, found: " + lu.getCssText());
+						return null;
+					}
+					lu = lu.getNextLexicalUnit();
+				}
+			} else {
+				lu = lu.getNextLexicalUnit();
+				if (lu == null) {
+					// Ending with comma is wrong syntax
+					computedStyleError(propertyName, attr.getCssText(),
+							"Unexpected end after comma.");
+					return null;
+				}
+				attrtype = null;
 			}
-			lu = lu.getNextLexicalUnit();
 		} else {
 			attrtype = null;
 		}
@@ -1765,13 +1799,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 								"Unexpected error parsing: "
 										+ s.substring(0, Math.min(s.length(), 255)),
 								e);
-						// Prevent circular dependencies.
-						addAttrNameGuard(attrname);
-						substValue = replaceLexicalVar(propertyName, lu, counter);
-						removeAttrNameGuard(attrname);
-						return substValue;
+						// Process fallback
+						substValue = lu;
 					}
-					return substValue;
+					// No further processing required
+					return safeReplaceLexicalAttr(propertyName, attrname, substValue, counter);
 				}
 				attrvalue = attrvalue.trim();
 				if ("url".equalsIgnoreCase(attrtype)) {
@@ -1789,14 +1821,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 										+ s.substring(0, Math.min(s.length(), 255)),
 								e);
 						// Return fallback but preventing circular dependencies.
-						if (lu != null) {
-							addAttrNameGuard(attrname);
-							substValue = replaceLexicalVar(propertyName, lu, counter);
-							removeAttrNameGuard(attrname);
-						} else {
-							substValue = null;
-						}
-						return substValue;
+						substValue = safeReplaceLexicalAttr(propertyName, attrname, lu, counter);
 					}
 					return substValue;
 				} else {
@@ -1811,40 +1836,38 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 								"Error parsing attribute '" + attrname + "', value: " + attrvalue,
 								e);
 						// Return fallback but preventing circular dependencies.
-						if (lu != null) {
-							addAttrNameGuard(attrname);
-							substValue = replaceLexicalVar(propertyName, lu, counter);
-							removeAttrNameGuard(attrname);
-						} else {
-							substValue = null;
-						}
-						return substValue;
+						return safeReplaceLexicalAttr(propertyName, attrname, lu, counter);
 					}
 					// Verify whether we got another proxy value.
 					// Prevent circular dependencies.
 					addAttrNameGuard(attrname);
 					try {
-						substValue = replaceLexicalVar(propertyName, substValue, counter);
+						substValue = replaceLexicalProxy(propertyName, substValue, counter);
 					} catch (Exception e) {
 						computedStyleError(propertyName, attr.getCssText(), "Circularity: "
 								+ attr.getCssText() + " references " + substValue.getCssText(), e);
 						// Return fallback
-						if (lu != null) {
-							substValue = replaceLexicalVar(propertyName, lu, counter);
-							removeAttrNameGuard(attrname);
-						} else {
+						substValue = null;
+					}
+					if (substValue != null) {
+						substValue = replaceLexicalProxy(propertyName, substValue, counter);
+						removeAttrNameGuard(attrname);
+						// Value must now be typed
+						if (!unitMatchesAttrType(substValue, attrtype)) {
 							substValue = null;
+							computedStyleError(propertyName, attr.getCssText(),
+									"Attribute value does not match type (" + attrtype + ").");
+						} else {
+							return substValue;
 						}
+					} else {
+						// Fallback
+						if (lu != null) {
+							substValue = replaceLexicalProxy(propertyName, lu.clone(), counter);
+						}
+						removeAttrNameGuard(attrname);
 						return substValue;
 					}
-					removeAttrNameGuard(attrname);
-					// Value must now be typed
-					if (!unitMatchesAttrType(substValue, attrtype)) {
-						substValue = null;
-						computedStyleError(propertyName, attr.getCssText(),
-								"Attribute value does not match type (" + attrtype + ").");
-					}
-					return substValue;
 				}
 			} else {
 				computedStyleError(propertyName, attr.getCssText(),
@@ -1852,16 +1875,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		}
 
-		LexicalUnit fallbackValue;
 		// Return fallback but preventing circular dependencies.
-		if (lu != null) {
-			addAttrNameGuard(attrname);
-			fallbackValue = replaceLexicalVar(propertyName, lu, counter);
-			removeAttrNameGuard(attrname);
-		} else {
-			fallbackValue = null;
-		}
-		return fallbackValue;
+		return safeReplaceLexicalAttr(propertyName, attrname, lu, counter);
 	}
 
 	private boolean unitMatchesAttrType(LexicalUnit lunit, String attrtype) {
@@ -1877,6 +1892,17 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		syn = SyntaxParser.createSimpleSyntax(attrtype);
 		return lunit.matches(syn) == Match.TRUE;
+	}
+
+	private LexicalUnit safeReplaceLexicalAttr(String propertyName, String attrname, LexicalUnit lu,
+			CounterRef counter) {
+		// Prevent circular dependencies.
+		addAttrNameGuard(attrname);
+		if (lu != null) {
+			lu = replaceLexicalProxy(propertyName, lu.clone(), counter);
+		}
+		removeAttrNameGuard(attrname);
+		return lu;
 	}
 
 	private StyleValue computeEnv(String propertyName, EnvVariableValue env) {

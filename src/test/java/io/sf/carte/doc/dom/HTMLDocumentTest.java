@@ -1699,13 +1699,18 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testComputedStyleAttrRecursive() {
+		DOMElement elm = xhtmlDoc.getElementById("firstH3");
 		/*
 		 * attr() recursive.
 		 */
 		elm.setAttribute("leftmargin", "attr(leftmargin length)");
 		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin length)");
-		style = elm.getComputedStyle(null);
-		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		ComputedCSSStyle style = elm.getComputedStyle(null);
+		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
@@ -1728,14 +1733,15 @@ public class HTMLDocumentTest {
 		/*
 		 * attr() recursive with custom property (II).
 		 */
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(noattr length,var(--foo));--foo:attr(noattr length)");
+		elm.getOverrideStyle(null)
+				.setCssText("margin-left:attr(noattr length,var(--foo));--foo:attr(noattr length)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertNotNull(marginLeft);
 		assertEquals(Type.NUMERIC, marginLeft.getPrimitiveType());
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 	}
 

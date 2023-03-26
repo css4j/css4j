@@ -7272,7 +7272,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (type != LexicalType.IDENT) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
-				} else {
+				} else if (type != LexicalType.ATTR) {
 					return false;
 				}
 			} else if (!"in".equalsIgnoreCase(lu.getStringValue())) {

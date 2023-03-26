@@ -435,7 +435,11 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			return "revert";
 		case ELEMENT_REFERENCE:
 			if (value == null) {
-				return "element(#)";
+				if (parameters == null) {
+					return "element(#)";
+				} else {
+					return functionalSerialization("element");
+				}
 			}
 			int len = value.length();
 			buf = new StringBuilder(len + 10);
@@ -693,6 +697,10 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 						}
 						fallback = param.getNextLexicalUnit();
 					}
+					break;
+				case OPERATOR_MOD:
+					dataType = "percentage";
+					fallback = param.getNextLexicalUnit();
 					break;
 				case VAR:
 					return Match.PENDING;

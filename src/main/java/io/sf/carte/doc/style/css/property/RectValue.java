@@ -147,6 +147,7 @@ public class RectValue extends TypedValue implements CSSRectValue {
 			boolean commaFound = false;
 			LexicalUnit lu = lunit.getParameters();
 			// top
+			checkProxyValue(lu);
 			PrimitiveValue dimens = factory.createCSSPrimitiveValue(lu, true);
 			setTop(dimens);
 			// comma
@@ -156,6 +157,7 @@ public class RectValue extends TypedValue implements CSSRectValue {
 				commaFound = true;
 			}
 			// right
+			checkProxyValue(lu);
 			dimens = factory.createCSSPrimitiveValue(lu, true);
 			setRight(dimens);
 			// comma
@@ -171,6 +173,7 @@ public class RectValue extends TypedValue implements CSSRectValue {
 				lu = lu.getNextLexicalUnit();
 			}
 			// bottom
+			checkProxyValue(lu);
 			dimens = factory.createCSSPrimitiveValue(lu, true);
 			setBottom(dimens);
 			// comma
@@ -183,6 +186,7 @@ public class RectValue extends TypedValue implements CSSRectValue {
 				lu = lu.getNextLexicalUnit();
 			}
 			// left
+			checkProxyValue(lu);
 			dimens = factory.createCSSPrimitiveValue(lu, true);
 			setLeft(dimens);
 			nextLexicalUnit = lunit.getNextLexicalUnit();

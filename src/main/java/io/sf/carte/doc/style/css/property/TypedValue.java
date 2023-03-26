@@ -232,10 +232,12 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 	 *                  TYPED} or a
 	 *                  {@link io.sf.carte.doc.style.css.CSSValue.CssType#PROXY
 	 *                  PROXY}).
+	 * @throws DOMException         TYPE_MISMATCH_ERR if the value is of the wrong
+	 *                              type.
 	 * @throws NullPointerException if the index is valid but the {@code component}
 	 *                              cannot be {@code null}.
 	 */
-	public void setComponent(int index, StyleValue component) {
+	public void setComponent(int index, StyleValue component) throws DOMException {
 	}
 
 	/**

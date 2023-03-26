@@ -66,7 +66,7 @@ public class CounterValueTest {
 	}
 
 	@Test
-	public void testGetCssText() {
+	public void testCounter() {
 		style.setCssText("content: counter(ListCounter);");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
@@ -77,7 +77,9 @@ public class CounterValueTest {
 		CounterValue counter = (CounterValue) cssval;
 		assertEquals("ListCounter", counter.getName());
 		assertNull(counter.getCounterStyle());
-		//
+
+		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
 		assertEquals(Match.TRUE, cssval.matches(syn));
@@ -88,7 +90,7 @@ public class CounterValueTest {
 	}
 
 	@Test
-	public void testGetCssTextNone() {
+	public void testCounterStyleNone() {
 		style.setCssText("content: counter(ListCounter, none);");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
@@ -101,10 +103,12 @@ public class CounterValueTest {
 		PrimitiveValue ctrstyle = counter.getCounterStyle();
 		assertEquals(Type.IDENT, ctrstyle.getPrimitiveType());
 		assertEquals("none", ((TypedValue) ctrstyle).getStringValue());
+
+		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
-	public void testGetCssTextDefaultStyle() {
+	public void testCounterStyleDecimal() {
 		style.setCssText("content: counter(ListCounter, decimal);");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
@@ -120,7 +124,7 @@ public class CounterValueTest {
 	}
 
 	@Test
-	public void testGetCssTextSeparator() {
+	public void testCounterStyleSeparator() {
 		style.setCssText("content: counter(ListCounter) '. ';");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
@@ -139,7 +143,7 @@ public class CounterValueTest {
 	}
 
 	@Test
-	public void testGetCssTextStyle() {
+	public void testCounterStyleUpperLatin() {
 		style.setCssText("content: counter(ListCounter, upper-latin);");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
@@ -155,14 +159,16 @@ public class CounterValueTest {
 	}
 
 	@Test
-	public void testGetCssTextStyleSymbols() {
-		style.setCssText("content: counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7')); ");
+	public void testCounterStyleSymbols() {
+		style.setCssText(
+				"content: counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7')); ");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.COUNTER, cssval.getPrimitiveType());
 		assertEquals("counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7'))",
 				style.getPropertyValue("content"));
-		assertEquals("content: counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7')); ",
+		assertEquals(
+				"content: counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7')); ",
 				style.getCssText());
 		assertEquals("content:counter(ListCounter,symbols(cyclic '*' '\\2020' '\\2021' '\\A7'))",
 				style.getMinifiedCssText());
@@ -181,6 +187,123 @@ public class CounterValueTest {
 	}
 
 	@Test
+	public void testCounter_Var() {
+		style.setCssText("content: counter(var(--myCounter), decimal);");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counter(var(--myCounter), decimal)", cssval.getCssText());
+		assertEquals("counter(var(--myCounter),decimal)", cssval.getMinifiedCssText("content"));
+
+		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounter_Var2() {
+		style.setCssText("content: counter(ListCounter, var(--myCounterStyle));");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counter(ListCounter, var(--myCounterStyle))", cssval.getCssText());
+		assertEquals("counter(ListCounter,var(--myCounterStyle))",
+				cssval.getMinifiedCssText("content"));
+
+		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounter_Var_Symbols() {
+		style.setCssText("content: counter(ListCounter, symbols(var(--symbolType) '*' '†' '‡'));");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counter(ListCounter, symbols(var(--symbolType) '*' '†' '‡'))",
+				cssval.getCssText());
+		assertEquals("counter(ListCounter,symbols(var(--symbolType) '*' '†' '‡'))",
+				cssval.getMinifiedCssText("content"));
+
+		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounter_Attr() {
+		style.setCssText("content: counter(attr(data-counter ident), decimal);");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counter(attr(data-counter ident), decimal)", cssval.getCssText());
+		assertEquals("counter(attr(data-counter ident),decimal)",
+				cssval.getMinifiedCssText("content"));
+
+		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number> | <counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
+	public void testCounter_Attr2() {
+		style.setCssText("content: counter(ListCounter, attr(data-counter-style ident));");
+		StyleValue cssval = style.getPropertyCSSValue("content");
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+
+		assertEquals("counter(ListCounter, attr(data-counter-style ident))", cssval.getCssText());
+		assertEquals("counter(ListCounter,attr(data-counter-style ident))",
+				cssval.getMinifiedCssText("content"));
+
+		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, cssval.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, cssval.matches(syn));
+	}
+
+	@Test
 	public void testClone() {
 		style.setCssText("content: counter(ListCounter, upper-latin);");
 		CounterValue value = (CounterValue) style.getPropertyCSSValue("content");
@@ -193,7 +316,8 @@ public class CounterValueTest {
 
 	@Test
 	public void testClone2() {
-		style.setCssText("content: counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7'));");
+		style.setCssText(
+				"content: counter(ListCounter, symbols(cyclic '*' '\\2020' '\\2021' '\\A7'));");
 		CounterValue value = (CounterValue) style.getPropertyCSSValue("content");
 		CounterValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
