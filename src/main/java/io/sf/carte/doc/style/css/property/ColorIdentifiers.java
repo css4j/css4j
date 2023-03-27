@@ -249,13 +249,17 @@ public class ColorIdentifiers {
 	/**
 	 * Is this a known color identifier ?
 	 * <p>
-	 * <code>transparent</code> is not tested.
+	 * This method tests the identifier against the known predefined color
+	 * identifiers, including {@code transparent}, {@code currentcolor} and system
+	 * colors.
+	 * </p>
 	 * 
 	 * @param identifier the lowercase identifier to be tested.
 	 * @return <code>true</code> if it is a known color identifier.
 	 */
 	public boolean isColorIdentifier(String identifier) {
-		return colorKeywords.containsKey(identifier) || systemColors.contains(identifier);
+		return colorKeywords.containsKey(identifier) || systemColors.contains(identifier)
+				|| "transparent".equals(identifier) || "currentcolor".equals(identifier);
 	}
 
 }

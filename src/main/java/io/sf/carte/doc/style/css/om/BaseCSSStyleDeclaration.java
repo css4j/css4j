@@ -39,6 +39,8 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDatabase;
@@ -48,8 +50,8 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
-import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
@@ -1983,31 +1985,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 * @return true if the value is a color.
 	 */
 	public static boolean testColor(LexicalUnit lunit) {
-		switch (lunit.getLexicalUnitType()) {
-		case RGBCOLOR:
-		case HSLCOLOR:
-		case LABCOLOR:
-		case LCHCOLOR:
-		case OKLABCOLOR:
-		case OKLCHCOLOR:
-		case HWBCOLOR:
-		case COLOR_FUNCTION:
-			return true;
-		case IDENT:
-			String sv = lunit.getStringValue();
-			if (sv == null) {
-				return false;
-			}
-			sv = sv.toLowerCase(Locale.ROOT);
-			ColorIdentifiers colorids = ColorIdentifiers.getInstance();
-			return colorids.isColorIdentifier(sv) || "transparent".equals(sv) || "currentcolor".equals(sv);
-		case FUNCTION:
-			String func = lunit.getFunctionName();
-			return "oklab".equalsIgnoreCase(func) || "oklch".equalsIgnoreCase(func);
-		default:
-			break;
-		}
-		return false;
+		CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("color");
+		return lunit.shallowClone().matches(syn) == Match.TRUE;
 	}
 
 	@Override

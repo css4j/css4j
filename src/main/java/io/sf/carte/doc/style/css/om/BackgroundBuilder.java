@@ -637,7 +637,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 			}
 			if (ptype == Type.IDENT) {
 				String s = primi.getStringValue().toLowerCase(Locale.ROOT);
-				return ColorIdentifiers.getInstance().isColorIdentifier(s) || "transparent".equals(s);
+				return ColorIdentifiers.getInstance().isColorIdentifier(s);
 			} else if (ptype == Type.VAR) {
 				CSSVarValue custom = (CSSVarValue) primi;
 				LexicalUnit fallback = custom.getFallback();

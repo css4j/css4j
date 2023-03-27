@@ -273,7 +273,7 @@ public final class ShorthandDatabase {
 			// Could not find identifiers for propertyName
 			if (propertyName.endsWith("-color")) {
 				value = value.toLowerCase(Locale.ROOT);
-				return ColorIdentifiers.getInstance().isColorIdentifier(value) || "transparent".equals(value);
+				return ColorIdentifiers.getInstance().isColorIdentifier(value);
 			}
 			return false;
 		}
