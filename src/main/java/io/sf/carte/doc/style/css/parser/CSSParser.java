@@ -3105,7 +3105,7 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (codepoint == TokenProducer.CHAR_LEFT_PAREN) {
 					parendepth++;
 					if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
-						if (bufferEquals("url")) { // "uri("
+						if (bufferEquals("url")) { // "url("
 							stage = STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
@@ -3115,14 +3115,14 @@ public class CSSParser implements Parser, Cloneable {
 						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
 							"Unexpected '(' after " + buffer);
 					} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN) {
-						if (bufferEquals("url")) { // "uri("
+						if (bufferEquals("url")) { // "url("
 							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
 						} else {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
 								"Unexpected '(' after " + buffer);
 						}
 					} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
-						if (bufferEquals("url")) { // "uri("
+						if (bufferEquals("url")) { // "url("
 							// Default namespace
 							ruleFirstPart = "";
 							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
