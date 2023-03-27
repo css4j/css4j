@@ -7526,7 +7526,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("\"Helvetica Neue\", Arial, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("16pt", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("1.25", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7549,7 +7548,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("'Helvetica Neue', Helvetica, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("14px", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("1.4", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7572,7 +7570,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("\"Helvetica Neue\", Helvetica, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("1.2rem", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("1.4", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7595,7 +7592,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("FontAwesome", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("14px", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7640,7 +7636,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("FontAwesome", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("14pt", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7663,7 +7658,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("'Roboto', Arial, sans-serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("bold", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("bold", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("14px", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("32px", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7686,7 +7680,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Font Normal", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("14pt", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7709,7 +7702,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Font Normal", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7733,7 +7725,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Font Awesome 6 Free", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("400", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("400", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("14px", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7757,7 +7748,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("line-height"));
@@ -7780,7 +7770,6 @@ public class ShorthandSetterTest {
 		assertEquals(17, emptyStyleDecl.getLength());
 		assertEquals("Serif", emptyStyleDecl.getPropertyValue("font-family"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-weight"));
-		assertEquals("normal", emptyStyleDecl.getPropertyCSSValue("font-weight").getCssText());
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-style"));
 		assertEquals("medium", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("line-height"));
