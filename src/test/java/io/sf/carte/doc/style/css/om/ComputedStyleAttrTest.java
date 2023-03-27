@@ -91,8 +91,10 @@ public class ComputedStyleAttrTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(9.6f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 		/*
 		 * attr() value.
 		 */
@@ -102,8 +104,8 @@ public class ComputedStyleAttrTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(11f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 		/*
 		 * attr() value with dimension unit, em.
 		 */
@@ -113,8 +115,8 @@ public class ComputedStyleAttrTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(14.16f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 		/*
 		 * attr() value with dimension unit, %.
 		 */
@@ -124,8 +126,8 @@ public class ComputedStyleAttrTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(2.1f, marginLeft.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 		/*
 		 * attr() unsafe value, fallback.
 		 */
@@ -135,8 +137,8 @@ public class ComputedStyleAttrTest {
 		style = usernameElm.getComputedStyle(null);
 		CSSTypedValue typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
 		assertEquals("no luck", typed.getStringValue());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
 		/*
 		 * attr() unsafe 'value' attribute inside form, fallback.
 		 */
@@ -145,8 +147,8 @@ public class ComputedStyleAttrTest {
 		style = usernameElm.getComputedStyle(null);
 		typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
 		assertEquals("no luck", typed.getStringValue());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
 		/*
 		 * attr() circular reference, default/fallback.
 		 */
@@ -398,6 +400,430 @@ public class ComputedStyleAttrTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
 		xhtmlDoc.getErrorHandler().reset();
+	}
+
+	@Test
+	public void testBackgroundUnsafeAttrName() {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.setAttribute("nonce", "foo");
+		elm.getOverrideStyle(null).setCssText("background-image:attr(nonce, 'bar')");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("bar", style.getPropertyValue("background-image"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+	}
+
+	/*
+	 * Shorthand with attr()
+	 */
+
+	@Test
+	public void testBackgroundUnsafeAttrNameLexical() {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.setAttribute("nonce", "foo");
+		elm.getOverrideStyle(null).setCssText("background:attr(nonce, chartreuse)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("#7fff00", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#7fff00", style.getPropertyValue("background-color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+	}
+
+	@Test
+	public void testBackgroundShorthandAttr() {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.setAttribute("data-color", "antiquewhite");
+		elm.getOverrideStyle(null).setCssText("background:attr(data-color color)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("#faebd7", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#faebd7", style.getPropertyValue("background-color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		// Nonexistent color
+		elm.setAttribute("data-color", "not-a-color");
+		style = elm.getComputedStyle(null);
+		assertEquals("#808000", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#808000", style.getPropertyValue("background-color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		xhtmlDoc.getErrorHandler().reset();
+
+		// Wrong color
+		elm.setAttribute("data-color", "rgb(wrong)");
+		style = elm.getComputedStyle(null);
+		assertEquals("#808000", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#808000", style.getPropertyValue("background-color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testBackgroundShorthandAttrFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.setAttribute("data-color", "antiquewhite");
+		elm.getOverrideStyle(null).setCssText("background:attr(data-color color, #f00)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("#faebd7", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#faebd7", style.getPropertyValue("background-color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		// Nonexistent color
+		elm.setAttribute("data-color", "not-a-color");
+		style = elm.getComputedStyle(null);
+		assertEquals("#f00", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#f00", style.getPropertyValue("background-color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		xhtmlDoc.getErrorHandler().reset();
+
+		// Wrong color
+		elm.setAttribute("data-color", "rgb(wrong)");
+		style = elm.getComputedStyle(null);
+		assertEquals("#f00", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#f00", style.getPropertyValue("background-color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testBackgroundShorthandAttrImageFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null).setCssText(
+				"background:attr(data-color color, linear-gradient(35deg,#fa3 50%,transparent 0))");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("linear-gradient(35deg,#fa3 50%,transparent 0)",
+				style.getPropertyValue("background"));
+		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)",
+				style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+
+		elm.setAttribute("data-color", "antiquewhite");
+		style = elm.getComputedStyle(null);
+		assertEquals("#faebd7", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#faebd7", style.getPropertyValue("background-color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		// Nonexistent color
+		elm.setAttribute("data-color", "not-a-color");
+		style = elm.getComputedStyle(null);
+		assertEquals("linear-gradient(35deg,#fa3 50%,transparent 0)",
+				style.getPropertyValue("background"));
+		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)",
+				style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		xhtmlDoc.getErrorHandler().reset();
+
+		// Wrong color
+		elm.setAttribute("data-color", "rgb(wrong)");
+		style = elm.getComputedStyle(null);
+		assertEquals("linear-gradient(35deg,#fa3 50%,transparent 0)",
+				style.getPropertyValue("background"));
+		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)",
+				style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testBackgroundShorthandUrlAttrFallbackColor() {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null).setCssText("background:attr(data-uri url, antiquewhite)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("#faebd7", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#faebd7", style.getPropertyValue("background-color"));
+
+		elm.setAttribute("data-uri", "foo.png");
+		style = elm.getComputedStyle(null);
+		assertEquals("url(\"foo.png\")", style.getPropertyValue("background"));
+		assertEquals("url(\"foo.png\")", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testBackgroundShorthandAttrListFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null)
+				.setCssText("background:attr(data-color color, url('bkg.png') 40%/10em)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("url('bkg.png') 40%/360pt", style.getPropertyValue("background"));
+		assertEquals("url('bkg.png')", style.getPropertyValue("background-image"));
+		assertEquals("40%", style.getPropertyValue("background-position"));
+		assertEquals("360pt", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+
+		elm.setAttribute("data-color", "antiquewhite");
+		style = elm.getComputedStyle(null);
+		assertEquals("#faebd7", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("padding-box", style.getPropertyValue("background-origin"));
+		assertEquals("border-box", style.getPropertyValue("background-clip"));
+		assertEquals("scroll", style.getPropertyValue("background-attachment"));
+		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
+		assertEquals("#faebd7", style.getPropertyValue("background-color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testGridShorthandAttr() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null)
+				.setCssText("grid: \"a a a\" attr(data-line)");
+		elm.setAttribute("data-line", "b b b");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("\"a a a\" \"b b b\"", style.getPropertyValue("grid-template-areas"));
+		assertEquals("auto", style.getPropertyValue("grid-template-rows"));
+		assertEquals("none", style.getPropertyValue("grid-template-columns"));
+		assertEquals("auto", style.getPropertyValue("grid-auto-rows"));
+		assertEquals("auto", style.getPropertyValue("grid-auto-columns"));
+		assertEquals("row", style.getPropertyValue("grid-auto-flow"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testGridShorthandAttrListFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null)
+				.setCssText("grid: \"a a a\" attr(data-line, 'b b b' / 1fr 2fr)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("\"a a a\" 'b b b'/1fr 2fr", style.getPropertyValue("grid"));
+		assertEquals("\"a a a\" 'b b b'", style.getPropertyValue("grid-template-areas"));
+		assertEquals("auto", style.getPropertyValue("grid-template-rows"));
+		assertEquals("1fr 2fr", style.getPropertyValue("grid-template-columns"));
+		assertEquals("auto", style.getPropertyValue("grid-auto-rows"));
+		assertEquals("auto", style.getPropertyValue("grid-auto-columns"));
+		assertEquals("row", style.getPropertyValue("grid-auto-flow"));
+
+		elm.setAttribute("data-line", "b b b");
+		style = elm.getComputedStyle(null);
+		assertEquals("\"a a a\" \"b b b\"", style.getPropertyValue("grid-template-areas"));
+		assertEquals("auto", style.getPropertyValue("grid-template-rows"));
+		assertEquals("none", style.getPropertyValue("grid-template-columns"));
+		assertEquals("auto", style.getPropertyValue("grid-auto-rows"));
+		assertEquals("auto", style.getPropertyValue("grid-auto-columns"));
+		assertEquals("row", style.getPropertyValue("grid-auto-flow"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testGridShorthandAttrListFallback2() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null)
+				.setCssText("grid: auto-flow 1fr 1fr / attr(data-flex flex, 1fr 2fr)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("auto-flow 1fr 1fr/1fr 2fr", style.getPropertyValue("grid"));
+		assertEquals("none", style.getPropertyValue("grid-template-areas"));
+		assertEquals("none", style.getPropertyValue("grid-template-rows"));
+		assertEquals("1fr 2fr", style.getPropertyValue("grid-template-columns"));
+		assertEquals("1fr 1fr", style.getPropertyValue("grid-auto-rows"));
+		assertEquals("auto", style.getPropertyValue("grid-auto-columns"));
+		assertEquals("row", style.getPropertyValue("grid-auto-flow"));
+
+		elm.setAttribute("data-flex", "1.2fr");
+		style = elm.getComputedStyle(null);
+		assertEquals("none", style.getPropertyValue("grid-template-areas"));
+		assertEquals("none", style.getPropertyValue("grid-template-rows"));
+		assertEquals("1.2fr", style.getPropertyValue("grid-template-columns"));
+		assertEquals("1fr 1fr", style.getPropertyValue("grid-auto-rows"));
+		assertEquals("auto", style.getPropertyValue("grid-auto-columns"));
+		assertEquals("row", style.getPropertyValue("grid-auto-flow"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testFontShorthandAttrListFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("h1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null)
+				.setCssText("font:attr(data-weight ident, 400 80%/120% 'Delicious Handrawn')");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("Delicious Handrawn", style.getPropertyValue("font-family"));
+		assertEquals("400", style.getPropertyValue("font-weight"));
+		assertEquals("normal", style.getPropertyValue("font-style"));
+		assertEquals("9.6pt", style.getPropertyValue("font-size"));
+		assertEquals(9.6f, style.getComputedFontSize(), 1e-5);
+		assertEquals("120%", style.getPropertyValue("line-height"));
+		assertEquals(11.52f, style.getComputedLineHeight(), 1e-5);
+		assertEquals("none", style.getPropertyValue("font-size-adjust"));
+		assertEquals("normal", style.getPropertyValue("font-stretch"));
+		assertEquals("normal", style.getPropertyValue("font-variant-caps"));
+		assertEquals("normal", style.getPropertyValue("font-variant-ligatures"));
+		assertEquals("normal", style.getPropertyValue("font-variant-position"));
+		assertEquals("normal", style.getPropertyValue("font-variant-numeric"));
+		assertEquals("normal", style.getPropertyValue("font-variant-alternates"));
+		assertEquals("normal", style.getPropertyValue("font-variant-east-asian"));
+
+		elm.setAttribute("data-weight", "bold");
+		style = elm.getComputedStyle(null);
+		assertEquals("initial", style.getPropertyValue("font-family"));
+		assertEquals("bold", style.getPropertyValue("font-weight"));
+		assertEquals("normal", style.getPropertyValue("font-style"));
+		assertEquals("medium", style.getPropertyValue("font-size"));
+		assertEquals(12f, style.getComputedFontSize(), 1e-5);
+		assertEquals("normal", style.getPropertyValue("line-height"));
+		assertEquals(13.92f, style.getComputedLineHeight(), 1e-5);
+		assertEquals("none", style.getPropertyValue("font-size-adjust"));
+		assertEquals("normal", style.getPropertyValue("font-stretch"));
+		assertEquals("normal", style.getPropertyValue("font-variant-caps"));
+		assertEquals("normal", style.getPropertyValue("font-variant-ligatures"));
+		assertEquals("normal", style.getPropertyValue("font-variant-position"));
+		assertEquals("normal", style.getPropertyValue("font-variant-numeric"));
+		assertEquals("normal", style.getPropertyValue("font-variant-alternates"));
+		assertEquals("normal", style.getPropertyValue("font-variant-east-asian"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 }

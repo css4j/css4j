@@ -35,6 +35,7 @@ import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSTypedValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -1649,8 +1650,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		if (sdb.isShorthand(propertyName)) {
 			SubpropertySetter setter;
-			// Check for var()
-			if (isOrContainsType(value, LexicalType.VAR)) {
+			// Check for var() / attr()
+			if (isOrContainsProxy(value)) {
 				setter = new PendingSubstitutionSetter(this, propertyName);
 				setter.init(value, important);
 				setter.assignSubproperties();
@@ -1738,16 +1739,91 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	private static boolean isOrContainsType(LexicalUnit lunit, LexicalType unitType) {
+	private static boolean isOrContainsProxy(LexicalUnit lunit) {
 		do {
-			if (lunit.getLexicalUnitType() == unitType
-					|| (lunit.getParameters() != null && isOrContainsType(lunit.getParameters(), unitType))
-					|| (lunit.getSubValues() != null && isOrContainsType(lunit.getSubValues(), unitType))) {
+			LexicalType type = lunit.getLexicalUnitType();
+			if (type == LexicalType.VAR
+					|| (type == LexicalType.ATTR && isProxyAttr(lunit))
+					|| (lunit.getParameters() != null && isOrContainsProxy(lunit.getParameters()))
+					|| (lunit.getSubValues() != null && isOrContainsProxy(lunit.getSubValues()))) {
 				return true;
 			}
 			lunit = lunit.getNextLexicalUnit();
 		} while (lunit != null);
+
 		return false;
+	}
+
+	/**
+	 * Determine whether the final type of an attr() could be only one, by comparing
+	 * the attribute type to the fallback value, if any.
+	 * 
+	 * @param lunit
+	 * @return
+	 */
+	private static boolean isProxyAttr(LexicalUnit lunit) {
+		LexicalUnit nextParam = lunit.getParameters().getNextLexicalUnit();
+		if (nextParam == null) {
+			// No attribute type, no fallback
+			return false;
+		}
+		String attrType;
+		LexicalType type = nextParam.getLexicalUnitType();
+		if (type == LexicalType.OPERATOR_COMMA) {
+			attrType = "string";
+			nextParam = nextParam.getNextLexicalUnit();
+			if (nextParam == null) {
+				// Syntax error
+				return false;
+			}
+		} else {
+			LexicalUnit postType = nextParam.getNextLexicalUnit();
+			if (postType == null) {
+				// No fallback
+				return false;
+			}
+			// Obtain a string with the attribute type
+			if (type == LexicalType.IDENT) {
+				attrType = nextParam.getStringValue().toLowerCase(Locale.ROOT);
+			} else if (type == LexicalType.OPERATOR_MOD) {
+				attrType = "%";
+			} else {
+				// Probably error
+				return false;
+			}
+			if (postType.getLexicalUnitType() != LexicalType.OPERATOR_COMMA
+					|| (nextParam = postType.getNextLexicalUnit()) == null) {
+				// Syntax error
+				return false;
+			}
+		}
+
+		// We got the fallback in nextParam
+		return !unitMatchesAttrType(nextParam, attrType);
+	}
+
+	/**
+	 * Determine whether the lexical unit is of the type given by the lower case
+	 * attrtype.
+	 * 
+	 * @param lunit    the lexical unit to test.
+	 * @param attrtype the attribute type (in lower case letters).
+	 * @return true if the lexical unit is of the same type.
+	 */
+	static boolean unitMatchesAttrType(LexicalUnit lunit, String attrtype) {
+		CSSValueSyntax syn;
+		int len = attrtype.length();
+		if (len == 1) {
+			return "%".equals(attrtype) && lunit.getCssUnit() == CSSUnit.CSS_PERCENTAGE;
+		} else if (len == 2) {
+			return attrtype.equalsIgnoreCase(lunit.getDimensionUnitText());
+		}
+		if ("ident".equalsIgnoreCase(attrtype)) {
+			attrtype = "custom-ident";
+		}
+		syn = SyntaxParser.createSimpleSyntax(attrtype);
+		return lunit.matches(syn) == Match.TRUE
+				|| (lunit.getLexicalUnitType() == LexicalType.STRING && attrtype.equals("url"));
 	}
 
 	private SubpropertySetter setSystemFont(String fontDecl, boolean important) throws DOMException {

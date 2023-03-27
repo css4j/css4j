@@ -40,8 +40,6 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -56,7 +54,6 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.AttrValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
@@ -400,9 +397,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		StyleValue value = getDeclaredCSSValue(property);
 		if (value != null) {
 			CssType category = value.getCssValueType();
-			if (category == CssType.PROXY) {
+			if (category == CssType.PROXY || category == CssType.LIST) {
 				value = replaceProxyValues(property, value);
-			} else if (value.getCssValueType() == CssType.SHORTHAND) {
+			} else if (category == CssType.SHORTHAND) {
 				return null;
 			}
 			if (value != null) {
@@ -1130,7 +1127,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (isSafeAttrName(propertyName, owner, attrname)) {
 				if (attrtype == null || "string".equalsIgnoreCase(attrtype)) {
 					// Do not reparse
-					StringValue value = new StringValue(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+					StringValue value = new StringValue(
+							AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
 					value.setStringValue(Type.STRING, attrvalue);
 					return value;
 				}
@@ -1138,12 +1136,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if ("url".equalsIgnoreCase(attrtype)) {
 					try {
 						URL url = getOwnerNode().getOwnerDocument().getURL(attrvalue);
-						URIValue uri = new URIValue(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+						URIValue uri = new URIValue(
+								AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
 						uri.setStringValue(Type.URI, url.toExternalForm());
 						return uri;
 					} catch (MalformedURLException e) {
 						computedStyleError(propertyName, attr.getCssText(),
-								"Error building URL from attribute '" + attrname + "', value: " + attrvalue, e);
+								"Error building URL from attribute '" + attrname + "', value: "
+										+ attrvalue,
+								e);
 						// Leaving for fallback
 					}
 				} else {
@@ -1153,7 +1154,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						value = factory.parseProperty(attrvalue);
 					} catch (DOMException e) {
 						computedStyleError(propertyName, attr.getCssText(),
-								"Error parsing attribute '" + attrname + "', value: " + attrvalue, e);
+								"Error parsing attribute '" + attrname + "', value: " + attrvalue,
+								e);
 						return computeAttrFallback(propertyName, attr);
 					}
 					// Verify whether we got another PROXY value (or a LIST of them)
@@ -1162,8 +1164,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					try {
 						value = replaceProxyValues(propertyName, value);
 					} catch (Exception e) {
-						computedStyleError(propertyName, attr.getCssText(),
-								"Circularity: " + attr.getCssText() + " references " + value.getCssText(), e);
+						computedStyleError(propertyName, attr.getCssText(), "Circularity: "
+								+ attr.getCssText() + " references " + value.getCssText(), e);
 						StyleValue fallback = computeAttrFallback(propertyName, attr);
 						removeAttrNameGuard(attrname);
 						return fallback;
@@ -1181,7 +1183,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 									if (value != null) {
 										return value;
 									}
-									computedStyleWarning(propertyName, attr,
+									computedStyleError(propertyName, attr.getCssText(),
 											"Attribute value does not match type (" + attrtype
 													+ ").");
 								} catch (DOMException e) {
@@ -1197,7 +1199,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					}
 				}
 			} else {
-				computedStyleWarning(propertyName, attr, "Unsafe attribute name");
+				computedStyleError(propertyName, attr.getCssText(), "Unsafe attribute name");
 			}
 		}
 		return computeAttrFallback(propertyName, attr);
@@ -1747,7 +1749,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (lu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
 				switch (lu.getLexicalUnitType()) {
 				case IDENT:
-					attrtype = lu.getStringValue();
+					attrtype = lu.getStringValue().toLowerCase(Locale.ROOT);
 					break;
 				case OPERATOR_MOD:
 					attrtype = "%";
@@ -1785,7 +1787,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (attrvalue.length() != 0) {
 			if (isSafeAttrName(propertyName, owner, attrname)) {
 				Parser parser = getStyleSheetFactory().createSACParser();
-				if (attrtype == null || "string".equalsIgnoreCase(attrtype)) {
+				if (attrtype == null || "string".equals(attrtype)) {
 					String s = '"' + attrvalue + '"';
 					LexicalUnit substValue;
 					try {
@@ -1806,7 +1808,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					return safeReplaceLexicalAttr(propertyName, attrname, substValue, counter);
 				}
 				attrvalue = attrvalue.trim();
-				if ("url".equalsIgnoreCase(attrtype)) {
+				if ("url".equals(attrtype)) {
 					String s = "url(\"" + attrvalue + "\")";
 					LexicalUnit substValue;
 					try {
@@ -1877,21 +1879,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 		// Return fallback but preventing circular dependencies.
 		return safeReplaceLexicalAttr(propertyName, attrname, lu, counter);
-	}
-
-	private boolean unitMatchesAttrType(LexicalUnit lunit, String attrtype) {
-		CSSValueSyntax syn;
-		int len = attrtype.length();
-		if (len == 1) {
-			return "%".equals(attrtype) && lunit.getCssUnit() == CSSUnit.CSS_PERCENTAGE;
-		} else if (len == 2) {
-			return attrtype.equalsIgnoreCase(lunit.getDimensionUnitText());
-		}
-		if ("ident".equalsIgnoreCase(attrtype)) {
-			attrtype = "custom-ident";
-		}
-		syn = SyntaxParser.createSimpleSyntax(attrtype);
-		return lunit.matches(syn) == Match.TRUE;
 	}
 
 	private LexicalUnit safeReplaceLexicalAttr(String propertyName, String attrname, LexicalUnit lu,

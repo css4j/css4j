@@ -18,7 +18,7 @@ import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * A value that is pending a {@code var} substitution in a shorthand.
+ * A value that is pending a {@code PROXY} substitution in a shorthand.
  */
 class PendingValue extends PrimitiveValue {
 
